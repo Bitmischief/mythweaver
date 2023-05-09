@@ -1,12 +1,7 @@
 import {Body, Get, Inject, OperationId, Post, Query, Route, Security, Tags} from "tsoa";
 import {prisma} from '../lib/providers/prisma';
 import {Character, Dnd5eRandomStatSheet, RandomPersona} from "@prisma/client";
-import {AppError, HttpCode} from "../lib/errors/AppError";
-import {getClient as getOpenaiClient} from "../lib/providers/openai";
-import {parentLogger} from "../lib/logger";
-const logger = parentLogger.getSubLogger();
-
-const openai = getOpenaiClient();
+import {AppError} from "../lib/errors/AppError";
 
 interface GetCharactersResponse {
   data: Character[];

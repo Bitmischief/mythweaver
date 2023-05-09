@@ -3,6 +3,7 @@ WORKDIR /app
 COPY api/package*.json ./
 COPY api/yarn.lock ./
 RUN yarn install
+RUN yarn prisma generate
 COPY api .
 RUN yarn run build
 
