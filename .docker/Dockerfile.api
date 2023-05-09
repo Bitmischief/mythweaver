@@ -9,7 +9,8 @@ RUN yarn run build
 
 FROM node:20-alpine AS server
 WORKDIR /app
-COPY package* ./
+COPY api/package*.json ./
+COPY api/yarn.lock ./
 RUN yarn install --production
 COPY --from=builder ./app/public ./public
 COPY --from=builder ./app/build ./build
