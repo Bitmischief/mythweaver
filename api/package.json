@@ -5,6 +5,8 @@
   "license": "MIT",
   "scripts": {
     "dev": "concurrently \"nodemon\" \"nodemon -x tsoa spec\"",
+    "swagger": "tsoa spec",
+    "start": "node build/index.js",
     "build": "tsc",
     "test": "jest"
   },
