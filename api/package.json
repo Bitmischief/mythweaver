@@ -5,6 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "concurrently \"nodemon\" \"nodemon -x tsoa spec\"",
+    "build": "tsc",
     "test": "jest"
   },
   "prisma": {

@@ -1,5 +1,4 @@
 import {prisma} from '../lib/providers/prisma';
-import {Chat, Dnd5eRandomStatSheet, RandomPersona, Roleplay, User} from "@prisma/client";
 import {statSheets} from "./statSheets.seed";
 import {randomPersonas} from "./personas.seed";
 

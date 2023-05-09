@@ -1,14 +1,14 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: merlin
+  name: merlin-api
   labels:
-    app: merlin
+    app: merlin-api
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: merlin
+      app: merlin-api
   strategy:
     rollingUpdate:
       maxSurge: 1
@@ -17,10 +17,10 @@ spec:
   template:
     metadata:
       labels:
-        app: merlin
+        app: merlin-api
     spec:
       containers:
-        - name: merlin
+        - name: merlin-api
           image: <IMAGE>
           ports:
             - containerPort: 80
@@ -42,4 +42,4 @@ spec:
       port: 80
       targetPort: 80
   selector:
-    app: merlin
+    app: merlin-api
