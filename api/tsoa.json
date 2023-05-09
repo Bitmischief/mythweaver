@@ -1,0 +1,22 @@
+{
+  "entryFile": "index.ts",
+  "noImplicitAdditionalProperties": "throw-on-extras",
+  "spec": {
+    "outputDirectory": "public",
+    "specVersion": 3,
+    "securityDefinitions": {
+      "jwt": {
+        "type": "apiKey",
+        "name": "Authorization",
+        "in": "header",
+        "scopes": {
+          "write": "modify things",
+          "read": "read things"
+        }
+      }
+    }
+  },
+  "routes": {
+    "authenticationModule": "./lib/authMiddleware.ts"
+  }
+}

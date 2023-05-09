@@ -1,0 +1,224 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model RefreshToken {
+  id           Int       @id @default(autoincrement())
+  createdAt    DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  updatedAt    DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  refreshToken String    @unique
+  expiresAt    DateTime
+  userId       Int
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("refresh-tokens")
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  email     String    @unique
+
+  characters   Character[]
+  RefreshToken RefreshToken[]
+
+  @@map("users")
+}
+
+model Character {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  userId    Int?
+  name      String
+  type      Int       @default(0)
+  dnd5eId   Int?      @unique
+
+  user  User?  @relation(fields: [userId], references: [id])
+  dnd5e Dnd5e? @relation(fields: [dnd5eId], references: [id])
+
+  @@map("characters")
+}
+
+model Dnd5e {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+
+  name         String?
+  class        String?
+  race         String?
+  background   String?
+  alignment    String?
+  level        Int?
+  strength     Int?
+  dexterity    Int?
+  constitution Int?
+  intelligence Int?
+  wisdom       Int?
+  charisma     Int?
+  hitPoints    Int?
+  armorClass   Int?
+  speed        Int?
+
+  character     Character?
+  spellSlots    Dnd5eSpellSlots[]
+  proficiencies Dnd5eProficiency[]
+  languages     Dnd5eLanguages[]
+  spells        Dnd5eSpell[]
+
+  @@map("dnd-5e")
+}
+
+model Dnd5eSpellSlots {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+
+  dnd5eId Int
+  level   Int
+  count   Int
+
+  dnd5e Dnd5e @relation(fields: [dnd5eId], references: [id])
+
+  @@map("dnd-5e-spell-slots")
+}
+
+model Dnd5eProficiency {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+
+  dnd5eId     Int
+  proficiency String
+
+  dnd5e Dnd5e @relation(fields: [dnd5eId], references: [id])
+
+  @@map("dnd-5e-proficiencies")
+}
+
+model Dnd5eLanguages {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+
+  dnd5eId  Int
+  language String
+
+  dnd5e Dnd5e @relation(fields: [dnd5eId], references: [id])
+
+  @@map("dnd-5e-languages")
+}
+
+model Dnd5eSpell {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+
+  dnd5eId              Int
+  name                 String
+  savingThrowAmount    Int?
+  savingThrowAttribute String?
+
+  dnd5e Dnd5e @relation(fields: [dnd5eId], references: [id])
+
+  @@map("dnd-5e-spells")
+}
+
+model RandomPersona {
+  id         Int       @id @default(autoincrement())
+  createdAt  DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  updatedAt  DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  name       String
+  race       String
+  background String
+  alignment  String
+
+  @@map("random-personas")
+}
+
+model Dnd5eRandomStatSheet {
+  id           Int       @id @default(autoincrement())
+  createdAt    DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  updatedAt    DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  class        String
+  level        Int
+  strength     Int
+  dexterity    Int
+  constitution Int
+  intelligence Int
+  wisdom       Int
+  charisma     Int
+  hitPoints    Int
+  armorClass   Int
+  speed        Int
+
+  spellSlots    Dnd5eRandomSpellSlots[]
+  proficiencies Dnd5eRandomProficiency[]
+  languages     Dnd5eRandomLanguages[]
+  spells        Dnd5eRandomSpell[]
+
+  @@map("dnd-5e-random-stat-sheet")
+}
+
+model Dnd5eRandomSpellSlots {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+
+  dnd5eRandomStatSheetId Int
+  level                  Int
+  count                  Int
+
+  stats Dnd5eRandomStatSheet @relation(fields: [dnd5eRandomStatSheetId], references: [id])
+
+  @@map("dnd-5e-random-spell-slots")
+}
+
+model Dnd5eRandomProficiency {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+
+  dnd5eRandomStatSheetId Int
+  proficiency            String
+
+  stats Dnd5eRandomStatSheet @relation(fields: [dnd5eRandomStatSheetId], references: [id])
+
+  @@map("dnd-5e-random-proficiencies")
+}
+
+model Dnd5eRandomLanguages {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+
+  dnd5eRandomStatSheetId Int
+  language               String
+
+  stats Dnd5eRandomStatSheet @relation(fields: [dnd5eRandomStatSheetId], references: [id])
+
+  @@map("dnd-5e-random-languages")
+}
+
+model Dnd5eRandomSpell {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+
+  dnd5eRandomStatSheetId Int
+  name                   String
+  savingThrowAmount      Int?
+  savingThrowAttribute   String?
+
+  stats Dnd5eRandomStatSheet @relation(fields: [dnd5eRandomStatSheetId], references: [id])
+
+  @@map("dnd-5e-random-spells")
+}

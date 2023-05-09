@@ -1,0 +1,37 @@
+{
+  "name": "vue-vite-tailwind",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc && vite build",
+    "preview": "vite preview",
+    "validate": "eslint . --ext js,vue && prettier . --check",
+    "repair": "eslint . --ext js,vue --fix && prettier . --write"
+  },
+  "dependencies": {
+    "axios": "^1.4.0",
+    "pinia": "^2.0.35",
+    "vue": "^3.2.25",
+    "vue-router": "^4.0.15",
+    "vue3-google-login": "^2.0.15"
+  },
+  "devDependencies": {
+    "@headlessui/vue": "^1.6.2",
+    "@heroicons/vue": "^2.0.17",
+    "@types/node": "^18.16.3",
+    "@vitejs/plugin-vue": "^2.3.3",
+    "autoprefixer": "^10.4.7",
+    "eslint": "^8.16.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-vue": "^9.0.1",
+    "postcss": "^8.4.14",
+    "prettier": "^2.6.2",
+    "prettier-plugin-tailwindcss": "^0.1.11",
+    "tailwindcss": "^3.0.24",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.4",
+    "vite": "^2.9.9",
+    "vue-tsc": "^1.6.3"
+  }
+}
