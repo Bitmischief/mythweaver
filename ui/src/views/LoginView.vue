@@ -12,7 +12,7 @@ const authStore = useAuthStore();
 
 const { tokens } = storeToRefs(authStore);
 
-const callback = async (googleResponse) => {
+const callback = async (googleResponse: any) => {
   await authStore.login(googleResponse.credential);
 }
 

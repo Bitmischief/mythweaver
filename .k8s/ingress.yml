@@ -6,6 +6,11 @@ metadata:
     kubernetes.io/ingress.class: nginx
     cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
+  defaultBackend:
+    service:
+      name: merlin-ui
+      port:
+        number: 80
   tls:
     - hosts:
         - themerlin.app

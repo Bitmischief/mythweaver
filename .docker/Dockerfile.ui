@@ -1,0 +1,9 @@
+FROM node:lts-alpine as builder
+
+WORKDIR /app
+COPY ui ./
+RUN yarn install && yarn run build
+
+FROM nginx:alpine
+
+COPY --from=builder /app/dist /usr/share/nginx/html

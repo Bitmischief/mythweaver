@@ -61,7 +61,7 @@ import {
   postGenerateCharacter
 } from "@/api/characters.ts";
 
-const character = ref({});
+const character = ref<Character>({} as Character);
 
 const props = defineProps({
   show: {

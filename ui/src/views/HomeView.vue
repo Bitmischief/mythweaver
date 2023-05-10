@@ -17,10 +17,10 @@
 
 <script setup lang="ts">
 import {onMounted, ref} from "vue";
-import {getCharacters} from "@/api/characters.ts";
+import {Character, getCharacters} from "@/api/characters.ts";
 import GenerateCharacterModal from "@/components/GenerateCharacterModal.vue";
 
-const characters = ref([]);
+const characters = ref<Character[]>([]);
 const showGenerateCharacterModal = ref(false);
 
 onMounted(async () => {
