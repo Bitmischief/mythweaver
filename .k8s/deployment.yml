@@ -34,12 +34,18 @@ apiVersion: v1
 kind: Service
 metadata:
   name: merlin-service
+  annotations:
+    service.beta.kubernetes.io/do-loadbalancer-size-unit: "2"
 spec:
   type: LoadBalancer
   ports:
     - name: http
       protocol: TCP
-      port: 8000
+      port: 80
+      targetPort: 8000
+    - name: https
+      protocol: TCP
+      port: 443
       targetPort: 8000
   selector:
     app: merlin-api
