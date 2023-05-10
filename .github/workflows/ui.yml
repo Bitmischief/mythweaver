@@ -30,7 +30,7 @@ jobs:
         run: docker push ${{ secrets.REGISTRY_NAME }}/merlin-ui:$(echo $GITHUB_SHA | head -c7)
 
       - name: Update deployment file
-        run: TAG=$(echo $GITHUB_SHA | head -c7) && sed -i 's|<IMAGE>|${{ secrets.REGISTRY_NAME }}/merlin-ui:'${TAG}'|' $GITHUB_WORKSPACE/.k8s/ui-deployment.yml
+        run: TAG=$(echo $GITHUB_SHA | head -c7) && sed -i 's|<IMAGE>|${{ secrets.REGISTRY_NAME }}/merlin-ui:'${TAG}'|' $GITHUB_WORKSPACE/.k8s/ui-deployment.yml && cat $GITHUB_WORKSPACE/.k8s/ui-deployment.yml
 
       - name: Save DigitalOcean kubeconfig with short-lived credentials
         run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 ${{ secrets.CLUSTER_NAME }}
