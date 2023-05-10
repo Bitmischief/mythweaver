@@ -1,0 +1,3 @@
+Most of these commands were run one time, I tried to catalog here, mainly they were done following this tutorial
+https://www.digitalocean.com/community/tutorials/how-to-set-up-an-nginx-ingress-with-cert-manager-on-digitalocean-kubernetes
+to set up SSL connections
