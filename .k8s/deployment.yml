@@ -49,3 +49,20 @@ spec:
       targetPort: 8000
   selector:
     app: merlin-api
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: merlin-ingress
+spec:
+  rules:
+    - host: themerlin.app
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: merlin-service
+                port:
+                  number: 80
