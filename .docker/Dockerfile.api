@@ -13,7 +13,8 @@ WORKDIR /app
 COPY api/package*.json ./
 COPY api/yarn.lock ./
 RUN yarn install --production
-RUN yarn prisma generate
+COPY api/prisma/schema.prisma ./
+RUN yarn prisma generate --schema=./schema.prisma
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/build ./build
 EXPOSE 8000
