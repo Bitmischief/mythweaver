@@ -136,7 +136,7 @@ model RandomPersona {
   id         Int       @id @default(autoincrement())
   createdAt  DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
   updatedAt  DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
-  name       String
+  name       String    @unique
   race       String
   background String
   alignment  String
@@ -165,6 +165,7 @@ model Dnd5eRandomStatSheet {
   languages     Dnd5eRandomLanguages[]
   spells        Dnd5eRandomSpell[]
 
+  @@unique([class, level, strength, dexterity, constitution, intelligence, wisdom, charisma, hitPoints, armorClass, speed])
   @@map("dnd-5e-random-stat-sheet")
 }
 

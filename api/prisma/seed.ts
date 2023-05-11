@@ -10,33 +10,59 @@ const users = [
 
 const characters = [
   {
+    id: 1,
     name: 'Muad\'Dib',
-    prompt: 'Assume the role of Paul Muad\'Dib from the Frank Herbert book Dune, please respond to me as if you were him',
   },
 ];
 
 (async () => {
   for(let user of users) {
-    await prisma.user.create({
-      data: {...user},
+    await prisma.user.upsert({
+      where: { email: user.email },
+      update: {},
+      create: {
+        email: user.email,
+      },
     });
   }
 
   for(let character of characters) {
-    await prisma.character.create({
-      data: character,
+    await prisma.character.upsert({
+      where: { id: character.id },
+      update: {},
+      create: {
+        ...character,
+      },
     });
   }
 
   for (let randomPersona of randomPersonas) {
-    await prisma.randomPersona.create({
-      data: randomPersona,
+    await prisma.randomPersona.upsert({
+      where: { name: randomPersona.name },
+      update: {},
+      create: randomPersona,
     });
   }
 
   for (let statSheet of statSheets) {
-    await prisma.dnd5eRandomStatSheet.create({
-      data: {
+    await prisma.dnd5eRandomStatSheet.upsert({
+      where: {
+        class_level_strength_dexterity_constitution_intelligence_wisdom_charisma_hitPoints_armorClass_speed: {
+          class: statSheet.class,
+          level: statSheet.level,
+          strength: statSheet.strength,
+          dexterity: statSheet.dexterity,
+          constitution: statSheet.constitution,
+          intelligence: statSheet.intelligence,
+          wisdom: statSheet.wisdom,
+          charisma: statSheet.charisma,
+          hitPoints: statSheet.hitPoints,
+          armorClass: statSheet.armorClass,
+          speed: statSheet.speed,
+        }
+      },
+      update: {},
+      create: {
         ...statSheet,
         spells: {
           createMany: {
