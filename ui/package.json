@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "@headlessui/vue": "^1.6.2",
-    "@heroicons/vue": "^2.0.17",
+    "@heroicons/vue": "^2.0.18",
     "@types/node": "^18.16.3",
     "@vitejs/plugin-vue": "^2.3.3",
     "autoprefixer": "^10.4.7",
@@ -31,7 +31,7 @@
     "tailwindcss": "^3.0.24",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.4",
-    "vite": "^2.9.9",
+    "vite": "^2.9.13",
     "vue-tsc": "^1.6.3"
   }
 }

@@ -564,17 +564,17 @@
     "@jridgewell/resolve-uri" "3.1.0"
     "@jridgewell/sourcemap-codec" "1.4.14"
 
-"@prisma/client@^4.13.0":
-  version "4.13.0"
-  resolved "https://registry.yarnpkg.com/@prisma/client/-/client-4.13.0.tgz#271d2b9756503ea17bbdb459c7995536cf2a6191"
-  integrity sha512-YaiiICcRB2hatxsbnfB66uWXjcRw3jsZdlAVxmx0cFcTc/Ad/sKdHCcWSnqyDX47vAewkjRFwiLwrOUjswVvmA==
+"@prisma/client@^4.14.0":
+  version "4.14.0"
+  resolved "https://registry.yarnpkg.com/@prisma/client/-/client-4.14.0.tgz#715b3dd045d094b03cb0a7f2991f088d15ae553e"
+  integrity sha512-MK/XaA2sFdfaOa7I9MjNKz6dxeIEdeZlnpNRoF2w3JuRLlFJLkpp6cD3yaqw2nUUhbrn3Iqe3ZpVV+VuGGil7Q==
   dependencies:
-    "@prisma/engines-version" "4.13.0-50.1e7af066ee9cb95cf3a403c78d9aab3e6b04f37a"
+    "@prisma/engines-version" "4.14.0-67.d9a4c5988f480fa576d43970d5a23641aa77bc9c"
 
-"@prisma/engines-version@4.13.0-50.1e7af066ee9cb95cf3a403c78d9aab3e6b04f37a":
-  version "4.13.0-50.1e7af066ee9cb95cf3a403c78d9aab3e6b04f37a"
-  resolved "https://registry.yarnpkg.com/@prisma/engines-version/-/engines-version-4.13.0-50.1e7af066ee9cb95cf3a403c78d9aab3e6b04f37a.tgz#ae338908d11685dee50e7683502d75442b955bf9"
-  integrity sha512-fsQlbkhPJf08JOzKoyoD9atdUijuGBekwoOPZC3YOygXEml1MTtgXVpnUNchQlRSY82OQ6pSGQ9PxUe4arcSLQ==
+"@prisma/engines-version@4.14.0-67.d9a4c5988f480fa576d43970d5a23641aa77bc9c":
+  version "4.14.0-67.d9a4c5988f480fa576d43970d5a23641aa77bc9c"
+  resolved "https://registry.yarnpkg.com/@prisma/engines-version/-/engines-version-4.14.0-67.d9a4c5988f480fa576d43970d5a23641aa77bc9c.tgz#0aeca447c4a5f23c83f68b8033e627b60bc01850"
+  integrity sha512-3jum8/YSudeSN0zGW5qkpz+wAN2V/NYCQ+BPjvHYDfWatLWlQkqy99toX0GysDeaUoBIJg1vaz2yKqiA3CFcQw==
 
 "@prisma/engines@4.14.0":
   version "4.14.0"
@@ -3532,10 +3532,10 @@ swagger-ui-dist@>=4.11.0:
   resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-4.18.2.tgz#323308f1c1d87a7c22ce3e273c31835eb680a71b"
   integrity sha512-oVBoBl9Dg+VJw8uRWDxlyUyHoNEDC0c1ysT6+Boy6CTgr2rUcLcfPon4RvxgS2/taNW6O0+US+Z/dlAsWFjOAQ==
 
-swagger-ui-express@^4.6.2:
-  version "4.6.2"
-  resolved "https://registry.yarnpkg.com/swagger-ui-express/-/swagger-ui-express-4.6.2.tgz#61b2cb9fd7932cdccff99e0efdf700a5459e493c"
-  integrity sha512-MHIOaq9JrTTB3ygUJD+08PbjM5Tt/q7x80yz9VTFIatw8j5uIWKcr90S0h5NLMzFEDC6+eVprtoeA5MDZXCUKQ==
+swagger-ui-express@^4.6.3:
+  version "4.6.3"
+  resolved "https://registry.yarnpkg.com/swagger-ui-express/-/swagger-ui-express-4.6.3.tgz#870d0892654fe80e6970a2d680e22521acd2dc19"
+  integrity sha512-CDje4PndhTD2HkgyKH3pab+LKspDeB/NhPN2OF1j+piYIamQqBYwAXWESOT1Yju2xFg51bRW9sUng2WxDjzArw==
   dependencies:
     swagger-ui-dist ">=4.11.0"
 
