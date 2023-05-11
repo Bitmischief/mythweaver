@@ -34,6 +34,7 @@ jobs:
         run: >
           cd api &&
           DATABASE_URL="${{secrets.DATABASE_URL}}" &&
+          yarn install &&
           yarn prisma migrate deploy
 
       - name: Push image to DigitalOcean Container Registry
