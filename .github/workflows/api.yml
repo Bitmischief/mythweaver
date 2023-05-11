@@ -33,7 +33,8 @@ jobs:
       - name: Migrate database
         run: >
           cd api &&
-          DATABASE_URL="${{secrets.DATABASE_URL}}" &&
+          export DATABASE_URL="${{secrets.DATABASE_URL}}" &&
+          echo "$DATABASE_URL" &&
           yarn install &&
           yarn prisma migrate deploy
 
