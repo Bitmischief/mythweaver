@@ -3,6 +3,8 @@ import {OAuth2Client} from 'google-auth-library';
 import {prisma} from '../lib/providers/prisma';
 import {AppError, HttpCode} from "../lib/errors/AppError";
 import jwt from 'jsonwebtoken';
+import {parentLogger} from "../lib/logger";
+const logger = parentLogger.getSubLogger();
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -51,6 +53,7 @@ export default class AuthController {
       });
     }
 
+    logger.info('Getting user for email', email);
     let user = await prisma.user.findUnique({
       where: {
         email,
@@ -58,6 +61,7 @@ export default class AuthController {
     });
 
     if (!user) {
+      logger.info('User did not exist, creating....');
       user = await prisma.user.create({
         data: {
           email,
@@ -139,6 +143,7 @@ export default class AuthController {
       },
     );
 
+    logger.info('Saving refresh token', refreshToken, userId);
     await prisma.refreshToken.create({
       data: {
         refreshToken,
