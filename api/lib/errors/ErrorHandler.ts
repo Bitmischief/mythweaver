@@ -25,13 +25,13 @@ class ErrorHandler {
   }
 
   private handleCriticalError(error: Error | AppError, response?: Response): void {
+    logger.fatal('Critical uncaught error', error);
+
     if (response) {
       response
         .status(HttpCode.INTERNAL_SERVER_ERROR)
         .json({ message: 'Internal server error' });
     }
-
-    logger.fatal('Critical uncaught error', error);
   }
 }
 
