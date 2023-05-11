@@ -41,7 +41,7 @@
     "jsonwebtoken": "^9.0.0",
     "morgan": "^1.10.0",
     "openai": "^3.2.1",
-    "swagger-ui-express": "^4.6.2",
+    "swagger-ui-express": "^4.6.3",
     "tslog": "^4.8.2",
     "tsoa": "^5.1.1",
     "uuid": "^9.0.0",
