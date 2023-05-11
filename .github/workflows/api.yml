@@ -35,7 +35,8 @@ jobs:
           cd api &&
           export DATABASE_URL="${{secrets.PUBLIC_DATABASE_URL}}" &&
           yarn install &&
-          yarn prisma migrate deploy
+          yarn prisma migrate deploy &&
+          yarn prisma db seed
 
       - name: Push image to DigitalOcean Container Registry
         run: docker push ${{ secrets.REGISTRY_NAME }}/merlin-api:$(echo $GITHUB_SHA | head -c7)
