@@ -4,7 +4,7 @@ on:
       - main
     paths:
       - 'api/**'
-      - '.github/workflows/**'
+      - '.github/workflows/api.yml'
       - '.docker/**'
       - '.k8s/**'
 
@@ -34,7 +34,12 @@ jobs:
         run: >
           TAG=$(echo $GITHUB_SHA | head -c7) && 
           sed -i 's|<IMAGE>|${{ secrets.REGISTRY_NAME }}/merlin-api:'${TAG}'|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml &&
-          sed -i 's|<DATABASE_URL>|${{ secrets.DATABASE_URL }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<DATABASE_URL>|${{ secrets.DATABASE_URL }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml &&
+          sed -i 's|<JWT_SECRET_KEY>|${{ secrets.JWT_SECRET_KEY }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml &&
+          sed -i 's|<JWT_REFRESH_SECRET_KEY>|${{ secrets.JWT_REFRESH_SECRET_KEY }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml &&
+          sed -i 's|<GOOGLE_CLIENT_ID>|${{ secrets.GOOGLE_CLIENT_ID }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml &&
+          sed -i 's|<GOOGLE_CLIENT_SECRET>|${{ secrets.GOOGLE_CLIENT_SECRET }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml &&
+          sed -i 's|<OPENAI_API_KEY>|${{ secrets.OPENAI_API_KEY }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
 
       - name: Save DigitalOcean kubeconfig with short-lived credentials
         run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 ${{ secrets.CLUSTER_NAME }}

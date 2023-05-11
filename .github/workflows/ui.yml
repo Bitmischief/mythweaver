@@ -4,7 +4,7 @@ on:
       - main
     paths:
       - 'ui/**'
-      - '.github/workflows/**'
+      - '.github/workflows/ui.yml'
       - '.docker/**'
       - '.k8s/**'
 

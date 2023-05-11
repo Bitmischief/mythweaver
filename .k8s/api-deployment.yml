@@ -44,3 +44,13 @@ spec:
           env:
             - name: DATABASE_URL
               value: <DATABASE_URL>
+            - name: JWT_SECRET_KEY
+              value: <JWT_SECRET_KEY>
+            - name: JWT_REFRESH_SECRET_KEY
+              value: <JWT_REFRESH_SECRET_KEY>
+            - name: GOOGLE_CLIENT_ID
+              value: <GOOGLE_CLIENT_ID>
+            - name: GOOGLE_CLIENT_SECRET
+              value: <GOOGLE_CLIENT_SECRET>
+            - name: OPENAI_API_KEY
+              value: <OPENAI_API_KEY>

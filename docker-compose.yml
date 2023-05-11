@@ -1,5 +1,24 @@
 version: '3.8'
 services:
+  ui:
+    build:
+      context: .
+      dockerfile: ./.docker/Dockerfile.ui.dev
+    ports:
+      - "3000:3000"
+
+  api:
+    build:
+      context: .
+      dockerfile: ./.docker/Dockerfile.api
+    ports:
+      - "8000:8000"
+#    volumes:
+#      - ./api:/app/
+#      - nodemodules:/app/node_modules
+    environment:
+      DATABASE_URL: 'postgresql://postgres:postgres@db:5432/postgres?schema=public'
+
   db:
     image: postgres:14.1-alpine
     restart: always
@@ -10,6 +29,8 @@ services:
       - '5432:5432'
     volumes:
       - db:/var/lib/postgresql/data
+
 volumes:
   db:
     driver: local
+  nodemodules: {}
