@@ -20,6 +20,7 @@ export class AppError extends Error {
   public readonly name: string;
   public readonly httpCode: HttpCode;
   public readonly isOperational: boolean = true;
+  public readonly description: string;
 
   constructor(args: AppErrorArgs) {
     super(args.description);
@@ -27,6 +28,7 @@ export class AppError extends Error {
     Object.setPrototypeOf(this, new.target.prototype);
 
     this.name = args.name || 'Error';
+    this.description = args.description;
     this.httpCode = args.httpCode;
 
     if (args.isOperational !== undefined) {

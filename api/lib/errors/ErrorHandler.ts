@@ -25,8 +25,7 @@ class ErrorHandler {
   }
 
   private handleCriticalError(error: Error | AppError, response?: Response): void {
-    logger.info('Testing shit...');
-    logger.fatal('Critical uncaught error', error.message);
+    logger.fatal('Critical uncaught error', error?.message, (error as AppError)?.description);
 
     if (response) {
       response

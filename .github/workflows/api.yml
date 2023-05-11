@@ -27,6 +27,15 @@ jobs:
       - name: Log in to DigitalOcean Container Registry with short-lived credentials
         run: doctl registry login --expiry-seconds 1200
 
+      - name: Setup node
+        uses: actions/setup-node@v3
+
+      - name: Migrate database
+        run: >
+          cd api &&
+          DATABASE_URL="${{secrets.DATABASE_URL}}" &&
+          yarn prisma migrate deploy
+
       - name: Push image to DigitalOcean Container Registry
         run: docker push ${{ secrets.REGISTRY_NAME }}/merlin-api:$(echo $GITHUB_SHA | head -c7)
 
