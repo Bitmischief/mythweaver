@@ -4,3 +4,8 @@ coverage:
       default:
         target: 0%
         threshold: 1%
+    patch:
+      default:
+        target: auto
+        threshold: 0%
+        base: auto
