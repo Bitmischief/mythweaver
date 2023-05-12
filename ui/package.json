@@ -17,7 +17,7 @@
     "vue3-google-login": "^2.0.15"
   },
   "devDependencies": {
-    "@headlessui/vue": "^1.6.2",
+    "@headlessui/vue": "^1.7.13",
     "@heroicons/vue": "^2.0.18",
     "@types/node": "^18.16.3",
     "@vitejs/plugin-vue": "^2.3.3",
