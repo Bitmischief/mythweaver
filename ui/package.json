@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "axios": "^1.4.0",
-    "pinia": "^2.0.35",
+    "pinia": "^2.0.36",
     "vue": "^3.2.25",
     "vue-router": "^4.0.15",
     "vue3-google-login": "^2.0.15"
@@ -21,7 +21,7 @@
     "@heroicons/vue": "^2.0.18",
     "@types/node": "^18.16.3",
     "@vitejs/plugin-vue": "^2.3.4",
-    "autoprefixer": "^10.4.7",
+    "autoprefixer": "^10.4.14",
     "eslint": "^8.16.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-vue": "^9.0.1",
