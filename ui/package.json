@@ -20,7 +20,7 @@
     "@headlessui/vue": "^1.7.13",
     "@heroicons/vue": "^2.0.18",
     "@types/node": "^20.1.7",
-    "@vitejs/plugin-vue": "^2.3.3",
+    "@vitejs/plugin-vue": "^2.3.4",
     "autoprefixer": "^10.4.14",
     "eslint": "^8.16.0",
     "eslint-config-prettier": "^8.8.0",
