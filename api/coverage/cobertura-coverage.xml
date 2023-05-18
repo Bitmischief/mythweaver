@@ -1,9 +1,58 @@
 <?xml version="1.0" ?>
 <!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">
-<coverage lines-valid="0" lines-covered="0" line-rate="NaN" branches-valid="0" branches-covered="0" branch-rate="NaN" timestamp="1683916488709" complexity="0" version="0.1">
+<coverage lines-valid="24" lines-covered="18" line-rate="0.75" branches-valid="7" branches-covered="7" branch-rate="1" timestamp="1684350828238" complexity="0" version="0.1">
   <sources>
     <source>C:\Users\austi\OneDrive\Documents\Bitmischief\merlin\api</source>
   </sources>
   <packages>
+    <package name="main" line-rate="0.75" branch-rate="1">
+      <classes>
+        <class name="utils.ts" filename="lib\utils.ts" line-rate="0.75" branch-rate="1">
+          <methods>
+            <method name="shuffle" hits="0" signature="()V">
+              <lines>
+                <line number="1" hits="0"/>
+              </lines>
+            </method>
+            <method name="sanitizeJson" hits="3" signature="()V">
+              <lines>
+                <line number="19" hits="3"/>
+              </lines>
+            </method>
+            <method name="(anonymous_2)" hits="13" signature="()V">
+              <lines>
+                <line number="20" hits="13"/>
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="1" hits="1" branch="false"/>
+            <line number="2" hits="0" branch="false"/>
+            <line number="5" hits="0" branch="false"/>
+            <line number="8" hits="0" branch="false"/>
+            <line number="9" hits="0" branch="false"/>
+            <line number="12" hits="0" branch="false"/>
+            <line number="16" hits="0" branch="false"/>
+            <line number="19" hits="1" branch="false"/>
+            <line number="20" hits="13" branch="false"/>
+            <line number="21" hits="3" branch="false"/>
+            <line number="22" hits="3" branch="false"/>
+            <line number="25" hits="3" branch="false"/>
+            <line number="26" hits="3" branch="false"/>
+            <line number="28" hits="3" branch="false"/>
+            <line number="29" hits="2202" branch="false"/>
+            <line number="31" hits="2202" branch="true" condition-coverage="100% (1/1)"/>
+            <line number="32" hits="45" branch="false"/>
+            <line number="34" hits="45" branch="true" condition-coverage="100% (1/1)"/>
+            <line number="35" hits="23" branch="false"/>
+            <line number="37" hits="23" branch="true" condition-coverage="100% (5/5)"/>
+            <line number="38" hits="1" branch="false"/>
+            <line number="39" hits="1" branch="false"/>
+            <line number="42" hits="23" branch="false"/>
+            <line number="47" hits="3" branch="false"/>
+          </lines>
+        </class>
+      </classes>
+    </package>
   </packages>
 </coverage>

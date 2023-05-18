@@ -1,35 +1,30 @@
 import axios from "axios";
 
-export interface Character {
+export interface CharacterBase {
+  id: number;
   name: string,
-  type: CharacterTypes,
-  race: string;
-  alignment: string;
-  class: string;
-  level: number;
-  strength: number;
-  dexterity: number;
-  constitution: number;
-  intelligence: number;
-  wisdom: number;
-  charisma: number;
-  hitPoints: number;
-  armorClass: number;
-  speed: number;
-}
-
-export enum CharacterTypes {
-  Dnd5e = 0,
+  looks: string,
+  personality: string;
+  background: string;
+  imageUri?: string;
 }
 
 export const getCharacters = () => {
   return axios.get('/characters');
 }
 
-export const postGenerateCharacter = () => {
-  return axios.post('/characters/generate');
+export const getCharacter = (characterId: number) => {
+  return axios.get(`/characters/${characterId}`);
 }
 
-export const postCharacter = (character: Character) => {
+export const postGenerateCharacter = () => {
+  return axios.post('/characters/generate/base');
+}
+
+export const postGenerateCharacterImage = (looks: string) => {
+  return axios.post('/characters/generate/image', { looks });
+}
+
+export const postCharacter = (character: CharacterBase) => {
   return axios.post('/characters', character);
 }

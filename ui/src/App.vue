@@ -1,10 +1,18 @@
 <script setup lang="ts">
-// This starter template is using Vue 3 <script setup> SFCs
-// Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
+import Navbar from "@/components/Navigation/Navbar.vue";
+import {useAuthStore} from "@/store";
+import {computed} from "vue";
+
+const authStore = useAuthStore();
 </script>
 
 <template>
-  <router-view />
+  <div class="block h-full md:flex bg-surface text-white">
+    <Navbar v-if="!!authStore.tokens" class="w-full md:w-[250px] border-white/20 border-r-[2px] mr-4" />
+    <div class="flex flex-col w-full">
+      <router-view />
+    </div>
+  </div>
 </template>
 
 <style>
