@@ -7,4 +7,7 @@ RUN yarn install && yarn run build
 
 FROM nginx:alpine
 
+# Replace default Nginx configuration file with custom one
+COPY default.conf /etc/nginx/conf.d/
+
 COPY --from=builder /app/dist /usr/share/nginx/html

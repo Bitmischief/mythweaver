@@ -11,11 +11,6 @@ metadata:
     service.beta.kubernetes.io/do-loadbalancer-enable-proxy-protocol: "true"
     service.beta.kubernetes.io/do-loadbalancer-size-unit: "1"
 spec:
-  defaultBackend:
-    service:
-      name: merlin-ui
-      port:
-        number: 80
   tls:
     - hosts:
         - merlinapp.ai
