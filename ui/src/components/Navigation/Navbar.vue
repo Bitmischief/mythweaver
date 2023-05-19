@@ -33,8 +33,8 @@ async function logout() {
     </div>
 
     <Dialog
-      ref="dialog" :open="showPanel" @close="showPanel = false"
-      class="md:hidden fixed inset-0 z-50 flex items-start overflow-y-auto bg-black/5 backdrop-blur lg:hidden">
+      ref="dialog" :open="showPanel" class="md:hidden fixed inset-0 z-50 flex items-start overflow-y-auto bg-black/5 backdrop-blur lg:hidden"
+      @close="showPanel = false">
       <DialogPanel ref="dialogPanel" class="h-screen w-[250px] bg-surface-2 overflow-x-hidden">
         <div class="z-10 w-full h-full p-4 flex flex-col">
           <div class="text-purple-400 text-2xl font-bold uppercase border-b-2 border-b-white/20 mb-6">Merlin</div>
