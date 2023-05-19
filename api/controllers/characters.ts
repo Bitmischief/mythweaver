@@ -1,7 +1,14 @@
 import {Body, Get, Inject, OperationId, Post, Query, Route, Security, Tags} from "tsoa";
 import {prisma} from '../lib/providers/prisma';
-import {Character, Dnd5eRandomStatSheet, RandomPersona} from "@prisma/client";
-import {AppError} from "../lib/errors/AppError";
+import {Character} from "@prisma/client";
+import {getClient} from "../lib/providers/openai";
+import {parentLogger} from "../lib/logger";
+import {sanitizeJson} from "../lib/utils";
+import {AppError, HttpCode} from "../lib/errors/AppError";
+
+const logger = parentLogger.getSubLogger();
+
+const openai = getClient();
 
 interface GetCharactersResponse {
   data: Character[];
@@ -11,26 +18,27 @@ interface GetCharactersResponse {
 
 interface PostCharactersRequest {
   name: string,
-  race?: string;
-  alignment?: string;
-  class?: string;
-  level?: number;
-  strength?: number;
-  dexterity?: number;
-  constitution?: number;
-  intelligence?: number;
-  wisdom?: number;
-  charisma?: number;
-  hitPoints?: number;
-  armorClass?: number;
-  speed?: number;
+  looks: string;
+  personality: string;
+  background: string;
+  imageUri?: string;
+  quests?: string[];
+}
+
+interface PostGenerateCharacterBaseRequest {
+  name?: string;
+  occupation?: string;
+}
+
+interface PostGenerateCharacterImageRequest {
+  looks: string;
 }
 
 export enum CharacterTypes {
   Dnd5e = 0,
 }
 
-@Route("characters")
+@Route("api/characters")
 @Tags("Characters")
 export default class CharacterController {
   @Security("jwt")
@@ -43,14 +51,7 @@ export default class CharacterController {
   ): Promise<GetCharactersResponse> {
     const characters = await prisma.character.findMany({
       where: {
-        OR: [
-          {
-            userId: null,
-          },
-          {
-            userId,
-          }
-        ],
+        userId,
       },
       skip: offset,
       take: limit,
@@ -64,108 +65,121 @@ export default class CharacterController {
   }
 
   @Security("jwt")
+  @OperationId("getCharacter")
+  @Get("/:characterId")
+  public async getCharacter(
+    @Inject() userId: number,
+    @Route() characterId: number = 0,
+  ): Promise<Character> {
+    const character = await prisma.character.findUnique({
+      where: {
+        id: characterId,
+      },
+    });
+
+    if (!character) {
+      throw new AppError({
+        description: "Character not found.",
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    if (character.userId !== null && character.userId !== userId) {
+      throw new AppError({
+        description: "You do not have access to this character.",
+        httpCode: HttpCode.FORBIDDEN,
+      })
+    }
+
+    return character;
+  }
+
+  @Security("jwt")
   @OperationId("createCharacter")
   @Post("/")
   public async postCharacters(
     @Inject() userId: number,
     @Body() request: PostCharactersRequest,
   ): Promise<Character> {
-    const character = await prisma.character.create({
+    return prisma.character.create({
       data: {
         userId,
-        name: request.name,
-        type: (CharacterTypes.Dnd5e as number),
-      }
-    });
-
-    const dnd5e = await prisma.dnd5e.create({
-      data: {
-        background: '',
         ...request,
       }
     });
-
-    await prisma.character.update({
-      where: {
-        id: character.id,
-      },
-      data: {
-        ...character,
-        dnd5eId: dnd5e.id,
-      }
-    });
-
-    return character;
   }
 
   @Security("jwt")
-  @OperationId("generateCharacter")
-  @Post("/generate")
+  @OperationId("generateCharacterBase")
+  @Post("/generate/base")
   public async postGenerateCharacter(
     @Inject() userId: number,
-    @Body() request: PostCharactersRequest,
+    @Body() request: PostGenerateCharacterBaseRequest,
   ): Promise<any> {
-    const randomPersona = await getRandomPersona();
-    const randomStatSheet = await getRandomStatSheet();
-
-    return {
-      ...randomPersona,
-      ...randomStatSheet,
-      id: undefined,
-      createdAt: undefined,
-      updatedAt: undefined,
+    let prompt = `Please generate me a character to be used in a 
+    roleplaying game such as dungeons and dragons. I would like the name, 
+    looks, personality and background of the character return in the following 
+    JSON format. Make sure to wrap any quotes in the generated text with a backslash.
+    Please return JSON only so that I can easily deserialize into a javascript object.
+    
+    { 
+      "name": "", 
+      "looks": "", 
+      "personality": "",
+      "background": ""
     }
+    `;
+
+    if (request.name || request.occupation) {
+      prompt += '\n\nUse the following information to help generate the character.';
+    }
+
+    if (request.name) {
+      prompt += `\n\nName: ${request.name}`;
+    }
+
+    if (request.occupation) {
+      prompt += `\n\nOccupation: ${request.occupation}`;
+    }
+
+    let character: any = undefined;
+
+    do {
+      const response = await openai.createCompletion({
+        model: 'text-davinci-003',
+        prompt,
+        max_tokens: 2000,
+      });
+
+      const generatedJson = response.data.choices[0].text?.trim() || '';
+      logger.info('Received json from openai', generatedJson);
+
+      const charString = sanitizeJson(generatedJson);
+      logger.info('Sanitized json from openai...', charString);
+
+      try {
+        character = JSON.parse(charString || '');
+      } catch (e) {
+        logger.warn('Failed to parse character string', e, charString);
+      }
+    } while(!character);
+
+    return character
   }
-}
 
-export const getRandomPersona = async (): Promise<RandomPersona> => {
-  const personaCount = await prisma.randomPersona.count();
-  const firstId = (await prisma.randomPersona.findFirst())?.id || 1;
+  @Security("jwt")
+  @OperationId("generateCharacterImage")
+  @Post("/generate/image")
+  public async postGenerateCharacterImage(
+    @Inject() userId: number,
+    @Body() request: PostGenerateCharacterImageRequest,
+  ): Promise<any> {
+    const prompt = `` + request.looks;
 
-  let randomPersona, tries = 0, maxTries = 50;
-  do {
-    const randomIndex = Math.floor(Math.random() * personaCount + 1);
-    randomPersona = await prisma.randomPersona.findUnique({
-      where: {
-        id: randomIndex + firstId,
-      },
+    const response = await openai.createImage({
+      prompt,
     });
 
-    tries++;
-  } while(randomPersona === undefined && tries < maxTries);
-
-  if (!randomPersona) {
-    throw new AppError({
-      httpCode: 500,
-      description: 'Unable to generate random persona',
-    })
+    return response.data.data;
   }
-
-  return randomPersona;
-}
-
-export const getRandomStatSheet = async (): Promise<Dnd5eRandomStatSheet> => {
-  const statSheetCount = await prisma.dnd5eRandomStatSheet.count();
-  const firstId = (await prisma.dnd5eRandomStatSheet.findFirst())?.id || 1;
-
-  let statSheet, tries = 0, maxTries = 50;
-  do {
-    const randomIndex = Math.floor(Math.random() * statSheetCount + 1);
-    statSheet = await prisma.dnd5eRandomStatSheet.findUnique({
-      where: {
-        id: randomIndex + firstId,
-      },
-    });
-
-    tries++;
-  } while(!statSheet && tries < maxTries);
-
-  if (!statSheet) {
-    throw new AppError({
-      httpCode: 500,
-      description: 'Unable to generate random stat sheet',
-    })
-  }
-
-  return statSheet;
 }

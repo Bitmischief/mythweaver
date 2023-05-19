@@ -25,7 +25,7 @@ interface RefreshRequest {
   refreshToken: string;
 }
 
-@Route("auth")
+@Route("api/auth")
 @Tags("Auth")
 export default class AuthController {
   @Post("/token")

@@ -24,21 +24,29 @@ router.get("/", [
   },
 ]);
 
+const getCharacterSchema = z.object({
+  characterId: z.coerce.number().default(0),
+});
+
+router.get("/:characterId", [
+  useAuthenticateRequest(),
+  useValidateRequest(getCharacterSchema, { validationType: ValidationTypes.Route }),
+  async (req: Request, res: Response) => {
+    const controller = new CharacterController();
+
+    const { characterId = 0 } = req.params;
+
+    const response = await controller.getCharacter(res.locals.auth.userId, characterId as number);
+    return res.status(200).send(response);
+  },
+]);
+
 const postCharactersSchema = z.object({
   name: z.string().optional(),
-  race: z.string().optional(),
-  class: z.string().optional(),
-  alignment: z.string().optional(),
-  level: z.coerce.number().min(1).max(20).default(1).optional(),
-  strength: z.coerce.number().min(1).default(1).optional(),
-  dexterity: z.coerce.number().min(1).default(1).optional(),
-  constitution: z.coerce.number().min(1).default(1).optional(),
-  intelligence: z.coerce.number().min(1).default(1).optional(),
-  wisdom: z.coerce.number().min(1).default(1).optional(),
-  charisma: z.coerce.number().min(1).default(1).optional(),
-  hitPoints: z.coerce.number().min(1).default(1).optional(),
-  armorClass: z.coerce.number().min(1).default(1).optional(),
-  speed: z.coerce.number().min(1).default(1).optional(),
+  looks: z.string().optional(),
+  personality: z.string().optional(),
+  background: z.string().optional(),
+  imageUri: z.string().optional(),
 });
 
 router.post("/", [
@@ -54,20 +62,31 @@ router.post("/", [
 
 const postGenerateCharacterSchema = z.object({
   name: z.string().optional(),
-  race: z.string().optional(),
-  class: z.string().optional(),
-  background: z.string().optional(),
-  level: z.coerce.number().min(1).max(20).default(1).optional(),
-  personality: z.string().optional(),
+  occupation: z.string().optional(),
 });
 
-router.post("/generate", [
+router.post("/generate/base", [
   useAuthenticateRequest(),
   useValidateRequest(postGenerateCharacterSchema),
   async (req: Request, res: Response) => {
     const controller = new CharacterController();
 
     const response = await controller.postGenerateCharacter(res.locals.auth.userId, req.body);
+    return res.status(200).send(response);
+  },
+]);
+
+const postGenerateCharacterImageSchema = z.object({
+  looks: z.string().min(0).max(2000),
+});
+
+router.post("/generate/image", [
+  useAuthenticateRequest(),
+  useValidateRequest(postGenerateCharacterImageSchema),
+  async (req: Request, res: Response) => {
+    const controller = new CharacterController();
+
+    const response = await controller.postGenerateCharacterImage(res.locals.auth.userId, req.body);
     return res.status(200).send(response);
   },
 ]);

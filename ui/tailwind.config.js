@@ -12,6 +12,14 @@ module.exports = {
       fontFamily: {
         sans: ['Inter var', ...theme.fontFamily.sans],
       },
+      colors: {
+        'surface': '#1d2025',
+        'surface-2': '#19202b',
+      },
+      screens: {
+        '3xl': '1921px',
+        // => @media (min-width: 1921px) { ... }
+      },
     },
   },
   plugins: [],

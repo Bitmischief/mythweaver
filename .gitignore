@@ -1,2 +1,5 @@
 /api/build/
 /api/public/
+/api/coverage/
+
+.idea/
