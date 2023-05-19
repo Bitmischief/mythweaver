@@ -25,6 +25,7 @@ jobs:
 
       - name: Prepare .env
         run: |
+          cd ui
           echo VITE_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} >> .env
           echo VITE_API_URL=${{ vars.API_URL }} >> .env
 
