@@ -2,10 +2,8 @@
 
 import {onMounted, ref} from "vue";
 import {CharacterBase, getCharacters} from "@/api/characters.ts";
-import GenerateCharacterModal from "@/components/GenerateCharacterModal.vue";
 
 const characters = ref<CharacterBase[]>([]);
-const showGenerateCharacterModal = ref(false);
 
 onMounted(async () => {
   await loadCharacters();

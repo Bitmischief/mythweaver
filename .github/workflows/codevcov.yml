@@ -1,4 +1,4 @@
-name: Run tests & code coverage
+name: Run API tests & code coverage
 on: [push, pull_request]
 jobs:
   run:
