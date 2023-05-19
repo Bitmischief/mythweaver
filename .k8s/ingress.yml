@@ -13,6 +13,7 @@ spec:
         number: 80
   tls:
     - hosts:
+        - merlinapp.ai
         - app.merlinapp.ai
         - api.merlinapp.ai
       secretName: merlin-tls
