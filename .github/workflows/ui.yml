@@ -23,6 +23,11 @@ jobs:
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
+      - name: Prepare .env
+        run: |
+          echo VITE_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} >> .env
+          echo VITE_API_URL=${{ vars.API_URL }} >> .env
+
       - name: Build container image
         run: docker build -t ${{ secrets.REGISTRY_NAME }}/merlin-ui:$(echo $GITHUB_SHA | head -c7) -f .docker/Dockerfile.ui .
 

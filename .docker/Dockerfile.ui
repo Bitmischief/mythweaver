@@ -2,6 +2,7 @@ FROM node:lts-alpine as builder
 
 WORKDIR /app
 COPY ui ./
+COPY .env ./
 RUN yarn install && yarn run build
 
 FROM nginx:alpine
