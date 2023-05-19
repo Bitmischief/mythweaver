@@ -4,7 +4,6 @@ metadata:
   name: merlin-ingress
   annotations:
     kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
     cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   defaultBackend:
