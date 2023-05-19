@@ -14,9 +14,20 @@ spec:
   tls:
     - hosts:
         - themerlin.app
+        - merlinapp.ai
       secretName: merlin-tls
   rules:
     - host: "themerlin.app"
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/api"
+            backend:
+              service:
+                name: merlin-api
+                port:
+                  number: 80
+    - host: "merlinapp.ai"
       http:
         paths:
           - pathType: Prefix
