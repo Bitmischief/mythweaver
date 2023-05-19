@@ -15,6 +15,4 @@ const { tokens } = storeToRefs(authStore);
 const callback = async (googleResponse: any) => {
   await authStore.login(googleResponse.credential);
 }
-
-console.log(tokens);
 </script>
