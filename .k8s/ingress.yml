@@ -26,8 +26,8 @@ spec:
     - host: "app.merlinapp.ai"
       http:
         paths:
-          - pathType: Prefix
-            path: "/?(.*)"
+          - pathType: ImplementationSpecific
+            path: "/(.*)"
             backend:
               service:
                 name: merlin-ui
@@ -36,8 +36,8 @@ spec:
     - host: "api.merlinapp.ai"
       http:
         paths:
-          - pathType: Prefix
-            path: "/(/|$)(.*)"
+          - pathType: ImplementationSpecific
+            path: "/(.*)"
             backend:
               service:
                 name: merlin-api
