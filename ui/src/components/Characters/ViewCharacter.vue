@@ -40,20 +40,23 @@
 
 <script setup lang="ts">
 import {ArrowLeftIcon, ArrowPathIcon} from "@heroicons/vue/24/solid";
-import {defineEmits, onMounted, ref} from "vue";
+import {computed, defineEmits, onMounted, ref} from "vue";
 import {
-  CharacterBase, getCharacter,
+  CharacterBase, getCharacter, patchCharacter,
   postCharacter,
   postGenerateCharacter,
-  postGenerateCharacterImage
+  postGenerateCharacterImage, putCharacter
 } from "@/api/characters.ts";
-import {useRoute} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
+import {showError, showSuccess} from "@/lib/notifications.ts";
 
 const route = useRoute();
+const router = useRouter();
 const character = ref<CharacterBase>({} as CharacterBase);
+const newCharacter = computed(() => route.params.characterId === 'new');
 
 onMounted(async () => {
-  if (route.params.characterId === 'new') {
+  if (newCharacter.value) {
     await regenerate();
   } else {
     const response = await getCharacter(parseInt(route.params.characterId.toString()));
@@ -84,13 +87,22 @@ async function clickGenerateImage() {
 }
 
 async function clickSaveCharacter() {
-  const postCharacterResponse = await postCharacter(character.value);
+  if (newCharacter.value) {
+    const postCharacterResponse = await postCharacter(character.value);
 
-  if (postCharacterResponse.status === 201) {
-    emit('created');
-    emit('close');
+    if (postCharacterResponse.status === 201) {
+      await router.push(`/characters/${postCharacterResponse.data.id}`);
+      showSuccess({ message: 'Character saved' });
+    } else {
+      showError({ message: 'Failed to save character' });
+    }
+  } else {
+    const putCharacterResponse = await patchCharacter(character.value);
+    if (putCharacterResponse.status === 200) {
+      showSuccess({ message: 'Character saved' });
+    } else {
+      showError({ message: 'Failed to save character' });
+    }
   }
 }
-
-const emit = defineEmits(['close', 'created']);
 </script>

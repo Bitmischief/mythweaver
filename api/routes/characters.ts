@@ -47,6 +47,7 @@ const postCharactersSchema = z.object({
   personality: z.string().optional(),
   background: z.string().optional(),
   imageUri: z.string().optional(),
+  quests: z.array(z.string()).optional(),
 });
 
 router.post("/", [
@@ -87,6 +88,29 @@ router.post("/generate/image", [
     const controller = new CharacterController();
 
     const response = await controller.postGenerateCharacterImage(res.locals.auth.userId, req.body);
+    return res.status(200).send(response);
+  },
+]);
+
+const patchCharactersSchema = z.object({
+  name: z.string().optional(),
+  looks: z.string().optional(),
+  personality: z.string().optional(),
+  background: z.string().optional(),
+  imageUri: z.string().optional(),
+  quests: z.array(z.string()).optional(),
+});
+
+router.patch("/:characterId", [
+  useAuthenticateRequest(),
+  useValidateRequest(patchCharactersSchema),
+  useValidateRequest(getCharacterSchema, { validationType: ValidationTypes.Route }),
+  async (req: Request, res: Response) => {
+    const controller = new CharacterController();
+
+    const { characterId = 0 } = req.params;
+
+    const response = await controller.patchCharacter(res.locals.auth.userId, characterId as number, req.body);
     return res.status(200).send(response);
   },
 ]);

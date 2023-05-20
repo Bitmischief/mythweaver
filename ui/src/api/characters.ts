@@ -28,3 +28,7 @@ export const postGenerateCharacterImage = (looks: string) => {
 export const postCharacter = (character: CharacterBase) => {
   return axios.post('/characters', character);
 }
+
+export const patchCharacter = (character: CharacterBase) => {
+  return axios.patch(`/characters/${character.id}`, character);
+}

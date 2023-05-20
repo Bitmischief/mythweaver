@@ -1,4 +1,4 @@
-import {Body, Get, Inject, OperationId, Post, Query, Route, Security, Tags} from "tsoa";
+import {Body, Get, Inject, OperationId, Patch, Post, Query, Route, Security, Tags} from "tsoa";
 import {prisma} from '../lib/providers/prisma';
 import {Character} from "@prisma/client";
 import {getClient} from "../lib/providers/openai";
@@ -34,8 +34,13 @@ interface PostGenerateCharacterImageRequest {
   looks: string;
 }
 
-export enum CharacterTypes {
-  Dnd5e = 0,
+interface PatchCharacterRequest {
+  name: string,
+  looks: string;
+  personality: string;
+  background: string;
+  imageUri?: string;
+  quests?: string[];
 }
 
 @Route("api/characters")
@@ -174,12 +179,33 @@ export default class CharacterController {
     @Inject() userId: number,
     @Body() request: PostGenerateCharacterImageRequest,
   ): Promise<any> {
-    const prompt = `` + request.looks;
+    const prompt = `Generate a fantasy style character portrait based on the following looks: ` + request.looks;
 
     const response = await openai.createImage({
       prompt,
     });
 
     return response.data.data;
+  }
+
+  @Security("jwt")
+  @OperationId("updateCharacter")
+  @Patch("/:characterId")
+  public async patchCharacter(
+    @Inject() userId: number,
+    @Route() characterId: number,
+    @Body() request: PatchCharacterRequest,
+  ): Promise<Character> {
+    await this.getCharacter(userId, characterId);
+
+    return prisma.character.update({
+      where: {
+        id: characterId,
+      },
+      data: {
+        userId,
+        ...request,
+      }
+    });
   }
 }
