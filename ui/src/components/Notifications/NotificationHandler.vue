@@ -10,7 +10,7 @@ const timeoutRef = ref(0);
 const messageRef = ref('');
 
 onMounted(() => {
-  eventBus.$on('showNotification', (options) => {
+  eventBus.$on('showNotification', (options: any) => {
     const { type = 'success', timeout = 5000, message } = options || {};
 
     typeRef.value = type;

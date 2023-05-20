@@ -40,12 +40,12 @@
 
 <script setup lang="ts">
 import {ArrowLeftIcon, ArrowPathIcon} from "@heroicons/vue/24/solid";
-import {computed, defineEmits, onMounted, ref} from "vue";
+import {computed, onMounted, ref} from "vue";
 import {
   CharacterBase, getCharacter, patchCharacter,
   postCharacter,
   postGenerateCharacter,
-  postGenerateCharacterImage, putCharacter
+  postGenerateCharacterImage,
 } from "@/api/characters.ts";
 import {useRoute, useRouter} from "vue-router";
 import {showError, showSuccess} from "@/lib/notifications.ts";
