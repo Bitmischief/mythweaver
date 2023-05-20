@@ -20,7 +20,7 @@ spec:
       http:
         paths:
           - pathType: Prefix
-            path: "/(|.*)"
+            path: /
             backend:
               service:
                 name: merlin-ui
