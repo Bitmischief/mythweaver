@@ -7,7 +7,7 @@
     "build": "vue-tsc && vite build --mode prod",
     "preview": "vite preview",
     "validate": "eslint . --ext js,vue && prettier . --check",
-    "repair": "eslint . --ext js,vue --fix && prettier . --write"
+    "repair": "eslint . --ext js,vue --fix && prettier . --write \"**/*.+(js|ts|vue)\""
   },
   "dependencies": {
     "axios": "^1.4.0",

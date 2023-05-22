@@ -4,7 +4,6 @@ on: [push, pull_request]
 jobs:
   build_api:
     runs-on: ubuntu-latest
-    environment: production
     steps:
       - name: Checkout master
         uses: actions/checkout@main
@@ -14,7 +13,6 @@ jobs:
 
   build_ui:
     runs-on: ubuntu-latest
-    environment: production
     steps:
       - name: Checkout master
         uses: actions/checkout@main
