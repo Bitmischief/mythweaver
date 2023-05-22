@@ -1,7 +1,6 @@
 <script setup lang="ts">
-
-import {onMounted, ref} from "vue";
-import {CharacterBase, getCharacters} from "@/api/characters.ts";
+import { onMounted, ref } from "vue";
+import { CharacterBase, getCharacters } from "@/api/characters.ts";
 
 const characters = ref<CharacterBase[]>([]);
 
@@ -19,13 +18,11 @@ async function loadCharacters() {
   <div v-if="characters.length === 0">
     <div class="text-2xl">No characters found!</div>
   </div>
-  <div v-else v-for="(character, i) of characters" :key="i">
-    <router-link :to="`/characters/${character.id}`" class="px-2 text-md">
-      {{  character.name }}
+  <div v-for="(character, i) of characters" v-else :key="i">
+    <router-link :to="`/characters/${character.id}`" class="text-md px-2">
+      {{ character.name }}
     </router-link>
   </div>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

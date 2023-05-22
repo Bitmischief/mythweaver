@@ -1,10 +1,21 @@
-import {Body, Get, Inject, OperationId, Patch, Post, Query, Route, Security, Tags} from "tsoa";
-import {prisma} from '../lib/providers/prisma';
-import {Character} from "@prisma/client";
-import {getClient} from "../lib/providers/openai";
-import {parentLogger} from "../lib/logger";
-import {sanitizeJson} from "../lib/utils";
-import {AppError, HttpCode} from "../lib/errors/AppError";
+import {
+  Body,
+  Get,
+  Inject,
+  OperationId,
+  Patch,
+  Post,
+  Query,
+  Route,
+  Security,
+  Tags,
+} from "tsoa";
+import { prisma } from "../lib/providers/prisma";
+import { Character } from "@prisma/client";
+import { getClient } from "../lib/providers/openai";
+import { parentLogger } from "../lib/logger";
+import { sanitizeJson } from "../lib/utils";
+import { AppError, HttpCode } from "../lib/errors/AppError";
 
 const logger = parentLogger.getSubLogger();
 
@@ -17,7 +28,7 @@ interface GetCharactersResponse {
 }
 
 interface PostCharactersRequest {
-  name: string,
+  name: string;
   looks: string;
   personality: string;
   background: string;
@@ -35,7 +46,7 @@ interface PostGenerateCharacterImageRequest {
 }
 
 interface PatchCharacterRequest {
-  name: string,
+  name: string;
   looks: string;
   personality: string;
   background: string;
@@ -51,8 +62,8 @@ export default class CharacterController {
   @Get("/")
   public async getCharacters(
     @Inject() userId: number,
-    @Query() offset: number = 0,
-    @Query() limit: number = 10,
+    @Query() offset = 0,
+    @Query() limit = 10
   ): Promise<GetCharactersResponse> {
     const characters = await prisma.character.findMany({
       where: {
@@ -74,7 +85,7 @@ export default class CharacterController {
   @Get("/:characterId")
   public async getCharacter(
     @Inject() userId: number,
-    @Route() characterId: number = 0,
+    @Route() characterId = 0
   ): Promise<Character> {
     const character = await prisma.character.findUnique({
       where: {
@@ -93,7 +104,7 @@ export default class CharacterController {
       throw new AppError({
         description: "You do not have access to this character.",
         httpCode: HttpCode.FORBIDDEN,
-      })
+      });
     }
 
     return character;
@@ -104,13 +115,13 @@ export default class CharacterController {
   @Post("/")
   public async postCharacters(
     @Inject() userId: number,
-    @Body() request: PostCharactersRequest,
+    @Body() request: PostCharactersRequest
   ): Promise<Character> {
     return prisma.character.create({
       data: {
         userId,
         ...request,
-      }
+      },
     });
   }
 
@@ -119,7 +130,7 @@ export default class CharacterController {
   @Post("/generate/base")
   public async postGenerateCharacter(
     @Inject() userId: number,
-    @Body() request: PostGenerateCharacterBaseRequest,
+    @Body() request: PostGenerateCharacterBaseRequest
   ): Promise<any> {
     let prompt = `Please generate me a character to be used in a 
     roleplaying game such as dungeons and dragons. I would like the name, 
@@ -136,7 +147,8 @@ export default class CharacterController {
     `;
 
     if (request.name || request.occupation) {
-      prompt += '\n\nUse the following information to help generate the character.';
+      prompt +=
+        "\n\nUse the following information to help generate the character.";
     }
 
     if (request.name) {
@@ -151,25 +163,25 @@ export default class CharacterController {
 
     do {
       const response = await openai.createCompletion({
-        model: 'text-davinci-003',
+        model: "text-davinci-003",
         prompt,
         max_tokens: 2000,
       });
 
-      const generatedJson = response.data.choices[0].text?.trim() || '';
-      logger.info('Received json from openai', generatedJson);
+      const generatedJson = response.data.choices[0].text?.trim() || "";
+      logger.info("Received json from openai", generatedJson);
 
       const charString = sanitizeJson(generatedJson);
-      logger.info('Sanitized json from openai...', charString);
+      logger.info("Sanitized json from openai...", charString);
 
       try {
-        character = JSON.parse(charString || '');
+        character = JSON.parse(charString || "");
       } catch (e) {
-        logger.warn('Failed to parse character string', e, charString);
+        logger.warn("Failed to parse character string", e, charString);
       }
-    } while(!character);
+    } while (!character);
 
-    return character
+    return character;
   }
 
   @Security("jwt")
@@ -177,9 +189,11 @@ export default class CharacterController {
   @Post("/generate/image")
   public async postGenerateCharacterImage(
     @Inject() userId: number,
-    @Body() request: PostGenerateCharacterImageRequest,
+    @Body() request: PostGenerateCharacterImageRequest
   ): Promise<any> {
-    const prompt = `Generate a fantasy style character portrait based on the following looks: ` + request.looks;
+    const prompt =
+      `Generate a fantasy style character portrait based on the following looks: ` +
+      request.looks;
 
     const response = await openai.createImage({
       prompt,
@@ -194,7 +208,7 @@ export default class CharacterController {
   public async patchCharacter(
     @Inject() userId: number,
     @Route() characterId: number,
-    @Body() request: PatchCharacterRequest,
+    @Body() request: PatchCharacterRequest
   ): Promise<Character> {
     await this.getCharacter(userId, characterId);
 
@@ -205,7 +219,7 @@ export default class CharacterController {
       data: {
         userId,
         ...request,
-      }
+      },
     });
   }
 }

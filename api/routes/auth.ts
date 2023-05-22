@@ -1,7 +1,7 @@
 import AuthController from "../controllers/auth";
-import express, {Request, Response} from "express";
-import {useValidateRequest} from "../lib/validationMiddleware";
-import {z} from "zod";
+import express, { Request, Response } from "express";
+import { useValidateRequest } from "../lib/validationMiddleware";
+import { z } from "zod";
 const router = express.Router();
 
 const postTokenSchema = z.object({
@@ -15,7 +15,7 @@ router.post("/token", [
     const controller = new AuthController();
     const response = await controller.postToken(req.body);
     return res.send(response);
-  }
+  },
 ]);
 
 const postRefreshSchema = z.object({
@@ -28,7 +28,7 @@ router.post("/refresh", [
     const controller = new AuthController();
     const response = await controller.postRefresh(req.body);
     return res.send(response);
-  }
+  },
 ]);
 
 export default router;
