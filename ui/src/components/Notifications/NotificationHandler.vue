@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import {onMounted, ref} from "vue";
-import {useEventBus} from "@/lib/events.ts";
+import { onMounted, ref } from "vue";
+import { useEventBus } from "@/lib/events.ts";
 
 const eventBus = useEventBus();
 
 const showNotification = ref(false);
-const typeRef = ref('');
+const typeRef = ref("");
 const timeoutRef = ref(0);
-const messageRef = ref('');
+const messageRef = ref("");
 
 onMounted(() => {
-  eventBus.$on('showNotification', (options: any) => {
-    const { type = 'success', timeout = 5000, message } = options || {};
+  eventBus.$on("showNotification", (options: any) => {
+    const { type = "success", timeout = 5000, message } = options || {};
 
     typeRef.value = type;
     timeoutRef.value = timeout;
@@ -37,9 +37,9 @@ function initTimeout() {
 <template>
   <div
     aria-live="assertive"
-    class="z-10 fixed inset-0 flex items-end px-4 py-6 pointer-events-none sm:p-6 sm:items-start z-50"
+    class="pointer-events-none fixed inset-0 z-10 z-50 flex items-end px-4 py-6 sm:items-start sm:p-6"
   >
-    <div class="w-full flex flex-col items-center space-y-4 sm:items-end">
+    <div class="flex w-full flex-col items-center space-y-4 sm:items-end">
       <transition
         enter-active-class="transform ease-out duration-300 transition"
         enter-from-class="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
@@ -50,7 +50,7 @@ function initTimeout() {
       >
         <div
           v-if="showNotification"
-          class="max-w-sm w-full shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 overflow-hidden"
+          class="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg shadow-lg ring-1 ring-black ring-opacity-5"
           :class="{
             'bg-green-500': typeRef === 'success',
             'bg-red-500': typeRef === 'error',
@@ -58,28 +58,65 @@ function initTimeout() {
         >
           <div class="p-4">
             <div class="flex items-start">
-              <div class="h-full self-center shrink-0">
-                <svg v-if="typeRef === 'success'" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <div class="h-full shrink-0 self-center">
+                <svg
+                  v-if="typeRef === 'success'"
+                  class="h-6 w-6"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
 
-                <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                <svg
+                  v-else
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="h-5 w-5"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
+                  />
                 </svg>
-
               </div>
               <div class="ml-3 w-0 flex-1 pt-0.5">
                 {{ messageRef }}
               </div>
-              <div class="ml-4 self-center shrink-0 flex">
+              <div class="ml-4 flex shrink-0 self-center">
                 <button
                   type="button"
-                  class="rounded-md self-center inline-flex text-white hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  class="inline-flex self-center rounded-md text-white hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                   @click="showNotification = false"
                 >
                   <span class="sr-only">Close</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="h-5 w-5"
+                    aria-hidden="true"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </button>
               </div>

@@ -1,8 +1,11 @@
 <template>
   <div class="">
-    <div class="flex justify-between mb-4">
+    <div class="mb-4 flex justify-between">
       <div class="text-2xl">Characters</div>
-      <router-link :to="`/characters/new`" class="bg-purple-500 rounded-xl px-2 text-md">
+      <router-link
+        :to="`/characters/new`"
+        class="text-md rounded-xl bg-purple-500 px-2"
+      >
         Generate Character
       </router-link>
     </div>
@@ -11,5 +14,4 @@
   </div>
 </template>
 
-<script setup lang="ts">
-</script>
+<script setup lang="ts"></script>

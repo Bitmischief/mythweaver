@@ -1,6 +1,6 @@
-import {ZodObject} from "zod";
-import {NextFunction, Request, Response} from "express";
-import {parentLogger} from "./logger";
+import { ZodObject } from "zod";
+import { NextFunction, Request, Response } from "express";
+import { parentLogger } from "./logger";
 const logger = parentLogger.getSubLogger();
 
 export enum ValidationTypes {
@@ -10,13 +10,19 @@ export enum ValidationTypes {
 }
 
 export interface ValidationOptions {
-  validationType: ValidationTypes.Body | ValidationTypes.Query | ValidationTypes.Route;
+  validationType:
+    | ValidationTypes.Body
+    | ValidationTypes.Query
+    | ValidationTypes.Route;
 }
 
-export const useValidateRequest = (schema: ZodObject<any>, options: ValidationOptions = {
-  validationType: ValidationTypes.Body,
-}) => {
-  return async(req: Request, res: Response, next: NextFunction) => {
+export const useValidateRequest = (
+  schema: ZodObject<any>,
+  options: ValidationOptions = {
+    validationType: ValidationTypes.Body,
+  }
+) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
     if (!options) {
       options = {
         validationType: ValidationTypes.Body,
@@ -31,24 +37,22 @@ export const useValidateRequest = (schema: ZodObject<any>, options: ValidationOp
     } else if (options.validationType === ValidationTypes.Route) {
       validationObj = req.params;
     } else {
-      throw new Error('Invalid validation type provided!');
+      throw new Error("Invalid validation type provided!");
     }
 
-    logger.info('Validating request...', validationObj);
+    logger.info("Validating request...", validationObj);
 
     const result = schema.safeParse(validationObj);
 
     if (!result.success) {
-      logger.warn('Validation failed', result.error);
+      logger.warn("Validation failed", result.error);
 
-      return res
-        .status(400)
-        .json({
-          errors: result.error.errors,
-        });
+      return res.status(400).json({
+        errors: result.error.errors,
+      });
     }
 
-    logger.info('Validation succeeded...');
+    logger.info("Validation succeeded...");
 
     if (options.validationType === ValidationTypes.Body) {
       req.body = result.data;

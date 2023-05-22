@@ -1,6 +1,6 @@
 import axios from "axios";
-import { useAuthStore } from '@/store';
-import {storeToRefs} from "pinia";
+import { useAuthStore } from "@/store";
+import { storeToRefs } from "pinia";
 
 axios.defaults.baseURL = import.meta.env.VITE_API_URL;
 
@@ -36,7 +36,11 @@ axios.interceptors.response.use(
 
     if (originalConfig.url !== "/auth/token" && err.response) {
       // Access Token was expired
-      if (err.response.status === 401 && !originalConfig._retry && originalConfig._retryCount < MAX_REFRESH_RETRIES) {
+      if (
+        err.response.status === 401 &&
+        !originalConfig._retry &&
+        originalConfig._retryCount < MAX_REFRESH_RETRIES
+      ) {
         originalConfig._retry = true;
         originalConfig._retryCount++;
 

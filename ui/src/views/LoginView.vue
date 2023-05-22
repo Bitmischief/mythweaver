@@ -5,11 +5,11 @@
 </template>
 
 <script setup lang="ts">
-import { GoogleLogin } from 'vue3-google-login';
-import { useAuthStore } from '@/store';
+import { GoogleLogin } from "vue3-google-login";
+import { useAuthStore } from "@/store";
 const authStore = useAuthStore();
 
 const callback = async (googleResponse: any) => {
   await authStore.login(googleResponse.credential);
-}
+};
 </script>
