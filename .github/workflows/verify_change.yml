@@ -9,7 +9,12 @@ jobs:
         uses: actions/checkout@main
 
       - name: Build, lint & test
-        run: cd api && yarn run build && yarn run validate && yarn run test
+        run: |
+          cd api 
+          yarn install
+          yarn run build 
+          yarn run validate 
+          yarn run test
 
   build_ui:
     runs-on: ubuntu-latest
@@ -18,4 +23,9 @@ jobs:
         uses: actions/checkout@main
 
       - name: Build, lint & test
-        run: cd ui && yarn run build && yarn run validate && yarn run test
+        run: |
+          cd ui 
+          yarn install
+          yarn run build 
+          yarn run validate
+          yarn run test
