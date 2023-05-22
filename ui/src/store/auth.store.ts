@@ -1,20 +1,22 @@
-import { defineStore } from 'pinia';
-import {postToken, postRefresh} from "@/api/auth.ts";
+import { defineStore } from "pinia";
+import { postToken, postRefresh } from "@/api/auth.ts";
 import router from "@/router/router.ts";
 
 interface AuthStoreState {
-  tokens: any,
-  returnUrl: string | null,
+  tokens: any;
+  returnUrl: string | null;
 }
 
-const TOKENS_KEY_NAME = 'tokens';
+const TOKENS_KEY_NAME = "tokens";
 
 export const useAuthStore = defineStore({
-  id: 'auth',
+  id: "auth",
   state: (): AuthStoreState => ({
     // initialize state from local storage to enable user to stay logged in
-    tokens: localStorage.getItem(TOKENS_KEY_NAME) ? JSON.parse(localStorage.getItem(TOKENS_KEY_NAME) || '') : null,
-    returnUrl: null
+    tokens: localStorage.getItem(TOKENS_KEY_NAME)
+      ? JSON.parse(localStorage.getItem(TOKENS_KEY_NAME) || "")
+      : null,
+    returnUrl: null,
   }),
   actions: {
     async login(credential: string) {
@@ -27,8 +29,8 @@ export const useAuthStore = defineStore({
         localStorage.setItem(TOKENS_KEY_NAME, JSON.stringify(this.tokens));
 
         // redirect to previous url or default to home page
-        await router.push(this.returnUrl || '/');
-      } catch(err) {
+        await router.push(this.returnUrl || "/");
+      } catch (err) {
         console.error(err);
       }
     },
@@ -42,15 +44,15 @@ export const useAuthStore = defineStore({
         localStorage.setItem(TOKENS_KEY_NAME, JSON.stringify(this.tokens));
 
         // redirect to previous url or default to home page
-        await router.push(this.returnUrl || '/');
-      } catch(err) {
+        await router.push(this.returnUrl || "/");
+      } catch (err) {
         console.error(err);
       }
     },
     async logout() {
       this.tokens = null;
       localStorage.removeItem(TOKENS_KEY_NAME);
-      await router.push('/login');
-    }
-  }
+      await router.push("/login");
+    },
+  },
 });

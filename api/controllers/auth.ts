@@ -1,9 +1,9 @@
-import {Body, Post, Route, SuccessResponse, Tags} from "tsoa";
-import {OAuth2Client} from 'google-auth-library';
-import {prisma} from '../lib/providers/prisma';
-import {AppError, HttpCode} from "../lib/errors/AppError";
-import jwt from 'jsonwebtoken';
-import {parentLogger} from "../lib/logger";
+import { Body, Post, Route, SuccessResponse, Tags } from "tsoa";
+import { OAuth2Client } from "google-auth-library";
+import { prisma } from "../lib/providers/prisma";
+import { AppError, HttpCode } from "../lib/errors/AppError";
+import jwt from "jsonwebtoken";
+import { parentLogger } from "../lib/logger";
 const logger = parentLogger.getSubLogger();
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -17,7 +17,7 @@ interface TokenResponse {
 }
 
 interface TokenRequest {
-  type: 'GOOGLE';
+  type: "GOOGLE";
   credential: string;
 }
 
@@ -30,38 +30,40 @@ interface RefreshRequest {
 export default class AuthController {
   @Post("/token")
   @SuccessResponse("200", "Success")
-  public async postToken(@Body() request: TokenRequest): Promise<TokenResponse> {
+  public async postToken(
+    @Body() request: TokenRequest
+  ): Promise<TokenResponse> {
     const ticket = await client.verifyIdToken({
       idToken: request.credential,
-    })
+    });
 
     const payload = await ticket.getPayload();
 
-    if(!payload) {
+    if (!payload) {
       throw new AppError({
         httpCode: HttpCode.BAD_REQUEST,
-        description: 'Unable to properly verify provided credentials',
+        description: "Unable to properly verify provided credentials",
       });
     }
 
     const { email } = payload;
 
-    if(!email) {
+    if (!email) {
       throw new AppError({
         httpCode: HttpCode.BAD_REQUEST,
-        description: 'Email did not exist on provided credentials',
+        description: "Email did not exist on provided credentials",
       });
     }
 
-    logger.info('Getting user for email', email);
+    logger.info("Getting user for email", email);
     let user = await prisma.user.findUnique({
       where: {
         email,
-      }
+      },
     });
 
     if (!user) {
-      logger.info('User did not exist, creating....');
+      logger.info("User did not exist, creating....");
       user = await prisma.user.create({
         data: {
           email,
@@ -74,13 +76,15 @@ export default class AuthController {
 
   @Post("/refresh")
   @SuccessResponse("200", "Success")
-  public async postRefresh(@Body() request: RefreshRequest): Promise<TokenResponse> {
+  public async postRefresh(
+    @Body() request: RefreshRequest
+  ): Promise<TokenResponse> {
     let userId;
 
     try {
       const payload = jwt.verify(
         request.refreshToken,
-        process.env.JWT_REFRESH_SECRET_KEY || '',
+        process.env.JWT_REFRESH_SECRET_KEY || ""
       );
 
       userId = (payload as any).userId;
@@ -90,67 +94,65 @@ export default class AuthController {
         // return a 401 error
         throw new AppError({
           httpCode: HttpCode.UNAUTHORIZED,
-          description: 'Unable to authorize this refresh token',
+          description: "Unable to authorize this refresh token",
         });
       }
       // otherwise, return a bad request error
       throw new AppError({
         httpCode: HttpCode.UNAUTHORIZED,
-        description: 'Invalid refresh token provided',
+        description: "Invalid refresh token provided",
       });
     }
 
     const dbToken = await prisma.refreshToken.findUnique({
       where: {
         refreshToken: request.refreshToken,
-      }
+      },
     });
 
     if (!dbToken || dbToken.userId !== userId) {
       // otherwise, return a bad request error
       throw new AppError({
         httpCode: HttpCode.UNAUTHORIZED,
-        description: 'Invalid refresh token provided',
+        description: "Invalid refresh token provided",
       });
     }
 
     await prisma.refreshToken.delete({
       where: {
         refreshToken: request.refreshToken,
-      }
+      },
     });
 
     return await this.issueTokens(userId);
   }
 
   private async issueTokens(userId: number) {
-    const token = jwt.sign(
-      { userId, },
-      process.env.JWT_SECRET_KEY || '', {
-        algorithm: 'HS256',
-        expiresIn: jwtExpirySeconds,
-      });
+    const token = jwt.sign({ userId }, process.env.JWT_SECRET_KEY || "", {
+      algorithm: "HS256",
+      expiresIn: jwtExpirySeconds,
+    });
 
     const expiresAt = new Date();
     expiresAt.setSeconds(expiresAt.getSeconds() + jwtRefreshExpirySeconds);
 
     const refreshToken = jwt.sign(
-      { userId, },
-      process.env.JWT_REFRESH_SECRET_KEY || '',
+      { userId },
+      process.env.JWT_REFRESH_SECRET_KEY || "",
       {
-        algorithm: 'HS256',
+        algorithm: "HS256",
         expiresIn: jwtRefreshExpirySeconds,
-      },
+      }
     );
 
-    logger.info('Saving refresh token', refreshToken, userId);
+    logger.info("Saving refresh token", refreshToken, userId);
     await prisma.refreshToken.create({
       data: {
         refreshToken,
         expiresAt,
         userId,
-      }
-    })
+      },
+    });
 
     return {
       access_token: token,

@@ -1,0 +1,23 @@
+name: Build, Lint & Test Change
+on: [push, pull_request]
+
+jobs:
+  build_api:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@main
+
+      - name: Build, lint & test
+        run: cd api && yarn run build && yarn run validate && yarn run test
+
+  build_ui:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@main
+
+      - name: Build, lint & test
+        run: cd ui && yarn run build && yarn run validate && yarn run test

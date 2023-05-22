@@ -1,5 +1,5 @@
-import {Logger, ILogObj} from "tslog";
-import {requestIdAsyncLocalStorage} from "./requestIdMiddleware";
+import { Logger, ILogObj } from "tslog";
+import { requestIdAsyncLocalStorage } from "./requestIdMiddleware";
 
 const defaultLogObject: ILogObj = {
   requestId: () => requestIdAsyncLocalStorage.getStore()?.requestId,
