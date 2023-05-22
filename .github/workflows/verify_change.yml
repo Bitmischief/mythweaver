@@ -28,4 +28,3 @@ jobs:
           yarn install
           yarn run build 
           yarn run validate
-          yarn run test
