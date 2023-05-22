@@ -1,0 +1,31 @@
+name: Build, Lint & Test Change
+on: [push, pull_request]
+
+jobs:
+  build_api:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@main
+
+      - name: Build, lint & test
+        run: |
+          cd api 
+          yarn install
+          yarn run build 
+          yarn run validate 
+          yarn run test
+
+  build_ui:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@main
+
+      - name: Build, lint & test
+        run: |
+          cd ui 
+          yarn install
+          yarn run build 
+          yarn run validate
+          yarn run test

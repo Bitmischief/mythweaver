@@ -1,6 +1,6 @@
-import { Response } from 'express';
-import { AppError, HttpCode } from './AppError';
-import {parentLogger} from "../logger";
+import { Response } from "express";
+import { AppError, HttpCode } from "./AppError";
+import { parentLogger } from "../logger";
 const logger = parentLogger.getSubLogger();
 
 class ErrorHandler {
@@ -24,13 +24,20 @@ class ErrorHandler {
     response.status(error.httpCode).json({ message: error.message });
   }
 
-  private handleCriticalError(error: Error | AppError, response?: Response): void {
-    logger.fatal('Critical uncaught error', error?.message, (error as AppError)?.description);
+  private handleCriticalError(
+    error: Error | AppError,
+    response?: Response
+  ): void {
+    logger.fatal(
+      "Critical uncaught error",
+      error?.message,
+      (error as AppError)?.description
+    );
 
     if (response) {
       response
         .status(HttpCode.INTERNAL_SERVER_ERROR)
-        .json({ message: 'Internal server error' });
+        .json({ message: "Internal server error" });
     }
   }
 }

@@ -7,7 +7,7 @@ export enum HttpCode {
   NOT_FOUND = 404,
   CONFLICT = 409,
   INTERNAL_SERVER_ERROR = 500,
-};
+}
 
 export interface AppErrorArgs {
   name?: string;
@@ -27,7 +27,7 @@ export class AppError extends Error {
 
     Object.setPrototypeOf(this, new.target.prototype);
 
-    this.name = args.name || 'Error';
+    this.name = args.name || "Error";
     this.description = args.description;
     this.httpCode = args.httpCode;
 
