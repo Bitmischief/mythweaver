@@ -19,7 +19,7 @@
   "devDependencies": {
     "@headlessui/vue": "^1.7.13",
     "@heroicons/vue": "^2.0.18",
-    "@types/node": "^20.1.7",
+    "@types/node": "^20.2.3",
     "@typescript-eslint/eslint-plugin": "^5.59.7",
     "@typescript-eslint/parser": "^5.59.7",
     "@vitejs/plugin-vue": "^2.3.4",
