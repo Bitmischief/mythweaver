@@ -9,8 +9,8 @@
     "start": "node build/index.js",
     "build": "tsc",
     "test": "jest",
-    "validate": "eslint . --ext ts && prettier . --check **/*.ts",
-    "repair": "eslint . --ext ts --fix && prettier . --write **/*.ts"
+    "validate": "eslint . --ext ts && prettier . --check \"**/*.ts\"",
+    "repair": "eslint . --ext ts --fix && prettier . --write \"**/*.ts\""
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
