@@ -13,7 +13,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: merlin-content
+  name: merlin-content-pvc
 spec:
   accessModes:
     - ReadWriteMany
@@ -70,6 +70,6 @@ spec:
             - mountPath: "/data"
               name: merlin-content
       volumes:
-        - name: content
+        - name: merlin-content
           persistentVolumeClaim:
-            claimName: merlin-content
+            claimName: merlin-content-pvc
