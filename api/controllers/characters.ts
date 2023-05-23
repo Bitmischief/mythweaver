@@ -1,5 +1,6 @@
 import {
   Body,
+  Delete,
   Get,
   Inject,
   OperationId,
@@ -18,7 +19,6 @@ import { sanitizeJson } from "../lib/utils";
 import { AppError, HttpCode } from "../lib/errors/AppError";
 
 const logger = parentLogger.getSubLogger();
-
 const openai = getClient();
 
 interface GetCharactersResponse {
@@ -34,6 +34,7 @@ interface PostCharactersRequest {
   background: string;
   imageUri?: string;
   quests?: string[];
+  tags?: string[];
 }
 
 interface PostGenerateCharacterBaseRequest {
@@ -52,9 +53,10 @@ interface PatchCharacterRequest {
   background: string;
   imageUri?: string;
   quests?: string[];
+  tags?: string[];
 }
 
-@Route("api/characters")
+@Route("characters")
 @Tags("Characters")
 export default class CharacterController {
   @Security("jwt")
@@ -62,12 +64,32 @@ export default class CharacterController {
   @Get("/")
   public async getCharacters(
     @Inject() userId: number,
-    @Query() offset = 0,
-    @Query() limit = 10
+    @Query() term?: string,
+    @Query() offset?: number,
+    @Query() limit?: number
   ): Promise<GetCharactersResponse> {
     const characters = await prisma.character.findMany({
       where: {
         userId,
+        OR: term
+          ? [
+              {
+                name: term
+                  ? {
+                      contains: term,
+                      mode: "insensitive",
+                    }
+                  : undefined,
+              },
+              {
+                tags: term
+                  ? {
+                      hasSome: [term],
+                    }
+                  : undefined,
+              },
+            ]
+          : undefined,
       },
       skip: offset,
       take: limit,
@@ -221,5 +243,23 @@ export default class CharacterController {
         ...request,
       },
     });
+  }
+
+  @Security("jwt")
+  @OperationId("deleteCharacter")
+  @Delete("/:characterId")
+  public async deleteCharacter(
+    @Inject() userId: number,
+    @Route() characterId: number
+  ): Promise<boolean> {
+    await this.getCharacter(userId, characterId);
+
+    await prisma.character.delete({
+      where: {
+        id: characterId,
+      },
+    });
+
+    return true;
   }
 }

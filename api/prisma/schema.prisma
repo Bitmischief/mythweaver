@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
 }
 
 datasource db {
@@ -44,6 +45,7 @@ model Character {
   background  String?
   imageUri    String?
   quests      String[]
+  tags        String[]
 
   user User @relation(fields: [userId], references: [id])
 

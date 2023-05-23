@@ -9,8 +9,16 @@ export interface CharacterBase {
   imageUri?: string;
 }
 
-export const getCharacters = () => {
-  return axios.get("/characters");
+export interface GetCharactersRequest {
+  term?: string;
+  offset?: number;
+  limit?: number;
+}
+
+export const getCharacters = (query: GetCharactersRequest) => {
+  return axios.get("/characters", {
+    params: query,
+  });
 };
 
 export const getCharacter = (characterId: number) => {
@@ -31,4 +39,8 @@ export const postCharacter = (character: CharacterBase) => {
 
 export const patchCharacter = (character: CharacterBase) => {
   return axios.patch(`/characters/${character.id}`, character);
+};
+
+export const deleteCharacter = (characterId: number) => {
+  return axios.delete(`/characters/${characterId}`);
 };

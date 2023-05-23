@@ -34,10 +34,10 @@ class ErrorHandler {
       (error as AppError)?.description
     );
 
-    if (response) {
+    if (response && response.status) {
       response
-        .status(HttpCode.INTERNAL_SERVER_ERROR)
-        .json({ message: "Internal server error" });
+        ?.status(HttpCode.INTERNAL_SERVER_ERROR)
+        ?.json({ message: "Internal server error" });
     }
   }
 }

@@ -1,7 +1,13 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import express, { Application, ErrorRequestHandler } from "express";
+import express, {
+  Application,
+  ErrorRequestHandler,
+  NextFunction,
+  Request,
+  Response,
+} from "express";
 import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
 import Router from "./routes";
@@ -9,6 +15,8 @@ import { useInjectRequestId } from "./lib/requestIdMiddleware";
 import { errorHandler } from "./lib/errors/ErrorHandler";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
+import { ILogObj, Logger } from "tslog";
+const logger = new Logger<ILogObj>();
 
 const PORT = process.env.PORT || 8000;
 
@@ -48,18 +56,24 @@ app.use(
   })
 );
 
-const errorHandlerMiddleware: ErrorRequestHandler = (err, req, res) => {
+const errorHandlerMiddleware: ErrorRequestHandler = (
+  err: any,
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  logger.info("Error handler middleware", err?.message);
   errorHandler.handleError(err, res);
 };
 
 app.use(errorHandlerMiddleware);
 
 app.listen(PORT, () => {
-  console.log("Server is running on port", PORT);
+  logger.info("Server is running on port", PORT);
 });
 
 process.on("unhandledRejection", (reason: Error | any) => {
-  console.log(`Unhandled Rejection: ${reason.message || reason}`);
+  logger.info(`Unhandled Rejection: ${reason.message || reason}`);
 
   throw new Error(reason.message || reason);
 });

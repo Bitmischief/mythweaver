@@ -10,6 +10,7 @@ import CharacterController from "../controllers/characters";
 const router = express.Router();
 
 const getCharactersSchema = z.object({
+  term: z.string().optional(),
   offset: z.coerce.number().default(0).optional(),
   limit: z.coerce.number().min(1).default(10).optional(),
 });
@@ -22,13 +23,15 @@ router.get("/", [
   async (req: Request, res: Response) => {
     const controller = new CharacterController();
 
-    const { offset = 0, limit = 10 } = req.query;
+    const { term, offset = 0, limit = 10 } = req.query;
 
     const response = await controller.getCharacters(
       res.locals.auth.userId,
+      term as string,
       offset as number,
       limit as number
     );
+
     return res.status(200).send(response);
   },
 ]);
@@ -62,6 +65,7 @@ const postCharactersSchema = z.object({
   background: z.string().optional(),
   imageUri: z.string().optional(),
   quests: z.array(z.string()).optional(),
+  tags: z.array(z.string()).optional(),
 });
 
 router.post("/", [
@@ -122,6 +126,7 @@ const patchCharactersSchema = z.object({
   background: z.string().optional(),
   imageUri: z.string().optional(),
   quests: z.array(z.string()).optional(),
+  tags: z.array(z.string()).optional(),
 });
 
 router.patch("/:characterId", [
@@ -141,6 +146,24 @@ router.patch("/:characterId", [
       req.body
     );
     return res.status(200).send(response);
+  },
+]);
+
+router.delete("/:characterId", [
+  useAuthenticateRequest(),
+  useValidateRequest(getCharacterSchema, {
+    validationType: ValidationTypes.Route,
+  }),
+  async (req: Request, res: Response) => {
+    const controller = new CharacterController();
+
+    const { characterId = 0 } = req.params;
+
+    await controller.deleteCharacter(
+      res.locals.auth.userId,
+      characterId as number
+    );
+    return res.status(200).send();
   },
 ]);
 

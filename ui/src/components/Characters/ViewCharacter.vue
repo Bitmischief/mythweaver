@@ -1,11 +1,24 @@
 <template>
-  <div class="my-8">
+  <div class="my-8 flex justify-between">
     <router-link
       :to="`/characters`"
-      class="flex rounded-xl border-2 border-gray-600/20 bg-surface-2 p-3"
+      class="flex rounded-xl border-2 border-gray-600/50 bg-surface-2 p-3"
     >
       <ArrowLeftIcon class="mr-2 h-4 w-4 self-center" /> Back to list
     </router-link>
+
+    <div>
+      <button class="rounded-xl bg-green-500 p-3" @click="clickSaveCharacter">
+        Save
+      </button>
+      <button
+        v-if="!newCharacter"
+        class="ml-2 rounded-xl border-2 border-red-500 p-3"
+        @click="clickDeleteCharacter"
+      >
+        Delete
+      </button>
+    </div>
   </div>
 
   <div class="grid grid-cols-3 gap-8">
@@ -60,13 +73,6 @@
       />
     </div>
   </div>
-
-  <button
-    class="mt-12 w-full rounded-xl bg-green-300 p-2"
-    @click="clickSaveCharacter"
-  >
-    Save Character
-  </button>
 </template>
 
 <script setup lang="ts">
@@ -74,6 +80,7 @@ import { ArrowLeftIcon, ArrowPathIcon } from "@heroicons/vue/24/solid";
 import { computed, onMounted, ref } from "vue";
 import {
   CharacterBase,
+  deleteCharacter,
   getCharacter,
   patchCharacter,
   postCharacter,
@@ -90,6 +97,7 @@ const newCharacter = computed(() => route.params.characterId === "new");
 
 onMounted(async () => {
   if (newCharacter.value) {
+    character.value = {} as CharacterBase;
     await regenerate();
   } else {
     const response = await getCharacter(
@@ -140,6 +148,17 @@ async function clickSaveCharacter() {
     } else {
       showError({ message: "Failed to save character" });
     }
+  }
+}
+
+async function clickDeleteCharacter() {
+  const deleteCharacterResponse = await deleteCharacter(character.value.id);
+
+  if (deleteCharacterResponse.status === 200) {
+    showSuccess({ message: "Character deleted successfully!" });
+    await router.push("/characters");
+  } else {
+    showError({ message: "Failed to delete character. Try again soon!" });
   }
 }
 </script>
