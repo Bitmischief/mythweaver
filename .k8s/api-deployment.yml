@@ -10,6 +10,18 @@ spec:
   selector:
     app: merlin-api
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: merlin-content
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 50Gi
+  storageClassName: do-block-storage
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -54,3 +66,10 @@ spec:
               value: <GOOGLE_CLIENT_SECRET>
             - name: OPENAI_API_KEY
               value: <OPENAI_API_KEY>
+          volumeMounts:
+            - mountPath: "/data"
+              name: merlin-content
+      volumes:
+        - name: content
+          persistentVolumeClaim:
+            claimName: merlin-content
