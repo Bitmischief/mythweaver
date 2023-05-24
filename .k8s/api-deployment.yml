@@ -70,6 +70,8 @@ spec:
               value: "/app/public/images"
             - name: REDIS_ENDPOINT
               value: <REDIS_ENDPOINT>
+            - name: REDIS_PASSWORD
+              value: <REDIS_PASSWORD>
             - name: REDIS_PORT
               value: "<REDIS_PORT>"
             - name: API_URL
