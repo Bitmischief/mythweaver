@@ -5,10 +5,10 @@ on:
     branches:
       - main
     paths:
-      - 'ui/**'
-      - '.github/workflows/ui.yml'
-      - '.docker/**'
-      - '.k8s/**'
+      - "ui/**"
+      - ".github/workflows/ui.yml"
+      - ".docker/**"
+      - ".k8s/**"
 
 jobs:
   build:
@@ -32,8 +32,8 @@ jobs:
       - name: Build container image
         run: docker build -t ${{ secrets.REGISTRY_NAME }}/merlin-ui:$(echo $GITHUB_SHA | head -c7) -f .docker/Dockerfile.ui .
 
-      - name: Log in to DigitalOcean Container Registry with short-lived credentials
-        run: doctl registry login --expiry-seconds 1200
+      - name: Log in to DockerHub Container Registry with short-lived credentials
+        run: docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_TOKEN }}
 
       - name: Push image to DigitalOcean Container Registry
         run: docker push ${{ secrets.REGISTRY_NAME }}/merlin-ui:$(echo $GITHUB_SHA | head -c7)
