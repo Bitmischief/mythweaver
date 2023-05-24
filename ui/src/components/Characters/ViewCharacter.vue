@@ -37,6 +37,41 @@
       </div>
       <div class="text-md mt-2 text-white">Name</div>
       <input v-model="character.name" class="text-black" />
+
+      <div class="text-md mt-2 text-white">Tags</div>
+      <div class="flex w-auto flex-wrap">
+        <div
+          v-for="tag in character.tags"
+          :key="tag"
+          class="relative mb-2 mr-2 rounded-lg bg-slate-700 p-1"
+        >
+          {{ tag }}
+
+          <button
+            class="absolute left-0 top-0 flex h-full w-full justify-center bg-slate-800/75 opacity-0 hover:opacity-100"
+            @click="removeTag(tag)"
+          >
+            <XMarkIcon class="h-4 w-4 self-center" />
+          </button>
+        </div>
+
+        <button
+          v-if="!creatingTag"
+          class="mb-2 flex h-8 w-8 justify-center self-center rounded-full bg-slate-700"
+          @click="startCreatingTag"
+        >
+          <PlusIcon class="h-4 w-4 self-center" />
+        </button>
+        <input
+          v-else
+          ref="tagQueryInput"
+          v-model="tagQuery"
+          class="mb-2 flex w-16 rounded-lg bg-slate-700 px-2"
+          @keyup.enter="addTag"
+          @blur="stopCreatingTag"
+        />
+      </div>
+
       <div class="text-md mt-2 text-white">Looks</div>
       <textarea v-model="character.looks" class="h-[8rem] w-full text-black" />
       <div class="text-md mt-2 text-white">Personality</div>
@@ -70,13 +105,19 @@
         v-if="character.imageUri"
         :src="character.imageUri"
         class="h-auto w-full"
+        alt="Character image"
       />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ArrowLeftIcon, ArrowPathIcon } from "@heroicons/vue/24/solid";
+import {
+  ArrowLeftIcon,
+  ArrowPathIcon,
+  PlusIcon,
+  XMarkIcon,
+} from "@heroicons/vue/24/solid";
 import { computed, onMounted, ref } from "vue";
 import {
   CharacterBase,
@@ -89,11 +130,14 @@ import {
 } from "@/api/characters.ts";
 import { useRoute, useRouter } from "vue-router";
 import { showError, showSuccess } from "@/lib/notifications.ts";
-
 const route = useRoute();
 const router = useRouter();
 const character = ref<CharacterBase>({} as CharacterBase);
 const newCharacter = computed(() => route.params.characterId === "new");
+const creatingTag = ref(false);
+const tagQuery = ref("");
+
+const tagQueryInput = ref<HTMLElement | null>(null);
 
 onMounted(async () => {
   if (newCharacter.value) {
@@ -160,5 +204,33 @@ async function clickDeleteCharacter() {
   } else {
     showError({ message: "Failed to delete character. Try again soon!" });
   }
+}
+
+function startCreatingTag() {
+  creatingTag.value = true;
+  setTimeout(() => {
+    (tagQueryInput.value as HTMLElement)?.focus();
+  }, 0);
+}
+
+function stopCreatingTag() {
+  creatingTag.value = false;
+  tagQuery.value = "";
+}
+
+function addTag() {
+  if (character.value.tags?.some((t) => t === tagQuery.value)) {
+    showError({ message: "Tag already exists" });
+    return;
+  }
+
+  character.value.tags?.push(tagQuery.value);
+  tagQuery.value = "";
+}
+
+function removeTag(tag: string) {
+  character.value.tags = character.value.tags?.filter(
+    (t): t is string => t !== tag
+  );
 }
 </script>

@@ -7,6 +7,7 @@ export interface CharacterBase {
   personality: string;
   background: string;
   imageUri?: string;
+  tags?: string[];
 }
 
 export interface GetCharactersRequest {
