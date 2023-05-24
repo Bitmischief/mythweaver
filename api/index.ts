@@ -15,6 +15,7 @@ import { useInjectRequestId } from "./lib/requestIdMiddleware";
 import { errorHandler } from "./lib/errors/ErrorHandler";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
+import "./worker/index";
 import { ILogObj, Logger } from "tslog";
 const logger = new Logger<ILogObj>();
 

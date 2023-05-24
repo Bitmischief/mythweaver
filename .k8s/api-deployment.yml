@@ -66,8 +66,16 @@ spec:
               value: <GOOGLE_CLIENT_SECRET>
             - name: OPENAI_API_KEY
               value: <OPENAI_API_KEY>
+            - name: DATA_DIR
+              value: "/app/public/images"
+            - name: REDIS_ENDPOINT
+              value: <REDIS_ENDPOINT>
+            - name: REDIS_PORT
+              value: <REDIS_PORT>
+            - name: API_URL
+              value: "https://api.merlinapp.ai"
           volumeMounts:
-            - mountPath: "/data"
+            - mountPath: "/app/public/images"
               name: merlin-content
       volumes:
         - name: merlin-content

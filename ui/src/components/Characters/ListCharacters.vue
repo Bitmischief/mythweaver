@@ -63,7 +63,7 @@ async function loadMoreCharacters() {
             </div>
           </div>
 
-          <div v-if="character.imageUri" class="w-[4rem] self-center">
+          <div v-if="character.imageUri" class="ml-2 w-[4rem] self-center">
             <img
               :src="character.imageUri"
               class="w-16 self-center rounded-full"

@@ -17,6 +17,7 @@ import { getClient } from "../lib/providers/openai";
 import { parentLogger } from "../lib/logger";
 import { sanitizeJson } from "../lib/utils";
 import { AppError, HttpCode } from "../lib/errors/AppError";
+import { generatedImageQueue } from "../worker";
 
 const logger = parentLogger.getSubLogger();
 const openai = getClient();
@@ -234,7 +235,7 @@ export default class CharacterController {
   ): Promise<Character> {
     await this.getCharacter(userId, characterId);
 
-    return prisma.character.update({
+    const character = await prisma.character.update({
       where: {
         id: characterId,
       },
@@ -243,6 +244,16 @@ export default class CharacterController {
         ...request,
       },
     });
+
+    // if image is stored by openai, we need to download and store ourselves
+    // or the image won't be available after a while
+    if (character.imageUri?.startsWith("https://oaidalleapiprodscus")) {
+      await generatedImageQueue.add({
+        character,
+      });
+    }
+
+    return character;
   }
 
   @Security("jwt")

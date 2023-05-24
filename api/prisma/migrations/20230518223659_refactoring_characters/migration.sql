@@ -1,19 +1,19 @@
 /*
   Warnings:
 
-  - You are about to drop the column `dnd5eId` on the `characters` table. All the data in the column will be lost.
-  - You are about to drop the column `type` on the `characters` table. All the data in the column will be lost.
-  - You are about to drop the `dnd-5e` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `dnd-5e-languages` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `dnd-5e-proficiencies` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `dnd-5e-random-languages` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `dnd-5e-random-proficiencies` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `dnd-5e-random-spell-slots` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `dnd-5e-random-spells` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `dnd-5e-random-stat-sheet` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `dnd-5e-spell-slots` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `dnd-5e-spells` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `random-personas` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the column `dnd5eId` on the `characters` table. All the images in the column will be lost.
+  - You are about to drop the column `type` on the `characters` table. All the images in the column will be lost.
+  - You are about to drop the `dnd-5e` table. If the table is not empty, all the images it contains will be lost.
+  - You are about to drop the `dnd-5e-languages` table. If the table is not empty, all the images it contains will be lost.
+  - You are about to drop the `dnd-5e-proficiencies` table. If the table is not empty, all the images it contains will be lost.
+  - You are about to drop the `dnd-5e-random-languages` table. If the table is not empty, all the images it contains will be lost.
+  - You are about to drop the `dnd-5e-random-proficiencies` table. If the table is not empty, all the images it contains will be lost.
+  - You are about to drop the `dnd-5e-random-spell-slots` table. If the table is not empty, all the images it contains will be lost.
+  - You are about to drop the `dnd-5e-random-spells` table. If the table is not empty, all the images it contains will be lost.
+  - You are about to drop the `dnd-5e-random-stat-sheet` table. If the table is not empty, all the images it contains will be lost.
+  - You are about to drop the `dnd-5e-spell-slots` table. If the table is not empty, all the images it contains will be lost.
+  - You are about to drop the `dnd-5e-spells` table. If the table is not empty, all the images it contains will be lost.
+  - You are about to drop the `random-personas` table. If the table is not empty, all the images it contains will be lost.
   - Made the column `userId` on table `characters` required. This step will fail if there are existing NULL values in that column.
 
 */

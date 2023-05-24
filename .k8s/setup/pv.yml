@@ -13,7 +13,7 @@ spec:
   # "Delete" if you wish the volume to be deleted automatically with the PVC
   persistentVolumeReclaimPolicy: Delete
   capacity:
-    storage: 50Gi
+    storage: 100Gi
   accessModes:
     - ReadWriteMany
   csi:
@@ -22,3 +22,42 @@ spec:
     volumeHandle: 69b6cd99-f9bc-11ed-bcdb-0a58ac1206a1
     volumeAttributes:
       com.digitalocean.csi/noformat: "true"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: local-pv1
+spec:
+  storageClassName: local-storage
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/storage/data1"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: local-pv2
+spec:
+  storageClassName: local-storage
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/storage/data2"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: local-pv3
+spec:
+  storageClassName: local-storage
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/storage/data3"

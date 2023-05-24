@@ -1,7 +1,7 @@
 /*
   Warnings:
 
-  - You are about to drop the column `prompt` on the `characters` table. All the data in the column will be lost.
+  - You are about to drop the column `prompt` on the `characters` table. All the images in the column will be lost.
 
 */
 -- AlterTable

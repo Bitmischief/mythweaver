@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 services:
   ui:
     build:
@@ -13,11 +13,13 @@ services:
       dockerfile: ./.docker/Dockerfile.api
     ports:
       - "8000:8000"
-#    volumes:
-#      - ./api:/app/
-#      - nodemodules:/app/node_modules
+    #    volumes:
+    #      - ./api:/app/
+    #      - nodemodules:/app/node_modules
     environment:
-      DATABASE_URL: 'postgresql://postgres:postgres@db:5432/postgres?schema=public'
+      DATABASE_URL: "postgresql://postgres:postgres@db:5432/postgres?schema=public"
+      REDIS_ENDPOINT: "redis"
+      REDIS_PORT: 6379
 
   db:
     image: postgres:14.1-alpine
@@ -26,9 +28,15 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     ports:
-      - '5432:5432'
+      - "5432:5432"
     volumes:
-      - db:/var/lib/postgresql/data
+      - db:/var/lib/postgresql/images
+
+  redis:
+    image: redis/redis-stack
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
 
 volumes:
   db:
