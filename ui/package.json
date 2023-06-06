@@ -37,7 +37,7 @@
     "tailwindcss": "^3.3.2",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.4",
-    "vite": "^2.9.13",
+    "vite": "^2.9.16",
     "vue-eslint-parser": "^9.3.0",
     "vue-tsc": "^1.6.5"
   },
