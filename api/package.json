@@ -41,7 +41,7 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "@prisma/client": "^4.14.1",
+    "@prisma/client": "^4.16.2",
     "axios": "^1.4.0",
     "bull": "^4.10.4",
     "cors": "^2.8.5",
