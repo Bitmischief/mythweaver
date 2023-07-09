@@ -24,7 +24,7 @@ jobs:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
       - name: Build container image
-        run: docker build -t ${{ secrets.REGISTRY_NAME }}/merlin-marketing :$(echo $GITHUB_SHA | head -c7) -f .docker/Dockerfile.marketing .
+        run: docker build -t ${{ secrets.REGISTRY_NAME }}/merlin-marketing:$(echo $GITHUB_SHA | head -c7) -f .docker/Dockerfile.marketing .
 
       - name: Log in to DockerHub Container Registry with short-lived credentials
         run: docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_TOKEN }}
