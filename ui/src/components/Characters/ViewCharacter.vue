@@ -21,7 +21,7 @@
     </div>
   </div>
 
-  <div class="grid grid-cols-3 gap-8">
+  <div class="grid grid-cols-2 gap-8">
     <div v-if="character">
       <div class="flex justify-between">
         <div class="text-lg font-bold text-white">Info</div>
@@ -107,6 +107,19 @@
         class="h-auto w-full"
         alt="Character image"
       />
+
+      <template v-if="generatedImages.length">
+        <div class="grid grid-cols-3 gap-4">
+          <img
+            v-for="image of generatedImages"
+            :key="image"
+            :src="image"
+            class="h-auto w-72 cursor-pointer"
+            alt="Character image"
+            @click="chooseImageUri(image)"
+          />
+        </div>
+      </template>
     </div>
   </div>
 </template>
@@ -162,15 +175,20 @@ async function regenerate() {
 }
 
 const isImageGenLoading = ref(false);
+const generatedImages = ref<string[]>([]);
 
 async function clickGenerateImage() {
-  if (character.value?.looks?.length) {
+  if (character.value.imageAIPrompt) {
     isImageGenLoading.value = true;
     character.value.imageUri = undefined;
+
     const postGenerateCharacterResponse = await postGenerateCharacterImage(
-      character.value.looks
+      character.value.imageAIPrompt
     );
-    character.value.imageUri = postGenerateCharacterResponse.data[0].url;
+
+    generatedImages.value = postGenerateCharacterResponse.data.map(
+      (r) => r.url
+    );
     isImageGenLoading.value = false;
   }
 }
@@ -229,8 +247,19 @@ function addTag() {
 }
 
 function removeTag(tag: string) {
-  character.value.tags = character.value.tags?.filter(
+  if (!character.value.tags) return;
+
+  character.value.tags = character.value.tags.filter(
     (t): t is string => t !== tag
   );
+}
+
+const selectedImageUri = ref<string | undefined>(undefined);
+async function chooseImageUri(imageUri: string) {
+  selectedImageUri.value = imageUri;
+  character.value.imageUri = imageUri;
+  generatedImages.value = [];
+
+  await clickSaveCharacter();
 }
 </script>

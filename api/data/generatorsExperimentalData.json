@@ -1,0 +1,54 @@
+[
+  {
+    "id": 21,
+    "name": "Locations",
+    "description": "Design intriguing locations for your characters to discover and explore.",
+    "parentId": null,
+    "imageUri": "locations.png",
+    "formatPrompt": "[{ \n      \"name\": \"\", \n      \"looks\": \"\", \n      \"imageAIPrompt\": \"\", \n      \"history\": \"\"\n    }]",
+    "children": [
+      {
+        "id": 22,
+        "name": "Towns & Cities",
+        "description": "Create vibrant towns and sprawling cities filled with endless possibilities.",
+        "parentId": 8
+      },
+      {
+        "id": 23,
+        "name": "Wilderness",
+        "description": "Forge the untamed wilderness, home to hidden treasures and dangerous beasts.",
+        "parentId": 8
+      }
+    ]
+  },
+  {
+    "id": 24,
+    "name": "Quests",
+    "description": "Design captivating quests to challenge your adventurers and propel your story forward.",
+    "parentId": null,
+    "formatPrompt": "[{ \n      \"name\": \"\", \n      \"objective\": \"\", \n      \"description\": \"\"\n    }]",
+    "imageUri": "quests.png"
+  },
+  {
+    "id": 25,
+    "name": "Loot",
+    "description": "Create dazzling treasures and magical artifacts to reward your adventurers.",
+    "parentId": null,
+    "imageUri": "treasure.png",
+    "formatPrompt": "[{ \n      \"name\": \"\", \n      \"type\": \"\", \n      \"imageAIPrompt\": \"\", \n      \"valueInGold\": 0, \n      \"attributes\": [\"\"], \n      \"effects\": [\"\"], \n      \"description\": \"\"\n    }]",
+    "children": [
+      {
+        "id": 26,
+        "name": "Artifacts",
+        "description": "Create legendary artifacts with mysterious origins and immense power.",
+        "parentId": 12
+      },
+      {
+        "id": 27,
+        "name": "Treasures",
+        "description": "Design glittering treasures that adventurers dream of discovering.",
+        "parentId": 12
+      }
+    ]
+  }
+]

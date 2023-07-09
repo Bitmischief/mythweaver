@@ -1,0 +1,50 @@
+name: Build and Deploy Marketing Website
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "marketing/**"
+      - ".github/workflows/ui.yml"
+      - ".docker/**"
+      - ".k8s/**"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@main
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Build container image
+        run: docker build -t ${{ secrets.REGISTRY_NAME }}/merlin-marketing :$(echo $GITHUB_SHA | head -c7) -f .docker/Dockerfile.marketing .
+
+      - name: Log in to DockerHub Container Registry with short-lived credentials
+        run: docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      - name: Push image to DigitalOcean Container Registry
+        run: docker push ${{ secrets.REGISTRY_NAME }}/merlin-marketing:$(echo $GITHUB_SHA | head -c7)
+
+      - name: Update deployment file
+        run: >
+          TAG=$(echo $GITHUB_SHA | head -c7) && 
+          sed -i 's|<IMAGE>|${{ secrets.REGISTRY_NAME }}/merlin-marketing:'${TAG}'|' $GITHUB_WORKSPACE/.k8s/marketing-deployment.yml
+
+      - name: Save DigitalOcean kubeconfig with short-lived credentials
+        run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 ${{ secrets.CLUSTER_NAME }}
+
+      - name: Deploy to DigitalOcean Kubernetes
+        run: kubectl apply -f $GITHUB_WORKSPACE/.k8s/marketing-deployment.yml
+
+      - name: Deploy ingress to DigitalOcean Kubernetes
+        run: kubectl apply -f $GITHUB_WORKSPACE/.k8s/ingress.yml
+
+      - name: Verify deployment
+        run: kubectl rollout status deployment/merlin-marketing

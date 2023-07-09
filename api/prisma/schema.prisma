@@ -27,8 +27,11 @@ model User {
   updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
   email     String    @unique
 
-  characters   Character[]
-  RefreshToken RefreshToken[]
+  characters    Character[]
+  refreshTokens RefreshToken[]
+  campaigns     Campaign[]
+  sessions      Session[]
+  comments      Comment[]
 
   @@map("users")
 }
@@ -39,15 +42,90 @@ model Character {
   updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
   userId    Int
 
-  name        String
-  looks       String?
-  personality String?
-  background  String?
-  imageUri    String?
-  quests      String[]
-  tags        String[]
+  name          String
+  looks         String?
+  personality   String?
+  background    String?
+  imageUri      String?
+  quests        String[]
+  tags          String[]
+  imageAIPrompt String?
 
-  user User @relation(fields: [userId], references: [id])
+  user     User      @relation(fields: [userId], references: [id])
+  comments Comment[]
 
   @@map("characters")
+}
+
+model Campaign {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  userId    Int
+
+  name                String
+  description         String?
+  rpgSystemCode       String
+  publicAdventureCode String?
+
+  user      User       @relation(fields: [userId], references: [id])
+  sessions  Session[]
+  comments  Comment[]
+  locations Location[]
+
+  @@map("campaigns")
+}
+
+model Session {
+  id         Int       @id @default(autoincrement())
+  createdAt  DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  updatedAt  DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  userId     Int
+  campaignId Int
+
+  playedAt   DateTime @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  summary    String?
+  transcript String?
+  tags       String[]
+
+  user     User      @relation(fields: [userId], references: [id])
+  campaign Campaign  @relation(fields: [campaignId], references: [id])
+  comments Comment[]
+
+  @@map("sessions")
+}
+
+model Comment {
+  id          Int       @id @default(autoincrement())
+  createdAt   DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  updatedAt   DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  userId      Int
+  sessionId   Int?
+  campaignId  Int?
+  characterId Int?
+
+  text String
+
+  user      User       @relation(fields: [userId], references: [id])
+  session   Session?   @relation(fields: [sessionId], references: [id])
+  campaign  Campaign?  @relation(fields: [campaignId], references: [id])
+  character Character? @relation(fields: [characterId], references: [id])
+
+  @@map("comments")
+}
+
+model Location {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+
+  name        String
+  description String?
+  imageUri    String?
+  tags        String[]
+  campaignId  Int
+
+  campaign Campaign @relation(fields: [campaignId], references: [id])
+
+  @@map("locations")
 }

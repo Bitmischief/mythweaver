@@ -4,6 +4,8 @@ import { ref } from "vue";
 import { Dialog, DialogPanel } from "@headlessui/vue";
 import { useAuthStore } from "@/store";
 import NavbarContent from "@/components/Navigation/NavbarContent.vue";
+import { useCampaignStore } from "@/store/campaign.store.ts";
+import { storeToRefs } from "pinia";
 
 const authStore = useAuthStore();
 const showPanel = ref(false);
@@ -27,7 +29,7 @@ async function logout() {
         </div>
       </div>
 
-      <div class="hidden md:flex">
+      <div class="hidden w-full md:flex">
         <NavbarContent />
       </div>
     </div>

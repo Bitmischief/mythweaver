@@ -4,9 +4,10 @@
       <div class="text-2xl">Characters</div>
       <router-link
         :to="`/characters/new`"
-        class="text-md rounded-xl bg-purple-500 px-2"
+        class="text-md flex rounded-xl bg-purple-500 px-2"
       >
-        Generate Character
+        <PlusIcon class="mr-1 h-5 w-5 self-center" />
+        <span class="self-center">Character</span>
       </router-link>
     </div>
 
@@ -14,4 +15,6 @@
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { PlusIcon } from "@heroicons/vue/24/solid";
+</script>

@@ -1,0 +1,12 @@
+FROM node:lts-alpine as builder
+
+WORKDIR /app
+COPY marketing ./
+RUN yarn install && yarn run build
+
+FROM nginx:alpine
+
+# Replace default Nginx configuration file with custom one
+COPY ./ui/default.conf /etc/nginx/conf.d/
+
+COPY --from=builder /app/dist /usr/share/nginx/html

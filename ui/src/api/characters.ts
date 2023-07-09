@@ -8,6 +8,7 @@ export interface CharacterBase {
   background: string;
   imageUri?: string;
   tags?: string[];
+  imageAIPrompt?: string;
 }
 
 export interface GetCharactersRequest {
@@ -31,7 +32,7 @@ export const postGenerateCharacter = () => {
 };
 
 export const postGenerateCharacterImage = (looks: string) => {
-  return axios.post("/characters/generate/image", { looks });
+  return axios.post("/generators/image", { looks });
 };
 
 export const postCharacter = (character: CharacterBase) => {

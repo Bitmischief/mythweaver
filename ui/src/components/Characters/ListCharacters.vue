@@ -6,10 +6,11 @@ import { debounce } from "lodash";
 const charactersSearch = ref({
   term: "",
   offset: 0,
-  limit: 10,
+  limit: 25,
 });
 const characters = ref<CharacterBase[]>([]);
 const loadMore = ref(false);
+const lastFilterTerm = ref("");
 
 onMounted(async () => {
   await loadCharacters();
@@ -19,13 +20,21 @@ async function loadCharacters() {
   const getCharactersResponse = await getCharacters({
     ...charactersSearch.value,
   });
-  characters.value.push(...getCharactersResponse.data.data);
+
+  if (charactersSearch.value.term !== lastFilterTerm.value) {
+    characters.value = getCharactersResponse.data.data;
+  } else {
+    characters.value.push(...getCharactersResponse.data.data);
+  }
+
   loadMore.value =
     getCharactersResponse.data.data.length === getCharactersResponse.data.limit;
 }
 
 const searchCharacters = debounce(async () => {
+  charactersSearch.value.offset = 0;
   await loadCharacters();
+  lastFilterTerm.value = charactersSearch.value.term;
 }, 250);
 
 async function loadMoreCharacters() {

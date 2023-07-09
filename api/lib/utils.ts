@@ -1,3 +1,7 @@
+import { parentLogger } from "./logger";
+
+const logger = parentLogger.getSubLogger();
+
 export function shuffle<T>(array: T[]): T[] {
   let currentIndex = array.length,
     randomIndex;
@@ -19,7 +23,13 @@ export function shuffle<T>(array: T[]): T[] {
 }
 
 export function sanitizeJson(json: string): string {
-  const jsonStart = Array.from(json).findIndex((char) => char === "{");
+  if (isValidJson(json)) {
+    return json;
+  }
+
+  logger.info("Json was invalid, attempting to clean...");
+
+  const jsonStart = Array.from(json).findIndex((char) => char === "[");
   json = json.slice(jsonStart);
   json = json.replace(/ {4}|[\t\n\r]/gm, "");
 
@@ -50,4 +60,23 @@ export function sanitizeJson(json: string): string {
   }
 
   return fixedCopy;
+}
+
+export function isValidJson(json: string): boolean {
+  try {
+    JSON.parse(json);
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
+export function trimPlural(s: string | undefined): string | undefined {
+  if (!s) return;
+
+  if (s.endsWith("s")) {
+    return s.slice(0, -1);
+  }
+
+  return s;
 }

@@ -13,14 +13,8 @@ import {
 } from "tsoa";
 import { prisma } from "../lib/providers/prisma";
 import { Character } from "@prisma/client";
-import { getClient } from "../lib/providers/openai";
-import { parentLogger } from "../lib/logger";
-import { sanitizeJson } from "../lib/utils";
 import { AppError, HttpCode } from "../lib/errors/AppError";
 import { generatedImageQueue } from "../worker";
-
-const logger = parentLogger.getSubLogger();
-const openai = getClient();
 
 interface GetCharactersResponse {
   data: Character[];
@@ -36,15 +30,6 @@ interface PostCharactersRequest {
   imageUri?: string;
   quests?: string[];
   tags?: string[];
-}
-
-interface PostGenerateCharacterBaseRequest {
-  name?: string;
-  occupation?: string;
-}
-
-interface PostGenerateCharacterImageRequest {
-  looks: string;
 }
 
 interface PatchCharacterRequest {
@@ -146,83 +131,6 @@ export default class CharacterController {
         ...request,
       },
     });
-  }
-
-  @Security("jwt")
-  @OperationId("generateCharacterBase")
-  @Post("/generate/base")
-  public async postGenerateCharacter(
-    @Inject() userId: number,
-    @Body() request: PostGenerateCharacterBaseRequest
-  ): Promise<any> {
-    let prompt = `Please generate me a character to be used in a 
-    roleplaying game such as dungeons and dragons. I would like the name, 
-    looks, personality and background of the character return in the following 
-    JSON format. Make sure to wrap any quotes in the generated text with a backslash.
-    Please return JSON only so that I can easily deserialize into a javascript object.
-    
-    { 
-      "name": "", 
-      "looks": "", 
-      "personality": "",
-      "background": ""
-    }
-    `;
-
-    if (request.name || request.occupation) {
-      prompt +=
-        "\n\nUse the following information to help generate the character.";
-    }
-
-    if (request.name) {
-      prompt += `\n\nName: ${request.name}`;
-    }
-
-    if (request.occupation) {
-      prompt += `\n\nOccupation: ${request.occupation}`;
-    }
-
-    let character: any = undefined;
-
-    do {
-      const response = await openai.createCompletion({
-        model: "text-davinci-003",
-        prompt,
-        max_tokens: 2000,
-      });
-
-      const generatedJson = response.data.choices[0].text?.trim() || "";
-      logger.info("Received json from openai", generatedJson);
-
-      const charString = sanitizeJson(generatedJson);
-      logger.info("Sanitized json from openai...", charString);
-
-      try {
-        character = JSON.parse(charString || "");
-      } catch (e) {
-        logger.warn("Failed to parse character string", e, charString);
-      }
-    } while (!character);
-
-    return character;
-  }
-
-  @Security("jwt")
-  @OperationId("generateCharacterImage")
-  @Post("/generate/image")
-  public async postGenerateCharacterImage(
-    @Inject() userId: number,
-    @Body() request: PostGenerateCharacterImageRequest
-  ): Promise<any> {
-    const prompt =
-      `Generate a fantasy style character portrait based on the following looks: ` +
-      request.looks;
-
-    const response = await openai.createImage({
-      prompt,
-    });
-
-    return response.data.data;
   }
 
   @Security("jwt")
