@@ -21,7 +21,7 @@
     "@headlessui/vue": "^1.7.13",
     "@heroicons/vue": "^2.0.18",
     "@types/lodash": "^4.14.194",
-    "@types/node": "^20.2.3",
+    "@types/node": "^20.4.1",
     "@typescript-eslint/eslint-plugin": "^5.61.0",
     "@typescript-eslint/parser": "^5.59.7",
     "@vitejs/plugin-vue": "^2.3.4",
