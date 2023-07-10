@@ -1,9 +1,9 @@
 <template>
   <div class="h-full w-full bg-dragon bg-contain bg-top bg-no-repeat">
-    <div class="flex justify-center bg-black/10">
-      <div class="flex w-[75rem] justify-between p-6">
+    <div class="flex justify-center bg-black/20">
+      <div class="flex w-[75rem] flex-col justify-between p-6 md:flex-row">
         <img src="/images/logo-horizontal.svg " class="h-[60px]" />
-        <div class="flex justify-end self-center">
+        <div class="mt-4 flex justify-end self-center md:mt-0">
           <img src="/icons/facebook.svg" class="mr-2 h-[24px] w-[24px]" />
           <img src="/icons/instagram.svg" class="mr-2 h-[24px] w-[24px]" />
           <img src="/icons/twitter.svg" class="mr-2 h-[24px] w-[24px]" />
@@ -16,11 +16,11 @@
     <div class="mt-[8rem] flex justify-center">
       <div class="flex w-full flex-col justify-center md:w-[75rem]">
         <div
-          class="p-0 text-center font-akira text-[3rem] font-black md:text-[5rem]"
+          class="p-0 text-center font-akira text-[2rem] font-black md:text-[5rem]"
         >
           MYTHWEAVER
         </div>
-        <div class="p-0 text-center font-quicksand text-[2.5rem] md:-mt-8">
+        <div class="p-0 text-center font-quicksand text-[1.5rem] md:-mt-8">
           AI Dungeon Master Assistant
         </div>
         <div class="mt-12 flex justify-center md:mt-24 md:justify-start">
@@ -133,13 +133,11 @@
     </div>
 
     <div
-      class="-mt-[8rem] flex h-[50rem] justify-center bg-dragon2 bg-cover bg-top bg-no-repeat"
+      class="flex justify-center bg-hart bg-contain bg-top bg-no-repeat p-12"
     >
-      <div class="mt-[10rem] flex w-full justify-between md:w-[75rem]">
-        <img
-          src="/images/phoenix.png"
-          class="mr-4 h-[20rem] w-[20rem] self-center shadow-2xl md:mr-24 md:h-[40rem] md:w-[40rem]"
-        />
+      <div
+        class="mt-[1rem] flex w-full flex-col-reverse justify-between md:w-[75rem] md:flex-row"
+      >
         <div class="self-center">
           <div class="font-akira text-[2rem] md:text-[4rem]">
             Back us on indiegogo
@@ -154,6 +152,12 @@
           <button class="mt-8 rounded-xl bg-red-500 p-4 font-akira text-lg">
             Support on Indiegogo
           </button>
+        </div>
+        <div class="mb-8 flex w-full justify-center shadow-2xl">
+          <img
+            src="/images/phoenix.png"
+            class="h-[20rem] w-[20rem] md:mb-0 md:ml-24 md:h-[30rem] md:w-[80rem]"
+          />
         </div>
       </div>
     </div>
@@ -176,14 +180,14 @@
             </div>
           </div>
 
-          <div class="mt-12 flex justify-center">
+          <div class="mt-12 flex flex-col justify-center md:flex-row">
             <input
-              class="mr-2 h-[4rem] self-center rounded-xl border border-gray-700 bg-gray-800 px-6 text-xl md:w-[40rem]"
+              class="mr-2 h-[4rem] w-full self-center rounded-xl border border-gray-700 bg-gray-800 px-6 text-xl md:w-[40rem]"
               placeholder="Email address"
               type="email"
             />
             <button
-              class="h-[4rem] self-center rounded-xl bg-red-500 p-4 px-6 font-akira text-lg"
+              class="mt-4 h-[4rem] w-full self-center rounded-xl bg-red-500 p-4 px-6 font-akira text-lg md:mt-0 md:w-[20rem]"
             >
               Join Waitlist
             </button>
