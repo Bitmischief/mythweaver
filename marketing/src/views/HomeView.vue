@@ -1,49 +1,62 @@
 <template>
   <div class="h-full w-full bg-dragon bg-contain bg-top bg-no-repeat">
-    <div class="mt-[2rem] flex w-[75rem] justify-end">
-      <img src="/icons/facebook.svg" class="mr-2 h-[24px] w-[24px]" />
-      <img src="/icons/instagram.svg" class="mr-2 h-[24px] w-[24px]" />
-      <img src="/icons/twitter.svg" class="mr-2 h-[24px] w-[24px]" />
-      <img src="/icons/youtube.svg" class="mr-2 h-[24px] w-[24px]" />
-      <img src="/icons/github.svg" class="mr-2 h-[24px] w-[24px]" />
-      <img src="/icons/tiktok.png" class="h-[24px] w-[24px]" />
+    <div class="flex justify-center bg-black/10">
+      <div class="flex w-[75rem] justify-between p-6">
+        <img src="/images/logo-horizontal.svg " class="h-[60px]" />
+        <div class="flex justify-end self-center">
+          <img src="/icons/facebook.svg" class="mr-2 h-[24px] w-[24px]" />
+          <img src="/icons/instagram.svg" class="mr-2 h-[24px] w-[24px]" />
+          <img src="/icons/twitter.svg" class="mr-2 h-[24px] w-[24px]" />
+          <img src="/icons/youtube.svg" class="mr-2 h-[24px] w-[24px]" />
+          <img src="/icons/github.svg" class="mr-2 h-[24px] w-[24px]" />
+          <img src="/icons/tiktok.png" class="h-[24px] w-[24px]" />
+        </div>
+      </div>
     </div>
     <div class="mt-[8rem] flex justify-center">
-      <div class="flex w-[75rem] flex-col justify-center">
-        <div class="p-0 text-center font-akira text-[5rem] font-black">
+      <div class="flex w-full flex-col justify-center md:w-[75rem]">
+        <div
+          class="p-0 text-center font-akira text-[3rem] font-black md:text-[5rem]"
+        >
           MYTHWEAVER
         </div>
-        <div class="-mt-8 p-0 text-center font-quicksand text-[2.5rem]">
+        <div class="p-0 text-center font-quicksand text-[2.5rem] md:-mt-8">
           AI Dungeon Master Assistant
         </div>
-        <div class="mt-24 flex w-96">
-          <div class="mr-4">
-            <div
-              class="h-10 w-10 animate-bounce rounded-full border border-red-500 bg-transparent p-[0.2rem]"
-            >
-              <div class="h-8 w-8 rounded-full bg-red-500"></div>
+        <div class="mt-12 flex justify-center md:mt-24 md:justify-start">
+          <div class="flex w-96">
+            <div class="mr-4">
+              <div
+                class="h-10 w-10 animate-bounce rounded-full border border-red-500 bg-transparent p-[0.2rem]"
+              >
+                <div class="h-8 w-8 rounded-full bg-red-500"></div>
+              </div>
             </div>
-          </div>
-          <div class="font-quicksand text-xl">
-            <b>MythWeaver</b> is an app for Dungeon Masters that acts as an AI
-            assistant helping you prep faster, quickly respond to unforeseen
-            scenarios, and build a compelling, engaging world for your party to
-            explore and enjoy.
+            <div class="font-quicksand text-xl">
+              <b>MythWeaver</b> is an app for Dungeon Masters that acts as an AI
+              assistant helping you prep faster, quickly respond to unforeseen
+              scenarios, and build a compelling, engaging world for your party
+              to explore and enjoy.
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <div
-      class="flex justify-center bg-tiger bg-contain bg-top bg-no-repeat p-4"
-    >
-      <div class="mt-[10rem] flex w-[75rem] justify-between">
-        <img
-          src="/images/cat-character.png"
-          class="mr-24 h-[40rem] w-[40rem] shadow-2xl"
-        />
+    <div class="flex justify-center bg-tiger bg-contain bg-top bg-no-repeat">
+      <div
+        class="mt-[10rem] flex w-full flex-col justify-between p-12 md:w-[75rem] md:flex-row md:p-0"
+      >
+        <div class="mb-8 flex w-full justify-center shadow-2xl">
+          <img
+            src="/images/cat-character.png"
+            class="h-[20rem] w-[20rem] md:mb-0 md:mr-24 md:h-[30rem] md:w-[80rem]"
+          />
+        </div>
         <div class="self-center">
-          <div class="font-akira text-[4rem]">BRING CHARACTERS TO LIFE</div>
+          <div class="font-akira text-[2rem] md:text-[4rem]">
+            BRING CHARACTERS TO LIFE
+          </div>
 
           <div class="font-quicksand text-[18px] leading-[30px]">
             MythWeaver is the artist in your back pocket. Sketch the heroes and
@@ -56,10 +69,16 @@
       </div>
     </div>
 
-    <div class="flex justify-center bg-hart bg-contain bg-top bg-no-repeat p-4">
-      <div class="mt-[1rem] flex w-[75rem] justify-between">
+    <div
+      class="flex justify-center bg-hart bg-contain bg-top bg-no-repeat p-12"
+    >
+      <div
+        class="mt-[1rem] flex w-full flex-col-reverse justify-between md:w-[75rem] md:flex-row"
+      >
         <div class="self-center">
-          <div class="font-akira text-[4rem]">Seamlessly Craft Your Story</div>
+          <div class="font-akira text-[2rem] md:text-[4rem]">
+            Seamlessly Craft Your Story
+          </div>
 
           <div class="font-quicksand text-[18px] leading-[30px]">
             So your party decided to adopt the goblin instead of fighting it.
@@ -69,18 +88,20 @@
             a loop.
           </div>
         </div>
-        <img
-          src="/images/unicorn.png"
-          class="ml-24 h-[40rem] w-[40rem] shadow-2xl"
-        />
+        <div class="mb-8 flex w-full justify-center shadow-2xl">
+          <img
+            src="/images/unicorn.png"
+            class="h-[20rem] w-[20rem] md:mb-0 md:ml-24 md:h-[30rem] md:w-[80rem]"
+          />
+        </div>
       </div>
     </div>
 
     <div
       class="mt-[5rem] flex h-[40rem] w-full justify-center bg-gods bg-cover bg-top bg-no-repeat"
     >
-      <div class="w-[65rem] self-center">
-        <div class="text-center font-akira text-[52px]">
+      <div class="w-full self-center p-12 md:w-[65rem] md:p-0">
+        <div class="text-center font-akira text-[36px] md:text-[52px]">
           Keep Players Hooked with Evolving Worlds
         </div>
 
@@ -95,10 +116,10 @@
     </div>
 
     <div
-      class="flex h-[70rem] w-full justify-center bg-hydra bg-cover bg-top bg-no-repeat"
+      class="flex h-[30rem] w-full justify-center bg-hydra bg-cover bg-top bg-no-repeat p-12 md:p-0"
     >
-      <div class="w-[75rem] self-center">
-        <div class="w-[40rem] font-akira text-[52px]">
+      <div class="w-full self-center md:w-[75rem]">
+        <div class="w-full font-akira text-[36px] md:w-[40rem] md:text-[52px]">
           Focus on What You Love
         </div>
 
@@ -114,13 +135,15 @@
     <div
       class="-mt-[8rem] flex h-[50rem] justify-center bg-dragon2 bg-cover bg-top bg-no-repeat"
     >
-      <div class="mt-[10rem] flex w-[75rem] justify-between">
+      <div class="mt-[10rem] flex w-full justify-between md:w-[75rem]">
         <img
           src="/images/phoenix.png"
-          class="mr-24 h-[40rem] w-[40rem] shadow-2xl"
+          class="mr-4 h-[20rem] w-[20rem] self-center shadow-2xl md:mr-24 md:h-[40rem] md:w-[40rem]"
         />
         <div class="self-center">
-          <div class="font-akira text-[4rem]">Back us on indiegogo</div>
+          <div class="font-akira text-[2rem] md:text-[4rem]">
+            Back us on indiegogo
+          </div>
 
           <div class="font-quicksand text-[18px] leading-[30px]">
             Excited to see where the journey takes us? Grab your gear and let’s
@@ -138,15 +161,15 @@
     <div
       class="-mt-[8rem] flex h-[50rem] justify-center bg-hart bg-contain bg-top bg-no-repeat p-4"
     >
-      <div class="mt-[1rem] flex w-[75rem] justify-between">
+      <div class="mt-[1rem] flex w-full justify-between md:w-[75rem]">
         <div class="self-center">
-          <div class="text-center font-akira text-[3.5rem]">
+          <div class="text-center font-akira text-[2rem] md:text-[3.5rem]">
             Dive in and start weaving!
           </div>
 
           <div class="flex justify-center">
             <div
-              class="w-[50rem] text-center font-quicksand text-[18px] leading-[30px]"
+              class="w-full text-center font-quicksand text-[18px] leading-[30px] md:w-[50rem]"
             >
               Ready to kick your campaigns up a notch? MythWeaver is ready for
               you. Sign up and start crafting the adventure of a lifetime.
@@ -155,7 +178,7 @@
 
           <div class="mt-12 flex justify-center">
             <input
-              class="mr-2 h-[4rem] w-[40rem] self-center rounded-xl border border-gray-700 bg-gray-800 px-6 text-xl"
+              class="mr-2 h-[4rem] self-center rounded-xl border border-gray-700 bg-gray-800 px-6 text-xl md:w-[40rem]"
               placeholder="Email address"
               type="email"
             />
@@ -176,3 +199,4 @@
     </div>
   </div>
 </template>
+<script setup lang="ts"></script>
