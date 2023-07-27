@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid/index.js";
 import {
   Listbox,
@@ -8,30 +8,13 @@ import {
 } from "@headlessui/vue";
 import { computed } from "vue";
 
-const props = defineProps({
-  modelValue: {
-    type: [String, null],
-    required: true,
-    default: null,
-  },
-  options: {
-    type: Array,
-    required: true,
-  },
-  valueProp: {
-    type: String,
-    required: true,
-  },
-  displayProp: {
-    type: String,
-    required: true,
-  },
-  allowNone: {
-    type: Boolean,
-    required: false,
-    default: false,
-  },
-});
+const props = defineProps<{
+  modelValue: string | null | undefined;
+  options: any[];
+  valueProp: string;
+  displayProp: string;
+  allowNone?: boolean;
+}>();
 
 const emit = defineEmits(["update:modelValue"]);
 
@@ -62,7 +45,7 @@ const allOptions = computed(() => {
         class="gradient-border-no-opacity relative h-12 w-full cursor-pointer rounded-xl border bg-black px-4 text-left text-white"
       >
         <span class="block truncate">{{
-          !value && props.allowNone
+          !value && allowNone
             ? "None"
             : allOptions.find((o) => o[valueProp] === value)?.name
         }}</span>
@@ -84,7 +67,7 @@ const allOptions = computed(() => {
           <ListboxOption
             v-for="option in allOptions"
             v-slot="{ active }"
-            :key="option[valueProp]"
+            :key="option[valueProp] || valueProp"
             :value="option[valueProp]"
             as="template"
           >

@@ -30,7 +30,7 @@ onMounted(() => {
   const iid = setInterval(() => {
     loadingSnippet.value = getRandomLoadingSnippet();
   }, 10 * 1000);
-  intervalId.value = iid;
+  intervalId.value = iid as unknown as number;
 });
 
 onUnmounted(() => {

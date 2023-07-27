@@ -67,12 +67,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  ArrowLeftIcon,
-  ArrowPathIcon,
-  PlusIcon,
-  XMarkIcon,
-} from "@heroicons/vue/24/solid";
+import { ArrowLeftIcon } from "@heroicons/vue/24/solid";
 import { computed, onMounted, ref } from "vue";
 import {
   CharacterBase,
@@ -80,8 +75,6 @@ import {
   getCharacter,
   patchCharacter,
   postCharacter,
-  postGenerateCharacter,
-  postGenerateCharacterImage,
 } from "@/api/characters.ts";
 import { useRoute, useRouter } from "vue-router";
 import { showError, showSuccess } from "@/lib/notifications.ts";
@@ -89,51 +82,13 @@ const route = useRoute();
 const router = useRouter();
 const character = ref<CharacterBase>({} as CharacterBase);
 const newCharacter = computed(() => route.params.characterId === "new");
-const creatingTag = ref(false);
-const tagQuery = ref("");
-
-const tagQueryInput = ref<HTMLElement | null>(null);
 
 onMounted(async () => {
-  if (newCharacter.value) {
-    character.value = {} as CharacterBase;
-    await regenerate();
-  } else {
-    const response = await getCharacter(
-      parseInt(route.params.characterId.toString())
-    );
-    character.value = response.data as CharacterBase;
-  }
+  const response = await getCharacter(
+    parseInt(route.params.characterId.toString())
+  );
+  character.value = response.data as CharacterBase;
 });
-
-const isBaseGenLoading = ref(false);
-
-async function regenerate() {
-  isBaseGenLoading.value = true;
-  character.value = {} as CharacterBase;
-  const postGenerateCharacterResponse = await postGenerateCharacter();
-  character.value = postGenerateCharacterResponse.data as CharacterBase;
-  isBaseGenLoading.value = false;
-}
-
-const isImageGenLoading = ref(false);
-const generatedImages = ref<string[]>([]);
-
-async function clickGenerateImage() {
-  if (character.value.imageAIPrompt) {
-    isImageGenLoading.value = true;
-    character.value.imageUri = undefined;
-
-    const postGenerateCharacterResponse = await postGenerateCharacterImage(
-      character.value.imageAIPrompt
-    );
-
-    generatedImages.value = postGenerateCharacterResponse.data.map(
-      (r) => r.url
-    );
-    isImageGenLoading.value = false;
-  }
-}
 
 async function clickSaveCharacter() {
   if (newCharacter.value) {
@@ -164,44 +119,5 @@ async function clickDeleteCharacter() {
   } else {
     showError({ message: "Failed to delete character. Try again soon!" });
   }
-}
-
-function startCreatingTag() {
-  creatingTag.value = true;
-  setTimeout(() => {
-    (tagQueryInput.value as HTMLElement)?.focus();
-  }, 0);
-}
-
-function stopCreatingTag() {
-  creatingTag.value = false;
-  tagQuery.value = "";
-}
-
-function addTag() {
-  if (character.value.tags?.some((t) => t === tagQuery.value)) {
-    showError({ message: "Tag already exists" });
-    return;
-  }
-
-  character.value.tags?.push(tagQuery.value);
-  tagQuery.value = "";
-}
-
-function removeTag(tag: string) {
-  if (!character.value.tags) return;
-
-  character.value.tags = character.value.tags.filter(
-    (t): t is string => t !== tag
-  );
-}
-
-const selectedImageUri = ref<string | undefined>(undefined);
-async function chooseImageUri(imageUri: string) {
-  selectedImageUri.value = imageUri;
-  character.value.imageUri = imageUri;
-  generatedImages.value = [];
-
-  await clickSaveCharacter();
 }
 </script>

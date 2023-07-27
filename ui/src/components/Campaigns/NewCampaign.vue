@@ -31,7 +31,7 @@ onMounted(async () => {
 
 watch(
   campaign,
-  (oldVal, newVal) => {
+  () => {
     loadAdventures();
     setDefaultName();
   },
