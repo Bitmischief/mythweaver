@@ -64,9 +64,13 @@ const images = [
 const randomizedImages = ref<string[]>(shuffleArray(images));
 
 function getImageUrl(fileName: string) {
-  return new URL(
+  console.log("building url for", fileName);
+
+  const url = new URL(
     `/images/generators/characters/${fileName}`,
     import.meta.url
   ).toString();
+
+  console.log(url);
 }
 </script>
