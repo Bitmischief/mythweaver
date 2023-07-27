@@ -8,7 +8,7 @@
         <img
           v-for="image in randomizedImages"
           :key="image"
-          :src="getImageUrl(image)"
+          :src="`/images/generators/characters/${image}`"
           alt=""
         />
       </div>
@@ -62,15 +62,4 @@ const images = [
   "/townfolk/scholars.png",
 ];
 const randomizedImages = ref<string[]>(shuffleArray(images));
-
-function getImageUrl(fileName: string) {
-  console.log("building url for", fileName);
-
-  const url = new URL(
-    `/images/generators/characters/${fileName}`,
-    import.meta.url
-  ).toString();
-
-  console.log(url);
-}
 </script>
