@@ -1,30 +1,31 @@
 import axios from "axios";
 
-export interface Generator {
-  id: number;
+export interface Summoner {
+  code: string;
   name: string;
   description: string;
   imageUri?: string;
-  parent: Generator | null;
+  parent: Summoner | null;
 }
 
-export const getGenerators = (parentId: number | undefined = undefined) => {
-  return axios.get("/generators", {
-    params: {
-      parentId,
-    },
-  });
+export const getSummoners = () => {
+  return axios.get("/generators");
 };
 
-export const getGenerator = (id: number) => {
-  return axios.get(`/generators/${id}`);
+export const getSummoner = (code: string) => {
+  return axios.get(`/generators/${code}`);
 };
 
-export interface PostGeneratorGenerateRequest {
+export interface PostSummonerSummonRequest {
   campaignId: number;
-  customData?: any;
+  customArgs?: CustomArg[];
 }
 
-export const postGeneratorGenerate = (id: number, payload: PostGeneratorGenerateRequest) => {
-  return axios.post(`/generators/${id}/generate`, payload);
+export interface CustomArg {
+  key: string;
+  value: any;
+}
+
+export const postSummonerSummon = (code: string, payload: PostSummonerSummonRequest) => {
+  return axios.post(`/generators/${code}/generate`, payload);
 };

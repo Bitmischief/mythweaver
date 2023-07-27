@@ -9,7 +9,6 @@ import {
   OperationId,
   Post,
   Body,
-  Patch,
 } from "tsoa";
 import { prisma } from "../lib/providers/prisma";
 import { Campaign, Character } from "@prisma/client";
@@ -17,11 +16,7 @@ import { sanitizeJson } from "../lib/utils";
 import { AppError, HttpCode } from "../lib/errors/AppError";
 import { parentLogger } from "../lib/logger";
 import { getClient } from "../lib/providers/openai";
-import generators, {
-  Generator,
-  GeneratorResponse,
-  getGenerator,
-} from "../data/generators";
+import generators, { Generator, getGenerator } from "../data/generators";
 import { getRpgSystem } from "../data/rpgSystems";
 
 const logger = parentLogger.getSubLogger();
@@ -35,7 +30,12 @@ export interface GetGeneratorsResponse {
 
 export interface PostGeneratorGenerate {
   campaignId: number;
-  customData?: any;
+  customArgs?: CustomArg[];
+}
+
+export interface CustomArg {
+  key: string;
+  value: any;
 }
 
 interface PostGenerateCharacterImageRequest {
@@ -43,7 +43,7 @@ interface PostGenerateCharacterImageRequest {
 }
 
 @Route("generators")
-@Tags("Generators")
+@Tags("Summoning")
 export class GeneratorController {
   @Get("/")
   @Security("jwt")
@@ -69,7 +69,7 @@ export class GeneratorController {
   public getGenerator(
     @Inject() userId: number,
     @Path() code: string
-  ): GeneratorResponse | undefined {
+  ): Generator | undefined {
     return getGenerator(code);
   }
 
@@ -80,11 +80,15 @@ export class GeneratorController {
     @Inject() userId: number,
     @Body() request: PostGenerateCharacterImageRequest
   ): Promise<any> {
-    const prompt = `${request.looks}, medieval, digital art`;
+    return await this.getImageForPrompt(request.looks, 3);
+  }
+
+  private async getImageForPrompt(prompt: string, count: number) {
+    prompt = `${prompt}, medieval, digital art`;
 
     const response = await openai.createImage({
       prompt,
-      n: 3,
+      n: count,
     });
 
     return response.data.data;
@@ -120,9 +124,9 @@ export class GeneratorController {
       });
     }
 
-    const prompt = buildPrompt(generator, campaign);
+    const prompt = buildPrompt(generator, campaign, request.customArgs);
 
-    let character: any = undefined;
+    let characters: any = undefined;
 
     do {
       const response = await openai.createCompletion({
@@ -138,17 +142,30 @@ export class GeneratorController {
       logger.info("Sanitized json from openai...", charString);
 
       try {
-        character = JSON.parse(charString || "");
+        characters = JSON.parse(charString || "");
       } catch (e) {
         logger.warn("Failed to parse character string", e, charString);
       }
-    } while (!character);
+    } while (!characters);
 
-    return character;
+    const promises = characters.map((c: any) =>
+      this.getImageForPrompt(c.imageAIPrompt, 1)
+    );
+    const results = await Promise.all(promises);
+
+    for (let i = 0; i < characters.length; i++) {
+      characters[i].imageUri = results[i][0]?.url;
+    }
+
+    return characters;
   }
 }
 
-const buildPrompt = (generator: GeneratorResponse, campaign: Campaign) => {
+const buildPrompt = (
+  generator: Generator,
+  campaign: Campaign,
+  customArgs: CustomArg[] = []
+) => {
   const rpgSystem = getRpgSystem(campaign.rpgSystemCode);
   const publicAdventure = rpgSystem?.publicAdventures?.find(
     (a) => a.code === campaign.publicAdventureCode
@@ -161,56 +178,30 @@ const buildPrompt = (generator: GeneratorResponse, campaign: Campaign) => {
     });
   }
 
-  let prompt = `Please generate me 3 unique ${buildGeneratorPromptDescription(
-    generator
-  )} to be used in
-  ${rpgSystem.name} for the campaign ${
-    publicAdventure?.name
-  }. Please focus on generating distinctly unique and different options. Please return
-  JSON only so that I can easily deserialize into a javascript object. Use the
-  following format.
-  ${generator?.grandParent?.formatPrompt}.
-  `;
+  let prompt = `Please generate me 3 unique ${generator.name.toLowerCase()} to be used in
+  ${rpgSystem.name}`;
 
-  if (generator?.grandParent?.allowsImageGeneration) {
-    prompt += `Please also generate a prompt to be used by an AI image generator to generate an image for this
-       ${generator?.grandParent?.name} to be stored in the JSON property 'imageAIPrompt'. Please do not refer to the ${generator?.grandParent?.name} name in the prompt and use short, concise, clear statements describing the looks.`;
+  if (publicAdventure) {
+    prompt += `for the campaign ${publicAdventure?.name}. `;
+  } else {
+    prompt += ". ";
   }
+
+  if (customArgs.length > 0) {
+    prompt += `Please use the following parameters to guide generation: ${customArgs
+      .map((a) => `${a.key}: ${a.value}`)
+      .join(", ")}. `;
+  }
+
+  prompt += `Please focus on generating 3 distinctly unique and different ${generator.name.toLowerCase()}. Please return JSON only so that I can easily deserialize into a javascript object. Use the following format. ${
+    generator.formatPrompt
+  }.`;
+
+  if (generator.allowsImageGeneration) {
+    prompt += `Please also generate a prompt to be used by an AI image generator to generate an image for this ${generator.name} to be stored in the JSON property 'imageAIPrompt'. Please do not refer to the ${generator.name} name in the prompt and use short, concise, clear statements describing the looks.`;
+  }
+
+  logger.info("Built prompt", prompt);
 
   return prompt;
-};
-
-const buildGeneratorPromptDescription = (generator: GeneratorResponse) => {
-  if (generator?.node.promptOverride) {
-    return generator?.node.promptOverride;
-  }
-
-  let desc = "";
-  let iteratingGenerator = generator as any;
-  const hierarchicalNames = [];
-
-  while (iteratingGenerator !== undefined) {
-    hierarchicalNames.push(iteratingGenerator.name);
-    iteratingGenerator = iteratingGenerator.parent;
-  }
-
-  hierarchicalNames.reverse();
-
-  for (let i = 0; i < hierarchicalNames.length; i++) {
-    const hierarchicalName = hierarchicalNames[i];
-
-    if (i === 0) {
-      desc += `${hierarchicalName} with `;
-    } else {
-      desc += ` sub-type: ${hierarchicalName}`;
-
-      if (i + 1 !== hierarchicalNames.length) {
-        desc += ", ";
-      } else {
-        desc += ".";
-      }
-    }
-  }
-
-  return desc;
 };

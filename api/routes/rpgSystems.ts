@@ -36,40 +36,4 @@ router.get("/", [
   },
 ]);
 
-const getAdventuresSchema = z.object({
-  term: z.string().optional(),
-  offset: z.coerce.number().default(0).optional(),
-  limit: z.coerce.number().min(1).default(10).optional(),
-});
-
-const validateRpgSystemIdSchema = z.object({
-  rpgSystemCode: z.string(),
-});
-
-router.get("/:rpgSystemId/adventures", [
-  useAuthenticateRequest(),
-  useValidateRequest(getAdventuresSchema, {
-    validationType: ValidationTypes.Query,
-  }),
-  useValidateRequest(validateRpgSystemIdSchema, {
-    validationType: ValidationTypes.Route,
-  }),
-  async (req: Request, res: Response) => {
-    const controller = new RpgSystemController();
-
-    const { term, offset = 0, limit = 10 } = req.query;
-    const { rpgSystemCode } = req.params;
-
-    const response = await controller.getAdventures(
-      res.locals.auth.userId,
-      rpgSystemCode as string,
-      term as string,
-      offset as number,
-      limit as number
-    );
-
-    return res.status(200).send(response);
-  },
-]);
-
 export default router;

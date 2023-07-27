@@ -1,16 +1,5 @@
 <template>
-  <div class="">
-    <div class="mb-4 flex justify-between">
-      <div class="text-2xl">Campaigns</div>
-      <router-link
-        :to="`/campaigns/new`"
-        class="text-md flex rounded-xl bg-purple-500 px-2"
-      >
-        <PlusIcon class="mr-1 h-5 w-5 self-center" />
-        <span class="self-center">Campaign</span>
-      </router-link>
-    </div>
-
+  <div class="p-4">
     <router-view></router-view>
   </div>
 </template>

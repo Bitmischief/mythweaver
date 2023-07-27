@@ -1,5 +1,6 @@
 import {
   Body,
+  Delete,
   Get,
   Inject,
   OperationId,
@@ -86,6 +87,40 @@ export default class CampaignController {
       data: {
         ...request,
         userId,
+      },
+    });
+  }
+
+  @Security("jwt")
+  @OperationId("deleteCampaign")
+  @Delete("/:campaignId")
+  public async deleteCampaign(
+    @Inject() userId: number,
+    @Route() campaignId: number
+  ): Promise<void> {
+    const campaign = await prisma.campaign.findUnique({
+      where: {
+        id: campaignId,
+      },
+    });
+
+    if (!campaign) {
+      throw new AppError({
+        description: "Campaign not found.",
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    if (campaign.userId !== userId) {
+      throw new AppError({
+        description: "You do not have access to this campaign.",
+        httpCode: HttpCode.FORBIDDEN,
+      });
+    }
+
+    await prisma.campaign.delete({
+      where: {
+        id: campaignId,
       },
     });
   }

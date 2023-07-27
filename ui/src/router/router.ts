@@ -4,11 +4,13 @@ import LoginView from "@/views/LoginView.vue";
 import { useAuthStore } from "@/store";
 import ViewCharacter from "@/components/Characters/ViewCharacter.vue";
 import ListCharacters from "@/components/Characters/ListCharacters.vue";
-import NewCharacter from "@/components/Characters/NewCharacter.vue";
 import CampaignsView from "@/views/CampaignsView.vue";
 import ListCampaigns from "@/components/Campaigns/ListCampaigns.vue";
 import NewCampaign from "@/components/Campaigns/NewCampaign.vue";
-import GeneratorsView from "@/views/GeneratorsView.vue";
+import SummoningView from "@/views/SummoningView.vue";
+import ListSummoners from "@/components/Summoning/ListSummoners.vue";
+import ViewSummoner from "@/components/Summoning/ViewSummoner.vue";
+import ViewCampaign from "@/components/Campaigns/ViewCampaign.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -37,11 +39,6 @@ const router = createRouter({
           component: ListCharacters,
         },
         {
-          path: "new",
-          alias: "",
-          component: NewCharacter,
-        },
-        {
           path: ":characterId",
           component: ViewCharacter,
         },
@@ -62,18 +59,43 @@ const router = createRouter({
         },
         {
           path: "new",
-          alias: "",
           component: NewCampaign,
         },
       ],
     },
     {
-      name: "GENERATORS",
-      path: "/generators",
-      component: GeneratorsView,
+      name: "SUMMONING",
+      path: "/summoning",
+      component: SummoningView,
       meta: {
         authRequired: true,
       },
+      children: [
+        {
+          path: "list",
+          alias: "",
+          component: ListSummoners,
+        },
+        {
+          path: "view/:summonerCode",
+          component: ViewSummoner,
+        },
+      ],
+    },
+    {
+      name: "CAMPAIGN",
+      path: "/campaign",
+      component: CampaignsView,
+      meta: {
+        authRequired: true,
+      },
+      children: [
+        {
+          path: "edit",
+          alias: "",
+          component: ViewCampaign,
+        },
+      ],
     },
   ],
 });

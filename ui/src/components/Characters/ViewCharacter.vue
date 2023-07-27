@@ -2,7 +2,7 @@
   <div class="my-8 flex justify-between">
     <router-link
       :to="`/characters`"
-      class="flex rounded-xl border-2 border-gray-600/50 bg-surface-2 p-3"
+      class="bg-surface-2 flex rounded-xl border-2 border-gray-600/50 p-3"
     >
       <ArrowLeftIcon class="mr-2 h-4 w-4 self-center" /> Back to list
     </router-link>
@@ -21,105 +21,47 @@
     </div>
   </div>
 
-  <div class="grid grid-cols-2 gap-8">
-    <div v-if="character">
-      <div class="flex justify-between">
-        <div class="text-lg font-bold text-white">Info</div>
-        <button
-          class="rounded-lg bg-amber-200 p-1.5 text-amber-900"
-          @click="regenerate"
-        >
-          <ArrowPathIcon
-            class="h-6 w-6"
-            :class="{ 'animate-spin': isBaseGenLoading }"
-          />
-        </button>
-      </div>
-      <div class="text-md mt-2 text-white">Name</div>
-      <input v-model="character.name" class="text-black" />
-
-      <div class="text-md mt-2 text-white">Tags</div>
-      <div class="flex w-auto flex-wrap">
-        <div
-          v-for="tag in character.tags"
-          :key="tag"
-          class="relative mb-2 mr-2 rounded-lg bg-slate-700 p-1"
-        >
-          {{ tag }}
-
-          <button
-            class="absolute left-0 top-0 flex h-full w-full justify-center bg-slate-800/75 opacity-0 hover:opacity-100"
-            @click="removeTag(tag)"
-          >
-            <XMarkIcon class="h-4 w-4 self-center" />
-          </button>
-        </div>
-
-        <button
-          v-if="!creatingTag"
-          class="mb-2 flex h-8 w-8 justify-center self-center rounded-full bg-slate-700"
-          @click="startCreatingTag"
-        >
-          <PlusIcon class="h-4 w-4 self-center" />
-        </button>
-        <input
-          v-else
-          ref="tagQueryInput"
-          v-model="tagQuery"
-          class="mb-2 flex w-16 rounded-lg bg-slate-700 px-2"
-          @keyup.enter="addTag"
-          @blur="stopCreatingTag"
-        />
-      </div>
-
-      <div class="text-md mt-2 text-white">Looks</div>
-      <textarea v-model="character.looks" class="h-[8rem] w-full text-black" />
-      <div class="text-md mt-2 text-white">Personality</div>
-      <textarea
-        v-model="character.personality"
-        class="h-[12rem] w-full text-black"
-      />
-      <div class="text-md mt-2 text-white">Background</div>
-      <textarea
-        v-model="character.background"
-        class="h-[12rem] w-full text-black"
-      />
-    </div>
-
-    <div>
-      <div class="flex justify-between">
-        <div class="text-lg font-bold text-white">Extras</div>
-        <button
-          class="rounded-lg bg-amber-200 p-1.5 text-amber-900"
-          :disabled="!character"
-          @click="clickGenerateImage"
-        >
-          <ArrowPathIcon
-            class="h-6 w-6"
-            :class="{ 'animate-spin': isImageGenLoading }"
-          />
-        </button>
-      </div>
-      <div class="text-md mt-2 text-white">Image</div>
+  <div v-if="character">
+    <div class="flex">
       <img
         v-if="character.imageUri"
         :src="character.imageUri"
-        class="h-auto w-full"
+        class="h-48 w-48 self-center rounded-full"
         alt="Character image"
       />
 
-      <template v-if="generatedImages.length">
-        <div class="grid grid-cols-3 gap-4">
-          <img
-            v-for="image of generatedImages"
-            :key="image"
-            :src="image"
-            class="h-auto w-72 cursor-pointer"
-            alt="Character image"
-            @click="chooseImageUri(image)"
-          />
+      <div class="ml-4" style="width: calc(100% - 12rem)">
+        <input
+          v-model="character.name"
+          class="gradient-border-no-opacity relative mt-2 h-16 w-full rounded-xl border bg-black p-4 text-left text-2xl text-white"
+        />
+
+        <textarea
+          v-model="character.background"
+          class="gradient-border-no-opacity mt-4 h-[8rem] w-full rounded-xl border bg-black p-4 text-left text-lg text-white"
+        />
+      </div>
+    </div>
+
+    <div class="mt-8 border-t-2 border-gray-600/25 pt-8">
+      <div class="flex">
+        <div class="text-md mr-6 w-24 self-center text-right text-white">
+          Looks
         </div>
-      </template>
+        <textarea
+          v-model="character.looks"
+          class="gradient-border-no-opacity mt-4 h-[8rem] w-full rounded-xl border bg-black p-4 text-left text-lg text-white"
+        />
+      </div>
+      <div class="mt-4 flex">
+        <div class="text-md mr-6 w-24 self-center text-right text-white">
+          Personality
+        </div>
+        <textarea
+          v-model="character.personality"
+          class="gradient-border-no-opacity mt-4 h-[12rem] h-[8rem] w-full w-full rounded-xl border bg-black p-4 text-left text-lg text-white"
+        />
+      </div>
     </div>
   </div>
 </template>

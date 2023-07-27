@@ -2,6 +2,10 @@
 import { onMounted, ref } from "vue";
 import { CharacterBase, getCharacters } from "@/api/characters.ts";
 import { debounce } from "lodash";
+import Character from "@/components/Characters/Character.vue";
+import { useEventBus } from "@/lib/events.ts";
+
+const eventBus = useEventBus();
 
 const charactersSearch = ref({
   term: "",
@@ -13,8 +17,17 @@ const loadMore = ref(false);
 const lastFilterTerm = ref("");
 
 onMounted(async () => {
-  await loadCharacters();
+  await init();
+
+  eventBus.$on("campaign-selected", async () => {
+    await init();
+  });
 });
+
+async function init() {
+  characters.value = [];
+  await loadCharacters();
+}
 
 async function loadCharacters() {
   const getCharactersResponse = await getCharacters({
@@ -55,31 +68,13 @@ async function loadMoreCharacters() {
     <div class="text-2xl">No characters found!</div>
   </div>
   <div v-else>
-    <div class="grid grid-cols-2 gap-8 md:grid-cols-4">
+    <div class="grid grid-cols-1 gap-8 md:grid-cols-4">
       <router-link
         v-for="(character, i) of characters"
         :key="i"
         :to="`/characters/${character.id}`"
       >
-        <div class="flex rounded-xl bg-purple-900 p-2">
-          <div class="w-full">
-            <div class="text-lg">
-              {{ character.name }}
-            </div>
-
-            <div class="h-[3rem] overflow-hidden text-xs text-purple-300">
-              {{ character.background || "No background provided" }}
-            </div>
-          </div>
-
-          <div v-if="character.imageUri" class="ml-2 w-[4rem] self-center">
-            <img
-              :src="character.imageUri"
-              class="w-16 self-center rounded-full"
-              alt=""
-            />
-          </div>
-        </div>
+        <Character :character="character" :full="false" />
       </router-link>
     </div>
 

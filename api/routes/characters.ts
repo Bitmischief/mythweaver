@@ -10,6 +10,7 @@ import CharacterController from "../controllers/characters";
 const router = express.Router();
 
 const getCharactersSchema = z.object({
+  campaignId: z.coerce.number().default(0),
   term: z.string().optional(),
   offset: z.coerce.number().default(0).optional(),
   limit: z.coerce.number().min(1).default(10).optional(),
@@ -23,10 +24,11 @@ router.get("/", [
   async (req: Request, res: Response) => {
     const controller = new CharacterController();
 
-    const { term, offset = 0, limit = 10 } = req.query;
+    const { campaignId = 0, term, offset = 0, limit = 10 } = req.query;
 
     const response = await controller.getCharacters(
       res.locals.auth.userId,
+      campaignId as number,
       term as string,
       offset as number,
       limit as number
@@ -59,6 +61,7 @@ router.get("/:characterId", [
 ]);
 
 const postCharactersSchema = z.object({
+  campaignId: z.number(),
   name: z.string().optional(),
   looks: z.string().optional(),
   personality: z.string().optional(),
