@@ -16,11 +16,14 @@ const props = defineProps<{
   allowNone?: boolean;
 }>();
 
-const emit = defineEmits(["update:modelValue"]);
+const emit = defineEmits(["update:modelValue", "change"]);
 
 const value = computed({
   get: () => props.modelValue,
-  set: (value) => emit("update:modelValue", value),
+  set: (value) => {
+    emit("change", value);
+    emit("update:modelValue", value);
+  },
 });
 
 const allOptions = computed(() => {

@@ -5,6 +5,7 @@ import {
   Inject,
   OperationId,
   Post,
+  Put,
   Query,
   Route,
   Security,
@@ -21,6 +22,13 @@ export interface GetCampaignsResponse {
 }
 
 export interface PostCampaignRequest {
+  name: string;
+  description?: string;
+  rpgSystemCode: string;
+  publicAdventureCode?: string;
+}
+
+export interface PutCampaignRequest {
   name: string;
   description?: string;
   rpgSystemCode: string;
@@ -87,6 +95,45 @@ export default class CampaignController {
       data: {
         ...request,
         userId,
+      },
+    });
+  }
+
+  @Security("jwt")
+  @OperationId("putCampaign")
+  @Put("/:campaignId")
+  public async putCampaign(
+    @Inject() userId: number,
+    @Route() campaignId = 0,
+    @Body() request: PutCampaignRequest
+  ): Promise<Campaign> {
+    const campaign = await prisma.campaign.findUnique({
+      where: {
+        id: campaignId,
+      },
+    });
+
+    if (!campaign) {
+      throw new AppError({
+        description: "Campaign not found",
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    if (campaign.userId !== userId) {
+      throw new AppError({
+        description: "You do not have access to this campaign.",
+        httpCode: HttpCode.FORBIDDEN,
+      });
+    }
+
+    return prisma.campaign.update({
+      where: {
+        id: campaignId,
+      },
+      data: {
+        ...campaign,
+        ...request,
       },
     });
   }

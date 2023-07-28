@@ -26,35 +26,15 @@ const systemsLimit = ref(999);
 
 onMounted(async () => {
   await loadRpgSystems();
-  setDefaultName();
 });
 
 watch(
   campaign,
   () => {
     loadAdventures();
-    setDefaultName();
   },
   { deep: true }
 );
-
-function setDefaultName() {
-  if (campaign.value.rpgSystemCode !== "other") {
-    if (campaign.value.publicAdventureCode !== "other") {
-      const adventure = adventures.value.find(
-        (a) => a.code === campaign.value.publicAdventureCode
-      );
-      campaign.value.name = adventure?.name ?? "";
-    } else {
-      const rpgSystem = rpgSystems.value.find(
-        (s) => s.code === campaign.value.rpgSystemCode
-      );
-      campaign.value.name = rpgSystem?.name ?? "";
-    }
-  } else {
-    campaign.value.name = "";
-  }
-}
 
 function loadAdventures() {
   const rpgSystem = rpgSystems.value.find(
@@ -90,6 +70,16 @@ const atmosphere = ref<string[]>([]);
 <template>
   <div class="">
     <div class="text-2xl">Let's Create A Campaign</div>
+
+    <div class="mt-8 text-lg text-gray-400">
+      What should we call this campaign?
+    </div>
+
+    <input
+      v-model="campaign.name"
+      autofocus
+      class="gradient-border-no-opacity relative mt-2 h-12 w-full rounded-xl border bg-black px-4 text-left text-white"
+    />
 
     <div class="mt-8 text-lg text-gray-400">
       What roleplaying system are you using?
@@ -137,16 +127,6 @@ const atmosphere = ref<string[]>([]);
         allow-none
       />
     </template>
-
-    <div class="mt-6 text-lg text-gray-400">
-      What should we call this campaign?
-    </div>
-
-    <input
-      v-model="campaign.name"
-      class="gradient-border-no-opacity relative mt-2 h-12 w-full rounded-xl border bg-black px-4 text-left text-white"
-      placeholder="Flight of the Valkyries"
-    />
 
     <div v-if="campaign.rpgSystemCode" class="mt-6">
       <button
