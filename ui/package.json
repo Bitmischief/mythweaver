@@ -19,7 +19,7 @@
     "vue3-google-login": "^2.0.15"
   },
   "devDependencies": {
-    "@headlessui/vue": "^1.7.14",
+    "@headlessui/vue": "^1.7.15",
     "@heroicons/vue": "^2.0.18",
     "@types/lodash": "^4.14.194",
     "@types/node": "^20.4.5",
