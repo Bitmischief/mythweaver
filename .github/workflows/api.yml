@@ -24,7 +24,7 @@ jobs:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
       - name: Build container image
-        run: docker build -t ${{ secrets.REGISTRY_NAME }}/merlin-api:$(echo $GITHUB_SHA | head -c7) -f .docker/Dockerfile.api .
+        run: docker build -t ${{ secrets.REGISTRY_NAME }}/mythweaver-api:$(echo $GITHUB_SHA | head -c7) -f .docker/Dockerfile.api .
 
       - name: Log in to DockerHub Container Registry with short-lived credentials
         run: docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_TOKEN }}
@@ -41,12 +41,12 @@ jobs:
           yarn prisma db seed
 
       - name: Push image to DigitalOcean Container Registry
-        run: docker push ${{ secrets.REGISTRY_NAME }}/merlin-api:$(echo $GITHUB_SHA | head -c7)
+        run: docker push ${{ secrets.REGISTRY_NAME }}/mythweaver-api:$(echo $GITHUB_SHA | head -c7)
 
       - name: Update deployment file
         run: >
           TAG=$(echo $GITHUB_SHA | head -c7) && 
-          sed -i 's|<IMAGE>|${{ secrets.REGISTRY_NAME }}/merlin-api:'${TAG}'|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml &&
+          sed -i 's|<IMAGE>|${{ secrets.REGISTRY_NAME }}/mythweaver-api:'${TAG}'|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml &&
           sed -i 's|<DATABASE_URL>|${{ secrets.DATABASE_URL }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml &&
           sed -i 's|<JWT_SECRET_KEY>|${{ secrets.JWT_SECRET_KEY }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml &&
           sed -i 's|<JWT_REFRESH_SECRET_KEY>|${{ secrets.JWT_REFRESH_SECRET_KEY }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml &&
@@ -67,4 +67,4 @@ jobs:
         run: kubectl apply -f $GITHUB_WORKSPACE/.k8s/ingress.yml
 
       - name: Verify deployment
-        run: kubectl rollout status deployment/merlin-api
+        run: kubectl rollout status deployment/mythweaver-api
