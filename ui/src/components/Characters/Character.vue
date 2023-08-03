@@ -9,7 +9,7 @@ const props = defineProps<{
 
 <template>
   <div
-    class="relative flex min-h-[25rem] rounded-xl bg-cover bg-center"
+    class="relative flex min-h-[35rem] rounded-xl bg-cover bg-top"
     :style="`background-image: url(${character.imageUri})`"
   >
     <div

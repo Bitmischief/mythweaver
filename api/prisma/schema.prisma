@@ -86,10 +86,10 @@ model Session {
   userId     Int
   campaignId Int
 
-  playedAt   DateTime @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
-  summary    String?
-  transcript String?
-  tags       String[]
+  when        DateTime
+  summary     String?
+  transcript  String?
+  description String?
 
   user     User      @relation(fields: [userId], references: [id])
   campaign Campaign  @relation(fields: [campaignId], references: [id])

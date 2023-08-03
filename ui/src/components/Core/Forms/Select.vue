@@ -14,6 +14,7 @@ const props = defineProps<{
   valueProp: string;
   displayProp: string;
   allowNone?: boolean;
+  noIcon?: boolean;
 }>();
 
 const emit = defineEmits(["update:modelValue", "change"]);
@@ -42,17 +43,22 @@ const allOptions = computed(() => {
 </script>
 
 <template>
-  <Listbox v-model="value" class="mt-2">
+  <Listbox v-model="value">
     <div class="relative">
       <ListboxButton
-        class="gradient-border-no-opacity relative h-12 w-full cursor-pointer rounded-xl border bg-black px-4 text-left text-white"
+        class="gradient-border-no-opacity relative h-10 w-full cursor-pointer rounded-xl border bg-black px-4 text-left text-white"
       >
-        <span class="block truncate">{{
-          !value && allowNone
-            ? "None"
-            : allOptions.find((o) => o[valueProp] === value)?.name
-        }}</span>
+        <span class="block truncate"
+          >{{
+            !value && allowNone
+              ? "None"
+              : allOptions.find((o) => o[valueProp] === value)
+              ? allOptions.find((o) => o[valueProp] === value)[displayProp]
+              : ""
+          }}
+        </span>
         <span
+          v-if="!noIcon"
           class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
         >
           <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
@@ -77,7 +83,8 @@ const allOptions = computed(() => {
             <li
               :class="[
                 active ? 'bg-purple-800/20 text-purple-200' : 'text-white',
-                'relative cursor-default select-none py-2 pl-10 pr-4',
+                'relative cursor-default select-none py-2',
+                !noIcon ? 'pl-10 pr-4' : '',
               ]"
             >
               <span
@@ -88,7 +95,7 @@ const allOptions = computed(() => {
                 >{{ option[displayProp] }}</span
               >
               <span
-                v-if="option[valueProp] === value"
+                v-if="option[valueProp] === value && !noIcon"
                 class="absolute inset-y-0 left-0 flex items-center pl-3 text-purple-300"
               >
                 <CheckIcon class="h-5 w-5" aria-hidden="true" />

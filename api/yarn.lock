@@ -718,22 +718,22 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@prisma/client@^5.0.0":
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/@prisma/client/-/client-5.0.0.tgz#9f0cd4164f4ffddb28bb1811c27eb7fa1e01a087"
-  integrity sha512-XlO5ELNAQ7rV4cXIDJUNBEgdLwX3pjtt9Q/RHqDpGf43szpNJx2hJnggfFs7TKNx0cOFsl6KJCSfqr5duEU/bQ==
+"@prisma/client@^5.1.0":
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/@prisma/client/-/client-5.1.0.tgz#6c378a2b7ecdeab6b3f24179484980257beac25d"
+  integrity sha512-aIxuXlH3p3Vy91buodQhYgAD9m0yuxJzpXMhc1ejQ/WN3pNNWzBA0iDcBObLq8DMdszcXmoLAk3hiRq/ZwBsOw==
   dependencies:
-    "@prisma/engines-version" "4.17.0-26.6b0aef69b7cdfc787f822ecd7cdc76d5f1991584"
+    "@prisma/engines-version" "5.1.0-28.a9b7003df90aa623086e4d6f4e43c72468e6339b"
 
-"@prisma/engines-version@4.17.0-26.6b0aef69b7cdfc787f822ecd7cdc76d5f1991584":
-  version "4.17.0-26.6b0aef69b7cdfc787f822ecd7cdc76d5f1991584"
-  resolved "https://registry.yarnpkg.com/@prisma/engines-version/-/engines-version-4.17.0-26.6b0aef69b7cdfc787f822ecd7cdc76d5f1991584.tgz#b36eda5620872d3fac810c302a7e46cf41daa033"
-  integrity sha512-HHiUF6NixsldsP3JROq07TYBLEjXFKr6PdH8H4gK/XAoTmIplOJBCgrIUMrsRAnEuGyRoRLXKXWUb943+PFoKQ==
+"@prisma/engines-version@5.1.0-28.a9b7003df90aa623086e4d6f4e43c72468e6339b":
+  version "5.1.0-28.a9b7003df90aa623086e4d6f4e43c72468e6339b"
+  resolved "https://registry.yarnpkg.com/@prisma/engines-version/-/engines-version-5.1.0-28.a9b7003df90aa623086e4d6f4e43c72468e6339b.tgz#0a6400d709a64cc43b076f0567715f459fadd5bc"
+  integrity sha512-jTwE2oy1yjICmTfnCR0ASIpuMZXZ18sUzQXB7V0RMbrM9OlcmbUwXPuYhnxXuWN8XwRmujeIhsXs/Zeh+fjPOQ==
 
-"@prisma/engines@5.0.0":
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/@prisma/engines/-/engines-5.0.0.tgz#5249650eabe77c458c90f2be97d8210353c2e22e"
-  integrity sha512-kyT/8fd0OpWmhAU5YnY7eP31brW1q1YrTGoblWrhQJDiN/1K+Z8S1kylcmtjqx5wsUGcP1HBWutayA/jtyt+sg==
+"@prisma/engines@5.1.0":
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/@prisma/engines/-/engines-5.1.0.tgz#4ccf7f344eaeee08ca1e4a1bb2dc14e36ff1d5ec"
+  integrity sha512-HqaFsnPmZOdMWkPq6tT2eTVTQyaAXEDdKszcZ4yc7DGMBIYRP6j/zAJTtZUG9SsMV8FaucdL5vRyxY/p5Ni28g==
 
 "@sinclair/typebox@^0.25.16":
   version "0.25.24"
@@ -3911,10 +3911,10 @@ onetime@^5.1.0, onetime@^5.1.2:
   dependencies:
     mimic-fn "^2.1.0"
 
-openai@^3.2.1:
-  version "3.2.1"
-  resolved "https://registry.yarnpkg.com/openai/-/openai-3.2.1.tgz#1fa35bdf979cbde8453b43f2dd3a7d401ee40866"
-  integrity sha512-762C9BNlJPbjjlWZi4WYK9iM2tAVAv0uUp1UmI34vb0CN5T2mjB/qM6RYBmNKMh/dN9fC+bxqPwWJZUTWW052A==
+openai@^3.3.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/openai/-/openai-3.3.0.tgz#a6408016ad0945738e1febf43f2fccca83a3f532"
+  integrity sha512-uqxI/Au+aPRnsaQRe8CojU0eCR7I0mBiKjD3sNMzY6DaC1ZVrc85u98mtJW6voDug8fgGN+DIZmTDxTthxb7dQ==
   dependencies:
     axios "^0.26.0"
     form-data "^4.0.0"
@@ -4078,12 +4078,12 @@ pretty-quick@^3.1.3:
     mri "^1.1.5"
     multimatch "^4.0.0"
 
-prisma@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/prisma/-/prisma-5.0.0.tgz#f6571c46dc2478172cb7bc1bb62d74026a2c2630"
-  integrity sha512-KYWk83Fhi1FH59jSpavAYTt2eoMVW9YKgu8ci0kuUnt6Dup5Qy47pcB4/TLmiPAbhGrxxSz7gsSnJcCmkyPANA==
+prisma@^5.1.0:
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/prisma/-/prisma-5.1.0.tgz#29e316b54844f5694a83017a9781a6d6f7cb99ea"
+  integrity sha512-wkXvh+6wxk03G8qwpZMOed4Y3j+EQ+bMTlvbDZHeal6k1E8QuGKzRO7DRXlE1NV0WNgOAas8kwZqcLETQ2+BiQ==
   dependencies:
-    "@prisma/engines" "5.0.0"
+    "@prisma/engines" "5.1.0"
 
 promise.any@^2.0.5:
   version "2.0.5"
@@ -4293,7 +4293,7 @@ safe-regex-test@^1.0.0:
   resolved "https://registry.yarnpkg.com/safer-buffer/-/safer-buffer-2.1.2.tgz#44fa161b0187b9549dd84bb91802f9bd8385cd6a"
   integrity sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==
 
-semver@7.x, semver@^7.3.2, semver@^7.3.5, semver@^7.3.7, semver@^7.3.8:
+semver@7.x, semver@^7.3.2, semver@^7.3.5, semver@^7.3.7, semver@^7.3.8, semver@^7.5.3:
   version "7.5.4"
   resolved "https://registry.yarnpkg.com/semver/-/semver-7.5.4.tgz#483986ec4ed38e1c6c48c34894a9182dbff68a6e"
   integrity sha512-1bCSESV6Pv+i21Hvpxp3Dx+pSD8lIPt8uVjRrxAUt/nbswYc+tK6Y2btiULjd4+fnq15PX+nqQDC7Oft7WkwcA==
@@ -4309,13 +4309,6 @@ semver@^6.0.0, semver@^6.3.0:
   version "6.3.1"
   resolved "https://registry.yarnpkg.com/semver/-/semver-6.3.1.tgz#556d2ef8689146e46dcea4bfdd095f3434dffcb4"
   integrity sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==
-
-semver@^7.5.3:
-  version "7.5.4"
-  resolved "https://registry.yarnpkg.com/semver/-/semver-7.5.4.tgz#483986ec4ed38e1c6c48c34894a9182dbff68a6e"
-  integrity sha512-1bCSESV6Pv+i21Hvpxp3Dx+pSD8lIPt8uVjRrxAUt/nbswYc+tK6Y2btiULjd4+fnq15PX+nqQDC7Oft7WkwcA==
-  dependencies:
-    lru-cache "^6.0.0"
 
 semver@~7.0.0:
   version "7.0.0"

@@ -18,6 +18,8 @@ import { parentLogger } from "../lib/logger";
 import { getClient } from "../lib/providers/openai";
 import generators, { Generator, getGenerator } from "../data/generators";
 import { getRpgSystem } from "../data/rpgSystems";
+import { AxiosError, AxiosResponse } from "axios";
+import { CreateCompletionResponse } from "openai";
 
 const logger = parentLogger.getSubLogger();
 const openai = getClient();
@@ -84,7 +86,10 @@ export class GeneratorController {
   }
 
   private async getImageForPrompt(prompt: string, count: number) {
-    prompt = `${prompt}, medieval, digital art`;
+    prompt = `${prompt.replace(
+      ".",
+      ""
+    )}, medieval, fantasy, portrait, oil painting style`;
 
     const response = await openai.createImage({
       prompt,
@@ -129,11 +134,28 @@ export class GeneratorController {
     let characters: any = undefined;
 
     do {
-      const response = await openai.createCompletion({
-        model: "text-davinci-003",
-        prompt,
-        max_tokens: 2000,
-      });
+      let response: any;
+
+      try {
+        response = await openai.createCompletion({
+          model: "text-davinci-003",
+          prompt,
+          max_tokens: 3500,
+        });
+      } catch (err: any) {
+        console.log(err);
+        logger.error(
+          "Error generating character with openai",
+          err.response.data
+        );
+      }
+
+      if (!response) {
+        throw new AppError({
+          description: "Error generating character.",
+          httpCode: HttpCode.INTERNAL_SERVER_ERROR,
+        });
+      }
 
       const generatedJson = response.data.choices[0].text?.trim() || "";
       logger.info("Received json from openai", generatedJson);
@@ -195,10 +217,10 @@ const buildPrompt = (
 
   prompt += `Please focus on generating 3 distinctly unique and different ${generator.name.toLowerCase()}. Please return JSON only so that I can easily deserialize into a javascript object. Use the following format. ${
     generator.formatPrompt
-  }.`;
+  }. `;
 
   if (generator.allowsImageGeneration) {
-    prompt += `Please also generate a prompt to be used by an AI image generator to generate an image for this ${generator.name} to be stored in the JSON property 'imageAIPrompt'. Please do not refer to the ${generator.name} name in the prompt and use short, concise, clear statements describing the looks.`;
+    prompt += `Please also generate a prompt to be used by an AI image generator to generate an portrait image for this ${generator.name} to be stored in the JSON property 'imageAIPrompt'. Include the ${generator.name} TTRPG class, gender, facial features and clothing.`;
   }
 
   logger.info("Built prompt", prompt);

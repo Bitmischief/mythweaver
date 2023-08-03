@@ -11,6 +11,10 @@ import SummoningView from "@/views/SummoningView.vue";
 import ListSummoners from "@/components/Summoning/ListSummoners.vue";
 import ViewSummoner from "@/components/Summoning/ViewSummoner.vue";
 import ViewCampaign from "@/components/Campaigns/ViewCampaign.vue";
+import SessionsView from "@/views/SessionsView.vue";
+import ViewSession from "@/components/Sessions/ViewSession.vue";
+import ListSessions from "@/components/Sessions/ListSessions.vue";
+import NewSession from "@/components/Sessions/NewSession.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -94,6 +98,29 @@ const router = createRouter({
           path: "edit",
           alias: "",
           component: ViewCampaign,
+        },
+      ],
+    },
+    {
+      name: "SESSION",
+      path: "/sessions",
+      component: SessionsView,
+      meta: {
+        authRequired: true,
+      },
+      children: [
+        {
+          path: "list",
+          alias: "",
+          component: ListSessions,
+        },
+        {
+          path: "create",
+          component: NewSession,
+        },
+        {
+          path: ":sessionId/edit",
+          component: ViewSession,
         },
       ],
     },

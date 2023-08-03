@@ -117,104 +117,102 @@ function removeCustomArg(index: number) {
 <template>
   <div
     v-if="summoner"
-    class="relative flex h-auto min-h-[15rem] rounded-xl bg-cover bg-center"
-    style="min-height: calc(100% - 64px)"
+    class="relative flex h-full rounded-xl bg-cover bg-center"
     :style="backgroundImageInlineStyle(summoner.imageUri)"
   >
-    <div class="absolute flex h-full w-full rounded-xl bg-black/75 p-4">
-      <div class="h-full w-full">
-        <template v-if="!generating && !summonedItems.length">
-          <div class="text-3xl">
-            {{ summoner.name }}
-          </div>
+    <div class="absolute h-full w-full rounded-xl bg-black/75 p-4"></div>
+    <div class="z-10 h-full w-full rounded-xl p-4">
+      <template v-if="!generating && !summonedItems.length">
+        <div class="text-3xl">
+          {{ summoner.name }}
+        </div>
 
-          <div class="mt-1 text-gray-400">
-            {{ summoner.description }}
-          </div>
+        <div class="mt-1 text-gray-400">
+          {{ summoner.description }}
+        </div>
 
-          <div class="mt-8 text-gray-200">
-            <div class="text-xl">Customize</div>
+        <div class="mt-8 text-gray-200">
+          <div class="text-xl">Customize</div>
+          <div class="mt-2">
+            <div class="text-sm text-gray-400">
+              Add parameters to help refine your summoning
+            </div>
             <div class="mt-2">
-              <div class="text-sm text-gray-400">
-                Add parameters to help refine your summoning
-              </div>
-              <div class="mt-2">
-                <div
-                  v-for="(customArg, i) in customArgs"
-                  :key="i"
-                  class="mb-2 flex"
-                >
-                  <input
-                    v-model="customArg.key"
-                    class="gradient-border-no-opacity relative h-8 w-32 rounded-xl border bg-black px-4 text-left text-white"
-                    placeholder="Occupation"
-                  />
-                  <input
-                    v-model="customArg.value"
-                    class="gradient-border-no-opacity relative ml-2 h-8 w-32 rounded-xl border bg-black px-4 text-left text-white"
-                    placeholder="Bartender"
-                  />
-                  <button
-                    class="ml-2 rounded border border-red-500 p-1 px-2 text-sm"
-                    @click="removeCustomArg(i)"
-                  >
-                    <XMarkIcon class="h-4 w-4" />
-                  </button>
-                </div>
+              <div
+                v-for="(customArg, i) in customArgs"
+                :key="i"
+                class="mb-2 flex"
+              >
+                <input
+                  v-model="customArg.key"
+                  class="gradient-border-no-opacity relative h-8 w-32 rounded-xl border bg-black px-4 text-left text-white"
+                  placeholder="Occupation"
+                />
+                <input
+                  v-model="customArg.value"
+                  class="gradient-border-no-opacity relative ml-2 h-8 w-32 rounded-xl border bg-black px-4 text-left text-white"
+                  placeholder="Bartender"
+                />
                 <button
-                  class="rounded border border-green-500 p-1 px-4 text-sm"
-                  @click="addCustomArg"
+                  class="ml-2 rounded border border-red-500 p-1 px-2 text-sm"
+                  @click="removeCustomArg(i)"
                 >
-                  Add parameter
+                  <XMarkIcon class="h-4 w-4" />
                 </button>
               </div>
+              <button
+                class="rounded border border-green-500 p-1 px-4 text-sm"
+                @click="addCustomArg"
+              >
+                Add parameter
+              </button>
             </div>
+          </div>
+        </div>
+
+        <button
+          class="mt-8 flex cursor-pointer rounded-xl bg-black bg-gradient px-4 py-2 text-lg font-bold text-white"
+          @click="generate(summoner.code)"
+        >
+          <span class="self-center"> Begin Summoning </span>
+        </button>
+      </template>
+      <template v-else-if="generating || (!generating && !animationDone)">
+        <SummoningLoader class="h-[10rem] w-[15rem]" />
+      </template>
+      <div v-else-if="!generating && animationDone && summonedItems.length">
+        <div class="mb-4 flex justify-between">
+          <div class="self-center text-xl text-green-200">
+            Choose any
+            {{ summoner.name.toLowerCase() }}
+            you'd like to save!
           </div>
 
           <button
-            class="mt-8 flex cursor-pointer rounded-xl bg-black bg-gradient px-4 py-2 text-lg font-bold text-white"
-            @click="generate(summoner.code)"
+            class="rounded-xl px-4 py-2"
+            :class="{
+              'bg-green-500': selectedItems.length,
+              'bg-gray-700/50': !selectedItems.length,
+            }"
+            :disabled="!selectedItems.length"
+            @click="clickSaveCharacters"
           >
-            <span class="self-center"> Begin Summoning </span>
+            Save {{ summoner.name }}
           </button>
-        </template>
-        <template v-else-if="generating || (!generating && !animationDone)">
-          <SummoningLoader class="h-[10rem] w-[15rem]" />
-        </template>
-        <div v-else-if="!generating && animationDone && summonedItems.length">
-          <div class="mb-4 flex justify-between">
-            <div class="self-center text-xl text-green-200">
-              Choose any
-              {{ summoner.name.toLowerCase() }}
-              you'd like to save!
-            </div>
+        </div>
 
-            <button
-              class="rounded-xl px-4 py-2"
-              :class="{
-                'bg-green-500': selectedItems.length,
-                'bg-gray-700/50': !selectedItems.length,
-              }"
-              :disabled="!selectedItems.length"
-              @click="clickSaveCharacters"
-            >
-              Save {{ summoner.name }}
-            </button>
-          </div>
-
-          <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
-            <div
-              v-for="(item, i) of summonedItems"
-              :key="i"
-              class="cursor-pointer rounded-xl"
-              :class="{
+        <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
+          <div
+            v-for="(item, i) of summonedItems"
+            :key="i"
+            class="cursor-pointer rounded-xl"
+            :class="{
               'border-2 border-green-500/50': !!selectedItems.find((a: any) => a.name === item.name),
               'border-2 border-green-500/0': !selectedItems.find((a: any) => a.name === item.name)
             }"
-              @click="addToSelectedItems(item)"
-            >
-              <Character :character="item" full />
-            </div>
+            @click="addToSelectedItems(item)"
+          >
+            <Character :character="item" full />
           </div>
         </div>
       </div>

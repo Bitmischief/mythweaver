@@ -18,4 +18,7 @@ router.use(`/rpg-systems`, rpgSystemRoutes);
 import generatorsRoutes from "./generators";
 router.use(`/generators`, generatorsRoutes);
 
+import sessionsRoutes from "./sessions";
+router.use(`/sessions`, sessionsRoutes);
+
 export default router;
