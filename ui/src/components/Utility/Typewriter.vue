@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { onMounted, ref } from "vue";
 
 const props = defineProps({
@@ -12,7 +12,7 @@ const props = defineProps({
   },
 });
 
-const outputDiv = ref(null);
+const outputDiv = ref<any>(null);
 
 onMounted(() => {
   outputDiv.value = document.querySelector("#typewriter-output");
@@ -26,10 +26,10 @@ function typeText() {
   splitTxt.forEach(() => {
     const p = document.createElement("p");
     p.style.margin = "0 0 1rem 0";
-    outputDiv.value.appendChild(p);
+    outputDiv.value?.appendChild(p);
   });
 
-  const allParas = outputDiv.value.querySelectorAll("p");
+  const allParas = outputDiv.value?.querySelectorAll("p");
   let i = 0;
   let currentPara = 0;
   const timerId = setInterval(() => {

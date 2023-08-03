@@ -22,9 +22,11 @@ const whenTime = ref({
 });
 
 const session = ref<SessionBase>({
-  name: "",
-  campaignId: null,
-  notes: "",
+  id: 0,
+  campaignId: 0,
+  description: "",
+  summary: "",
+  when: "",
 } as SessionBase);
 
 async function handleCreateSession() {

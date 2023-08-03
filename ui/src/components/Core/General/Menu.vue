@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { Menu, MenuItems } from "@headlessui/vue";
 </script>
 
