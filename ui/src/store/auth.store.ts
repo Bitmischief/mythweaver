@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { postToken, postRefresh } from "@/api/auth.ts";
 import router from "@/router/router.ts";
+import { showError } from "@/lib/notifications.ts";
 
 interface AuthStoreState {
   tokens: any;
@@ -19,7 +20,7 @@ export const useAuthStore = defineStore({
     returnUrl: null,
   }),
   actions: {
-    async login(credential: string) {
+    async login(credential: string): Promise<boolean> {
       try {
         const response = await postToken(credential);
 
@@ -30,8 +31,15 @@ export const useAuthStore = defineStore({
 
         // redirect to previous url or default to home page
         await router.push(this.returnUrl || "/");
-      } catch (err) {
-        console.error(err);
+        return true;
+      } catch (err: any) {
+        if (err.response.status === 400) {
+          showError({ message: "Your user is not authorized for early access!" });
+          return false;
+        } else {
+          showError({ message: "Unable to login, please try again soon." });
+          return true;
+        }
       }
     },
     async refresh() {
