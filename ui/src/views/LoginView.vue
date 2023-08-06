@@ -60,32 +60,48 @@
     <div class="flex flex-col items-center md:h-[40rem]">
       <div class="flex h-full flex-col justify-center">
         <div class="text-center text-4xl text-gray-200 md:text-6xl">
-          Early access is
-          <span class="font-bold text-purple-500 underline">OPEN NOW</span>
+          Early access is currently invite only
+          <!--          <span class="font-bold text-purple-500 underline">OPEN NOW</span>-->
         </div>
 
-        <div class="mt-8 text-center text-2xl text-gray-200 md:text-4xl">
-          Just follow the steps below!
+        <div
+          class="mt-8 px-4 text-center text-2xl text-gray-200 md:px-16 md:text-4xl"
+        >
+          But we are opening up early access to mailing list subscribers soon!
+          Join our mailing list for more info!
         </div>
 
-        <div class="mt-12 flex justify-center">
-          <ol type="1" class="text-xl text-gray-200 md:text-3xl">
-            <li>
-              #1 Join our mailing list
-              <a href="https://mythweaver.co/#mailing" class="text-indigo-500"
-                >here</a
-              >
-            </li>
-            <li class="mt-1">
-              #2 Join our Discord server
-              <a href="https://mythweaver.co/#mailing" class="text-indigo-500"
-                >here</a
-              >
-            </li>
-          </ol>
+        <div
+          class="mt-12 flex justify-center text-xl text-gray-200 md:text-3xl"
+        >
+          <div>
+            #1 Join our mailing list
+            <a
+              href="https://mythweaver.co/#mailing"
+              class="ml-2 text-indigo-500"
+              >here</a
+            >
+          </div>
         </div>
       </div>
     </div>
+
+    <!--        <div class="mt-12 flex justify-center">-->
+    <!--          <ol type="1" class="text-xl text-gray-200 md:text-3xl">-->
+    <!--            <li>-->
+    <!--              #1 Join our mailing list-->
+    <!--              <a href="https://mythweaver.co/#mailing" class="text-indigo-500"-->
+    <!--                >here</a-->
+    <!--              >-->
+    <!--            </li>-->
+    <!--            <li class="mt-1">-->
+    <!--              #2 Join our Discord server-->
+    <!--              <a href="https://mythweaver.co/#mailing" class="text-indigo-500"-->
+    <!--                >here</a-->
+    <!--              >-->
+    <!--            </li>-->
+    <!--          </ol>-->
+    <!--        </div>-->
   </Modal>
 </template>
 
