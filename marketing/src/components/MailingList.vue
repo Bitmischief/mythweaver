@@ -39,7 +39,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="text-center text-[3.5rem]">
+  <div class="text-center text-[2.5rem] md:text-[3.5rem]">
     {{ title }}
   </div>
 
@@ -62,22 +62,23 @@ onMounted(() => {
       <input type="hidden" name="u" value="e249ab51a54a7c9d1cb18ab49" />
       <input type="hidden" name="id" value="7311346c6b" />
 
-      <div class="flex">
-        <input
-          id="MERGE0"
-          type="email"
-          autocapitalize="off"
-          autocorrect="off"
-          name="MERGE0"
-          size="25"
-          value=""
-          class="h-12 rounded-l-xl px-4 text-2xl text-black"
-          placeholder="email@gmail.com"
-          style="width: calc(100% - 25rem)"
-        />
+      <div class="block md:flex">
+        <div>
+          <input
+            id="MERGE0"
+            type="email"
+            autocapitalize="off"
+            autocorrect="off"
+            name="MERGE0"
+            size="25"
+            value=""
+            class="h-12 w-full rounded-xl px-4 text-2xl text-black md:rounded-r-none"
+            placeholder="email@gmail.com"
+          />
+        </div>
         <button
           type="submit"
-          class="ml-auto h-12 w-[25rem] rounded-r-xl bg-green-500 px-2 text-xl font-bold uppercase"
+          class="mt-2 h-12 w-full rounded-xl bg-green-500 px-2 text-lg font-bold uppercase md:mt-0 md:w-[25rem] md:rounded-l-none md:text-xl"
         >
           Reserve My Launch Invite
         </button>
