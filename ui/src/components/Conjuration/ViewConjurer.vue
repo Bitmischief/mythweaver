@@ -175,9 +175,11 @@ function cursorEnd(e: any) {
                 :key="i"
                 class="mb-2 flex"
               >
-                <input v-model="customArg.key"
+                <input
+                  v-model="customArg.key"
                   class="gradient-border-no-opacity relative h-8 w-32 rounded-xl border bg-black px-4 text-left text-white"
-                  placeholder="Occupation" :ref="el => { keyInputs[i] = el }" autofocus @keydown.enter="setValueFocus(i)"
+                  :ref="el => { keyInputs[i] = el }" autofocus @keydown.enter="setValueFocus(i)"
+                  placeholder="Occupation"
                   @keydown.escape="!isFirst(i) && removeCustomArg(i); setKeyFocus(i - 1)"
                   @keydown.backspace="isKeyEmpty(i) && !isFirst(i) && setValueFocus(i - 1) && $event.preventDefault(); isKeyEmpty(i) && isValueEmpty(i) && removeCustomArg(i);"
                   @keydown.right="cursorEnd($event) && setValueFocus(i) && $event.preventDefault()"
@@ -185,9 +187,11 @@ function cursorEnd(e: any) {
                   @keydown.down="!isLast(i) && setKeyFocus(i + 1)"
                   @keydown.up="!isFirst(i) && setKeyFocus(i - 1)"
                 />
-                <input v-model="customArg.value"
+                <input
+                  v-model="customArg.value"
                   class="gradient-border-no-opacity relative ml-2 h-8 w-32 rounded-xl border bg-black px-4 text-left text-white"
-                  placeholder="Bartender" :ref="el => { valueInputs[i] = el }"
+                  :ref="el => { valueInputs[i] = el }"
+                  placeholder="Bartender"
                   @keydown.enter="(i + 1) === customArgs.length && addCustomArg(); setKeyFocus(i + 1)"
                   @keydown.backspace="customArg.value === '' && setKeyFocus(i) && $event.preventDefault()"
                   @keydown.tab="(i + 1) === customArgs.length && addCustomArg(); setKeyFocus(i + 1) && $event.preventDefault()"
@@ -247,7 +251,8 @@ function cursorEnd(e: any) {
         <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
           <div
             v-for="( item, i ) of summonedItems"
-            :key="i" class="cursor-pointer rounded-xl"
+            :key="i"
+            class="cursor-pointer rounded-xl"
             :class="{
               'border-2 border-green-500/50': !!selectedItems.find((a: any) => a.name === item.name),
               'border-2 border-green-500/0': !selectedItems.find((a: any) => a.name === item.name)
