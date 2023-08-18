@@ -147,8 +147,11 @@ function cursorEnd(e: any) {
 </script>
 
 <template>
-  <div v-if="summoner" class="relative flex h-full rounded-xl bg-cover bg-center"
-    :style="backgroundImageInlineStyle(summoner.imageUri)">
+  <div
+    v-if="summoner"
+    class="relative flex h-full rounded-xl bg-cover bg-center"
+    :style="backgroundImageInlineStyle(summoner.imageUri)"
+  >
     <div class="absolute h-full w-full rounded-xl bg-black/75 p-4"></div>
     <div class="z-10 h-full w-full rounded-xl p-4">
       <template v-if="!generating && !summonedItems.length">
@@ -167,7 +170,11 @@ function cursorEnd(e: any) {
               Add parameters to help refine your summoning
             </div>
             <div class="mt-2">
-              <div v-for="(customArg, i) in customArgs" :key="i" class="mb-2 flex">
+              <div
+                v-for="(customArg, i) in customArgs"
+                :key="i"
+                class="mb-2 flex"
+              >
                 <input v-model="customArg.key"
                   class="gradient-border-no-opacity relative h-8 w-32 rounded-xl border bg-black px-4 text-left text-white"
                   placeholder="Occupation" :ref="el => { keyInputs[i] = el }" autofocus @keydown.enter="setValueFocus(i)"
@@ -175,7 +182,9 @@ function cursorEnd(e: any) {
                   @keydown.backspace="isKeyEmpty(i) && !isFirst(i) && setValueFocus(i - 1) && $event.preventDefault(); isKeyEmpty(i) && isValueEmpty(i) && removeCustomArg(i);"
                   @keydown.right="cursorEnd($event) && setValueFocus(i) && $event.preventDefault()"
                   @keydown.left="cursorStart($event) && !isFirst(i) && setValueFocus(i - 1) && $event.preventDefault()"
-                  @keydown.down="!isLast(i) && setKeyFocus(i + 1)" @keydown.up="!isFirst(i) && setKeyFocus(i - 1)" />
+                  @keydown.down="!isLast(i) && setKeyFocus(i + 1)"
+                  @keydown.up="!isFirst(i) && setKeyFocus(i - 1)"
+                />
                 <input v-model="customArg.value"
                   class="gradient-border-no-opacity relative ml-2 h-8 w-32 rounded-xl border bg-black px-4 text-left text-white"
                   placeholder="Bartender" :ref="el => { valueInputs[i] = el }"
@@ -184,20 +193,27 @@ function cursorEnd(e: any) {
                   @keydown.tab="(i + 1) === customArgs.length && addCustomArg(); setKeyFocus(i + 1) && $event.preventDefault()"
                   @keydown.right="cursorEnd($event) && !isLast(i) && setKeyFocus(i + 1) && $event.preventDefault()"
                   @keydown.left="cursorStart($event) && setKeyFocus(i) && $event.preventDefault()"
-                  @keydown.down="!isLast(i) && setValueFocus(i + 1)" @keydown.up="!isFirst(i) && setValueFocus(i - 1)" />
+                  @keydown.down="!isLast(i) && setValueFocus(i + 1)"
+                  @keydown.up="!isFirst(i) && setValueFocus(i - 1)"
+                />
                 <button class="ml-2 rounded border border-red-500 p-1 px-2 text-sm" @click="removeCustomArg(i)">
                   <XMarkIcon class="h-4 w-4" />
                 </button>
               </div>
-              <button class="rounded border border-green-500 p-1 px-4 text-sm" @click="addCustomArg">
+              <button
+                class="rounded border border-green-500 p-1 px-4 text-sm"
+                @click="addCustomArg"
+              >
                 Add parameter
               </button>
             </div>
           </div>
         </div>
 
-        <button class="mt-8 flex cursor-pointer rounded-xl bg-black bg-gradient px-4 py-2 text-lg font-bold text-white"
-          @click="generate(summoner.code)">
+        <button
+          class="mt-8 flex cursor-pointer rounded-xl bg-black bg-gradient px-4 py-2 text-lg font-bold text-white"
+          @click="generate(summoner.code)"
+        >
           <span class="self-center"> Begin Summoning </span>
         </button>
       </template>
@@ -212,11 +228,15 @@ function cursorEnd(e: any) {
             you'd like to save!
           </div>
 
-          <button class="rounded-xl px-4 py-2" :class="{
-            'bg-green-500': selectedItems.length,
-            'bg-gray-700/50': !selectedItems.length,
-          }
-            " :disabled="!selectedItems.length" @click="clickSaveCharacters">
+          <button
+            class="rounded-xl px-4 py-2"
+            :class="{
+              'bg-green-500': selectedItems.length,
+              'bg-gray-700/50': !selectedItems.length,
+            }"
+            :disabled="!selectedItems.length"
+            @click="clickSaveCharacters"
+          >
             Save {{ summoner.name }}
           </button>
         </div>
