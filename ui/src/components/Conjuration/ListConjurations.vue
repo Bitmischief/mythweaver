@@ -142,9 +142,11 @@ async function navigateToViewConjuration(conjurationId: number) {
         <div class="w-[20rem]">
           <Autocomplete
             v-model="conjurationsQuery.tags"
-            :options="tags"
+            :options="tags.map((t) => ({ value: t }))"
             class="mr-2"
             multiple
+            display-prop="value"
+            value-prop="value"
             @query-change="handleTagsQueryChange"
           />
           <div class="mt-2 flex">

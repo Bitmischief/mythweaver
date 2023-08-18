@@ -36,8 +36,12 @@ onMounted(async () => {
   await loadConjuration();
 });
 
+const conjurationId = computed(() =>
+  parseInt(route.params.conjurationId.toString())
+);
+
 async function loadConjuration() {
-  const response = await getConjuration(route.params.conjurationId);
+  const response = await getConjuration(conjurationId.value);
   conjuration.value = response.data;
 
   if (conjuration.value?.copies?.length) {
@@ -60,7 +64,7 @@ async function handleAddConjuration(conjurationId: number) {
 }
 
 const userOwnsConjuration = computed(() => {
-  return conjuration.value.userId === currentUserId.value;
+  return conjuration.value?.userId === currentUserId.value;
 });
 
 function enableEdit(key: string, event: MouseEvent) {
@@ -71,8 +75,10 @@ function enableEdit(key: string, event: MouseEvent) {
 }
 
 async function saveData() {
+  if (!conjuration.value) return;
+
   const data = Object.fromEntries(dataArray.value.map((x) => [x.key, x.value]));
-  await patchConjuration(conjuration.value?.id, { data });
+  await patchConjuration(conjuration.value.id, { data });
 
   showSuccess({ message: "Updated conjuration!" });
 }
