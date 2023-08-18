@@ -176,8 +176,8 @@ function cursorEnd(e: any) {
                 class="mb-2 flex"
               >
                 <input
-                  v-model="customArg.key"
                   :ref="el => { keyInputs[i] = el }"
+                  v-model="customArg.key"
                   class="gradient-border-no-opacity relative h-8 w-32 rounded-xl border bg-black px-4 text-left text-white"
                   autofocus
                   placeholder="Occupation"
@@ -190,8 +190,8 @@ function cursorEnd(e: any) {
                   @keydown.up="!isFirst(i) && setKeyFocus(i - 1)"
                 />
                 <input
-                  v-model="customArg.value"
                   :ref="el => { valueInputs[i] = el }"
+                  v-model="customArg.value"
                   class="gradient-border-no-opacity relative ml-2 h-8 w-32 rounded-xl border bg-black px-4 text-left text-white"
                   placeholder="Bartender"
                   @keydown.enter="(i + 1) === customArgs.length && addCustomArg(); setKeyFocus(i + 1)"
