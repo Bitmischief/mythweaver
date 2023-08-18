@@ -196,7 +196,10 @@ function cursorEnd(e: any) {
                   @keydown.down="!isLast(i) && setValueFocus(i + 1)"
                   @keydown.up="!isFirst(i) && setValueFocus(i - 1)"
                 />
-                <button class="ml-2 rounded border border-red-500 p-1 px-2 text-sm" @click="removeCustomArg(i)">
+                <button
+                  class="ml-2 rounded border border-red-500 p-1 px-2 text-sm"
+                  @click="removeCustomArg(i)"
+                >
                   <XMarkIcon class="h-4 w-4" />
                 </button>
               </div>
@@ -242,11 +245,15 @@ function cursorEnd(e: any) {
         </div>
 
         <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
-          <div v-for="( item, i ) of  summonedItems " :key="i" class="cursor-pointer rounded-xl" :class="{
-            'border-2 border-green-500/50': !!selectedItems.find((a: any) => a.name === item.name),
-            'border-2 border-green-500/0': !selectedItems.find((a: any) => a.name === item.name)
-          }
-            " @click="addToSelectedItems(item)">
+          <div
+            v-for="( item, i ) of summonedItems"
+            :key="i" class="cursor-pointer rounded-xl"
+            :class="{
+              'border-2 border-green-500/50': !!selectedItems.find((a: any) => a.name === item.name),
+              'border-2 border-green-500/0': !selectedItems.find((a: any) => a.name === item.name)
+            }"
+            @click="addToSelectedItems(item)"
+          >
             <Character :character="item" full />
           </div>
         </div>
