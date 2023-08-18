@@ -15,6 +15,7 @@ import { showSuccess } from "@/lib/notifications.ts";
 const route = useRoute();
 const router = useRouter();
 const currentUserId = useCurrentUserId();
+const viewImage = ref(false);
 
 const conjuration = ref<Conjuration | null>(null);
 const dataArray = computed(() => {
@@ -127,17 +128,56 @@ async function saveData() {
         </div>
       </div>
 
-      <div class="text-5xl">
-        {{ conjuration.name }}
-      </div>
-
-      <div class="mb-12 mt-4 flex">
+      <div
+        v-if="viewImage"
+        class="relative z-10"
+        aria-labelledby="modal-title"
+        role="dialog"
+        aria-modal="true"
+      >
         <div
-          v-for="tag of conjuration.tags"
-          :key="`${conjuration.id}-${tag}`"
-          class="mr-2 rounded-xl bg-gray-700 px-3 py-1 text-lg"
+          class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+        ></div>
+        <div
+          class="fixed inset-0 z-10 cursor-pointer overflow-y-auto"
+          @click="viewImage = false"
         >
-          {{ tag }}
+          <div
+            class="flex min-h-full flex-col items-end justify-center p-4 text-center sm:items-center sm:p-0"
+          >
+            <div
+              class="relative mb-4 transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all"
+            >
+              <img :src="conjuration.imageUri" />
+            </div>
+            Click anywhere to close
+          </div>
+        </div>
+      </div>
+      <div class="flex flex-wrap">
+        <div class="mr-3">
+          <img
+            :src="conjuration.imageUri"
+            class="cursor-pointer rounded-full hover:opacity-60"
+            height="100"
+            width="100"
+            @click="viewImage = true"
+          />
+        </div>
+        <div>
+          <div class="text-5xl">
+            {{ conjuration.name }}
+          </div>
+
+          <div class="mb-12 mt-4 flex">
+            <div
+              v-for="tag of conjuration.tags"
+              :key="`${conjuration.id}-${tag}`"
+              class="mr-2 rounded-xl bg-gray-700 px-3 py-1 text-lg"
+            >
+              {{ tag }}
+            </div>
+          </div>
         </div>
       </div>
 
