@@ -127,10 +127,10 @@ function setValueFocus(index: number) {
   return true;
 }
 function isFirst(index: number) {
-  return (index + 1) === 1;
+  return index + 1 === 1;
 }
 function isLast(index: number) {
-  return (index + 1) === customArgs.value.length;
+  return index + 1 === customArgs.value.length;
 }
 function isKeyEmpty(index: number) {
   return keyInputs.value[index].value === "";
@@ -176,29 +176,74 @@ function cursorEnd(e: any) {
                 class="mb-2 flex"
               >
                 <input
-                  :ref="el => { keyInputs[i] = el }"
+                  :ref="
+                    (el) => {
+                      keyInputs[i] = el;
+                    }
+                  "
                   v-model="customArg.key"
                   class="gradient-border-no-opacity relative h-8 w-32 rounded-xl border bg-black px-4 text-left text-white"
                   autofocus
                   placeholder="Occupation"
                   @keydown.enter="setValueFocus(i)"
-                  @keydown.escape="!isFirst(i) && removeCustomArg(i); setKeyFocus(i - 1)"
-                  @keydown.backspace="isKeyEmpty(i) && !isFirst(i) && setValueFocus(i - 1) && $event.preventDefault(); isKeyEmpty(i) && isValueEmpty(i) && removeCustomArg(i);"
-                  @keydown.right="cursorEnd($event) && setValueFocus(i) && $event.preventDefault()"
-                  @keydown.left="cursorStart($event) && !isFirst(i) && setValueFocus(i - 1) && $event.preventDefault()"
+                  @keydown.escape="
+                    !isFirst(i) && removeCustomArg(i);
+                    setKeyFocus(i - 1);
+                  "
+                  @keydown.backspace="
+                    isKeyEmpty(i) &&
+                      !isFirst(i) &&
+                      setValueFocus(i - 1) &&
+                      $event.preventDefault();
+                    isKeyEmpty(i) && isValueEmpty(i) && removeCustomArg(i);
+                  "
+                  @keydown.right="
+                    cursorEnd($event) &&
+                      setValueFocus(i) &&
+                      $event.preventDefault()
+                  "
+                  @keydown.left="
+                    cursorStart($event) &&
+                      !isFirst(i) &&
+                      setValueFocus(i - 1) &&
+                      $event.preventDefault()
+                  "
                   @keydown.down="!isLast(i) && setKeyFocus(i + 1)"
                   @keydown.up="!isFirst(i) && setKeyFocus(i - 1)"
                 />
                 <input
-                  :ref="el => { valueInputs[i] = el }"
+                  :ref="
+                    (el) => {
+                      valueInputs[i] = el;
+                    }
+                  "
                   v-model="customArg.value"
                   class="gradient-border-no-opacity relative ml-2 h-8 w-32 rounded-xl border bg-black px-4 text-left text-white"
                   placeholder="Bartender"
-                  @keydown.enter="(i + 1) === customArgs.length && addCustomArg(); setKeyFocus(i + 1)"
-                  @keydown.backspace="customArg.value === '' && setKeyFocus(i) && $event.preventDefault()"
-                  @keydown.tab="(i + 1) === customArgs.length && addCustomArg(); setKeyFocus(i + 1) && $event.preventDefault()"
-                  @keydown.right="cursorEnd($event) && !isLast(i) && setKeyFocus(i + 1) && $event.preventDefault()"
-                  @keydown.left="cursorStart($event) && setKeyFocus(i) && $event.preventDefault()"
+                  @keydown.enter="
+                    i + 1 === customArgs.length && addCustomArg();
+                    setKeyFocus(i + 1);
+                  "
+                  @keydown.backspace="
+                    customArg.value === '' &&
+                      setKeyFocus(i) &&
+                      $event.preventDefault()
+                  "
+                  @keydown.tab="
+                    i + 1 === customArgs.length && addCustomArg();
+                    setKeyFocus(i + 1) && $event.preventDefault();
+                  "
+                  @keydown.right="
+                    cursorEnd($event) &&
+                      !isLast(i) &&
+                      setKeyFocus(i + 1) &&
+                      $event.preventDefault()
+                  "
+                  @keydown.left="
+                    cursorStart($event) &&
+                      setKeyFocus(i) &&
+                      $event.preventDefault()
+                  "
                   @keydown.down="!isLast(i) && setValueFocus(i + 1)"
                   @keydown.up="!isFirst(i) && setValueFocus(i - 1)"
                 />
