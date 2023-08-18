@@ -2,15 +2,15 @@
 import { onMounted, ref } from "vue";
 import {
   CustomArg,
-  getSummoner,
-  postSummonerSummon,
-  Summoner,
+  getConjurer,
+  postConjure,
+  Conjurer,
 } from "@/api/generators.ts";
 import { useRoute, useRouter } from "vue-router";
 import { useCampaignStore } from "@/store/campaign.store.ts";
 import { storeToRefs } from "pinia";
 import { showError, showSuccess } from "@/lib/notifications.ts";
-import SummoningLoader from "@/components/Summoning/SummoningLoader.vue";
+import SummoningLoader from "@/components/Conjuration/ConjuringLoader.vue";
 import { useEventBus } from "@/lib/events.ts";
 import { postCharacter } from "@/api/characters.ts";
 import Character from "@/components/Characters/Character.vue";
@@ -22,7 +22,7 @@ const eventBus = useEventBus();
 const campaignStore = useCampaignStore();
 
 const { selectedCampaignId } = storeToRefs(campaignStore);
-const summoner = ref<Summoner | undefined>(undefined);
+const summoner = ref<Conjurer | undefined>(undefined);
 
 const generating = ref(false);
 const animationDone = ref(false);
@@ -31,7 +31,7 @@ const summonedItems = ref<any[]>([]);
 const customArgs = ref<CustomArg[]>([{ key: "", value: "" }]);
 
 onMounted(async () => {
-  const getGeneratorResponse = await getSummoner(
+  const getGeneratorResponse = await getConjurer(
     route.params.summonerCode.toString()
   );
   summoner.value = getGeneratorResponse.data;
@@ -58,7 +58,7 @@ async function generate(generatorCode: string) {
     animationDone.value = false;
     generating.value = true;
 
-    const generateResponse = await postSummonerSummon(generatorCode, {
+    const generateResponse = await postConjure(generatorCode, {
       campaignId: selectedCampaignId.value || 0,
       customArgs: customArgs.value.filter((a) => a.key && a.value),
     });

@@ -1,6 +1,7 @@
 import { Response } from "express";
 import { AppError, HttpCode } from "./AppError";
 import { parentLogger } from "../logger";
+import { AxiosError } from "axios";
 const logger = parentLogger.getSubLogger();
 
 class ErrorHandler {
@@ -31,7 +32,8 @@ class ErrorHandler {
     logger.fatal(
       "Critical uncaught error",
       error?.message,
-      (error as AppError)?.description
+      (error as AppError)?.description,
+      (error as AxiosError)?.response?.data
     );
 
     if (response && response.status) {

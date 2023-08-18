@@ -9,12 +9,14 @@ import {
 import { computed } from "vue";
 
 const props = defineProps<{
-  modelValue: string | null | undefined;
+  modelValue: any | null | undefined;
   options: any[];
   valueProp: string;
   displayProp: string;
   allowNone?: boolean;
   noIcon?: boolean;
+  multiple?: boolean;
+  placeholder?: string;
 }>();
 
 const emit = defineEmits(["update:modelValue", "change"]);
@@ -40,23 +42,71 @@ const allOptions = computed(() => {
 
   return props.options;
 });
+
+const showPlaceholder = computed(() => {
+  return (
+    !allOptions.value.find((o) => o[props.valueProp] === value.value) &&
+    (!value.value || value.value.length === 0)
+  );
+});
+
+const displayedValue = computed(() => {
+  if (
+    (!value.value && props.allowNone) ||
+    (value?.value?.length === 0 && props.allowNone)
+  ) {
+    return "None";
+  }
+
+  if (showPlaceholder.value) {
+    return props.placeholder;
+  }
+
+  if (Array.isArray(value.value)) {
+    return value.value
+      .map((v) => {
+        const selectedOption = allOptions.value.find(
+          (o) => o[props.valueProp] === v
+        );
+
+        if (!selectedOption) return "";
+
+        return selectedOption[props.displayProp];
+      })
+      .join(", ");
+  } else {
+    const selectedOption = allOptions.value.find(
+      (o) => o[props.valueProp] === value.value
+    );
+
+    if (!selectedOption) return "";
+
+    return selectedOption[props.displayProp];
+  }
+});
+
+const showCheckIcon = (option: any) => {
+  if (props.noIcon) return false;
+
+  if (Array.isArray(value.value)) {
+    return value.value.includes(option[props.valueProp]);
+  } else {
+    return option[props.valueProp] === value.value;
+  }
+};
 </script>
 
 <template>
-  <Listbox v-model="value">
+  <Listbox v-model="value" :multiple="multiple">
     <div class="relative">
       <ListboxButton
         class="gradient-border-no-opacity relative h-10 w-full cursor-pointer rounded-xl border bg-black px-4 text-left text-white"
       >
-        <span class="block truncate"
-          >{{
-            !value && allowNone
-              ? "None"
-              : allOptions.find((o) => o[valueProp] === value)
-              ? allOptions.find((o) => o[valueProp] === value)[displayProp]
-              : ""
-          }}
-        </span>
+        <span
+          class="block truncate"
+          :class="{ 'text-gray-400': showPlaceholder }"
+          >{{ displayedValue }}</span
+        >
         <span
           v-if="!noIcon"
           class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
@@ -95,7 +145,7 @@ const allOptions = computed(() => {
                 >{{ option[displayProp] }}</span
               >
               <span
-                v-if="option[valueProp] === value && !noIcon"
+                v-if="showCheckIcon(option)"
                 class="absolute inset-y-0 left-0 flex items-center pl-3 text-purple-300"
               >
                 <CheckIcon class="h-5 w-5" aria-hidden="true" />

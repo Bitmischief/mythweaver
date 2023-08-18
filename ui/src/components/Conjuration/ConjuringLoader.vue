@@ -46,7 +46,7 @@ function getRandomLoadingSnippet() {
 const loadingSnippets = ref([
   "Conjuring the character cauldron...",
   "Rummaging through the wizard's hat...",
-  "Summoning the spirits of character creation...",
+  "Conjuration the spirits of character creation...",
   "Spinning up the fantasy wheel...",
   "Brewing a batch of character essence...",
   "Consulting the ancient character scrolls...",

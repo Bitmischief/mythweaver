@@ -20,7 +20,6 @@ onMounted(() => {
 });
 
 function typeText() {
-  console.log(props.content);
   const splitTxt = props.content.split("<np>");
 
   splitTxt.forEach(() => {
@@ -33,7 +32,6 @@ function typeText() {
   let i = 0;
   let currentPara = 0;
   const timerId = setInterval(() => {
-    console.log(splitTxt, currentPara, i);
     allParas[currentPara].innerHTML += splitTxt[currentPara].charAt(i);
     i++;
     if (i === splitTxt[currentPara].length) {

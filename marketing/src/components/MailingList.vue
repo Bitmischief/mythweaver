@@ -49,7 +49,7 @@ onMounted(() => {
 
   <div class="mt-12 rounded-xl bg-black/50 p-8 shadow-xl">
     <div class="text-3xl">
-      LAUNCHING SOON <span class="mx-2">|</span> September 15th
+      LAUNCHING SOON <span class="mx-2">|</span> October 15th
     </div>
     <div class="my-5 text-xl text-gray-400">
       Submit your email below to be notified about the launch & get access to
