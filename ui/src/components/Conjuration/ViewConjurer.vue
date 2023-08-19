@@ -6,18 +6,16 @@ import {
   postConjure,
   Conjurer,
 } from "@/api/generators.ts";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 import { useCampaignStore } from "@/store/campaign.store.ts";
 import { storeToRefs } from "pinia";
-import { showError, showSuccess } from "@/lib/notifications.ts";
+import { showError } from "@/lib/notifications.ts";
 import SummoningLoader from "@/components/Conjuration/ConjuringLoader.vue";
 import { useEventBus } from "@/lib/events.ts";
-import { postCharacter } from "@/api/characters.ts";
 import { ArrowLeftIcon, XMarkIcon } from "@heroicons/vue/24/solid";
 import ConjurationQuickView from "@/components/Conjuration/ConjurationQuickView.vue";
 
 const route = useRoute();
-const router = useRouter();
 const eventBus = useEventBus();
 const campaignStore = useCampaignStore();
 
@@ -75,34 +73,6 @@ async function generate(generatorCode: string) {
       animationDone.value = true;
     });
   }
-}
-
-async function clickSaveCharacters() {
-  for (const item of selectedItems.value) {
-    const postCharacterResponse = await postCharacter(item);
-
-    if (postCharacterResponse.status !== 201) {
-      showError({ message: "Failed to save character" });
-    }
-  }
-
-  showSuccess({
-    message: "You can now browse to Characters to see the saved characters!",
-  });
-
-  await router.push("/characters");
-}
-
-const selectedItems = ref<any[]>([]);
-function addToSelectedItems(item: any) {
-  if (selectedItems.value.find((i) => i.name === item.name)) {
-    selectedItems.value = selectedItems.value.filter(
-      (i) => i.name !== item.name
-    );
-    return;
-  }
-
-  selectedItems.value.push(item);
 }
 
 function addCustomArg() {

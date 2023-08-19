@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { CheckIcon, PlusIcon } from "@heroicons/vue/20/solid";
-import { addConjuration, Conjuration } from "@/api/conjurations.ts";
+import { addConjuration } from "@/api/conjurations.ts";
 import { useCurrentUserId } from "@/lib/hooks.ts";
 import { useRouter } from "vue-router";
 
 defineProps({
   conjuration: {
-    type: Object as Conjuration,
+    type: Object,
     required: true,
   },
 });
@@ -16,7 +16,7 @@ const emit = defineEmits(["add-conjuration"]);
 const router = useRouter();
 const currentUserId = useCurrentUserId();
 
-const isMyConjuration = (conjuration: Conjuration) =>
+const isMyConjuration = (conjuration: any) =>
   conjuration.copies?.length || conjuration.userId === currentUserId.value;
 
 const backgroundImageInlineStyle = (imageUri: string | undefined): string => {

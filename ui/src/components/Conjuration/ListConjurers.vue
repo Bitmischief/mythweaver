@@ -32,7 +32,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import { Conjurer, getConjurers, postQuickConjure } from "@/api/generators.ts";
+import { Conjurer, getConjurers } from "@/api/generators.ts";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
@@ -55,9 +55,9 @@ async function loadGenerators() {
   generators.value = generatorsReponse.data.data;
 }
 
-async function quickConjure(generatorCode: string) {
-  await postQuickConjure(generatorCode);
-}
+// async function quickConjure(generatorCode: string) {
+//   await postQuickConjure(generatorCode);
+// }
 
 async function navigateToConjurer(
   generatorCode: string | undefined = undefined
