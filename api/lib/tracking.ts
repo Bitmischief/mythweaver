@@ -1,6 +1,9 @@
 import Mixpanel from "mixpanel";
 import { Request } from "express";
 import UAParser from "ua-parser-js";
+import { Logger } from "tslog";
+
+const logger = new Logger();
 
 const mixpanel = Mixpanel.init(process.env.MIXPANEL_TOKEN as string);
 
@@ -56,6 +59,16 @@ export const extractTrackingInfo = (req: Request): TrackingInfo => {
     req.headers["user-agent"]?.toString() || ""
   );
 
+  const ip = (
+    req.headers["x-forwarded-for"]?.toString() ||
+    req.connection.remoteAddress?.toString() ||
+    ""
+  )
+    .split(",")[0]
+    .trim();
+
+  logger.info("Retrieved ip address: ", ip);
+
   return {
     browser: parser.getBrowser().name,
     browserVersion: parser.getBrowser().version,
@@ -70,13 +83,7 @@ export const extractTrackingInfo = (req: Request): TrackingInfo => {
     utmMedium: req.query["utm_medium"]?.toString(),
     utmSource: req.query["utm_source"]?.toString(),
     utmTerm: req.query["utm_term"]?.toString(),
-    ip: (
-      req.headers["x-forwarded-for"]?.toString() ||
-      req.connection.remoteAddress?.toString() ||
-      ""
-    )
-      .split(",")[0]
-      .trim(),
+    ip,
   };
 };
 
