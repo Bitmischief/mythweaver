@@ -78,6 +78,38 @@ router.post("/", [
   },
 ]);
 
+const putCampaignIdSchema = z.object({
+  campaignId: z.coerce.number().default(0),
+});
+
+const putCampaignSchema = z.object({
+  name: z.string(),
+  description: z.string().nullable().optional(),
+  rpgSystemCode: z.string(),
+  publicAdventureCode: z.string().nullable().optional(),
+});
+
+router.put("/:campaignId", [
+  useAuthenticateRequest(),
+  useValidateRequest(putCampaignIdSchema, {
+    validationType: ValidationTypes.Route,
+  }),
+  useValidateRequest(putCampaignSchema),
+  async (req: Request, res: Response) => {
+    const controller = new CampaignController();
+
+    const { campaignId = 0 } = req.params;
+
+    const response = await controller.putCampaign(
+      res.locals.auth.userId,
+      campaignId as number,
+      req.body
+    );
+
+    return res.status(200).send(response);
+  },
+]);
+
 const deleteCampaignSchema = z.object({
   campaignId: z.coerce.number().default(0),
 });

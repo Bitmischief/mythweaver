@@ -1,6 +1,6 @@
 <template>
   <TransitionRoot as="template" :show="show" v-bind="$attrs">
-    <Dialog as="div" class="relative" @close="emit('close')">
+    <Dialog as="div" class="relative z-50" @close="emit('close')">
       <TransitionChild
         as="template"
         enter="ease-out duration-300"
@@ -11,7 +11,7 @@
         leave-to="opacity-0"
       >
         <div
-          class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+          class="fixed inset-0 bg-surface bg-opacity-90 transition-opacity"
         />
       </TransitionChild>
 
@@ -27,20 +27,21 @@
             leave-to="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
           >
             <DialogPanel
-              class="relative w-[72rem] transform overflow-hidden rounded-lg bg-gray-600 text-left shadow-xl transition-all"
+              class="relative w-[72rem] transform overflow-hidden rounded-lg bg-surface bg-cover bg-center bg-no-repeat text-left shadow-xl transition-all"
+              :style="backgroundImageInlineStyle()"
             >
-              <div class="px-4 pb-6 pt-4 md:pt-6">
-                <div class="flex items-center justify-between">
+              <div class="z-50 px-4 pb-6 pt-4 md:pt-6">
+                <div class="mb-6 flex items-center justify-between">
                   <DialogTitle
                     v-if="title"
                     as="h3"
-                    class="text-xl font-bold text-[#fff]/[0.87]"
+                    class="text-3xl font-bold text-[#fff]/[0.87]"
                   >
                     {{ title }}
                   </DialogTitle>
                   <slot v-else name="title"></slot>
                   <XMarkIcon
-                    class="h-6 w-6 cursor-pointer text-[#fff]/[0.7]"
+                    class="h-6 w-6 cursor-pointer bg-opacity-75 text-[#fff]/[0.7]"
                     @click="emit('close')"
                   />
                 </div>
@@ -64,7 +65,7 @@ import {
   TransitionRoot,
 } from "@headlessui/vue";
 
-defineProps({
+const props = defineProps({
   title: {
     type: String,
     default: null,
@@ -73,7 +74,25 @@ defineProps({
     type: Boolean,
     default: false,
   },
+  bgImage: {
+    type: String,
+    default: undefined,
+  },
+  bgOpacity: {
+    type: Number,
+    default: 100,
+  },
 });
 
 const emit = defineEmits(["close"]);
+
+const backgroundImageInlineStyle = (): string => {
+  const imageUri = props.bgImage ?? "";
+
+  if (!imageUri) {
+    return "";
+  }
+
+  return `background-image: url('${imageUri}');`;
+};
 </script>

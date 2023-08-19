@@ -18,4 +18,13 @@ router.use(`/rpg-systems`, rpgSystemRoutes);
 import generatorsRoutes from "./generators";
 router.use(`/generators`, generatorsRoutes);
 
+import sessionsRoutes from "./sessions";
+router.use(`/sessions`, sessionsRoutes);
+
+import conjurationsRoutes from "./conjurations";
+router.use(`/conjurations`, conjurationsRoutes);
+
+import usersRoutes from "./users";
+router.use(`/users`, usersRoutes);
+
 export default router;

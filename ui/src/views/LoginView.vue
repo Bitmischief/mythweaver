@@ -1,53 +1,34 @@
 <template>
   <div class="flex h-screen overflow-y-hidden">
-    <div class="relative md:w-[50%]">
+    <div class="relative md:flex md:w-[50%]">
       <div
-        class="absolute z-50 flex h-full w-full flex-col justify-end bg-gradient-to-l from-surface"
-      ></div>
-      <div class="grid grid-cols-2 gap-0">
+        class="absolute z-50 flex h-full w-full bg-surface/95 md:flex-col md:justify-end md:bg-gradient-to-l"
+      >
+        <div class="p-6 md:hidden">
+          <LoginContent />
+        </div>
+      </div>
+      <div class="grid grid-cols-1 gap-0 md:grid-cols-2">
         <img
           v-for="image in randomizedImages"
           :key="image"
-          :src="getImageUrl(image)"
+          :src="`/images/generators/characters/${image}`"
           alt=""
         />
       </div>
     </div>
     <div
-      class="flex flex-col justify-center bg-gradient-to-br from-indigo-500/50 from-0% via-surface/50 via-50% to-pink-500/50 to-100% p-4 md:w-[50%]"
+      class="hidden flex-col bg-gradient-to-b from-surface from-70% via-pink-500/5 via-95% to-pink-500/5 p-4 md:flex md:w-[50%] md:justify-center"
     >
-      <div class="flex justify-center">
-        <div>
-          <img src="/images/logo-horizontal.svg" class="h-32 w-auto" />
-
-          <div class="flex justify-center">
-            <div class="mt-8 w-[13.25rem]">
-              <div class="flex justify-center">
-                <GoogleLogin
-                  :callback="callback"
-                  class="w-full"
-                  prompt
-                  auto-login
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <LoginContent />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { GoogleLogin } from "vue3-google-login";
-import { useAuthStore } from "@/store";
 import { ref } from "vue";
 import { shuffleArray } from "@/lib/util.ts";
-const authStore = useAuthStore();
-
-const callback = async (googleResponse: any) => {
-  await authStore.login(googleResponse.credential);
-};
+import LoginContent from "@/components/Login/LoginContent.vue";
 
 const images = [
   "townfolk.png",
@@ -62,11 +43,4 @@ const images = [
   "/townfolk/scholars.png",
 ];
 const randomizedImages = ref<string[]>(shuffleArray(images));
-
-function getImageUrl(fileName: string) {
-  return new URL(
-    `/images/generators/characters/${fileName}`,
-    import.meta.url
-  ).toString();
-}
 </script>

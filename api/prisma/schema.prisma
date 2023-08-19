@@ -32,6 +32,7 @@ model User {
   campaigns     Campaign[]
   sessions      Session[]
   comments      Comment[]
+  Conjuration   Conjuration[]
 
   @@map("users")
 }
@@ -59,6 +60,31 @@ model Character {
   @@map("characters")
 }
 
+model Conjuration {
+  id         Int       @id @default(autoincrement())
+  createdAt  DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  updatedAt  DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  originalId Int?
+  userId     Int?
+  campaignId Int?
+
+  name          String
+  conjurerCode  String
+  imageUri      String?
+  imageAIPrompt String?
+  data          Json
+  tags          String[]
+
+  user          User?         @relation(fields: [userId], references: [id])
+  campaign      Campaign?     @relation(fields: [campaignId], references: [id])
+  original      Conjuration?  @relation("OriginalConjuration", fields: [originalId], references: [id])
+  copies        Conjuration[] @relation("OriginalConjuration")
+  comments      Comment[]
+  conjurationId Int?
+
+  @@map("conjurations")
+}
+
 model Campaign {
   id        Int       @id @default(autoincrement())
   createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
@@ -70,11 +96,12 @@ model Campaign {
   rpgSystemCode       String
   publicAdventureCode String?
 
-  user      User        @relation(fields: [userId], references: [id])
-  sessions  Session[]
-  comments  Comment[]
-  locations Location[]
-  Character Character[]
+  user        User          @relation(fields: [userId], references: [id])
+  sessions    Session[]
+  comments    Comment[]
+  locations   Location[]
+  Character   Character[]
+  Conjuration Conjuration[]
 
   @@map("campaigns")
 }
@@ -86,10 +113,10 @@ model Session {
   userId     Int
   campaignId Int
 
-  playedAt   DateTime @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
-  summary    String?
-  transcript String?
-  tags       String[]
+  when        DateTime
+  summary     String?
+  transcript  String?
+  description String?
 
   user     User      @relation(fields: [userId], references: [id])
   campaign Campaign  @relation(fields: [campaignId], references: [id])
@@ -109,10 +136,12 @@ model Comment {
 
   text String
 
-  user      User       @relation(fields: [userId], references: [id])
-  session   Session?   @relation(fields: [sessionId], references: [id])
-  campaign  Campaign?  @relation(fields: [campaignId], references: [id])
-  character Character? @relation(fields: [characterId], references: [id])
+  user          User         @relation(fields: [userId], references: [id])
+  session       Session?     @relation(fields: [sessionId], references: [id])
+  campaign      Campaign?    @relation(fields: [campaignId], references: [id])
+  character     Character?   @relation(fields: [characterId], references: [id])
+  Conjuration   Conjuration? @relation(fields: [conjurationId], references: [id])
+  conjurationId Int?
 
   @@map("comments")
 }

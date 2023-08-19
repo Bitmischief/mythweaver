@@ -1,10 +1,13 @@
 import { defineStore } from "pinia";
 import { postToken, postRefresh } from "@/api/auth.ts";
 import router from "@/router/router.ts";
+import { showError } from "@/lib/notifications.ts";
+import { getCurrentUser, User } from "@/api/users.ts";
 
 interface AuthStoreState {
   tokens: any;
   returnUrl: string | null;
+  user: User | null;
 }
 
 const TOKENS_KEY_NAME = "tokens";
@@ -17,9 +20,14 @@ export const useAuthStore = defineStore({
       ? JSON.parse(localStorage.getItem(TOKENS_KEY_NAME) || "")
       : null,
     returnUrl: null,
+    user: null,
   }),
   actions: {
-    async login(credential: string) {
+    async loadCurrentUser(): Promise<void> {
+      const userResponse = await getCurrentUser();
+      this.user = userResponse.data;
+    },
+    async login(credential: string): Promise<boolean> {
       try {
         const response = await postToken(credential);
 
@@ -28,10 +36,19 @@ export const useAuthStore = defineStore({
         // store user details and jwt in local storage to keep user logged in between page refreshes
         localStorage.setItem(TOKENS_KEY_NAME, JSON.stringify(this.tokens));
 
+        await this.loadCurrentUser();
+
         // redirect to previous url or default to home page
         await router.push(this.returnUrl || "/");
-      } catch (err) {
-        console.error(err);
+        return true;
+      } catch (err: any) {
+        if (err.response.status === 400) {
+          showError({ message: "Your user is not authorized for early access!" });
+          return false;
+        } else {
+          showError({ message: "Unable to login, please try again soon." });
+          return true;
+        }
       }
     },
     async refresh() {
@@ -43,8 +60,7 @@ export const useAuthStore = defineStore({
         // store user details and jwt in local storage to keep user logged in between page refreshes
         localStorage.setItem(TOKENS_KEY_NAME, JSON.stringify(this.tokens));
 
-        // redirect to previous url or default to home page
-        await router.push(this.returnUrl || "/");
+        await this.loadCurrentUser();
       } catch (err) {
         console.error(err);
       }
