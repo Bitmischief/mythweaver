@@ -1,22 +1,21 @@
 import axios from "axios";
 
-export interface Summoner {
+export interface Conjurer {
   code: string;
   name: string;
   description: string;
   imageUri?: string;
-  parent: Summoner | null;
 }
 
-export const getSummoners = () => {
+export const getConjurers = () => {
   return axios.get("/generators");
 };
 
-export const getSummoner = (code: string) => {
+export const getConjurer = (code: string) => {
   return axios.get(`/generators/${code}`);
 };
 
-export interface PostSummonerSummonRequest {
+export interface PostConjureRequest {
   campaignId: number;
   customArgs?: CustomArg[];
 }
@@ -26,6 +25,10 @@ export interface CustomArg {
   value: any;
 }
 
-export const postSummonerSummon = (code: string, payload: PostSummonerSummonRequest) => {
+export const postConjure = (code: string, payload: PostConjureRequest) => {
   return axios.post(`/generators/${code}/generate`, payload);
+};
+
+export const postQuickConjure = (code: string) => {
+  return axios.post(`/generators/${code}/generate/quick`, {});
 };

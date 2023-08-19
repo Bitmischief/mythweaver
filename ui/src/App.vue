@@ -4,9 +4,14 @@ import { useAuthStore } from "@/store";
 import NotificationHandler from "@/components/Notifications/NotificationHandler.vue";
 import { NO_CAMPAIGNS_EVENT, useEventBus } from "@/lib/events.ts";
 import router from "@/router/router.ts";
+import { onMounted } from "vue";
 
 const authStore = useAuthStore();
 const eventBus = useEventBus();
+
+onMounted(async () => {
+  await authStore.loadCurrentUser();
+});
 
 eventBus.$on(NO_CAMPAIGNS_EVENT, () => {
   router.push("/campaigns/new");
@@ -17,7 +22,7 @@ eventBus.$on(NO_CAMPAIGNS_EVENT, () => {
   <div class="block h-screen bg-surface text-white md:flex">
     <Navbar
       v-if="!!authStore.tokens"
-      class="mr-4 w-full border-r-[2px] border-white/5 md:max-w-[300px]"
+      class="w-full border-r-[2px] border-white/5 md:max-w-[300px]"
     />
     <div
       class="bg h-min-screen mb-3 flex h-full w-full flex-col overflow-y-auto"

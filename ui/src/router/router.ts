@@ -7,10 +7,16 @@ import ListCharacters from "@/components/Characters/ListCharacters.vue";
 import CampaignsView from "@/views/CampaignsView.vue";
 import ListCampaigns from "@/components/Campaigns/ListCampaigns.vue";
 import NewCampaign from "@/components/Campaigns/NewCampaign.vue";
-import SummoningView from "@/views/SummoningView.vue";
-import ListSummoners from "@/components/Summoning/ListSummoners.vue";
-import ViewSummoner from "@/components/Summoning/ViewSummoner.vue";
+import ConjuringView from "@/views/ConjuringView.vue";
+import ListConjurers from "@/components/Conjuration/ListConjurers.vue";
+import ViewConjurer from "@/components/Conjuration/ViewConjurer.vue";
 import ViewCampaign from "@/components/Campaigns/ViewCampaign.vue";
+import SessionsView from "@/views/SessionsView.vue";
+import ViewSession from "@/components/Sessions/ViewSession.vue";
+import ListSessions from "@/components/Sessions/ListSessions.vue";
+import NewSession from "@/components/Sessions/NewSession.vue";
+import ListConjurations from "@/components/Conjuration/ListConjurations.vue";
+import ViewConjuration from "@/components/Conjuration/ViewConjuration.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -23,7 +29,7 @@ const router = createRouter({
     {
       name: "HOME",
       path: "/",
-      redirect: "/characters",
+      redirect: "/conjurations",
     },
     {
       name: "CHARACTERS",
@@ -64,9 +70,9 @@ const router = createRouter({
       ],
     },
     {
-      name: "SUMMONING",
-      path: "/summoning",
-      component: SummoningView,
+      name: "CONJURING",
+      path: "/conjurations",
+      component: ConjuringView,
       meta: {
         authRequired: true,
       },
@@ -74,11 +80,19 @@ const router = createRouter({
         {
           path: "list",
           alias: "",
-          component: ListSummoners,
+          component: ListConjurations,
         },
         {
-          path: "view/:summonerCode",
-          component: ViewSummoner,
+          path: "view/:conjurationId",
+          component: ViewConjuration,
+        },
+        {
+          path: "new",
+          component: ListConjurers,
+        },
+        {
+          path: "conjure/:summonerCode",
+          component: ViewConjurer,
         },
       ],
     },
@@ -94,6 +108,29 @@ const router = createRouter({
           path: "edit",
           alias: "",
           component: ViewCampaign,
+        },
+      ],
+    },
+    {
+      name: "SESSION",
+      path: "/sessions",
+      component: SessionsView,
+      meta: {
+        authRequired: true,
+      },
+      children: [
+        {
+          path: "list",
+          alias: "",
+          component: ListSessions,
+        },
+        {
+          path: "create",
+          component: NewSession,
+        },
+        {
+          path: ":sessionId/edit",
+          component: ViewSession,
         },
       ],
     },

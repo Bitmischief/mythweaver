@@ -17,6 +17,7 @@ import cors from "cors";
 import rateLimit from "express-rate-limit";
 import "./worker/index";
 import { ILogObj, Logger } from "tslog";
+
 const logger = new Logger<ILogObj>();
 
 const PORT = process.env.PORT || 8000;
@@ -69,7 +70,7 @@ const errorHandlerMiddleware: ErrorRequestHandler = (
 
 app.use(errorHandlerMiddleware);
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   logger.info("Server is running on port", PORT);
 });
 

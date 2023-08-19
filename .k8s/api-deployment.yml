@@ -1,19 +1,19 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: merlin-api
+  name: mythweaver-api
 spec:
   type: ClusterIP
   ports:
     - port: 80
       targetPort: 8000
   selector:
-    app: merlin-api
+    app: mythweaver-api
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: merlin-content-pvc
+  name: mythweaver-content-pvc
 spec:
   accessModes:
     - ReadWriteMany
@@ -25,14 +25,14 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: merlin-api
+  name: mythweaver-api
   labels:
-    app: merlin-api
+    app: mythweaver-api
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: merlin-api
+      app: mythweaver-api
   strategy:
     rollingUpdate:
       maxSurge: 1
@@ -41,10 +41,10 @@ spec:
   template:
     metadata:
       labels:
-        app: merlin-api
+        app: mythweaver-api
     spec:
       containers:
-        - name: merlin-api
+        - name: mythweaver-api
           image: <IMAGE>
           ports:
             - containerPort: 8000
@@ -75,11 +75,13 @@ spec:
             - name: REDIS_PORT
               value: "<REDIS_PORT>"
             - name: API_URL
-              value: "https://api.merlinapp.ai"
+              value: "https://api.mythweaver.co"
+            - name: STABILITY_API_KEY
+              value: <STABILITY_API_KEY>
           volumeMounts:
             - mountPath: "/app/public/images"
-              name: merlin-content
+              name: mythweaver-content
       volumes:
-        - name: merlin-content
+        - name: mythweaver-content
           persistentVolumeClaim:
-            claimName: merlin-content-pvc
+            claimName: mythweaver-content-pvc
