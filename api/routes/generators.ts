@@ -59,6 +59,25 @@ router.get("/:generatorCode", [
   },
 ]);
 
+router.post("/:generatorCode/generate/quick", [
+  useAuthenticateRequest(),
+  useValidateRequest(generatorIdSchema, {
+    validationType: ValidationTypes.Route,
+  }),
+  async (req: Request, res: Response) => {
+    const controller = new GeneratorController();
+
+    const { generatorCode = 0 } = req.params;
+
+    const response = await controller.postGeneratorGenerateQuick(
+      res.locals.auth.userId,
+      generatorCode as string
+    );
+
+    return res.status(200).send(response);
+  },
+]);
+
 const postGeneratorGenerateSchema = z.object({
   campaignId: z.coerce.number(),
   customArgs: z

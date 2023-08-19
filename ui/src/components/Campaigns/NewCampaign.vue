@@ -54,7 +54,10 @@ async function loadRpgSystems() {
 }
 
 async function handleCreateCampaign() {
-  const createCampaignResponse = await createCampaign(campaign.value);
+  const createCampaignResponse = await createCampaign({
+    ...campaign.value,
+    name: campaign.value.name.length ? campaign.value.name : "New Campaign",
+  });
   await campaignStore.loadCampaigns();
   await campaignStore.selectCampaign(createCampaignResponse.data.id);
 
