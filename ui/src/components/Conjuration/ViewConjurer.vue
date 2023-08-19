@@ -1,23 +1,21 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, nextTick } from "vue";
 import {
   CustomArg,
   getConjurer,
   postConjure,
   Conjurer,
 } from "@/api/generators.ts";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 import { useCampaignStore } from "@/store/campaign.store.ts";
 import { storeToRefs } from "pinia";
-import { showError, showSuccess } from "@/lib/notifications.ts";
+import { showError } from "@/lib/notifications.ts";
 import SummoningLoader from "@/components/Conjuration/ConjuringLoader.vue";
 import { useEventBus } from "@/lib/events.ts";
-import { postCharacter } from "@/api/characters.ts";
-import Character from "@/components/Characters/Character.vue";
-import { XMarkIcon } from "@heroicons/vue/24/solid";
+import { ArrowLeftIcon, XMarkIcon } from "@heroicons/vue/24/solid";
+import ConjurationQuickView from "@/components/Conjuration/ConjurationQuickView.vue";
 
 const route = useRoute();
-const router = useRouter();
 const eventBus = useEventBus();
 const campaignStore = useCampaignStore();
 
@@ -77,40 +75,44 @@ async function generate(generatorCode: string) {
   }
 }
 
-async function clickSaveCharacters() {
-  for (const item of selectedItems.value) {
-    const postCharacterResponse = await postCharacter(item);
-
-    if (postCharacterResponse.status !== 201) {
-      showError({ message: "Failed to save character" });
-    }
-  }
-
-  showSuccess({
-    message: "You can now browse to Characters to see the saved characters!",
-  });
-
-  await router.push("/characters");
-}
-
-const selectedItems = ref<any[]>([]);
-function addToSelectedItems(item: any) {
-  if (selectedItems.value.find((i) => i.name === item.name)) {
-    selectedItems.value = selectedItems.value.filter(
-      (i) => i.name !== item.name
-    );
-    return;
-  }
-
-  selectedItems.value.push(item);
-}
-
 function addCustomArg() {
   customArgs.value.push({ key: "", value: "" });
+  return true;
 }
 
 function removeCustomArg(index: number) {
   customArgs.value.splice(index, 1);
+}
+
+const keyInputs = ref<any[]>([]);
+const valueInputs = ref<any[]>([]);
+function setKeyFocus(index: number) {
+  nextTick(() => {
+    keyInputs.value[index].focus();
+  });
+  return true;
+}
+function setValueFocus(index: number) {
+  valueInputs.value[index].focus();
+  return true;
+}
+function isFirst(index: number) {
+  return index + 1 === 1;
+}
+function isLast(index: number) {
+  return index + 1 === customArgs.value.length;
+}
+function isKeyEmpty(index: number) {
+  return keyInputs.value[index].value === "";
+}
+function isValueEmpty(index: number) {
+  return valueInputs.value[index].value === "";
+}
+function cursorStart(e: any) {
+  return e.target.selectionStart === 0;
+}
+function cursorEnd(e: any) {
+  return e.target.selectionStart === e.target.value.length;
 }
 </script>
 
@@ -144,14 +146,76 @@ function removeCustomArg(index: number) {
                 class="mb-2 flex"
               >
                 <input
+                  :ref="
+                    (el) => {
+                      keyInputs[i] = el;
+                    }
+                  "
                   v-model="customArg.key"
                   class="gradient-border-no-opacity relative h-8 w-32 rounded-xl border bg-black px-4 text-left text-white"
+                  autofocus
                   placeholder="Occupation"
+                  @keydown.enter="setValueFocus(i)"
+                  @keydown.escape="
+                    !isFirst(i) && removeCustomArg(i);
+                    setKeyFocus(i - 1);
+                  "
+                  @keydown.backspace="
+                    isKeyEmpty(i) &&
+                      !isFirst(i) &&
+                      setValueFocus(i - 1) &&
+                      $event.preventDefault();
+                    isKeyEmpty(i) && isValueEmpty(i) && removeCustomArg(i);
+                  "
+                  @keydown.right="
+                    cursorEnd($event) &&
+                      setValueFocus(i) &&
+                      $event.preventDefault()
+                  "
+                  @keydown.left="
+                    cursorStart($event) &&
+                      !isFirst(i) &&
+                      setValueFocus(i - 1) &&
+                      $event.preventDefault()
+                  "
+                  @keydown.down="!isLast(i) && setKeyFocus(i + 1)"
+                  @keydown.up="!isFirst(i) && setKeyFocus(i - 1)"
                 />
                 <input
+                  :ref="
+                    (el) => {
+                      valueInputs[i] = el;
+                    }
+                  "
                   v-model="customArg.value"
                   class="gradient-border-no-opacity relative ml-2 h-8 w-32 rounded-xl border bg-black px-4 text-left text-white"
                   placeholder="Bartender"
+                  @keydown.enter="
+                    i + 1 === customArgs.length && addCustomArg();
+                    setKeyFocus(i + 1);
+                  "
+                  @keydown.backspace="
+                    customArg.value === '' &&
+                      setKeyFocus(i) &&
+                      $event.preventDefault()
+                  "
+                  @keydown.tab="
+                    i + 1 === customArgs.length && addCustomArg();
+                    setKeyFocus(i + 1) && $event.preventDefault();
+                  "
+                  @keydown.right="
+                    cursorEnd($event) &&
+                      !isLast(i) &&
+                      setKeyFocus(i + 1) &&
+                      $event.preventDefault()
+                  "
+                  @keydown.left="
+                    cursorStart($event) &&
+                      setKeyFocus(i) &&
+                      $event.preventDefault()
+                  "
+                  @keydown.down="!isLast(i) && setValueFocus(i + 1)"
+                  @keydown.up="!isFirst(i) && setValueFocus(i - 1)"
                 />
                 <button
                   class="ml-2 rounded border border-red-500 p-1 px-2 text-sm"
@@ -181,39 +245,24 @@ function removeCustomArg(index: number) {
         <SummoningLoader class="h-[10rem] w-[15rem]" />
       </template>
       <div v-else-if="!generating && animationDone && summonedItems.length">
-        <div class="mb-4 flex justify-between">
-          <div class="self-center text-xl text-green-200">
-            Choose any
-            {{ summoner.name.toLowerCase() }}
-            you'd like to save!
-          </div>
-
-          <button
-            class="rounded-xl px-4 py-2"
-            :class="{
-              'bg-green-500': selectedItems.length,
-              'bg-gray-700/50': !selectedItems.length,
-            }"
-            :disabled="!selectedItems.length"
-            @click="clickSaveCharacters"
-          >
-            Save {{ summoner.name }}
-          </button>
-        </div>
+        <button
+          class="bg-surface-2 mb-4 flex rounded-xl border-2 border-gray-600/50 p-3"
+          @click="
+            generating = false;
+            animationDone = false;
+            summonedItems = [];
+          "
+        >
+          <ArrowLeftIcon class="mr-2 h-4 w-4 self-center" />
+          <span class="self-center">Back</span>
+        </button>
 
         <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
-          <div
-            v-for="(item, i) of summonedItems"
-            :key="i"
-            class="cursor-pointer rounded-xl"
-            :class="{
-              'border-2 border-green-500/50': !!selectedItems.find((a: any) => a.name === item.name),
-              'border-2 border-green-500/0': !selectedItems.find((a: any) => a.name === item.name)
-            }"
-            @click="addToSelectedItems(item)"
-          >
-            <Character :character="item" full />
-          </div>
+          <ConjurationQuickView
+            v-for="conjuration of summonedItems"
+            :key="conjuration.name"
+            :conjuration="conjuration"
+          />
         </div>
       </div>
     </div>

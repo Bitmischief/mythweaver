@@ -5,7 +5,6 @@ import {
   useValidateRequest,
   ValidationTypes,
 } from "../lib/validationMiddleware";
-import CharacterController from "../controllers/characters";
 import CampaignController from "../controllers/campaigns";
 
 const router = express.Router();

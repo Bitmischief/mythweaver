@@ -12,12 +12,12 @@
           <div class="text-gray-300">{{ gen.description }}</div>
         </div>
         <div class="flex">
-          <button
-            class="rounded-xl bg-purple-500 px-4"
-            @click="quickConjure(gen.code)"
-          >
-            Quick Conjure
-          </button>
+          <!--          <button-->
+          <!--            class="rounded-xl bg-purple-500 px-4"-->
+          <!--            @click="quickConjure(gen.code)"-->
+          <!--          >-->
+          <!--            Quick Conjure-->
+          <!--          </button>-->
           <button
             class="ml-4 rounded-xl bg-gray-900/75 px-4 shadow-xl"
             @click="navigateToConjurer(gen.code)"
@@ -32,7 +32,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import { Conjurer, getConjurers, postQuickConjure } from "@/api/generators.ts";
+import { Conjurer, getConjurers } from "@/api/generators.ts";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
@@ -55,9 +55,9 @@ async function loadGenerators() {
   generators.value = generatorsReponse.data.data;
 }
 
-async function quickConjure(generatorCode: string) {
-  await postQuickConjure(generatorCode);
-}
+// async function quickConjure(generatorCode: string) {
+//   await postQuickConjure(generatorCode);
+// }
 
 async function navigateToConjurer(
   generatorCode: string | undefined = undefined

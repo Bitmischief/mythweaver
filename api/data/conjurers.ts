@@ -36,24 +36,24 @@ const conjurers: Generator[] = [
     basePromptExtraContext:
       "Please thoroughly flesh out the character's backstory, including their motivations, goals, and fears, using at least 100 words to describe the background of this character. Please populate tags with any values you think applicable to this character, to allow easy searching, including their race, occupation, gender, class and any others you deem helpful.",
   },
-  {
-    code: "encounters",
-    name: "Encounters",
-    description: "Build exciting and engaging encounters for your players.",
-    imageUri: "encounters.png",
-    formatPrompt:
-      '[{ \n      "name": "", \n      "looks": "", \n      "imageAIPrompt": "", \n      "personality": "",\n      "background": ""\n    }]',
-    allowsImageGeneration: true,
-  },
-  {
-    code: "treasure",
-    name: "Treasure",
-    description: "Intrigue your players with unique treasure.",
-    imageUri: "treasure.png",
-    formatPrompt:
-      '[{ \n      "name": "", \n      "looks": "", \n      "imageAIPrompt": "", \n      "personality": "",\n      "background": ""\n    }]',
-    allowsImageGeneration: true,
-  },
+  // {
+  //   code: "encounters",
+  //   name: "Encounters",
+  //   description: "Build exciting and engaging encounters for your players.",
+  //   imageUri: "encounters.png",
+  //   formatPrompt:
+  //     '[{ \n      "name": "", \n      "looks": "", \n      "imageAIPrompt": "", \n      "personality": "",\n      "background": ""\n    }]',
+  //   allowsImageGeneration: true,
+  // },
+  // {
+  //   code: "treasure",
+  //   name: "Treasure",
+  //   description: "Intrigue your players with unique treasure.",
+  //   imageUri: "treasure.png",
+  //   formatPrompt:
+  //     '[{ \n      "name": "", \n      "looks": "", \n      "imageAIPrompt": "", \n      "personality": "",\n      "background": ""\n    }]',
+  //   allowsImageGeneration: true,
+  // },
   {
     code: "locations",
     name: "Locations",
@@ -65,15 +65,15 @@ const conjurers: Generator[] = [
     basePromptExtraContext:
       "Please thoroughly flesh out the location's history, including historical events, climate and unique look, using at least 100 words to describe the history of this location. Please populate tags with any values you think applicable to this location, to allow easy searching.",
   },
-  {
-    code: "items",
-    name: "Items",
-    description: "Build customized items that don't break your game.",
-    imageUri: "items.png",
-    formatPrompt:
-      '[{ \n      "name": "", \n      "looks": "", \n      "imageAIPrompt": "", \n      "personality": "",\n      "background": ""\n    }]',
-    allowsImageGeneration: true,
-  },
+  // {
+  //   code: "items",
+  //   name: "Items",
+  //   description: "Build customized items that don't break your game.",
+  //   imageUri: "items.png",
+  //   formatPrompt:
+  //     '[{ \n      "name": "", \n      "looks": "", \n      "imageAIPrompt": "", \n      "personality": "",\n      "background": ""\n    }]',
+  //   allowsImageGeneration: true,
+  // },
 ];
 
 export default conjurers;

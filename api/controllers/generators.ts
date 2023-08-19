@@ -11,8 +11,8 @@ import {
   Body,
 } from "tsoa";
 import { prisma } from "../lib/providers/prisma";
-import { Campaign, Character, Conjuration } from "@prisma/client";
-import { sanitizeJson, trimPlural } from "../lib/utils";
+import { Campaign, Conjuration } from "@prisma/client";
+import { sanitizeJson } from "../lib/utils";
 import { AppError, HttpCode } from "../lib/errors/AppError";
 import { parentLogger } from "../lib/logger";
 import { getClient } from "../lib/providers/openai";
@@ -134,7 +134,7 @@ export class GeneratorController {
     @Inject() userId: number,
     @Path() code: string,
     @Body() request: PostGeneratorGenerate
-  ): Promise<Character> {
+  ): Promise<any> {
     const campaign = await prisma.campaign.findUnique({
       where: {
         id: request.campaignId,
@@ -212,27 +212,29 @@ export const conjure = async (
     conjurations[i].imageUri = results[i][0];
   }
 
-  await prisma.conjuration.createMany({
-    data: conjurations.map((c: any) => ({
-      name: c.name,
-      data: {
-        ...c,
-        name: undefined,
-        imageAIPrompt: undefined,
-        imageUri: undefined,
-        tags: undefined,
-      },
-      imageAIPrompt: c.imageAIPrompt,
-      imageUri: c.imageUri,
-      conjurerCode: generator.code,
-      tags: [
-        generator.code,
-        ...(c.tags ? c.tags.map((t: string) => t.toLowerCase()) : []),
-      ],
-    })),
-  });
-
-  return conjurations;
+  return prisma.$transaction(
+    conjurations.map((c: any) =>
+      prisma.conjuration.create({
+        data: {
+          name: c.name,
+          data: {
+            ...c,
+            name: undefined,
+            imageAIPrompt: undefined,
+            imageUri: undefined,
+            tags: undefined,
+          },
+          imageAIPrompt: c.imageAIPrompt,
+          imageUri: c.imageUri,
+          conjurerCode: generator.code || "",
+          tags: [
+            generator.code,
+            ...(c.tags ? c.tags.map((t: string) => t.toLowerCase()) : []),
+          ],
+        },
+      })
+    )
+  );
 };
 
 const buildPrompt = (
