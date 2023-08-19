@@ -165,15 +165,15 @@ async function clickDeleteSession() {
     <div class="mt-8 self-center text-2xl text-white">Transcript</div>
 
     <div
-      class="relative mt-2 h-[15rem] overflow-y-hidden bg-black/50 text-lg text-green-300"
+      class="relative mt-2 h-[15.5rem] overflow-y-hidden rounded-xl bg-black/50 text-lg text-green-300"
     >
-      <div class="absolute flex h-full w-full justify-center bg-black/80">
-        <div class="self-center text-3xl font-black text-purple-500">
-          COMING SOON
-        </div>
-      </div>
+      <!--      <div class="absolute flex h-full w-full justify-center bg-black/80">-->
+      <!--        <div class="self-center text-3xl font-black text-purple-500">-->
+      <!--          COMING SOON-->
+      <!--        </div>-->
+      <!--      </div>-->
       <Typewriter
-        class="p-3"
+        class="w-[30rem] p-3"
         :speed="25"
         :content="`Grog: I approach the towering, ominous door, its wooden planks older than time itself, creaking as I lay my hand upon it. I push it open, my muscles bulging, and... it squeaks?
 <np>

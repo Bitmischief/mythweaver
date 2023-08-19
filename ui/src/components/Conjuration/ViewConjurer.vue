@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, nextTick } from "vue";
 import {
   CustomArg,
-  getSummoner,
-  postSummonerSummon,
-  Summoner,
+  getConjurer,
+  postConjure,
+  Conjurer,
 } from "@/api/generators.ts";
 import { useRoute, useRouter } from "vue-router";
 import { useCampaignStore } from "@/store/campaign.store.ts";
 import { storeToRefs } from "pinia";
 import { showError, showSuccess } from "@/lib/notifications.ts";
-import SummoningLoader from "@/components/Summoning/SummoningLoader.vue";
+import SummoningLoader from "@/components/Conjuration/ConjuringLoader.vue";
 import { useEventBus } from "@/lib/events.ts";
 import { postCharacter } from "@/api/characters.ts";
 import Character from "@/components/Characters/Character.vue";
@@ -22,7 +22,7 @@ const eventBus = useEventBus();
 const campaignStore = useCampaignStore();
 
 const { selectedCampaignId } = storeToRefs(campaignStore);
-const summoner = ref<Summoner | undefined>(undefined);
+const summoner = ref<Conjurer | undefined>(undefined);
 
 const generating = ref(false);
 const animationDone = ref(false);
@@ -31,7 +31,7 @@ const summonedItems = ref<any[]>([]);
 const customArgs = ref<CustomArg[]>([{ key: "", value: "" }]);
 
 onMounted(async () => {
-  const getGeneratorResponse = await getSummoner(
+  const getGeneratorResponse = await getConjurer(
     route.params.summonerCode.toString()
   );
   summoner.value = getGeneratorResponse.data;
@@ -58,7 +58,7 @@ async function generate(generatorCode: string) {
     animationDone.value = false;
     generating.value = true;
 
-    const generateResponse = await postSummonerSummon(generatorCode, {
+    const generateResponse = await postConjure(generatorCode, {
       campaignId: selectedCampaignId.value || 0,
       customArgs: customArgs.value.filter((a) => a.key && a.value),
     });
@@ -107,10 +107,42 @@ function addToSelectedItems(item: any) {
 
 function addCustomArg() {
   customArgs.value.push({ key: "", value: "" });
+  return true;
 }
 
 function removeCustomArg(index: number) {
   customArgs.value.splice(index, 1);
+}
+
+const keyInputs = ref<any[]>([]);
+const valueInputs = ref<any[]>([]);
+function setKeyFocus(index: number) {
+  nextTick(() => {
+    keyInputs.value[index].focus();
+  });
+  return true;
+}
+function setValueFocus(index: number) {
+  valueInputs.value[index].focus();
+  return true;
+}
+function isFirst(index: number) {
+  return index + 1 === 1;
+}
+function isLast(index: number) {
+  return index + 1 === customArgs.value.length;
+}
+function isKeyEmpty(index: number) {
+  return keyInputs.value[index].value === "";
+}
+function isValueEmpty(index: number) {
+  return valueInputs.value[index].value === "";
+}
+function cursorStart(e: any) {
+  return e.target.selectionStart === 0;
+}
+function cursorEnd(e: any) {
+  return e.target.selectionStart === e.target.value.length;
 }
 </script>
 
@@ -144,14 +176,76 @@ function removeCustomArg(index: number) {
                 class="mb-2 flex"
               >
                 <input
+                  :ref="
+                    (el) => {
+                      keyInputs[i] = el;
+                    }
+                  "
                   v-model="customArg.key"
                   class="gradient-border-no-opacity relative h-8 w-32 rounded-xl border bg-black px-4 text-left text-white"
+                  autofocus
                   placeholder="Occupation"
+                  @keydown.enter="setValueFocus(i)"
+                  @keydown.escape="
+                    !isFirst(i) && removeCustomArg(i);
+                    setKeyFocus(i - 1);
+                  "
+                  @keydown.backspace="
+                    isKeyEmpty(i) &&
+                      !isFirst(i) &&
+                      setValueFocus(i - 1) &&
+                      $event.preventDefault();
+                    isKeyEmpty(i) && isValueEmpty(i) && removeCustomArg(i);
+                  "
+                  @keydown.right="
+                    cursorEnd($event) &&
+                      setValueFocus(i) &&
+                      $event.preventDefault()
+                  "
+                  @keydown.left="
+                    cursorStart($event) &&
+                      !isFirst(i) &&
+                      setValueFocus(i - 1) &&
+                      $event.preventDefault()
+                  "
+                  @keydown.down="!isLast(i) && setKeyFocus(i + 1)"
+                  @keydown.up="!isFirst(i) && setKeyFocus(i - 1)"
                 />
                 <input
+                  :ref="
+                    (el) => {
+                      valueInputs[i] = el;
+                    }
+                  "
                   v-model="customArg.value"
                   class="gradient-border-no-opacity relative ml-2 h-8 w-32 rounded-xl border bg-black px-4 text-left text-white"
                   placeholder="Bartender"
+                  @keydown.enter="
+                    i + 1 === customArgs.length && addCustomArg();
+                    setKeyFocus(i + 1);
+                  "
+                  @keydown.backspace="
+                    customArg.value === '' &&
+                      setKeyFocus(i) &&
+                      $event.preventDefault()
+                  "
+                  @keydown.tab="
+                    i + 1 === customArgs.length && addCustomArg();
+                    setKeyFocus(i + 1) && $event.preventDefault();
+                  "
+                  @keydown.right="
+                    cursorEnd($event) &&
+                      !isLast(i) &&
+                      setKeyFocus(i + 1) &&
+                      $event.preventDefault()
+                  "
+                  @keydown.left="
+                    cursorStart($event) &&
+                      setKeyFocus(i) &&
+                      $event.preventDefault()
+                  "
+                  @keydown.down="!isLast(i) && setValueFocus(i + 1)"
+                  @keydown.up="!isFirst(i) && setValueFocus(i - 1)"
                 />
                 <button
                   class="ml-2 rounded border border-red-500 p-1 px-2 text-sm"

@@ -8,8 +8,8 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        akira: ["Akira", "sans-serif"],
-        quicksand: ["Quicksand", "sans-serif"],
+        sans: ["Gilroy", "sans-serif"],
+        gilroy: ["Gilroy", "sans-serif"],
       },
       colors: {
         surface: "#171717",
@@ -23,7 +23,7 @@ module.exports = {
         dragon2: "url('/images/dragon2.png')",
         tiger: "url('/images/tiger.png')",
         hart: "url('/images/hart.png')",
-        gods: "url('/images/gods.svg')",
+        gods: "url('/images/gods.png')",
         hydra: "url('/images/hydra.png')",
       },
     },

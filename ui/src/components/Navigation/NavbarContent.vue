@@ -31,12 +31,8 @@ const navItems = [
     path: "/sessions",
   },
   {
-    name: "Characters",
-    path: "/characters",
-  },
-  {
-    name: "Summoning",
-    path: "/summoning",
+    name: "Conjurations",
+    path: "/conjurations",
   },
 ];
 

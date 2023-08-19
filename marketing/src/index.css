@@ -5,6 +5,6 @@
 @tailwind utilities;
 
 @font-face {
-  font-family: "Akira";
-  src: url("/fonts/Akira.otf");
+  font-family: "Gilroy";
+  src: url("/fonts/Gilroy-Light.otf"), url("/fonts/Gilroy-ExtraBold.ttf");
 }
