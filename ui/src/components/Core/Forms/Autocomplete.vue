@@ -6,7 +6,6 @@ import {
   ComboboxOptions,
   ComboboxOption,
   ComboboxButton,
-  ComboboxLabel,
 } from "@headlessui/vue";
 import { debounce } from "lodash";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
@@ -14,8 +13,8 @@ import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
 const props = defineProps<{
   modelValue: string | string[] | null | undefined;
   options: any[];
-  valueProp?: string;
-  displayProp?: string;
+  valueProp: string;
+  displayProp: string;
   allowNone?: boolean;
   noIcon?: boolean;
   multiple?: boolean;
@@ -24,7 +23,7 @@ const props = defineProps<{
 
 const emit = defineEmits(["update:modelValue", "change", "queryChange"]);
 
-const openButton = ref(null);
+const openButton = ref<HTMLElement | null>(null);
 const optionsList = ref(null);
 
 const value = computed({
@@ -40,8 +39,8 @@ const emitQueryChange = debounce(async (term) => {
 }, 100);
 
 function openOptions() {
-  if (!optionsList.value.el) {
-    openButton.value.el.click();
+  if (!optionsList.value) {
+    openButton.value?.click();
   }
 }
 </script>

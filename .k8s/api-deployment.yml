@@ -76,6 +76,8 @@ spec:
               value: "<REDIS_PORT>"
             - name: API_URL
               value: "https://api.mythweaver.co"
+            - name: STABILITY_API_KEY
+              value: <STABILITY_API_KEY>
           volumeMounts:
             - mountPath: "/app/public/images"
               name: mythweaver-content

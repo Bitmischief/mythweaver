@@ -29,7 +29,7 @@ const router = createRouter({
     {
       name: "HOME",
       path: "/",
-      redirect: "/characters",
+      redirect: "/conjurations",
     },
     {
       name: "CHARACTERS",

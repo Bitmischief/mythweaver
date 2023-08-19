@@ -61,10 +61,6 @@ export const addConjuration = (conjurationId: number) => {
   });
 };
 
-export const getConjuration = (conjurationId: number) => {
-  return axios.get(`/conjurations/${conjurationId}`);
-};
-
 export interface GetConjurationsRequest {
   campaignId?: number;
   mine?: boolean;
@@ -74,6 +70,17 @@ export interface GetConjurationsRequest {
   limit?: number;
 }
 
-export const patchConjuration = (conjurationId: number, conjuration: Conjuration) => {
-  return axios.patch(`/conjurations/${conjurationId}`, conjuration);
+export const getConjuration = (conjurationId: number) => {
+  return axios.get(`/conjurations/${conjurationId}`);
+};
+
+export interface PatchConjurationsRequest {
+  tags?: string[];
+  name?: string;
+  imageUri?: string;
+  data?: any;
+}
+
+export const patchConjuration = (conjurationId: number, request: PatchConjurationsRequest) => {
+  return axios.patch(`/conjurations/${conjurationId}`, request);
 };
