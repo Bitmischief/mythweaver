@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "axios": "^1.4.0",
+    "date-fns": "^2.30.0",
     "gsap": "^3.12.2",
     "lodash": "^4.17.21",
     "pinia": "^2.1.6",
@@ -19,7 +20,7 @@
     "vue3-google-login": "^2.0.15"
   },
   "devDependencies": {
-    "@headlessui/vue": "^1.7.14",
+    "@headlessui/vue": "^1.7.15",
     "@heroicons/vue": "^2.0.18",
     "@types/lodash": "^4.14.194",
     "@types/node": "^20.4.5",
@@ -28,7 +29,7 @@
     "@vitejs/plugin-vue": "^2.3.4",
     "autoprefixer": "^10.4.14",
     "eslint": "^8.41.0",
-    "eslint-config-prettier": "^8.8.0",
+    "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-vue": "^9.0.1",
     "husky": "^8.0.3",
     "postcss": "^8.4.14",

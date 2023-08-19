@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: merlin-ingress
+  name: mythweaver-ingress
   annotations:
     kubernetes.io/ingress.class: nginx
     cert-manager.io/cluster-issuer: letsencrypt-prod
@@ -11,34 +11,11 @@ metadata:
 spec:
   tls:
     - hosts:
-        - merlinapp.ai
-        - app.merlinapp.ai
-        - api.merlinapp.ai
         - mythweaver.co
         - app.mythweaver.co
         - api.mythweaver.co
-      secretName: merlin-tls
+      secretName: mythweaver-tls
   rules:
-    - host: "app.merlinapp.ai"
-      http:
-        paths:
-          - pathType: Prefix
-            path: /
-            backend:
-              service:
-                name: merlin-ui
-                port:
-                  number: 80
-    - host: "api.merlinapp.ai"
-      http:
-        paths:
-          - pathType: Prefix
-            path: "/"
-            backend:
-              service:
-                name: merlin-api
-                port:
-                  number: 80
     - host: "mythweaver.co"
       http:
         paths:
@@ -46,7 +23,7 @@ spec:
             path: /
             backend:
               service:
-                name: merlin-marketing
+                name: mythweaver-marketing
                 port:
                   number: 80
 
@@ -57,7 +34,7 @@ spec:
             path: /
             backend:
               service:
-                name: merlin-ui
+                name: mythweaver-ui
                 port:
                   number: 80
     - host: "api.mythweaver.co"
@@ -67,6 +44,6 @@ spec:
             path: "/"
             backend:
               service:
-                name: merlin-api
+                name: mythweaver-api
                 port:
                   number: 80
