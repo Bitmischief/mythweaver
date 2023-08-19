@@ -1,9 +1,10 @@
-import { Body, Post, Route, SuccessResponse, Tags } from "tsoa";
+import { Body, Inject, Post, Route, SuccessResponse, Tags } from "tsoa";
 import { OAuth2Client } from "google-auth-library";
 import { prisma } from "../lib/providers/prisma";
 import { AppError, HttpCode } from "../lib/errors/AppError";
 import jwt from "jsonwebtoken";
 import { parentLogger } from "../lib/logger";
+import { AppEvent, identify, track, TrackingInfo } from "../lib/tracking";
 const logger = parentLogger.getSubLogger();
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -31,13 +32,14 @@ export default class AuthController {
   @Post("/token")
   @SuccessResponse("200", "Success")
   public async postToken(
-    @Body() request: TokenRequest
+    @Body() request: TokenRequest,
+    @Inject() trackingInfo: TrackingInfo
   ): Promise<TokenResponse> {
     const ticket = await client.verifyIdToken({
       idToken: request.credential,
     });
 
-    const payload = await ticket.getPayload();
+    const payload = ticket.getPayload();
 
     if (!payload) {
       throw new AppError({
@@ -75,7 +77,12 @@ export default class AuthController {
         httpCode: HttpCode.BAD_REQUEST,
         description: "User is not enabled for early access!",
       });
+
+      // track(AppEvent.Registered, user.id, { email });
     }
+
+    track(AppEvent.LoggedIn, user.id, trackingInfo, { email });
+    identify(user.id, { email });
 
     return await this.issueTokens(user.id);
   }
@@ -83,7 +90,8 @@ export default class AuthController {
   @Post("/refresh")
   @SuccessResponse("200", "Success")
   public async postRefresh(
-    @Body() request: RefreshRequest
+    @Body() request: RefreshRequest,
+    @Inject() trackingInfo: TrackingInfo
   ): Promise<TokenResponse> {
     let userId;
 
@@ -129,6 +137,8 @@ export default class AuthController {
         refreshToken: request.refreshToken,
       },
     });
+
+    track(AppEvent.SessionRefreshed, userId, trackingInfo);
 
     return await this.issueTokens(userId);
   }

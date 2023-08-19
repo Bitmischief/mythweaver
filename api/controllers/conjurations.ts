@@ -14,6 +14,7 @@ import {
 import { prisma } from "../lib/providers/prisma";
 import { Conjuration } from "@prisma/client";
 import { AppError, HttpCode } from "../lib/errors/AppError";
+import { AppEvent, track, TrackingInfo } from "../lib/tracking";
 
 interface GetConjurationsResponse {
   data: Conjuration[];
@@ -48,6 +49,7 @@ export default class ConjurationController {
   @Get("/")
   public async getConjurations(
     @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
     @Query() campaignId?: number,
     @Query() mine?: boolean,
     @Query() conjurerCodeString?: string,
@@ -98,6 +100,8 @@ export default class ConjurationController {
       },
     });
 
+    track(AppEvent.GetConjurations, userId, trackingInfo);
+
     return {
       data: conjurations,
       offset: offset,
@@ -110,6 +114,7 @@ export default class ConjurationController {
   @Get("/:conjurationId")
   public async getConjuration(
     @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
     @Route() conjurationId = 0
   ): Promise<Conjuration> {
     const conjuration = await prisma.conjuration.findUnique({
@@ -135,6 +140,8 @@ export default class ConjurationController {
       });
     }
 
+    track(AppEvent.GetConjuration, userId, trackingInfo);
+
     return conjuration;
   }
 
@@ -143,6 +150,7 @@ export default class ConjurationController {
   @Post("/")
   public async postConjurations(
     @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
     @Body() request: PostConjurationsRequest
   ): Promise<void> {
     const existingConjuration = await prisma.conjuration.findUnique({
@@ -165,6 +173,8 @@ export default class ConjurationController {
       });
     }
 
+    track(AppEvent.CreateConjuration, userId, trackingInfo);
+
     await prisma.conjuration.create({
       data: {
         ...existingConjuration,
@@ -182,10 +192,15 @@ export default class ConjurationController {
   @Patch("/:conjurationId")
   public async patchConjuration(
     @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
     @Route() conjurationId: number,
     @Body() request: PatchConjurationRequest
   ): Promise<Conjuration> {
-    const conjuration = await this.getConjuration(userId, conjurationId);
+    const conjuration = await this.getConjuration(
+      userId,
+      trackingInfo,
+      conjurationId
+    );
 
     if (conjuration.userId === null || conjuration.userId !== userId) {
       throw new AppError({
@@ -193,6 +208,8 @@ export default class ConjurationController {
         httpCode: HttpCode.FORBIDDEN,
       });
     }
+
+    track(AppEvent.UpdateConjuration, userId, trackingInfo);
 
     return prisma.conjuration.update({
       where: {
@@ -210,9 +227,14 @@ export default class ConjurationController {
   @Delete("/:conjurationId")
   public async deleteConjuration(
     @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
     @Route() conjurationId: number
   ): Promise<boolean> {
-    const conjuration = await this.getConjuration(userId, conjurationId);
+    const conjuration = await this.getConjuration(
+      userId,
+      trackingInfo,
+      conjurationId
+    );
 
     if (conjuration.userId === null || conjuration.userId !== userId) {
       throw new AppError({
@@ -220,6 +242,8 @@ export default class ConjurationController {
         httpCode: HttpCode.FORBIDDEN,
       });
     }
+
+    track(AppEvent.DeleteConjuration, userId, trackingInfo);
 
     await prisma.conjuration.delete({
       where: {
@@ -235,6 +259,7 @@ export default class ConjurationController {
   @Get("/tags")
   public async getConjurationTags(
     @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
     @Query() term?: string,
     @Query() offset?: number,
     @Query() limit?: number
@@ -253,6 +278,8 @@ export default class ConjurationController {
       .filter((t) => t !== null) as string[][];
     const flatTags = arrayTags.flat().filter((t) => t.includes(term || ""));
     const uniqueTags = [...new Set(flatTags)].slice(offset, offset + limit);
+
+    track(AppEvent.GetConjurationTags, userId, trackingInfo);
 
     return {
       data: uniqueTags,

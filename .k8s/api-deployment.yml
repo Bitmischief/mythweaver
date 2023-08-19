@@ -78,6 +78,8 @@ spec:
               value: "https://api.mythweaver.co"
             - name: STABILITY_API_KEY
               value: <STABILITY_API_KEY>
+            - name: MIXPANEL_TOKEN
+              value: <MIXPANEL_TOKEN>
           volumeMounts:
             - mountPath: "/app/public/images"
               name: mythweaver-content

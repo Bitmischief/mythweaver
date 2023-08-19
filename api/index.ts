@@ -17,6 +17,7 @@ import cors from "cors";
 import rateLimit from "express-rate-limit";
 import "./worker/index";
 import { ILogObj, Logger } from "tslog";
+import { useInjectTrackingInfo } from "./lib/trackingMiddleware";
 
 const logger = new Logger<ILogObj>();
 
@@ -39,10 +40,9 @@ const apiRequestLimiter = rateLimit({
   },
 });
 
-// Use the limit rule as an application middleware
 app.use(apiRequestLimiter);
-
 app.use(useInjectRequestId);
+app.use(useInjectTrackingInfo);
 app.use(cors());
 app.options("*", cors());
 

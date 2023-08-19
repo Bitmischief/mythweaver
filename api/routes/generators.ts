@@ -27,7 +27,7 @@ router.get("/", [
 
     const response = await controller.getGenerators(
       res.locals.auth.userId,
-      req.query.parentId ? parseInt(req.query.parentId.toString()) : undefined,
+      res.locals.trackingInfo,
       offset as number,
       limit as number
     );
@@ -52,6 +52,7 @@ router.get("/:generatorCode", [
 
     const response = await controller.getGenerator(
       res.locals.auth.userId,
+      res.locals.trackingInfo,
       generatorCode as string
     );
 
@@ -71,6 +72,7 @@ router.post("/:generatorCode/generate/quick", [
 
     const response = await controller.postGeneratorGenerateQuick(
       res.locals.auth.userId,
+      res.locals.trackingInfo,
       generatorCode as string
     );
 
@@ -103,6 +105,7 @@ router.post("/:generatorCode/generate", [
 
     const response = await controller.postGeneratorGenerate(
       res.locals.auth.userId,
+      res.locals.trackingInfo,
       generatorCode as string,
       req.body
     );
@@ -123,6 +126,7 @@ router.post("/image", [
 
     const response = await controller.postGenerateCharacterImage(
       res.locals.auth.userId,
+      res.locals.trackingInfo,
       req.body
     );
     return res.status(200).send(response);

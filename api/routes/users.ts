@@ -14,7 +14,10 @@ router.get("/me", [
   async (req: Request, res: Response) => {
     const controller = new UserController();
 
-    const response = await controller.getUser(res.locals.auth.userId);
+    const response = await controller.getUser(
+      res.locals.auth.userId,
+      res.locals.trackingInfo
+    );
     return res.status(200).send(response);
   },
 ]);
@@ -34,6 +37,7 @@ router.patch("/me", [
 
     const response = await controller.patchUser(
       res.locals.auth.userId,
+      res.locals.trackingInfo,
       req.body
     );
     return res.status(200).send(response);

@@ -19,6 +19,7 @@ import { getClient } from "../lib/providers/openai";
 import conjurers, { Generator, getGenerator } from "../data/conjurers";
 import { getRpgSystem } from "../data/rpgSystems";
 import { generateImage } from "../services/imageGeneration";
+import { AppEvent, track, TrackingInfo } from "../lib/tracking";
 
 const logger = parentLogger.getSubLogger();
 const openai = getClient();
@@ -51,11 +52,13 @@ export class GeneratorController {
   @OperationId("getGenerators")
   public async getGenerators(
     @Inject() userId: number,
-    @Query() parentId: number | null = null,
+    @Inject() trackingInfo: TrackingInfo,
     @Query() offset = 0,
     @Query() limit = 50
   ): Promise<GetGeneratorsResponse> {
     const data = conjurers.slice(offset, offset + limit);
+
+    track(AppEvent.GetConjurers, userId, trackingInfo);
 
     return {
       data,
@@ -69,8 +72,10 @@ export class GeneratorController {
   @OperationId("getGenerator")
   public getGenerator(
     @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
     @Path() code: string
   ): Generator | undefined {
+    track(AppEvent.GetConjurer, userId, trackingInfo);
     return getGenerator(code);
   }
 
@@ -79,8 +84,10 @@ export class GeneratorController {
   @Post("/image")
   public async postGenerateCharacterImage(
     @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
     @Body() request: PostGenerateCharacterImageRequest
   ): Promise<any> {
+    track(AppEvent.ConjureImage, userId, trackingInfo);
     return await getImageForPrompt(request.looks, 3);
   }
 
@@ -89,6 +96,7 @@ export class GeneratorController {
   @OperationId("quickConjure")
   public async postGeneratorGenerateQuick(
     @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
     @Path() code: string
   ): Promise<Conjuration | null> {
     const validIdObjects = await prisma.conjuration.findMany({
@@ -124,6 +132,8 @@ export class GeneratorController {
       tries++;
     }
 
+    track(AppEvent.QuickConjure, userId, trackingInfo);
+
     return randomConjuration;
   }
 
@@ -132,6 +142,7 @@ export class GeneratorController {
   @OperationId("generate")
   public async postGeneratorGenerate(
     @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
     @Path() code: string,
     @Body() request: PostGeneratorGenerate
   ): Promise<any> {
@@ -148,7 +159,7 @@ export class GeneratorController {
       });
     }
 
-    const generator = this.getGenerator(userId, code);
+    const generator = this.getGenerator(userId, trackingInfo, code);
 
     if (!generator) {
       throw new AppError({
@@ -156,6 +167,8 @@ export class GeneratorController {
         httpCode: HttpCode.BAD_REQUEST,
       });
     }
+
+    track(AppEvent.Conjure, userId, trackingInfo);
 
     return await conjure(generator, request.customArgs, campaign);
   }
