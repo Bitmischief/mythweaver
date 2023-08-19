@@ -14,7 +14,6 @@ import {
 import { prisma } from "../lib/providers/prisma";
 import { Conjuration } from "@prisma/client";
 import { AppError, HttpCode } from "../lib/errors/AppError";
-import { generatedImageQueue } from "../worker";
 
 interface GetConjurationsResponse {
   data: Conjuration[];

@@ -1,9 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
-import CharactersView from "@/views/CharactersView.vue";
-import LoginView from "@/views/LoginView.vue";
 import { useAuthStore } from "@/store";
-import ViewCharacter from "@/components/Characters/ViewCharacter.vue";
-import ListCharacters from "@/components/Characters/ListCharacters.vue";
+import LoginView from "@/views/LoginView.vue";
 import CampaignsView from "@/views/CampaignsView.vue";
 import ListCampaigns from "@/components/Campaigns/ListCampaigns.vue";
 import NewCampaign from "@/components/Campaigns/NewCampaign.vue";
@@ -30,25 +27,6 @@ const router = createRouter({
       name: "HOME",
       path: "/",
       redirect: "/conjurations",
-    },
-    {
-      name: "CHARACTERS",
-      path: "/characters",
-      component: CharactersView,
-      meta: {
-        authRequired: true,
-      },
-      children: [
-        {
-          path: "list",
-          alias: "",
-          component: ListCharacters,
-        },
-        {
-          path: ":characterId",
-          component: ViewCharacter,
-        },
-      ],
     },
     {
       name: "CAMPAIGNS",

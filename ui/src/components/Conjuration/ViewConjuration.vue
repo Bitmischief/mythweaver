@@ -148,7 +148,11 @@ async function saveData() {
             <div
               class="relative mb-4 transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all"
             >
-              <img :src="conjuration.imageUri" />
+              <img
+                :src="conjuration.imageUri"
+                class="max-h-[80vh] max-w-[80vw]"
+                :alt="conjuration.name"
+              />
             </div>
             Click anywhere to close
           </div>
@@ -169,11 +173,11 @@ async function saveData() {
             {{ conjuration.name }}
           </div>
 
-          <div class="mb-12 mt-4 flex">
+          <div class="mb-12 mt-3 flex flex-wrap">
             <div
               v-for="tag of conjuration.tags"
               :key="`${conjuration.id}-${tag}`"
-              class="mr-2 rounded-xl bg-gray-700 px-3 py-1 text-lg"
+              class="mr-2 mt-1 rounded-xl bg-gray-700 px-3 py-1 text-lg"
             >
               {{ tag }}
             </div>

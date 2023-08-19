@@ -13,8 +13,8 @@ import { showError, showSuccess } from "@/lib/notifications.ts";
 import SummoningLoader from "@/components/Conjuration/ConjuringLoader.vue";
 import { useEventBus } from "@/lib/events.ts";
 import { postCharacter } from "@/api/characters.ts";
-import Character from "@/components/Characters/Character.vue";
-import { XMarkIcon } from "@heroicons/vue/24/solid";
+import { ArrowLeftIcon, XMarkIcon } from "@heroicons/vue/24/solid";
+import ConjurationQuickView from "@/components/Conjuration/ConjurationQuickView.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -275,39 +275,24 @@ function cursorEnd(e: any) {
         <SummoningLoader class="h-[10rem] w-[15rem]" />
       </template>
       <div v-else-if="!generating && animationDone && summonedItems.length">
-        <div class="mb-4 flex justify-between">
-          <div class="self-center text-xl text-green-200">
-            Choose any
-            {{ summoner.name.toLowerCase() }}
-            you'd like to save!
-          </div>
-
-          <button
-            class="rounded-xl px-4 py-2"
-            :class="{
-              'bg-green-500': selectedItems.length,
-              'bg-gray-700/50': !selectedItems.length,
-            }"
-            :disabled="!selectedItems.length"
-            @click="clickSaveCharacters"
-          >
-            Save {{ summoner.name }}
-          </button>
-        </div>
+        <button
+          class="bg-surface-2 mb-4 flex rounded-xl border-2 border-gray-600/50 p-3"
+          @click="
+            generating = false;
+            animationDone = false;
+            summonedItems = [];
+          "
+        >
+          <ArrowLeftIcon class="mr-2 h-4 w-4 self-center" />
+          <span class="self-center">Back</span>
+        </button>
 
         <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
-          <div
-            v-for="(item, i) of summonedItems"
-            :key="i"
-            class="cursor-pointer rounded-xl"
-            :class="{
-              'border-2 border-green-500/50': !!selectedItems.find((a: any) => a.name === item.name),
-              'border-2 border-green-500/0': !selectedItems.find((a: any) => a.name === item.name)
-            }"
-            @click="addToSelectedItems(item)"
-          >
-            <Character :character="item" full />
-          </div>
+          <ConjurationQuickView
+            v-for="conjuration of summonedItems"
+            :key="conjuration.name"
+            :conjuration="conjuration"
+          />
         </div>
       </div>
     </div>

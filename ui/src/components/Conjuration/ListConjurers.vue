@@ -12,12 +12,12 @@
           <div class="text-gray-300">{{ gen.description }}</div>
         </div>
         <div class="flex">
-          <button
-            class="rounded-xl bg-purple-500 px-4"
-            @click="quickConjure(gen.code)"
-          >
-            Quick Conjure
-          </button>
+          <!--          <button-->
+          <!--            class="rounded-xl bg-purple-500 px-4"-->
+          <!--            @click="quickConjure(gen.code)"-->
+          <!--          >-->
+          <!--            Quick Conjure-->
+          <!--          </button>-->
           <button
             class="ml-4 rounded-xl bg-gray-900/75 px-4 shadow-xl"
             @click="navigateToConjurer(gen.code)"
