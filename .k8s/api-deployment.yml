@@ -29,13 +29,13 @@ metadata:
   labels:
     app: mythweaver-api
 spec:
-  replicas: 1
+  replicas: 5
   selector:
     matchLabels:
       app: mythweaver-api
   strategy:
     rollingUpdate:
-      maxSurge: 1
+      maxSurge: 10
       maxUnavailable: 1
   minReadySeconds: 5
   template:
@@ -50,9 +50,9 @@ spec:
             - containerPort: 8000
           resources:
             requests:
-              cpu: 100m
+              cpu: 250m
             limits:
-              cpu: 100m
+              cpu: 500m
           env:
             - name: DATABASE_URL
               value: <DATABASE_URL>
