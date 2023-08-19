@@ -5,11 +5,11 @@ metadata:
 spec:
   acme:
     # Email address used for ACME registration
-    email: zurfluha+merlin@gmail.com
+    email: zurfluha+mythweaver@gmail.com
     server: https://acme-v02.api.letsencrypt.org/directory
     privateKeySecretRef:
       # Name of a secret used to store the ACME account private key
-      name: merlin-private-key
+      name: mythweaver-private-key
     # Add a single challenge solver, HTTP01 using nginx
     solvers:
       - http01:

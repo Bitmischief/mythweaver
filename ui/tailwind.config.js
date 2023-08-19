@@ -8,11 +8,13 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Inter var"],
+        sans: ["Gilroy", "sans-serif"],
+        gilroy: ["Gilroy", "sans-serif"],
       },
       colors: {
-        surface: "#1d2025",
-        "surface-2": "#19202b",
+        surface: "#171717",
+        gradient:
+          "linear-gradient(to right, rgba(64, 170, 241, 0.8), rgba(217, 117, 244, 0.8))",
       },
       screens: {
         "3xl": "1921px",
@@ -21,4 +23,9 @@ module.exports = {
     },
   },
   plugins: [],
+  variants: {
+    extend: {
+      display: ["group-hover"],
+    },
+  },
 };

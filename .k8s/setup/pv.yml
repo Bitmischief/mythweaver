@@ -2,7 +2,7 @@
 kind: PersistentVolume
 apiVersion: v1
 metadata:
-  name: merlin-content
+  name: mythweaver-content
   annotations:
     # fake it by indicating this is provisioned dynamically, so the system
     # works properly

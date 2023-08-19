@@ -36,7 +36,7 @@ router.get("/", [
 ]);
 
 const getCampaignSchema = z.object({
-  characterId: z.coerce.number().default(0),
+  campaignId: z.coerce.number().default(0),
 });
 
 router.get("/:campaignId", [
@@ -60,8 +60,8 @@ router.get("/:campaignId", [
 const postCampaignSchema = z.object({
   name: z.string(),
   description: z.string().optional(),
-  rpgSystemId: z.coerce.number(),
-  publicAdventureId: z.coerce.number().optional(),
+  rpgSystemCode: z.string(),
+  publicAdventureId: z.string().optional(),
 });
 
 router.post("/", [
@@ -75,6 +75,61 @@ router.post("/", [
       req.body
     );
     return res.status(201).send(response);
+  },
+]);
+
+const putCampaignIdSchema = z.object({
+  campaignId: z.coerce.number().default(0),
+});
+
+const putCampaignSchema = z.object({
+  name: z.string(),
+  description: z.string().nullable().optional(),
+  rpgSystemCode: z.string(),
+  publicAdventureCode: z.string().nullable().optional(),
+});
+
+router.put("/:campaignId", [
+  useAuthenticateRequest(),
+  useValidateRequest(putCampaignIdSchema, {
+    validationType: ValidationTypes.Route,
+  }),
+  useValidateRequest(putCampaignSchema),
+  async (req: Request, res: Response) => {
+    const controller = new CampaignController();
+
+    const { campaignId = 0 } = req.params;
+
+    const response = await controller.putCampaign(
+      res.locals.auth.userId,
+      campaignId as number,
+      req.body
+    );
+
+    return res.status(200).send(response);
+  },
+]);
+
+const deleteCampaignSchema = z.object({
+  campaignId: z.coerce.number().default(0),
+});
+
+router.delete("/:campaignId", [
+  useAuthenticateRequest(),
+  useValidateRequest(deleteCampaignSchema, {
+    validationType: ValidationTypes.Route,
+  }),
+  async (req: Request, res: Response) => {
+    const controller = new CampaignController();
+
+    const { campaignId = 0 } = req.params;
+
+    const response = await controller.deleteCampaign(
+      res.locals.auth.userId,
+      campaignId as number
+    );
+
+    return res.status(200).send(response);
   },
 ]);
 

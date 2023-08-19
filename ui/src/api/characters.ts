@@ -1,4 +1,5 @@
 import axios from "axios";
+import { useSelectedCampaignId } from "@/lib/hooks.ts";
 
 export interface CharacterBase {
   id: number;
@@ -18,8 +19,13 @@ export interface GetCharactersRequest {
 }
 
 export const getCharacters = (query: GetCharactersRequest) => {
+  const selectedCampaignId = useSelectedCampaignId();
+
   return axios.get("/characters", {
-    params: query,
+    params: {
+      ...query,
+      campaignId: selectedCampaignId.value,
+    },
   });
 };
 
@@ -36,7 +42,12 @@ export const postGenerateCharacterImage = (looks: string) => {
 };
 
 export const postCharacter = (character: CharacterBase) => {
-  return axios.post("/characters", character);
+  const selectedCampaignId = useSelectedCampaignId();
+
+  return axios.post("/characters", {
+    ...character,
+    campaignId: selectedCampaignId.value,
+  });
 };
 
 export const patchCharacter = (character: CharacterBase) => {
