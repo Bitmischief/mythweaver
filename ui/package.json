@@ -45,7 +45,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npx pretty-quick --staged && yarn run validate"
+      "pre-commit": "npx pretty-quick --staged && yarn run validate && yarn run build"
     }
   }
 }
