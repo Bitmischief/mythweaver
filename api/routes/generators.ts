@@ -40,7 +40,7 @@ const generatorIdSchema = z.object({
   generatorCode: z.string().optional(),
 });
 
-router.get("/:generatorId", [
+router.get("/:generatorCode", [
   useAuthenticateRequest(),
   useValidateRequest(generatorIdSchema, {
     validationType: ValidationTypes.Route,
@@ -59,12 +59,38 @@ router.get("/:generatorId", [
   },
 ]);
 
+router.post("/:generatorCode/generate/quick", [
+  useAuthenticateRequest(),
+  useValidateRequest(generatorIdSchema, {
+    validationType: ValidationTypes.Route,
+  }),
+  async (req: Request, res: Response) => {
+    const controller = new GeneratorController();
+
+    const { generatorCode = 0 } = req.params;
+
+    const response = await controller.postGeneratorGenerateQuick(
+      res.locals.auth.userId,
+      generatorCode as string
+    );
+
+    return res.status(200).send(response);
+  },
+]);
+
 const postGeneratorGenerateSchema = z.object({
   campaignId: z.coerce.number(),
-  customData: z.any().optional(),
+  customArgs: z
+    .array(
+      z.object({
+        key: z.string(),
+        value: z.any(),
+      })
+    )
+    .optional(),
 });
 
-router.post("/:generatorId/generate", [
+router.post("/:generatorCode/generate", [
   useAuthenticateRequest(),
   useValidateRequest(generatorIdSchema, {
     validationType: ValidationTypes.Route,

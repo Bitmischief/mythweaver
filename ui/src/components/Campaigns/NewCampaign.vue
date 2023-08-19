@@ -1,23 +1,47 @@
 <script setup lang="ts">
 import { ArrowRightIcon } from "@heroicons/vue/24/outline";
 import { Campaign, createCampaign, PublicAdventure } from "@/api/campaigns.ts";
-import { onMounted, ref } from "vue";
-import { getAdventures, getRpgSystems, RpgSystem } from "@/api/rpgSystems.ts";
+import { onMounted, ref, watch } from "vue";
+import { getRpgSystems, RpgSystem } from "@/api/rpgSystems.ts";
 import { useRouter } from "vue-router";
 import { showSuccess } from "@/lib/notifications.ts";
 import { CAMPAIGN_CREATED_EVENT, useEventBus } from "@/lib/events.ts";
+import { useCampaignStore } from "@/store/campaign.store.ts";
+import TagInput from "@/components/Core/Forms/TagInput.vue";
+import Select from "@/components/Core/Forms/Select.vue";
 
 const router = useRouter();
 const eventBus = useEventBus();
+const campaignStore = useCampaignStore();
 
-const campaign = ref<Campaign>({} as Campaign);
+const campaign = ref<Campaign>({
+  name: "",
+  rpgSystemCode: "dnd",
+  publicAdventureCode: null,
+  atmosphere: [],
+} as Campaign);
 const rpgSystems = ref<RpgSystem[]>([]);
 const adventures = ref<PublicAdventure[]>([]);
-const systemsLimit = ref(4);
+const systemsLimit = ref(999);
 
 onMounted(async () => {
   await loadRpgSystems();
 });
+
+watch(
+  campaign,
+  () => {
+    loadAdventures();
+  },
+  { deep: true }
+);
+
+function loadAdventures() {
+  const rpgSystem = rpgSystems.value.find(
+    (s) => s.code === campaign.value.rpgSystemCode
+  );
+  adventures.value = rpgSystem?.publicAdventures ?? [];
+}
 
 async function loadRpgSystems() {
   const rpgSystemsResponse = await getRpgSystems({
@@ -25,142 +49,91 @@ async function loadRpgSystems() {
     limit: systemsLimit.value,
   });
   rpgSystems.value = rpgSystemsResponse.data.data;
-}
 
-async function setRpgSystemsLimit(limit: number) {
-  systemsLimit.value = limit;
-  await loadRpgSystems();
-}
-
-async function chooseRpgSystem(id: number) {
-  campaign.value.rpgSystemId = id;
-  await loadAdventures();
-}
-
-async function loadAdventures() {
-  const adventuresResponse = await getAdventures({
-    rpgSystemId: campaign.value.rpgSystemId,
-    offset: 0,
-    limit: 7,
-  });
-  adventures.value = adventuresResponse.data.data;
-}
-
-async function chooseAdventure(id: number | null | undefined) {
-  campaign.value.publicAdventureId = id;
+  loadAdventures();
 }
 
 async function handleCreateCampaign() {
-  campaign.value.name =
-    adventures.value.find((a) => a.id === campaign.value.publicAdventureId)
-      ?.name ??
-    rpgSystems.value.find((s) => s.id === campaign.value.rpgSystemId)?.name ??
-    "";
+  const createCampaignResponse = await createCampaign({
+    ...campaign.value,
+    name: campaign.value.name.length ? campaign.value.name : "New Campaign",
+  });
+  await campaignStore.loadCampaigns();
+  await campaignStore.selectCampaign(createCampaignResponse.data.id);
 
   eventBus.$emit(CAMPAIGN_CREATED_EVENT, undefined);
-  await createCampaign(campaign.value);
+
   showSuccess({ message: "Campaign created!" });
   await router.push("/characters");
 }
+
+const atmosphere = ref<string[]>([]);
 </script>
 
 <template>
   <div class="">
-    <div class="mt-8 text-xl">Roleplaying System</div>
-    <div class="mt-2 text-lg text-gray-400">What system are you using?</div>
+    <div class="text-2xl">Let's Create A Campaign</div>
 
-    <div class="mt-8 grid grid-cols-3 gap-6 3xl:grid-cols-5">
-      <div
-        v-for="rpgSystem in rpgSystems"
-        :key="rpgSystem.id"
-        class="cursor-pointer rounded-xl p-3 hover:bg-slate-800"
-        :class="{ 'bg-slate-800': campaign.rpgSystemId === rpgSystem.id }"
-        @click="chooseRpgSystem(rpgSystem.id)"
-      >
-        <div class="flex flex-col items-center">
-          <img
-            :src="`/images/rpgsystems/${rpgSystem.imageUri}`"
-            class="h-60 rounded-lg object-cover"
-            alt=""
-          />
-          <div class="mt-2 text-2xl text-gray-200">{{ rpgSystem.name }}</div>
-          <div class="mt-1 text-lg text-gray-400">{{ rpgSystem.version }}</div>
+    <div class="mt-8 text-lg text-gray-400">
+      What should we call this campaign?
+    </div>
+
+    <input
+      v-model="campaign.name"
+      autofocus
+      class="gradient-border-no-opacity relative mt-2 h-12 w-full rounded-xl border bg-black px-4 text-left text-white"
+    />
+
+    <div class="mt-8 text-lg text-gray-400">
+      What roleplaying system are you using?
+    </div>
+
+    <Select
+      v-model="campaign.rpgSystemCode"
+      :options="rpgSystems"
+      value-prop="code"
+      display-prop="name"
+    />
+
+    <template v-if="campaign.rpgSystemCode === 'other'">
+      <div class="mt-6 text-lg text-gray-400">
+        Please describe your campaign's universe and atmosphere in a few words?
+      </div>
+
+      <div class="text-md mt-2 rounded-xl bg-blue-400 p-2">
+        We use this information to help generating contextually appropriate
+        content for your campaign.
+
+        <div class="mt-1 text-sm">
+          For example, a sci-fi campaign might have the keywords
+          <div class="mt-1 flex">
+            <div class="mr-1 rounded bg-gray-600/20 p-1 px-2">scifi</div>
+            <div class="mr-1 rounded bg-gray-600/20 p-1 px-2">space</div>
+            <div class="mr-1 rounded bg-gray-600/20 p-1 px-2">futuristic</div>
+          </div>
         </div>
       </div>
 
-      <div
-        class="cursor-pointer rounded-xl p-3 hover:bg-slate-800"
-        @click="chooseRpgSystem(52)"
-      >
-        <div class="flex flex-col items-center">
-          <img
-            src="/images/rpgsystems/other.png"
-            class="h-60 rounded-lg object-cover"
-            alt=""
-          />
-          <div class="mt-2 text-2xl text-gray-200">Other</div>
-        </div>
-      </div>
-    </div>
+      <TagInput v-model="atmosphere" class="mt-2" />
+    </template>
 
-    <div
-      class="mt-6 w-[22rem] cursor-pointer rounded-xl border-2 border-slate-800 bg-surface-2 p-4 text-center shadow-lg"
-      @click="setRpgSystemsLimit(999)"
-    >
-      Show All Roleplaying Systems
-    </div>
-
-    <template v-if="campaign.rpgSystemId">
-      <div class="mt-8 text-xl">Adventure</div>
-      <div class="mt-2 text-lg text-gray-400">
+    <template v-if="campaign.rpgSystemCode !== 'other'">
+      <div class="mt-6 text-lg text-gray-400">
         Are you playing an official campaign/adventure?
       </div>
 
-      <div class="mt-8 grid grid-cols-4 gap-6 3xl:grid-cols-8">
-        <div
-          v-for="adventure in adventures"
-          :key="adventure.id"
-          class="cursor-pointer rounded-xl p-3 hover:bg-slate-800"
-          :class="{
-            'bg-slate-800': campaign.publicAdventureId === adventure.id,
-          }"
-          @click="chooseAdventure(adventure.id)"
-        >
-          <div class="flex flex-col items-center">
-            <img
-              :src="`/images/rpgsystems/adventures/${adventure.imageUri}`"
-              class="h-[20rem] w-[14rem] rounded-lg object-cover"
-              alt=""
-            />
-            <div class="mt-2 text-xl text-gray-200">{{ adventure.name }}</div>
-            <div class="text-md mt-1 text-center text-gray-400">
-              {{ adventure.description }}
-            </div>
-          </div>
-        </div>
-
-        <div
-          class="cursor-pointer rounded-xl p-3 hover:bg-slate-800"
-          :class="{
-            'bg-slate-800': campaign.publicAdventureId === undefined,
-          }"
-          @click="chooseAdventure(undefined)"
-        >
-          <div class="flex flex-col items-center">
-            <img
-              src="/images/rpgsystems/other.png"
-              class="h-[20rem] w-[14rem] rounded-lg object-cover"
-              alt=""
-            />
-            <div class="mt-2 text-2xl text-gray-200">Other</div>
-          </div>
-        </div>
-      </div>
+      <Select
+        v-model="campaign.publicAdventureCode"
+        :options="adventures"
+        value-prop="code"
+        display-prop="name"
+        allow-none
+      />
     </template>
 
-    <div v-if="campaign.rpgSystemId" class="mt-12">
+    <div v-if="campaign.rpgSystemCode" class="mt-6">
       <button
-        class="mt-4 rounded-xl bg-purple-500 p-6 text-2xl"
+        class="mt-4 rounded-xl bg-gradient p-3 px-5 text-lg"
         @click="handleCreateCampaign"
       >
         Start Your Adventure <ArrowRightIcon class="inline-block h-8" />

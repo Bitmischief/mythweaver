@@ -31,26 +31,7 @@ export class RpgSystemController {
     @Query() limit?: number
   ): Promise<GetRpgSystemsResponse> {
     return {
-      data: rpgSystems,
-      offset: offset,
-      limit: limit,
-    };
-  }
-
-  @Security("jwt")
-  @OperationId("getAdventures")
-  @Get("/:rpgSystemCode/adventures")
-  public async getAdventures(
-    @Inject() userId: number,
-    @Route() rpgSystemCode: string,
-    @Query() term?: string,
-    @Query() offset?: number,
-    @Query() limit?: number
-  ): Promise<GetAdventuresResponse> {
-    const rpgSystem = getRpgSystem(rpgSystemCode);
-
-    return {
-      data: rpgSystem?.publicAdventures || [],
+      data: rpgSystems.slice(0, limit),
       offset: offset,
       limit: limit,
     };

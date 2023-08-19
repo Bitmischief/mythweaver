@@ -23,6 +23,7 @@ interface GetCharactersResponse {
 }
 
 interface PostCharactersRequest {
+  campaignId: number;
   name: string;
   looks: string;
   personality: string;
@@ -50,6 +51,7 @@ export default class CharacterController {
   @Get("/")
   public async getCharacters(
     @Inject() userId: number,
+    @Query() campaignId: number,
     @Query() term?: string,
     @Query() offset?: number,
     @Query() limit?: number
@@ -57,6 +59,7 @@ export default class CharacterController {
     const characters = await prisma.character.findMany({
       where: {
         userId,
+        campaignId,
         OR: term
           ? [
               {
@@ -125,12 +128,22 @@ export default class CharacterController {
     @Inject() userId: number,
     @Body() request: PostCharactersRequest
   ): Promise<Character> {
-    return prisma.character.create({
+    const character = await prisma.character.create({
       data: {
         userId,
         ...request,
       },
     });
+
+    // if image is stored by openai, we need to download and store ourselves
+    // or the image won't be available after a while
+    if (request.imageUri?.startsWith("https://oaidalleapiprodscus")) {
+      await generatedImageQueue.add({
+        character,
+      });
+    }
+
+    return character;
   }
 
   @Security("jwt")

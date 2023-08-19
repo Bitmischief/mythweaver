@@ -30,18 +30,18 @@ jobs:
           echo VITE_API_URL=${{ vars.API_URL }} >> .env
 
       - name: Build container image
-        run: docker build -t ${{ secrets.REGISTRY_NAME }}/merlin-ui:$(echo $GITHUB_SHA | head -c7) -f .docker/Dockerfile.ui .
+        run: docker build -t ${{ secrets.REGISTRY_NAME }}/mythweaver-ui:$(echo $GITHUB_SHA | head -c7) -f .docker/Dockerfile.ui .
 
       - name: Log in to DockerHub Container Registry with short-lived credentials
         run: docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_TOKEN }}
 
       - name: Push image to DigitalOcean Container Registry
-        run: docker push ${{ secrets.REGISTRY_NAME }}/merlin-ui:$(echo $GITHUB_SHA | head -c7)
+        run: docker push ${{ secrets.REGISTRY_NAME }}/mythweaver-ui:$(echo $GITHUB_SHA | head -c7)
 
       - name: Update deployment file
         run: >
           TAG=$(echo $GITHUB_SHA | head -c7) && 
-          sed -i 's|<IMAGE>|${{ secrets.REGISTRY_NAME }}/merlin-ui:'${TAG}'|' $GITHUB_WORKSPACE/.k8s/ui-deployment.yml
+          sed -i 's|<IMAGE>|${{ secrets.REGISTRY_NAME }}/mythweaver-ui:'${TAG}'|' $GITHUB_WORKSPACE/.k8s/ui-deployment.yml
 
       - name: Save DigitalOcean kubeconfig with short-lived credentials
         run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 ${{ secrets.CLUSTER_NAME }}
@@ -53,4 +53,4 @@ jobs:
         run: kubectl apply -f $GITHUB_WORKSPACE/.k8s/ingress.yml
 
       - name: Verify deployment
-        run: kubectl rollout status deployment/merlin-ui
+        run: kubectl rollout status deployment/mythweaver-ui

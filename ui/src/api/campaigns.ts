@@ -2,19 +2,20 @@ import axios from "axios";
 import { RpgSystem } from "@/api/rpgSystems.ts";
 
 export interface Campaign {
-  id: number;
+  id?: number;
   name: string;
-  createdAt: Date;
-  updatedAt: Date;
-  description: string;
-  imageUri: string;
-  rpgSystemId: number;
-  rpgSystem: RpgSystem;
-  publicAdventureId: number | null | undefined;
-  publicAdventure: PublicAdventure;
+  createdAt?: Date;
+  updatedAt?: Date;
+  description?: string;
+  imageUri?: string;
+  rpgSystemCode: string;
+  rpgSystem?: RpgSystem;
+  publicAdventureCode: string | null | undefined;
+  publicAdventure?: PublicAdventure;
+  atmosphere?: string[];
 }
 export interface PublicAdventure {
-  id: number;
+  code: string;
   name: string;
   description: string;
   imageUri: string;
@@ -32,10 +33,19 @@ export interface GetCampaignRequest {
 
 export interface PostCampaignRequest {
   name: string;
-  description: string;
+  description?: string;
   imageUri?: string;
-  rpgSystemId: number;
-  publicAdventureId: number | null | undefined;
+  rpgSystemCode: string;
+  publicAdventureCode: string | null | undefined;
+}
+
+export interface PutCampaignRequest {
+  campaignId: number;
+  name: string;
+  description?: string;
+  imageUri?: string;
+  rpgSystemCode: string;
+  publicAdventureCode: string | null | undefined;
 }
 
 export const getCampaigns = (query: GetCampaignRequest) => {
@@ -50,4 +60,15 @@ export const getCampaign = (campaignId: number) => {
 
 export const createCampaign = (request: PostCampaignRequest) => {
   return axios.post("/campaigns", request);
+};
+
+export const saveCampaign = (request: PutCampaignRequest) => {
+  return axios.put(`/campaigns/${request.campaignId}`, {
+    ...request,
+    campaignId: undefined,
+  });
+};
+
+export const deleteCampaign = (campaignId: number) => {
+  return axios.delete(`/campaigns/${campaignId}`);
 };

@@ -4,11 +4,19 @@ import LoginView from "@/views/LoginView.vue";
 import { useAuthStore } from "@/store";
 import ViewCharacter from "@/components/Characters/ViewCharacter.vue";
 import ListCharacters from "@/components/Characters/ListCharacters.vue";
-import NewCharacter from "@/components/Characters/NewCharacter.vue";
 import CampaignsView from "@/views/CampaignsView.vue";
 import ListCampaigns from "@/components/Campaigns/ListCampaigns.vue";
 import NewCampaign from "@/components/Campaigns/NewCampaign.vue";
-import GeneratorsView from "@/views/GeneratorsView.vue";
+import ConjuringView from "@/views/ConjuringView.vue";
+import ListConjurers from "@/components/Conjuration/ListConjurers.vue";
+import ViewConjurer from "@/components/Conjuration/ViewConjurer.vue";
+import ViewCampaign from "@/components/Campaigns/ViewCampaign.vue";
+import SessionsView from "@/views/SessionsView.vue";
+import ViewSession from "@/components/Sessions/ViewSession.vue";
+import ListSessions from "@/components/Sessions/ListSessions.vue";
+import NewSession from "@/components/Sessions/NewSession.vue";
+import ListConjurations from "@/components/Conjuration/ListConjurations.vue";
+import ViewConjuration from "@/components/Conjuration/ViewConjuration.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -21,7 +29,7 @@ const router = createRouter({
     {
       name: "HOME",
       path: "/",
-      redirect: "/characters",
+      redirect: "/conjurations",
     },
     {
       name: "CHARACTERS",
@@ -35,11 +43,6 @@ const router = createRouter({
           path: "list",
           alias: "",
           component: ListCharacters,
-        },
-        {
-          path: "new",
-          alias: "",
-          component: NewCharacter,
         },
         {
           path: ":characterId",
@@ -62,18 +65,74 @@ const router = createRouter({
         },
         {
           path: "new",
-          alias: "",
           component: NewCampaign,
         },
       ],
     },
     {
-      name: "GENERATORS",
-      path: "/generators",
-      component: GeneratorsView,
+      name: "CONJURING",
+      path: "/conjurations",
+      component: ConjuringView,
       meta: {
         authRequired: true,
       },
+      children: [
+        {
+          path: "list",
+          alias: "",
+          component: ListConjurations,
+        },
+        {
+          path: "view/:conjurationId",
+          component: ViewConjuration,
+        },
+        {
+          path: "new",
+          component: ListConjurers,
+        },
+        {
+          path: "conjure/:summonerCode",
+          component: ViewConjurer,
+        },
+      ],
+    },
+    {
+      name: "CAMPAIGN",
+      path: "/campaign",
+      component: CampaignsView,
+      meta: {
+        authRequired: true,
+      },
+      children: [
+        {
+          path: "edit",
+          alias: "",
+          component: ViewCampaign,
+        },
+      ],
+    },
+    {
+      name: "SESSION",
+      path: "/sessions",
+      component: SessionsView,
+      meta: {
+        authRequired: true,
+      },
+      children: [
+        {
+          path: "list",
+          alias: "",
+          component: ListSessions,
+        },
+        {
+          path: "create",
+          component: NewSession,
+        },
+        {
+          path: ":sessionId/edit",
+          component: ViewSession,
+        },
+      ],
     },
   ],
 });
