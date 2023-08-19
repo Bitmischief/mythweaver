@@ -33,6 +33,12 @@ axios.interceptors.response.use(
   async (err) => {
     const originalConfig = err.config;
     originalConfig._retryCount = originalConfig._retryCount || 0;
+    const authStore = useAuthStore();
+
+    if (originalConfig.url === "/auth/refresh" && err.response.status === 401) {
+      await authStore.logout();
+      return;
+    }
 
     if (originalConfig.url !== "/auth/token" && err.response) {
       // Access Token was expired
@@ -45,7 +51,6 @@ axios.interceptors.response.use(
         originalConfig._retryCount++;
 
         try {
-          const authStore = useAuthStore();
           await authStore.refresh();
 
           return axios(originalConfig);

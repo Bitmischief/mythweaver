@@ -224,7 +224,7 @@ DM: Welcome to Dungeons and Dragons!`"
 
     <div class="flex h-[4rem] justify-center border-t border-gray-700">
       <div class="font-quicksand self-center text-[14px]">
-        © 2023 MythWeaver. All rights reserved.
+        © 2023 Bitmischief, Inc. All rights reserved.
       </div>
     </div>
   </div>

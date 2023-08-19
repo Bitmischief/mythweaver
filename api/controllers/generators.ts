@@ -11,15 +11,14 @@ import {
   Body,
 } from "tsoa";
 import { prisma } from "../lib/providers/prisma";
-import { Campaign, Character } from "@prisma/client";
-import { sanitizeJson } from "../lib/utils";
+import { Campaign, Character, Conjuration } from "@prisma/client";
+import { sanitizeJson, trimPlural } from "../lib/utils";
 import { AppError, HttpCode } from "../lib/errors/AppError";
 import { parentLogger } from "../lib/logger";
 import { getClient } from "../lib/providers/openai";
-import generators, { Generator, getGenerator } from "../data/generators";
+import conjurers, { Generator, getGenerator } from "../data/conjurers";
 import { getRpgSystem } from "../data/rpgSystems";
-import { AxiosError, AxiosResponse } from "axios";
-import { CreateCompletionResponse } from "openai";
+import { generateImage } from "../services/imageGeneration";
 
 const logger = parentLogger.getSubLogger();
 const openai = getClient();
@@ -45,7 +44,7 @@ interface PostGenerateCharacterImageRequest {
 }
 
 @Route("generators")
-@Tags("Summoning")
+@Tags("Conjuration")
 export class GeneratorController {
   @Get("/")
   @Security("jwt")
@@ -56,7 +55,7 @@ export class GeneratorController {
     @Query() offset = 0,
     @Query() limit = 50
   ): Promise<GetGeneratorsResponse> {
-    const data = generators.slice(offset, offset + limit);
+    const data = conjurers.slice(offset, offset + limit);
 
     return {
       data,
@@ -82,21 +81,50 @@ export class GeneratorController {
     @Inject() userId: number,
     @Body() request: PostGenerateCharacterImageRequest
   ): Promise<any> {
-    return await this.getImageForPrompt(request.looks, 3);
+    return await getImageForPrompt(request.looks, 3);
   }
 
-  private async getImageForPrompt(prompt: string, count: number) {
-    prompt = `${prompt.replace(
-      ".",
-      ""
-    )}, medieval, fantasy, portrait, oil painting style`;
-
-    const response = await openai.createImage({
-      prompt,
-      n: count,
+  @Post("/{code}/generate/quick")
+  @Security("jwt")
+  @OperationId("quickConjure")
+  public async postGeneratorGenerateQuick(
+    @Inject() userId: number,
+    @Path() code: string
+  ): Promise<Conjuration | null> {
+    const validIdObjects = await prisma.conjuration.findMany({
+      where: {
+        conjurerCode: code,
+        userId: null,
+      },
+      select: {
+        id: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      skip: 0,
+      take: 1000,
     });
+    const validIds = validIdObjects.map((obj) => obj.id);
 
-    return response.data.data;
+    let randomConjuration: Conjuration | null = null;
+
+    let tries = 0;
+    const maxTries = 20;
+
+    while (randomConjuration === null && tries < maxTries) {
+      const idx = Math.floor(Math.random() * (validIds.length + 1));
+
+      randomConjuration = await prisma.conjuration.findUnique({
+        where: {
+          id: validIds[idx],
+        },
+      });
+
+      tries++;
+    }
+
+    return randomConjuration;
   }
 
   @Post("/{code}/generate")
@@ -129,84 +157,113 @@ export class GeneratorController {
       });
     }
 
-    const prompt = buildPrompt(generator, campaign, request.customArgs);
-
-    let characters: any = undefined;
-
-    do {
-      let response: any;
-
-      try {
-        response = await openai.createCompletion({
-          model: "text-davinci-003",
-          prompt,
-          max_tokens: 3500,
-        });
-      } catch (err: any) {
-        console.log(err);
-        logger.error(
-          "Error generating character with openai",
-          err.response.data
-        );
-      }
-
-      if (!response) {
-        throw new AppError({
-          description: "Error generating character.",
-          httpCode: HttpCode.INTERNAL_SERVER_ERROR,
-        });
-      }
-
-      const generatedJson = response.data.choices[0].text?.trim() || "";
-      logger.info("Received json from openai", generatedJson);
-
-      const charString = sanitizeJson(generatedJson);
-      logger.info("Sanitized json from openai...", charString);
-
-      try {
-        characters = JSON.parse(charString || "");
-      } catch (e) {
-        logger.warn("Failed to parse character string", e, charString);
-      }
-    } while (!characters);
-
-    const promises = characters.map((c: any) =>
-      this.getImageForPrompt(c.imageAIPrompt, 1)
-    );
-    const results = await Promise.all(promises);
-
-    for (let i = 0; i < characters.length; i++) {
-      characters[i].imageUri = results[i][0]?.url;
-    }
-
-    return characters;
+    return await conjure(generator, request.customArgs, campaign);
   }
 }
 
-const buildPrompt = (
+export const conjure = async (
   generator: Generator,
-  campaign: Campaign,
-  customArgs: CustomArg[] = []
+  customArgs: CustomArg[] = [],
+  campaign?: Campaign | undefined
 ) => {
-  const rpgSystem = getRpgSystem(campaign.rpgSystemCode);
-  const publicAdventure = rpgSystem?.publicAdventures?.find(
-    (a) => a.code === campaign.publicAdventureCode
-  );
+  const prompt = buildPrompt(generator, campaign, customArgs);
 
-  if (!rpgSystem) {
-    throw new AppError({
-      description: "RPG System not found.",
-      httpCode: HttpCode.BAD_REQUEST,
-    });
+  let conjurations: any = undefined;
+
+  do {
+    let response: any;
+
+    try {
+      response = await openai.createCompletion({
+        model: "text-davinci-003",
+        prompt,
+        max_tokens: 3500,
+      });
+    } catch (err: any) {
+      logger.error("Error generating character with openai", err.response.data);
+    }
+
+    if (!response) {
+      throw new AppError({
+        description: "Error generating character.",
+        httpCode: HttpCode.INTERNAL_SERVER_ERROR,
+      });
+    }
+
+    const generatedJson = response.data.choices[0].text?.trim() || "";
+    logger.info("Received json from openai", generatedJson);
+
+    const charString = sanitizeJson(generatedJson);
+    logger.info("Sanitized json from openai...", charString);
+
+    try {
+      conjurations = JSON.parse(charString || "");
+    } catch (e) {
+      logger.warn("Failed to parse character string", e, charString);
+    }
+  } while (!conjurations);
+
+  const promises = conjurations.map((c: any) =>
+    generateImage(c.imageAIPrompt, 1)
+  );
+  const results = await Promise.all(promises);
+
+  for (let i = 0; i < conjurations.length; i++) {
+    conjurations[i].imageUri = results[i][0];
   }
 
-  let prompt = `Please generate me 3 unique ${generator.name.toLowerCase()} to be used in
-  ${rpgSystem.name}`;
+  await prisma.conjuration.createMany({
+    data: conjurations.map((c: any) => ({
+      name: c.name,
+      data: {
+        ...c,
+        name: undefined,
+        imageAIPrompt: undefined,
+        imageUri: undefined,
+        tags: undefined,
+      },
+      imageAIPrompt: c.imageAIPrompt,
+      imageUri: c.imageUri,
+      conjurerCode: generator.code,
+      tags: [
+        generator.code,
+        ...(c.tags ? c.tags.map((t: string) => t.toLowerCase()) : []),
+      ],
+    })),
+  });
 
-  if (publicAdventure) {
-    prompt += `for the campaign ${publicAdventure?.name}. `;
+  return conjurations;
+};
+
+const buildPrompt = (
+  generator: Generator,
+  campaign?: Campaign | undefined,
+  customArgs: CustomArg[] = []
+) => {
+  let prompt = `You are a master storyteller. Please generate me 3 unique ${generator.name.toLowerCase()}`;
+
+  if (campaign) {
+    const rpgSystem = getRpgSystem(campaign.rpgSystemCode);
+    const publicAdventure = rpgSystem?.publicAdventures?.find(
+      (a) => a.code === campaign.publicAdventureCode
+    );
+
+    if (!rpgSystem) {
+      throw new AppError({
+        description: "RPG System not found.",
+        httpCode: HttpCode.BAD_REQUEST,
+      });
+    }
+
+    prompt += ` to be used in ${rpgSystem.name}`;
+
+    if (publicAdventure) {
+      prompt += `for the campaign ${publicAdventure?.name}. `;
+    } else {
+      prompt += ". ";
+    }
   } else {
-    prompt += ". ";
+    prompt += " to be used in a roleplaying game like dungeons and dragons. ";
   }
 
   if (customArgs.length > 0) {
@@ -215,15 +272,35 @@ const buildPrompt = (
       .join(", ")}. `;
   }
 
-  prompt += `Please focus on generating 3 distinctly unique and different ${generator.name.toLowerCase()}. Please return JSON only so that I can easily deserialize into a javascript object. Use the following format. ${
+  prompt += `Please focus on generating 3 distinctly unique and different ${generator.name.toLowerCase()} with really engaging, immersive and compelling attributes. Please return JSON only so that I can easily deserialize into a javascript object. Use the following format. ${
     generator.formatPrompt
   }. `;
 
   if (generator.allowsImageGeneration) {
-    prompt += `Please also generate a prompt to be used by an AI image generator to generate an portrait image for this ${generator.name} to be stored in the JSON property 'imageAIPrompt'. Include the ${generator.name} TTRPG class, gender, facial features and clothing.`;
+    prompt += `Please generate a prompt to be used by an AI image generator to generate an portrait image for this ${generator.name.toLowerCase()} to be stored in the JSON property 'imageAIPrompt'. ${
+      generator.imagePromptExtraContext
+    }. `;
+  }
+
+  if (generator.basePromptExtraContext) {
+    prompt += generator.basePromptExtraContext;
   }
 
   logger.info("Built prompt", prompt);
 
   return prompt;
+};
+
+export const getImageForPrompt = async (prompt: string, count: number) => {
+  prompt = `${prompt.replace(
+    ".",
+    ""
+  )}, medieval, fantasy, portrait, oil painting style`;
+
+  const response = await openai.createImage({
+    prompt,
+    n: count,
+  });
+
+  return response.data.data;
 };
