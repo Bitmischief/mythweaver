@@ -66,6 +66,14 @@ async function loadMoreCharacters() {
 
   <div v-if="characters.length === 0">
     <div class="text-2xl">No characters found!</div>
+
+    <router-link to="/summoning">
+      <button
+        class="mt-8 flex cursor-pointer rounded-xl bg-black bg-gradient px-4 py-2 text-lg font-bold text-white"
+      >
+        <span class="self-center"> Summon New Character </span>
+      </button>
+    </router-link>
   </div>
   <div v-else>
     <div class="grid grid-cols-1 gap-8 md:grid-cols-4">

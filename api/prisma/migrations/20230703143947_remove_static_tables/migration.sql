@@ -3,7 +3,7 @@
 
   - You are about to drop the column `publicAdventureId` on the `campaigns` table. All the data in the column will be lost.
   - You are about to drop the column `rpgSystemId` on the `campaigns` table. All the data in the column will be lost.
-  - You are about to drop the `generators` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `conjurers` table. If the table is not empty, all the data it contains will be lost.
   - You are about to drop the `public-adventures` table. If the table is not empty, all the data it contains will be lost.
   - You are about to drop the `rpg-systems` table. If the table is not empty, all the data it contains will be lost.
   - Added the required column `rpgSystemCode` to the `campaigns` table without a default value. This is not possible if the table is not empty.

@@ -56,18 +56,24 @@ export default class AuthController {
     }
 
     logger.info("Getting user for email", email);
-    let user = await prisma.user.findUnique({
+    const user = await prisma.user.findUnique({
       where: {
         email,
       },
     });
 
     if (!user) {
-      logger.info("User did not exist, creating....");
-      user = await prisma.user.create({
-        data: {
-          email,
-        },
+      logger.info("User did not exist, early access not available....");
+
+      // user = await prisma.user.create({
+      //   data: {
+      //     email,
+      //   },
+      // });
+
+      throw new AppError({
+        httpCode: HttpCode.BAD_REQUEST,
+        description: "User is not enabled for early access!",
       });
     }
 

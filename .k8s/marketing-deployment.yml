@@ -1,26 +1,26 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: merlin-marketing
+  name: mythweaver-marketing
 spec:
   type: ClusterIP
   ports:
     - port: 80
       targetPort: 80
   selector:
-    app: merlin-marketing
+    app: mythweaver-marketing
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: merlin-marketing
+  name: mythweaver-marketing
   labels:
-    app: merlin-marketing
+    app: mythweaver-marketing
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: merlin-marketing
+      app: mythweaver-marketing
   strategy:
     rollingUpdate:
       maxSurge: 1
@@ -29,10 +29,10 @@ spec:
   template:
     metadata:
       labels:
-        app: merlin-marketing
+        app: mythweaver-marketing
     spec:
       containers:
-        - name: merlin-marketing
+        - name: mythweaver-marketing
           image: <IMAGE>
           ports:
             - containerPort: 80

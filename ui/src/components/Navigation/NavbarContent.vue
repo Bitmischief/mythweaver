@@ -22,21 +22,17 @@ const eventBus = useEventBus();
 const campaignStore = useCampaignStore();
 
 const navItems = [
-  // {
-  //   name: "Sessions",
-  //   path: "/sessions",
-  // },
   {
     name: "Edit Campaign",
     path: "/campaign",
   },
   {
-    name: "Characters",
-    path: "/characters",
+    name: "Sessions",
+    path: "/sessions",
   },
   {
-    name: "Summoning",
-    path: "/summoning",
+    name: "Conjurations",
+    path: "/conjurations",
   },
 ];
 
