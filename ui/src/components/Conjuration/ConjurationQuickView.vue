@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { CheckIcon, PlusIcon } from "@heroicons/vue/20/solid";
+import { CheckIcon, PlusIcon, XMarkIcon } from "@heroicons/vue/20/solid";
 import { addConjuration } from "@/api/conjurations.ts";
 import { useCurrentUserId } from "@/lib/hooks.ts";
 import { useRouter } from "vue-router";
+import { ref } from "vue";
+import RemoveConjuration from "./RemoveConjuration.vue";
 
 defineProps({
   conjuration: {
@@ -11,7 +13,7 @@ defineProps({
   },
 });
 
-const emit = defineEmits(["add-conjuration"]);
+const emit = defineEmits(["add-conjuration", "remove-conjuration"]);
 
 const router = useRouter();
 const currentUserId = useCurrentUserId();
@@ -36,6 +38,9 @@ async function handleAddConjuration(conjurationId: number) {
 async function navigateToViewConjuration(conjurationId: number) {
   await router.push(`/conjurations/view/${conjurationId}`);
 }
+
+var iconHover = ref(false);
+var confirmRemove = ref(false);
 </script>
 
 <template>
@@ -46,14 +51,21 @@ async function navigateToViewConjuration(conjurationId: number) {
   >
     <div
       v-if="isMyConjuration(conjuration)"
-      class="absolute right-2 top-2 flex h-12 w-12 justify-center rounded-full bg-green-500"
+      class="absolute right-2 top-2 flex h-12 w-12 justify-center rounded-full bg-green-500 hover:bg-gray-500"
+      @mouseover="iconHover = true"
+      @mouseout="iconHover = false"
     >
-      <CheckIcon class="h-8 w-8 self-center text-white" />
+      <XMarkIcon
+        v-if="iconHover"
+        class="h-8 w-8 self-center text-white"
+        @click.stop="confirmRemove = true"
+      />
+      <CheckIcon v-else class="h-8 w-8 self-center text-white" />
     </div>
     <div
       v-else
       class="absolute right-2 top-2 flex h-12 w-12 justify-center rounded-full bg-gray-800 hover:bg-gray-500"
-      @click="handleAddConjuration(conjuration.id)"
+      @click.stop="handleAddConjuration(conjuration.id)"
     >
       <button class="self-center">
         <PlusIcon class="h-8 w-8 text-white" />
@@ -74,4 +86,10 @@ async function navigateToViewConjuration(conjurationId: number) {
       </div>
     </div>
   </div>
+  <RemoveConjuration
+    v-show="confirmRemove"
+    :conjuration="conjuration"
+    @close="confirmRemove = false"
+    @remove-conjuration="emit('remove-conjuration', conjuration.id)"
+  />
 </template>

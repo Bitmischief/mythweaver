@@ -172,6 +172,7 @@ function removeTag(tag: string) {
       :key="conjuration.name"
       :conjuration="conjuration"
       @add-conjuration="loadConjurations"
+      @remove-conjuration="loadConjurations"
     />
   </div>
 </template>

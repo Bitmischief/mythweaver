@@ -10,6 +10,7 @@ export interface Conjuration {
   data: any;
   tags?: string[];
   copies?: Conjuration[];
+  originalId?: number | undefined;
 }
 
 export interface GetConjurationsRequest {
@@ -83,4 +84,8 @@ export interface PatchConjurationsRequest {
 
 export const patchConjuration = (conjurationId: number, request: PatchConjurationsRequest) => {
   return axios.patch(`/conjurations/${conjurationId}`, request);
+};
+
+export const deleteConjuration = (conjurationId: number) => {
+  return axios.delete(`/conjurations/${conjurationId}`);
 };

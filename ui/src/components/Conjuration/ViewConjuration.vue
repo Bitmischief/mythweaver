@@ -8,9 +8,10 @@ import {
 } from "@/api/conjurations.ts";
 import { useRoute, useRouter } from "vue-router";
 import { ArrowLeftIcon, BoltIcon, PlusIcon } from "@heroicons/vue/24/solid";
-import { CheckIcon } from "@heroicons/vue/20/solid";
+import { CheckIcon, XMarkIcon } from "@heroicons/vue/20/solid";
 import { useCurrentUserId } from "@/lib/hooks.ts";
 import { showSuccess } from "@/lib/notifications.ts";
+import RemoveConjuration from "@/components/Conjuration/RemoveConjuration.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -64,6 +65,13 @@ async function handleAddConjuration(conjurationId: number) {
   await loadConjuration();
 }
 
+async function handleRemoveConjuration() {
+  if (!conjuration.value) return;
+
+  await router.push(`/conjurations/view/${conjuration.value.originalId}`);
+  await loadConjuration();
+}
+
 const userOwnsConjuration = computed(() => {
   return conjuration.value?.userId === currentUserId.value;
 });
@@ -83,6 +91,14 @@ async function saveData() {
 
   showSuccess({ message: "Updated conjuration!" });
 }
+
+function textareaGrow(e: any) {
+  e.target.style.height = "5px";
+  e.target.style.height =
+    Math.max(e.target.style.minHeight, e.target.scrollHeight) + "px";
+}
+
+var confirmRemove = ref(false);
 </script>
 
 <template>
@@ -117,6 +133,13 @@ async function saveData() {
           >
             <CheckIcon class="mr-2 h-5 w-5 self-center text-white" />
             <span class="self-center">Added</span>
+          </div>
+          <div
+            v-if="userOwnsConjuration"
+            class="ml-2 flex rounded-xl border border-red-500 bg-surface p-3 text-lg font-bold shadow-lg hover:cursor-pointer"
+            @click="confirmRemove = true"
+          >
+            <XMarkIcon class="h-5 w-5 self-center text-white" />
           </div>
           <button
             v-else
@@ -191,7 +214,7 @@ async function saveData() {
         </div>
         <div
           v-show="editDataKey !== data.key"
-          class="mt-2 cursor-pointer text-lg text-gray-400"
+          class="mt-2 cursor-pointer whitespace-pre-wrap text-lg text-gray-400"
           @click="enableEdit(data.key, $event)"
         >
           {{ data.value }}
@@ -199,11 +222,19 @@ async function saveData() {
         <textarea
           v-show="editDataKey === data.key"
           v-model="data.value"
-          class="h-[20rem] w-full rounded-xl border border-green-500 bg-surface p-3 text-lg shadow-lg"
+          class="min-h-[20rem] w-full overflow-hidden rounded-xl border border-green-500 bg-surface p-3 text-lg shadow-lg"
           @click="$event.stopPropagation()"
           @blur="saveData"
+          @input="textareaGrow"
         />
       </div>
     </div>
+
+    <RemoveConjuration
+      v-show="confirmRemove"
+      :conjuration="conjuration"
+      @close="confirmRemove = false"
+      @remove-conjuration="handleRemoveConjuration()"
+    />
   </div>
 </template>
