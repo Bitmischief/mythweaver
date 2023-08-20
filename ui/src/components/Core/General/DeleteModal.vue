@@ -26,7 +26,7 @@ const value = computed({
     <div
       class="fixed inset-0 bg-gray-900 bg-opacity-95 transition-opacity"
     ></div>
-    <div class="fixed inset-0 z-10 cursor-pointer overflow-y-auto">
+    <div class="fixed inset-0 z-10 overflow-y-auto">
       <div
         class="flex min-h-full flex-col items-end justify-center p-4 text-center sm:items-center sm:p-0"
       >
