@@ -23,7 +23,7 @@ spec:
   storageClassName: do-block-storage
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: mythweaver-api
   labels:
