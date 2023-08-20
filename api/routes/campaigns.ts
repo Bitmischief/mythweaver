@@ -26,6 +26,7 @@ router.get("/", [
 
     const response = await controller.getCampaigns(
       res.locals.auth.userId,
+      res.locals.trackingInfo,
       offset as number,
       limit as number
     );
@@ -50,6 +51,7 @@ router.get("/:campaignId", [
 
     const response = await controller.getCampaign(
       res.locals.auth.userId,
+      res.locals.trackingInfo,
       campaignId as number
     );
     return res.status(200).send(response);
@@ -71,6 +73,7 @@ router.post("/", [
 
     const response = await controller.createCampaign(
       res.locals.auth.userId,
+      res.locals.trackingInfo,
       req.body
     );
     return res.status(201).send(response);
@@ -101,6 +104,7 @@ router.put("/:campaignId", [
 
     const response = await controller.putCampaign(
       res.locals.auth.userId,
+      res.locals.trackingInfo,
       campaignId as number,
       req.body
     );
@@ -125,6 +129,7 @@ router.delete("/:campaignId", [
 
     const response = await controller.deleteCampaign(
       res.locals.auth.userId,
+      res.locals.trackingInfo,
       campaignId as number
     );
 

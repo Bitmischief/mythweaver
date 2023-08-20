@@ -1,21 +1,29 @@
 <script lang="ts" setup>
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import {
   addConjuration,
   Conjuration,
+  deleteConjuration,
   getConjuration,
   patchConjuration,
 } from "@/api/conjurations.ts";
 import { useRoute, useRouter } from "vue-router";
-import { ArrowLeftIcon, BoltIcon, PlusIcon } from "@heroicons/vue/24/solid";
-import { CheckIcon } from "@heroicons/vue/20/solid";
-import { useCurrentUserId } from "@/lib/hooks.ts";
+import {
+  ArrowLeftIcon,
+  XMarkIcon,
+  PlusIcon,
+  ArrowPathIcon,
+} from "@heroicons/vue/24/solid";
+import { useCurrentUserId, useQuickConjure } from "@/lib/hooks.ts";
 import { showSuccess } from "@/lib/notifications.ts";
+import DeleteModal from "@/components/Core/General/DeleteModal.vue";
 
 const route = useRoute();
 const router = useRouter();
+const quickConjure = useQuickConjure();
 const currentUserId = useCurrentUserId();
 const viewImage = ref(false);
+const showDeleteModal = ref(false);
 
 const conjuration = ref<Conjuration | null>(null);
 const dataArray = computed(() => {
@@ -33,13 +41,21 @@ const dataArray = computed(() => {
 
 const editDataKey = ref<string | undefined>(undefined);
 
+const conjurationId = computed(() =>
+  parseInt(route.params.conjurationId?.toString())
+);
+
+const isQuickConjure = computed(() => {
+  return route.query.quick === "true";
+});
+
 onMounted(async () => {
   await loadConjuration();
 });
 
-const conjurationId = computed(() =>
-  parseInt(route.params.conjurationId.toString())
-);
+watch(conjurationId, async () => {
+  await loadConjuration();
+});
 
 async function loadConjuration() {
   const response = await getConjuration(conjurationId.value);
@@ -83,6 +99,25 @@ async function saveData() {
 
   showSuccess({ message: "Updated conjuration!" });
 }
+
+async function handleRemoveConjuration() {
+  showDeleteModal.value = true;
+}
+
+async function clickDeleteConjuration() {
+  if (!conjuration.value) return;
+
+  await deleteConjuration(conjuration.value.id);
+  showSuccess({ message: "Successfully removed conjuration" });
+
+  setTimeout(async () => {
+    await navigateToConjurations();
+  }, 250);
+}
+
+async function navigateToConjurations() {
+  await router.push("/conjurations");
+}
 </script>
 
 <template>
@@ -95,10 +130,10 @@ async function saveData() {
     <div
       class="h-full w-full overflow-y-auto bg-gradient-to-b from-surface/95 to-surface p-12"
     >
-      <div class="mb-6 flex justify-between">
+      <div class="mb-6 md:flex md:justify-between">
         <router-link
-          :to="`/conjurations`"
-          class="bg-surface-2 flex rounded-xl border-2 border-gray-600/50 p-3"
+          class="bg-surface-2 mb-2 flex rounded-xl border border-gray-600/50 p-3 md:mb-0"
+          to="/conjurations"
         >
           <ArrowLeftIcon class="mr-2 h-4 w-4 self-center" />
           <span class="self-center">Back to list</span>
@@ -106,18 +141,27 @@ async function saveData() {
 
         <div class="flex">
           <button
-            v-if="conjuration.conjurerCode === 'characters'"
-            class="mr-2 flex rounded-xl bg-purple-500 p-3 text-lg font-bold shadow-lg"
+            v-if="isQuickConjure"
+            class="mr-2 flex rounded-xl bg-amber-500 p-3 text-lg font-bold shadow-lg"
+            @click="quickConjure(conjuration.conjurerCode)"
           >
-            <BoltIcon class="mr-2 h-5 w-5 self-center" /> Chat
+            <ArrowPathIcon class="mr-2 h-5 w-5 self-center" /> Retry Quick
+            Conjure
           </button>
-          <div
+          <!--          <button-->
+          <!--            v-if="conjuration.conjurerCode === 'characters'"-->
+          <!--            class="mr-2 flex rounded-xl bg-purple-500 p-3 text-lg font-bold shadow-lg"-->
+          <!--          >-->
+          <!--            <BoltIcon class="mr-2 h-5 w-5 self-center" /> Chat-->
+          <!--          </button>-->
+          <button
             v-if="userOwnsConjuration"
-            class="flex rounded-xl border border-green-500 bg-surface p-3 text-lg font-bold shadow-lg"
+            class="flex rounded-xl border border-red-500 bg-surface p-3 text-lg font-bold shadow-lg"
+            @click="handleRemoveConjuration()"
           >
-            <CheckIcon class="mr-2 h-5 w-5 self-center text-white" />
-            <span class="self-center">Added</span>
-          </div>
+            <XMarkIcon class="mr-2 h-5 w-5 self-center text-white" />
+            <span class="self-center">Remove</span>
+          </button>
           <button
             v-else
             class="flex rounded-xl border border-green-500 bg-surface p-3 text-lg font-bold shadow-lg"
@@ -158,22 +202,21 @@ async function saveData() {
           </div>
         </div>
       </div>
-      <div class="flex flex-wrap">
-        <div class="mr-3">
+      <div class="md:flex">
+        <div class="mb-3 mr-3 md:mb-0">
           <img
             :src="conjuration.imageUri"
-            class="cursor-pointer rounded-full hover:opacity-60"
-            height="100"
-            width="100"
+            class="h-[10rem] w-auto cursor-pointer rounded-full hover:opacity-60"
+            :alt="conjuration.name"
             @click="viewImage = true"
           />
         </div>
-        <div>
+        <div class="self-center">
           <div class="text-5xl">
             {{ conjuration.name }}
           </div>
 
-          <div class="mb-12 mt-3 flex flex-wrap">
+          <div class="mt-3 flex flex-wrap">
             <div
               v-for="tag of conjuration.tags"
               :key="`${conjuration.id}-${tag}`"
@@ -206,4 +249,26 @@ async function saveData() {
       </div>
     </div>
   </div>
+
+  <DeleteModal v-model="showDeleteModal">
+    <div class="text-center text-8xl">Wait!</div>
+    <div class="mt-8 text-center text-3xl">
+      Are you sure you want to remove this conjuration from your list?
+    </div>
+
+    <div class="mt-12 flex justify-center">
+      <button
+        class="mr-6 rounded-xl border border-green-500 px-6 py-3"
+        @click="showDeleteModal = false"
+      >
+        No, keep conjuration
+      </button>
+      <button
+        class="rounded-xl bg-red-500 px-6 py-3"
+        @click="clickDeleteConjuration"
+      >
+        Delete Conjuration
+      </button>
+    </div>
+  </DeleteModal>
 </template>

@@ -13,7 +13,7 @@ import { showError } from "@/lib/notifications.ts";
 import SummoningLoader from "@/components/Conjuration/ConjuringLoader.vue";
 import { useEventBus } from "@/lib/events.ts";
 import { ArrowLeftIcon, XMarkIcon } from "@heroicons/vue/24/solid";
-import ConjurationQuickView from "@/components/Conjuration/ConjurationQuickView.vue";
+import ConjurationQuickView from "@/components/Conjuration/ConjurationListItemView.vue";
 
 const route = useRoute();
 const eventBus = useEventBus();

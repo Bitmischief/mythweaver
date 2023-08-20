@@ -13,7 +13,10 @@ router.post("/token", [
   useValidateRequest(postTokenSchema),
   async (req: Request, res: Response) => {
     const controller = new AuthController();
-    const response = await controller.postToken(req.body);
+    const response = await controller.postToken(
+      req.body,
+      res.locals.trackingInfo
+    );
     return res.send(response);
   },
 ]);
@@ -26,7 +29,10 @@ router.post("/refresh", [
   useValidateRequest(postRefreshSchema),
   async (req: Request, res: Response) => {
     const controller = new AuthController();
-    const response = await controller.postRefresh(req.body);
+    const response = await controller.postRefresh(
+      req.body,
+      res.locals.trackingInfo
+    );
     return res.send(response);
   },
 ]);

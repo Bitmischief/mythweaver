@@ -14,6 +14,7 @@ import {
 import { prisma } from "../lib/providers/prisma";
 import { Campaign } from "@prisma/client";
 import { AppError, HttpCode } from "../lib/errors/AppError";
+import { AppEvent, track, TrackingInfo } from "../lib/tracking";
 
 export interface GetCampaignsResponse {
   data: Campaign[];
@@ -43,6 +44,7 @@ export default class CampaignController {
   @Get("/")
   public async getCampaigns(
     @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
     @Query() offset = 0,
     @Query() limit = 25
   ): Promise<GetCampaignsResponse> {
@@ -53,6 +55,8 @@ export default class CampaignController {
       skip: offset,
       take: limit,
     });
+
+    track(AppEvent.GetCampaigns, userId, trackingInfo);
 
     return {
       data: campaigns,
@@ -66,6 +70,7 @@ export default class CampaignController {
   @Get("/:campaignId")
   public async getCampaign(
     @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
     @Route() campaignId = 0
   ): Promise<Campaign> {
     const campaign = await prisma.campaign.findUnique({
@@ -81,6 +86,8 @@ export default class CampaignController {
       });
     }
 
+    track(AppEvent.GetCampaign, userId, trackingInfo);
+
     return campaign;
   }
 
@@ -89,8 +96,11 @@ export default class CampaignController {
   @Post("/")
   public async createCampaign(
     @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
     @Body() request: PostCampaignRequest
   ): Promise<Campaign> {
+    track(AppEvent.CreateCampaign, userId, trackingInfo);
+
     return prisma.campaign.create({
       data: {
         ...request,
@@ -104,6 +114,7 @@ export default class CampaignController {
   @Put("/:campaignId")
   public async putCampaign(
     @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
     @Route() campaignId = 0,
     @Body() request: PutCampaignRequest
   ): Promise<Campaign> {
@@ -127,6 +138,8 @@ export default class CampaignController {
       });
     }
 
+    track(AppEvent.UpdateCampaign, userId, trackingInfo);
+
     return prisma.campaign.update({
       where: {
         id: campaignId,
@@ -143,6 +156,7 @@ export default class CampaignController {
   @Delete("/:campaignId")
   public async deleteCampaign(
     @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
     @Route() campaignId: number
   ): Promise<void> {
     const campaign = await prisma.campaign.findUnique({
@@ -164,6 +178,8 @@ export default class CampaignController {
         httpCode: HttpCode.FORBIDDEN,
       });
     }
+
+    track(AppEvent.DeleteCampaign, userId, trackingInfo);
 
     await prisma.campaign.delete({
       where: {

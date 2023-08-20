@@ -14,6 +14,7 @@ import {
 import { prisma } from "../lib/providers/prisma";
 import { AppError, HttpCode } from "../lib/errors/AppError";
 import { Session } from "@prisma/client";
+import { AppEvent, track, TrackingInfo } from "../lib/tracking";
 
 interface GetSessionsResponse {
   data: Session[];
@@ -44,6 +45,7 @@ export default class SessionController {
   @Get("/")
   public async getSessions(
     @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
     @Query() campaignId: number,
     @Query() offset?: number,
     @Query() limit?: number
@@ -57,6 +59,8 @@ export default class SessionController {
       take: limit,
     });
 
+    track(AppEvent.GetSessions, userId, trackingInfo);
+
     return {
       data: sessions,
       offset: offset,
@@ -69,6 +73,7 @@ export default class SessionController {
   @Get("/:sessionId")
   public async getSession(
     @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
     @Route() sessionId = 0
   ): Promise<Session> {
     const session = await prisma.session.findUnique({
@@ -91,6 +96,8 @@ export default class SessionController {
       });
     }
 
+    track(AppEvent.GetSession, userId, trackingInfo);
+
     return session;
   }
 
@@ -99,6 +106,7 @@ export default class SessionController {
   @Post("/")
   public async postSession(
     @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
     @Body() request: PostSessionRequest
   ): Promise<Session> {
     const session = await prisma.session.create({
@@ -108,6 +116,8 @@ export default class SessionController {
       },
     });
 
+    track(AppEvent.CreateSession, userId, trackingInfo);
+
     return session;
   }
 
@@ -116,10 +126,11 @@ export default class SessionController {
   @Patch("/:sessionId")
   public async patchSession(
     @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
     @Route() sessionId: number,
     @Body() request: PatchSessionRequest
   ): Promise<Session> {
-    await this.getSession(userId, sessionId);
+    await this.getSession(userId, trackingInfo, sessionId);
 
     const session = await prisma.session.update({
       where: {
@@ -131,6 +142,8 @@ export default class SessionController {
       },
     });
 
+    track(AppEvent.UpdateSession, userId, trackingInfo);
+
     return session;
   }
 
@@ -139,15 +152,18 @@ export default class SessionController {
   @Delete("/:sessionId")
   public async deleteSession(
     @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
     @Route() sessionId: number
   ): Promise<boolean> {
-    await this.getSession(userId, sessionId);
+    await this.getSession(userId, trackingInfo, sessionId);
 
     await prisma.session.delete({
       where: {
         id: sessionId,
       },
     });
+
+    track(AppEvent.DeleteSession, userId, trackingInfo);
 
     return true;
   }

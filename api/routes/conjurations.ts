@@ -37,6 +37,7 @@ router.get("/", [
 
     const response = await controller.getConjurations(
       res.locals.auth.userId,
+      res.locals.trackingInfo,
       campaignId as number,
       mine as boolean,
       conjurerCodes as string,
@@ -67,6 +68,7 @@ router.get("/tags", [
 
     const response = await controller.getConjurationTags(
       res.locals.auth.userId,
+      res.locals.trackingInfo,
       term as string,
       offset as number,
       limit as number
@@ -92,6 +94,7 @@ router.get("/:conjurationId", [
 
     const response = await controller.getConjuration(
       res.locals.auth.userId,
+      res.locals.trackingInfo,
       conjurationId as number
     );
     return res.status(200).send(response);
@@ -111,6 +114,7 @@ router.post("/", [
 
     const response = await controller.postConjurations(
       res.locals.auth.userId,
+      res.locals.trackingInfo,
       req.body
     );
     return res.status(201).send(response);
@@ -137,6 +141,7 @@ router.patch("/:conjurationId", [
 
     const response = await controller.patchConjuration(
       res.locals.auth.userId,
+      res.locals.trackingInfo,
       conjurationId as number,
       req.body
     );
@@ -156,6 +161,7 @@ router.delete("/:conjurationId", [
 
     await controller.deleteConjuration(
       res.locals.auth.userId,
+      res.locals.trackingInfo,
       conjurationId as number
     );
     return res.status(200).send();

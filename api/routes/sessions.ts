@@ -27,6 +27,7 @@ router.get("/", [
 
     const response = await controller.getSessions(
       res.locals.auth.userId,
+      res.locals.trackingInfo,
       campaignId as number,
       offset as number,
       limit as number
@@ -52,6 +53,7 @@ router.get("/:sessionId", [
 
     const response = await controller.getSession(
       res.locals.auth.userId,
+      res.locals.trackingInfo,
       sessionId as number
     );
 
@@ -75,6 +77,7 @@ router.post("/", [
 
     const response = await controller.postSession(
       res.locals.auth.userId,
+      res.locals.trackingInfo,
       req.body
     );
 
@@ -102,6 +105,7 @@ router.patch("/:sessionId", [
 
     const response = await controller.patchSession(
       res.locals.auth.userId,
+      res.locals.trackingInfo,
       sessionId as number,
       req.body
     );
@@ -120,7 +124,11 @@ router.delete("/:sessionId", [
 
     const { sessionId = 0 } = req.params;
 
-    await controller.deleteSession(res.locals.auth.userId, sessionId as number);
+    await controller.deleteSession(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      sessionId as number
+    );
 
     return res.status(200).send();
   },

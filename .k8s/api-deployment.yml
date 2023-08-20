@@ -23,20 +23,17 @@ spec:
   storageClassName: do-block-storage
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: mythweaver-api
   labels:
     app: mythweaver-api
 spec:
-  replicas: 1
+  replicas: 3
+  serviceName: mythweaver-api
   selector:
     matchLabels:
       app: mythweaver-api
-  strategy:
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 1
   minReadySeconds: 5
   template:
     metadata:
@@ -50,9 +47,11 @@ spec:
             - containerPort: 8000
           resources:
             requests:
-              cpu: 100m
+              cpu: 250m
+              memory: 512Mi
             limits:
-              cpu: 100m
+              cpu: 500m
+              memory: 1024Mi
           env:
             - name: DATABASE_URL
               value: <DATABASE_URL>
@@ -78,6 +77,8 @@ spec:
               value: "https://api.mythweaver.co"
             - name: STABILITY_API_KEY
               value: <STABILITY_API_KEY>
+            - name: MIXPANEL_TOKEN
+              value: <MIXPANEL_TOKEN>
           volumeMounts:
             - mountPath: "/app/public/images"
               name: mythweaver-content

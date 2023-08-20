@@ -12,7 +12,7 @@ import Select from "@/components/Core/Forms/Select.vue";
 import { useSelectedCampaignId } from "@/lib/hooks.ts";
 import { Conjurer, getConjurers } from "@/api/generators.ts";
 import Autocomplete from "@/components/Core/Forms/Autocomplete.vue";
-import ConjurationQuickView from "@/components/Conjuration/ConjurationQuickView.vue";
+import ConjurationQuickView from "@/components/Conjuration/ConjurationListItemView.vue";
 
 const selectedCampaignId = useSelectedCampaignId();
 
