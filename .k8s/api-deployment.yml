@@ -29,13 +29,13 @@ metadata:
   labels:
     app: mythweaver-api
 spec:
-  replicas: 5
+  replicas: 3
   selector:
     matchLabels:
       app: mythweaver-api
   strategy:
     rollingUpdate:
-      maxSurge: 10
+      maxSurge: 5
       maxUnavailable: 1
   minReadySeconds: 5
   template:
