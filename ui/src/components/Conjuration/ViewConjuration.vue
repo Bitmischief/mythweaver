@@ -118,6 +118,12 @@ async function clickDeleteConjuration() {
 async function navigateToConjurations() {
   await router.push("/conjurations");
 }
+
+function textareaGrow(e: any) {
+  e.target.style.height = "5px";
+  e.target.style.height =
+    Math.max(e.target.style.minHeight, e.target.scrollHeight) + "px";
+}
 </script>
 
 <template>
@@ -234,7 +240,7 @@ async function navigateToConjurations() {
         </div>
         <div
           v-show="editDataKey !== data.key"
-          class="mt-2 cursor-pointer text-lg text-gray-400"
+          class="mt-2 cursor-pointer whitespace-pre-wrap text-lg text-gray-400"
           @click="enableEdit(data.key, $event)"
         >
           {{ data.value }}
@@ -242,9 +248,10 @@ async function navigateToConjurations() {
         <textarea
           v-show="editDataKey === data.key"
           v-model="data.value"
-          class="h-[20rem] w-full rounded-xl border border-green-500 bg-surface p-3 text-lg shadow-lg"
+          class="min-h-[20rem] w-full overflow-hidden rounded-xl border border-green-500 bg-surface p-3 text-lg shadow-lg"
           @click="$event.stopPropagation()"
           @blur="saveData"
+          @input="textareaGrow"
         />
       </div>
     </div>

@@ -1,17 +1,20 @@
 <script setup lang="ts">
-import { CheckIcon, PlusIcon } from "@heroicons/vue/20/solid";
-import { addConjuration } from "@/api/conjurations.ts";
+import { CheckIcon, PlusIcon, XMarkIcon } from "@heroicons/vue/20/solid";
+import { addConjuration, deleteConjuration } from "@/api/conjurations.ts";
 import { useCurrentUserId } from "@/lib/hooks.ts";
 import { useRouter } from "vue-router";
+import { ref } from "vue";
+import { showSuccess } from "@/lib/notifications.ts";
+import DeleteModal from "@/components/Core/General/DeleteModal.vue";
 
-defineProps({
+var props = defineProps({
   conjuration: {
     type: Object,
     required: true,
   },
 });
 
-const emit = defineEmits(["add-conjuration"]);
+const emit = defineEmits(["add-conjuration", "remove-conjuration"]);
 
 const router = useRouter();
 const currentUserId = useCurrentUserId();
@@ -36,6 +39,22 @@ async function handleAddConjuration(conjurationId: number) {
 async function navigateToViewConjuration(conjurationId: number) {
   await router.push(`/conjurations/view/${conjurationId}`);
 }
+
+async function clickDeleteConjuration() {
+  if (!props.conjuration || !isMyConjuration(props.conjuration)) return;
+
+  var conjurationId = props.conjuration.copies?.length
+    ? props.conjuration.copies[0].id
+    : props.conjuration.id;
+  await deleteConjuration(conjurationId);
+  showSuccess({ message: "Successfully removed conjuration" });
+
+  emit("remove-conjuration", conjurationId);
+  showDeleteModal.value = false;
+}
+
+var iconHover = ref(false);
+const showDeleteModal = ref(false);
 </script>
 
 <template>
@@ -46,14 +65,21 @@ async function navigateToViewConjuration(conjurationId: number) {
   >
     <div
       v-if="isMyConjuration(conjuration)"
-      class="absolute right-2 top-2 flex h-12 w-12 justify-center rounded-full bg-green-500"
+      class="absolute right-2 top-2 flex h-12 w-12 justify-center rounded-full bg-green-500 hover:bg-gray-500"
+      @mouseover="iconHover = true"
+      @mouseout="iconHover = false"
     >
-      <CheckIcon class="h-8 w-8 self-center text-white" />
+      <XMarkIcon
+        v-if="iconHover"
+        class="h-8 w-8 self-center text-white"
+        @click.stop="showDeleteModal = true"
+      />
+      <CheckIcon v-else class="h-8 w-8 self-center text-white" />
     </div>
     <div
       v-else
       class="absolute right-2 top-2 flex h-12 w-12 justify-center rounded-full bg-gray-800 hover:bg-gray-500"
-      @click="handleAddConjuration(conjuration.id)"
+      @click.stop="handleAddConjuration(conjuration.id)"
     >
       <button class="self-center">
         <PlusIcon class="h-8 w-8 text-white" />
@@ -74,4 +100,25 @@ async function navigateToViewConjuration(conjurationId: number) {
       </div>
     </div>
   </div>
+  <DeleteModal v-model="showDeleteModal">
+    <div class="text-center text-8xl">Wait!</div>
+    <div class="mt-8 text-center text-3xl">
+      Are you sure you want to remove this conjuration from your list?
+    </div>
+
+    <div class="mt-12 flex justify-center">
+      <button
+        class="mr-6 rounded-xl border border-green-500 px-6 py-3"
+        @click="showDeleteModal = false"
+      >
+        No, keep conjuration
+      </button>
+      <button
+        class="rounded-xl bg-red-500 px-6 py-3"
+        @click="clickDeleteConjuration"
+      >
+        Delete Conjuration
+      </button>
+    </div>
+  </DeleteModal>
 </template>
