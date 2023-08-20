@@ -8,24 +8,23 @@ class EventBus {
     this.events = {};
   }
 
+  // eslint-disable-next-line @typescript-eslint/ban-types
   $on(eventName: string, fn: Function) {
     this.events[eventName] = this.events[eventName] || [];
     this.events[eventName].push(fn);
   }
 
-  $off(eventName: string, fn: Function) {
+  $off(eventName: string) {
     if (this.events[eventName]) {
       for (let i = 0; i < this.events[eventName].length; i++) {
-        if (this.events[eventName][i] === fn) {
-          this.events[eventName].splice(i, 1);
-          break;
-        }
+        this.events[eventName].splice(i, 1);
       }
     }
   }
 
   $emit(eventName: string, data: any = undefined) {
     if (this.events[eventName]) {
+      // eslint-disable-next-line @typescript-eslint/ban-types
       this.events[eventName].forEach(function (fn: Function) {
         fn(data);
       });

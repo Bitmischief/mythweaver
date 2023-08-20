@@ -4,7 +4,6 @@ import { showSuccess } from "@/lib/notifications.ts";
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useCurrentUserId } from "@/lib/hooks.ts";
 import { useEventBus } from "@/lib/events.ts";
-import { Tab } from "@headlessui/vue";
 
 const props = defineProps<{
   conjuration: Conjuration;

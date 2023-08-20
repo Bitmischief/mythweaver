@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { Conjuration } from "@/api/conjurations.ts";
 
-const props = defineProps<{
+defineProps<{
   conjuration: Conjuration;
 }>();
 </script>
 
-<template></template>
+<template>Related Conjurations</template>
