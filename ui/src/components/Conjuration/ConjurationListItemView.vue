@@ -40,7 +40,7 @@ async function navigateToViewConjuration(conjurationId: number) {
 
 <template>
   <div
-    class="relative flex h-[20rem] cursor-pointer flex-col justify-end rounded-lg bg-cover bg-top shadow-xl md:h-[20rem] 3xl:h-[30rem]"
+    class="relative flex h-[20rem] cursor-pointer flex-col justify-end rounded-lg bg-cover bg-top shadow-xl md:h-[30rem] 3xl:h-[40rem]"
     :style="backgroundImageInlineStyle(conjuration.imageUri)"
     @click="navigateToViewConjuration(conjuration.id)"
   >

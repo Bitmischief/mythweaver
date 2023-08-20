@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import {
   addConjuration,
   Conjuration,
@@ -8,13 +8,19 @@ import {
   patchConjuration,
 } from "@/api/conjurations.ts";
 import { useRoute, useRouter } from "vue-router";
-import { ArrowLeftIcon, XMarkIcon, PlusIcon } from "@heroicons/vue/24/solid";
-import { useCurrentUserId } from "@/lib/hooks.ts";
+import {
+  ArrowLeftIcon,
+  XMarkIcon,
+  PlusIcon,
+  ArrowPathIcon,
+} from "@heroicons/vue/24/solid";
+import { useCurrentUserId, useQuickConjure } from "@/lib/hooks.ts";
 import { showSuccess } from "@/lib/notifications.ts";
 import DeleteModal from "@/components/Core/General/DeleteModal.vue";
 
 const route = useRoute();
 const router = useRouter();
+const quickConjure = useQuickConjure();
 const currentUserId = useCurrentUserId();
 const viewImage = ref(false);
 const showDeleteModal = ref(false);
@@ -35,13 +41,21 @@ const dataArray = computed(() => {
 
 const editDataKey = ref<string | undefined>(undefined);
 
+const conjurationId = computed(() =>
+  parseInt(route.params.conjurationId?.toString())
+);
+
+const isQuickConjure = computed(() => {
+  return route.query.quick === "true";
+});
+
 onMounted(async () => {
   await loadConjuration();
 });
 
-const conjurationId = computed(() =>
-  parseInt(route.params.conjurationId.toString())
-);
+watch(conjurationId, async () => {
+  await loadConjuration();
+});
 
 async function loadConjuration() {
   const response = await getConjuration(conjurationId.value);
@@ -116,16 +130,24 @@ async function navigateToConjurations() {
     <div
       class="h-full w-full overflow-y-auto bg-gradient-to-b from-surface/95 to-surface p-12"
     >
-      <div class="mb-6 flex justify-between">
-        <button
-          class="bg-surface-2 flex rounded-xl border-2 border-gray-600/50 p-3"
-          @click="navigateToConjurations"
+      <div class="mb-6 md:flex md:justify-between">
+        <router-link
+          class="bg-surface-2 mb-2 flex rounded-xl border border-gray-600/50 p-3 md:mb-0"
+          to="/conjurations"
         >
           <ArrowLeftIcon class="mr-2 h-4 w-4 self-center" />
           <span class="self-center">Back to list</span>
-        </button>
+        </router-link>
 
         <div class="flex">
+          <button
+            v-if="isQuickConjure"
+            class="mr-2 flex rounded-xl bg-amber-500 p-3 text-lg font-bold shadow-lg"
+            @click="quickConjure(conjuration.conjurerCode)"
+          >
+            <ArrowPathIcon class="mr-2 h-5 w-5 self-center" /> Retry Quick
+            Conjure
+          </button>
           <!--          <button-->
           <!--            v-if="conjuration.conjurerCode === 'characters'"-->
           <!--            class="mr-2 flex rounded-xl bg-purple-500 p-3 text-lg font-bold shadow-lg"-->
@@ -180,23 +202,21 @@ async function navigateToConjurations() {
           </div>
         </div>
       </div>
-      <div class="flex flex-wrap">
-        <div class="mr-3">
+      <div class="md:flex">
+        <div class="mb-3 mr-3 md:mb-0">
           <img
             :src="conjuration.imageUri"
-            class="cursor-pointer rounded-full hover:opacity-60"
-            height="100"
-            width="100"
+            class="h-[10rem] w-auto cursor-pointer rounded-full hover:opacity-60"
             :alt="conjuration.name"
             @click="viewImage = true"
           />
         </div>
-        <div>
+        <div class="self-center">
           <div class="text-5xl">
             {{ conjuration.name }}
           </div>
 
-          <div class="mb-12 mt-3 flex flex-wrap">
+          <div class="mt-3 flex flex-wrap">
             <div
               v-for="tag of conjuration.tags"
               :key="`${conjuration.id}-${tag}`"

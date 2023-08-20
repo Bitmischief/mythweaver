@@ -103,6 +103,11 @@ export class GeneratorController {
       where: {
         conjurerCode: code,
         userId: null,
+        copies: {
+          none: {
+            userId: userId,
+          },
+        },
       },
       select: {
         id: true,
@@ -123,13 +128,17 @@ export class GeneratorController {
     while (randomConjuration === null && tries < maxTries) {
       const idx = Math.floor(Math.random() * (validIds.length + 1));
 
-      randomConjuration = await prisma.conjuration.findUnique({
-        where: {
-          id: validIds[idx],
-        },
-      });
-
-      tries++;
+      try {
+        randomConjuration = await prisma.conjuration.findUnique({
+          where: {
+            id: validIds[idx],
+          },
+        });
+      } catch {
+        logger.warn("Failed to get random conjuration", idx, validIds);
+      } finally {
+        tries++;
+      }
     }
 
     track(AppEvent.QuickConjure, userId, trackingInfo);
