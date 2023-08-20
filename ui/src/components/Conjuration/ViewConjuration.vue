@@ -124,7 +124,6 @@ function textareaGrow(e: any) {
   e.target.style.height =
     Math.max(e.target.style.minHeight, e.target.scrollHeight) + "px";
 }
-
 </script>
 
 <template>

@@ -43,11 +43,13 @@ async function navigateToViewConjuration(conjurationId: number) {
 async function clickDeleteConjuration() {
   if (!props.conjuration || !isMyConjuration(props.conjuration)) return;
 
-  var conjurationId = props.conjuration.copies?.length ? props.conjuration.copies[0].id : props.conjuration.id;
+  var conjurationId = props.conjuration.copies?.length
+    ? props.conjuration.copies[0].id
+    : props.conjuration.id;
   await deleteConjuration(conjurationId);
   showSuccess({ message: "Successfully removed conjuration" });
 
-  emit("remove-conjuration", conjurationId)
+  emit("remove-conjuration", conjurationId);
   showDeleteModal.value = false;
 }
 
@@ -67,7 +69,11 @@ const showDeleteModal = ref(false);
       @mouseover="iconHover = true"
       @mouseout="iconHover = false"
     >
-      <XMarkIcon v-if="iconHover" class="h-8 w-8 self-center text-white" @click.stop="showDeleteModal = true"/>
+      <XMarkIcon
+        v-if="iconHover"
+        class="h-8 w-8 self-center text-white"
+        @click.stop="showDeleteModal = true"
+      />
       <CheckIcon v-else class="h-8 w-8 self-center text-white" />
     </div>
     <div
