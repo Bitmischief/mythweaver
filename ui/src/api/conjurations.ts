@@ -84,3 +84,7 @@ export interface PatchConjurationsRequest {
 export const patchConjuration = (conjurationId: number, request: PatchConjurationsRequest) => {
   return axios.patch(`/conjurations/${conjurationId}`, request);
 };
+
+export const deleteConjuration = (conjurationId: number) => {
+  return axios.delete(`/conjurations/${conjurationId}`);
+};
