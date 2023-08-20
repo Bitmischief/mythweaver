@@ -24,7 +24,7 @@ class EventBus {
     }
   }
 
-  $emit(eventName: string, data: any) {
+  $emit(eventName: string, data: any = undefined) {
     if (this.events[eventName]) {
       this.events[eventName].forEach(function (fn: Function) {
         fn(data);

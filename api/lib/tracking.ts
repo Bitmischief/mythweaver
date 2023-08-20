@@ -5,7 +5,7 @@ import { Logger } from "tslog";
 
 const logger = new Logger();
 
-const mixpanel = Mixpanel.init(process.env.MIXPANEL_TOKEN as string);
+let mixpanel: Mixpanel.Mixpanel | undefined;
 
 export enum AppEvent {
   LoggedIn = "Logged In",
@@ -87,6 +87,12 @@ export const extractTrackingInfo = (req: Request): TrackingInfo => {
   };
 };
 
+const init = () => {
+  if (!mixpanel) {
+    mixpanel = Mixpanel.init(process.env.MIXPANEL_TOKEN as string);
+  }
+};
+
 export const track = (
   event: AppEvent,
   userId: number,
@@ -95,7 +101,9 @@ export const track = (
 ) => {
   if (process.env.API_URL !== "https://api.mythweaver.co") return;
 
-  mixpanel.track(event.toString(), {
+  init();
+
+  mixpanel?.track(event.toString(), {
     distinct_id: userId,
     ...properties,
     ...trackingInfo,
@@ -103,5 +111,6 @@ export const track = (
 };
 
 export const identify = (userId: number, properties: any = {}) => {
-  mixpanel.people.set(userId.toString(), properties);
+  init();
+  mixpanel?.people.set(userId.toString(), properties);
 };

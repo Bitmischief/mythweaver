@@ -36,7 +36,7 @@ axios.interceptors.response.use(
     const authStore = useAuthStore();
 
     if (originalConfig.url === "/auth/refresh" && err.response.status === 401) {
-      await authStore.logout();
+      // await authStore.logout();
       return;
     }
 
