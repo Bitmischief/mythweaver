@@ -20,7 +20,7 @@ export function init(id: string): void {
   for (let i = 1; i <= 12; i++) {
     const tempLenght =
       Number(
-        (document.querySelector("#line" + i) as SVGGeometryElement).getTotalLength().toFixed(0)
+        (document.querySelector("#line" + i) as SVGGeometryElement).getTotalLength().toFixed(0),
       ) + 1;
     gsap.set("#line" + i, { strokeDasharray: tempLenght, strokeDashoffset: tempLenght });
   }

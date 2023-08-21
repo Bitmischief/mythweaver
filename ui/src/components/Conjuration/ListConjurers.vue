@@ -58,7 +58,7 @@ async function loadGenerators() {
 }
 
 async function navigateToConjurer(
-  generatorCode: string | undefined = undefined
+  generatorCode: string | undefined = undefined,
 ) {
   await router.push(`/conjurations/conjure/${generatorCode}`);
 }

@@ -40,12 +40,12 @@ watch(
   () => {
     loadAdventures();
   },
-  { deep: true }
+  { deep: true },
 );
 
 function loadAdventures() {
   const rpgSystem = rpgSystems.value.find(
-    (s) => s.code === campaign.value?.rpgSystemCode
+    (s) => s.code === campaign.value?.rpgSystemCode,
   );
 
   if (rpgSystem) {

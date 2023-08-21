@@ -30,7 +30,7 @@ const customArgs = ref<CustomArg[]>([{ key: "", value: "" }]);
 
 onMounted(async () => {
   const getGeneratorResponse = await getConjurer(
-    route.params.summonerCode.toString()
+    route.params.summonerCode.toString(),
   );
   summoner.value = getGeneratorResponse.data;
 });

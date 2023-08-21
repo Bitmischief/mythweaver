@@ -68,10 +68,5 @@
     ],
     "ext": "ts",
     "exec": "ts-node index.ts"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npx pretty-quick --staged && yarn run build && yarn run validate && yarn run test"
-    }
   }
 }

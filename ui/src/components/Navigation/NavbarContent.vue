@@ -54,7 +54,7 @@ async function loadCampaigns() {
   await campaignStore.loadCampaigns();
   if (query.value) {
     filteredCampaigns.value = campaigns.value.filter((campaign) =>
-      campaign.name.toLowerCase().includes(query.value.toLowerCase())
+      campaign.name.toLowerCase().includes(query.value.toLowerCase()),
     );
   }
 

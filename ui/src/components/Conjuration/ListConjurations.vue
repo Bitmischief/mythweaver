@@ -48,7 +48,7 @@ watch(
   },
   {
     deep: true,
-  }
+  },
 );
 
 async function loadConjurations() {
@@ -73,7 +73,7 @@ async function handleTagsQueryChange(term: string) {
 
 function removeTag(tag: string) {
   conjurationsQuery.value.tags = conjurationsQuery.value?.tags?.filter(
-    (t) => t !== tag
+    (t) => t !== tag,
   );
 }
 </script>
