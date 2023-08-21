@@ -42,10 +42,5 @@
     "vite": "^4.4.7",
     "vue-eslint-parser": "^9.3.1",
     "vue-tsc": "^1.8.8"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npx pretty-quick --staged && yarn run repair && yarn run build"
-    }
   }
 }
