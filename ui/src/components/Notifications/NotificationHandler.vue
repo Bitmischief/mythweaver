@@ -29,7 +29,7 @@ function initTimeout() {
       test.value = false;
     },
     timeoutRef.value,
-    showNotification
+    showNotification,
   );
 }
 </script>

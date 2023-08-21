@@ -21,7 +21,7 @@ axios.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 const MAX_REFRESH_RETRIES = 5;
@@ -61,5 +61,5 @@ axios.interceptors.response.use(
     }
 
     return Promise.reject(err);
-  }
+  },
 );

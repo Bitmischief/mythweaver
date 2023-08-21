@@ -66,7 +66,7 @@ const displayedValue = computed(() => {
     return value.value
       .map((v) => {
         const selectedOption = allOptions.value.find(
-          (o) => o[props.valueProp] === v
+          (o) => o[props.valueProp] === v,
         );
 
         if (!selectedOption) return "";
@@ -76,7 +76,7 @@ const displayedValue = computed(() => {
       .join(", ");
   } else {
     const selectedOption = allOptions.value.find(
-      (o) => o[props.valueProp] === value.value
+      (o) => o[props.valueProp] === value.value,
     );
 
     if (!selectedOption) return "";

@@ -41,7 +41,7 @@ async function handleCreateSession() {
         : whenTime.value.hours,
       whenTime.value.minutes,
       0,
-      0
+      0,
     ),
   });
 

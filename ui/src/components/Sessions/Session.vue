@@ -9,7 +9,7 @@ const props = defineProps<{
 
 const whenString = computed(() => format(parseISO(props.session.when), "PP"));
 const whenTimeString = computed(() =>
-  format(parseISO(props.session.when), "p")
+  format(parseISO(props.session.when), "p"),
 );
 </script>
 

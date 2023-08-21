@@ -37,7 +37,7 @@ const tabs = ref([
 ]);
 
 const conjurationId = computed(() =>
-  parseInt(route.params.conjurationId?.toString())
+  parseInt(route.params.conjurationId?.toString()),
 );
 
 onMounted(async () => {

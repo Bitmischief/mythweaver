@@ -36,15 +36,15 @@ const whenTime = ref({
 const editWhen = ref(false);
 
 const whenDateString = computed(() =>
-  session.value?.when ? format(parseISO(session.value.when), "PP") : ""
+  session.value?.when ? format(parseISO(session.value.when), "PP") : "",
 );
 const whenTimeString = computed(() =>
-  session.value?.when ? format(parseISO(session.value.when), "p") : ""
+  session.value?.when ? format(parseISO(session.value.when), "p") : "",
 );
 
 onMounted(async () => {
   const response = await getSession(
-    parseInt(route.params.sessionId.toString())
+    parseInt(route.params.sessionId.toString()),
   );
   session.value = response.data as SessionBase;
   const date = new Date(session.value.when);
@@ -74,7 +74,7 @@ async function clickSaveSession() {
         : whenTime.value.hours,
       whenTime.value.minutes,
       0,
-      0
+      0,
     ),
   });
 
