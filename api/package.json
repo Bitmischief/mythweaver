@@ -44,7 +44,7 @@
   "dependencies": {
     "@prisma/client": "^5.1.1",
     "axios": "^1.4.0",
-    "bull": "^4.10.4",
+    "bull": "^4.11.3",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
