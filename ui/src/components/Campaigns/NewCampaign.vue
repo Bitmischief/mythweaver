@@ -64,7 +64,7 @@ async function handleCreateCampaign() {
   eventBus.$emit(CAMPAIGN_CREATED_EVENT, undefined);
 
   showSuccess({ message: "Campaign created!" });
-  await router.push("/characters");
+  await router.push("/");
 }
 
 const atmosphere = ref<string[]>([]);

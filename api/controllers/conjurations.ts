@@ -15,6 +15,7 @@ import { prisma } from "../lib/providers/prisma";
 import { Conjuration } from "@prisma/client";
 import { AppError, HttpCode } from "../lib/errors/AppError";
 import { AppEvent, track, TrackingInfo } from "../lib/tracking";
+import { processTagsQueue } from "../worker";
 
 interface GetConjurationsResponse {
   data: Conjuration[];
@@ -211,7 +212,7 @@ export default class ConjurationController {
 
     track(AppEvent.UpdateConjuration, userId, trackingInfo);
 
-    return prisma.conjuration.update({
+    const updatedConjuration = prisma.conjuration.update({
       where: {
         id: conjurationId,
       },
@@ -220,6 +221,12 @@ export default class ConjurationController {
         ...request,
       },
     });
+
+    await processTagsQueue.add({
+      conjurationIds: [conjurationId],
+    });
+
+    return updatedConjuration;
   }
 
   @Security("jwt")
@@ -267,22 +274,21 @@ export default class ConjurationController {
     offset = offset || 0;
     limit = limit || 50;
 
-    const tags = await prisma.conjuration.findMany({
-      select: {
-        tags: true,
+    const tags = await prisma.tag.findMany({
+      where: {
+        name: {
+          contains: term,
+        },
+      },
+      orderBy: {
+        usageCount: "desc",
       },
     });
-
-    const arrayTags = tags
-      .map((t) => t.tags)
-      .filter((t) => t !== null) as string[][];
-    const flatTags = arrayTags.flat().filter((t) => t.includes(term || ""));
-    const uniqueTags = [...new Set(flatTags)].slice(offset, offset + limit);
 
     track(AppEvent.GetConjurationTags, userId, trackingInfo);
 
     return {
-      data: uniqueTags,
+      data: tags.map((t) => t.name),
       offset: offset,
       limit: limit,
     };

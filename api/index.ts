@@ -32,7 +32,7 @@ app.use(express.static("public"));
 // Create the rate limit rule
 const apiRequestLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
-  max: 60, // limit each IP to 60 requests per windowMs
+  max: 120, // limit each IP to 60 requests per windowMs
   handler: function (req, res /*next*/) {
     return res.status(429).json({
       error: "You sent too many requests. Please wait a while then try again",

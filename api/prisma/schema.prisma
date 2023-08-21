@@ -18,7 +18,7 @@ model RefreshToken {
 
   user User @relation(fields: [userId], references: [id])
 
-  @@map("refresh-tokens")
+  @@map("refresh_tokens")
 }
 
 model User {
@@ -134,4 +134,16 @@ model Location {
   campaign Campaign @relation(fields: [campaignId], references: [id])
 
   @@map("locations")
+}
+
+model Tag {
+  name      String    @id
+  createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+
+  usageCount Int
+
+  @@unique([name])
+  @@index([name], name: "tags_name")
+  @@map("tags")
 }

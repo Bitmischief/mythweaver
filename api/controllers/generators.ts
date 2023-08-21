@@ -20,6 +20,7 @@ import conjurers, { Generator, getGenerator } from "../data/conjurers";
 import { getRpgSystem } from "../data/rpgSystems";
 import { generateImage } from "../services/imageGeneration";
 import { AppEvent, track, TrackingInfo } from "../lib/tracking";
+import { processTagsQueue } from "../worker";
 
 const logger = parentLogger.getSubLogger();
 const openai = getClient();
@@ -234,7 +235,7 @@ export const conjure = async (
     conjurations[i].imageUri = results[i][0];
   }
 
-  return prisma.$transaction(
+  const result = await prisma.$transaction(
     conjurations.map((c: any) =>
       prisma.conjuration.create({
         data: {
@@ -257,6 +258,10 @@ export const conjure = async (
       })
     )
   );
+
+  await processTagsQueue.add({
+    conjurationIds: result.map((r) => r.id),
+  });
 };
 
 const buildPrompt = (
