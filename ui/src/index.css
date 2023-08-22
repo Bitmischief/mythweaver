@@ -58,12 +58,13 @@ input[type="number"] {
 }
 
 /* Track */
-::-webkit-scrollbar-track {}
+::-webkit-scrollbar-track {
+}
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0.3);
-  border: 1px solid #4A4A4A;
+  border: 1px solid #4a4a4a;
   border-radius: 8px;
 }
 
