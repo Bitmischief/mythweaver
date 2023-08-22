@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { onMounted, ref, nextTick } from "vue";
+import { onMounted, ref, nextTick, onUnmounted } from "vue";
 import {
   CustomArg,
   getConjurer,
   postConjure,
   Conjurer,
+  getConjurationRequest,
 } from "@/api/generators.ts";
 import { useRoute } from "vue-router";
 import { useCampaignStore } from "@/store/campaign.store.ts";
 import { storeToRefs } from "pinia";
-import { showError } from "@/lib/notifications.ts";
 import SummoningLoader from "@/components/Conjuration/ConjuringLoader.vue";
 import { useEventBus } from "@/lib/events.ts";
 import { ArrowLeftIcon, XMarkIcon } from "@heroicons/vue/24/solid";
@@ -26,7 +26,11 @@ const generating = ref(false);
 const animationDone = ref(false);
 const summonedItems = ref<any[]>([]);
 
+const conjurationRequestId = ref<number | undefined>(undefined);
+const conjurationCount = ref(1);
 const customArgs = ref<CustomArg[]>([{ key: "", value: "" }]);
+
+const pollingIntervalId = ref<number | undefined>(undefined);
 
 onMounted(async () => {
   const getGeneratorResponse = await getConjurer(
@@ -35,16 +39,22 @@ onMounted(async () => {
   summoner.value = getGeneratorResponse.data;
 });
 
+onUnmounted(() => {
+  if (pollingIntervalId.value) {
+    clearInterval(pollingIntervalId.value);
+  }
+});
+
 const backgroundImageInlineStyle = (imageUri: string | undefined): string => {
   if (!imageUri) {
     return "";
   }
 
-  if (!generating.value && animationDone.value && summonedItems.value.length) {
-    return "";
-  }
+  // if (!generating.value && animationDone.value && summonedItems.value.length) {
+  //   return "";
+  // }
 
-  return `background-image: url("/images/generators/${imageUri}");`;
+  return `background-image: url("/images/generators/${imageUri}"); min-height: calc(100% - 2.5rem)`;
 };
 
 async function generate(generatorCode: string) {
@@ -52,27 +62,52 @@ async function generate(generatorCode: string) {
     return;
   }
 
-  try {
-    animationDone.value = false;
-    generating.value = true;
+  animationDone.value = false;
+  generating.value = true;
 
-    const generateResponse = await postConjure(generatorCode, {
-      campaignId: selectedCampaignId.value || 0,
-      customArgs: customArgs.value.filter((a) => a.key && a.value),
-    });
+  const generateResponse = await postConjure(generatorCode, {
+    count: conjurationCount.value,
+    campaignId: selectedCampaignId.value || 0,
+    customArgs: customArgs.value.filter((a) => a.key && a.value),
+  });
+  conjurationRequestId.value = generateResponse.data.conjurationRequestId;
 
-    summonedItems.value = generateResponse.data;
-  } catch (err) {
-    showError({ message: "Failed to summon... please try again!" });
-  } finally {
-    generating.value = false;
+  pollingIntervalId.value = setInterval(async () => {
+    await loadConjurationRequest();
 
-    eventBus.$emit("summoningDone", {});
+    if (summonedItems.value.length > 0) {
+      processConjuringPartiallyComplete();
+    }
+    if (
+      conjurationCount.value === summonedItems.value.length &&
+      summonedItems.value.every((c: any) => c.imageUri)
+    ) {
+      processConjuringComplete();
+    }
+  }, 5 * 1000) as unknown as number;
+}
 
-    eventBus.$on("summoningAnimationDone", () => {
-      animationDone.value = true;
-    });
-  }
+async function loadConjurationRequest() {
+  if (!conjurationRequestId.value) return;
+
+  const conjurationRequestResponse = await getConjurationRequest(
+    conjurationRequestId.value,
+  );
+
+  summonedItems.value = conjurationRequestResponse.data.conjurations;
+}
+
+function processConjuringPartiallyComplete() {
+  generating.value = false;
+  eventBus.$emit("summoningDone", {});
+
+  eventBus.$on("summoningAnimationDone", () => {
+    animationDone.value = true;
+  });
+}
+
+function processConjuringComplete() {
+  clearInterval(pollingIntervalId.value);
 }
 
 function addCustomArg() {
@@ -119,10 +154,10 @@ function cursorEnd(e: any) {
 <template>
   <div
     v-if="summoner"
-    class="relative flex h-full rounded-xl bg-cover bg-center"
+    class="relative flex rounded-xl bg-cover md:bg-contain bg-center"
     :style="backgroundImageInlineStyle(summoner.imageUri)"
   >
-    <div class="absolute h-full w-full rounded-xl bg-black/75 p-4"></div>
+    <div class="absolute h-full w-full rounded-xl bg-black/95 p-4"></div>
     <div class="z-10 h-full w-full rounded-xl p-4">
       <template v-if="!generating && !summonedItems.length">
         <div class="text-3xl">
@@ -134,7 +169,18 @@ function cursorEnd(e: any) {
         </div>
 
         <div class="mt-8 text-gray-200">
-          <div class="text-xl">Customize</div>
+          <div class="text-xl">How many variations?</div>
+          <div class="my-1 text-gray-400">
+            This is the number of {{ summoner.name.toLowerCase() }} we will
+            conjure
+          </div>
+          <input
+            v-model="conjurationCount"
+            type="number"
+            class="mt-1 gradient-border-no-opacity relative h-[3rem] w-[20rem] rounded-xl border bg-black px-4 text-left text-xl text-white"
+          />
+
+          <div class="mt-6 text-xl">Customize</div>
           <div class="mt-2">
             <div class="text-sm text-gray-400">
               Add parameters to help refine your summoning
@@ -152,7 +198,7 @@ function cursorEnd(e: any) {
                     }
                   "
                   v-model="customArg.key"
-                  class="gradient-border-no-opacity relative h-8 w-32 rounded-xl border bg-black px-4 text-left text-white"
+                  class="gradient-border-no-opacity relative h-[3rem] w-[20rem] rounded-xl border bg-black px-4 text-left text-xl text-white"
                   autofocus
                   placeholder="Occupation"
                   @keydown.enter="setValueFocus(i)"
@@ -188,7 +234,7 @@ function cursorEnd(e: any) {
                     }
                   "
                   v-model="customArg.value"
-                  class="gradient-border-no-opacity relative ml-2 h-8 w-32 rounded-xl border bg-black px-4 text-left text-white"
+                  class="gradient-border-no-opacity relative ml-2 h-[3rem] w-[20rem] text-xl rounded-xl border bg-black px-4 text-left text-white"
                   placeholder="Bartender"
                   @keydown.enter="
                     i + 1 === customArgs.length && addCustomArg();
@@ -259,9 +305,11 @@ function cursorEnd(e: any) {
 
         <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
           <ConjurationQuickView
-            v-for="conjuration of summonedItems"
-            :key="conjuration.name"
-            :conjuration="conjuration"
+            v-for="n in conjurationCount"
+            :key="`conjuration-${n}`"
+            :skeleton="!summonedItems[n - 1]"
+            :conjuration="summonedItems[n - 1]"
+            @add-conjuration="loadConjurationRequest"
           />
         </div>
       </div>

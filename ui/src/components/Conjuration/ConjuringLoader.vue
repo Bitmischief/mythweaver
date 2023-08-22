@@ -99,7 +99,9 @@ const loadingSnippets = ref([
 </script>
 
 <template>
-  <div class="-mb-36 mt-12 animate-pulse text-center text-3xl text-purple-300">
+  <div
+    class="md:-mb-36 mt-12 animate-pulse text-center text-3xl text-purple-300"
+  >
     {{ loadingSnippet }}
   </div>
   <div

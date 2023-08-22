@@ -82,6 +82,7 @@ router.post("/:generatorCode/generate/quick", [
 
 const postGeneratorGenerateSchema = z.object({
   campaignId: z.coerce.number(),
+  count: z.coerce.number().min(1).max(5).default(1),
   customArgs: z
     .array(
       z.object({
@@ -114,21 +115,26 @@ router.post("/:generatorCode/generate", [
   },
 ]);
 
-const postGenerateCharacterImageSchema = z.object({
-  looks: z.string().min(0).max(2000),
+const conjurationRequestIdSchema = z.object({
+  conjurationRequestId: z.coerce.number(),
 });
 
-router.post("/image", [
+router.get("/requests/:conjurationRequestId", [
   useAuthenticateRequest(),
-  useValidateRequest(postGenerateCharacterImageSchema),
+  useValidateRequest(conjurationRequestIdSchema, {
+    validationType: ValidationTypes.Route,
+  }),
   async (req: Request, res: Response) => {
     const controller = new GeneratorController();
 
-    const response = await controller.postGenerateCharacterImage(
+    const { conjurationRequestId = 0 } = req.params;
+
+    const response = await controller.getConjurationRequest(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      req.body
+      conjurationRequestId as number
     );
+
     return res.status(200).send(response);
   },
 ]);

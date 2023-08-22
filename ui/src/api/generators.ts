@@ -16,6 +16,7 @@ export const getConjurer = (code: string) => {
 };
 
 export interface PostConjureRequest {
+  count: number;
   campaignId: number;
   customArgs?: CustomArg[];
 }
@@ -31,4 +32,8 @@ export const postConjure = (code: string, payload: PostConjureRequest) => {
 
 export const postQuickConjure = (code: string) => {
   return axios.post(`/generators/${code}/generate/quick`, {});
+};
+
+export const getConjurationRequest = (conjurationRequestId: number) => {
+  return axios.get(`/generators/requests/${conjurationRequestId}`);
 };

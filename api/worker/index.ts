@@ -1,6 +1,7 @@
 import Queue from "bull";
 import { parentLogger } from "../lib/logger";
 import { processTags } from "./jobs/processTags";
+import { conjure } from "./jobs/conjure";
 const logger = parentLogger.getSubLogger();
 
 const config = {
@@ -29,5 +30,34 @@ processTagsQueue.process(async (job, done) => {
     logger.error("Error processing generated image job!", err);
   }
 
+  done();
+});
+
+export interface ConjureEvent {
+  conjurationRequestId: number;
+  campaignId: number;
+  generatorCode: string;
+  count: number;
+  args: any[];
+}
+
+export const conjureQueue = new Queue<ConjureEvent>("conjuring", config);
+
+conjureQueue.process(async (job, done) => {
+  logger.info("Processing conjure job", job.data);
+
+  const jobPromises = [];
+
+  for (let i = 0; i < job.data.count; i++) {
+    try {
+      const promise = conjure(job.data);
+      jobPromises.push(promise);
+    } catch (err) {
+      logger.error("Error processing conjure job!", err);
+    }
+  }
+
+  await Promise.all(jobPromises);
+  logger.info("Completed processing conjure job", job.data);
   done();
 });

@@ -98,7 +98,7 @@ function removeTag(tag: string) {
             ]"
             display-prop="name"
             value-prop="value"
-            class="mr-2 w-[20rem]"
+            class="mr-2 w-full md:w-[20rem]"
           />
         </div>
 
@@ -109,7 +109,7 @@ function removeTag(tag: string) {
             :options="conjurers"
             display-prop="name"
             value-prop="code"
-            class="mr-2 w-[20rem]"
+            class="mr-2 w-full md:w-[20rem]"
             multiple
             placeholder="Select conjuration types"
           />
@@ -117,7 +117,7 @@ function removeTag(tag: string) {
 
         <div class="mt-2 md:mt-0">
           <div class="mb-1 text-gray-300">Tags</div>
-          <div class="w-[20rem]">
+          <div class="w-full md:w-[20rem]">
             <Autocomplete
               v-model="conjurationsQuery.tags"
               :options="tags.map((t) => ({ value: t }))"

@@ -29,9 +29,13 @@ export function sanitizeJson(json: string): string {
 
   logger.info("Json was invalid, attempting to clean...");
 
-  const jsonStart = Array.from(json).findIndex((char) => char === "[");
+  const jsonStart = Array.from(json).findIndex((char) => char === "{");
   json = json.slice(jsonStart);
-  json = json.replace(/ {4}|[\t\n\r]/gm, "");
+  json = json.replace(/ {4}|[\t\n\r]/gm, " ");
+
+  if (isValidJson(json)) {
+    return json;
+  }
 
   //escape unescaped quotes in json
   let quotesOpen = false;

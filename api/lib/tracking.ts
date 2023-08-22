@@ -1,9 +1,6 @@
 import Mixpanel from "mixpanel";
 import { Request } from "express";
 import UAParser from "ua-parser-js";
-import { Logger } from "tslog";
-
-const logger = new Logger();
 
 let mixpanel: Mixpanel.Mixpanel | undefined;
 
@@ -27,6 +24,7 @@ export enum AppEvent {
   ConjureImage = "Conjure Image",
   QuickConjure = "Quick Conjure",
   Conjure = "Conjure",
+  GetConjurationRequests = "Get Conjuration Requests",
   GetRpgSystems = "Get Rpg Systems",
   GetSessions = "Get Sessions",
   GetSession = "Get Session",
@@ -66,8 +64,6 @@ export const extractTrackingInfo = (req: Request): TrackingInfo => {
   )
     .split(",")[0]
     .trim();
-
-  logger.info("Retrieved ip address: ", ip);
 
   return {
     browser: parser.getBrowser().name,
