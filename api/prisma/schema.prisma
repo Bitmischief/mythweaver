@@ -27,22 +27,25 @@ model User {
   updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
   email     String    @unique
 
-  refreshTokens RefreshToken[]
-  campaigns     Campaign[]
-  sessions      Session[]
-  comments      Comment[]
-  Conjuration   Conjuration[]
+  refreshTokens      RefreshToken[]
+  campaigns          Campaign[]
+  sessions           Session[]
+  comments           Comment[]
+  Conjuration        Conjuration[]
+  ConjurationRequest ConjurationRequest[]
 
   @@map("users")
 }
 
 model Conjuration {
-  id         Int       @id @default(autoincrement())
-  createdAt  DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
-  updatedAt  DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
-  originalId Int?
-  userId     Int?
-  campaignId Int?
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+
+  originalId           Int?
+  userId               Int?
+  campaignId           Int?
+  conjurationRequestId Int?
 
   name          String
   conjurerCode  String
@@ -51,14 +54,31 @@ model Conjuration {
   data          Json
   tags          String[]
 
-  user          User?         @relation(fields: [userId], references: [id])
-  campaign      Campaign?     @relation(fields: [campaignId], references: [id])
-  original      Conjuration?  @relation("OriginalConjuration", fields: [originalId], references: [id])
-  copies        Conjuration[] @relation("OriginalConjuration")
-  comments      Comment[]
-  conjurationId Int?
+  user               User?               @relation(fields: [userId], references: [id])
+  campaign           Campaign?           @relation(fields: [campaignId], references: [id])
+  original           Conjuration?        @relation("OriginalConjuration", fields: [originalId], references: [id])
+  copies             Conjuration[]       @relation("OriginalConjuration")
+  comments           Comment[]
+  conjurationRequest ConjurationRequest? @relation(fields: [conjurationRequestId], references: [id])
 
   @@map("conjurations")
+}
+
+model ConjurationRequest {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+
+  userId        Int
+  campaignId    Int
+  generatorCode String
+  count         Int
+  args          Json
+
+  user         User?         @relation(fields: [userId], references: [id])
+  conjurations Conjuration[]
+
+  @@map("conjuration_requests")
 }
 
 model Campaign {
@@ -112,10 +132,11 @@ model Comment {
 
   text String
 
-  user         User         @relation(fields: [userId], references: [id])
-  session      Session?     @relation(fields: [sessionId], references: [id])
-  campaign     Campaign?    @relation(fields: [campaignId], references: [id])
-  conjurations Conjuration? @relation(fields: [conjurationId], references: [id])
+  user                 User         @relation(fields: [userId], references: [id])
+  session              Session?     @relation(fields: [sessionId], references: [id])
+  campaign             Campaign?    @relation(fields: [campaignId], references: [id])
+  conjurations         Conjuration? @relation(fields: [conjurationId], references: [id])
+  conjurationRequestId Int?
 
   @@map("comments")
 }

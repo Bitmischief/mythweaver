@@ -29,7 +29,7 @@ const conjurers: Generator[] = [
     description: "Create rich, detailed characters to populate your world.",
     imageUri: "characters.png",
     formatPrompt:
-      '[{ \n      "name": "", \n      "looks": "", \n      "imageAIPrompt": "", \n      "personality": "",\n      "background": ""\n      "tags": [""]\n    }]',
+      '{ \n      "name": "", \n      "looks": "", \n      "imageAIPrompt": "", \n      "personality": "",\n      "quirks": ""\n      "fears": ""\n      "hobbies": ""\n      "background": ""\n      "tags": [""]\n    }',
     allowsImageGeneration: true,
     imagePromptExtraContext:
       "Include the character's TTRPG class, gender, facial features and clothing.",
@@ -60,7 +60,7 @@ const conjurers: Generator[] = [
     description: "Explore exotic locations in your world.",
     imageUri: "locations.png",
     formatPrompt:
-      '[{ \n      "name": "", \n      "history": "", \n      "imageAIPrompt": "", \n      "tags": [""]\n    }]',
+      '{ "name": "", "history": "", "imageAIPrompt": "", "tags": [""] }',
     allowsImageGeneration: true,
     basePromptExtraContext:
       "Please thoroughly flesh out the location's history, including historical events, climate and unique look, using at least 100 words to describe the history of this location. Please populate tags with any values you think applicable to this location, to allow easy searching.",

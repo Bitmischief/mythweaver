@@ -50,3 +50,26 @@ input::-webkit-inner-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
 }
+
+/* width */
+::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid #4A4A4A;
+  border-radius: 8px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #222222;
+  border: 1px solid #000000;
+  border-radius: 8px;
+}

@@ -17,7 +17,7 @@ async function logout() {
   <div class="bg flex flex-col justify-between p-4">
     <div>
       <div class="flex justify-between">
-        <img src="/images/logo-horizontal.svg" class="h-20 w-auto" />
+        <img src="/images/logo-horizontal.svg" class="h-12 w-auto" />
         <div
           class="self-center text-purple-400 md:mb-6 md:hidden"
           @click="showPanel = true"
@@ -55,7 +55,7 @@ async function logout() {
 
           <div class="flex h-full flex-col justify-between">
             <div>
-              <NavbarContent />
+              <NavbarContent @nav-item-selected="showPanel = false" />
             </div>
 
             <div class="">

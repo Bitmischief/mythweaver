@@ -36,6 +36,8 @@ const navItems = [
   },
 ];
 
+const emit = defineEmits(["nav-item-selected"]);
+
 const { selectedCampaign, selectedCampaignId, campaigns } =
   storeToRefs(campaignStore);
 
@@ -166,6 +168,7 @@ async function navigateToCreateCampaign() {
           : '',
       ]"
       :to="navItem.path"
+      @click="emit('nav-item-selected')"
     >
       {{ navItem.name }}
     </router-link>
