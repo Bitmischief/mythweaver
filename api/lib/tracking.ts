@@ -1,9 +1,6 @@
 import Mixpanel from "mixpanel";
 import { Request } from "express";
 import UAParser from "ua-parser-js";
-import { Logger } from "tslog";
-
-const logger = new Logger();
 
 let mixpanel: Mixpanel.Mixpanel | undefined;
 

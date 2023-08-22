@@ -57,10 +57,6 @@ input[type="number"] {
   width: 8px;
 }
 
-/* Track */
-::-webkit-scrollbar-track {
-}
-
 /* Handle */
 ::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0.3);
