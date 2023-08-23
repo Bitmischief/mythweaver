@@ -30,13 +30,26 @@ eventBus.$on(NO_CAMPAIGNS_EVENT, () => {
         <NavBarHeader />
       </div>
       <div
-        class="flex w-full flex-col overflow-y-auto bg-surface"
+        class="flex w-full flex-col overflow-y-auto bg-surface p-4"
         :class="{ 'rounded-tl-2xl pb-6': !!authStore.tokens }"
-        :style="{ 'height: calc(100vh - 5rem)': !!authStore.tokens }"
+        :style="{
+          height: `${!!authStore.tokens ? 'calc(100vh - 5rem)' : 'auto'}`,
+        }"
       >
         <router-view />
       </div>
     </div>
     <NotificationHandler />
+
+    <div
+      v-if="authStore.isLoading"
+      class="absolute w-full h-full bg-black opacity-95"
+    >
+      <div class="flex justify-center items-center w-full h-full">
+        <div
+          class="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-white"
+        ></div>
+      </div>
+    </div>
   </div>
 </template>

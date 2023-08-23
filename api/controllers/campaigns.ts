@@ -12,7 +12,7 @@ import {
   Tags,
 } from "tsoa";
 import { prisma } from "../lib/providers/prisma";
-import { Campaign } from "@prisma/client";
+import { Campaign, CampaignMember } from "@prisma/client";
 import { AppError, HttpCode } from "../lib/errors/AppError";
 import { AppEvent, track, TrackingInfo } from "../lib/tracking";
 
@@ -34,6 +34,12 @@ export interface PutCampaignRequest {
   description?: string;
   rpgSystemCode: string;
   publicAdventureCode?: string;
+}
+
+export interface GetCampaignMembersResponse {
+  data: CampaignMember[];
+  offset?: number;
+  limit?: number;
 }
 
 @Route("campaigns")
@@ -186,5 +192,52 @@ export default class CampaignController {
         id: campaignId,
       },
     });
+  }
+
+  @Security("jwt")
+  @OperationId("getCampaignMembers")
+  @Get("/:campaignId/members")
+  public async getCampaignMembers(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Route() campaignId = 0,
+    @Query() offset = 0,
+    @Query() limit = 25
+  ): Promise<GetCampaignMembersResponse> {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      include: {
+        campaignMemberships: {
+          where: {
+            campaignId,
+          },
+        },
+      },
+    });
+
+    if (!user || !user.campaignMemberships.length) {
+      throw new AppError({
+        description: "You do not have access to this campaign.",
+        httpCode: HttpCode.FORBIDDEN,
+      });
+    }
+
+    const campaignMembers = await prisma.campaignMember.findMany({
+      where: {
+        campaignId,
+      },
+      skip: offset,
+      take: limit,
+    });
+
+    track(AppEvent.GetCampaignMembers, userId, trackingInfo);
+
+    return {
+      data: campaignMembers,
+      offset: offset,
+      limit: limit,
+    };
   }
 }

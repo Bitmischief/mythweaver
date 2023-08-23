@@ -16,12 +16,10 @@ import {
   CheckIcon,
   ChevronUpDownIcon,
 } from "@heroicons/vue/20/solid";
-import { useAuthStore } from "@/store";
 
 const router = useRouter();
 const eventBus = useEventBus();
 const campaignStore = useCampaignStore();
-const authStore = useAuthStore();
 
 const navItems = [
   {
@@ -35,10 +33,6 @@ const navItems = [
   {
     name: "Conjurations",
     path: "/conjurations",
-  },
-  {
-    name: "Logout",
-    action: logout,
   },
 ];
 
@@ -83,10 +77,6 @@ watch(query, async () => {
 
 async function navigateToCreateCampaign() {
   await router.push("/campaigns/new");
-}
-
-async function logout() {
-  await authStore.logout();
 }
 </script>
 

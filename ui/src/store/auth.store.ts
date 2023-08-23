@@ -8,6 +8,7 @@ interface AuthStoreState {
   tokens: any;
   returnUrl: string | null;
   user: User | null;
+  isLoading: boolean;
 }
 
 const TOKENS_KEY_NAME = "tokens";
@@ -21,11 +22,20 @@ export const useAuthStore = defineStore({
       : null,
     returnUrl: null,
     user: null,
+    isLoading: false,
   }),
   actions: {
     async loadCurrentUser(): Promise<void> {
-      const userResponse = await getCurrentUser();
-      this.user = userResponse.data;
+      this.isLoading = true;
+
+      try {
+        const userResponse = await getCurrentUser();
+        this.user = userResponse.data;
+      } catch (err) {
+        await this.logout();
+      } finally {
+        this.isLoading = false;
+      }
     },
     async login(credential: string): Promise<boolean> {
       try {

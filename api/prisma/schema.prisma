@@ -27,12 +27,13 @@ model User {
   updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
   email     String    @unique
 
-  refreshTokens      RefreshToken[]
-  campaigns          Campaign[]
-  sessions           Session[]
-  comments           Comment[]
-  Conjuration        Conjuration[]
-  ConjurationRequest ConjurationRequest[]
+  refreshTokens       RefreshToken[]
+  campaigns           Campaign[]
+  sessions            Session[]
+  comments            Comment[]
+  conjurations        Conjuration[]
+  conjurationRequests ConjurationRequest[]
+  campaignMemberships CampaignMember[]
 
   @@map("users")
 }
@@ -92,11 +93,12 @@ model Campaign {
   rpgSystemCode       String
   publicAdventureCode String?
 
-  user         User          @relation(fields: [userId], references: [id])
+  user         User             @relation(fields: [userId], references: [id])
   sessions     Session[]
   comments     Comment[]
   locations    Location[]
   conjurations Conjuration[]
+  members      CampaignMember[]
 
   @@map("campaigns")
 }
@@ -167,4 +169,22 @@ model Tag {
   @@unique([name])
   @@index([name], name: "tags_name")
   @@map("tags")
+}
+
+model CampaignMember {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+
+  userId     Int?
+  campaignId Int
+  role       Int
+  email      String
+
+  user     User?    @relation(fields: [userId], references: [id])
+  campaign Campaign @relation(fields: [campaignId], references: [id])
+
+  @@unique([userId, campaignId])
+  @@index([campaignId], name: "campaign_members_campaign_id")
+  @@map("campaign_members")
 }

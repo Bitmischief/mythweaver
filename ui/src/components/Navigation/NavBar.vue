@@ -17,8 +17,10 @@ async function logout() {
   <div class="flex flex-col justify-between p-4">
     <div>
       <div class="flex justify-between">
-        <div class="logo-gradient text-[36px] font-bold text-center w-full">
-          MythWeaver
+        <div
+          class="h-[3rem] logo-gradient text-[26px] flex justify-center self-center font-bold text-center w-full"
+        >
+          <span class="self-center">MythWeaver</span>
         </div>
         <div
           class="self-center text-purple-400 md:mb-6 md:hidden"
