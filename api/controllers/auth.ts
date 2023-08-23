@@ -132,11 +132,15 @@ export default class AuthController {
       });
     }
 
-    await prisma.refreshToken.delete({
-      where: {
-        refreshToken: request.refreshToken,
-      },
-    });
+    try {
+      await prisma.refreshToken.delete({
+        where: {
+          refreshToken: request.refreshToken,
+        },
+      });
+    } catch {
+      /* empty */
+    }
 
     track(AppEvent.SessionRefreshed, userId, trackingInfo);
 
