@@ -1,6 +1,4 @@
-import { parentLogger } from "./logger";
-
-const logger = parentLogger.getSubLogger();
+export const isProduction = process.env.API_URL === "https://api.mythweaver.co";
 
 export function shuffle<T>(array: T[]): T[] {
   let currentIndex = array.length,
@@ -26,8 +24,6 @@ export function sanitizeJson(json: string): string {
   if (isValidJson(json)) {
     return json;
   }
-
-  logger.info("Json was invalid, attempting to clean...");
 
   const jsonStart = Array.from(json).findIndex((char) => char === "{");
   json = json.slice(jsonStart);
