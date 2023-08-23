@@ -1,5 +1,0 @@
-dist/
-node_modules/
-tailwind.config.js
-tsconfig.json
-.eslintrc.js
