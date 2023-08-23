@@ -83,7 +83,7 @@ spec:
             - mountPath: "/app/public/images"
               name: mythweaver-content
       nodeSelector:
-        storage-node: yes
+        type: storage
       volumes:
         - name: mythweaver-content
           persistentVolumeClaim:
