@@ -12,7 +12,8 @@ module.exports = {
         gilroy: ["Gilroy", "sans-serif"],
       },
       colors: {
-        surface: "#171717",
+        surface: "#0A090C",
+        "surface-2": "#161518",
         gradient:
           "linear-gradient(to right, rgba(64, 170, 241, 0.8), rgba(217, 117, 244, 0.8))",
       },

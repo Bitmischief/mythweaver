@@ -16,10 +16,12 @@ import {
   CheckIcon,
   ChevronUpDownIcon,
 } from "@heroicons/vue/20/solid";
+import { useAuthStore } from "@/store";
 
 const router = useRouter();
 const eventBus = useEventBus();
 const campaignStore = useCampaignStore();
+const authStore = useAuthStore();
 
 const navItems = [
   {
@@ -33,6 +35,10 @@ const navItems = [
   {
     name: "Conjurations",
     path: "/conjurations",
+  },
+  {
+    name: "Logout",
+    action: logout,
   },
 ];
 
@@ -77,6 +83,10 @@ watch(query, async () => {
 
 async function navigateToCreateCampaign() {
   await router.push("/campaigns/new");
+}
+
+async function logout() {
+  await authStore.logout();
 }
 </script>
 
@@ -158,19 +168,28 @@ async function navigateToCreateCampaign() {
       </div>
     </Listbox>
 
-    <router-link
-      v-for="navItem in navItems"
-      :key="navItem.name"
-      class="text-md my-0.5 p-3 text-gray-300"
-      :class="[
-        router.currentRoute.value.path.startsWith(navItem.path)
-          ? 'gradient-border-no-opacity '
-          : '',
-      ]"
-      :to="navItem.path"
-      @click="emit('nav-item-selected')"
-    >
-      {{ navItem.name }}
-    </router-link>
+    <template v-for="navItem in navItems" :key="navItem.name">
+      <router-link
+        v-if="navItem.path"
+        class="text-md my-0.5 p-3 text-gray-300"
+        :class="[
+          navItem.path &&
+          router.currentRoute.value.path.startsWith(navItem.path)
+            ? 'gradient-border-no-opacity '
+            : '',
+        ]"
+        :to="navItem.path ? navItem.path : ''"
+        @click="navItem.path ? emit('nav-item-selected') : navItem.action"
+      >
+        {{ navItem.name }}
+      </router-link>
+      <button
+        v-else
+        class="text-md my-0.5 p-3 text-gray-300 text-left"
+        @click="navItem.action"
+      >
+        {{ navItem.name }}
+      </button>
+    </template>
   </div>
 </template>
