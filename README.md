@@ -29,7 +29,7 @@ just make sure to run `yarn install` in the API directory to install the depende
 
 We are using [Prisma](https://www.prisma.io/) as our ORM. To run migrations, you will need to install the Prisma CLI. You can do this by running `yarn global add prisma` in the API directory.
 To add a new migration, modify the `schema.prisma` file (see Prisma docs for more info) and run `prisma migrate dev --name <migration-name>` in the API directory. This will create a new migration
-file in the `prisma/migrations` directory. You can then run `prisma migrate up` to apply the migration to the database.
+file in the `prisma/migrations` directory. You can then run `prisma migrate dev` to apply the migration to the database.
 
 After creating new database migrations, you will need to have Prisma generate the new/updated types for the API. You can do this by running `prisma generate` in the API directory.
 
@@ -67,8 +67,8 @@ in a secrets manager of your choosing.
 
 - Make sure you've followed the steps above to ensure you have the proper environment variables set, and dependencies installed.
 - Run `docker-compose up --build` to build the containers for the UI and API, and stand up our Postgres database as well.
-- At first, your database will be entirely empty. Run `cd api && prisma migrate up` to apply the migrations to the database. _(Make sure you have installed the Prisma CLI first)_
-- You can also run `prisma db seed` to seed the database with some initial data. _(Make sure you have run `prisma migrate up` first)_
+- At first, your database will be entirely empty. Run `cd api && prisma migrate dev` to apply the migrations to the database. _(Make sure you have installed the Prisma CLI first)_
+- You can also run `prisma db seed` to seed the database with some initial data. _(Make sure you have run `prisma migrate up` first)_. You may also need to install ts-node by running: `yarn global add ts-node`.
 - The UI will be available at `localhost:3000`
 - The API will be available at `localhost:8000`
 - The database will be available at `localhost:5432`
