@@ -1,12 +1,51 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { Conjuration } from "@/api/conjurations.ts";
+import { CheckIcon, XMarkIcon } from "@heroicons/vue/20/solid";
+import { useCurrentUserId } from "@/lib/hooks.ts";
+import { remove } from "lodash";
+import { patchConjuration } from "@/api/conjurations.ts";
 
-defineProps<{
+const emit = defineEmits(["tags-changed"]);
+
+const props = defineProps<{
   conjuration: Conjuration;
 }>();
 
+const currentUserId = useCurrentUserId();
+const userOwnsConjuration = computed(() => {
+  return props.conjuration?.userId === currentUserId.value;
+});
+
 const viewImage = ref(false);
+const hover = ref(-1);
+const addingTag = ref(false);
+const tagText = ref("");
+
+const removeTag = async (tag: string) => {
+  if (!props.conjuration.tags) return;
+
+  let tags = [...props.conjuration.tags];
+  remove(tags, function (t) {
+    return t === tag;
+  });
+  await patchConjuration(props.conjuration.id, { tags });
+  emit("tags-changed");
+};
+const addTag = async () => {
+  if (tagText.value) {
+    let tags = [] as string[];
+    if (props.conjuration.tags) {
+      tags = [...props.conjuration.tags];
+    }
+    tags.push(tagText.value);
+
+    await patchConjuration(props.conjuration.id, { tags });
+    emit("tags-changed");
+
+    tagText.value = "";
+  }
+};
 </script>
 
 <template>
@@ -45,7 +84,7 @@ const viewImage = ref(false);
     <div class="mb-3 mr-3 md:mb-0">
       <img
         :src="conjuration.imageUri"
-        class="h-[10rem] w-auto cursor-pointer rounded-full hover:opacity-60"
+        class="h-[10rem] min-w-[10rem] cursor-pointer rounded-full hover:opacity-60"
         :alt="conjuration.name"
         @click="viewImage = true"
       />
@@ -57,11 +96,48 @@ const viewImage = ref(false);
 
       <div class="mt-3 flex flex-wrap">
         <div
-          v-for="tag of conjuration.tags"
+          v-for="(tag, i) of conjuration.tags"
           :key="`${conjuration.id}-${tag}`"
-          class="mr-2 mt-1 rounded-xl bg-gray-700 px-3 py-1 text-lg"
+          class="mr-2 mt-1 rounded-xl bg-gray-700 px-3 py-1 text-lg flex"
+          :class="{ 'hover:pr-1': userOwnsConjuration }"
+          @mouseover="hover = i"
+          @mouseleave="hover = -1"
         >
           {{ tag }}
+          <XMarkIcon
+            v-if="userOwnsConjuration && hover === i"
+            class="pt-1 h-6 w-6 cursor-pointer text-white"
+            @click="removeTag(tag)"
+          />
+        </div>
+        <div v-if="userOwnsConjuration && !addingTag" class="flex items-center">
+          <div
+            class="h-6 w-6 font-bold text-2xl rounded-xl bg-gray-700 flex items-center justify-center cursor-pointer"
+            @click="addingTag = true"
+          >
+            +
+          </div>
+        </div>
+        <div v-if="addingTag" class="mr-2 mt-1 relative">
+          <input
+            v-model="tagText"
+            class="rounded-xl bg-gray-700 px-3 py-1 text-lg flex pr-[4.5rem]"
+            placeholder="Add tag"
+            autofocus
+            @keydown.enter="addTag"
+            @keydown.esc="addingTag = false"
+          />
+          <XMarkIcon
+            class="h-6 cursor-pointer text-white hover:bg-gray-500 absolute right-8 top-1 border border-gray-500 mt-[2px] rounded-l-lg"
+            @click="
+              tagText = '';
+              addingTag = false;
+            "
+          />
+          <CheckIcon
+            class="h-6 cursor-pointer text-white hover:bg-purple-500 absolute right-2 top-1 mt-[2px] border border-gray-500 rounded-r-lg"
+            @click="addTag"
+          />
         </div>
       </div>
     </div>
