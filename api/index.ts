@@ -45,7 +45,9 @@ app.use(useInjectRequestId);
 app.use(useInjectTrackingInfo);
 
 const corsOptions = {
-  origin: JSON.parse(process.env.CORS_ALLOWED_ORIGINS || "*"),
+  origin: process.env.CORS_ALLOWED_ORIGINS
+    ? JSON.parse(process.env.CORS_ALLOWED_ORIGINS || "*")
+    : ["https://app.mythweaver.co", "https://mythweaver.co"],
 };
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
