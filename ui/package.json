@@ -22,7 +22,7 @@
   "devDependencies": {
     "@headlessui/vue": "^1.7.15",
     "@heroicons/vue": "^2.0.18",
-    "@types/lodash": "^4.14.194",
+    "@types/lodash": "^4.14.197",
     "@types/node": "^20.4.5",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
