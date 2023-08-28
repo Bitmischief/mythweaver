@@ -79,6 +79,10 @@ spec:
               value: <STABILITY_API_KEY>
             - name: MIXPANEL_TOKEN
               value: <MIXPANEL_TOKEN>
+            - name: MAILCHIMP_AUDIENCE_ID
+              value: <MAILCHIMP_AUDIENCE_ID>
+            - name: CORS_ALLOWED_ORIGINS
+              value: <CORS_ALLOWED_ORIGINS>
           volumeMounts:
             - mountPath: "/app/public/images"
               name: mythweaver-content
