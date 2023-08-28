@@ -4,12 +4,7 @@ import { CAMPAIGN_CREATED_EVENT, useEventBus } from "@/lib/events.ts";
 import { useRouter } from "vue-router";
 import { useCampaignStore } from "@/store/campaign.store.ts";
 import { storeToRefs } from "pinia";
-import {
-  Menu,
-  MenuButton,
-  MenuItems,
-  MenuItem,
-} from "@headlessui/vue";
+import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/vue";
 import { Campaign } from "@/api/campaigns.ts";
 import {
   PlusIcon,
@@ -113,6 +108,7 @@ async function navigateToCreateCampaign() {
                   active ? 'bg-purple-800/20 text-purple-200' : 'text-white',
                   'relative cursor-default select-none py-2 pl-10 pr-4',
                 ]"
+                @click="selectedCampaignId = campaign.id"
               >
                 <span
                   :class="[

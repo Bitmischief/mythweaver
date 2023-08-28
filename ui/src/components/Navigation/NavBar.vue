@@ -24,8 +24,8 @@ const toggleCollapsed = function () {
 
 <template>
   <div
-    class="nav-bar px-1 md:h-full border-r-[2px] border-white/5"
-    :class="{ 'md:max-w-[90px]': collapsed, 'md:max-w-[300px]': !collapsed }"
+    class="nav-bar px-1 md:h-full border-r-[2px] border-white/5 md:max-w-[300px] md:min-w-[300px]"
+    :class="{ 'md:max-w-[90px] md:min-w-[90px]': collapsed }"
   >
     <div class="bg md:h-full flex flex-col justify-between p-4 relative">
       <div>
