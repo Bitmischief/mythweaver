@@ -63,7 +63,7 @@
     "tsoa": "^5.1.1",
     "ua-parser-js": "^1.0.35",
     "uuid": "^9.0.0",
-    "zod": "^3.21.4"
+    "zod": "^3.22.2"
   },
   "nodemonConfig": {
     "watch": [
