@@ -20,10 +20,7 @@ eventBus.$on(NO_CAMPAIGNS_EVENT, () => {
 
 <template>
   <div class="block h-screen bg-surface text-white md:flex">
-    <Navbar
-      v-if="!!authStore.tokens"
-      class="w-full border-r-[2px] border-white/5 md:max-w-[300px]"
-    />
+    <Navbar v-if="!!authStore.tokens" />
     <div
       class="bg h-min-screen mb-3 flex h-full w-full flex-col overflow-y-auto"
     >
