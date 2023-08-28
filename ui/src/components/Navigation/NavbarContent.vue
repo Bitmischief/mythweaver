@@ -5,36 +5,28 @@ import { useRouter } from "vue-router";
 import { useCampaignStore } from "@/store/campaign.store.ts";
 import { storeToRefs } from "pinia";
 import {
-  Listbox,
-  ListboxButton,
-  ListboxOption,
-  ListboxOptions,
+  Menu,
+  MenuButton,
+  MenuItems,
+  MenuItem,
 } from "@headlessui/vue";
 import { Campaign } from "@/api/campaigns.ts";
 import {
   PlusIcon,
   CheckIcon,
   ChevronUpDownIcon,
+  BoltIcon,
+  ChatBubbleLeftRightIcon,
+  BookOpenIcon,
+  BookmarkIcon,
 } from "@heroicons/vue/20/solid";
 
+defineProps<{
+  collapsed?: boolean;
+}>();
 const router = useRouter();
 const eventBus = useEventBus();
 const campaignStore = useCampaignStore();
-
-const navItems = [
-  {
-    name: "Edit Campaign",
-    path: "/campaign",
-  },
-  {
-    name: "Sessions",
-    path: "/sessions",
-  },
-  {
-    name: "Conjurations",
-    path: "/conjurations",
-  },
-];
 
 const emit = defineEmits(["nav-item-selected"]);
 
@@ -82,13 +74,15 @@ async function navigateToCreateCampaign() {
 
 <template>
   <div class="flex w-full flex-col">
-    <Listbox v-model="selectedCampaignId" class="my-6 mt-4">
+    <Menu v-model="selectedCampaignId" class="my-6 mt-4">
       <div class="relative mt-1">
-        <ListboxButton
-          class="gradient-border relative h-12 w-full cursor-pointer rounded-xl border bg-black px-4 text-left text-white"
+        <MenuButton
+          class="gradient-border relative h-12 w-full cursor-pointer rounded-xl border bg-black pl-3 pr-8 text-left text-white flex items-center"
         >
+          <BookmarkIcon v-show="collapsed" class="w-6 h-6 overflow-visible" />
           <span class="block truncate">{{ selectedCampaign?.name }}</span>
           <span
+            v-if="!collapsed"
             class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
           >
             <ChevronUpDownIcon
@@ -96,24 +90,25 @@ async function navigateToCreateCampaign() {
               aria-hidden="true"
             />
           </span>
-        </ListboxButton>
+        </MenuButton>
 
         <transition
           leave-active-class="transition duration-100 ease-in"
           leave-from-class="opacity-100"
           leave-to-class="opacity-0"
         >
-          <ListboxOptions
-            class="gradient-border-no-opacity absolute mt-1 max-h-60 w-full overflow-auto rounded-md py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+          <MenuItems
+            class="gradient-border-no-opacity absolute mt-1 max-h-60 max-w-[300px] z-50 overflow-auto rounded-md py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+            :class="{ 'w-auto': collapsed, 'w-full': !collapsed }"
           >
-            <ListboxOption
+            <MenuItem
               v-for="campaign in campaigns"
               v-slot="{ active }"
               :key="campaign.name"
               :value="campaign.id"
               as="template"
             >
-              <li
+              <div
                 :class="[
                   active ? 'bg-purple-800/20 text-purple-200' : 'text-white',
                   'relative cursor-default select-none py-2 pl-10 pr-4',
@@ -134,16 +129,16 @@ async function navigateToCreateCampaign() {
                 >
                   <CheckIcon class="h-5 w-5" aria-hidden="true" />
                 </span>
-              </li>
-            </ListboxOption>
-            <ListboxOption
+              </div>
+            </MenuItem>
+            <MenuItem
               v-slot="{ active }"
               as="template"
               :value="undefined"
               @click="navigateToCreateCampaign"
               @keyup.enter="navigateToCreateCampaign"
             >
-              <li
+              <div
                 :class="[
                   active ? 'bg-purple-800/20 text-purple-200' : 'text-white',
                   'relative flex cursor-default select-none py-2 pl-3',
@@ -151,26 +146,51 @@ async function navigateToCreateCampaign() {
               >
                 <PlusIcon class="mr-2 h-5 w-5 text-green-500" />
                 <span> Create New </span>
-              </li>
-            </ListboxOption>
-          </ListboxOptions>
+              </div>
+            </MenuItem>
+          </MenuItems>
         </transition>
       </div>
-    </Listbox>
+    </Menu>
 
     <router-link
-      v-for="navItem in navItems"
-      :key="navItem.name"
-      class="text-md my-0.5 p-3 text-gray-300"
+      class="text-md my-0.5 p-3 text-gray-300 flex overflow-hidden"
       :class="[
-        router.currentRoute.value.path.startsWith(navItem.path)
+        router.currentRoute.value.path.startsWith('/campaign')
           ? 'gradient-border-no-opacity '
           : '',
       ]"
-      :to="navItem.path"
+      to="/campaign"
       @click="emit('nav-item-selected')"
     >
-      {{ navItem.name }}
+      <BookOpenIcon v-if="collapsed" class="h-6 w-full" />
+      <div v-else class="whitespace-nowrap">Edit Campaign</div>
+    </router-link>
+    <router-link
+      class="text-md my-0.5 p-3 text-gray-300 flex overflow-hidden"
+      :class="[
+        router.currentRoute.value.path.startsWith('/sessions')
+          ? 'gradient-border-no-opacity '
+          : '',
+      ]"
+      to="/sessions"
+      @click="emit('nav-item-selected')"
+    >
+      <ChatBubbleLeftRightIcon v-if="collapsed" class="h-6 w-full" />
+      <div v-else class="whitespace-nowrap">Sessions</div>
+    </router-link>
+    <router-link
+      class="text-md my-0.5 p-3 text-gray-300 flex overflow-hidden"
+      :class="[
+        router.currentRoute.value.path.startsWith('/conjurations')
+          ? 'gradient-border-no-opacity '
+          : '',
+      ]"
+      to="/conjurations"
+      @click="emit('nav-item-selected')"
+    >
+      <BoltIcon v-if="collapsed" class="h-6 w-full" />
+      <div v-else class="whitespace-nowrap">Conjurations</div>
     </router-link>
   </div>
 </template>
