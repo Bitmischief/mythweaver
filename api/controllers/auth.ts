@@ -60,7 +60,7 @@ export default class AuthController {
     logger.info("Getting user for email", email);
     const user = await prisma.user.findUnique({
       where: {
-        email,
+        email: email.toLowerCase(),
       },
     });
 
@@ -69,7 +69,7 @@ export default class AuthController {
 
       // user = await prisma.user.create({
       //   data: {
-      //     email,
+      //     email: email.toLowerCase(),
       //   },
       // });
 
