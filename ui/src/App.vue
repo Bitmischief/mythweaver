@@ -25,12 +25,12 @@ eventBus.$on(NO_CAMPAIGNS_EVENT, () => {
     <div class="block w-full">
       <div
         v-if="!!authStore.tokens"
-        class="flex justify-end mr-4 bg-surface-2 h-[5rem]"
+        class="justify-end mr-4 bg-surface-2 h-[5rem] hidden md:flex"
       >
         <NavBarHeader />
       </div>
       <div
-        class="flex w-full flex-col overflow-y-auto bg-surface p-4"
+        class="flex w-full flex-col overflow-y-auto bg-surface p-4 rounded-tr-2xl md:rounded-tr-none"
         :class="{ 'rounded-tl-2xl pb-6': !!authStore.tokens }"
         :style="{
           height: `${!!authStore.tokens ? 'calc(100vh - 5rem)' : 'auto'}`,

@@ -86,7 +86,10 @@ function emitSaveInfo() {
         @add-conjuration="loadConjuration"
       />
 
-      <ViewConjurationHeader :conjuration="conjuration" />
+      <ViewConjurationHeader
+        :conjuration="conjuration"
+        @tags-changed="loadConjuration"
+      />
 
       <div class="mt-6 block">
         <TabGroup>

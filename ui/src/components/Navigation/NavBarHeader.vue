@@ -1,9 +1,5 @@
 <script setup lang="ts">
-import {
-  MagnifyingGlassIcon,
-  UserIcon,
-  ChevronDownIcon,
-} from "@heroicons/vue/20/solid";
+import { UserIcon, ChevronDownIcon } from "@heroicons/vue/20/solid";
 import Menu from "@/components/Core/General/Menu.vue";
 import { MenuButton, MenuItem } from "@headlessui/vue";
 import { useAuthStore } from "@/store";
@@ -16,15 +12,15 @@ async function logout() {
 </script>
 
 <template>
-  <div class="relative self-center mr-4">
-    <div class="absolute left-4 top-3 flex">
-      <MagnifyingGlassIcon class="h-6 w-6 self-center text-gray-400" />
-    </div>
-    <input
-      class="self-center w-[408px] h-12 bg-zinc-950 rounded-[60px] pl-14"
-      placeholder="Search"
-    />
-  </div>
+  <!--  <div class="relative self-center mr-4">-->
+  <!--    <div class="absolute left-4 top-3 flex">-->
+  <!--      <MagnifyingGlassIcon class="h-6 w-6 self-center text-gray-400" />-->
+  <!--    </div>-->
+  <!--    <input-->
+  <!--      class="self-center w-[408px] h-12 bg-zinc-950 rounded-[60px] pl-14"-->
+  <!--      placeholder="Search"-->
+  <!--    />-->
+  <!--  </div>-->
 
   <Menu class="self-center">
     <MenuButton class="flex cursor-pointer">

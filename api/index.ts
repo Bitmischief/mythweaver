@@ -32,7 +32,7 @@ app.use(express.static("public"));
 // Create the rate limit rule
 const apiRequestLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
-  max: 120, // limit each IP to 60 requests per windowMs
+  max: 120, // limit each IP to 120 requests per windowMs
   handler: function (req, res /*next*/) {
     return res.status(429).json({
       error: "You sent too many requests. Please wait a while then try again",
@@ -43,8 +43,14 @@ const apiRequestLimiter = rateLimit({
 app.use(apiRequestLimiter);
 app.use(useInjectRequestId);
 app.use(useInjectTrackingInfo);
-app.use(cors());
-app.options("*", cors());
+
+const corsOptions = {
+  origin: process.env.CORS_ALLOWED_ORIGINS
+    ? JSON.parse(process.env.CORS_ALLOWED_ORIGINS || "*")
+    : ["https://app.mythweaver.co", "https://mythweaver.co"],
+};
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 
 app.use(Router);
 

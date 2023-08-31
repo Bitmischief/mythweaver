@@ -79,6 +79,12 @@ spec:
               value: <STABILITY_API_KEY>
             - name: MIXPANEL_TOKEN
               value: <MIXPANEL_TOKEN>
+            - name: MAILCHIMP_AUDIENCE_ID
+              value: <MAILCHIMP_AUDIENCE_ID>
+            - name: MAILCHIMP_API_KEY
+              value: <MAILCHIMP_API_KEY>
+            - name: MAILCHIMP_SERVER_PREFIX
+              value: <MAILCHIMP_SERVER_PREFIX>
           volumeMounts:
             - mountPath: "/app/public/images"
               name: mythweaver-content
