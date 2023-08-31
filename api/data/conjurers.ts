@@ -2,6 +2,7 @@ export interface Generator {
   code?: string;
   name: string;
   description: string;
+  customizationHelpPrompt: string;
   imageUri: string;
   formatPrompt?: string;
   allowsImageGeneration?: boolean;
@@ -27,6 +28,8 @@ const conjurers: Generator[] = [
     code: "characters",
     name: "Characters",
     description: "Create rich, detailed characters to populate your world.",
+    customizationHelpPrompt:
+      "A gnome scribe adorned with swirling tattoos that glow faintly in the moonlight, bearing an ancient map etched into her skin, and a past entangled with forgotten gods",
     imageUri: "characters.png",
     formatPrompt:
       '{ \n      "name": "", \n      "looks": "", \n      "imageAIPrompt": "", \n      "personality": "",\n      "quirks": ""\n      "fears": ""\n      "hobbies": ""\n      "background": ""\n      "tags": [""]\n    }',
@@ -58,6 +61,8 @@ const conjurers: Generator[] = [
     code: "locations",
     name: "Locations",
     description: "Explore exotic locations in your world.",
+    customizationHelpPrompt:
+      "a secluded forest glen, where the trees whisper ancient secrets in the wind, encircled by stone pillars that harbor echoes of forgotten rituals, and a shimmering pond that holds the reflection of a realm not of this world",
     imageUri: "locations.png",
     formatPrompt:
       '{ "name": "", "history": "", "imageAIPrompt": "", "tags": [""] }',

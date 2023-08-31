@@ -4,6 +4,7 @@ export interface Conjurer {
   code: string;
   name: string;
   description: string;
+  customizationHelpPrompt?: string;
   imageUri?: string;
 }
 
@@ -18,7 +19,7 @@ export const getConjurer = (code: string) => {
 export interface PostConjureRequest {
   count: number;
   campaignId: number;
-  customArgs?: CustomArg[];
+  customArg?: string;
 }
 
 export interface CustomArg {

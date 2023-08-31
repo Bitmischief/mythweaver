@@ -83,14 +83,7 @@ router.post("/:generatorCode/generate/quick", [
 const postGeneratorGenerateSchema = z.object({
   campaignId: z.coerce.number(),
   count: z.coerce.number().min(1).max(5).default(1),
-  customArgs: z
-    .array(
-      z.object({
-        key: z.string(),
-        value: z.any(),
-      })
-    )
-    .optional(),
+  customArg: z.string().optional(),
 });
 
 router.post("/:generatorCode/generate", [

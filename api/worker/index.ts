@@ -38,7 +38,7 @@ export interface ConjureEvent {
   campaignId: number;
   generatorCode: string;
   count: number;
-  args: any[];
+  arg?: string | undefined;
 }
 
 export const conjureQueue = new Queue<ConjureEvent>("conjuring", config);

@@ -35,7 +35,7 @@ export const conjure = async (request: ConjureEvent) => {
     });
   }
 
-  const prompt = buildPrompt(generator, campaign, request.args);
+  const prompt = buildPrompt(generator, campaign, request.arg);
 
   let conjuration: any = undefined;
 
@@ -113,7 +113,7 @@ export const conjure = async (request: ConjureEvent) => {
 const buildPrompt = (
   generator: Generator,
   campaign?: Campaign | undefined,
-  customArgs: any[] = []
+  customArg?: string | undefined
 ) => {
   let prompt = `You are a master storyteller. Please generate me a unique ${trimPlural(
     generator.name.toLowerCase()
@@ -143,10 +143,8 @@ const buildPrompt = (
     prompt += " to be used in a roleplaying game like dungeons and dragons. ";
   }
 
-  if (customArgs.length > 0) {
-    prompt += `Please use the following parameters to guide generation: ${customArgs
-      .map((a) => `${a.key}: ${a.value}`)
-      .join(", ")}. `;
+  if (customArg && customArg.length > 0) {
+    prompt += `I want ${customArg} `;
   }
 
   prompt += `Please focus on generating a distinctly unique and different ${trimPlural(

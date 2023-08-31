@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { onMounted, ref, nextTick, onUnmounted } from "vue";
+import { onMounted, ref, onUnmounted, computed } from "vue";
 import {
-  CustomArg,
   getConjurer,
   postConjure,
   Conjurer,
@@ -12,8 +11,15 @@ import { useCampaignStore } from "@/store/campaign.store.ts";
 import { storeToRefs } from "pinia";
 import SummoningLoader from "@/components/Conjuration/ConjuringLoader.vue";
 import { useEventBus } from "@/lib/events.ts";
-import { ArrowLeftIcon, XMarkIcon } from "@heroicons/vue/24/solid";
+import { ArrowLeftIcon } from "@heroicons/vue/24/solid";
 import ConjurationQuickView from "@/components/Conjuration/ConjurationListItemView.vue";
+import {
+  RadioGroup,
+  RadioGroupLabel,
+  RadioGroupOption,
+  RadioGroupDescription,
+} from "@headlessui/vue";
+import { trimPlural } from "@/lib/util.ts";
 
 const route = useRoute();
 const eventBus = useEventBus();
@@ -26,9 +32,24 @@ const generating = ref(false);
 const animationDone = ref(false);
 const summonedItems = ref<any[]>([]);
 
+const customizeOptions = ref([
+  {
+    title: "Surprise Me",
+    description: "Our conjurer will choose the best options for you",
+  },
+  {
+    title: "Customize",
+    description: "Hand pick the options you want to use",
+  },
+]);
+const selectedCustomizeOption = ref(customizeOptions.value[0]);
+const customize = computed(
+  () => selectedCustomizeOption.value === customizeOptions.value[1],
+);
+
 const conjurationRequestId = ref<number | undefined>(undefined);
 const conjurationCount = ref(1);
-const customArgs = ref<CustomArg[]>([{ key: "", value: "" }]);
+const customArg = ref<string>("");
 
 const pollingIntervalId = ref<number | undefined>(undefined);
 
@@ -68,7 +89,7 @@ async function generate(generatorCode: string) {
   const generateResponse = await postConjure(generatorCode, {
     count: conjurationCount.value,
     campaignId: selectedCampaignId.value || 0,
-    customArgs: customArgs.value.filter((a) => a.key && a.value),
+    customArg: customArg.value,
   });
   conjurationRequestId.value = generateResponse.data.conjurationRequestId;
 
@@ -109,46 +130,6 @@ function processConjuringPartiallyComplete() {
 function processConjuringComplete() {
   clearInterval(pollingIntervalId.value);
 }
-
-function addCustomArg() {
-  customArgs.value.push({ key: "", value: "" });
-  return true;
-}
-
-function removeCustomArg(index: number) {
-  customArgs.value.splice(index, 1);
-}
-
-const keyInputs = ref<any[]>([]);
-const valueInputs = ref<any[]>([]);
-function setKeyFocus(index: number) {
-  nextTick(() => {
-    keyInputs.value[index].focus();
-  });
-  return true;
-}
-function setValueFocus(index: number) {
-  valueInputs.value[index].focus();
-  return true;
-}
-function isFirst(index: number) {
-  return index + 1 === 1;
-}
-function isLast(index: number) {
-  return index + 1 === customArgs.value.length;
-}
-function isKeyEmpty(index: number) {
-  return keyInputs.value[index].value === "";
-}
-function isValueEmpty(index: number) {
-  return valueInputs.value[index].value === "";
-}
-function cursorStart(e: any) {
-  return e.target.selectionStart === 0;
-}
-function cursorEnd(e: any) {
-  return e.target.selectionStart === e.target.value.length;
-}
 </script>
 
 <template>
@@ -180,112 +161,86 @@ function cursorEnd(e: any) {
             class="mt-1 gradient-border-no-opacity relative h-[3rem] w-[20rem] rounded-xl border bg-black px-4 text-left text-xl text-white"
           />
 
-          <div class="mt-6 text-xl">Customize</div>
-          <div class="mt-2">
-            <div class="text-sm text-gray-400">
-              Add parameters to help refine your summoning
-            </div>
-            <div class="mt-2">
-              <div
-                v-for="(customArg, i) in customArgs"
-                :key="i"
-                class="mb-2 flex"
+          <RadioGroup v-model="selectedCustomizeOption">
+            <div class="mt-6 md:w-[30rem]">
+              <RadioGroupOption
+                v-for="option in customizeOptions"
+                :key="option.title"
+                v-slot="{ active, checked }"
+                as="template"
+                :value="option"
               >
-                <input
-                  :ref="
-                    (el) => {
-                      keyInputs[i] = el;
-                    }
-                  "
-                  v-model="customArg.key"
-                  class="gradient-border-no-opacity relative h-[3rem] w-[20rem] rounded-xl border bg-black px-4 text-left text-xl text-white"
-                  autofocus
-                  placeholder="Occupation"
-                  @keydown.enter="setValueFocus(i)"
-                  @keydown.escape="
-                    !isFirst(i) && removeCustomArg(i);
-                    setKeyFocus(i - 1);
-                  "
-                  @keydown.backspace="
-                    isKeyEmpty(i) &&
-                      !isFirst(i) &&
-                      setValueFocus(i - 1) &&
-                      $event.preventDefault();
-                    isKeyEmpty(i) && isValueEmpty(i) && removeCustomArg(i);
-                  "
-                  @keydown.right="
-                    cursorEnd($event) &&
-                      setValueFocus(i) &&
-                      $event.preventDefault()
-                  "
-                  @keydown.left="
-                    cursorStart($event) &&
-                      !isFirst(i) &&
-                      setValueFocus(i - 1) &&
-                      $event.preventDefault()
-                  "
-                  @keydown.down="!isLast(i) && setKeyFocus(i + 1)"
-                  @keydown.up="!isFirst(i) && setKeyFocus(i - 1)"
-                />
-                <input
-                  :ref="
-                    (el) => {
-                      valueInputs[i] = el;
-                    }
-                  "
-                  v-model="customArg.value"
-                  class="gradient-border-no-opacity relative ml-2 h-[3rem] w-[20rem] text-xl rounded-xl border bg-black px-4 text-left text-white"
-                  placeholder="Bartender"
-                  @keydown.enter="
-                    i + 1 === customArgs.length && addCustomArg();
-                    setKeyFocus(i + 1);
-                  "
-                  @keydown.backspace="
-                    customArg.value === '' &&
-                      setKeyFocus(i) &&
-                      $event.preventDefault()
-                  "
-                  @keydown.tab="
-                    i + 1 === customArgs.length && addCustomArg();
-                    setKeyFocus(i + 1) && $event.preventDefault();
-                  "
-                  @keydown.right="
-                    cursorEnd($event) &&
-                      !isLast(i) &&
-                      setKeyFocus(i + 1) &&
-                      $event.preventDefault()
-                  "
-                  @keydown.left="
-                    cursorStart($event) &&
-                      setKeyFocus(i) &&
-                      $event.preventDefault()
-                  "
-                  @keydown.down="!isLast(i) && setValueFocus(i + 1)"
-                  @keydown.up="!isFirst(i) && setValueFocus(i - 1)"
-                />
-                <button
-                  class="ml-2 rounded border border-red-500 p-1 px-2 text-sm"
-                  @click="removeCustomArg(i)"
+                <div
+                  :class="[
+                    active
+                      ? 'ring-2 ring-white ring-opacity-60 ring-offset-2 ring-offset-purple-400'
+                      : '',
+                    checked
+                      ? 'bg-purple-400 bg-opacity-75'
+                      : 'bg-surface border-2 border-gray-600/50',
+                  ]"
+                  class="relative flex cursor-pointer rounded-lg px-5 my-2 py-4 shadow-md focus:outline-none"
                 >
-                  <XMarkIcon class="h-4 w-4" />
-                </button>
-              </div>
-              <button
-                class="rounded border border-green-500 p-1 px-4 text-sm"
-                @click="addCustomArg"
-              >
-                Add parameter
-              </button>
+                  <div class="flex w-full items-center justify-between">
+                    <div class="flex items-center">
+                      <div class="text-sm">
+                        <RadioGroupLabel as="p" class="text-white font-medium">
+                          {{ option.title }}
+                        </RadioGroupLabel>
+                        <RadioGroupDescription
+                          as="span"
+                          :class="checked ? 'text-sky-100' : 'text-gray-400'"
+                          class="inline"
+                        >
+                          <span> {{ option.description }}</span>
+                        </RadioGroupDescription>
+                      </div>
+                    </div>
+                    <div v-show="checked" class="shrink-0 text-white">
+                      <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none">
+                        <circle
+                          cx="12"
+                          cy="12"
+                          r="12"
+                          fill="#fff"
+                          fill-opacity="0.2"
+                        />
+                        <path
+                          d="M7 13l3 3 7-7"
+                          stroke="#fff"
+                          stroke-width="1.5"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </RadioGroupOption>
             </div>
-          </div>
-        </div>
+          </RadioGroup>
 
-        <button
-          class="mt-8 flex cursor-pointer rounded-xl bg-black bg-gradient px-4 py-2 text-lg font-bold text-white"
-          @click="generate(summoner.code)"
-        >
-          <span class="self-center"> Begin Summoning </span>
-        </button>
+          <div v-if="customize" class="my-8">
+            <div class="text-xl">
+              Describe what kind of
+              {{ trimPlural(summoner.name.toLowerCase()) }} you're looking for
+            </div>
+            <textarea
+              v-model="customArg"
+              type="text"
+              class="mt-1 gradient-border-no-opacity relative w-[50rem] rounded-xl border bg-black px-4 py-2 text-left text-xl text-white resize-none"
+              :placeholder="summoner.customizationHelpPrompt"
+              rows="4"
+            ></textarea>
+          </div>
+
+          <button
+            class="mt-8 flex cursor-pointer rounded-xl bg-black bg-gradient px-4 py-2 text-lg text-white"
+            @click="generate(summoner.code)"
+          >
+            <span class="self-center"> Begin Summoning </span>
+          </button>
+        </div>
       </template>
       <template v-else-if="generating || (!generating && !animationDone)">
         <SummoningLoader class="h-[10rem] w-[15rem]" />

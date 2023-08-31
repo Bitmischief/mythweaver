@@ -29,7 +29,7 @@ export interface GetGeneratorsResponse {
 export interface PostGeneratorGenerate {
   campaignId: number;
   count: number;
-  customArgs?: any[];
+  customArg?: string;
 }
 
 @Route("generators")
@@ -161,7 +161,7 @@ export class GeneratorController {
         campaignId: request.campaignId,
         generatorCode: code,
         count: request.count,
-        args: request.customArgs || [],
+        args: [request.customArg || ""],
       },
     });
 
@@ -169,7 +169,7 @@ export class GeneratorController {
       count: request.count,
       campaignId: request.campaignId,
       generatorCode: code,
-      args: request.customArgs || [],
+      arg: request.customArg,
       conjurationRequestId: conjurationRequest.id,
     });
 
