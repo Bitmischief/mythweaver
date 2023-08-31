@@ -3,7 +3,7 @@ import { prisma } from "../lib/providers/prisma";
 const users = [
   {
     id: 1,
-    email: "azurfluh@bitmischief.io",
+    email: "austin@mythweaver.co",
   },
 ];
 

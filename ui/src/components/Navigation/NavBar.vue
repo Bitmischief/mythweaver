@@ -24,16 +24,18 @@ const toggleCollapsed = function () {
 
 <template>
   <div
-    class="nav-bar px-1 md:h-full border-r-[2px] border-white/5 md:max-w-[300px] md:min-w-[300px]"
+    class="nav-bar px-1 md:h-full border-white/5 md:max-w-[300px] md:min-w-[300px]"
     :class="{ 'md:max-w-[90px] md:min-w-[90px]': collapsed }"
   >
-    <div class="bg md:h-full flex flex-col justify-between p-4 relative">
+    <div
+      class="bg-surface-2 md:h-full flex flex-col justify-between p-4 relative"
+    >
       <div>
         <div class="flex justify-between">
           <img
             v-if="!collapsed"
             src="/images/logo-horizontal.svg"
-            class="h-12 w-auto"
+            class="h-12 w-auto mx-auto"
           />
           <img v-else src="/favicon.png" class="h-12 w-auto" />
           <div
@@ -57,21 +59,6 @@ const toggleCollapsed = function () {
             :class="{ collapsed: collapsed }"
           />
         </div>
-      </div>
-
-      <div class="hidden md:flex">
-        <button
-          v-if="!collapsed"
-          class="w-full border-2 border-white/5 text-gray-300"
-          @click="logout"
-        >
-          Logout
-        </button>
-        <ArrowRightOnRectangleIcon
-          v-else
-          class="h-6 w-full cursor-pointer"
-          @click="logout"
-        />
       </div>
 
       <Dialog
@@ -109,6 +96,12 @@ const toggleCollapsed = function () {
 </template>
 
 <style scoped>
+.logo-gradient {
+  background: linear-gradient(135deg, #c952e9 0%, #59c3e5 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 .nav-bar {
   transition: all 0.5s ease-in;
 }
@@ -118,13 +111,5 @@ const toggleCollapsed = function () {
     transform: rotate(180deg);
     transition: transform 0.5s ease-in-out;
   }
-}
-.bg {
-  background: rgb(23, 23, 23);
-  background: linear-gradient(
-    297deg,
-    rgba(23, 23, 23, 1) 60%,
-    rgba(30, 49, 62, 1) 100%
-  );
 }
 </style>

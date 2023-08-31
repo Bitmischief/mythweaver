@@ -5,6 +5,7 @@ import NotificationHandler from "@/components/Notifications/NotificationHandler.
 import { NO_CAMPAIGNS_EVENT, useEventBus } from "@/lib/events.ts";
 import router from "@/router/router.ts";
 import { onMounted } from "vue";
+import NavBarHeader from "@/components/Navigation/NavBarHeader.vue";
 
 const authStore = useAuthStore();
 const eventBus = useEventBus();
@@ -19,30 +20,36 @@ eventBus.$on(NO_CAMPAIGNS_EVENT, () => {
 </script>
 
 <template>
-  <div class="block h-screen bg-surface text-white md:flex">
-    <Navbar v-if="!!authStore.tokens" />
-    <div
-      class="bg h-min-screen mb-3 flex h-full w-full flex-col overflow-y-auto"
-    >
-      <router-view />
+  <div class="block h-screen bg-surface-2 text-white md:flex">
+    <Navbar v-if="!!authStore.tokens" class="w-full md:max-w-[300px]" />
+    <div class="block w-full">
+      <div
+        v-if="!!authStore.tokens"
+        class="justify-end mr-4 bg-surface-2 h-[5rem] hidden md:flex"
+      >
+        <NavBarHeader />
+      </div>
+      <div
+        class="flex w-full flex-col overflow-y-auto bg-surface p-4 rounded-tr-2xl md:rounded-tr-none"
+        :class="{ 'rounded-tl-2xl pb-6': !!authStore.tokens }"
+        :style="{
+          height: `${!!authStore.tokens ? 'calc(100vh - 5rem)' : 'auto'}`,
+        }"
+      >
+        <router-view />
+      </div>
     </div>
     <NotificationHandler />
+
+    <div
+      v-if="authStore.isLoading"
+      class="absolute w-full h-full bg-black opacity-95"
+    >
+      <div class="flex justify-center items-center w-full h-full">
+        <div
+          class="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-white"
+        ></div>
+      </div>
+    </div>
   </div>
 </template>
-
-<style>
-#app {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-.bg {
-  background: rgb(23, 23, 23);
-  background: linear-gradient(
-    135deg,
-    rgba(23, 23, 23, 1) 60%,
-    rgba(38, 34, 39, 1) 76%,
-    rgba(140, 88, 154, 0.6279761904761905) 100%
-  );
-}
-</style>

@@ -33,6 +33,7 @@ export enum AppEvent {
   DeleteSession = "Delete Session",
   UpdateUser = "Update User",
   GetLoggedInUser = "Get Logged In User",
+  GetCampaignMembers = "Get Campaign Members",
 }
 
 export interface TrackingInfo {

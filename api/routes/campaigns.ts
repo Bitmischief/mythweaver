@@ -137,4 +137,38 @@ router.delete("/:campaignId", [
   },
 ]);
 
+const getCampaignMembersRouteSchema = z.object({
+  campaignId: z.coerce.number().default(0),
+});
+
+const getCampaignMembersSchema = z.object({
+  offset: z.coerce.number().default(0).optional(),
+  limit: z.coerce.number().min(1).default(10).optional(),
+});
+
+router.get("/:campaignId/members", [
+  useAuthenticateRequest(),
+  useValidateRequest(getCampaignMembersRouteSchema, {
+    validationType: ValidationTypes.Route,
+  }),
+  useValidateRequest(getCampaignMembersSchema, {
+    validationType: ValidationTypes.Query,
+  }),
+  async (req: Request, res: Response) => {
+    const controller = new CampaignController();
+
+    const { offset = 0, limit = 10 } = req.query;
+
+    const response = await controller.getCampaignMembers(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      req.params.campaignId as unknown as number,
+      offset as number,
+      limit as number
+    );
+
+    return res.status(200).send(response);
+  },
+]);
+
 export default router;
