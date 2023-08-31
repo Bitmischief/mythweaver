@@ -1,9 +1,5 @@
 <script setup lang="ts">
-import {
-  ArrowRightOnRectangleIcon,
-  Bars3Icon,
-  ChevronDoubleLeftIcon,
-} from "@heroicons/vue/24/solid";
+import { Bars3Icon, ChevronDoubleLeftIcon } from "@heroicons/vue/24/solid";
 import { ref } from "vue";
 import { Dialog, DialogPanel } from "@headlessui/vue";
 import { useAuthStore } from "@/store";
