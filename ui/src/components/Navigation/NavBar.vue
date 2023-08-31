@@ -92,12 +92,6 @@ const toggleCollapsed = function () {
 </template>
 
 <style scoped>
-.logo-gradient {
-  background: linear-gradient(135deg, #c952e9 0%, #59c3e5 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
 .nav-bar {
   transition: all 0.5s ease-in;
 }
