@@ -13,7 +13,22 @@ export interface Campaign {
   publicAdventureCode: string | null | undefined;
   publicAdventure?: PublicAdventure;
   atmosphere?: string[];
+  members?: CampaignMember[];
 }
+
+export interface CampaignMember {
+  id: number;
+  email: string;
+  role: number;
+  createdAt: string;
+  updatedAt: string;
+  joinedAt: string;
+  user: {
+    id: number;
+    email: number;
+  };
+}
+
 export interface PublicAdventure {
   code: string;
   name: string;
@@ -48,6 +63,17 @@ export interface PutCampaignRequest {
   publicAdventureCode: string | null | undefined;
 }
 
+export interface CampaignInvite {
+  invitingEmail: string;
+  campaignName: string;
+  members: [
+    {
+      characterName: string;
+      characterImageUri: string;
+    },
+  ];
+}
+
 export const getCampaigns = (query: GetCampaignRequest) => {
   return axios.get("/campaigns", {
     params: query,
@@ -71,4 +97,22 @@ export const saveCampaign = (request: PutCampaignRequest) => {
 
 export const deleteCampaign = (campaignId: number) => {
   return axios.delete(`/campaigns/${campaignId}`);
+};
+
+export const invitePlayerToCampaign = (email: string, campaignId: number) => {
+  return axios.post(`/campaigns/${campaignId}/members`, {
+    email,
+  });
+};
+
+export const deleteCampaignMember = (campaignId: number, memberId: number) => {
+  return axios.delete(`/campaigns/${campaignId}/members/${memberId}`);
+};
+
+export const getCampaignInvite = (inviteCode: string) => {
+  return axios.get(`/campaigns/invites/${inviteCode}`);
+};
+
+export const acceptCampaignInvite = (inviteCode: string) => {
+  return axios.post(`/campaigns/invites/${inviteCode}`);
 };
