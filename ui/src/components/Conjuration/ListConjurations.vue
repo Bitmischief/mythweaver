@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import {
   Conjuration,
   getConjurations,
-  GetConjurationsRequest,
   getConjurationTags,
   GetConjurationTagsRequest,
 } from "@/api/conjurations.ts";
@@ -13,19 +12,29 @@ import { useSelectedCampaignId } from "@/lib/hooks.ts";
 import { Conjurer, getConjurers } from "@/api/generators.ts";
 import Autocomplete from "@/components/Core/Forms/Autocomplete.vue";
 import ConjurationQuickView from "@/components/Conjuration/ConjurationListItemView.vue";
+import { debounce } from "lodash";
 
 const selectedCampaignId = useSelectedCampaignId();
 
+const pagingDone = ref(false);
 const conjurers = ref<Conjurer[]>([]);
-
 const conjurations = ref<Conjuration[]>([]);
-const conjurationsQuery = ref<GetConjurationsRequest>({
+
+const conjurationsQuery = computed(() => ({
+  ...conjurationsFilterQuery.value,
+  ...conjurationsPagingQuery.value,
+}));
+
+const conjurationsFilterQuery = ref({
   campaignId: selectedCampaignId.value,
   mine: undefined,
   conjurerCodes: [],
   tags: [],
+});
+
+const conjurationsPagingQuery = ref({
   offset: 0,
-  limit: 25,
+  limit: 8,
 });
 
 const tags = ref<string[]>([]);
@@ -39,10 +48,28 @@ onMounted(async () => {
   await loadConjurers();
   await loadConjurations();
   await loadTags();
+
+  const viewParent = document.querySelector("#view-parent");
+  viewParent?.addEventListener("scroll", () => {
+    if (!viewParent) return;
+
+    console.log(
+      viewParent.scrollTop,
+      viewParent.clientHeight,
+      viewParent.scrollHeight,
+    );
+
+    if (
+      viewParent.scrollTop + viewParent.clientHeight >=
+      viewParent.scrollHeight * 0.75
+    ) {
+      pageConjurations();
+    }
+  });
 });
 
 watch(
-  conjurationsQuery,
+  conjurationsFilterQuery,
   async () => {
     await loadConjurations();
   },
@@ -51,9 +78,36 @@ watch(
   },
 );
 
-async function loadConjurations() {
-  const conjurationsResponse = await getConjurations(conjurationsQuery.value);
-  conjurations.value = conjurationsResponse.data.data;
+watch(
+  conjurationsPagingQuery,
+  async () => {
+    await loadConjurations(true);
+  },
+  {
+    deep: true,
+  },
+);
+
+const pageConjurations = debounce(() => {
+  conjurationsPagingQuery.value.offset += conjurationsPagingQuery.value.limit;
+}, 250);
+
+async function loadConjurations(append = false) {
+  if (pagingDone.value) return;
+
+  const conjurationsResponse = await getConjurations({
+    ...conjurationsQuery.value,
+  });
+
+  if (!append) {
+    conjurations.value = conjurationsResponse.data.data;
+  } else {
+    conjurations.value.push(...conjurationsResponse.data.data);
+  }
+
+  if (conjurationsResponse.data.data.length === 0) {
+    pagingDone.value = true;
+  }
 }
 
 async function loadConjurers() {
@@ -175,4 +229,26 @@ function removeTag(tag: string) {
       @remove-conjuration="loadConjurations"
     />
   </div>
+
+  <div v-if="conjurations.length && pagingDone" class="my-12 pb-12 w-full">
+    <div class="text-center text-xl text-gray-500 divider">
+      No more conjurations to show!
+    </div>
+  </div>
 </template>
+
+<style scoped>
+.divider {
+  display: flex;
+  align-items: center;
+}
+
+.divider::before,
+.divider::after {
+  flex: 1;
+  content: "";
+  padding: 1px;
+  background-color: #212121;
+  margin: 0 16px;
+}
+</style>
