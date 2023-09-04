@@ -32,7 +32,7 @@
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-vue": "^9.0.1",
     "husky": "^8.0.3",
-    "postcss": "^8.4.14",
+    "postcss": "^8.4.29",
     "prettier": "^3.0.2",
     "prettier-plugin-tailwindcss": "^0.3.0",
     "pretty-quick": "^3.1.3",
