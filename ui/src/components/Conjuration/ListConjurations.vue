@@ -53,12 +53,6 @@ onMounted(async () => {
   viewParent?.addEventListener("scroll", () => {
     if (!viewParent) return;
 
-    console.log(
-      viewParent.scrollTop,
-      viewParent.clientHeight,
-      viewParent.scrollHeight,
-    );
-
     if (
       viewParent.scrollTop + viewParent.clientHeight >=
       viewParent.scrollHeight * 0.75

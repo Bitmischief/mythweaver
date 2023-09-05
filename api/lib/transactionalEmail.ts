@@ -25,5 +25,4 @@ export const sendTransactionalEmail = async (
       global_merge_vars: variables,
     },
   });
-  console.log(response);
 };

@@ -1,6 +1,11 @@
 import axios from "axios";
 import { RpgSystem } from "@/api/rpgSystems.ts";
 
+export const enum CampaignRole {
+  DM = 1,
+  Player = 2,
+}
+
 export interface Campaign {
   id?: number;
   name: string;

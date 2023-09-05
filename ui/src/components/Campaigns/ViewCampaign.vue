@@ -1,7 +1,8 @@
 <script lang="ts" setup>
-import { onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import {
   Campaign,
+  CampaignRole,
   deleteCampaignMember,
   getCampaign,
   invitePlayerToCampaign,
@@ -14,7 +15,7 @@ import { useSelectedCampaignId } from "@/lib/hooks.ts";
 import { useEventBus } from "@/lib/events.ts";
 import { format } from "date-fns";
 import ModalAlternate from "@/components/ModalAlternate.vue";
-import { showError } from "@/lib/notifications.ts";
+import { showError, showSuccess } from "@/lib/notifications.ts";
 import { AxiosError } from "axios";
 
 const campaignStore = useCampaignStore();
@@ -29,6 +30,8 @@ const showInviteModal = ref(false);
 const inviteLoading = ref(false);
 const inviteEmail = ref("");
 const showDeleteModal = ref(false);
+
+const currentUserRole = computed(() => campaignStore.selectedCampaignRole);
 
 onMounted(async () => {
   if (!selectedCampaignId.value) {
@@ -82,14 +85,24 @@ async function handleSaveCampaign() {
     return;
   }
 
-  await campaignStore.saveCampaign({
-    campaignId: selectedCampaignId.value || 0,
-    name: campaign.value.name,
-    description: campaign.value.description,
-    imageUri: campaign.value.imageUri,
-    rpgSystemCode: campaign.value.rpgSystemCode,
-    publicAdventureCode: campaign.value.publicAdventureCode,
-  });
+  try {
+    await campaignStore.saveCampaign({
+      campaignId: selectedCampaignId.value || 0,
+      name: campaign.value.name,
+      description: campaign.value.description,
+      imageUri: campaign.value.imageUri,
+      rpgSystemCode: campaign.value.rpgSystemCode,
+      publicAdventureCode: campaign.value.publicAdventureCode,
+    });
+
+    showSuccess({ message: "Campaign saved!" });
+  } catch (e) {
+    const err = e as AxiosError;
+    showError({
+      message: (err?.response?.data as any)?.message?.toString() || "",
+    });
+    return;
+  }
 }
 
 async function handleDeleteCampaign() {
@@ -97,7 +110,16 @@ async function handleDeleteCampaign() {
     return;
   }
 
-  await campaignStore.deleteCampaign(selectedCampaignId.value || 0);
+  try {
+    await campaignStore.deleteCampaign(selectedCampaignId.value || 0);
+    showSuccess({ message: "Campaign deleted!" });
+  } catch (e) {
+    const err = e as AxiosError;
+    showError({
+      message: (err?.response?.data as any)?.message?.toString() || "",
+    });
+    return;
+  }
 }
 
 async function invitePlayer() {
@@ -154,7 +176,10 @@ function handleRequestRemoveMember(memberId: number) {
 
 <template>
   <div v-if="campaign">
-    <div class="flex justify-between">
+    <div
+      v-if="currentUserRole === CampaignRole.DM"
+      class="flex justify-between"
+    >
       <div class="text-2xl">
         {{ campaign.name }}
       </div>
@@ -178,6 +203,7 @@ function handleRequestRemoveMember(memberId: number) {
 
     <input
       v-model="campaign.name"
+      :readonly="currentUserRole !== CampaignRole.DM"
       class="gradient-border-no-opacity relative mt-2 h-12 w-full rounded-xl border bg-black px-4 text-left text-white"
       placeholder="Flight of the Valkyries"
     />
@@ -188,6 +214,7 @@ function handleRequestRemoveMember(memberId: number) {
 
     <Select
       v-model="campaign.rpgSystemCode"
+      :readonly="currentUserRole !== CampaignRole.DM"
       :options="rpgSystems"
       value-prop="code"
       display-prop="name"
@@ -219,6 +246,7 @@ function handleRequestRemoveMember(memberId: number) {
 
     <Select
       v-model="campaign.publicAdventureCode"
+      :readonly="currentUserRole !== CampaignRole.DM"
       :options="adventures"
       value-prop="code"
       display-prop="name"
@@ -229,6 +257,7 @@ function handleRequestRemoveMember(memberId: number) {
       <div class="flex justify-between">
         <div class="text-2xl">Party Members</div>
         <button
+          v-if="currentUserRole === CampaignRole.DM"
           class="border-purple-300 border p-2 rounded-xl"
           @click="showInviteModal = true"
         >
@@ -330,7 +359,7 @@ function handleRequestRemoveMember(memberId: number) {
               </div>
 
               <div
-                v-if="member.role !== 1"
+                v-if="member.role !== 1 && currentUserRole === CampaignRole.DM"
                 class="w-[0] group-hover:w-20 transition-all duration-200 self-center group-hover:ml-2 group-hover:delay-0 delay-100 ease-in overflow-x-hidden"
               >
                 <button

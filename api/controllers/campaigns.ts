@@ -169,7 +169,7 @@ export default class CampaignController {
 
     if (campaign.userId !== userId) {
       throw new AppError({
-        description: "You do not have access to this campaign.",
+        description: "You do not have access to modify this campaign.",
         httpCode: HttpCode.FORBIDDEN,
       });
     }
@@ -210,7 +210,7 @@ export default class CampaignController {
 
     if (campaign.userId !== userId) {
       throw new AppError({
-        description: "You do not have access to this campaign.",
+        description: "You do not have access to modify this campaign.",
         httpCode: HttpCode.FORBIDDEN,
       });
     }
@@ -293,6 +293,14 @@ export default class CampaignController {
       throw new AppError({
         description: "Campaign not found.",
         httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    const currentMember = campaign.members.find((m) => m.userId === userId);
+    if (!currentMember || currentMember.role !== CampaignRole.DM) {
+      throw new AppError({
+        description: "You do not have permissions to invite members.",
+        httpCode: HttpCode.FORBIDDEN,
       });
     }
 

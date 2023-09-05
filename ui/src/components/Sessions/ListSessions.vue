@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
-import { SessionBase, getSessions } from "@/api/sessions.ts";
+import { computed, onMounted, ref } from "vue";
+import { getSessions, SessionBase } from "@/api/sessions.ts";
 import { useEventBus } from "@/lib/events.ts";
 import Session from "@/components/Sessions/Session.vue";
+import { useCampaignStore } from "@/store/campaign.store.ts";
+import { CampaignRole } from "@/api/campaigns.ts";
 
 const eventBus = useEventBus();
+const campaignStore = useCampaignStore();
 
 const sessionsSearch = ref({
   offset: 0,
@@ -12,6 +15,8 @@ const sessionsSearch = ref({
 });
 const sessions = ref<SessionBase[]>([]);
 const loadMore = ref(false);
+
+const currentUserRole = computed(() => campaignStore.selectedCampaignRole);
 
 onMounted(async () => {
   await init();
@@ -47,7 +52,10 @@ async function loadMoreSessions() {
   <div v-if="sessions.length === 0">
     <div class="text-2xl">No sessions found!</div>
 
-    <router-link to="/sessions/create">
+    <router-link
+      v-if="currentUserRole === CampaignRole.DM"
+      to="/sessions/create"
+    >
       <button
         class="mt-8 flex cursor-pointer rounded-xl bg-black bg-gradient px-4 py-2 text-lg font-bold text-white"
       >
