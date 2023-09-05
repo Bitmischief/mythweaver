@@ -41,6 +41,7 @@ const apiRequestLimiter = rateLimit({
 });
 
 app.use(apiRequestLimiter);
+app.set("trust proxy", 1); // trust first proxy
 app.use(useInjectRequestId);
 app.use(useInjectTrackingInfo);
 

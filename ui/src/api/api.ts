@@ -7,8 +7,16 @@ axios.defaults.baseURL = import.meta.env.VITE_API_URL;
 axios.interceptors.request.use(
   (config) => {
     if (config.url !== "/auth/token" && config.url !== "/auth/refresh") {
+      if (config.url?.startsWith("/campaigns/invites/") && config.method === "GET") {
+        return config;
+      }
+
       const authStore = useAuthStore();
       const { tokens } = storeToRefs(authStore);
+
+      if (!tokens.value) {
+        return config;
+      }
 
       const token = (tokens as any).value.access_token;
 
@@ -31,8 +39,8 @@ axios.interceptors.response.use(
     return res;
   },
   async (err) => {
-    const originalConfig = err.config;
-    originalConfig._retryCount = originalConfig._retryCount || 0;
+    const originalConfig = err.config || {};
+    originalConfig._retryCount = originalConfig?._retryCount || 0;
     const authStore = useAuthStore();
 
     if (originalConfig.url === "/auth/refresh" && err.response.status === 401) {
