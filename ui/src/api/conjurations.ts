@@ -17,8 +17,8 @@ export interface GetConjurationsRequest {
   mine?: boolean;
   conjurerCodes?: string[] | undefined;
   tags?: string[];
-  offset?: number;
-  limit?: number;
+  offset: number;
+  limit: number;
 }
 
 export const getConjurations = (request: GetConjurationsRequest) => {
@@ -43,15 +43,6 @@ export const getConjurationTags = (request: GetConjurationTagsRequest) => {
   });
 };
 
-export interface GetConjurationsRequest {
-  campaignId?: number;
-  mine?: boolean;
-  conjurerCodes?: string[] | undefined;
-  tags?: string[];
-  offset?: number;
-  limit?: number;
-}
-
 export const addConjuration = (conjurationId: number) => {
   const selectedCampaignId = useSelectedCampaignId();
 
@@ -60,15 +51,6 @@ export const addConjuration = (conjurationId: number) => {
     conjurationId,
   });
 };
-
-export interface GetConjurationsRequest {
-  campaignId?: number;
-  mine?: boolean;
-  conjurerCodes?: string[] | undefined;
-  tags?: string[];
-  offset?: number;
-  limit?: number;
-}
 
 export const getConjuration = (conjurationId: number) => {
   return axios.get(`/conjurations/${conjurationId}`);

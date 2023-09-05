@@ -31,9 +31,11 @@ eventBus.$on(NO_CAMPAIGNS_EVENT, () => {
       >
         <NavBarHeader />
       </div>
+
       <div
+        id="view-parent"
         class="flex w-full flex-col overflow-y-auto rounded-tr-2xl md:rounded-tr-none"
-        :class="{ 'p-4 rounded-tl-2xl pb-6 bg-surface': !!authStore.tokens }"
+        :class="{ 'rounded-tl-2xl pb-6  bg-surface p-4': !!authStore.tokens }"
         :style="{
           height: `${!!authStore.tokens ? 'calc(100vh - 5rem)' : 'auto'}`,
         }"
