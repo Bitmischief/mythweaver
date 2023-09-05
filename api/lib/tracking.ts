@@ -85,6 +85,8 @@ export const extractTrackingInfo = (req: Request): TrackingInfo => {
 };
 
 const init = () => {
+  if (process.env.API_URL !== "https://api.mythweaver.co") return;
+
   if (!mixpanel) {
     mixpanel = Mixpanel.init(process.env.MIXPANEL_TOKEN as string);
   }

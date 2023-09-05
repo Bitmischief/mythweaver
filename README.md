@@ -44,6 +44,8 @@ After creating new database migrations, you will need to have Prisma generate th
 - Use example.env as a template to create a .env file in the root of the API directory
 - `DATABASE_URL`
   - In most cases this can stay unchanged, as the default value is set to the Postgres container that is created by Docker Compose
+- `CORS_ALLOWED_ORIGINS`
+  - For local development this can remain the default `["http://localhost:3000"]`. For production deployments, this would be the URL of your frontend UI.
 - `JWT_SECRET_KEY`
   - This should be a unique alphanumeric string that is used to sign the JWT tokens that are created by the API. This can be any string you want, but it should be kept secret.
   - We typically recommend using openssl to generate the keys like so: `openssl rand -base64 32`
@@ -57,6 +59,8 @@ After creating new database migrations, you will need to have Prisma generate th
   - The MythWeaver test Google OAuth Client Secret is `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`
 - `OPENAI_API_KEY`
   - You will need to create an OpenAI API key. You can do this by following the instructions [here](https://platform.openai.com/docs/api-reference/authentication).
+- `STABILITY_API_KEY`
+  - You will need to create a Stability.ai API key. You can do this by following the instructions [here](https://platform.stability.ai/docs/getting-started/authentication).
 
 #### Production deployments
 
