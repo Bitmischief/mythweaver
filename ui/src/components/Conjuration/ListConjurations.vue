@@ -32,10 +32,11 @@ const conjurationsFilterQuery = ref({
   tags: [],
 });
 
-const conjurationsPagingQuery = ref({
+const initialPaging = {
   offset: 0,
   limit: 8,
-});
+};
+const conjurationsPagingQuery = ref(initialPaging);
 
 const tags = ref<string[]>([]);
 const tagsQuery = ref<GetConjurationTagsRequest>({
@@ -65,7 +66,12 @@ onMounted(async () => {
 watch(
   conjurationsFilterQuery,
   async () => {
-    await loadConjurations();
+    pagingDone.value = false;
+    if (conjurationsPagingQuery.value.offset === 0) {
+      await loadConjurations();
+    } else {
+      conjurationsPagingQuery.value.offset = 0;
+    }
   },
   {
     deep: true,
@@ -75,7 +81,7 @@ watch(
 watch(
   conjurationsPagingQuery,
   async () => {
-    await loadConjurations(true);
+    await loadConjurations(conjurationsPagingQuery.value.offset !== 0);
   },
   {
     deep: true,
@@ -120,9 +126,8 @@ async function handleTagsQueryChange(term: string) {
 }
 
 function removeTag(tag: string) {
-  conjurationsQuery.value.tags = conjurationsQuery.value?.tags?.filter(
-    (t) => t !== tag,
-  );
+  conjurationsFilterQuery.value.tags =
+    conjurationsFilterQuery.value?.tags?.filter((t) => t !== tag);
 }
 </script>
 
@@ -133,7 +138,7 @@ function removeTag(tag: string) {
         <div>
           <div class="mb-1 text-gray-300">All Conjurations?</div>
           <Select
-            v-model="conjurationsQuery.mine"
+            v-model="conjurationsFilterQuery.mine"
             :options="[
               {
                 name: 'All',
@@ -153,7 +158,7 @@ function removeTag(tag: string) {
         <div class="mt-2 md:mt-0">
           <div class="mb-1 text-gray-300">Conjuration Types</div>
           <Select
-            v-model="conjurationsQuery.conjurerCodes"
+            v-model="conjurationsFilterQuery.conjurerCodes"
             :options="conjurers"
             display-prop="name"
             value-prop="code"
@@ -167,7 +172,7 @@ function removeTag(tag: string) {
           <div class="mb-1 text-gray-300">Tags</div>
           <div class="w-full md:w-[20rem]">
             <Autocomplete
-              v-model="conjurationsQuery.tags"
+              v-model="conjurationsFilterQuery.tags"
               :options="tags.map((t) => ({ value: t }))"
               class="mr-2"
               multiple
