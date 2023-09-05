@@ -1,9 +1,9 @@
-import { prisma } from "../lib/providers/prisma";
+import { prisma } from '../lib/providers/prisma';
 
 const users = [
   {
     id: 1,
-    email: "austin@mythweaver.co",
+    email: process.env.LOCAL_DEV_USER_EMAIL || 'austin@mythweaver.co',
   },
 ];
 
