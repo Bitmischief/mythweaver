@@ -37,9 +37,9 @@ export const useAuthStore = defineStore({
         this.isLoading = false;
       }
     },
-    async login(credential: string, inviteCode: string | undefined): Promise<boolean> {
+    async login(credential: string): Promise<boolean> {
       try {
-        const response = await postToken(credential, inviteCode);
+        const response = await postToken(credential);
 
         this.tokens = response.data;
 

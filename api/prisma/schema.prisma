@@ -174,20 +174,17 @@ model Tag {
 model CampaignMember {
   id        Int       @id @default(autoincrement())
   createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
-  updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)"))
+  updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
 
   userId     Int?
   campaignId Int
   role       Int
-  email      String?
-  inviteCode String?
-  joinedAt   DateTime? @db.Timestamptz(6)
+  email      String
 
   user     User?    @relation(fields: [userId], references: [id])
   campaign Campaign @relation(fields: [campaignId], references: [id])
 
   @@unique([userId, campaignId])
-  @@unique([inviteCode])
   @@index([campaignId], name: "campaign_members_campaign_id")
   @@map("campaign_members")
 }

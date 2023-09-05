@@ -1,10 +1,9 @@
 import axios from "axios";
 
-export const postToken = (credential: string, inviteCode: string | undefined) => {
+export const postToken = (credential: string) => {
   return axios.post("/auth/token", {
     type: "GOOGLE",
     credential,
-    inviteCode,
   });
 };
 

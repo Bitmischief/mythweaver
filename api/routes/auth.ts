@@ -7,7 +7,6 @@ const router = express.Router();
 const postTokenSchema = z.object({
   type: z.string(),
   credential: z.string(),
-  inviteCode: z.string().optional(),
 });
 
 router.post("/token", [

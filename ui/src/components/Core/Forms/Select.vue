@@ -17,7 +17,6 @@ const props = defineProps<{
   noIcon?: boolean;
   multiple?: boolean;
   placeholder?: string;
-  readonly?: boolean;
 }>();
 
 const emit = defineEmits(["update:modelValue", "change"]);
@@ -129,7 +128,6 @@ const showCheckIcon = (option: any) => {
             v-slot="{ active }"
             :key="option[valueProp] || valueProp"
             :value="option[valueProp]"
-            :disabled="readonly"
             as="template"
           >
             <li

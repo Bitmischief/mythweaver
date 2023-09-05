@@ -1,7 +1,6 @@
 import { defineStore } from "pinia";
 import {
   Campaign,
-  CampaignRole,
   deleteCampaign,
   getCampaign,
   getCampaigns,
@@ -9,14 +8,12 @@ import {
   saveCampaign,
 } from "@/api/campaigns.ts";
 import { NO_CAMPAIGNS_EVENT, useEventBus } from "@/lib/events.ts";
-import { useCurrentUserId } from "@/lib/hooks.ts";
 
 const eventBus = useEventBus();
 
 interface CampaignStoreState {
   selectedCampaignId: number | undefined;
   selectedCampaign: Campaign | undefined;
-  selectedCampaignRole: CampaignRole | undefined;
   campaigns: Campaign[];
 }
 
@@ -29,7 +26,6 @@ export const useCampaignStore = defineStore({
       ? parseInt(localStorage.getItem(SELECTED_CAMPAIGN_ID_KEY_NAME) || "")
       : undefined,
     selectedCampaign: undefined,
-    selectedCampaignRole: undefined,
     campaigns: [],
   }),
   actions: {
@@ -42,8 +38,6 @@ export const useCampaignStore = defineStore({
       const getCampaignResponse = await getCampaign(campaignId);
       this.selectedCampaign = getCampaignResponse.data;
 
-      this.setCampaignRole();
-
       eventBus.$emit("campaign-selected", this.selectedCampaign);
     },
     async getCampaigns() {
@@ -53,12 +47,6 @@ export const useCampaignStore = defineStore({
       });
 
       this.campaigns = campaignsResponse.data.data;
-    },
-    setCampaignRole() {
-      const currentUserId = useCurrentUserId();
-      this.selectedCampaignRole = this.selectedCampaign?.members?.find(
-        (m) => m.user?.id === currentUserId.value,
-      )?.role;
     },
     async loadCampaigns() {
       await this.getCampaigns();
@@ -71,8 +59,6 @@ export const useCampaignStore = defineStore({
       if (this.selectedCampaignId) {
         const getCampaignResponse = await getCampaign(this.selectedCampaignId);
         this.selectedCampaign = getCampaignResponse.data;
-
-        this.setCampaignRole();
       }
     },
     async saveCampaign(campaign: PutCampaignRequest) {
@@ -85,7 +71,6 @@ export const useCampaignStore = defineStore({
       await deleteCampaign(campaignId);
       await this.getCampaigns();
       this.selectedCampaignId = this.campaigns[0].id;
-      this.setCampaignRole();
       await this.loadCampaigns();
     },
   },

@@ -6,7 +6,6 @@ import {
   ValidationTypes,
 } from "../lib/validationMiddleware";
 import CampaignController from "../controllers/campaigns";
-import rateLimit from "express-rate-limit";
 
 const router = express.Router();
 
@@ -166,111 +165,6 @@ router.get("/:campaignId/members", [
       req.params.campaignId as unknown as number,
       offset as number,
       limit as number
-    );
-
-    return res.status(200).send(response);
-  },
-]);
-
-const postInviteCampaignMemberRouteSchema = z.object({
-  campaignId: z.coerce.number().default(0),
-});
-
-const postInviteCampaignMemberSchema = z.object({
-  email: z.string(),
-});
-
-router.post("/:campaignId/members", [
-  useAuthenticateRequest(),
-  useValidateRequest(postInviteCampaignMemberRouteSchema, {
-    validationType: ValidationTypes.Route,
-  }),
-  useValidateRequest(postInviteCampaignMemberSchema, {
-    validationType: ValidationTypes.Body,
-  }),
-  async (req: Request, res: Response) => {
-    const controller = new CampaignController();
-
-    const response = await controller.inviteCampaignMember(
-      res.locals.auth.userId,
-      res.locals.trackingInfo,
-      req.params.campaignId as unknown as number,
-      req.body
-    );
-
-    return res.status(200).send(response);
-  },
-]);
-
-const deleteCampaignMemberRouteSchema = z.object({
-  campaignId: z.coerce.number().default(0),
-  memberId: z.coerce.number().default(0),
-});
-
-router.delete("/:campaignId/members/:memberId", [
-  useAuthenticateRequest(),
-  useValidateRequest(deleteCampaignMemberRouteSchema, {
-    validationType: ValidationTypes.Route,
-  }),
-  async (req: Request, res: Response) => {
-    const controller = new CampaignController();
-
-    const response = await controller.deleteCampaignMember(
-      res.locals.auth.userId,
-      res.locals.trackingInfo,
-      req.params.campaignId as unknown as number,
-      req.params.memberId as unknown as number
-    );
-
-    return res.status(200).send(response);
-  },
-]);
-
-const getInviteRouteSchema = z.object({
-  inviteCode: z.string(),
-});
-
-router.get("/invites/:inviteCode", [
-  useValidateRequest(getInviteRouteSchema, {
-    validationType: ValidationTypes.Route,
-  }),
-  rateLimit({
-    windowMs: 1 * 60 * 1000, // 1 minute
-    max: 5, // limit each IP to 120 requests per windowMs
-    handler: function (req, res /*next*/) {
-      return res.status(429).json({
-        error: "You sent too many requests. Please wait a while then try again",
-      });
-    },
-  }),
-  async (req: Request, res: Response) => {
-    const controller = new CampaignController();
-
-    const response = await controller.getInvite(
-      res.locals.trackingInfo,
-      req.params.inviteCode as unknown as string
-    );
-
-    return res.status(200).send(response);
-  },
-]);
-
-const postAcceptInviteRouteSchema = z.object({
-  inviteCode: z.string(),
-});
-
-router.post("/invites/:inviteCode", [
-  useAuthenticateRequest(),
-  useValidateRequest(postAcceptInviteRouteSchema, {
-    validationType: ValidationTypes.Route,
-  }),
-  async (req: Request, res: Response) => {
-    const controller = new CampaignController();
-
-    const response = await controller.acceptInvite(
-      res.locals.auth.userId,
-      res.locals.trackingInfo,
-      req.params.inviteCode as unknown as string
     );
 
     return res.status(200).send(response);
