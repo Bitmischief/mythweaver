@@ -15,6 +15,9 @@ import { prisma } from "../lib/providers/prisma";
 import { Campaign, CampaignMember } from "@prisma/client";
 import { AppError, HttpCode } from "../lib/errors/AppError";
 import { AppEvent, track, TrackingInfo } from "../lib/tracking";
+import { sendTransactionalEmail } from "../lib/transactionalEmail";
+import { v4 as uuidv4 } from "uuid";
+import { isProduction } from "../lib/utils";
 
 export interface GetCampaignsResponse {
   data: Campaign[];
@@ -42,6 +45,15 @@ export interface GetCampaignMembersResponse {
   limit?: number;
 }
 
+export enum CampaignRole {
+  DM = 1,
+  Player = 2,
+}
+
+export interface InviteMemberRequest {
+  email: string;
+}
+
 @Route("campaigns")
 @Tags("Campaigns")
 export default class CampaignController {
@@ -56,7 +68,11 @@ export default class CampaignController {
   ): Promise<GetCampaignsResponse> {
     const campaigns = await prisma.campaign.findMany({
       where: {
-        userId,
+        members: {
+          some: {
+            userId,
+          },
+        },
       },
       skip: offset,
       take: limit,
@@ -82,6 +98,13 @@ export default class CampaignController {
     const campaign = await prisma.campaign.findUnique({
       where: {
         id: campaignId,
+      },
+      include: {
+        members: {
+          include: {
+            user: true,
+          },
+        },
       },
     });
 
@@ -111,6 +134,13 @@ export default class CampaignController {
       data: {
         ...request,
         userId,
+        members: {
+          create: {
+            userId,
+            role: CampaignRole.DM,
+            joinedAt: new Date(),
+          },
+        },
       },
     });
   }
@@ -139,7 +169,7 @@ export default class CampaignController {
 
     if (campaign.userId !== userId) {
       throw new AppError({
-        description: "You do not have access to this campaign.",
+        description: "You do not have access to modify this campaign.",
         httpCode: HttpCode.FORBIDDEN,
       });
     }
@@ -180,7 +210,7 @@ export default class CampaignController {
 
     if (campaign.userId !== userId) {
       throw new AppError({
-        description: "You do not have access to this campaign.",
+        description: "You do not have access to modify this campaign.",
         httpCode: HttpCode.FORBIDDEN,
       });
     }
@@ -239,5 +269,206 @@ export default class CampaignController {
       offset: offset,
       limit: limit,
     };
+  }
+
+  @Security("jwt")
+  @OperationId("inviteCampaignMember")
+  @Post("/:campaignId/invite")
+  public async inviteCampaignMember(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Route() campaignId = 0,
+    @Body() request: InviteMemberRequest
+  ): Promise<any> {
+    const campaign = await prisma.campaign.findUnique({
+      where: {
+        id: campaignId,
+      },
+      include: {
+        members: true,
+      },
+    });
+
+    if (!campaign) {
+      throw new AppError({
+        description: "Campaign not found.",
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    const currentMember = campaign.members.find((m) => m.userId === userId);
+    if (!currentMember || currentMember.role !== CampaignRole.DM) {
+      throw new AppError({
+        description: "You do not have permissions to invite members.",
+        httpCode: HttpCode.FORBIDDEN,
+      });
+    }
+
+    if (campaign.members.find((m) => m.email === request.email)) {
+      throw new AppError({
+        description: "User is already a member of this campaign.",
+        httpCode: HttpCode.CONFLICT,
+      });
+    }
+
+    const inviteCode = uuidv4();
+
+    await prisma.campaignMember.create({
+      data: {
+        campaignId,
+        email: request.email,
+        inviteCode,
+        role: CampaignRole.Player,
+      },
+    });
+
+    const urlPrefix = isProduction
+      ? "https://app.mythweaver.co"
+      : "http://localhost:3000";
+
+    await sendTransactionalEmail(
+      "campaign-invite",
+      `Join the ${campaign.name} campaign on MythWeaver!`,
+      request.email,
+      [
+        {
+          name: "SENDER_CAMPAIGN",
+          content: campaign.name,
+        },
+        {
+          name: "INVITE_URL",
+          content: `${urlPrefix}/invite?c=${inviteCode}`,
+        },
+      ]
+    );
+  }
+
+  @Security("jwt")
+  @OperationId("deleteCampaignMember")
+  @Post("/:campaignId/members/:memberId")
+  public async deleteCampaignMember(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Route() campaignId = 0,
+    @Route() memberId = 0
+  ): Promise<any> {
+    const actingMember = await prisma.campaignMember.findUnique({
+      where: {
+        userId_campaignId: {
+          userId,
+          campaignId,
+        },
+      },
+    });
+
+    if (!actingMember || actingMember.role !== CampaignRole.DM) {
+      throw new AppError({
+        description: "You do not have permissions to remove this member.",
+        httpCode: HttpCode.FORBIDDEN,
+      });
+    }
+
+    const deletingMember = await prisma.campaignMember.findUnique({
+      where: {
+        id: memberId,
+        campaignId,
+      },
+    });
+
+    if (!deletingMember) {
+      throw new AppError({
+        description: "Campaign member not found.",
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    if (deletingMember.role === CampaignRole.DM) {
+      throw new AppError({
+        description: "You cannot remove the DM from the campaign.",
+        httpCode: HttpCode.FORBIDDEN,
+      });
+    }
+
+    await prisma.campaignMember.delete({
+      where: {
+        id: memberId,
+        campaignId,
+      },
+    });
+  }
+
+  @Security("jwt")
+  @OperationId("getInvite")
+  @Get("/invites/:inviteCode")
+  public async getInvite(
+    @Inject() trackingInfo: TrackingInfo,
+    @Route() inviteCode: string
+  ): Promise<any> {
+    const invite = await prisma.campaignMember.findUnique({
+      where: {
+        inviteCode,
+      },
+      include: {
+        campaign: true,
+      },
+    });
+
+    if (!invite) {
+      throw new AppError({
+        description: "Invite not found.",
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    const otherMembers = await prisma.campaignMember.findMany({
+      where: {
+        campaignId: invite.campaignId,
+      },
+      include: {
+        user: true,
+      },
+    });
+
+    return {
+      campaignName: invite.campaign.name,
+      invitingEmail: otherMembers.filter((m) => m.role === CampaignRole.DM)[0]
+        ?.user?.email,
+      members: otherMembers
+        .filter((m) => m.email !== invite.email && m.role !== CampaignRole.DM)
+        .map((m) => ({ email: m?.user?.email })),
+    };
+  }
+
+  @Security("jwt")
+  @OperationId("acceptInvite")
+  @Put("/invites/:inviteCode")
+  public async acceptInvite(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Route() inviteCode: string
+  ) {
+    const invite = await prisma.campaignMember.findUnique({
+      where: {
+        inviteCode,
+      },
+    });
+
+    if (!invite) {
+      throw new AppError({
+        httpCode: HttpCode.BAD_REQUEST,
+        description: "Invite code is invalid",
+      });
+    }
+
+    await prisma.campaignMember.update({
+      where: {
+        id: invite.id,
+      },
+      data: {
+        userId: userId,
+        inviteCode: null,
+        joinedAt: new Date(),
+      },
+    });
   }
 }

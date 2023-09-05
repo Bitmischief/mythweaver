@@ -5,6 +5,7 @@ import { AppError, HttpCode } from "../lib/errors/AppError";
 import jwt from "jsonwebtoken";
 import { parentLogger } from "../lib/logger";
 import { AppEvent, identify, track, TrackingInfo } from "../lib/tracking";
+import CampaignController from "./campaigns";
 const logger = parentLogger.getSubLogger();
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -20,6 +21,7 @@ interface TokenResponse {
 interface TokenRequest {
   type: "GOOGLE";
   credential: string;
+  inviteCode?: string;
 }
 
 interface RefreshRequest {
@@ -58,27 +60,57 @@ export default class AuthController {
     }
 
     logger.info("Getting user for email", email);
-    const user = await prisma.user.findUnique({
+    let user = await prisma.user.findUnique({
       where: {
         email: email.toLowerCase(),
       },
     });
 
+    if (request.inviteCode) {
+      const invite = await prisma.campaignMember.findUnique({
+        where: {
+          inviteCode: request.inviteCode,
+        },
+      });
+
+      if (!invite) {
+        throw new AppError({
+          httpCode: HttpCode.BAD_REQUEST,
+          description: "Invite code is invalid",
+        });
+      }
+
+      user = await prisma.user.findUnique({
+        where: {
+          email: email.toLowerCase(),
+        },
+      });
+
+      if (!user) {
+        user = await prisma.user.create({
+          data: {
+            email: email.toLowerCase(),
+          },
+        });
+
+        track(AppEvent.Registered, user.id, trackingInfo, { email });
+      }
+
+      const campaignController = new CampaignController();
+      await campaignController.acceptInvite(
+        user.id,
+        trackingInfo,
+        request.inviteCode
+      );
+    }
+
     if (!user) {
       logger.info("User did not exist, early access not available....");
-
-      // user = await prisma.user.create({
-      //   data: {
-      //     email: email.toLowerCase(),
-      //   },
-      // });
 
       throw new AppError({
         httpCode: HttpCode.BAD_REQUEST,
         description: "User is not enabled for early access!",
       });
-
-      // track(AppEvent.Registered, user.id, { email });
     }
 
     track(AppEvent.LoggedIn, user.id, trackingInfo, { email });
