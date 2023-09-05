@@ -283,6 +283,8 @@ export default class ConjurationController {
       orderBy: {
         usageCount: "desc",
       },
+      skip: offset,
+      take: limit,
     });
 
     track(AppEvent.GetConjurationTags, userId, trackingInfo);
