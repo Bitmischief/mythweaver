@@ -1,12 +1,12 @@
-import express, { Request, Response } from "express";
-import { useAuthenticateRequest } from "../lib/authMiddleware";
-import { z } from "zod";
+import express, { Request, Response } from 'express';
+import { useAuthenticateRequest } from '../lib/authMiddleware';
+import { z } from 'zod';
 import {
   useValidateRequest,
   ValidationTypes,
-} from "../lib/validationMiddleware";
-import CampaignController from "../controllers/campaigns";
-import rateLimit from "express-rate-limit";
+} from '../lib/validationMiddleware';
+import CampaignController from '../controllers/campaigns';
+import rateLimit from 'express-rate-limit';
 
 const router = express.Router();
 
@@ -15,7 +15,7 @@ const getCampaignsSchema = z.object({
   limit: z.coerce.number().min(1).default(10).optional(),
 });
 
-router.get("/", [
+router.get('/', [
   useAuthenticateRequest(),
   useValidateRequest(getCampaignsSchema, {
     validationType: ValidationTypes.Query,
@@ -40,7 +40,7 @@ const getCampaignSchema = z.object({
   campaignId: z.coerce.number().default(0),
 });
 
-router.get("/:campaignId", [
+router.get('/:campaignId', [
   useAuthenticateRequest(),
   useValidateRequest(getCampaignSchema, {
     validationType: ValidationTypes.Route,
@@ -66,7 +66,7 @@ const postCampaignSchema = z.object({
   publicAdventureId: z.string().optional(),
 });
 
-router.post("/", [
+router.post('/', [
   useAuthenticateRequest(),
   useValidateRequest(postCampaignSchema),
   async (req: Request, res: Response) => {
@@ -92,7 +92,7 @@ const putCampaignSchema = z.object({
   publicAdventureCode: z.string().nullable().optional(),
 });
 
-router.put("/:campaignId", [
+router.put('/:campaignId', [
   useAuthenticateRequest(),
   useValidateRequest(putCampaignIdSchema, {
     validationType: ValidationTypes.Route,
@@ -118,7 +118,7 @@ const deleteCampaignSchema = z.object({
   campaignId: z.coerce.number().default(0),
 });
 
-router.delete("/:campaignId", [
+router.delete('/:campaignId', [
   useAuthenticateRequest(),
   useValidateRequest(deleteCampaignSchema, {
     validationType: ValidationTypes.Route,
@@ -147,7 +147,7 @@ const getCampaignMembersSchema = z.object({
   limit: z.coerce.number().min(1).default(10).optional(),
 });
 
-router.get("/:campaignId/members", [
+router.get('/:campaignId/members', [
   useAuthenticateRequest(),
   useValidateRequest(getCampaignMembersRouteSchema, {
     validationType: ValidationTypes.Route,
@@ -180,7 +180,7 @@ const postInviteCampaignMemberSchema = z.object({
   email: z.string(),
 });
 
-router.post("/:campaignId/members", [
+router.post('/:campaignId/members', [
   useAuthenticateRequest(),
   useValidateRequest(postInviteCampaignMemberRouteSchema, {
     validationType: ValidationTypes.Route,
@@ -207,7 +207,7 @@ const deleteCampaignMemberRouteSchema = z.object({
   memberId: z.coerce.number().default(0),
 });
 
-router.delete("/:campaignId/members/:memberId", [
+router.delete('/:campaignId/members/:memberId', [
   useAuthenticateRequest(),
   useValidateRequest(deleteCampaignMemberRouteSchema, {
     validationType: ValidationTypes.Route,
@@ -230,7 +230,7 @@ const getInviteRouteSchema = z.object({
   inviteCode: z.string(),
 });
 
-router.get("/invites/:inviteCode", [
+router.get('/invites/:inviteCode', [
   useValidateRequest(getInviteRouteSchema, {
     validationType: ValidationTypes.Route,
   }),
@@ -239,7 +239,7 @@ router.get("/invites/:inviteCode", [
     max: 5, // limit each IP to 120 requests per windowMs
     handler: function (req, res /*next*/) {
       return res.status(429).json({
-        error: "You sent too many requests. Please wait a while then try again",
+        error: 'You sent too many requests. Please wait a while then try again',
       });
     },
   }),
@@ -259,7 +259,7 @@ const postAcceptInviteRouteSchema = z.object({
   inviteCode: z.string(),
 });
 
-router.post("/invites/:inviteCode", [
+router.post('/invites/:inviteCode', [
   useAuthenticateRequest(),
   useValidateRequest(postAcceptInviteRouteSchema, {
     validationType: ValidationTypes.Route,

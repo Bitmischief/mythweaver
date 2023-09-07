@@ -1,11 +1,11 @@
-import express, { Request, Response } from "express";
-import { useAuthenticateRequest } from "../lib/authMiddleware";
-import { z } from "zod";
+import express, { Request, Response } from 'express';
+import { useAuthenticateRequest } from '../lib/authMiddleware';
+import { z } from 'zod';
 import {
   useValidateRequest,
   ValidationTypes,
-} from "../lib/validationMiddleware";
-import ConjurationController from "../controllers/conjurations";
+} from '../lib/validationMiddleware';
+import ConjurationController from '../controllers/conjurations';
 
 const router = express.Router();
 
@@ -18,7 +18,7 @@ const getConjurationsSchema = z.object({
   limit: z.coerce.number().min(1).default(25).optional(),
 });
 
-router.get("/", [
+router.get('/', [
   useAuthenticateRequest(),
   useValidateRequest(getConjurationsSchema, {
     validationType: ValidationTypes.Query,
@@ -56,7 +56,7 @@ const getConjurationTagsSchema = z.object({
   limit: z.coerce.number().min(1).default(25).optional(),
 });
 
-router.get("/tags", [
+router.get('/tags', [
   useAuthenticateRequest(),
   useValidateRequest(getConjurationTagsSchema, {
     validationType: ValidationTypes.Query,
@@ -82,7 +82,7 @@ const getConjurationSchema = z.object({
   conjurationId: z.coerce.number().default(0),
 });
 
-router.get("/:conjurationId", [
+router.get('/:conjurationId', [
   useAuthenticateRequest(),
   useValidateRequest(getConjurationSchema, {
     validationType: ValidationTypes.Route,
@@ -106,7 +106,7 @@ const postConjurationsSchema = z.object({
   conjurationId: z.number(),
 });
 
-router.post("/", [
+router.post('/', [
   useAuthenticateRequest(),
   useValidateRequest(postConjurationsSchema),
   async (req: Request, res: Response) => {
@@ -128,7 +128,7 @@ const patchConjurationsSchema = z.object({
   data: z.any().optional(),
 });
 
-router.patch("/:conjurationId", [
+router.patch('/:conjurationId', [
   useAuthenticateRequest(),
   useValidateRequest(patchConjurationsSchema),
   useValidateRequest(getConjurationSchema, {
@@ -149,7 +149,7 @@ router.patch("/:conjurationId", [
   },
 ]);
 
-router.delete("/:conjurationId", [
+router.delete('/:conjurationId', [
   useAuthenticateRequest(),
   useValidateRequest(getConjurationSchema, {
     validationType: ValidationTypes.Route,

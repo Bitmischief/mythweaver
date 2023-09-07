@@ -9,14 +9,14 @@ import {
   OperationId,
   Post,
   Body,
-} from "tsoa";
-import { prisma } from "../lib/providers/prisma";
-import { Conjuration } from "@prisma/client";
-import { AppError, HttpCode } from "../lib/errors/AppError";
-import { parentLogger } from "../lib/logger";
-import conjurers, { Generator, getGenerator } from "../data/conjurers";
-import { AppEvent, track, TrackingInfo } from "../lib/tracking";
-import { conjureQueue } from "../worker";
+} from 'tsoa';
+import { prisma } from '../lib/providers/prisma';
+import { Conjuration } from '@prisma/client';
+import { AppError, HttpCode } from '../lib/errors/AppError';
+import { parentLogger } from '../lib/logger';
+import conjurers, { Generator, getGenerator } from '../data/conjurers';
+import { AppEvent, track, TrackingInfo } from '../lib/tracking';
+import { conjureQueue } from '../worker';
 
 const logger = parentLogger.getSubLogger();
 
@@ -32,12 +32,12 @@ export interface PostGeneratorGenerate {
   customArg?: string;
 }
 
-@Route("generators")
-@Tags("Conjuration")
+@Route('generators')
+@Tags('Conjuration')
 export class GeneratorController {
-  @Get("/")
-  @Security("jwt")
-  @OperationId("getGenerators")
+  @Get('/')
+  @Security('jwt')
+  @OperationId('getGenerators')
   public async getGenerators(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
@@ -55,9 +55,9 @@ export class GeneratorController {
     };
   }
 
-  @Get("/{code}")
-  @Security("jwt")
-  @OperationId("getGenerator")
+  @Get('/{code}')
+  @Security('jwt')
+  @OperationId('getGenerator')
   public getGenerator(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
@@ -67,9 +67,9 @@ export class GeneratorController {
     return getGenerator(code);
   }
 
-  @Post("/{code}/generate/quick")
-  @Security("jwt")
-  @OperationId("quickConjure")
+  @Post('/{code}/generate/quick')
+  @Security('jwt')
+  @OperationId('quickConjure')
   public async postGeneratorGenerateQuick(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
@@ -89,7 +89,7 @@ export class GeneratorController {
         id: true,
       },
       orderBy: {
-        createdAt: "desc",
+        createdAt: 'desc',
       },
       skip: 0,
       take: 1000,
@@ -111,7 +111,7 @@ export class GeneratorController {
           },
         });
       } catch {
-        logger.warn("Failed to get random conjuration", idx, validIds);
+        logger.warn('Failed to get random conjuration', idx, validIds);
       } finally {
         tries++;
       }
@@ -122,9 +122,9 @@ export class GeneratorController {
     return randomConjuration;
   }
 
-  @Post("/{code}/generate")
-  @Security("jwt")
-  @OperationId("generate")
+  @Post('/{code}/generate')
+  @Security('jwt')
+  @OperationId('generate')
   public async postGeneratorGenerate(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
@@ -139,7 +139,7 @@ export class GeneratorController {
 
     if (!campaign) {
       throw new AppError({
-        description: "Campaign not found.",
+        description: 'Campaign not found.',
         httpCode: HttpCode.BAD_REQUEST,
       });
     }
@@ -148,7 +148,7 @@ export class GeneratorController {
 
     if (!generator) {
       throw new AppError({
-        description: "Generator not found.",
+        description: 'Generator not found.',
         httpCode: HttpCode.BAD_REQUEST,
       });
     }
@@ -161,7 +161,7 @@ export class GeneratorController {
         campaignId: request.campaignId,
         generatorCode: code,
         count: request.count,
-        args: [request.customArg || ""],
+        args: [request.customArg || ''],
       },
     });
 
@@ -177,9 +177,9 @@ export class GeneratorController {
       conjurationRequestId: conjurationRequest.id,
     };
   }
-  @Get("/requests/{conjurationRequestId}")
-  @Security("jwt")
-  @OperationId("getConjurationRequest")
+  @Get('/requests/{conjurationRequestId}')
+  @Security('jwt')
+  @OperationId('getConjurationRequest')
   public async getConjurationRequest(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
@@ -208,7 +208,7 @@ export class GeneratorController {
             userId: null,
           },
           orderBy: {
-            createdAt: "asc",
+            createdAt: 'asc',
           },
         },
       },

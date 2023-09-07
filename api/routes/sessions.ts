@@ -1,11 +1,11 @@
-import express, { Request, Response } from "express";
-import { useAuthenticateRequest } from "../lib/authMiddleware";
-import { z } from "zod";
+import express, { Request, Response } from 'express';
+import { useAuthenticateRequest } from '../lib/authMiddleware';
+import { z } from 'zod';
 import {
   useValidateRequest,
   ValidationTypes,
-} from "../lib/validationMiddleware";
-import SessionController from "../controllers/sessions";
+} from '../lib/validationMiddleware';
+import SessionController from '../controllers/sessions';
 
 const router = express.Router();
 
@@ -15,7 +15,7 @@ const getSessionsSchema = z.object({
   limit: z.coerce.number().min(1).default(10).optional(),
 });
 
-router.get("/", [
+router.get('/', [
   useAuthenticateRequest(),
   useValidateRequest(getSessionsSchema, {
     validationType: ValidationTypes.Query,
@@ -41,7 +41,7 @@ const getSessionSchema = z.object({
   sessionId: z.coerce.number().default(0),
 });
 
-router.get("/:sessionId", [
+router.get('/:sessionId', [
   useAuthenticateRequest(),
   useValidateRequest(getSessionSchema, {
     validationType: ValidationTypes.Route,
@@ -69,7 +69,7 @@ const postSessionsSchema = z.object({
   description: z.string().optional(),
 });
 
-router.post("/", [
+router.post('/', [
   useAuthenticateRequest(),
   useValidateRequest(postSessionsSchema),
   async (req: Request, res: Response) => {
@@ -92,7 +92,7 @@ const patchSessionsSchema = z.object({
   description: z.string().nullable().optional(),
 });
 
-router.patch("/:sessionId", [
+router.patch('/:sessionId', [
   useAuthenticateRequest(),
   useValidateRequest(patchSessionsSchema),
   useValidateRequest(getSessionSchema, {
@@ -114,7 +114,7 @@ router.patch("/:sessionId", [
   },
 ]);
 
-router.delete("/:sessionId", [
+router.delete('/:sessionId', [
   useAuthenticateRequest(),
   useValidateRequest(getSessionSchema, {
     validationType: ValidationTypes.Route,
