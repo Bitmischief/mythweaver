@@ -10,7 +10,7 @@ export const sendTransactionalEmail = async (
   to: string,
   variables: MergeVar[]
 ) => {
-  const response = await mailchimpClient.messages.sendTemplate({
+  await mailchimpClient.messages.sendTemplate({
     template_name: template,
     template_content: [],
     message: {
