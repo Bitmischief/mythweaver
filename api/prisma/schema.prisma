@@ -34,6 +34,7 @@ model User {
   conjurations        Conjuration[]
   conjurationRequests ConjurationRequest[]
   campaignMemberships CampaignMember[]
+  characters          Character[]
 
   @@map("users")
 }
@@ -99,6 +100,7 @@ model Campaign {
   locations    Location[]
   conjurations Conjuration[]
   members      CampaignMember[]
+  characters   Character[]
 
   @@map("campaigns")
 }
@@ -183,11 +185,41 @@ model CampaignMember {
   inviteCode String?
   joinedAt   DateTime? @db.Timestamptz(6)
 
-  user     User?    @relation(fields: [userId], references: [id])
-  campaign Campaign @relation(fields: [campaignId], references: [id])
+  user      User?      @relation(fields: [userId], references: [id])
+  campaign  Campaign   @relation(fields: [campaignId], references: [id])
+  character Character?
 
   @@unique([userId, campaignId])
   @@unique([inviteCode])
   @@index([campaignId], name: "campaign_members_campaign_id")
   @@map("campaign_members")
+}
+
+model Character {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)"))
+
+  campaignMemberId Int
+  userId           Int
+  campaignId       Int
+
+  name        String
+  imageUri    String?
+  backstory   String?
+  personality String?
+  goals       String?
+  alignment   String?
+
+  customData Json
+
+  user           User           @relation(fields: [userId], references: [id])
+  campaign       Campaign       @relation(fields: [campaignId], references: [id])
+  campaignMember CampaignMember @relation(fields: [campaignMemberId], references: [id])
+
+  @@unique([campaignMemberId])
+  @@unique([userId, campaignId])
+  @@index([userId, campaignId], name: "characters_user_id_campaign_id")
+  @@index([campaignMemberId], name: "characters_campaign_member_id")
+  @@map("characters")
 }

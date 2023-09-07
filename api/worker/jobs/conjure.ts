@@ -46,6 +46,7 @@ export const conjure = async (request: ConjureEvent) => {
       response = await openai.createCompletion({
         model: "text-davinci-003",
         prompt,
+        max_tokens: 3000,
       });
     } catch (err: any) {
       logger.error("Error generating character with openai", err.response.data);

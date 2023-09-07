@@ -89,7 +89,10 @@ async function generate(generatorCode: string) {
   const generateResponse = await postConjure(generatorCode, {
     count: conjurationCount.value,
     campaignId: selectedCampaignId.value || 0,
-    customArg: customArg.value,
+    customArg:
+      customArg.value.length > 500
+        ? customArg.value.slice(0, 500)
+        : customArg.value,
   });
   conjurationRequestId.value = generateResponse.data.conjurationRequestId;
 
@@ -130,6 +133,10 @@ function processConjuringPartiallyComplete() {
 function processConjuringComplete() {
   clearInterval(pollingIntervalId.value);
 }
+
+const variationCountInvalid = computed(
+  () => conjurationCount.value < 1 || conjurationCount.value > 5,
+);
 </script>
 
 <template>
@@ -158,8 +165,18 @@ function processConjuringComplete() {
           <input
             v-model="conjurationCount"
             type="number"
-            class="mt-1 gradient-border-no-opacity relative h-[3rem] w-[20rem] rounded-xl border bg-black px-4 text-left text-xl text-white"
+            class="mt-1 relative h-[3rem] w-[20rem] rounded-xl border bg-black px-4 text-left text-xl text-white"
+            :class="{
+              'border-red-500': variationCountInvalid,
+              'gradient-border-no-opacity': !variationCountInvalid,
+            }"
           />
+          <div
+            v-if="variationCountInvalid"
+            class="mt-1 ml-2 text-red-400 text-xs"
+          >
+            Please enter a number between 1 and 5
+          </div>
 
           <RadioGroup v-model="selectedCustomizeOption">
             <div class="mt-6 md:w-[30rem]">
@@ -228,10 +245,12 @@ function processConjuringComplete() {
             <textarea
               v-model="customArg"
               type="text"
+              maxlength="500"
               class="mt-1 gradient-border-no-opacity relative w-[50rem] rounded-xl border bg-black px-4 py-2 text-left text-xl text-white resize-none"
               :placeholder="summoner.customizationHelpPrompt"
               rows="4"
             ></textarea>
+            <div class="mt-1 ml-2 text-xs">{{ customArg.length }} / 500</div>
           </div>
 
           <button
