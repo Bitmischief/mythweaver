@@ -48,7 +48,7 @@ export const generateImage = async (prompt: string, count = 1) => {
   const responseJSON = response.data as GenerationResponse;
   const urls: string[] = [];
 
-  responseJSON.artifacts.forEach((image, index) => {
+  responseJSON.artifacts.forEach((image) => {
     const imageId = uuidv4();
 
     fs.writeFileSync(

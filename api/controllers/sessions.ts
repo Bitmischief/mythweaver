@@ -15,7 +15,6 @@ import { prisma } from "../lib/providers/prisma";
 import { AppError, HttpCode } from "../lib/errors/AppError";
 import { Session } from "@prisma/client";
 import { AppEvent, track, TrackingInfo } from "../lib/tracking";
-import { sendTransactionalEmail } from "../lib/transactionalEmail";
 
 interface GetSessionsResponse {
   data: Session[];
