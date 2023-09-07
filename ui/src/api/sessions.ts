@@ -1,5 +1,5 @@
-import axios from "axios";
-import { useSelectedCampaignId } from "@/lib/hooks.ts";
+import axios from 'axios';
+import { useSelectedCampaignId } from '@/lib/hooks.ts';
 
 export interface SessionBase {
   id: number;
@@ -36,7 +36,7 @@ export interface PatchSessionRequest {
 export const getSessions = (query: GetSessionsRequest) => {
   const selectedCampaignId = useSelectedCampaignId();
 
-  return axios.get("/sessions", {
+  return axios.get('/sessions', {
     params: {
       ...query,
       campaignId: selectedCampaignId.value,
@@ -51,7 +51,7 @@ export const getSession = (sessionId: number) => {
 export const postSession = (session: PostSessionRequest) => {
   const selectedCampaignId = useSelectedCampaignId();
 
-  return axios.post("/sessions", {
+  return axios.post('/sessions', {
     ...session,
     campaignId: selectedCampaignId.value,
   });

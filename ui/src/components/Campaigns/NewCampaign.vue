@@ -1,22 +1,22 @@
 <script setup lang="ts">
-import { ArrowRightIcon } from "@heroicons/vue/24/outline";
-import { Campaign, createCampaign, PublicAdventure } from "@/api/campaigns.ts";
-import { onMounted, ref, watch } from "vue";
-import { getRpgSystems, RpgSystem } from "@/api/rpgSystems.ts";
-import { useRouter } from "vue-router";
-import { showSuccess } from "@/lib/notifications.ts";
-import { CAMPAIGN_CREATED_EVENT, useEventBus } from "@/lib/events.ts";
-import { useCampaignStore } from "@/store/campaign.store.ts";
-import TagInput from "@/components/Core/Forms/TagInput.vue";
-import Select from "@/components/Core/Forms/Select.vue";
+import { ArrowRightIcon } from '@heroicons/vue/24/outline';
+import { Campaign, createCampaign, PublicAdventure } from '@/api/campaigns.ts';
+import { onMounted, ref, watch } from 'vue';
+import { getRpgSystems, RpgSystem } from '@/api/rpgSystems.ts';
+import { useRouter } from 'vue-router';
+import { showSuccess } from '@/lib/notifications.ts';
+import { CAMPAIGN_CREATED_EVENT, useEventBus } from '@/lib/events.ts';
+import { useCampaignStore } from '@/store/campaign.store.ts';
+import TagInput from '@/components/Core/Forms/TagInput.vue';
+import Select from '@/components/Core/Forms/Select.vue';
 
 const router = useRouter();
 const eventBus = useEventBus();
 const campaignStore = useCampaignStore();
 
 const campaign = ref<Campaign>({
-  name: "",
-  rpgSystemCode: "dnd",
+  name: '',
+  rpgSystemCode: 'dnd',
   publicAdventureCode: null,
   atmosphere: [],
 } as Campaign);
@@ -56,15 +56,15 @@ async function loadRpgSystems() {
 async function handleCreateCampaign() {
   const createCampaignResponse = await createCampaign({
     ...campaign.value,
-    name: campaign.value.name.length ? campaign.value.name : "New Campaign",
+    name: campaign.value.name.length ? campaign.value.name : 'New Campaign',
   });
   await campaignStore.loadCampaigns();
   await campaignStore.selectCampaign(createCampaignResponse.data.id);
 
   eventBus.$emit(CAMPAIGN_CREATED_EVENT, undefined);
 
-  showSuccess({ message: "Campaign created!" });
-  await router.push("/");
+  showSuccess({ message: 'Campaign created!' });
+  await router.push('/');
 }
 
 const atmosphere = ref<string[]>([]);

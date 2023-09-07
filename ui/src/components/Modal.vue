@@ -56,14 +56,14 @@
 </template>
 
 <script setup lang="ts">
-import { XMarkIcon } from "@heroicons/vue/24/outline";
+import { XMarkIcon } from '@heroicons/vue/24/outline';
 import {
   Dialog,
   DialogPanel,
   DialogTitle,
   TransitionChild,
   TransitionRoot,
-} from "@headlessui/vue";
+} from '@headlessui/vue';
 
 const props = defineProps({
   title: {
@@ -84,13 +84,13 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["close"]);
+const emit = defineEmits(['close']);
 
 const backgroundImageInlineStyle = (): string => {
-  const imageUri = props.bgImage ?? "";
+  const imageUri = props.bgImage ?? '';
 
   if (!imageUri) {
-    return "";
+    return '';
   }
 
   return `background-image: url('${imageUri}');`;

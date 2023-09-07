@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { GoogleLogin } from "vue3-google-login";
-import { useAuthStore } from "@/store";
+import { GoogleLogin } from 'vue3-google-login';
+import { useAuthStore } from '@/store';
 
 const props = defineProps<{
   inviteCode?: string | undefined;
 }>();
 
-const emit = defineEmits(["login-failed"]);
+const emit = defineEmits(['login-failed']);
 
 const authStore = useAuthStore();
 
@@ -17,7 +17,7 @@ const callback = async (googleResponse: any) => {
   );
 
   if (!result) {
-    emit("login-failed");
+    emit('login-failed');
   }
 };
 </script>

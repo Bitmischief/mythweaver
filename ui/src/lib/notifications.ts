@@ -1,4 +1,4 @@
-import { useEventBus } from "@/lib/events";
+import { useEventBus } from '@/lib/events';
 
 export interface NotificationOptions {
   message: string;
@@ -6,16 +6,16 @@ export interface NotificationOptions {
 
 export const showSuccess = (options: NotificationOptions) => {
   const eventBus = useEventBus();
-  eventBus.$emit("showNotification", {
+  eventBus.$emit('showNotification', {
     ...options,
-    type: "success",
+    type: 'success',
   });
 };
 
 export const showError = (options: NotificationOptions) => {
   const eventBus = useEventBus();
-  eventBus.$emit("showNotification", {
+  eventBus.$emit('showNotification', {
     ...options,
-    type: "error",
+    type: 'error',
   });
 };

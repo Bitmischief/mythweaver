@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import { useRoute } from "vue-router";
-import { computed } from "vue";
+import { useRoute } from 'vue-router';
+import { computed } from 'vue';
 
 const route = useRoute();
 const showHeader = computed(
-  () => !route.path.startsWith("/conjurations/view/"),
+  () => !route.path.startsWith('/conjurations/view/'),
 );
 </script>
 

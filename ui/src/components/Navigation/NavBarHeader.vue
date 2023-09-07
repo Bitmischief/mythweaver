@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { UserIcon, ChevronDownIcon } from "@heroicons/vue/20/solid";
-import Menu from "@/components/Core/General/Menu.vue";
-import { MenuButton, MenuItem } from "@headlessui/vue";
-import { useAuthStore } from "@/store";
+import { UserIcon, ChevronDownIcon } from '@heroicons/vue/20/solid';
+import Menu from '@/components/Core/General/Menu.vue';
+import { MenuButton, MenuItem } from '@headlessui/vue';
+import { useAuthStore } from '@/store';
 
 const authStore = useAuthStore();
 

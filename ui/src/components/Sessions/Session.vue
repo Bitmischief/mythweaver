@@ -1,15 +1,15 @@
 <script lang="ts" setup>
-import { SessionBase } from "@/api/sessions.ts";
-import { format, parseISO } from "date-fns";
-import { computed } from "vue";
+import { SessionBase } from '@/api/sessions.ts';
+import { format, parseISO } from 'date-fns';
+import { computed } from 'vue';
 
 const props = defineProps<{
   session: SessionBase;
 }>();
 
-const whenString = computed(() => format(parseISO(props.session.when), "PP"));
+const whenString = computed(() => format(parseISO(props.session.when), 'PP'));
 const whenTimeString = computed(() =>
-  format(parseISO(props.session.when), "p"),
+  format(parseISO(props.session.when), 'p'),
 );
 </script>
 
@@ -23,7 +23,7 @@ const whenTimeString = computed(() =>
     </div>
 
     <div class="mt-4 text-center text-sm text-gray-400">
-      {{ props.session.description || "No description provided" }}
+      {{ props.session.description || 'No description provided' }}
     </div>
   </div>
 </template>

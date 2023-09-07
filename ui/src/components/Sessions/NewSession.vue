@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { ArrowRightIcon } from "@heroicons/vue/24/outline";
-import { SessionBase, postSession } from "@/api/sessions.ts";
-import { ref } from "vue";
-import { useRouter } from "vue-router";
-import { showSuccess } from "@/lib/notifications.ts";
-import DatePicker from "@/components/Core/Forms/DatePicker.vue";
-import TimePicker from "@/components/Core/Forms/TimePicker.vue";
+import { ArrowRightIcon } from '@heroicons/vue/24/outline';
+import { SessionBase, postSession } from '@/api/sessions.ts';
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { showSuccess } from '@/lib/notifications.ts';
+import DatePicker from '@/components/Core/Forms/DatePicker.vue';
+import TimePicker from '@/components/Core/Forms/TimePicker.vue';
 
 const router = useRouter();
 
@@ -18,15 +18,15 @@ const whenDate = ref({
 const whenTime = ref({
   hours: 8,
   minutes: 30,
-  ampm: "PM",
+  ampm: 'PM',
 });
 
 const session = ref<SessionBase>({
   id: 0,
   campaignId: 0,
-  description: "",
-  summary: "",
-  when: "",
+  description: '',
+  summary: '',
+  when: '',
 } as SessionBase);
 
 async function handleCreateSession() {
@@ -36,7 +36,7 @@ async function handleCreateSession() {
       whenDate.value.year,
       whenDate.value.month - 1,
       whenDate.value.day,
-      whenTime.value.ampm === "PM"
+      whenTime.value.ampm === 'PM'
         ? whenTime.value.hours + 12
         : whenTime.value.hours,
       whenTime.value.minutes,
@@ -45,7 +45,7 @@ async function handleCreateSession() {
     ),
   });
 
-  showSuccess({ message: "Session created!" });
+  showSuccess({ message: 'Session created!' });
   await router.push(`/sessions/${createSessionResponse.data.id}/edit`);
 }
 </script>

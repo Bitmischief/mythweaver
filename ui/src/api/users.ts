@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from 'axios';
 
 export interface User {
   id: number;
@@ -6,5 +6,5 @@ export interface User {
 }
 
 export const getCurrentUser = () => {
-  return axios.get("/users/me");
+  return axios.get('/users/me');
 };

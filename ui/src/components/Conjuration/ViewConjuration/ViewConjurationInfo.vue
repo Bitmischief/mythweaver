@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { Conjuration, patchConjuration } from "@/api/conjurations.ts";
-import { showSuccess } from "@/lib/notifications.ts";
-import { computed, onMounted, onUnmounted, ref } from "vue";
-import { useCurrentUserId } from "@/lib/hooks.ts";
-import { useEventBus } from "@/lib/events.ts";
+import { Conjuration, patchConjuration } from '@/api/conjurations.ts';
+import { showSuccess } from '@/lib/notifications.ts';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { useCurrentUserId } from '@/lib/hooks.ts';
+import { useEventBus } from '@/lib/events.ts';
 
 const props = defineProps<{
   conjuration: Conjuration;
@@ -32,7 +32,7 @@ const dataArray = computed(() => {
 const editDataKey = ref<string | undefined>(undefined);
 
 onMounted(() => {
-  eventBus.$on("conjuration-save-info", async () => {
+  eventBus.$on('conjuration-save-info', async () => {
     if (editDataKey.value) {
       editDataKey.value = undefined;
       await saveData();
@@ -41,7 +41,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  eventBus.$off("conjuration-save-info");
+  eventBus.$off('conjuration-save-info');
 });
 
 function enableEdit(key: string, event: MouseEvent) {
@@ -57,13 +57,13 @@ async function saveData() {
   const data = Object.fromEntries(dataArray.value.map((x) => [x.key, x.value]));
   await patchConjuration(props.conjuration.id, { data });
 
-  showSuccess({ message: "Updated conjuration!" });
+  showSuccess({ message: 'Updated conjuration!' });
 }
 
 function textareaGrow(e: any) {
-  e.target.style.height = "5px";
+  e.target.style.height = '5px';
   e.target.style.height =
-    Math.max(e.target.style.minHeight, e.target.scrollHeight) + "px";
+    Math.max(e.target.style.minHeight, e.target.scrollHeight) + 'px';
 }
 </script>
 
