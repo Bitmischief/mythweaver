@@ -15,6 +15,7 @@ import NewSession from "@/components/Sessions/NewSession.vue";
 import ListConjurations from "@/components/Conjuration/ListConjurations.vue";
 import ViewConjuration from "@/components/Conjuration/ViewConjuration.vue";
 import InviteView from "@/views/InviteView.vue";
+import CharactersView from "@/views/CharactersView.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -33,6 +34,14 @@ const router = createRouter({
       name: "HOME",
       path: "/",
       redirect: "/conjurations",
+      meta: {
+        authRequired: true,
+      },
+    },
+    {
+      name: "CHARACTERS",
+      path: "/character",
+      component: CharactersView,
       meta: {
         authRequired: true,
       },

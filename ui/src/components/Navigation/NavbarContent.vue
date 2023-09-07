@@ -14,6 +14,7 @@ import {
   ChatBubbleLeftRightIcon,
   BookOpenIcon,
   BookmarkIcon,
+  UserIcon,
 } from "@heroicons/vue/20/solid";
 
 defineProps<{
@@ -161,6 +162,19 @@ async function navigateToCreateCampaign() {
     >
       <BookOpenIcon v-if="collapsed" class="h-6 w-full" />
       <div v-else class="whitespace-nowrap">Edit Campaign</div>
+    </router-link>
+    <router-link
+      class="text-md my-0.5 p-3 text-gray-300 flex overflow-hidden"
+      :class="[
+        router.currentRoute.value.path.startsWith('/character')
+          ? 'gradient-border-no-opacity '
+          : '',
+      ]"
+      to="/character"
+      @click="emit('nav-item-selected')"
+    >
+      <UserIcon v-if="collapsed" class="h-6 w-full" />
+      <div v-else class="whitespace-nowrap">Character</div>
     </router-link>
     <router-link
       class="text-md my-0.5 p-3 text-gray-300 flex overflow-hidden"

@@ -471,4 +471,47 @@ export default class CampaignController {
       },
     });
   }
+
+  @Security("jwt")
+  @OperationId("getMyCampaignCharacter")
+  @Put("/:campaignId/character")
+  public async getMyCampaignCharacter(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Route() campaignId: number
+  ) {
+    const actingUserCampaignMember = await prisma.campaignMember.findUnique({
+      where: {
+        userId_campaignId: {
+          userId,
+          campaignId,
+        },
+      },
+    });
+
+    if (!actingUserCampaignMember) {
+      throw new AppError({
+        httpCode: HttpCode.FORBIDDEN,
+        description: "You are not a member of this campaign",
+      });
+    }
+
+    const character = await prisma.character.findUnique({
+      where: {
+        userId_campaignId: {
+          campaignId,
+          userId,
+        },
+      },
+    });
+
+    if (!character) {
+      throw new AppError({
+        httpCode: HttpCode.NOT_FOUND,
+        description: "This user does not have a character in this campaign",
+      });
+    }
+
+    return character;
+  }
 }
