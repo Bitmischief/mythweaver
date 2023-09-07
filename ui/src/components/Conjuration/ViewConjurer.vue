@@ -255,6 +255,7 @@ const variationCountInvalid = computed(
 
           <button
             class="mt-8 flex cursor-pointer rounded-xl bg-black bg-gradient px-4 py-2 text-lg text-white"
+            :disabled="variationCountInvalid"
             @click="generate(summoner.code)"
           >
             <span class="self-center"> Begin Summoning </span>
