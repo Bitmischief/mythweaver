@@ -1,10 +1,5 @@
 import { Get, Inject, OperationId, Query, Route, Security, Tags } from "tsoa";
-import { prisma } from "../lib/providers/prisma";
-import rpgSystems, {
-  getRpgSystem,
-  PublicAdventure,
-  RpgSystem,
-} from "../data/rpgSystems";
+import rpgSystems, { RpgSystem } from "../data/rpgSystems";
 import { AppEvent, track, TrackingInfo } from "../lib/tracking";
 
 interface GetRpgSystemsResponse {

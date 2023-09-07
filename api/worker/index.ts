@@ -49,15 +49,16 @@ conjureQueue.process(async (job, done) => {
   const jobPromises = [];
 
   for (let i = 0; i < job.data.count; i++) {
-    try {
-      const promise = conjure(job.data);
-      jobPromises.push(promise);
-    } catch (err) {
-      logger.error("Error processing conjure job!", err);
-    }
+    const promise = conjure(job.data);
+    jobPromises.push(promise);
   }
 
-  await Promise.all(jobPromises);
-  logger.info("Completed processing conjure job", job.data);
-  done();
+  try {
+    await Promise.all(jobPromises);
+    logger.info("Completed processing conjure job", job.data);
+    done();
+  } catch (err) {
+    logger.error("Error processing conjure job!", err);
+    done(new Error("Error processing conjure job!"));
+  }
 });
