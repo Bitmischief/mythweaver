@@ -1,5 +1,5 @@
-import { extractTrackingInfo } from "./tracking";
-import { NextFunction, Request, Response } from "express";
+import { extractTrackingInfo } from './tracking';
+import { NextFunction, Request, Response } from 'express';
 
 export const useInjectTrackingInfo = async (
   req: Request,

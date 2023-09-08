@@ -1,4 +1,4 @@
-import gsap from "gsap";
+import gsap from 'gsap';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import Timeline = gsap.core.Timeline;
@@ -8,58 +8,58 @@ export function init(id: string): void {
 
   gsap.set(id, { opacity: 1 });
 
-  gsap.set("#st > *", { scale: 0, transformOrigin: "center" });
-  gsap.set("#steam1X", { scaleX: 0.2, transformOrigin: "center" });
-  gsap.set("#steam1Y", { scaleY: 0, transformOrigin: "50% 100%" });
-  gsap.set("#steam2", { scale: 0, transformOrigin: "50% 50%" });
-  gsap.set("#steam3", { scale: 0, transformOrigin: "50% 50%" });
+  gsap.set('#st > *', { scale: 0, transformOrigin: 'center' });
+  gsap.set('#steam1X', { scaleX: 0.2, transformOrigin: 'center' });
+  gsap.set('#steam1Y', { scaleY: 0, transformOrigin: '50% 100%' });
+  gsap.set('#steam2', { scale: 0, transformOrigin: '50% 50%' });
+  gsap.set('#steam3', { scale: 0, transformOrigin: '50% 50%' });
 
-  gsap.set("#sparkle > *", { scale: 0, transformOrigin: "center" });
-  gsap.set("#pot", { opacity: 0, rotation: -2, transformOrigin: "center" });
+  gsap.set('#sparkle > *', { scale: 0, transformOrigin: 'center' });
+  gsap.set('#pot', { opacity: 0, rotation: -2, transformOrigin: 'center' });
 
   for (let i = 1; i <= 12; i++) {
     const tempLenght =
       Number(
-        (document.querySelector("#line" + i) as SVGGeometryElement).getTotalLength().toFixed(0),
+        (document.querySelector('#line' + i) as SVGGeometryElement).getTotalLength().toFixed(0),
       ) + 1;
-    gsap.set("#line" + i, { strokeDasharray: tempLenght, strokeDashoffset: tempLenght });
+    gsap.set('#line' + i, { strokeDasharray: tempLenght, strokeDashoffset: tempLenght });
   }
 
-  gsap.to("#pot", { rotation: 2, ease: "sine.inOut", duration: 1, repeat: -1, yoyo: true });
+  gsap.to('#pot', { rotation: 2, ease: 'sine.inOut', duration: 1, repeat: -1, yoyo: true });
 }
 
 export function animateLoading(): Timeline {
-  gsap.to("#pot", { delay: 0, opacity: 1, ease: "sine.inOut", duration: 0.5 });
+  gsap.to('#pot', { delay: 0, opacity: 1, ease: 'sine.inOut', duration: 0.5 });
 
-  const tl = gsap.timeline({ defaults: { ease: "none", duration: 0.25 } });
+  const tl = gsap.timeline({ defaults: { ease: 'none', duration: 0.25 } });
 
-  tl.to("#line1", { strokeDashoffset: 0 })
-    .to("#line2", { strokeDashoffset: 0 }, ">-.1")
-    .to("#line1", { opacity: 0 }, "<")
-    .to("#line3", { strokeDashoffset: 0 }, ">-.1")
-    .to("#line2", { opacity: 0 }, "<")
+  tl.to('#line1', { strokeDashoffset: 0 })
+    .to('#line2', { strokeDashoffset: 0 }, '>-.1')
+    .to('#line1', { opacity: 0 }, '<')
+    .to('#line3', { strokeDashoffset: 0 }, '>-.1')
+    .to('#line2', { opacity: 0 }, '<')
 
-    .to("#line4", { strokeDashoffset: 0 }, ">-.1")
-    .to("#line3", { opacity: 0 }, "<")
-    .to("#line5", { strokeDashoffset: 0 }, ">-.1")
-    .to("#line4", { opacity: 0 }, "<")
-    .to("#line6", { strokeDashoffset: 0 }, ">-.1")
-    .to("#line5", { opacity: 0 }, "<")
+    .to('#line4', { strokeDashoffset: 0 }, '>-.1')
+    .to('#line3', { opacity: 0 }, '<')
+    .to('#line5', { strokeDashoffset: 0 }, '>-.1')
+    .to('#line4', { opacity: 0 }, '<')
+    .to('#line6', { strokeDashoffset: 0 }, '>-.1')
+    .to('#line5', { opacity: 0 }, '<')
 
-    .to("#line7", { strokeDashoffset: 0 }, ">-.1")
-    .to("#line6", { opacity: 0 }, "<")
-    .to("#line8", { strokeDashoffset: 0 }, ">-.1")
-    .to("#line7", { opacity: 0 }, "<")
-    .to("#line9", { strokeDashoffset: 0 }, ">-.1")
-    .to("#line8", { opacity: 0 }, "<")
+    .to('#line7', { strokeDashoffset: 0 }, '>-.1')
+    .to('#line6', { opacity: 0 }, '<')
+    .to('#line8', { strokeDashoffset: 0 }, '>-.1')
+    .to('#line7', { opacity: 0 }, '<')
+    .to('#line9', { strokeDashoffset: 0 }, '>-.1')
+    .to('#line8', { opacity: 0 }, '<')
 
-    .to("#line10", { strokeDashoffset: 0 }, ">-.1")
-    .to("#line9", { opacity: 0 }, "<")
-    .to("#line11", { strokeDashoffset: 0 }, ">-.1")
-    .to("#line10", { opacity: 0 }, "<")
-    .to("#line12", { strokeDashoffset: 0 }, ">-.1")
-    .to("#line11", { opacity: 0 }, "<")
-    .to("#line12", { opacity: 0 }, ">-.1")
+    .to('#line10', { strokeDashoffset: 0 }, '>-.1')
+    .to('#line9', { opacity: 0 }, '<')
+    .to('#line11', { strokeDashoffset: 0 }, '>-.1')
+    .to('#line10', { opacity: 0 }, '<')
+    .to('#line12', { strokeDashoffset: 0 }, '>-.1')
+    .to('#line11', { opacity: 0 }, '<')
+    .to('#line12', { opacity: 0 }, '>-.1')
     .repeat(200);
 
   return tl;
@@ -71,24 +71,24 @@ export function animateDone(loadingTimeline: Timeline) {
   for (let i = 1; i < 13; i++) {
     gsap.set(`#line${i}`, { opacity: 0 });
   }
-  gsap.set("#pot", { opacity: 1, rotation: -2, transformOrigin: "center" });
+  gsap.set('#pot', { opacity: 1, rotation: -2, transformOrigin: 'center' });
   gsap
-    .timeline({ repeat: 0, defaults: { ease: "none", duration: 0.25 } })
-    .to("#steam1Y", { scaleY: 1, duration: 0.5, ease: "sine.inOut" }, ">-.1")
-    .to("#steam1X", { scaleX: 1, duration: 0.5, ease: "sine.inOut" }, ">-.4")
-    .to("#steam2", { scale: 1, duration: 0.5, ease: "sine.inOut" }, ">-.2")
-    .to("#steam1Y", { opacity: 0, duration: 0.5, ease: "sine.inOut" }, "<")
-    .to("#steam3", { scale: 1, duration: 0.5, ease: "sine.inOut" }, ">-.2")
-    .to("#steam2", { opacity: 0, duration: 0.5, ease: "sine.inOut" }, "<")
-    .to("#pot", { opacity: 0, duration: 0.5, ease: "sine.inOut" }, "<")
+    .timeline({ repeat: 0, defaults: { ease: 'none', duration: 0.25 } })
+    .to('#steam1Y', { scaleY: 1, duration: 0.5, ease: 'sine.inOut' }, '>-.1')
+    .to('#steam1X', { scaleX: 1, duration: 0.5, ease: 'sine.inOut' }, '>-.4')
+    .to('#steam2', { scale: 1, duration: 0.5, ease: 'sine.inOut' }, '>-.2')
+    .to('#steam1Y', { opacity: 0, duration: 0.5, ease: 'sine.inOut' }, '<')
+    .to('#steam3', { scale: 1, duration: 0.5, ease: 'sine.inOut' }, '>-.2')
+    .to('#steam2', { opacity: 0, duration: 0.5, ease: 'sine.inOut' }, '<')
+    .to('#pot', { opacity: 0, duration: 0.5, ease: 'sine.inOut' }, '<')
 
-    .to("#st > *", { scale: 1, opacity: 0, duration: 0.5, ease: "sine.inOut" }, ">-.2")
-    .to("#steam3", { opacity: 0, duration: 0.5, ease: "sine.inOut" }, "<")
-    .to("#steam3", { opacity: 0, duration: 1, ease: "sine.inOut" });
+    .to('#st > *', { scale: 1, opacity: 0, duration: 0.5, ease: 'sine.inOut' }, '>-.2')
+    .to('#steam3', { opacity: 0, duration: 0.5, ease: 'sine.inOut' }, '<')
+    .to('#steam3', { opacity: 0, duration: 1, ease: 'sine.inOut' });
 }
 
 function importSVG(id: string) {
-  const animWrapper = document.getElementById(id.replace("#", ""));
+  const animWrapper = document.getElementById(id.replace('#', ''));
 
   if (!animWrapper) return;
 
@@ -96,8 +96,8 @@ function importSVG(id: string) {
 
   if (!document) return;
 
-  (document.querySelector(".animation_wrapper svg") as any).style.width = "100%";
-  (document.querySelector(".animation_wrapper svg") as any).style.height = "100%";
+  (document.querySelector('.animation_wrapper svg') as any).style.width = '100%';
+  (document.querySelector('.animation_wrapper svg') as any).style.height = '100%';
 }
 
 const svgContents = `<svg version="1.1" id="mythWeaver" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"

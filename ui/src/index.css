@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 @font-face {
-  font-family: "Gilroy";
-  src: url("/fonts/Gilroy-Light.otf"), url("/fonts/Gilroy-ExtraBold.ttf");
+  font-family: 'Gilroy';
+  src: url('/fonts/Gilroy-Light.otf'), url('/fonts/Gilroy-ExtraBold.ttf');
 }
 
 .gradient-border {
@@ -47,7 +47,7 @@ input::-webkit-inner-spin-button {
 }
 
 /* Firefox */
-input[type="number"] {
+input[type='number'] {
   -moz-appearance: textfield;
 }
 

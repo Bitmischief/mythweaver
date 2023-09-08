@@ -1,13 +1,13 @@
 <script lang="ts" setup>
-import { computed, onMounted, ref, watch } from "vue";
-import { Conjuration, getConjuration } from "@/api/conjurations.ts";
-import { useRoute, useRouter } from "vue-router";
-import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/vue";
-import ViewConjurationActions from "@/components/Conjuration/ViewConjuration/ViewConjurationActions.vue";
-import ViewConjurationHeader from "@/components/Conjuration/ViewConjuration/ViewConjurationHeader.vue";
-import ViewConjurationInfo from "@/components/Conjuration/ViewConjuration/ViewConjurationInfo.vue";
-import { useEventBus } from "@/lib/events.ts";
-import ViewConjurationRelated from "@/components/Conjuration/ViewConjuration/ViewConjurationRelated.vue";
+import { computed, onMounted, ref, watch } from 'vue';
+import { Conjuration, getConjuration } from '@/api/conjurations.ts';
+import { useRoute, useRouter } from 'vue-router';
+import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/vue';
+import ViewConjurationActions from '@/components/Conjuration/ViewConjuration/ViewConjurationActions.vue';
+import ViewConjurationHeader from '@/components/Conjuration/ViewConjuration/ViewConjurationHeader.vue';
+import ViewConjurationInfo from '@/components/Conjuration/ViewConjuration/ViewConjurationInfo.vue';
+import { useEventBus } from '@/lib/events.ts';
+import ViewConjurationRelated from '@/components/Conjuration/ViewConjuration/ViewConjurationRelated.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -17,16 +17,16 @@ const conjuration = ref<Conjuration | null>(null);
 
 const tabs = ref([
   {
-    name: "Info",
+    name: 'Info',
     highlight: false,
   },
   {
-    name: "Related",
+    name: 'Related',
     highlight: true,
-    highlightColor: "bg-blue-500",
+    highlightColor: 'bg-blue-500',
   },
   {
-    name: "Quests",
+    name: 'Quests',
     soon: true,
     disabled: true,
   },
@@ -60,14 +60,14 @@ async function loadConjuration() {
 
 const backgroundImageInlineStyle = (imageUri: string | undefined): string => {
   if (!imageUri) {
-    return "";
+    return '';
   }
 
   return `background-image: url("${imageUri}");`;
 };
 
 function emitSaveInfo() {
-  eventBus.$emit("conjuration-save-info", undefined);
+  eventBus.$emit('conjuration-save-info', undefined);
 }
 </script>
 

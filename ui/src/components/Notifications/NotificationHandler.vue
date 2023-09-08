@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
-import { useEventBus } from "@/lib/events.ts";
+import { onMounted, ref } from 'vue';
+import { useEventBus } from '@/lib/events.ts';
 
 const eventBus = useEventBus();
 
 const showNotification = ref(false);
-const typeRef = ref("");
+const typeRef = ref('');
 const timeoutRef = ref(0);
-const messageRef = ref("");
+const messageRef = ref('');
 
 onMounted(() => {
-  eventBus.$on("showNotification", (options: any) => {
-    const { type = "success", timeout = 5000, message } = options || {};
+  eventBus.$on('showNotification', (options: any) => {
+    const { type = 'success', timeout = 5000, message } = options || {};
 
     typeRef.value = type;
     timeoutRef.value = timeout;

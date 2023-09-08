@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid/index.js";
+import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid/index.js';
 import {
   Listbox,
   ListboxButton,
   ListboxOption,
   ListboxOptions,
-} from "@headlessui/vue";
-import { computed } from "vue";
+} from '@headlessui/vue';
+import { computed } from 'vue';
 
 const props = defineProps<{
   modelValue: any | null | undefined;
@@ -20,13 +20,13 @@ const props = defineProps<{
   readonly?: boolean;
 }>();
 
-const emit = defineEmits(["update:modelValue", "change"]);
+const emit = defineEmits(['update:modelValue', 'change']);
 
 const value = computed({
   get: () => props.modelValue,
   set: (value) => {
-    emit("change", value);
-    emit("update:modelValue", value);
+    emit('change', value);
+    emit('update:modelValue', value);
   },
 });
 
@@ -35,7 +35,7 @@ const allOptions = computed(() => {
     return [
       {
         [props.valueProp]: null,
-        [props.displayProp]: "None",
+        [props.displayProp]: 'None',
       },
       ...props.options,
     ];
@@ -56,7 +56,7 @@ const displayedValue = computed(() => {
     (!value.value && props.allowNone) ||
     (value?.value?.length === 0 && props.allowNone)
   ) {
-    return "None";
+    return 'None';
   }
 
   if (showPlaceholder.value) {
@@ -70,17 +70,17 @@ const displayedValue = computed(() => {
           (o) => o[props.valueProp] === v,
         );
 
-        if (!selectedOption) return "";
+        if (!selectedOption) return '';
 
         return selectedOption[props.displayProp];
       })
-      .join(", ");
+      .join(', ');
   } else {
     const selectedOption = allOptions.value.find(
       (o) => o[props.valueProp] === value.value,
     );
 
-    if (!selectedOption) return "";
+    if (!selectedOption) return '';
 
     return selectedOption[props.displayProp];
   }

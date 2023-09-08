@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import ModalAlternate from "@/components/ModalAlternate.vue";
-import LoginContent from "@/components/Login/LoginContent.vue";
-import { computed, onMounted, ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import ModalAlternate from '@/components/ModalAlternate.vue';
+import LoginContent from '@/components/Login/LoginContent.vue';
+import { computed, onMounted, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import {
   acceptCampaignInvite,
   CampaignInvite,
   getCampaignInvite,
-} from "@/api/campaigns.ts";
-import { useAuthStore } from "@/store";
-import { showSuccess } from "@/lib/notifications.ts";
-import { useCampaignStore } from "@/store/campaign.store.ts";
+} from '@/api/campaigns.ts';
+import { useAuthStore } from '@/store';
+import { showSuccess } from '@/lib/notifications.ts';
+import { useCampaignStore } from '@/store/campaign.store.ts';
 
 const route = useRoute();
 const router = useRouter();
@@ -28,9 +28,9 @@ onMounted(async () => {
 
   if (authStore.tokens) {
     await acceptCampaignInvite(inviteCode.value);
-    showSuccess({ message: "Campaign invite accepted!" });
+    showSuccess({ message: 'Campaign invite accepted!' });
     await campaignStore.loadCampaigns();
-    await router.push("/");
+    await router.push('/');
   }
 });
 </script>

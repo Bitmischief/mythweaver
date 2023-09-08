@@ -1,22 +1,22 @@
 <script setup lang="ts">
-import { CheckIcon, PlusIcon, XMarkIcon } from "@heroicons/vue/20/solid";
+import { CheckIcon, PlusIcon, XMarkIcon } from '@heroicons/vue/20/solid';
 import {
   addConjuration,
   Conjuration,
   deleteConjuration,
-} from "@/api/conjurations.ts";
-import { useCurrentUserId } from "@/lib/hooks.ts";
-import { useRouter } from "vue-router";
-import { ref } from "vue";
-import { showSuccess } from "@/lib/notifications.ts";
-import DeleteModal from "@/components/Core/General/DeleteModal.vue";
+} from '@/api/conjurations.ts';
+import { useCurrentUserId } from '@/lib/hooks.ts';
+import { useRouter } from 'vue-router';
+import { ref } from 'vue';
+import { showSuccess } from '@/lib/notifications.ts';
+import DeleteModal from '@/components/Core/General/DeleteModal.vue';
 
 const props = defineProps<{
   conjuration: Conjuration | undefined;
   skeleton?: boolean;
 }>();
 
-const emit = defineEmits(["add-conjuration", "remove-conjuration"]);
+const emit = defineEmits(['add-conjuration', 'remove-conjuration']);
 
 const router = useRouter();
 const currentUserId = useCurrentUserId();
@@ -27,7 +27,7 @@ const isMyConjuration = (conjuration: any) =>
 async function handleAddConjuration(conjurationId: number) {
   await addConjuration(conjurationId);
 
-  emit("add-conjuration", conjurationId);
+  emit('add-conjuration', conjurationId);
 }
 
 async function navigateToViewConjuration(conjurationId: number) {
@@ -41,9 +41,9 @@ async function clickDeleteConjuration() {
     ? props.conjuration?.copies[0].id
     : props.conjuration?.id;
   await deleteConjuration(conjurationId);
-  showSuccess({ message: "Successfully removed conjuration" });
+  showSuccess({ message: 'Successfully removed conjuration' });
 
-  emit("remove-conjuration", conjurationId);
+  emit('remove-conjuration', conjurationId);
   showDeleteModal.value = false;
 }
 

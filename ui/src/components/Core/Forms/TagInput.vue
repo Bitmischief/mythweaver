@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { PlusIcon, XCircleIcon } from "@heroicons/vue/20/solid";
-import { ref, watch } from "vue";
+import { PlusIcon, XCircleIcon } from '@heroicons/vue/20/solid';
+import { ref, watch } from 'vue';
 
 const props = defineProps({
   modelValue: {
@@ -14,15 +14,15 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["update:modelValue"]);
+const emit = defineEmits(['update:modelValue']);
 
 const value = ref<string[]>(props.modelValue || []);
 
 watch(value, () => {
-  emit("update:modelValue", value.value);
+  emit('update:modelValue', value.value);
 });
 
-const tagInput = ref("");
+const tagInput = ref('');
 
 function addVal() {
   const index = value.value.indexOf(tagInput.value);
@@ -30,7 +30,7 @@ function addVal() {
     value.value.push(tagInput.value);
   }
 
-  tagInput.value = "";
+  tagInput.value = '';
 }
 
 function removeVal(val: string) {

@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from 'vue';
 import {
   Conjuration,
   getConjurations,
   getConjurationTags,
   GetConjurationTagsRequest,
-} from "@/api/conjurations.ts";
-import { XMarkIcon, BoltIcon } from "@heroicons/vue/20/solid";
-import Select from "@/components/Core/Forms/Select.vue";
-import { useSelectedCampaignId } from "@/lib/hooks.ts";
-import { Conjurer, getConjurers } from "@/api/generators.ts";
-import Autocomplete from "@/components/Core/Forms/Autocomplete.vue";
-import ConjurationQuickView from "@/components/Conjuration/ConjurationListItemView.vue";
-import { debounce } from "lodash";
+} from '@/api/conjurations.ts';
+import { XMarkIcon, BoltIcon } from '@heroicons/vue/20/solid';
+import Select from '@/components/Core/Forms/Select.vue';
+import { useSelectedCampaignId } from '@/lib/hooks.ts';
+import { Conjurer, getConjurers } from '@/api/generators.ts';
+import Autocomplete from '@/components/Core/Forms/Autocomplete.vue';
+import ConjurationQuickView from '@/components/Conjuration/ConjurationListItemView.vue';
+import { debounce } from 'lodash';
 
 const selectedCampaignId = useSelectedCampaignId();
 
@@ -40,7 +40,7 @@ const conjurationsPagingQuery = ref(initialPaging);
 
 const tags = ref<string[]>([]);
 const tagsQuery = ref<GetConjurationTagsRequest>({
-  term: "",
+  term: '',
   offset: 0,
   limit: 10,
 });
@@ -50,8 +50,8 @@ onMounted(async () => {
   await loadConjurations();
   await loadTags();
 
-  const viewParent = document.querySelector("#view-parent");
-  viewParent?.addEventListener("scroll", () => {
+  const viewParent = document.querySelector('#view-parent');
+  viewParent?.addEventListener('scroll', () => {
     if (!viewParent) return;
 
     if (
@@ -245,7 +245,7 @@ function removeTag(tag: string) {
 .divider::before,
 .divider::after {
   flex: 1;
-  content: "";
+  content: '';
   padding: 1px;
   background-color: #212121;
   margin: 0 16px;
