@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
-import { getSessions, SessionBase } from "@/api/sessions.ts";
-import { useEventBus } from "@/lib/events.ts";
-import Session from "@/components/Sessions/Session.vue";
-import { useCampaignStore } from "@/store/campaign.store.ts";
-import { CampaignRole } from "@/api/campaigns.ts";
+import { computed, onMounted, ref } from 'vue';
+import { getSessions, SessionBase } from '@/api/sessions.ts';
+import { useEventBus } from '@/lib/events.ts';
+import Session from '@/components/Sessions/Session.vue';
+import { useCampaignStore } from '@/store/campaign.store.ts';
+import { CampaignRole } from '@/api/campaigns.ts';
 
 const eventBus = useEventBus();
 const campaignStore = useCampaignStore();
@@ -21,7 +21,7 @@ const currentUserRole = computed(() => campaignStore.selectedCampaignRole);
 onMounted(async () => {
   await init();
 
-  eventBus.$on("campaign-selected", async () => {
+  eventBus.$on('campaign-selected', async () => {
     await init();
   });
 });

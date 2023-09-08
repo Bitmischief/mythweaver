@@ -1,4 +1,4 @@
-import MailchimpClient, { MergeVar } from "@mailchimp/mailchimp_transactional";
+import MailchimpClient, { MergeVar } from '@mailchimp/mailchimp_transactional';
 
 const mailchimpClient = MailchimpClient(
   process.env.MAILCHIMP_TRANSACTIONAL_API_KEY as string
@@ -10,13 +10,13 @@ export const sendTransactionalEmail = async (
   to: string,
   variables: MergeVar[]
 ) => {
-  const response = await mailchimpClient.messages.sendTemplate({
+  await mailchimpClient.messages.sendTemplate({
     template_name: template,
     template_content: [],
     message: {
       subject: subject,
-      from_email: "noreply@mythweaver.co",
-      from_name: "MythWeaver",
+      from_email: 'noreply@mythweaver.co',
+      from_name: 'MythWeaver',
       to: [
         {
           email: to,

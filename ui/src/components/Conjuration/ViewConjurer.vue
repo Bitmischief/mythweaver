@@ -1,25 +1,25 @@
 <script setup lang="ts">
-import { onMounted, ref, onUnmounted, computed } from "vue";
+import { onMounted, ref, onUnmounted, computed } from 'vue';
 import {
   getConjurer,
   postConjure,
   Conjurer,
   getConjurationRequest,
-} from "@/api/generators.ts";
-import { useRoute } from "vue-router";
-import { useCampaignStore } from "@/store/campaign.store.ts";
-import { storeToRefs } from "pinia";
-import SummoningLoader from "@/components/Conjuration/ConjuringLoader.vue";
-import { useEventBus } from "@/lib/events.ts";
-import { ArrowLeftIcon } from "@heroicons/vue/24/solid";
-import ConjurationQuickView from "@/components/Conjuration/ConjurationListItemView.vue";
+} from '@/api/generators.ts';
+import { useRoute } from 'vue-router';
+import { useCampaignStore } from '@/store/campaign.store.ts';
+import { storeToRefs } from 'pinia';
+import SummoningLoader from '@/components/Conjuration/ConjuringLoader.vue';
+import { useEventBus } from '@/lib/events.ts';
+import { ArrowLeftIcon } from '@heroicons/vue/24/solid';
+import ConjurationQuickView from '@/components/Conjuration/ConjurationListItemView.vue';
 import {
   RadioGroup,
   RadioGroupLabel,
   RadioGroupOption,
   RadioGroupDescription,
-} from "@headlessui/vue";
-import { trimPlural } from "@/lib/util.ts";
+} from '@headlessui/vue';
+import { trimPlural } from '@/lib/util.ts';
 
 const route = useRoute();
 const eventBus = useEventBus();
@@ -34,12 +34,12 @@ const summonedItems = ref<any[]>([]);
 
 const customizeOptions = ref([
   {
-    title: "Surprise Me",
-    description: "Our conjurer will choose the best options for you",
+    title: 'Surprise Me',
+    description: 'Our conjurer will choose the best options for you',
   },
   {
-    title: "Customize",
-    description: "Hand pick the options you want to use",
+    title: 'Customize',
+    description: 'Hand pick the options you want to use',
   },
 ]);
 const selectedCustomizeOption = ref(customizeOptions.value[0]);
@@ -49,7 +49,7 @@ const customize = computed(
 
 const conjurationRequestId = ref<number | undefined>(undefined);
 const conjurationCount = ref(1);
-const customArg = ref<string>("");
+const customArg = ref<string>('');
 
 const pollingIntervalId = ref<number | undefined>(undefined);
 
@@ -68,7 +68,7 @@ onUnmounted(() => {
 
 const backgroundImageInlineStyle = (imageUri: string | undefined): string => {
   if (!imageUri) {
-    return "";
+    return '';
   }
 
   // if (!generating.value && animationDone.value && summonedItems.value.length) {
@@ -89,7 +89,10 @@ async function generate(generatorCode: string) {
   const generateResponse = await postConjure(generatorCode, {
     count: conjurationCount.value,
     campaignId: selectedCampaignId.value || 0,
-    customArg: customArg.value,
+    customArg:
+      customArg.value.length > 500
+        ? customArg.value.slice(0, 500)
+        : customArg.value,
   });
   conjurationRequestId.value = generateResponse.data.conjurationRequestId;
 
@@ -120,9 +123,9 @@ async function loadConjurationRequest() {
 
 function processConjuringPartiallyComplete() {
   generating.value = false;
-  eventBus.$emit("summoningDone", {});
+  eventBus.$emit('summoningDone', {});
 
-  eventBus.$on("summoningAnimationDone", () => {
+  eventBus.$on('summoningAnimationDone', () => {
     animationDone.value = true;
   });
 }
@@ -130,6 +133,10 @@ function processConjuringPartiallyComplete() {
 function processConjuringComplete() {
   clearInterval(pollingIntervalId.value);
 }
+
+const variationCountInvalid = computed(
+  () => conjurationCount.value < 1 || conjurationCount.value > 5,
+);
 </script>
 
 <template>
@@ -158,8 +165,18 @@ function processConjuringComplete() {
           <input
             v-model="conjurationCount"
             type="number"
-            class="mt-1 gradient-border-no-opacity relative h-[3rem] w-[20rem] rounded-xl border bg-black px-4 text-left text-xl text-white"
+            class="mt-1 relative h-[3rem] w-[20rem] rounded-xl border bg-black px-4 text-left text-xl text-white"
+            :class="{
+              'border-red-500': variationCountInvalid,
+              'gradient-border-no-opacity': !variationCountInvalid,
+            }"
           />
+          <div
+            v-if="variationCountInvalid"
+            class="mt-1 ml-2 text-red-400 text-xs"
+          >
+            Please enter a number between 1 and 5
+          </div>
 
           <RadioGroup v-model="selectedCustomizeOption">
             <div class="mt-6 md:w-[30rem]">
@@ -228,14 +245,17 @@ function processConjuringComplete() {
             <textarea
               v-model="customArg"
               type="text"
+              maxlength="500"
               class="mt-1 gradient-border-no-opacity relative w-[50rem] rounded-xl border bg-black px-4 py-2 text-left text-xl text-white resize-none"
               :placeholder="summoner.customizationHelpPrompt"
               rows="4"
             ></textarea>
+            <div class="mt-1 ml-2 text-xs">{{ customArg.length }} / 500</div>
           </div>
 
           <button
             class="mt-8 flex cursor-pointer rounded-xl bg-black bg-gradient px-4 py-2 text-lg text-white"
+            :disabled="variationCountInvalid"
             @click="generate(summoner.code)"
           >
             <span class="self-center"> Begin Summoning </span>

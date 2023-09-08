@@ -1,7 +1,7 @@
-import { Response } from "express";
-import { AppError, HttpCode } from "./AppError";
-import { parentLogger } from "../logger";
-import { AxiosError } from "axios";
+import { Response } from 'express';
+import { AppError, HttpCode } from './AppError';
+import { parentLogger } from '../logger';
+import { AxiosError } from 'axios';
 const logger = parentLogger.getSubLogger();
 
 class ErrorHandler {
@@ -30,7 +30,7 @@ class ErrorHandler {
     response?: Response
   ): void {
     logger.fatal(
-      "Critical uncaught error",
+      'Critical uncaught error',
       error?.message,
       (error as AppError)?.description,
       (error as AxiosError)?.response?.data
@@ -39,7 +39,7 @@ class ErrorHandler {
     if (response && response.status) {
       response
         ?.status(HttpCode.INTERNAL_SERVER_ERROR)
-        ?.json({ message: "Internal server error" });
+        ?.json({ message: 'Internal server error' });
     }
   }
 }

@@ -1,4 +1,4 @@
-import { defineStore } from "pinia";
+import { defineStore } from 'pinia';
 import {
   Campaign,
   CampaignRole,
@@ -7,9 +7,9 @@ import {
   getCampaigns,
   PutCampaignRequest,
   saveCampaign,
-} from "@/api/campaigns.ts";
-import { NO_CAMPAIGNS_EVENT, useEventBus } from "@/lib/events.ts";
-import { useCurrentUserId } from "@/lib/hooks.ts";
+} from '@/api/campaigns.ts';
+import { NO_CAMPAIGNS_EVENT, useEventBus } from '@/lib/events.ts';
+import { useCurrentUserId } from '@/lib/hooks.ts';
 
 const eventBus = useEventBus();
 
@@ -20,13 +20,13 @@ interface CampaignStoreState {
   campaigns: Campaign[];
 }
 
-const SELECTED_CAMPAIGN_ID_KEY_NAME = "selected-campaign-id";
+const SELECTED_CAMPAIGN_ID_KEY_NAME = 'selected-campaign-id';
 
 export const useCampaignStore = defineStore({
-  id: "campaign",
+  id: 'campaign',
   state: (): CampaignStoreState => ({
     selectedCampaignId: localStorage.getItem(SELECTED_CAMPAIGN_ID_KEY_NAME)
-      ? parseInt(localStorage.getItem(SELECTED_CAMPAIGN_ID_KEY_NAME) || "")
+      ? parseInt(localStorage.getItem(SELECTED_CAMPAIGN_ID_KEY_NAME) || '')
       : undefined,
     selectedCampaign: undefined,
     selectedCampaignRole: undefined,
@@ -44,7 +44,7 @@ export const useCampaignStore = defineStore({
 
       this.setCampaignRole();
 
-      eventBus.$emit("campaign-selected", this.selectedCampaign);
+      eventBus.$emit('campaign-selected', this.selectedCampaign);
     },
     async getCampaigns() {
       const campaignsResponse = await getCampaigns({
@@ -53,6 +53,10 @@ export const useCampaignStore = defineStore({
       });
 
       this.campaigns = campaignsResponse.data.data;
+
+      if (this.selectedCampaignId === undefined && this.campaigns.length) {
+        await this.selectCampaign(this.campaigns[0].id);
+      }
     },
     setCampaignRole() {
       const currentUserId = useCurrentUserId();

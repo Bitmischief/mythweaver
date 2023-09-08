@@ -1,18 +1,18 @@
-import express, { Request, Response } from "express";
-import { useAuthenticateRequest } from "../lib/authMiddleware";
-import { z } from "zod";
-import { useValidateRequest } from "../lib/validationMiddleware";
-import UserController from "../controllers/users";
-import mailchimpClient from "../lib/mailchimpMarketing";
-import { lists, Status } from "@mailchimp/mailchimp_marketing";
+import express, { Request, Response } from 'express';
+import { useAuthenticateRequest } from '../lib/authMiddleware';
+import { z } from 'zod';
+import { useValidateRequest } from '../lib/validationMiddleware';
+import UserController from '../controllers/users';
+import mailchimpClient from '../lib/mailchimpMarketing';
+import { lists, Status } from '@mailchimp/mailchimp_marketing';
 import EmailType = lists.EmailType;
-import { format } from "date-fns";
-import { parentLogger } from "../lib/logger";
+import { format } from 'date-fns';
+import { parentLogger } from '../lib/logger';
 const logger = parentLogger.getSubLogger();
 
 const router = express.Router();
 
-router.get("/me", [
+router.get('/me', [
   useAuthenticateRequest(),
   async (req: Request, res: Response) => {
     const controller = new UserController();
@@ -32,7 +32,7 @@ const patchUsersSchema = z.object({
   data: z.array(z.object({ key: z.string(), value: z.any() })).optional(),
 });
 
-router.patch("/me", [
+router.patch('/me', [
   useAuthenticateRequest(),
   useValidateRequest(patchUsersSchema),
   async (req: Request, res: Response) => {
@@ -52,20 +52,20 @@ const postPrereleaseSchema = z.object({
   language: z.string(),
 });
 
-router.post("/prerelease", [
+router.post('/prerelease', [
   useValidateRequest(postPrereleaseSchema),
   async (req: Request, res: Response) => {
     const payload = req.body as z.infer<typeof postPrereleaseSchema>;
 
     const newMember = {
       email_address: payload.email,
-      email_type: "html" as EmailType,
-      status: "subscribed" as Status,
+      email_type: 'html' as EmailType,
+      status: 'subscribed' as Status,
       ip_opt: res.locals.trackingInfo.ip,
       ip_signup: res.locals.trackingInfo.ip,
       language: payload.language,
-      timestamp_signup: format(new Date(), "yyyy-MM-dd HH:mm:ss"),
-      timestamp_opt: format(new Date(), "yyyy-MM-dd HH:mm:ss"),
+      timestamp_signup: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+      timestamp_opt: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
     };
 
     const response = (await mailchimpClient.lists.batchListMembers(
@@ -76,7 +76,7 @@ router.post("/prerelease", [
     )) as any;
 
     if (response?.errors?.length > 0) {
-      logger.warn("Received errors from Mailchimp", response.errors);
+      logger.warn('Received errors from Mailchimp', response.errors);
     }
 
     return res.status(200).send();

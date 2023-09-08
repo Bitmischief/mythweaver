@@ -1,7 +1,7 @@
-import Queue from "bull";
-import { parentLogger } from "../lib/logger";
-import { processTags } from "./jobs/processTags";
-import { conjure } from "./jobs/conjure";
+import Queue from 'bull';
+import { parentLogger } from '../lib/logger';
+import { processTags } from './jobs/processTags';
+import { conjure } from './jobs/conjure';
 const logger = parentLogger.getSubLogger();
 
 const config = {
@@ -17,17 +17,17 @@ export interface ProcessTagsEvent {
 }
 
 export const processTagsQueue = new Queue<ProcessTagsEvent>(
-  "process-tags",
+  'process-tags',
   config
 );
 
 processTagsQueue.process(async (job, done) => {
-  logger.info("Processing tags job", job.data);
+  logger.info('Processing tags job', job.data);
 
   try {
     await processTags(job.data.conjurationIds);
   } catch (err) {
-    logger.error("Error processing generated image job!", err);
+    logger.error('Error processing generated image job!', err);
   }
 
   done();
@@ -41,23 +41,24 @@ export interface ConjureEvent {
   arg?: string | undefined;
 }
 
-export const conjureQueue = new Queue<ConjureEvent>("conjuring", config);
+export const conjureQueue = new Queue<ConjureEvent>('conjuring', config);
 
 conjureQueue.process(async (job, done) => {
-  logger.info("Processing conjure job", job.data);
+  logger.info('Processing conjure job', job.data);
 
   const jobPromises = [];
 
   for (let i = 0; i < job.data.count; i++) {
-    try {
-      const promise = conjure(job.data);
-      jobPromises.push(promise);
-    } catch (err) {
-      logger.error("Error processing conjure job!", err);
-    }
+    const promise = conjure(job.data);
+    jobPromises.push(promise);
   }
 
-  await Promise.all(jobPromises);
-  logger.info("Completed processing conjure job", job.data);
-  done();
+  try {
+    await Promise.all(jobPromises);
+    logger.info('Completed processing conjure job', job.data);
+    done();
+  } catch (err) {
+    logger.error('Error processing conjure job!', err);
+    done(new Error('Error processing conjure job!'));
+  }
 });

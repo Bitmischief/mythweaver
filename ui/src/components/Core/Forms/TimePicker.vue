@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { computed } from "vue";
-import Select from "@/components/Core/Forms/Select.vue";
+import { computed } from 'vue';
+import Select from '@/components/Core/Forms/Select.vue';
 
 const props = defineProps({
   modelValue: {
@@ -8,17 +8,17 @@ const props = defineProps({
     default: () => ({
       hours: 8,
       minutes: 0,
-      ampm: "AM",
+      ampm: 'AM',
     }),
   },
 });
 
-const emit = defineEmits(["update:modelValue"]);
+const emit = defineEmits(['update:modelValue']);
 
 const value = computed({
   get: () => props.modelValue,
   set: (value) => {
-    emit("update:modelValue", value);
+    emit('update:modelValue', value);
   },
 });
 </script>

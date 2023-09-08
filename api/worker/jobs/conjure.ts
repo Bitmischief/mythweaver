@@ -1,13 +1,13 @@
-import { Generator, getGenerator } from "../../data/conjurers";
-import { Campaign } from "@prisma/client";
-import { AppError, HttpCode } from "../../lib/errors/AppError";
-import { sanitizeJson, trimPlural } from "../../lib/utils";
-import { generateImage } from "../../services/imageGeneration";
-import { prisma } from "../../lib/providers/prisma";
-import { ConjureEvent, processTagsQueue } from "../index";
-import { getRpgSystem } from "../../data/rpgSystems";
-import { getClient } from "../../lib/providers/openai";
-import { parentLogger } from "../../lib/logger";
+import { Generator, getGenerator } from '../../data/conjurers';
+import { Campaign } from '@prisma/client';
+import { AppError, HttpCode } from '../../lib/errors/AppError';
+import { sanitizeJson, trimPlural } from '../../lib/utils';
+import { generateImage } from '../../services/imageGeneration';
+import { prisma } from '../../lib/providers/prisma';
+import { ConjureEvent, processTagsQueue } from '../index';
+import { getRpgSystem } from '../../data/rpgSystems';
+import { getClient } from '../../lib/providers/openai';
+import { parentLogger } from '../../lib/logger';
 
 const logger = parentLogger.getSubLogger();
 const openai = getClient();
@@ -17,7 +17,7 @@ export const conjure = async (request: ConjureEvent) => {
 
   if (!generator) {
     throw new AppError({
-      description: "Generator not found.",
+      description: 'Generator not found.',
       httpCode: HttpCode.BAD_REQUEST,
     });
   }
@@ -30,7 +30,7 @@ export const conjure = async (request: ConjureEvent) => {
 
   if (!campaign) {
     throw new AppError({
-      description: "Campaign not found.",
+      description: 'Campaign not found.',
       httpCode: HttpCode.BAD_REQUEST,
     });
   }
@@ -44,31 +44,31 @@ export const conjure = async (request: ConjureEvent) => {
 
     try {
       response = await openai.createCompletion({
-        model: "text-davinci-003",
+        model: 'text-davinci-003',
         prompt,
-        max_tokens: 3500,
+        max_tokens: 3000,
       });
     } catch (err: any) {
-      logger.error("Error generating character with openai", err.response.data);
+      logger.error('Error generating character with openai', err.response.data);
     }
 
     if (!response) {
       throw new AppError({
-        description: "Error generating character.",
+        description: 'Error generating character.',
         httpCode: HttpCode.INTERNAL_SERVER_ERROR,
       });
     }
 
-    const generatedJson = response.data.choices[0].text?.trim() || "";
-    logger.info("Received json from openai", generatedJson);
+    const generatedJson = response.data.choices[0].text?.trim() || '';
+    logger.info('Received json from openai', generatedJson);
 
     const conjurationString = sanitizeJson(generatedJson);
-    logger.info("Sanitized json from openai...", conjurationString);
+    logger.info('Sanitized json from openai...', conjurationString);
 
     try {
-      conjuration = JSON.parse(conjurationString || "");
+      conjuration = JSON.parse(conjurationString || '');
     } catch (e) {
-      logger.warn("Failed to parse conjuration string", e, generatedJson);
+      logger.warn('Failed to parse conjuration string', e, generatedJson);
     }
   } while (!conjuration || !conjuration?.imageAIPrompt);
 
@@ -84,7 +84,7 @@ export const conjure = async (request: ConjureEvent) => {
       },
       imageAIPrompt: conjuration.imageAIPrompt,
       imageUri: conjuration.imageUri,
-      conjurerCode: generator.code || "",
+      conjurerCode: generator.code || '',
       tags: [
         generator.code,
         ...(conjuration.tags
@@ -127,7 +127,7 @@ const buildPrompt = (
 
     if (!rpgSystem) {
       throw new AppError({
-        description: "RPG System not found.",
+        description: 'RPG System not found.',
         httpCode: HttpCode.BAD_REQUEST,
       });
     }
@@ -137,10 +137,10 @@ const buildPrompt = (
     if (publicAdventure) {
       prompt += `for the campaign ${publicAdventure?.name}. `;
     } else {
-      prompt += ". ";
+      prompt += '. ';
     }
   } else {
-    prompt += " to be used in a roleplaying game like dungeons and dragons. ";
+    prompt += ' to be used in a roleplaying game like dungeons and dragons. ';
   }
 
   if (customArg && customArg.length > 0) {
@@ -165,7 +165,7 @@ const buildPrompt = (
     prompt += generator.basePromptExtraContext;
   }
 
-  logger.info("Built prompt", prompt);
+  logger.info('Built prompt', prompt);
 
   return prompt;
 };

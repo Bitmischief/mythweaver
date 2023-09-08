@@ -1,5 +1,5 @@
-import axios from "axios";
-import { RpgSystem } from "@/api/rpgSystems.ts";
+import axios from 'axios';
+import { RpgSystem } from '@/api/rpgSystems.ts';
 
 export const enum CampaignRole {
   DM = 1,
@@ -80,7 +80,7 @@ export interface CampaignInvite {
 }
 
 export const getCampaigns = (query: GetCampaignRequest) => {
-  return axios.get("/campaigns", {
+  return axios.get('/campaigns', {
     params: query,
   });
 };
@@ -90,7 +90,7 @@ export const getCampaign = (campaignId: number) => {
 };
 
 export const createCampaign = (request: PostCampaignRequest) => {
-  return axios.post("/campaigns", request);
+  return axios.post('/campaigns', request);
 };
 
 export const saveCampaign = (request: PutCampaignRequest) => {

@@ -10,12 +10,11 @@ import {
   Route,
   Security,
   Tags,
-} from "tsoa";
-import { prisma } from "../lib/providers/prisma";
-import { AppError, HttpCode } from "../lib/errors/AppError";
-import { Session } from "@prisma/client";
-import { AppEvent, track, TrackingInfo } from "../lib/tracking";
-import { sendTransactionalEmail } from "../lib/transactionalEmail";
+} from 'tsoa';
+import { prisma } from '../lib/providers/prisma';
+import { AppError, HttpCode } from '../lib/errors/AppError';
+import { Session } from '@prisma/client';
+import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 
 interface GetSessionsResponse {
   data: Session[];
@@ -38,12 +37,12 @@ interface PatchSessionRequest {
   description?: string;
 }
 
-@Route("sessions")
-@Tags("Sessions")
+@Route('sessions')
+@Tags('Sessions')
 export default class SessionController {
-  @Security("jwt")
-  @OperationId("getSessions")
-  @Get("/")
+  @Security('jwt')
+  @OperationId('getSessions')
+  @Get('/')
   public async getSessions(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
@@ -69,9 +68,9 @@ export default class SessionController {
     };
   }
 
-  @Security("jwt")
-  @OperationId("getSession")
-  @Get("/:sessionId")
+  @Security('jwt')
+  @OperationId('getSession')
+  @Get('/:sessionId')
   public async getSession(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
@@ -85,14 +84,14 @@ export default class SessionController {
 
     if (!session) {
       throw new AppError({
-        description: "Session not found.",
+        description: 'Session not found.',
         httpCode: HttpCode.NOT_FOUND,
       });
     }
 
     if (session.userId !== null && session.userId !== userId) {
       throw new AppError({
-        description: "You do not have access to this session.",
+        description: 'You do not have access to this session.',
         httpCode: HttpCode.FORBIDDEN,
       });
     }
@@ -102,9 +101,9 @@ export default class SessionController {
     return session;
   }
 
-  @Security("jwt")
-  @OperationId("createSession")
-  @Post("/")
+  @Security('jwt')
+  @OperationId('createSession')
+  @Post('/')
   public async postSession(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
@@ -122,9 +121,9 @@ export default class SessionController {
     return session;
   }
 
-  @Security("jwt")
-  @OperationId("updateSession")
-  @Patch("/:sessionId")
+  @Security('jwt')
+  @OperationId('updateSession')
+  @Patch('/:sessionId')
   public async patchSession(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
@@ -148,9 +147,9 @@ export default class SessionController {
     return session;
   }
 
-  @Security("jwt")
-  @OperationId("deleteSession")
-  @Delete("/:sessionId")
+  @Security('jwt')
+  @OperationId('deleteSession')
+  @Delete('/:sessionId')
   public async deleteSession(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,

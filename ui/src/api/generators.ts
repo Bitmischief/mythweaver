@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from 'axios';
 
 export interface Conjurer {
   code: string;
@@ -9,7 +9,7 @@ export interface Conjurer {
 }
 
 export const getConjurers = () => {
-  return axios.get("/generators");
+  return axios.get('/generators');
 };
 
 export const getConjurer = (code: string) => {

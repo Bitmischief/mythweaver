@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import Navbar from "@/components/Navigation/NavBar.vue";
-import { useAuthStore } from "@/store";
-import NotificationHandler from "@/components/Notifications/NotificationHandler.vue";
-import { NO_CAMPAIGNS_EVENT, useEventBus } from "@/lib/events.ts";
-import router from "@/router/router.ts";
-import { onMounted } from "vue";
-import NavBarHeader from "@/components/Navigation/NavBarHeader.vue";
+import Navbar from '@/components/Navigation/NavBar.vue';
+import { useAuthStore } from '@/store';
+import NotificationHandler from '@/components/Notifications/NotificationHandler.vue';
+import { NO_CAMPAIGNS_EVENT, useEventBus } from '@/lib/events.ts';
+import router from '@/router/router.ts';
+import { onMounted } from 'vue';
+import NavBarHeader from '@/components/Navigation/NavBarHeader.vue';
 
 const authStore = useAuthStore();
 const eventBus = useEventBus();
@@ -17,7 +17,7 @@ onMounted(async () => {
 });
 
 eventBus.$on(NO_CAMPAIGNS_EVENT, () => {
-  router.push("/campaigns/new");
+  router.push('/campaigns/new');
 });
 </script>
 

@@ -25,12 +25,12 @@ export const getGenerator = (code: string): Generator | undefined => {
 
 const conjurers: Generator[] = [
   {
-    code: "characters",
-    name: "Characters",
-    description: "Create rich, detailed characters to populate your world.",
+    code: 'characters',
+    name: 'Characters',
+    description: 'Create rich, detailed characters to populate your world.',
     customizationHelpPrompt:
-      "A gnome scribe adorned with swirling tattoos that glow faintly in the moonlight, bearing an ancient map etched into her skin, and a past entangled with forgotten gods",
-    imageUri: "characters.png",
+      'A gnome scribe adorned with swirling tattoos that glow faintly in the moonlight, bearing an ancient map etched into her skin, and a past entangled with forgotten gods',
+    imageUri: 'characters.png',
     formatPrompt:
       '{ \n      "name": "", \n      "looks": "", \n      "imageAIPrompt": "", \n      "personality": "",\n      "quirks": ""\n      "fears": ""\n      "hobbies": ""\n      "background": ""\n      "tags": [""]\n    }',
     allowsImageGeneration: true,
@@ -58,12 +58,12 @@ const conjurers: Generator[] = [
   //   allowsImageGeneration: true,
   // },
   {
-    code: "locations",
-    name: "Locations",
-    description: "Explore exotic locations in your world.",
+    code: 'locations',
+    name: 'Locations',
+    description: 'Explore exotic locations in your world.',
     customizationHelpPrompt:
-      "a secluded forest glen, where the trees whisper ancient secrets in the wind, encircled by stone pillars that harbor echoes of forgotten rituals, and a shimmering pond that holds the reflection of a realm not of this world",
-    imageUri: "locations.png",
+      'a secluded forest glen, where the trees whisper ancient secrets in the wind, encircled by stone pillars that harbor echoes of forgotten rituals, and a shimmering pond that holds the reflection of a realm not of this world',
+    imageUri: 'locations.png',
     formatPrompt:
       '{ "name": "", "history": "", "imageAIPrompt": "", "tags": [""] }',
     allowsImageGeneration: true,

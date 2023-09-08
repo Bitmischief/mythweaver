@@ -10,14 +10,14 @@ import {
   Route,
   Security,
   Tags,
-} from "tsoa";
-import { prisma } from "../lib/providers/prisma";
-import { Campaign, CampaignMember } from "@prisma/client";
-import { AppError, HttpCode } from "../lib/errors/AppError";
-import { AppEvent, track, TrackingInfo } from "../lib/tracking";
-import { sendTransactionalEmail } from "../lib/transactionalEmail";
-import { v4 as uuidv4 } from "uuid";
-import { isProduction } from "../lib/utils";
+} from 'tsoa';
+import { prisma } from '../lib/providers/prisma';
+import { Campaign, CampaignMember } from '@prisma/client';
+import { AppError, HttpCode } from '../lib/errors/AppError';
+import { AppEvent, track, TrackingInfo } from '../lib/tracking';
+import { sendTransactionalEmail } from '../lib/transactionalEmail';
+import { v4 as uuidv4 } from 'uuid';
+import { isProduction } from '../lib/utils';
 
 export interface GetCampaignsResponse {
   data: Campaign[];
@@ -54,12 +54,12 @@ export interface InviteMemberRequest {
   email: string;
 }
 
-@Route("campaigns")
-@Tags("Campaigns")
+@Route('campaigns')
+@Tags('Campaigns')
 export default class CampaignController {
-  @Security("jwt")
-  @OperationId("getCampaigns")
-  @Get("/")
+  @Security('jwt')
+  @OperationId('getCampaigns')
+  @Get('/')
   public async getCampaigns(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
@@ -87,9 +87,9 @@ export default class CampaignController {
     };
   }
 
-  @Security("jwt")
-  @OperationId("getCampaign")
-  @Get("/:campaignId")
+  @Security('jwt')
+  @OperationId('getCampaign')
+  @Get('/:campaignId')
   public async getCampaign(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
@@ -110,7 +110,7 @@ export default class CampaignController {
 
     if (!campaign) {
       throw new AppError({
-        description: "Campaign not found",
+        description: 'Campaign not found',
         httpCode: HttpCode.NOT_FOUND,
       });
     }
@@ -120,9 +120,9 @@ export default class CampaignController {
     return campaign;
   }
 
-  @Security("jwt")
-  @OperationId("createCampaign")
-  @Post("/")
+  @Security('jwt')
+  @OperationId('createCampaign')
+  @Post('/')
   public async createCampaign(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
@@ -145,9 +145,9 @@ export default class CampaignController {
     });
   }
 
-  @Security("jwt")
-  @OperationId("putCampaign")
-  @Put("/:campaignId")
+  @Security('jwt')
+  @OperationId('putCampaign')
+  @Put('/:campaignId')
   public async putCampaign(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
@@ -162,14 +162,14 @@ export default class CampaignController {
 
     if (!campaign) {
       throw new AppError({
-        description: "Campaign not found",
+        description: 'Campaign not found',
         httpCode: HttpCode.NOT_FOUND,
       });
     }
 
     if (campaign.userId !== userId) {
       throw new AppError({
-        description: "You do not have access to modify this campaign.",
+        description: 'You do not have access to modify this campaign.',
         httpCode: HttpCode.FORBIDDEN,
       });
     }
@@ -187,9 +187,9 @@ export default class CampaignController {
     });
   }
 
-  @Security("jwt")
-  @OperationId("deleteCampaign")
-  @Delete("/:campaignId")
+  @Security('jwt')
+  @OperationId('deleteCampaign')
+  @Delete('/:campaignId')
   public async deleteCampaign(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
@@ -203,14 +203,14 @@ export default class CampaignController {
 
     if (!campaign) {
       throw new AppError({
-        description: "Campaign not found.",
+        description: 'Campaign not found.',
         httpCode: HttpCode.NOT_FOUND,
       });
     }
 
     if (campaign.userId !== userId) {
       throw new AppError({
-        description: "You do not have access to modify this campaign.",
+        description: 'You do not have access to modify this campaign.',
         httpCode: HttpCode.FORBIDDEN,
       });
     }
@@ -224,9 +224,9 @@ export default class CampaignController {
     });
   }
 
-  @Security("jwt")
-  @OperationId("getCampaignMembers")
-  @Get("/:campaignId/members")
+  @Security('jwt')
+  @OperationId('getCampaignMembers')
+  @Get('/:campaignId/members')
   public async getCampaignMembers(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
@@ -249,7 +249,7 @@ export default class CampaignController {
 
     if (!user || !user.campaignMemberships.length) {
       throw new AppError({
-        description: "You do not have access to this campaign.",
+        description: 'You do not have access to this campaign.',
         httpCode: HttpCode.FORBIDDEN,
       });
     }
@@ -271,9 +271,9 @@ export default class CampaignController {
     };
   }
 
-  @Security("jwt")
-  @OperationId("inviteCampaignMember")
-  @Post("/:campaignId/invite")
+  @Security('jwt')
+  @OperationId('inviteCampaignMember')
+  @Post('/:campaignId/invite')
   public async inviteCampaignMember(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
@@ -291,7 +291,7 @@ export default class CampaignController {
 
     if (!campaign) {
       throw new AppError({
-        description: "Campaign not found.",
+        description: 'Campaign not found.',
         httpCode: HttpCode.NOT_FOUND,
       });
     }
@@ -299,14 +299,14 @@ export default class CampaignController {
     const currentMember = campaign.members.find((m) => m.userId === userId);
     if (!currentMember || currentMember.role !== CampaignRole.DM) {
       throw new AppError({
-        description: "You do not have permissions to invite members.",
+        description: 'You do not have permissions to invite members.',
         httpCode: HttpCode.FORBIDDEN,
       });
     }
 
     if (campaign.members.find((m) => m.email === request.email)) {
       throw new AppError({
-        description: "User is already a member of this campaign.",
+        description: 'User is already a member of this campaign.',
         httpCode: HttpCode.CONFLICT,
       });
     }
@@ -323,29 +323,29 @@ export default class CampaignController {
     });
 
     const urlPrefix = isProduction
-      ? "https://app.mythweaver.co"
-      : "http://localhost:3000";
+      ? 'https://app.mythweaver.co'
+      : 'http://localhost:3000';
 
     await sendTransactionalEmail(
-      "campaign-invite",
+      'campaign-invite',
       `Join the ${campaign.name} campaign on MythWeaver!`,
       request.email,
       [
         {
-          name: "SENDER_CAMPAIGN",
+          name: 'SENDER_CAMPAIGN',
           content: campaign.name,
         },
         {
-          name: "INVITE_URL",
+          name: 'INVITE_URL',
           content: `${urlPrefix}/invite?c=${inviteCode}`,
         },
       ]
     );
   }
 
-  @Security("jwt")
-  @OperationId("deleteCampaignMember")
-  @Post("/:campaignId/members/:memberId")
+  @Security('jwt')
+  @OperationId('deleteCampaignMember')
+  @Post('/:campaignId/members/:memberId')
   public async deleteCampaignMember(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
@@ -363,7 +363,7 @@ export default class CampaignController {
 
     if (!actingMember || actingMember.role !== CampaignRole.DM) {
       throw new AppError({
-        description: "You do not have permissions to remove this member.",
+        description: 'You do not have permissions to remove this member.',
         httpCode: HttpCode.FORBIDDEN,
       });
     }
@@ -377,14 +377,14 @@ export default class CampaignController {
 
     if (!deletingMember) {
       throw new AppError({
-        description: "Campaign member not found.",
+        description: 'Campaign member not found.',
         httpCode: HttpCode.NOT_FOUND,
       });
     }
 
     if (deletingMember.role === CampaignRole.DM) {
       throw new AppError({
-        description: "You cannot remove the DM from the campaign.",
+        description: 'You cannot remove the DM from the campaign.',
         httpCode: HttpCode.FORBIDDEN,
       });
     }
@@ -397,9 +397,9 @@ export default class CampaignController {
     });
   }
 
-  @Security("jwt")
-  @OperationId("getInvite")
-  @Get("/invites/:inviteCode")
+  @Security('jwt')
+  @OperationId('getInvite')
+  @Get('/invites/:inviteCode')
   public async getInvite(
     @Inject() trackingInfo: TrackingInfo,
     @Route() inviteCode: string
@@ -415,7 +415,7 @@ export default class CampaignController {
 
     if (!invite) {
       throw new AppError({
-        description: "Invite not found.",
+        description: 'Invite not found.',
         httpCode: HttpCode.NOT_FOUND,
       });
     }
@@ -439,9 +439,9 @@ export default class CampaignController {
     };
   }
 
-  @Security("jwt")
-  @OperationId("acceptInvite")
-  @Put("/invites/:inviteCode")
+  @Security('jwt')
+  @OperationId('acceptInvite')
+  @Put('/invites/:inviteCode')
   public async acceptInvite(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
@@ -456,7 +456,7 @@ export default class CampaignController {
     if (!invite) {
       throw new AppError({
         httpCode: HttpCode.BAD_REQUEST,
-        description: "Invite code is invalid",
+        description: 'Invite code is invalid',
       });
     }
 

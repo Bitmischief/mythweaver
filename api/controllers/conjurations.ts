@@ -10,12 +10,12 @@ import {
   Route,
   Security,
   Tags,
-} from "tsoa";
-import { prisma } from "../lib/providers/prisma";
-import { Conjuration } from "@prisma/client";
-import { AppError, HttpCode } from "../lib/errors/AppError";
-import { AppEvent, track, TrackingInfo } from "../lib/tracking";
-import { processTagsQueue } from "../worker";
+} from 'tsoa';
+import { prisma } from '../lib/providers/prisma';
+import { Conjuration } from '@prisma/client';
+import { AppError, HttpCode } from '../lib/errors/AppError';
+import { AppEvent, track, TrackingInfo } from '../lib/tracking';
+import { processTagsQueue } from '../worker';
 
 interface GetConjurationsResponse {
   data: Conjuration[];
@@ -42,31 +42,37 @@ interface PatchConjurationRequest {
   tags?: string[];
 }
 
-@Route("conjurations")
-@Tags("Conjurations")
+@Route('conjurations')
+@Tags('Conjurations')
 export default class ConjurationController {
-  @Security("jwt")
-  @OperationId("getConjurations")
-  @Get("/")
+  @Security('jwt')
+  @OperationId('getConjurations')
+  @Get('/')
   public async getConjurations(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
     @Query() campaignId?: number,
     @Query() mine?: boolean,
+    @Query() saved?: boolean,
     @Query() conjurerCodeString?: string,
     @Query() tags?: string,
     @Query() offset?: number,
     @Query() limit?: number
   ): Promise<GetConjurationsResponse> {
     const conjurerCodes = conjurerCodeString
-      ?.split(",")
+      ?.split(',')
       .map((c) => c.trim())
       .filter((c) => c.length > 0);
 
     const conjurations = await prisma.conjuration.findMany({
       where: {
-        userId: mine ? userId : null,
-        campaignId: mine ? campaignId : undefined,
+        userId: saved ? userId : null,
+        campaignId: saved ? campaignId : undefined,
+        conjurationRequest: mine
+          ? {
+              userId,
+            }
+          : undefined,
         conjurerCode: conjurerCodes?.length
           ? {
               in: conjurerCodes,
@@ -77,7 +83,7 @@ export default class ConjurationController {
               {
                 tags: tags
                   ? {
-                      hasEvery: tags.split(",").map((t) => t.trim()),
+                      hasEvery: tags.split(',').map((t) => t.trim()),
                     }
                   : undefined,
               },
@@ -87,7 +93,7 @@ export default class ConjurationController {
       skip: offset,
       take: limit,
       orderBy: {
-        createdAt: "desc",
+        createdAt: 'desc',
       },
       include: {
         copies: {
@@ -110,9 +116,9 @@ export default class ConjurationController {
     };
   }
 
-  @Security("jwt")
-  @OperationId("getConjuration")
-  @Get("/:conjurationId")
+  @Security('jwt')
+  @OperationId('getConjuration')
+  @Get('/:conjurationId')
   public async getConjuration(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
@@ -136,7 +142,7 @@ export default class ConjurationController {
 
     if (!conjuration) {
       throw new AppError({
-        description: "Conjuration not found.",
+        description: 'Conjuration not found.',
         httpCode: HttpCode.NOT_FOUND,
       });
     }
@@ -146,9 +152,9 @@ export default class ConjurationController {
     return conjuration;
   }
 
-  @Security("jwt")
-  @OperationId("createConjuration")
-  @Post("/")
+  @Security('jwt')
+  @OperationId('createConjuration')
+  @Post('/')
   public async postConjurations(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
@@ -162,14 +168,14 @@ export default class ConjurationController {
 
     if (!existingConjuration) {
       throw new AppError({
-        description: "Conjuration not found.",
+        description: 'Conjuration not found.',
         httpCode: HttpCode.NOT_FOUND,
       });
     }
 
     if (existingConjuration.userId !== null) {
       throw new AppError({
-        description: "You cannot add this conjuration!",
+        description: 'You cannot add this conjuration!',
         httpCode: HttpCode.FORBIDDEN,
       });
     }
@@ -188,9 +194,9 @@ export default class ConjurationController {
     });
   }
 
-  @Security("jwt")
-  @OperationId("updateConjuration")
-  @Patch("/:conjurationId")
+  @Security('jwt')
+  @OperationId('updateConjuration')
+  @Patch('/:conjurationId')
   public async patchConjuration(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
@@ -205,7 +211,7 @@ export default class ConjurationController {
 
     if (conjuration.userId === null || conjuration.userId !== userId) {
       throw new AppError({
-        description: "You do not have access to modify this conjuration.",
+        description: 'You do not have access to modify this conjuration.',
         httpCode: HttpCode.FORBIDDEN,
       });
     }
@@ -229,9 +235,9 @@ export default class ConjurationController {
     return updatedConjuration;
   }
 
-  @Security("jwt")
-  @OperationId("deleteConjuration")
-  @Delete("/:conjurationId")
+  @Security('jwt')
+  @OperationId('deleteConjuration')
+  @Delete('/:conjurationId')
   public async deleteConjuration(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
@@ -245,7 +251,7 @@ export default class ConjurationController {
 
     if (conjuration.userId === null || conjuration.userId !== userId) {
       throw new AppError({
-        description: "You do not have access to delete this conjuration.",
+        description: 'You do not have access to delete this conjuration.',
         httpCode: HttpCode.FORBIDDEN,
       });
     }
@@ -261,9 +267,9 @@ export default class ConjurationController {
     return true;
   }
 
-  @Security("jwt")
-  @OperationId("getConjurationTags")
-  @Get("/tags")
+  @Security('jwt')
+  @OperationId('getConjurationTags')
+  @Get('/tags')
   public async getConjurationTags(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
@@ -281,7 +287,7 @@ export default class ConjurationController {
         },
       },
       orderBy: {
-        usageCount: "desc",
+        usageCount: 'desc',
       },
       skip: offset,
       take: limit,

@@ -1,11 +1,11 @@
-import express, { Request, Response } from "express";
-import { useAuthenticateRequest } from "../lib/authMiddleware";
-import { z } from "zod";
+import express, { Request, Response } from 'express';
+import { useAuthenticateRequest } from '../lib/authMiddleware';
+import { z } from 'zod';
 import {
   useValidateRequest,
   ValidationTypes,
-} from "../lib/validationMiddleware";
-import { GeneratorController } from "../controllers/generators";
+} from '../lib/validationMiddleware';
+import { GeneratorController } from '../controllers/generators';
 
 const router = express.Router();
 
@@ -15,7 +15,7 @@ const getGeneratorsSchema = z.object({
   limit: z.coerce.number().min(1).default(10).optional(),
 });
 
-router.get("/", [
+router.get('/', [
   useAuthenticateRequest(),
   useValidateRequest(getGeneratorsSchema, {
     validationType: ValidationTypes.Query,
@@ -40,7 +40,7 @@ const generatorIdSchema = z.object({
   generatorCode: z.string().optional(),
 });
 
-router.get("/:generatorCode", [
+router.get('/:generatorCode', [
   useAuthenticateRequest(),
   useValidateRequest(generatorIdSchema, {
     validationType: ValidationTypes.Route,
@@ -60,7 +60,7 @@ router.get("/:generatorCode", [
   },
 ]);
 
-router.post("/:generatorCode/generate/quick", [
+router.post('/:generatorCode/generate/quick', [
   useAuthenticateRequest(),
   useValidateRequest(generatorIdSchema, {
     validationType: ValidationTypes.Route,
@@ -83,10 +83,10 @@ router.post("/:generatorCode/generate/quick", [
 const postGeneratorGenerateSchema = z.object({
   campaignId: z.coerce.number(),
   count: z.coerce.number().min(1).max(5).default(1),
-  customArg: z.string().optional(),
+  customArg: z.string().max(500).optional(),
 });
 
-router.post("/:generatorCode/generate", [
+router.post('/:generatorCode/generate', [
   useAuthenticateRequest(),
   useValidateRequest(generatorIdSchema, {
     validationType: ValidationTypes.Route,
@@ -112,7 +112,7 @@ const conjurationRequestIdSchema = z.object({
   conjurationRequestId: z.coerce.number(),
 });
 
-router.get("/requests/:conjurationRequestId", [
+router.get('/requests/:conjurationRequestId', [
   useAuthenticateRequest(),
   useValidateRequest(conjurationRequestIdSchema, {
     validationType: ValidationTypes.Route,

@@ -1,11 +1,11 @@
-import express, { Request, Response } from "express";
-import { useAuthenticateRequest } from "../lib/authMiddleware";
-import { z } from "zod";
+import express, { Request, Response } from 'express';
+import { useAuthenticateRequest } from '../lib/authMiddleware';
+import { z } from 'zod';
 import {
   useValidateRequest,
   ValidationTypes,
-} from "../lib/validationMiddleware";
-import { RpgSystemController } from "../controllers/rpgSystems";
+} from '../lib/validationMiddleware';
+import { RpgSystemController } from '../controllers/rpgSystems';
 
 const router = express.Router();
 
@@ -15,7 +15,7 @@ const getRpgSystemsSchema = z.object({
   limit: z.coerce.number().min(1).default(10).optional(),
 });
 
-router.get("/", [
+router.get('/', [
   useAuthenticateRequest(),
   useValidateRequest(getRpgSystemsSchema, {
     validationType: ValidationTypes.Query,
