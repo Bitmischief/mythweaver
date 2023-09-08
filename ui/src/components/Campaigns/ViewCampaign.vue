@@ -258,7 +258,7 @@ function handleRequestRemoveMember(memberId: number) {
         <div class="text-2xl">Party Members</div>
         <button
           v-if="currentUserRole === CampaignRole.DM"
-          class="border-purple-300 border p-2 rounded-xl"
+          class="border-purple-300 border p-2 rounded-xl transition-all hover:scale-110"
           @click="showInviteModal = true"
         >
           Invite

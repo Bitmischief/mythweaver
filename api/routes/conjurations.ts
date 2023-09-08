@@ -12,6 +12,7 @@ const router = express.Router();
 const getConjurationsSchema = z.object({
   campaignId: z.coerce.number().default(0),
   mine: z.coerce.boolean().default(false).optional(),
+  saved: z.coerce.boolean().default(false).optional(),
   conjurerCodes: z.string().optional(),
   tags: z.string().optional(),
   offset: z.coerce.number().default(0).optional(),
@@ -29,6 +30,7 @@ router.get("/", [
     const {
       campaignId = 0,
       mine = false,
+      saved = false,
       conjurerCodes,
       tags,
       offset = 0,
@@ -40,6 +42,7 @@ router.get("/", [
       res.locals.trackingInfo,
       campaignId as number,
       mine as boolean,
+      saved as boolean,
       conjurerCodes as string,
       tags as string,
       offset as number,

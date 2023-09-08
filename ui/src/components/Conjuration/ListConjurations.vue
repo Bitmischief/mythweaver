@@ -1,54 +1,34 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
-import {
-  Conjuration,
-  getConjurations,
-  getConjurationTags,
-  GetConjurationTagsRequest,
-} from "@/api/conjurations.ts";
-import { XMarkIcon, BoltIcon } from "@heroicons/vue/20/solid";
-import Select from "@/components/Core/Forms/Select.vue";
-import { useSelectedCampaignId } from "@/lib/hooks.ts";
-import { Conjurer, getConjurers } from "@/api/generators.ts";
-import Autocomplete from "@/components/Core/Forms/Autocomplete.vue";
+import { Conjuration, getConjurations } from "@/api/conjurations.ts";
+import { BoltIcon, AdjustmentsVerticalIcon } from "@heroicons/vue/20/solid";
 import ConjurationQuickView from "@/components/Conjuration/ConjurationListItemView.vue";
 import { debounce } from "lodash";
-
-const selectedCampaignId = useSelectedCampaignId();
+import ConjurationsListFiltering from "@/components/Conjuration/ConjurationsListFiltering.vue";
 
 const pagingDone = ref(false);
-const conjurers = ref<Conjurer[]>([]);
 const conjurations = ref<Conjuration[]>([]);
+const showFilters = ref(false);
 
 const conjurationsQuery = computed(() => ({
   ...conjurationsFilterQuery.value,
   ...conjurationsPagingQuery.value,
 }));
 
-const conjurationsFilterQuery = ref({
-  campaignId: selectedCampaignId.value,
-  mine: undefined,
-  conjurerCodes: [],
-  tags: [],
-});
-
 const initialPaging = {
   offset: 0,
   limit: 8,
 };
 const conjurationsPagingQuery = ref(initialPaging);
-
-const tags = ref<string[]>([]);
-const tagsQuery = ref<GetConjurationTagsRequest>({
-  term: "",
-  offset: 0,
-  limit: 10,
+const conjurationsFilterQuery = ref({
+  mine: false,
+  saved: false,
+  conjurerCodes: [],
+  tags: [],
 });
 
 onMounted(async () => {
-  await loadConjurers();
   await loadConjurations();
-  await loadTags();
 
   const viewParent = document.querySelector("#view-parent");
   viewParent?.addEventListener("scroll", () => {
@@ -64,6 +44,16 @@ onMounted(async () => {
 });
 
 watch(
+  conjurationsPagingQuery,
+  async () => {
+    await loadConjurations(conjurationsPagingQuery.value.offset !== 0);
+  },
+  {
+    deep: true,
+  },
+);
+
+watch(
   conjurationsFilterQuery,
   async () => {
     pagingDone.value = false;
@@ -72,16 +62,6 @@ watch(
     } else {
       conjurationsPagingQuery.value.offset = 0;
     }
-  },
-  {
-    deep: true,
-  },
-);
-
-watch(
-  conjurationsPagingQuery,
-  async () => {
-    await loadConjurations(conjurationsPagingQuery.value.offset !== 0);
   },
   {
     deep: true,
@@ -110,106 +90,38 @@ async function loadConjurations(append = false) {
   }
 }
 
-async function loadConjurers() {
-  const conjurersReponse = await getConjurers();
-  conjurers.value = conjurersReponse.data.data;
-}
-
-async function loadTags() {
-  const tagsReponse = await getConjurationTags(tagsQuery.value);
-  tags.value = tagsReponse.data.data;
-}
-
-async function handleTagsQueryChange(term: string) {
-  tagsQuery.value.term = term;
-  await loadTags();
-}
-
-function removeTag(tag: string) {
-  conjurationsFilterQuery.value.tags =
-    conjurationsFilterQuery.value?.tags?.filter((t) => t !== tag);
+function handleFiltersUpdated(filters: any) {
+  conjurationsFilterQuery.value = filters;
+  showFilters.value = false;
 }
 </script>
 
 <template>
-  <div class="mb-6 flex w-full justify-between rounded-xl bg-gray-800 p-4">
+  <ConjurationsListFiltering
+    :show="showFilters"
+    @close="showFilters = false"
+    @update-filters="handleFiltersUpdated"
+  />
+
+  <div class="mb-6 flex w-full justify-between rounded-xl p-4">
     <div class="w-full md:flex md:justify-between">
-      <div class="md:flex">
-        <div>
-          <div class="mb-1 text-gray-300">All Conjurations?</div>
-          <Select
-            v-model="conjurationsFilterQuery.mine"
-            :options="[
-              {
-                name: 'All',
-                value: undefined,
-              },
-              {
-                name: 'Only Mine',
-                value: true,
-              },
-            ]"
-            display-prop="name"
-            value-prop="value"
-            class="mr-2 w-full md:w-[20rem]"
-          />
-        </div>
+      <div class="text-2xl self-center font-bold">Conjurations List</div>
 
-        <div class="mt-2 md:mt-0">
-          <div class="mb-1 text-gray-300">Conjuration Types</div>
-          <Select
-            v-model="conjurationsFilterQuery.conjurerCodes"
-            :options="conjurers"
-            display-prop="name"
-            value-prop="code"
-            class="mr-2 w-full md:w-[20rem]"
-            multiple
-            placeholder="Select conjuration types"
-          />
-        </div>
+      <div class="mt-2 self-center md:mt-0 flex justify-between">
+        <button
+          class="w-[122px] mr-2 h-[46px] p-3 bg-neutral-900 rounded-md justify-start items-center gap-[5px] inline-flex transition-all hover:scale-110"
+          @click="showFilters = true"
+        >
+          <AdjustmentsVerticalIcon class="w-5 h-5 mr-2" />
+          <span class="text-white text-sm font-normal">Filters</span>
+        </button>
 
-        <div class="mt-2 md:mt-0">
-          <div class="mb-1 text-gray-300">Tags</div>
-          <div class="w-full md:w-[20rem]">
-            <Autocomplete
-              v-model="conjurationsFilterQuery.tags"
-              :options="tags.map((t) => ({ value: t }))"
-              class="mr-2"
-              multiple
-              display-prop="value"
-              value-prop="value"
-              @query-change="handleTagsQueryChange"
-            />
-            <div class="mt-2 flex">
-              <div
-                v-for="tag in conjurationsQuery.tags"
-                :key="tag"
-                class="relative mr-1 rounded-xl bg-gray-900"
-              >
-                <div
-                  class="absolute flex h-full w-full cursor-pointer justify-center rounded-xl bg-red-500/90 opacity-0 hover:opacity-100"
-                  @click="removeTag(tag)"
-                >
-                  <XMarkIcon
-                    class="h-6 w-6 self-center text-center text-white"
-                  />
-                </div>
-                <div class="p-1 px-3">
-                  {{ tag }}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="mt-2 self-center md:mt-0">
-        <router-link to="/conjurations/new" class="mx-auto flex">
+        <router-link to="/conjurations/new" class="flex">
           <button
-            class="flex w-full self-center rounded-xl bg-gradient-to-r from-purple-500 to-purple-700 px-4 py-3 font-bold"
+            class="flex w-full self-center rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 px-4 py-3 transition-all hover:scale-110"
           >
-            <BoltIcon class="mr-2 h-5 w-5" />
-            <span class="self-center">Conjure</span>
+            <BoltIcon class="mr-2 h-5 w-5 self-center" />
+            <span class="self-center">Create</span>
           </button>
         </router-link>
       </div>

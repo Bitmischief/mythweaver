@@ -53,6 +53,7 @@ export default class ConjurationController {
     @Inject() trackingInfo: TrackingInfo,
     @Query() campaignId?: number,
     @Query() mine?: boolean,
+    @Query() saved?: boolean,
     @Query() conjurerCodeString?: string,
     @Query() tags?: string,
     @Query() offset?: number,
@@ -65,8 +66,13 @@ export default class ConjurationController {
 
     const conjurations = await prisma.conjuration.findMany({
       where: {
-        userId: mine ? userId : null,
-        campaignId: mine ? campaignId : undefined,
+        userId: saved ? userId : null,
+        campaignId: saved ? campaignId : undefined,
+        conjurationRequest: mine
+          ? {
+              userId,
+            }
+          : undefined,
         conjurerCode: conjurerCodes?.length
           ? {
               in: conjurerCodes,
