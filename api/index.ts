@@ -4,6 +4,7 @@ dotenv.config();
 import express, {
   Application,
   ErrorRequestHandler,
+  NextFunction,
   Request,
   Response,
 } from 'express';
@@ -67,7 +68,9 @@ app.use(
 const errorHandlerMiddleware: ErrorRequestHandler = (
   err: any,
   req: Request,
-  res: Response
+  res: Response,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  next: NextFunction
 ) => {
   logger.info('Error handler middleware', err?.message);
   errorHandler.handleError(err, res);
