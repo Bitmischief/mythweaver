@@ -15,7 +15,7 @@ import {
   BookOpenIcon,
   BookmarkIcon,
   UserIcon,
-} from "@heroicons/vue/20/solid";
+} from '@heroicons/vue/20/solid';
 
 defineProps<{
   collapsed?: boolean;

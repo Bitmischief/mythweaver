@@ -1,5 +1,5 @@
-import axios from "axios";
-import { useSelectedCampaignId } from "@/lib/hooks.ts";
+import axios from 'axios';
+import { useSelectedCampaignId } from '@/lib/hooks.ts';
 
 export interface Character {
   id: number;

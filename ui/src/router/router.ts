@@ -39,16 +39,16 @@ const router = createRouter({
       },
     },
     {
-      name: "CHARACTERS",
-      path: "/character",
+      name: 'CHARACTERS',
+      path: '/character',
       component: CharactersView,
       meta: {
         authRequired: true,
       },
     },
     {
-      name: "CAMPAIGNS",
-      path: "/campaigns",
+      name: 'CAMPAIGNS',
+      path: '/campaigns',
       component: CampaignsView,
       meta: {
         authRequired: true,

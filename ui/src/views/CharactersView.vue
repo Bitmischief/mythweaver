@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { onMounted, ref } from "vue";
-import { Character, getCurrentCampaignCharacter } from "@/api/characters.ts";
-import { AxiosError } from "axios";
-import { showError } from "@/lib/notifications.ts";
-import ModalAlternate from "@/components/ModalAlternate.vue";
+import { onMounted, ref } from 'vue';
+import { Character, getCurrentCampaignCharacter } from '@/api/characters.ts';
+import { AxiosError } from 'axios';
+import { showError } from '@/lib/notifications.ts';
+import ModalAlternate from '@/components/ModalAlternate.vue';
 
 const character = ref<Character | undefined>(undefined);
 const createNewCharacter = ref(false);
@@ -17,7 +17,7 @@ onMounted(async () => {
     if (e.response?.status === 404) {
       createNewCharacter.value = true;
     } else {
-      showError({ message: "Failed to load character" });
+      showError({ message: 'Failed to load character' });
     }
   }
 });
