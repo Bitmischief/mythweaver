@@ -1,7 +1,7 @@
-import AuthController from "../controllers/auth";
-import express, { Request, Response } from "express";
-import { useValidateRequest } from "../lib/validationMiddleware";
-import { z } from "zod";
+import AuthController from '../controllers/auth';
+import express, { Request, Response } from 'express';
+import { useValidateRequest } from '../lib/validationMiddleware';
+import { z } from 'zod';
 const router = express.Router();
 
 const postTokenSchema = z.object({
@@ -10,7 +10,7 @@ const postTokenSchema = z.object({
   inviteCode: z.string().optional(),
 });
 
-router.post("/token", [
+router.post('/token', [
   useValidateRequest(postTokenSchema),
   async (req: Request, res: Response) => {
     const controller = new AuthController();
@@ -26,7 +26,7 @@ const postRefreshSchema = z.object({
   refreshToken: z.string(),
 });
 
-router.post("/refresh", [
+router.post('/refresh', [
   useValidateRequest(postRefreshSchema),
   async (req: Request, res: Response) => {
     const controller = new AuthController();

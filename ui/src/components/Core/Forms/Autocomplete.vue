@@ -1,14 +1,14 @@
 <script lang="ts" setup>
-import { computed, ref } from "vue";
+import { computed, ref } from 'vue';
 import {
   Combobox,
   ComboboxInput,
   ComboboxOptions,
   ComboboxOption,
   ComboboxButton,
-} from "@headlessui/vue";
-import { debounce } from "lodash";
-import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
+} from '@headlessui/vue';
+import { debounce } from 'lodash';
+import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid';
 
 const props = defineProps<{
   modelValue: string | string[] | null | undefined;
@@ -21,7 +21,7 @@ const props = defineProps<{
   placeholder?: string;
 }>();
 
-const emit = defineEmits(["update:modelValue", "change", "queryChange"]);
+const emit = defineEmits(['update:modelValue', 'change', 'queryChange']);
 
 const openButton = ref<HTMLElement | null>(null);
 const optionsList = ref(null);
@@ -29,13 +29,13 @@ const optionsList = ref(null);
 const value = computed({
   get: () => props.modelValue,
   set: (value) => {
-    emit("change", value);
-    emit("update:modelValue", value);
+    emit('change', value);
+    emit('update:modelValue', value);
   },
 });
 
 const emitQueryChange = debounce(async (term) => {
-  emit("queryChange", term);
+  emit('queryChange', term);
 }, 100);
 
 function openOptions() {
@@ -49,13 +49,13 @@ function openOptions() {
   <Combobox
     v-model="value"
     as="div"
-    class="gradient-border-no-opacity relative h-10 w-full cursor-pointer rounded-xl border bg-black text-left text-white"
+    class="gradient-border-no-opacity relative h-10 w-full cursor-pointer rounded-xl bg-black text-left text-white"
     :multiple="multiple"
     nullable
   >
     <ComboboxInput
       as="input"
-      class="mr-4 h-10 w-full bg-transparent px-4"
+      class="mr-4 h-10 w-full bg-transparent rounded-md px-4 border-none"
       placeholder="Search tags to filter by"
       @change="emitQueryChange($event.target.value)"
       @focus="openOptions"

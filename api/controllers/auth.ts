@@ -1,11 +1,11 @@
-import { Body, Inject, Post, Route, SuccessResponse, Tags } from "tsoa";
-import { OAuth2Client } from "google-auth-library";
-import { prisma } from "../lib/providers/prisma";
-import { AppError, HttpCode } from "../lib/errors/AppError";
-import jwt from "jsonwebtoken";
-import { parentLogger } from "../lib/logger";
-import { AppEvent, identify, track, TrackingInfo } from "../lib/tracking";
-import CampaignController from "./campaigns";
+import { Body, Inject, Post, Route, SuccessResponse, Tags } from 'tsoa';
+import { OAuth2Client } from 'google-auth-library';
+import { prisma } from '../lib/providers/prisma';
+import { AppError, HttpCode } from '../lib/errors/AppError';
+import jwt from 'jsonwebtoken';
+import { parentLogger } from '../lib/logger';
+import { AppEvent, identify, track, TrackingInfo } from '../lib/tracking';
+import CampaignController from './campaigns';
 const logger = parentLogger.getSubLogger();
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -19,7 +19,7 @@ interface TokenResponse {
 }
 
 interface TokenRequest {
-  type: "GOOGLE";
+  type: 'GOOGLE';
   credential: string;
   inviteCode?: string;
 }
@@ -28,11 +28,11 @@ interface RefreshRequest {
   refreshToken: string;
 }
 
-@Route("auth")
-@Tags("Auth")
+@Route('auth')
+@Tags('Auth')
 export default class AuthController {
-  @Post("/token")
-  @SuccessResponse("200", "Success")
+  @Post('/token')
+  @SuccessResponse('200', 'Success')
   public async postToken(
     @Body() request: TokenRequest,
     @Inject() trackingInfo: TrackingInfo
@@ -46,7 +46,7 @@ export default class AuthController {
     if (!payload) {
       throw new AppError({
         httpCode: HttpCode.BAD_REQUEST,
-        description: "Unable to properly verify provided credentials",
+        description: 'Unable to properly verify provided credentials',
       });
     }
 
@@ -55,11 +55,11 @@ export default class AuthController {
     if (!email) {
       throw new AppError({
         httpCode: HttpCode.BAD_REQUEST,
-        description: "Email did not exist on provided credentials",
+        description: 'Email did not exist on provided credentials',
       });
     }
 
-    logger.info("Getting user for email", email);
+    logger.info('Getting user for email', email);
     let user = await prisma.user.findUnique({
       where: {
         email: email.toLowerCase(),
@@ -76,7 +76,7 @@ export default class AuthController {
       if (!invite) {
         throw new AppError({
           httpCode: HttpCode.BAD_REQUEST,
-          description: "Invite code is invalid",
+          description: 'Invite code is invalid',
         });
       }
 
@@ -105,22 +105,22 @@ export default class AuthController {
     }
 
     if (!user) {
-      logger.info("User did not exist, early access not available....");
+      logger.info('User did not exist, early access not available....');
 
       throw new AppError({
         httpCode: HttpCode.BAD_REQUEST,
-        description: "User is not enabled for early access!",
+        description: 'User is not enabled for early access!',
       });
     }
 
     track(AppEvent.LoggedIn, user.id, trackingInfo, { email });
-    identify(user.id, { $email: email, $name: email.split("@")[0] });
+    identify(user.id, { $email: email, $name: email.split('@')[0] });
 
     return await this.issueTokens(user.id);
   }
 
-  @Post("/refresh")
-  @SuccessResponse("200", "Success")
+  @Post('/refresh')
+  @SuccessResponse('200', 'Success')
   public async postRefresh(
     @Body() request: RefreshRequest,
     @Inject() trackingInfo: TrackingInfo
@@ -130,7 +130,7 @@ export default class AuthController {
     try {
       const payload = jwt.verify(
         request.refreshToken,
-        process.env.JWT_REFRESH_SECRET_KEY || ""
+        process.env.JWT_REFRESH_SECRET_KEY || ''
       );
 
       userId = (payload as any).userId;
@@ -140,13 +140,13 @@ export default class AuthController {
         // return a 401 error
         throw new AppError({
           httpCode: HttpCode.UNAUTHORIZED,
-          description: "Unable to authorize this refresh token",
+          description: 'Unable to authorize this refresh token',
         });
       }
       // otherwise, return a bad request error
       throw new AppError({
         httpCode: HttpCode.UNAUTHORIZED,
-        description: "Invalid refresh token provided",
+        description: 'Invalid refresh token provided',
       });
     }
 
@@ -160,7 +160,7 @@ export default class AuthController {
       // otherwise, return a bad request error
       throw new AppError({
         httpCode: HttpCode.UNAUTHORIZED,
-        description: "Invalid refresh token provided",
+        description: 'Invalid refresh token provided',
       });
     }
 
@@ -180,8 +180,8 @@ export default class AuthController {
   }
 
   private async issueTokens(userId: number) {
-    const token = jwt.sign({ userId }, process.env.JWT_SECRET_KEY || "", {
-      algorithm: "HS256",
+    const token = jwt.sign({ userId }, process.env.JWT_SECRET_KEY || '', {
+      algorithm: 'HS256',
       expiresIn: jwtExpirySeconds,
     });
 
@@ -190,14 +190,14 @@ export default class AuthController {
 
     const refreshToken = jwt.sign(
       { userId },
-      process.env.JWT_REFRESH_SECRET_KEY || "",
+      process.env.JWT_REFRESH_SECRET_KEY || '',
       {
-        algorithm: "HS256",
+        algorithm: 'HS256',
         expiresIn: jwtRefreshExpirySeconds,
       }
     );
 
-    logger.info("Saving refresh token", refreshToken, userId);
+    logger.info('Saving refresh token', refreshToken, userId);
     await prisma.refreshToken.create({
       data: {
         refreshToken,

@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 var __awaiter =
   (this && this.__awaiter) ||
   function (thisArg, _arguments, P, generator) {
@@ -19,7 +19,7 @@ var __awaiter =
       }
       function rejected(value) {
         try {
-          step(generator["throw"](value));
+          step(generator['throw'](value));
         } catch (e) {
           reject(e);
         }
@@ -50,7 +50,7 @@ var __generator =
       g;
     return (
       (g = { next: verb(0), throw: verb(1), return: verb(2) }),
-      typeof Symbol === "function" &&
+      typeof Symbol === 'function' &&
         (g[Symbol.iterator] = function () {
           return this;
         }),
@@ -62,7 +62,7 @@ var __generator =
       };
     }
     function step(op) {
-      if (f) throw new TypeError("Generator is already executing.");
+      if (f) throw new TypeError('Generator is already executing.');
       while ((g && ((g = 0), op[0] && (_ = 0)), _))
         try {
           if (
@@ -70,9 +70,9 @@ var __generator =
             y &&
               (t =
                 op[0] & 2
-                  ? y["return"]
+                  ? y['return']
                   : op[0]
-                  ? y["throw"] || ((t = y["return"]) && t.call(y), 0)
+                  ? y['throw'] || ((t = y['return']) && t.call(y), 0)
                   : y.next) &&
               !(t = t.call(y, op[1])).done)
           )
@@ -132,20 +132,20 @@ var __generator =
       return { value: op[0] ? op[1] : void 0, done: true };
     }
   };
-Object.defineProperty(exports, "__esModule", { value: true });
-var express_1 = require("express");
+Object.defineProperty(exports, '__esModule', { value: true });
+var express_1 = require('express');
 var PORT = process.env.PORT || 8000;
 var app = (0, express_1.default)();
-app.get("/ping", function (_req, res) {
+app.get('/ping', function (_req, res) {
   return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
       res.send({
-        message: "pong",
+        message: 'pong',
       });
       return [2 /*return*/];
     });
   });
 });
 app.listen(PORT, function () {
-  console.log("Server is running on port", PORT);
+  console.log('Server is running on port', PORT);
 });

@@ -1,8 +1,8 @@
-import { useCampaignStore } from "@/store/campaign.store.ts";
-import { computed } from "vue";
-import { useAuthStore } from "@/store";
-import { postQuickConjure } from "@/api/generators.ts";
-import { useRouter } from "vue-router";
+import { useCampaignStore } from '@/store/campaign.store.ts';
+import { computed } from 'vue';
+import { useAuthStore } from '@/store';
+import { postQuickConjure } from '@/api/generators.ts';
+import { useRouter } from 'vue-router';
 
 export function useSelectedCampaignId() {
   const store = useCampaignStore();

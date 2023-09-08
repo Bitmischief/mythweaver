@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref } from 'vue';
 
 const props = defineProps({
   content: {
@@ -15,20 +15,20 @@ const props = defineProps({
 const outputDiv = ref<any>(null);
 
 onMounted(() => {
-  outputDiv.value = document.querySelector("#typewriter-output");
+  outputDiv.value = document.querySelector('#typewriter-output');
   typeText();
 });
 
 function typeText() {
-  const splitTxt = props.content.split("<np>");
+  const splitTxt = props.content.split('<np>');
 
   splitTxt.forEach(() => {
-    const p = document.createElement("p");
-    p.style.margin = "0 0 1rem 0";
+    const p = document.createElement('p');
+    p.style.margin = '0 0 1rem 0';
     outputDiv.value?.appendChild(p);
   });
 
-  const allParas = outputDiv.value?.querySelectorAll("p");
+  const allParas = outputDiv.value?.querySelectorAll('p');
   let i = 0;
   let currentPara = 0;
   const timerId = setInterval(() => {

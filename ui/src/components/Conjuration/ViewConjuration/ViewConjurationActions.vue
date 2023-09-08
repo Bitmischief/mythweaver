@@ -4,23 +4,23 @@ import {
   ArrowPathIcon,
   PlusIcon,
   XMarkIcon,
-} from "@heroicons/vue/24/solid";
-import DeleteModal from "@/components/Core/General/DeleteModal.vue";
+} from '@heroicons/vue/24/solid';
+import DeleteModal from '@/components/Core/General/DeleteModal.vue';
 import {
   addConjuration,
   Conjuration,
   deleteConjuration,
-} from "@/api/conjurations.ts";
-import { showSuccess } from "@/lib/notifications.ts";
-import { computed, ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { useCurrentUserId, useQuickConjure } from "@/lib/hooks.ts";
+} from '@/api/conjurations.ts';
+import { showSuccess } from '@/lib/notifications.ts';
+import { computed, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { useCurrentUserId, useQuickConjure } from '@/lib/hooks.ts';
 
 const props = defineProps<{
   conjuration: Conjuration;
 }>();
 
-const emit = defineEmits(["add-conjuration"]);
+const emit = defineEmits(['add-conjuration']);
 
 const router = useRouter();
 const route = useRoute();
@@ -30,7 +30,7 @@ const currentUserId = useCurrentUserId();
 const showDeleteModal = ref(false);
 
 const isQuickConjure = computed(() => {
-  return route.query.quick === "true";
+  return route.query.quick === 'true';
 });
 
 const userOwnsConjuration = computed(() => {
@@ -39,11 +39,11 @@ const userOwnsConjuration = computed(() => {
 
 async function handleAddConjuration(conjurationId: number) {
   await addConjuration(conjurationId);
-  emit("add-conjuration");
+  emit('add-conjuration');
 }
 
 async function navigateToConjurations() {
-  await router.push("/conjurations");
+  await router.push('/conjurations');
 }
 
 async function handleRemoveConjuration() {
@@ -54,7 +54,7 @@ async function clickDeleteConjuration() {
   if (!props.conjuration) return;
 
   await deleteConjuration(props.conjuration.id);
-  showSuccess({ message: "Successfully removed conjuration" });
+  showSuccess({ message: 'Successfully removed conjuration' });
 
   setTimeout(async () => {
     await navigateToConjurations();

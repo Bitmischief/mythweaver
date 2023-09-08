@@ -1,9 +1,9 @@
-import axios from "axios";
-import fs from "node:fs";
-import { v4 as uuidv4 } from "uuid";
+import axios from 'axios';
+import fs from 'node:fs';
+import { v4 as uuidv4 } from 'uuid';
 
-const engineId = "stable-diffusion-xl-1024-v1-0";
-const apiHost = process.env.API_HOST ?? "https://api.stability.ai";
+const engineId = 'stable-diffusion-xl-1024-v1-0';
+const apiHost = process.env.API_HOST ?? 'https://api.stability.ai';
 const apiKey = process.env.STABILITY_API_KEY;
 
 interface GenerationResponse {
@@ -15,7 +15,7 @@ interface GenerationResponse {
 }
 
 export const generateImage = async (prompt: string, count = 1) => {
-  if (!apiKey) throw new Error("Missing Stability API key.");
+  if (!apiKey) throw new Error('Missing Stability API key.');
 
   const response = await axios.post(
     `${apiHost}/v1/generation/${engineId}/text-to-image`,
@@ -30,18 +30,18 @@ export const generateImage = async (prompt: string, count = 1) => {
       width: 1024,
       steps: 30,
       samples: count,
-      style_preset: "fantasy-art",
+      style_preset: 'fantasy-art',
     },
     {
       headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
         Authorization: `Bearer ${apiKey}`,
       },
     }
   );
 
-  if (!response.status.toString().startsWith("2")) {
+  if (!response.status.toString().startsWith('2')) {
     throw new Error(`Non-200 response: ${response.data}`);
   }
 

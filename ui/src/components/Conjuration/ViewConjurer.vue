@@ -1,25 +1,25 @@
 <script setup lang="ts">
-import { onMounted, ref, onUnmounted, computed } from "vue";
+import { onMounted, ref, onUnmounted, computed } from 'vue';
 import {
   getConjurer,
   postConjure,
   Conjurer,
   getConjurationRequest,
-} from "@/api/generators.ts";
-import { useRoute } from "vue-router";
-import { useCampaignStore } from "@/store/campaign.store.ts";
-import { storeToRefs } from "pinia";
-import SummoningLoader from "@/components/Conjuration/ConjuringLoader.vue";
-import { useEventBus } from "@/lib/events.ts";
-import { ArrowLeftIcon } from "@heroicons/vue/24/solid";
-import ConjurationQuickView from "@/components/Conjuration/ConjurationListItemView.vue";
+} from '@/api/generators.ts';
+import { useRoute } from 'vue-router';
+import { useCampaignStore } from '@/store/campaign.store.ts';
+import { storeToRefs } from 'pinia';
+import SummoningLoader from '@/components/Conjuration/ConjuringLoader.vue';
+import { useEventBus } from '@/lib/events.ts';
+import { ArrowLeftIcon } from '@heroicons/vue/24/solid';
+import ConjurationQuickView from '@/components/Conjuration/ConjurationListItemView.vue';
 import {
   RadioGroup,
   RadioGroupLabel,
   RadioGroupOption,
   RadioGroupDescription,
-} from "@headlessui/vue";
-import { trimPlural } from "@/lib/util.ts";
+} from '@headlessui/vue';
+import { trimPlural } from '@/lib/util.ts';
 
 const route = useRoute();
 const eventBus = useEventBus();
@@ -34,12 +34,12 @@ const summonedItems = ref<any[]>([]);
 
 const customizeOptions = ref([
   {
-    title: "Surprise Me",
-    description: "Our conjurer will choose the best options for you",
+    title: 'Surprise Me',
+    description: 'Our conjurer will choose the best options for you',
   },
   {
-    title: "Customize",
-    description: "Hand pick the options you want to use",
+    title: 'Customize',
+    description: 'Hand pick the options you want to use',
   },
 ]);
 const selectedCustomizeOption = ref(customizeOptions.value[0]);
@@ -49,7 +49,7 @@ const customize = computed(
 
 const conjurationRequestId = ref<number | undefined>(undefined);
 const conjurationCount = ref(1);
-const customArg = ref<string>("");
+const customArg = ref<string>('');
 
 const pollingIntervalId = ref<number | undefined>(undefined);
 
@@ -68,7 +68,7 @@ onUnmounted(() => {
 
 const backgroundImageInlineStyle = (imageUri: string | undefined): string => {
   if (!imageUri) {
-    return "";
+    return '';
   }
 
   // if (!generating.value && animationDone.value && summonedItems.value.length) {
@@ -123,9 +123,9 @@ async function loadConjurationRequest() {
 
 function processConjuringPartiallyComplete() {
   generating.value = false;
-  eventBus.$emit("summoningDone", {});
+  eventBus.$emit('summoningDone', {});
 
-  eventBus.$on("summoningAnimationDone", () => {
+  eventBus.$on('summoningAnimationDone', () => {
     animationDone.value = true;
   });
 }

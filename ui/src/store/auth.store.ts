@@ -1,8 +1,8 @@
-import { defineStore } from "pinia";
-import { postToken, postRefresh } from "@/api/auth.ts";
-import router from "@/router/router.ts";
-import { showError } from "@/lib/notifications.ts";
-import { getCurrentUser, User } from "@/api/users.ts";
+import { defineStore } from 'pinia';
+import { postToken, postRefresh } from '@/api/auth.ts';
+import router from '@/router/router.ts';
+import { showError } from '@/lib/notifications.ts';
+import { getCurrentUser, User } from '@/api/users.ts';
 
 interface AuthStoreState {
   tokens: any;
@@ -11,14 +11,14 @@ interface AuthStoreState {
   isLoading: boolean;
 }
 
-const TOKENS_KEY_NAME = "tokens";
+const TOKENS_KEY_NAME = 'tokens';
 
 export const useAuthStore = defineStore({
-  id: "auth",
+  id: 'auth',
   state: (): AuthStoreState => ({
     // initialize state from local storage to enable user to stay logged in
     tokens: localStorage.getItem(TOKENS_KEY_NAME)
-      ? JSON.parse(localStorage.getItem(TOKENS_KEY_NAME) || "")
+      ? JSON.parse(localStorage.getItem(TOKENS_KEY_NAME) || '')
       : null,
     returnUrl: null,
     user: null,
@@ -49,14 +49,14 @@ export const useAuthStore = defineStore({
         await this.loadCurrentUser();
 
         // redirect to previous url or default to home page
-        await router.push(this.returnUrl || "/");
+        await router.push(this.returnUrl || '/');
         return true;
       } catch (err: any) {
         if (err.response.status === 400) {
-          showError({ message: "Your user is not authorized for early access!" });
+          showError({ message: 'Your user is not authorized for early access!' });
           return false;
         } else {
-          showError({ message: "Unable to login, please try again soon." });
+          showError({ message: 'Unable to login, please try again soon.' });
           return true;
         }
       }
@@ -78,7 +78,7 @@ export const useAuthStore = defineStore({
     async logout() {
       this.tokens = null;
       localStorage.removeItem(TOKENS_KEY_NAME);
-      await router.push("/login");
+      await router.push('/login');
     },
   },
 });

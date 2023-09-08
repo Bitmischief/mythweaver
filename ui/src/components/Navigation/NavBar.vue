@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { Bars3Icon, ChevronDoubleLeftIcon } from "@heroicons/vue/24/solid";
-import { ref } from "vue";
-import { Dialog, DialogPanel } from "@headlessui/vue";
-import { useAuthStore } from "@/store";
-import NavbarContent from "@/components/Navigation/NavbarContent.vue";
+import { Bars3Icon, ChevronDoubleLeftIcon } from '@heroicons/vue/24/solid';
+import { ref } from 'vue';
+import { Dialog, DialogPanel } from '@headlessui/vue';
+import { useAuthStore } from '@/store';
+import NavbarContent from '@/components/Navigation/NavbarContent.vue';
 
 const authStore = useAuthStore();
 const showPanel = ref(false);

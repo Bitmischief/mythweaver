@@ -1,13 +1,13 @@
-import axios from "axios";
-import { useAuthStore } from "@/store";
-import { storeToRefs } from "pinia";
+import axios from 'axios';
+import { useAuthStore } from '@/store';
+import { storeToRefs } from 'pinia';
 
 axios.defaults.baseURL = import.meta.env.VITE_API_URL;
 
 axios.interceptors.request.use(
   (config) => {
-    if (config.url !== "/auth/token" && config.url !== "/auth/refresh") {
-      if (config.url?.startsWith("/campaigns/invites/") && config.method === "GET") {
+    if (config.url !== '/auth/token' && config.url !== '/auth/refresh') {
+      if (config.url?.startsWith('/campaigns/invites/') && config.method === 'GET') {
         return config;
       }
 
@@ -21,7 +21,7 @@ axios.interceptors.request.use(
       const token = (tokens as any).value.access_token;
 
       if (token) {
-        config.headers["Authorization"] = token;
+        config.headers['Authorization'] = token;
       }
     }
 
@@ -43,12 +43,12 @@ axios.interceptors.response.use(
     originalConfig._retryCount = originalConfig?._retryCount || 0;
     const authStore = useAuthStore();
 
-    if (originalConfig.url === "/auth/refresh" && err.response.status === 401) {
+    if (originalConfig.url === '/auth/refresh' && err.response.status === 401) {
       await authStore.logout();
       return;
     }
 
-    if (originalConfig.url !== "/auth/token" && err.response) {
+    if (originalConfig.url !== '/auth/token' && err.response) {
       // Access Token was expired
       if (
         err.response.status === 401 &&

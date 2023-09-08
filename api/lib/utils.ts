@@ -1,4 +1,4 @@
-export const isProduction = process.env.API_URL === "https://api.mythweaver.co";
+export const isProduction = process.env.API_URL === 'https://api.mythweaver.co';
 
 export function shuffle<T>(array: T[]): T[] {
   let currentIndex = array.length,
@@ -25,9 +25,9 @@ export function sanitizeJson(json: string): string {
     return json;
   }
 
-  const jsonStart = Array.from(json).findIndex((char) => char === "{");
+  const jsonStart = Array.from(json).findIndex((char) => char === '{');
   json = json.slice(jsonStart);
-  json = json.replace(/ {4}|[\t\n\r]/gm, " ");
+  json = json.replace(/ {4}|[\t\n\r]/gm, ' ');
 
   if (isValidJson(json)) {
     return json;
@@ -47,12 +47,12 @@ export function sanitizeJson(json: string): string {
         const nextChar = json[i + 1];
 
         if (
-          nextChar !== "," &&
-          nextChar !== "}" &&
-          nextChar !== "]" &&
-          nextChar !== ":"
+          nextChar !== ',' &&
+          nextChar !== '}' &&
+          nextChar !== ']' &&
+          nextChar !== ':'
         ) {
-          fixedCopy = json.slice(0, i) + "\\" + json.slice(i);
+          fixedCopy = json.slice(0, i) + '\\' + json.slice(i);
           quotesOpen = true;
         }
       }
@@ -74,7 +74,7 @@ export function isValidJson(json: string): boolean {
 export function trimPlural(s: string | undefined): string | undefined {
   if (!s) return;
 
-  if (s.endsWith("s")) {
+  if (s.endsWith('s')) {
     return s.slice(0, -1);
   }
 

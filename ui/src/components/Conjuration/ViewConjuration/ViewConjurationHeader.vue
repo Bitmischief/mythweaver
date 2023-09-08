@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
-import { Conjuration } from "@/api/conjurations.ts";
-import { CheckIcon, XMarkIcon } from "@heroicons/vue/20/solid";
-import { useCurrentUserId } from "@/lib/hooks.ts";
-import { remove } from "lodash";
-import { patchConjuration } from "@/api/conjurations.ts";
+import { computed, ref } from 'vue';
+import { Conjuration } from '@/api/conjurations.ts';
+import { CheckIcon, XMarkIcon } from '@heroicons/vue/20/solid';
+import { useCurrentUserId } from '@/lib/hooks.ts';
+import { remove } from 'lodash';
+import { patchConjuration } from '@/api/conjurations.ts';
 
-const emit = defineEmits(["tags-changed"]);
+const emit = defineEmits(['tags-changed']);
 
 const props = defineProps<{
   conjuration: Conjuration;
@@ -20,7 +20,7 @@ const userOwnsConjuration = computed(() => {
 const viewImage = ref(false);
 const hover = ref(-1);
 const addingTag = ref(false);
-const tagText = ref("");
+const tagText = ref('');
 
 const removeTag = async (tag: string) => {
   if (!props.conjuration.tags) return;
@@ -30,7 +30,7 @@ const removeTag = async (tag: string) => {
     return t === tag;
   });
   await patchConjuration(props.conjuration.id, { tags });
-  emit("tags-changed");
+  emit('tags-changed');
 };
 const addTag = async () => {
   if (tagText.value) {
@@ -41,9 +41,9 @@ const addTag = async () => {
     tags.push(tagText.value);
 
     await patchConjuration(props.conjuration.id, { tags });
-    emit("tags-changed");
+    emit('tags-changed');
 
-    tagText.value = "";
+    tagText.value = '';
   }
 };
 </script>

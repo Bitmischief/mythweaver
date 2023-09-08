@@ -1,4 +1,4 @@
-import client from "@mailchimp/mailchimp_marketing";
+import client from '@mailchimp/mailchimp_marketing';
 
 client.setConfig({
   apiKey: process.env.MAILCHIMP_API_KEY as string,
