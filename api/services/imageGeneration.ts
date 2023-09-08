@@ -50,10 +50,14 @@ export const generateImage = async (prompt: string, count = 1) => {
 
   responseJSON.artifacts.forEach((image) => {
     const imageId = uuidv4();
+    const dataDir = process.env.DATA_DIR ?? "./public/images";
+
+    if (!fs.existsSync(dataDir)) 
+      fs.mkdirSync(dataDir, { recursive: true });
 
     fs.writeFileSync(
-      `${process.env.DATA_DIR}/${imageId}.png`,
-      Buffer.from(image.base64, 'base64')
+      `${dataDir}/${imageId}.png`,
+      Buffer.from(image.base64, "base64")
     );
 
     urls.push(`${process.env.API_URL}/images/${imageId}.png`);
