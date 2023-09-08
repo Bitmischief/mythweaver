@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import ModalAlternate from "@/components/ModalAlternate.vue";
-import Autocomplete from "@/components/Core/Forms/Autocomplete.vue";
-import { BoltIcon, XMarkIcon } from "@heroicons/vue/20/solid";
-import Select from "@/components/Core/Forms/Select.vue";
-import { Conjurer, getConjurers } from "@/api/generators.ts";
+import ModalAlternate from '@/components/ModalAlternate.vue';
+import Autocomplete from '@/components/Core/Forms/Autocomplete.vue';
+import { BoltIcon, XMarkIcon } from '@heroicons/vue/20/solid';
+import Select from '@/components/Core/Forms/Select.vue';
+import { Conjurer, getConjurers } from '@/api/generators.ts';
 import {
   getConjurationTags,
   GetConjurationTagsRequest,
-} from "@/api/conjurations.ts";
-import { onMounted, ref } from "vue";
-import { useSelectedCampaignId } from "@/lib/hooks.ts";
+} from '@/api/conjurations.ts';
+import { onMounted, ref } from 'vue';
+import { useSelectedCampaignId } from '@/lib/hooks.ts';
 
 defineProps<{
   show: boolean;
 }>();
 
-const emit = defineEmits(["updateFilters", "close"]);
+const emit = defineEmits(['updateFilters', 'close']);
 
 const selectedCampaignId = useSelectedCampaignId();
 
@@ -31,7 +31,7 @@ const conjurationsFilterQuery = ref({
 
 const tags = ref<string[]>([]);
 const tagsQuery = ref<GetConjurationTagsRequest>({
-  term: "",
+  term: '',
   offset: 0,
   limit: 10,
 });
