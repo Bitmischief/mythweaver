@@ -91,7 +91,10 @@ async function loadConjurations(append = false) {
 }
 
 function handleFiltersUpdated(filters: any) {
-  conjurationsFilterQuery.value = filters;
+  // the spread here is necessary so that we aren't setting the REFERENCE of the object.
+  // otherwise after the first apply click, any filter changes will be applied immediately
+  // without waiting for another apply click
+  conjurationsFilterQuery.value = { ...filters };
   showFilters.value = false;
 }
 </script>

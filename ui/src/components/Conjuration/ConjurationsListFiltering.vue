@@ -8,7 +8,7 @@ import {
   getConjurationTags,
   GetConjurationTagsRequest,
 } from "@/api/conjurations.ts";
-import { onMounted, ref, watch } from "vue";
+import { onMounted, ref } from "vue";
 import { useSelectedCampaignId } from "@/lib/hooks.ts";
 
 defineProps<{
