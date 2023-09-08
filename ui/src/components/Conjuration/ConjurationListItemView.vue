@@ -27,7 +27,7 @@ const isMyConjuration = (conjuration: any) =>
 async function handleAddConjuration(conjurationId: number) {
   await addConjuration(conjurationId);
 
-  emit('add-conjuration', conjurationId);
+  emit('add-conjuration', { conjurationId });
 }
 
 async function navigateToViewConjuration(conjurationId: number) {
@@ -37,17 +37,20 @@ async function navigateToViewConjuration(conjurationId: number) {
 async function clickDeleteConjuration() {
   if (!props.conjuration || !isMyConjuration(props.conjuration)) return;
 
-  var conjurationId = props.conjuration?.copies?.length
+  const conjurationId = props.conjuration?.copies?.length
     ? props.conjuration?.copies[0].id
     : props.conjuration?.id;
+
   await deleteConjuration(conjurationId);
   showSuccess({ message: 'Successfully removed conjuration' });
 
-  emit('remove-conjuration', conjurationId);
+  emit('remove-conjuration', {
+    conjurationId,
+    parentConjurationId: props.conjuration?.id,
+  });
   showDeleteModal.value = false;
 }
 
-let iconHover = ref(false);
 const showDeleteModal = ref(false);
 </script>
 
@@ -77,20 +80,19 @@ const showDeleteModal = ref(false);
 
       <div
         v-if="isMyConjuration(conjuration)"
-        class="absolute right-2 top-2 flex h-12 w-12 justify-center rounded-full bg-green-500 hover:bg-gray-500"
-        @mouseover="iconHover = true"
-        @mouseout="iconHover = false"
+        class="absolute right-2 top-2 flex h-12 w-12 justify-center rounded-full bg-green-500 hover:bg-red-500 transition-all hover:scale-110 group"
       >
         <XMarkIcon
-          v-if="iconHover"
-          class="h-8 w-8 self-center text-white"
+          class="h-8 w-8 hidden group-hover:flex self-center text-white"
           @click.stop="showDeleteModal = true"
         />
-        <CheckIcon v-else class="h-8 w-8 self-center text-white" />
+        <CheckIcon
+          class="h-8 w-8 self-center text-white flex group-hover:hidden"
+        />
       </div>
       <div
         v-else
-        class="absolute right-2 top-2 flex h-12 w-12 justify-center rounded-full bg-gray-800 hover:bg-gray-500"
+        class="absolute right-2 top-2 flex h-12 w-12 justify-center rounded-full bg-gray-800 hover:bg-green-500 transition-all hover:scale-110"
         @click.stop="handleAddConjuration(conjuration.id)"
       >
         <button class="self-center">

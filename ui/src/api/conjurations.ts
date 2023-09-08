@@ -10,11 +10,13 @@ export interface Conjuration {
   data: any;
   tags?: string[];
   copies?: Conjuration[];
+  originalId?: number;
 }
 
 export interface GetConjurationsRequest {
   campaignId?: number;
   mine?: boolean;
+  saved?: boolean;
   conjurerCodes?: string[] | undefined;
   tags?: string[];
   offset: number;
@@ -25,6 +27,8 @@ export const getConjurations = (request: GetConjurationsRequest) => {
   return axios.get('/conjurations', {
     params: {
       ...request,
+      mine: request.mine === false ? undefined : request.mine,
+      saved: request.saved === false ? undefined : request.saved,
       conjurerCodes: request.conjurerCodes?.join(','),
       tags: request.tags?.join(','),
     },
