@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from 'vue';
 import {
   Campaign,
   CampaignRole,
@@ -7,16 +7,16 @@ import {
   getCampaign,
   invitePlayerToCampaign,
   PublicAdventure,
-} from "@/api/campaigns.ts";
-import { useCampaignStore } from "@/store/campaign.store.ts";
-import { getRpgSystems, RpgSystem } from "@/api/rpgSystems.ts";
-import Select from "@/components/Core/Forms/Select.vue";
-import { useSelectedCampaignId } from "@/lib/hooks.ts";
-import { useEventBus } from "@/lib/events.ts";
-import { format } from "date-fns";
-import ModalAlternate from "@/components/ModalAlternate.vue";
-import { showError, showSuccess } from "@/lib/notifications.ts";
-import { AxiosError } from "axios";
+} from '@/api/campaigns.ts';
+import { useCampaignStore } from '@/store/campaign.store.ts';
+import { getRpgSystems, RpgSystem } from '@/api/rpgSystems.ts';
+import Select from '@/components/Core/Forms/Select.vue';
+import { useSelectedCampaignId } from '@/lib/hooks.ts';
+import { useEventBus } from '@/lib/events.ts';
+import { format } from 'date-fns';
+import ModalAlternate from '@/components/ModalAlternate.vue';
+import { showError, showSuccess } from '@/lib/notifications.ts';
+import { AxiosError } from 'axios';
 
 const campaignStore = useCampaignStore();
 const selectedCampaignId = useSelectedCampaignId();
@@ -28,7 +28,7 @@ const adventures = ref<PublicAdventure[]>([]);
 const systemsLimit = ref(999);
 const showInviteModal = ref(false);
 const inviteLoading = ref(false);
-const inviteEmail = ref("");
+const inviteEmail = ref('');
 const showDeleteModal = ref(false);
 
 const currentUserRole = computed(() => campaignStore.selectedCampaignRole);
@@ -40,7 +40,7 @@ onMounted(async () => {
 
   await init();
 
-  eventBus.$on("campaign-selected", async () => {
+  eventBus.$on('campaign-selected', async () => {
     await init();
   });
 });
@@ -95,11 +95,11 @@ async function handleSaveCampaign() {
       publicAdventureCode: campaign.value.publicAdventureCode,
     });
 
-    showSuccess({ message: "Campaign saved!" });
+    showSuccess({ message: 'Campaign saved!' });
   } catch (e) {
     const err = e as AxiosError;
     showError({
-      message: (err?.response?.data as any)?.message?.toString() || "",
+      message: (err?.response?.data as any)?.message?.toString() || '',
     });
     return;
   }
@@ -112,11 +112,11 @@ async function handleDeleteCampaign() {
 
   try {
     await campaignStore.deleteCampaign(selectedCampaignId.value || 0);
-    showSuccess({ message: "Campaign deleted!" });
+    showSuccess({ message: 'Campaign deleted!' });
   } catch (e) {
     const err = e as AxiosError;
     showError({
-      message: (err?.response?.data as any)?.message?.toString() || "",
+      message: (err?.response?.data as any)?.message?.toString() || '',
     });
     return;
   }
@@ -136,7 +136,7 @@ async function invitePlayer() {
   } catch (e) {
     const err = e as AxiosError;
     showError({
-      message: (err?.response?.data as any)?.message?.toString() || "",
+      message: (err?.response?.data as any)?.message?.toString() || '',
     });
     return;
   }
@@ -158,7 +158,7 @@ async function handleRemoveMember() {
   } catch (e) {
     const err = e as AxiosError;
     showError({
-      message: (err?.response?.data as any)?.message?.toString() || "",
+      message: (err?.response?.data as any)?.message?.toString() || '',
     });
     return;
   } finally {
@@ -334,9 +334,9 @@ function handleRequestRemoveMember(memberId: number) {
                 {{
                   member.user
                     ? member.role === 1
-                      ? "Dungeon Master"
-                      : "Player"
-                    : "Invited"
+                      ? 'Dungeon Master'
+                      : 'Player'
+                    : 'Invited'
                 }}
               </div>
             </div>
@@ -349,11 +349,11 @@ function handleRequestRemoveMember(memberId: number) {
                   'text-blue-300': !member.user,
                 }"
               >
-                {{ member.user ? "Joined" : "Invited" }} on
+                {{ member.user ? 'Joined' : 'Invited' }} on
                 {{
                   format(
                     new Date(member.user ? member.joinedAt : member.createdAt),
-                    "MMMM d, yyyy",
+                    'MMMM d, yyyy',
                   )
                 }}
               </div>

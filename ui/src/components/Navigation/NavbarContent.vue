@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { onMounted, watch, ref } from "vue";
-import { CAMPAIGN_CREATED_EVENT, useEventBus } from "@/lib/events.ts";
-import { useRouter } from "vue-router";
-import { useCampaignStore } from "@/store/campaign.store.ts";
-import { storeToRefs } from "pinia";
-import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/vue";
-import { Campaign } from "@/api/campaigns.ts";
+import { onMounted, watch, ref } from 'vue';
+import { CAMPAIGN_CREATED_EVENT, useEventBus } from '@/lib/events.ts';
+import { useRouter } from 'vue-router';
+import { useCampaignStore } from '@/store/campaign.store.ts';
+import { storeToRefs } from 'pinia';
+import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue';
+import { Campaign } from '@/api/campaigns.ts';
 import {
   PlusIcon,
   CheckIcon,
@@ -14,7 +14,7 @@ import {
   ChatBubbleLeftRightIcon,
   BookOpenIcon,
   BookmarkIcon,
-} from "@heroicons/vue/20/solid";
+} from '@heroicons/vue/20/solid';
 
 defineProps<{
   collapsed?: boolean;
@@ -23,13 +23,13 @@ const router = useRouter();
 const eventBus = useEventBus();
 const campaignStore = useCampaignStore();
 
-const emit = defineEmits(["nav-item-selected"]);
+const emit = defineEmits(['nav-item-selected']);
 
 const { selectedCampaign, selectedCampaignId, campaigns } =
   storeToRefs(campaignStore);
 
 const filteredCampaigns = ref<Campaign[]>([]);
-const query = ref("");
+const query = ref('');
 
 onMounted(async () => {
   await loadCampaigns();
@@ -63,7 +63,7 @@ watch(query, async () => {
 });
 
 async function navigateToCreateCampaign() {
-  await router.push("/campaigns/new");
+  await router.push('/campaigns/new');
 }
 </script>
 

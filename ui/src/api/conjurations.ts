@@ -1,5 +1,5 @@
-import axios from "axios";
-import { useSelectedCampaignId } from "@/lib/hooks.ts";
+import axios from 'axios';
+import { useSelectedCampaignId } from '@/lib/hooks.ts';
 
 export interface Conjuration {
   id: number;
@@ -10,6 +10,7 @@ export interface Conjuration {
   data: any;
   tags?: string[];
   copies?: Conjuration[];
+  originalId?: number;
 }
 
 export interface GetConjurationsRequest {
@@ -23,13 +24,13 @@ export interface GetConjurationsRequest {
 }
 
 export const getConjurations = (request: GetConjurationsRequest) => {
-  return axios.get("/conjurations", {
+  return axios.get('/conjurations', {
     params: {
       ...request,
       mine: request.mine === false ? undefined : request.mine,
       saved: request.saved === false ? undefined : request.saved,
-      conjurerCodes: request.conjurerCodes?.join(","),
-      tags: request.tags?.join(","),
+      conjurerCodes: request.conjurerCodes?.join(','),
+      tags: request.tags?.join(','),
     },
   });
 };
@@ -41,7 +42,7 @@ export interface GetConjurationTagsRequest {
 }
 
 export const getConjurationTags = (request: GetConjurationTagsRequest) => {
-  return axios.get("/conjurations/tags", {
+  return axios.get('/conjurations/tags', {
     params: request,
   });
 };
@@ -49,7 +50,7 @@ export const getConjurationTags = (request: GetConjurationTagsRequest) => {
 export const addConjuration = (conjurationId: number) => {
   const selectedCampaignId = useSelectedCampaignId();
 
-  return axios.post("/conjurations", {
+  return axios.post('/conjurations', {
     campaignId: selectedCampaignId.value,
     conjurationId,
   });

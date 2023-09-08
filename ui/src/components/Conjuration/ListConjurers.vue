@@ -31,10 +31,10 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
-import { Conjurer, getConjurers } from "@/api/generators.ts";
-import { useRouter } from "vue-router";
-import { useQuickConjure } from "@/lib/hooks.ts";
+import { onMounted, ref } from 'vue';
+import { Conjurer, getConjurers } from '@/api/generators.ts';
+import { useRouter } from 'vue-router';
+import { useQuickConjure } from '@/lib/hooks.ts';
 
 const router = useRouter();
 const quickConjure = useQuickConjure();
@@ -46,7 +46,7 @@ onMounted(async () => {
 
 const backgroundImageInlineStyle = (imageUri: string | undefined): string => {
   if (!imageUri) {
-    return "";
+    return '';
   }
 
   return `background-image: url("/images/generators/${imageUri}");`;

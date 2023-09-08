@@ -1,25 +1,25 @@
 <script setup lang="ts">
-import { ArrowLeftIcon } from "@heroicons/vue/24/solid";
-import { computed, onMounted, ref } from "vue";
+import { ArrowLeftIcon } from '@heroicons/vue/24/solid';
+import { computed, onMounted, ref } from 'vue';
 import {
   SessionBase,
   deleteSession,
   getSession,
   patchSession,
-} from "@/api/sessions.ts";
-import { useRoute, useRouter } from "vue-router";
-import { showError, showSuccess } from "@/lib/notifications.ts";
-import DatePicker from "@/components/Core/Forms/DatePicker.vue";
-import TimePicker from "@/components/Core/Forms/TimePicker.vue";
-import { format, parseISO } from "date-fns";
-import Menu from "@/components/Core/General/Menu.vue";
-import { ChevronDownIcon } from "@heroicons/vue/20/solid";
-import { MenuButton, MenuItem } from "@headlessui/vue";
-import Typewriter from "@/components/Utility/Typewriter.vue";
+} from '@/api/sessions.ts';
+import { useRoute, useRouter } from 'vue-router';
+import { showError, showSuccess } from '@/lib/notifications.ts';
+import DatePicker from '@/components/Core/Forms/DatePicker.vue';
+import TimePicker from '@/components/Core/Forms/TimePicker.vue';
+import { format, parseISO } from 'date-fns';
+import Menu from '@/components/Core/General/Menu.vue';
+import { ChevronDownIcon } from '@heroicons/vue/20/solid';
+import { MenuButton, MenuItem } from '@headlessui/vue';
+import Typewriter from '@/components/Utility/Typewriter.vue';
 const route = useRoute();
 const router = useRouter();
 const session = ref<SessionBase>({} as SessionBase);
-const newSession = computed(() => route.params.sessionId === "new");
+const newSession = computed(() => route.params.sessionId === 'new');
 
 const whenDate = ref({
   year: 2023,
@@ -30,16 +30,16 @@ const whenDate = ref({
 const whenTime = ref({
   hours: 8,
   minutes: 30,
-  ampm: "PM",
+  ampm: 'PM',
 });
 
 const editWhen = ref(false);
 
 const whenDateString = computed(() =>
-  session.value?.when ? format(parseISO(session.value.when), "PP") : "",
+  session.value?.when ? format(parseISO(session.value.when), 'PP') : '',
 );
 const whenTimeString = computed(() =>
-  session.value?.when ? format(parseISO(session.value.when), "p") : "",
+  session.value?.when ? format(parseISO(session.value.when), 'p') : '',
 );
 
 onMounted(async () => {
@@ -58,7 +58,7 @@ onMounted(async () => {
   whenTime.value = {
     hours: date.getHours() >= 13 ? date.getHours() - 12 : date.getHours(),
     minutes: date.getMinutes(),
-    ampm: date.getHours() >= 12 ? "PM" : "AM",
+    ampm: date.getHours() >= 12 ? 'PM' : 'AM',
   };
 });
 
@@ -69,7 +69,7 @@ async function clickSaveSession() {
       whenDate.value.year,
       whenDate.value.month - 1,
       whenDate.value.day,
-      whenTime.value.ampm === "PM"
+      whenTime.value.ampm === 'PM'
         ? whenTime.value.hours + 12
         : whenTime.value.hours,
       whenTime.value.minutes,
@@ -79,9 +79,9 @@ async function clickSaveSession() {
   });
 
   if (putSessionResponse.status === 200) {
-    showSuccess({ message: "Session saved" });
+    showSuccess({ message: 'Session saved' });
   } else {
-    showError({ message: "Failed to save session" });
+    showError({ message: 'Failed to save session' });
   }
 }
 
@@ -89,10 +89,10 @@ async function clickDeleteSession() {
   const deleteSessionResponse = await deleteSession(session.value.id);
 
   if (deleteSessionResponse.status === 200) {
-    showSuccess({ message: "Session deleted successfully!" });
-    await router.push("/sessions");
+    showSuccess({ message: 'Session deleted successfully!' });
+    await router.push('/sessions');
   } else {
-    showError({ message: "Failed to delete session. Try again soon!" });
+    showError({ message: 'Failed to delete session. Try again soon!' });
   }
 }
 </script>

@@ -1,10 +1,14 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
-import { Conjuration, getConjurations } from "@/api/conjurations.ts";
-import { BoltIcon, AdjustmentsVerticalIcon } from "@heroicons/vue/20/solid";
-import ConjurationQuickView from "@/components/Conjuration/ConjurationListItemView.vue";
-import { debounce } from "lodash";
-import ConjurationsListFiltering from "@/components/Conjuration/ConjurationsListFiltering.vue";
+import { computed, onMounted, ref, watch } from 'vue';
+import {
+  Conjuration,
+  getConjuration,
+  getConjurations,
+} from '@/api/conjurations.ts';
+import { AdjustmentsVerticalIcon, BoltIcon } from '@heroicons/vue/20/solid';
+import ConjurationQuickView from '@/components/Conjuration/ConjurationListItemView.vue';
+import { debounce } from 'lodash';
+import ConjurationsListFiltering from '@/components/Conjuration/ConjurationsListFiltering.vue';
 
 const pagingDone = ref(false);
 const conjurations = ref<Conjuration[]>([]);
@@ -30,8 +34,8 @@ const conjurationsFilterQuery = ref({
 onMounted(async () => {
   await loadConjurations();
 
-  const viewParent = document.querySelector("#view-parent");
-  viewParent?.addEventListener("scroll", () => {
+  const viewParent = document.querySelector('#view-parent');
+  viewParent?.addEventListener('scroll', () => {
     if (!viewParent) return;
 
     if (
@@ -97,6 +101,19 @@ function handleFiltersUpdated(filters: any) {
   conjurationsFilterQuery.value = { ...filters };
   showFilters.value = false;
 }
+
+async function handleConjurationChange(change: {
+  conjurationId: number;
+  parentConjurationId?: number;
+}) {
+  const id = change.parentConjurationId || change.conjurationId;
+  const conjurationResponse = await getConjuration(id);
+
+  const conjurationIndex = conjurations.value.findIndex((c) => c.id === id);
+
+  conjurations.value[conjurationIndex] = conjurationResponse.data;
+  console.log(conjurationResponse.data);
+}
 </script>
 
 <template>
@@ -139,8 +156,8 @@ function handleFiltersUpdated(filters: any) {
       v-for="conjuration of conjurations"
       :key="conjuration.name"
       :conjuration="conjuration"
-      @add-conjuration="loadConjurations"
-      @remove-conjuration="loadConjurations"
+      @add-conjuration="handleConjurationChange"
+      @remove-conjuration="handleConjurationChange"
     />
   </div>
 
@@ -160,7 +177,7 @@ function handleFiltersUpdated(filters: any) {
 .divider::before,
 .divider::after {
   flex: 1;
-  content: "";
+  content: '';
   padding: 1px;
   background-color: #212121;
   margin: 0 16px;

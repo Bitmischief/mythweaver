@@ -1,122 +1,122 @@
-import { createRouter, createWebHistory } from "vue-router";
-import { useAuthStore } from "@/store";
-import LoginView from "@/views/LoginView.vue";
-import CampaignsView from "@/views/CampaignsView.vue";
-import ListCampaigns from "@/components/Campaigns/ListCampaigns.vue";
-import NewCampaign from "@/components/Campaigns/NewCampaign.vue";
-import ConjuringView from "@/views/ConjuringView.vue";
-import ListConjurers from "@/components/Conjuration/ListConjurers.vue";
-import ViewConjurer from "@/components/Conjuration/ViewConjurer.vue";
-import ViewCampaign from "@/components/Campaigns/ViewCampaign.vue";
-import SessionsView from "@/views/SessionsView.vue";
-import ViewSession from "@/components/Sessions/ViewSession.vue";
-import ListSessions from "@/components/Sessions/ListSessions.vue";
-import NewSession from "@/components/Sessions/NewSession.vue";
-import ListConjurations from "@/components/Conjuration/ListConjurations.vue";
-import ViewConjuration from "@/components/Conjuration/ViewConjuration.vue";
-import InviteView from "@/views/InviteView.vue";
+import { createRouter, createWebHistory } from 'vue-router';
+import { useAuthStore } from '@/store';
+import LoginView from '@/views/LoginView.vue';
+import CampaignsView from '@/views/CampaignsView.vue';
+import ListCampaigns from '@/components/Campaigns/ListCampaigns.vue';
+import NewCampaign from '@/components/Campaigns/NewCampaign.vue';
+import ConjuringView from '@/views/ConjuringView.vue';
+import ListConjurers from '@/components/Conjuration/ListConjurers.vue';
+import ViewConjurer from '@/components/Conjuration/ViewConjurer.vue';
+import ViewCampaign from '@/components/Campaigns/ViewCampaign.vue';
+import SessionsView from '@/views/SessionsView.vue';
+import ViewSession from '@/components/Sessions/ViewSession.vue';
+import ListSessions from '@/components/Sessions/ListSessions.vue';
+import NewSession from '@/components/Sessions/NewSession.vue';
+import ListConjurations from '@/components/Conjuration/ListConjurations.vue';
+import ViewConjuration from '@/components/Conjuration/ViewConjuration.vue';
+import InviteView from '@/views/InviteView.vue';
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
-      name: "LOGIN",
-      path: "/login",
+      name: 'LOGIN',
+      path: '/login',
       component: LoginView,
     },
     {
-      name: "INVITE",
-      path: "/invite",
+      name: 'INVITE',
+      path: '/invite',
       component: InviteView,
     },
     {
-      name: "HOME",
-      path: "/",
-      redirect: "/conjurations",
+      name: 'HOME',
+      path: '/',
+      redirect: '/conjurations',
       meta: {
         authRequired: true,
       },
     },
     {
-      name: "CAMPAIGNS",
-      path: "/campaigns",
+      name: 'CAMPAIGNS',
+      path: '/campaigns',
       component: CampaignsView,
       meta: {
         authRequired: true,
       },
       children: [
         {
-          path: "list",
-          alias: "",
+          path: 'list',
+          alias: '',
           component: ListCampaigns,
         },
         {
-          path: "new",
+          path: 'new',
           component: NewCampaign,
         },
       ],
     },
     {
-      name: "CONJURING",
-      path: "/conjurations",
+      name: 'CONJURING',
+      path: '/conjurations',
       component: ConjuringView,
       meta: {
         authRequired: true,
       },
       children: [
         {
-          path: "list",
-          alias: "",
+          path: 'list',
+          alias: '',
           component: ListConjurations,
         },
         {
-          path: "view/:conjurationId",
+          path: 'view/:conjurationId',
           component: ViewConjuration,
         },
         {
-          path: "new",
+          path: 'new',
           component: ListConjurers,
         },
         {
-          path: "conjure/:summonerCode",
+          path: 'conjure/:summonerCode',
           component: ViewConjurer,
         },
       ],
     },
     {
-      name: "CAMPAIGN",
-      path: "/campaign",
+      name: 'CAMPAIGN',
+      path: '/campaign',
       component: CampaignsView,
       meta: {
         authRequired: true,
       },
       children: [
         {
-          path: "edit",
-          alias: "",
+          path: 'edit',
+          alias: '',
           component: ViewCampaign,
         },
       ],
     },
     {
-      name: "SESSION",
-      path: "/sessions",
+      name: 'SESSION',
+      path: '/sessions',
       component: SessionsView,
       meta: {
         authRequired: true,
       },
       children: [
         {
-          path: "list",
-          alias: "",
+          path: 'list',
+          alias: '',
           component: ListSessions,
         },
         {
-          path: "create",
+          path: 'create',
           component: NewSession,
         },
         {
-          path: ":sessionId/edit",
+          path: ':sessionId/edit',
           component: ViewSession,
         },
       ],
@@ -130,7 +130,7 @@ router.beforeEach(async (to) => {
 
   if (authRequired && !auth.tokens) {
     auth.returnUrl = to.fullPath;
-    return "/login";
+    return '/login';
   }
 });
 

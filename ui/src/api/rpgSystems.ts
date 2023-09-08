@@ -1,6 +1,6 @@
-import axios from "axios";
-import { Ref } from "vue";
-import { PublicAdventure } from "@/api/campaigns.ts";
+import axios from 'axios';
+import { Ref } from 'vue';
+import { PublicAdventure } from '@/api/campaigns.ts';
 
 export interface RpgSystem {
   code: string;
@@ -20,7 +20,7 @@ export interface GetRpgSystemsRequest {
 }
 
 export const getRpgSystems = (query: GetRpgSystemsRequest) => {
-  return axios.get("/rpg-systems", {
+  return axios.get('/rpg-systems', {
     params: {
       term: query.term?.value,
       offset: query.offset,

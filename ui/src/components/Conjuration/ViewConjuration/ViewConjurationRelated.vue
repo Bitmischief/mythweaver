@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { Conjuration } from "@/api/conjurations.ts";
+import { Conjuration } from '@/api/conjurations.ts';
 
 defineProps<{
   conjuration: Conjuration;

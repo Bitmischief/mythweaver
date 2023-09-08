@@ -1,5 +1,5 @@
-export const NO_CAMPAIGNS_EVENT = "NO_CAMPAIGNS";
-export const CAMPAIGN_CREATED_EVENT = "CAMPAIGN_CREATED";
+export const NO_CAMPAIGNS_EVENT = 'NO_CAMPAIGNS';
+export const CAMPAIGN_CREATED_EVENT = 'CAMPAIGN_CREATED';
 
 class EventBus {
   events: any;

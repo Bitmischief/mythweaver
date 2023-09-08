@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
-import { Campaign, getCampaigns } from "@/api/campaigns.ts";
-import { debounce } from "lodash";
+import { onMounted, ref } from 'vue';
+import { Campaign, getCampaigns } from '@/api/campaigns.ts';
+import { debounce } from 'lodash';
 
 const campaignsSearch = ref({
-  term: "",
+  term: '',
   offset: 0,
   limit: 25,
 });
 const campaigns = ref<Campaign[]>([]);
 const loadMore = ref(false);
-const lastFilterTerm = ref("");
+const lastFilterTerm = ref('');
 
 onMounted(async () => {
   await loadCampaigns();
@@ -68,7 +68,7 @@ async function loadMoreCampaigns() {
             </div>
 
             <div class="h-[3rem] overflow-hidden text-xs text-purple-300">
-              {{ campaign.description || "No description provided" }}
+              {{ campaign.description || 'No description provided' }}
             </div>
           </div>
 

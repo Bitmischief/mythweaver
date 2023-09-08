@@ -27,7 +27,7 @@ export class AppError extends Error {
 
     Object.setPrototypeOf(this, new.target.prototype);
 
-    this.name = args.name || "Error";
+    this.name = args.name || 'Error';
     this.description = args.description;
     this.httpCode = args.httpCode;
 
