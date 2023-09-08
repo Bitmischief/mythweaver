@@ -277,4 +277,26 @@ router.post('/invites/:inviteCode', [
   },
 ]);
 
+const getCampaignCharacterRouteSchema = z.object({
+  campaignId: z.coerce.number().default(0),
+});
+
+router.get('/:campaignId/character', [
+  useAuthenticateRequest(),
+  useValidateRequest(getCampaignCharacterRouteSchema, {
+    validationType: ValidationTypes.Route,
+  }),
+  async (req: Request, res: Response) => {
+    const controller = new CampaignController();
+
+    const response = await controller.getMyCampaignCharacter(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      req.params.campaignId as unknown as number
+    );
+
+    return res.status(200).send(response);
+  },
+]);
+
 export default router;

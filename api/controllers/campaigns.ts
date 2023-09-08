@@ -472,9 +472,9 @@ export default class CampaignController {
     });
   }
 
-  @Security("jwt")
-  @OperationId("getMyCampaignCharacter")
-  @Put("/:campaignId/character")
+  @Security('jwt')
+  @OperationId('getMyCampaignCharacter')
+  @Put('/:campaignId/character')
   public async getMyCampaignCharacter(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
@@ -492,7 +492,7 @@ export default class CampaignController {
     if (!actingUserCampaignMember) {
       throw new AppError({
         httpCode: HttpCode.FORBIDDEN,
-        description: "You are not a member of this campaign",
+        description: 'You are not a member of this campaign',
       });
     }
 
@@ -508,7 +508,7 @@ export default class CampaignController {
     if (!character) {
       throw new AppError({
         httpCode: HttpCode.NOT_FOUND,
-        description: "This user does not have a character in this campaign",
+        description: 'This user does not have a character in this campaign',
       });
     }
 
