@@ -1,9 +1,10 @@
 <script lang="ts" setup>
 import { Conjuration, patchConjuration } from '@/api/conjurations.ts';
 import { showSuccess } from '@/lib/notifications.ts';
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useCurrentUserId } from '@/lib/hooks.ts';
 import { useEventBus } from '@/lib/events.ts';
+import TextEdit from '@/components/Core/Forms/TextEdit.vue';
 
 const props = defineProps<{
   conjuration: Conjuration;
@@ -44,12 +45,14 @@ onUnmounted(() => {
   eventBus.$off('conjuration-save-info');
 });
 
-function enableEdit(key: string, event: MouseEvent) {
-  if (!userOwnsConjuration.value) return;
-
-  editDataKey.value = key;
-  event.stopPropagation();
-}
+watch(
+  dataArray,
+  async () => {
+    console.log('watch dataArray');
+    await saveData();
+  },
+  { deep: true },
+);
 
 async function saveData() {
   if (!props.conjuration) return;
@@ -59,12 +62,6 @@ async function saveData() {
 
   showSuccess({ message: 'Updated conjuration!' });
 }
-
-function textareaGrow(e: any) {
-  e.target.style.height = '5px';
-  e.target.style.height =
-    Math.max(e.target.style.minHeight, e.target.scrollHeight) + 'px';
-}
 </script>
 
 <template>
@@ -72,20 +69,11 @@ function textareaGrow(e: any) {
     <div class="mt-8 text-2xl">
       {{ data.key }}
     </div>
-    <div
-      v-show="editDataKey !== data.key"
-      class="mt-2 cursor-pointer whitespace-pre-wrap text-lg text-gray-400"
-      @click="enableEdit(data.key, $event)"
-    >
-      {{ data.value }}
-    </div>
-    <textarea
-      v-show="editDataKey === data.key"
+    <TextEdit
       v-model="data.value"
-      class="min-h-[20rem] w-full overflow-hidden rounded-xl border border-green-500 bg-surface p-3 text-lg shadow-lg"
-      @click="$event.stopPropagation()"
-      @blur="saveData"
-      @input="textareaGrow"
+      :data-key="data.key"
+      :disabled="!userOwnsConjuration"
+      @change="saveData"
     />
   </div>
 </template>

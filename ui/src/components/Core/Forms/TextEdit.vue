@@ -1,0 +1,58 @@
+<script lang="ts" setup>
+import { computed, ref } from 'vue';
+
+const props = defineProps<{
+  modelValue: string;
+  dataKey: string;
+  disabled?: boolean;
+}>();
+
+const emit = defineEmits(['update:modelValue']);
+
+const value = computed({
+  get: () => props.modelValue,
+  set: (value) => {
+    emit('update:modelValue', value);
+  },
+});
+
+const edit = ref(false);
+const input = ref<HTMLInputElement | null>(null);
+
+function textareaGrow(e: any) {
+  e.target.style.height = '5px';
+  e.target.style.height =
+    Math.max(e.target.style.minHeight, e.target.scrollHeight) + 'px';
+}
+
+function enableEdit() {
+  if (props.disabled) return;
+
+  edit.value = true;
+
+  setTimeout(function () {
+    input.value?.focus();
+  }, 0);
+}
+</script>
+
+<template>
+  <div>
+    <div
+      v-show="!edit"
+      class="mt-2 cursor-pointer whitespace-pre-wrap text-lg text-gray-400"
+      @click="enableEdit"
+    >
+      {{ value }}
+    </div>
+    <textarea
+      v-show="edit"
+      ref="input"
+      v-model="value"
+      class="min-h-[20rem] w-full overflow-hidden rounded-xl border border-green-500 bg-surface p-3 text-lg shadow-lg"
+      @click="$event.stopPropagation()"
+      @blur="emit('update:modelValue')"
+      @input="textareaGrow"
+    />
+  </div>
+</template>

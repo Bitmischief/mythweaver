@@ -206,12 +206,13 @@ model Character {
 
   name        String
   imageUri    String?
-  backstory   String?
+  background  String?
   personality String?
+  looks       String?
   goals       String?
   alignment   String?
 
-  customData Json
+  customData Json?
 
   user           User           @relation(fields: [userId], references: [id])
   campaign       Campaign       @relation(fields: [campaignId], references: [id])

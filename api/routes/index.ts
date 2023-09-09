@@ -24,7 +24,7 @@ router.use(`/conjurations`, conjurationsRoutes);
 import usersRoutes from './users';
 router.use(`/users`, usersRoutes);
 
-// import charactersRoutes from "./characters";
-// router.use(`/characters`, charactersRoutes);
+import charactersRoutes from './characters';
+router.use(`/characters`, charactersRoutes);
 
 export default router;
