@@ -29,7 +29,7 @@ const value = computed({
     <input
       v-model="value.month"
       maxlength="2"
-      class="w-12 border-none bg-transparent text-center focus:border-none"
+      class="w-12 border-none text-xl bg-transparent text-center focus:border-none"
       placeholder="mm"
       type="number"
     />
@@ -38,7 +38,7 @@ const value = computed({
     <input
       v-model="value.day"
       maxlength="2"
-      class="w-12 bg-transparent text-center"
+      class="w-12 bg-transparent text-xl border-none text-center"
       placeholder="dd"
       type="number"
     />
@@ -47,7 +47,7 @@ const value = computed({
     <input
       v-model="value.year"
       maxlength="4"
-      class="w-12 bg-transparent text-center"
+      class="w-20 bg-transparent text-xl text-center border-none"
       placeholder="yyyy"
       type="number"
     />

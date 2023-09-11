@@ -17,7 +17,7 @@ import { AppError, HttpCode } from '../lib/errors/AppError';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { sendTransactionalEmail } from '../lib/transactionalEmail';
 import { v4 as uuidv4 } from 'uuid';
-import { isProduction } from '../lib/utils';
+import { urlPrefix } from '../lib/utils';
 
 export interface GetCampaignsResponse {
   data: Campaign[];
@@ -321,10 +321,6 @@ export default class CampaignController {
         role: CampaignRole.Player,
       },
     });
-
-    const urlPrefix = isProduction
-      ? 'https://app.mythweaver.co'
-      : 'http://localhost:3000';
 
     await sendTransactionalEmail(
       'campaign-invite',

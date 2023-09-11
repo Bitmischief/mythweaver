@@ -8,17 +8,18 @@ import DatePicker from '@/components/Core/Forms/DatePicker.vue';
 import TimePicker from '@/components/Core/Forms/TimePicker.vue';
 
 const router = useRouter();
+const today = new Date();
 
 const whenDate = ref({
-  year: 2023,
-  month: 8,
-  day: 12,
+  year: today.getFullYear(),
+  month: today.getMonth() + 1,
+  day: today.getDate(),
 });
 
 const whenTime = ref({
-  hours: 8,
-  minutes: 30,
-  ampm: 'PM',
+  hours: today.getHours() > 12 ? today.getHours() - 12 : today.getHours(),
+  minutes: today.getMinutes().toString().padStart(2, '0'),
+  ampm: today.getHours() > 12 ? 'PM' : 'AM',
 });
 
 const session = ref<SessionBase>({
@@ -39,7 +40,7 @@ async function handleCreateSession() {
       whenTime.value.ampm === 'PM'
         ? whenTime.value.hours + 12
         : whenTime.value.hours,
-      whenTime.value.minutes,
+      whenTime.value.minutes as unknown as number,
       0,
       0,
     ),
@@ -57,7 +58,7 @@ async function handleCreateSession() {
     <div class="text-md mb-2 mt-4 text-gray-400">
       Which day will it take place?
     </div>
-    <DatePicker v-model="whenDate" class="w-56" />
+    <DatePicker v-model="whenDate" class="w-64" />
 
     <div class="text-md mb-2 mt-4 text-gray-400">
       At what time will it take place?

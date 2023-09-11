@@ -15,6 +15,8 @@ import { prisma } from '../lib/providers/prisma';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import { Session } from '@prisma/client';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
+import { CampaignRole } from './campaigns';
+import { completeSessionQueue } from '../worker';
 
 interface GetSessionsResponse {
   data: Session[];
@@ -37,6 +39,15 @@ interface PatchSessionRequest {
   description?: string;
 }
 
+interface PostCompleteSessionRequest {
+  recap: string;
+}
+
+export enum SessionStatus {
+  UPCOMING = 1,
+  COMPLETED = 2,
+}
+
 @Route('sessions')
 @Tags('Sessions')
 export default class SessionController {
@@ -57,6 +68,9 @@ export default class SessionController {
       },
       skip: offset,
       take: limit,
+      orderBy: {
+        when: 'desc',
+      },
     });
 
     track(AppEvent.GetSessions, userId, trackingInfo);
@@ -164,6 +178,48 @@ export default class SessionController {
     });
 
     track(AppEvent.DeleteSession, userId, trackingInfo);
+
+    return true;
+  }
+
+  @Security('jwt')
+  @OperationId('completeSession')
+  @Post('/:sessionId/complete')
+  public async postCompleteSession(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Route() sessionId: number,
+    @Body() request: PostCompleteSessionRequest
+  ): Promise<boolean> {
+    const session = await this.getSession(userId, trackingInfo, sessionId);
+    const campaignMember = await prisma.campaignMember.findUnique({
+      where: {
+        userId_campaignId: {
+          userId,
+          campaignId: session.campaignId,
+        },
+      },
+    });
+
+    if (!campaignMember || campaignMember.role !== CampaignRole.DM) {
+      throw new AppError({
+        description: 'You do not have permission to complete this session.',
+        httpCode: HttpCode.FORBIDDEN,
+      });
+    }
+
+    await prisma.session.update({
+      where: {
+        id: sessionId,
+      },
+      data: {
+        recap: request.recap,
+      },
+    });
+
+    await completeSessionQueue.add({ sessionId: sessionId });
+
+    track(AppEvent.CompleteSession, userId, trackingInfo);
 
     return true;
   }
