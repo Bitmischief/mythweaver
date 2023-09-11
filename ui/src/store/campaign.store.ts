@@ -73,11 +73,15 @@ export const useCampaignStore = defineStore({
       }
 
       if (this.selectedCampaignId) {
-        const getCampaignResponse = await getCampaign(this.selectedCampaignId);
-        this.selectedCampaign = getCampaignResponse.data;
-
-        this.setCampaignRole();
+        try {
+          const getCampaignResponse = await getCampaign(this.selectedCampaignId);
+          this.selectedCampaign = getCampaignResponse.data;
+        } catch (err) {
+          await this.selectCampaign(this.campaigns[0].id);
+        }
       }
+
+      this.setCampaignRole();
     },
     async saveCampaign(campaign: PutCampaignRequest) {
       const response = await saveCampaign(campaign);
@@ -87,9 +91,6 @@ export const useCampaignStore = defineStore({
     },
     async deleteCampaign(campaignId: number) {
       await deleteCampaign(campaignId);
-      await this.getCampaigns();
-      this.selectedCampaignId = this.campaigns[0].id;
-      this.setCampaignRole();
       await this.loadCampaigns();
     },
   },
