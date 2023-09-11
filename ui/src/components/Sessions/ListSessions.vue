@@ -65,7 +65,7 @@ async function loadMoreSessions() {
     </div>
   </div>
 
-  <div class="mx-auto flex flex-wrap">
+  <div class="flex flex-wrap">
     <router-link
       v-for="(session, i) of sessions"
       :key="i"
