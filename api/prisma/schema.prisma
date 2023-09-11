@@ -113,9 +113,14 @@ model Session {
   campaignId Int
 
   when        DateTime
+  status      Int      @default(1)
   summary     String?
   transcript  String?
   description String?
+  recap       String?
+  imageUri    String?
+  suggestions String?
+  name        String?
 
   user     User      @relation(fields: [userId], references: [id])
   campaign Campaign  @relation(fields: [campaignId], references: [id])

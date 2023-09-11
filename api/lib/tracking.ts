@@ -31,6 +31,7 @@ export enum AppEvent {
   CreateSession = 'Create Session',
   UpdateSession = 'Update Session',
   DeleteSession = 'Delete Session',
+  CompleteSession = 'Complete Session',
   UpdateUser = 'Update User',
   GetLoggedInUser = 'Get Logged In User',
   GetCampaignMembers = 'Get Campaign Members',

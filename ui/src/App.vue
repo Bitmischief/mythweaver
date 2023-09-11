@@ -4,7 +4,7 @@ import { useAuthStore } from '@/store';
 import NotificationHandler from '@/components/Notifications/NotificationHandler.vue';
 import { NO_CAMPAIGNS_EVENT, useEventBus } from '@/lib/events.ts';
 import router from '@/router/router.ts';
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 import NavBarHeader from '@/components/Navigation/NavBarHeader.vue';
 
 const authStore = useAuthStore();
@@ -18,6 +18,15 @@ onMounted(async () => {
 
 eventBus.$on(NO_CAMPAIGNS_EVENT, () => {
   router.push('/campaigns/new');
+});
+
+const showLoading = ref(false);
+eventBus.$on('global-loading-start', () => {
+  showLoading.value = true;
+});
+
+eventBus.$on('global-loading-stop', () => {
+  showLoading.value = false;
 });
 </script>
 
@@ -46,7 +55,7 @@ eventBus.$on(NO_CAMPAIGNS_EVENT, () => {
     <NotificationHandler />
 
     <div
-      v-if="authStore.isLoading"
+      v-if="authStore.isLoading || showLoading"
       class="absolute w-full h-full bg-black opacity-95"
     >
       <div class="flex justify-center items-center w-full h-full">

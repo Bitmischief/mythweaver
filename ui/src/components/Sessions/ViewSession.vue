@@ -6,6 +6,7 @@ import {
   deleteSession,
   getSession,
   patchSession,
+  postCompleteSession,
 } from '@/api/sessions.ts';
 import { useRoute, useRouter } from 'vue-router';
 import { showError, showSuccess } from '@/lib/notifications.ts';
@@ -15,9 +16,13 @@ import { format, parseISO } from 'date-fns';
 import Menu from '@/components/Core/General/Menu.vue';
 import { ChevronDownIcon } from '@heroicons/vue/20/solid';
 import { MenuButton, MenuItem } from '@headlessui/vue';
-import Typewriter from '@/components/Utility/Typewriter.vue';
+import ModalAlternate from '@/components/ModalAlternate.vue';
+import { useEventBus } from '@/lib/events.ts';
+
 const route = useRoute();
 const router = useRouter();
+const eventBus = useEventBus();
+
 const session = ref<SessionBase>({} as SessionBase);
 const newSession = computed(() => route.params.sessionId === 'new');
 
@@ -34,6 +39,8 @@ const whenTime = ref({
 });
 
 const editWhen = ref(false);
+const showCompleteSession = ref(false);
+const recap = ref('');
 
 const whenDateString = computed(() =>
   session.value?.when ? format(parseISO(session.value.when), 'PP') : '',
@@ -42,7 +49,20 @@ const whenTimeString = computed(() =>
   session.value?.when ? format(parseISO(session.value.when), 'p') : '',
 );
 
+const bgImageStyle = computed(
+  () =>
+    `background: url('${
+      session.value.imageUri
+        ? session.value.imageUri
+        : '/images/session_bg_square.png'
+    }'); background-size: 20%; background-position: center;`,
+);
+
 onMounted(async () => {
+  await init();
+});
+
+async function init() {
   const response = await getSession(
     parseInt(route.params.sessionId.toString()),
   );
@@ -60,7 +80,7 @@ onMounted(async () => {
     minutes: date.getMinutes(),
     ampm: date.getHours() >= 12 ? 'PM' : 'AM',
   };
-});
+}
 
 async function clickSaveSession() {
   const putSessionResponse = await patchSession({
@@ -95,55 +115,90 @@ async function clickDeleteSession() {
     showError({ message: 'Failed to delete session. Try again soon!' });
   }
 }
+
+async function completeSession() {
+  try {
+    await postCompleteSession(session.value.id, { recap: recap.value });
+    showSuccess({
+      message:
+        'Session completed! This session will update soon with an image, summary and suggestions.',
+    });
+
+    const intervalId = setInterval(async () => {
+      await init();
+
+      if (session.value.imageUri) {
+        clearInterval(intervalId);
+      }
+    }, 5000);
+
+    showCompleteSession.value = false;
+  } catch (e) {
+    showError({ message: 'Failed to complete session. Try again soon!' });
+  }
+}
 </script>
 
 <template>
-  <div class="my-8 flex justify-between">
-    <router-link
-      :to="`/sessions`"
-      class="bg-surface-2 flex rounded-xl border-2 border-gray-600/50 p-3"
+  <div v-if="session" class="my-8">
+    <div
+      class="rounded-md flex flex-col justify-between md:h-[30rem]"
+      :style="bgImageStyle"
     >
-      <ArrowLeftIcon class="mr-2 h-4 w-4 self-center" /> Back to list
-    </router-link>
-
-    <div class="flex">
-      <button
-        class="h-12 rounded-xl bg-green-500 px-3 py-1"
-        @click="clickSaveSession"
-      >
-        Save
-      </button>
-
-      <Menu>
-        <MenuButton
-          class="bg-surface-2 ml-2 flex h-12 w-full justify-center rounded-xl border-2 border-gray-600/50 px-3 py-1 text-white"
+      <div class="p-4 flex justify-between">
+        <router-link
+          :to="`/sessions`"
+          class="bg-surface-2 flex rounded-xl border-2 border-gray-600/50 p-3"
         >
-          <span class="text-md self-center"> More </span>
-          <ChevronDownIcon
-            class="-mr-1 ml-2 h-5 w-5 self-center text-violet-200 hover:text-violet-100"
-            aria-hidden="true"
-          />
-        </MenuButton>
-        <template #content>
-          <div class="rounded-xl bg-gray-800/75 p-4">
-            <MenuItem>
-              <button
-                v-if="!newSession"
-                class="w-full rounded-xl border-2 border-red-500 px-3 py-1"
-                @click="clickDeleteSession"
-              >
-                Delete
-              </button>
-            </MenuItem>
-          </div>
-        </template>
-      </Menu>
-    </div>
-  </div>
+          <ArrowLeftIcon class="mr-2 h-4 w-4 self-center" /> Back to list
+        </router-link>
 
-  <div v-if="session">
-    <div class="flex">
-      <div style="width: calc(100% - 12rem)">
+        <div v-if="session.status === 1" class="flex">
+          <button
+            class="h-12 rounded-md bg-green-500 px-3 py-1 transition-all hover:scale-110"
+            @click="clickSaveSession"
+          >
+            Save
+          </button>
+
+          <button
+            class="ml-2 rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 px-4 py-1 h-12 transition-all hover:scale-110"
+            @click="showCompleteSession = true"
+          >
+            Complete Session
+          </button>
+
+          <Menu>
+            <MenuButton
+              class="bg-surface-2 ml-2 flex h-12 w-full justify-center rounded-md border-2 border-gray-600/50 px-3 py-1 text-white transition-all hover:scale-110"
+            >
+              <span class="text-md self-center"> More </span>
+              <ChevronDownIcon
+                class="-mr-1 ml-2 h-5 w-5 self-center text-violet-200 hover:text-violet-100"
+                aria-hidden="true"
+              />
+            </MenuButton>
+            <template #content>
+              <div class="rounded-xl bg-gray-800/75 p-4">
+                <MenuItem>
+                  <button
+                    v-if="!newSession"
+                    class="w-full rounded-xl border-2 border-red-500 px-3 py-1"
+                    @click="clickDeleteSession"
+                  >
+                    Delete
+                  </button>
+                </MenuItem>
+              </div>
+            </template>
+          </Menu>
+        </div>
+        <div v-else class="rounded-md bg-green-500 px-4 text-lg flex">
+          <span class="self-center">completed</span>
+        </div>
+      </div>
+
+      <div class="p-4 rounded-b-md flex bg-black/75">
         <div v-if="editWhen">
           <div class="text-md mb-2 mt-4 text-gray-400">
             Which day will it take place?
@@ -156,75 +211,92 @@ async function clickDeleteSession() {
           <TimePicker v-model="whenTime" class="w-56" />
         </div>
         <div v-else>
-          <div class="text-3xl">{{ whenDateString }}</div>
-          <div class="text-xl text-gray-400">{{ whenTimeString }}</div>
+          <div class="text-3xl">
+            {{ session.status === 2 ? session.name : whenDateString }}
+          </div>
+          <div class="text-xl text-gray-400">
+            {{ session.status === 2 ? whenDateString : whenTimeString }}
+          </div>
         </div>
-      </div>
-    </div>
-
-    <div class="mt-8 self-center text-2xl text-white">Transcript</div>
-
-    <div
-      class="relative mt-2 h-[15.5rem] overflow-y-hidden rounded-xl bg-black/50 text-lg text-green-300"
-    >
-      <!--      <div class="absolute flex h-full w-full justify-center bg-black/80">-->
-      <!--        <div class="self-center text-3xl font-black text-purple-500">-->
-      <!--          COMING SOON-->
-      <!--        </div>-->
-      <!--      </div>-->
-      <Typewriter
-        class="w-[30rem] p-3"
-        :speed="25"
-        :content="`Grog: I approach the towering, ominous door, its wooden planks older than time itself, creaking as I lay my hand upon it. I push it open, my muscles bulging, and... it squeaks?
-<np>
-Everyone: (Laughs)
-<np>
-Grog: Alright, not exactly the dramatic scene I was going for, but let's roll with it. I look around; what do I see?
-<np>
-DM: The room is largely empty, but in the center, there's a small, round table. Sitting atop it is a single muffin.
-<np>
-Quill: Wait, wait, a muffin? That's it? Are you sure it's not a magical muffin?
-<np>
-DM: Roll an Arcana check, Quill.
-<np>
-Quill: (Dice rolling) I got a 4.
-<np>
-DM: It's a very ordinary muffin.
-<np>
-Grog: I eat the muffin.
-<np>
-DM: Alright, you consume the muffin. It's blueberry.
-<np>
-Quill: I can't believe we just did a magic check on a muffin.
-<np>
-Everyone: (Laughs)
-<np>
-DM: Welcome to Dungeons and Dragons!`"
-      />
-    </div>
-
-    <div class="mt-8 border-t-2 border-gray-600/25 pt-8">
-      <div class="flex">
-        <div class="text-md mr-6 w-24 self-center text-right text-white">
-          Description
-        </div>
-        <textarea
-          v-model="session.description"
-          class="gradient-border-no-opacity mt-4 h-[8rem] w-full rounded-xl border bg-black p-4 text-left text-lg text-white"
-        />
-      </div>
-    </div>
-
-    <div class="mt-8 border-t-2 border-gray-600/25 pt-8">
-      <div class="flex">
-        <div class="text-md mr-6 w-24 self-center text-right text-white">
-          Summary
-        </div>
-        <textarea
-          v-model="session.summary"
-          class="gradient-border-no-opacity mt-4 h-[8rem] w-full rounded-xl border bg-black p-4 text-left text-lg text-white"
-        />
       </div>
     </div>
   </div>
+
+  <div
+    v-if="session.status === 1"
+    class="mt-8 border-t-2 border-gray-600/25 pt-8"
+  >
+    <div class="text-lg self-center text-white">Description</div>
+    <div class="text-md text-neutral-500">
+      Briefly describe what you think is to come in the next session, without
+      any spoilers (this can help players prepare their characters).
+    </div>
+    <textarea
+      v-model="session.description"
+      class="gradient-border-no-opacity mt-4 h-[8rem] w-full rounded-xl border bg-black p-4 text-left text-lg text-white"
+    />
+  </div>
+  <div v-else>
+    <div class="text-lg self-center text-white">Summary</div>
+    <div class="text-sm text-neutral-500">
+      This is an AI generated summary of the campaign based on the DM's provided
+      recap
+    </div>
+    <div class="mt-4 text-xl text-white gradient-border-no-opacity p-5">
+      {{ session.summary || 'No summary provided' }}
+    </div>
+
+    <div class="mt-8 text-lg self-center text-white">Suggestions</div>
+    <div class="text-sm text-neutral-500">
+      This is an AI generated set of suggestions to improve the players
+      roleplaying.
+    </div>
+    <div class="mt-4 text-xl text-white gradient-border-no-opacity p-5">
+      {{ session.suggestions || 'No suggestions provided' }}
+    </div>
+  </div>
+
+  <ModalAlternate :show="showCompleteSession">
+    <div class="md:w-[800px] p-6 bg-neutral-900 rounded-[20px]">
+      <div class="text-3xl">You did it!</div>
+      <div
+        class="my-2 text-xl bg-clip-text font-bold text-transparent bg-gradient-to-r from-fuchsia-500 to-blue-400"
+      >
+        Congrats. We hope it was fun.
+      </div>
+      <div class="text-md text-neutral-500">
+        And we hope
+        <span class="text-neutral-400 font-semibold">MythWeaver</span> helped
+        make it more fun.
+      </div>
+
+      <div class="mt-8 text-lg self-center text-white">Recap</div>
+      <div class="text-md text-neutral-500">
+        Describe what happened in the session. We will use this information to
+        generate a summary, image and other cool stuff.
+      </div>
+
+      <textarea
+        v-model="recap"
+        class="w-full h-32 md:h-80 mt-2 resize-none rounded-md bg-surface border border-neutral-800 text-white"
+      >
+      </textarea>
+
+      <div class="flex mt-8 justify-between">
+        <button
+          class="flex self-center mr-2 rounded-md border border-neutral-700 px-4 py-3 transition-all hover:scale-110"
+          @click="showCompleteSession = false"
+        >
+          <span class="self-center">Nevermind</span>
+        </button>
+
+        <button
+          class="flex self-center rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 px-4 py-3 transition-all hover:scale-110"
+          @click="completeSession"
+        >
+          <span class="self-center">Complete Session</span>
+        </button>
+      </div>
+    </div>
+  </ModalAlternate>
 </template>

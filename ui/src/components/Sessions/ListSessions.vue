@@ -5,6 +5,7 @@ import { useEventBus } from '@/lib/events.ts';
 import Session from '@/components/Sessions/Session.vue';
 import { useCampaignStore } from '@/store/campaign.store.ts';
 import { CampaignRole } from '@/api/campaigns.ts';
+import { AdjustmentsVerticalIcon, BoltIcon } from '@heroicons/vue/20/solid';
 
 const eventBus = useEventBus();
 const campaignStore = useCampaignStore();
@@ -49,39 +50,39 @@ async function loadMoreSessions() {
 </script>
 
 <template>
-  <div v-if="sessions.length === 0">
-    <div class="text-2xl">No sessions found!</div>
+  <div class="mb-6 w-full flex justify-between">
+    <div class="text-3xl self-center">Sessions</div>
 
-    <router-link
-      v-if="currentUserRole === CampaignRole.DM"
-      to="/sessions/create"
-    >
-      <button
-        class="mt-8 flex cursor-pointer rounded-xl bg-black bg-gradient px-4 py-2 text-lg font-bold text-white"
-      >
-        <span class="self-center"> Add New Session </span>
-      </button>
-    </router-link>
-  </div>
-  <div v-else>
-    <div class="grid grid-cols-1 gap-8 md:grid-cols-4">
+    <div class="flex">
       <router-link
-        v-for="(session, i) of sessions"
-        :key="i"
-        :to="`/sessions/${session.id}/edit`"
+        v-if="currentUserRole === CampaignRole.DM"
+        to="/sessions/create"
+        class="flex w-full self-center rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 px-4 py-3 transition-all hover:scale-110"
       >
-        <Session :session="session" :full="false" />
+        <BoltIcon class="mr-2 h-5 w-5 self-center" />
+        <span class="self-center">Create</span>
       </router-link>
     </div>
+  </div>
 
-    <div v-if="loadMore" class="mt-4 flex justify-center">
-      <button
-        class="rounded-xl bg-slate-800 p-2 px-10 text-lg"
-        @click="loadMoreSessions"
-      >
-        Load more
-      </button>
-    </div>
+  <div class="mx-auto flex flex-wrap">
+    <router-link
+      v-for="(session, i) of sessions"
+      :key="i"
+      :to="`/sessions/${session.id}/edit`"
+      class="mr-6"
+    >
+      <Session :session="session" :full="false" class="mb-6" />
+    </router-link>
+  </div>
+
+  <div v-if="loadMore" class="mt-4 flex justify-center">
+    <button
+      class="rounded-xl bg-slate-800 p-2 px-10 text-lg"
+      @click="loadMoreSessions"
+    >
+      Load more
+    </button>
   </div>
 </template>
 

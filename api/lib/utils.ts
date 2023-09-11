@@ -80,3 +80,7 @@ export function trimPlural(s: string | undefined): string | undefined {
 
   return s;
 }
+
+export const urlPrefix = isProduction
+  ? 'https://app.mythweaver.co'
+  : 'http://localhost:3000';

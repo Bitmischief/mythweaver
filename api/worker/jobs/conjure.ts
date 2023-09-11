@@ -43,7 +43,7 @@ export const conjure = async (request: ConjureEvent) => {
     let response: any;
 
     try {
-      response = await openai.createCompletion({
+      response = await openai.completions.create({
         model: 'text-davinci-003',
         prompt,
         max_tokens: 3000,
