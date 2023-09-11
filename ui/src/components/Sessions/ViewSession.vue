@@ -17,11 +17,9 @@ import Menu from '@/components/Core/General/Menu.vue';
 import { ChevronDownIcon } from '@heroicons/vue/20/solid';
 import { MenuButton, MenuItem } from '@headlessui/vue';
 import ModalAlternate from '@/components/ModalAlternate.vue';
-import { useEventBus } from '@/lib/events.ts';
 
 const route = useRoute();
 const router = useRouter();
-const eventBus = useEventBus();
 
 const session = ref<SessionBase>({} as SessionBase);
 const newSession = computed(() => route.params.sessionId === 'new');
