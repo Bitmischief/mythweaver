@@ -7,7 +7,8 @@
     "build": "vue-tsc && vite build --mode prod",
     "preview": "vite preview",
     "validate": "eslint . --ext js,vue && prettier . --check",
-    "repair": "eslint . --ext js,vue --fix && prettier . --write \"**/*.+(js|ts|vue)\""
+    "repair": "eslint . --ext js,vue --fix && prettier . --write \"**/*.+(js|ts|vue)\"",
+    "prepare": "cd ../ && husky install ./ui/.husky"
   },
   "dependencies": {
     "@tailwindcss/forms": "^0.5.6",
@@ -33,6 +34,7 @@
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-vue": "^9.17.0",
     "husky": "^8.0.3",
+    "lint-staged": "^14.0.1",
     "postcss": "^8.4.29",
     "prettier": "^3.0.2",
     "prettier-plugin-tailwindcss": "^0.3.0",
