@@ -30,6 +30,7 @@
             <div
               class="mt-2 cursor-pointer text-center text-xl text-purple-300 underline"
               @click="showEarlyAccessModal = true"
+              id="early-access-link"
             >
               Apply for Early Access Now!
             </div>
@@ -70,6 +71,7 @@
             <a
               href="https://mythweaver.co/#mailing"
               class="ml-2 text-indigo-500"
+              id="mailing-list-link"
               >here</a
             >
           </div>
