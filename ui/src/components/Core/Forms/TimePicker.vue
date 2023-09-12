@@ -6,9 +6,12 @@ const props = defineProps({
   modelValue: {
     type: Object,
     default: () => ({
-      hours: 8,
-      minutes: 0,
-      ampm: 'AM',
+      hours:
+        new Date().getHours() > 12
+          ? new Date().getHours() - 12
+          : new Date().getHours(),
+      minutes: new Date().getMinutes().toString().padStart(2, '0'),
+      ampm: new Date().getHours() > 12 ? 'PM' : 'AM',
     }),
   },
 });
@@ -30,7 +33,7 @@ const value = computed({
     <input
       v-model="value.hours"
       maxlength="2"
-      class="w-12 bg-transparent text-center"
+      class="w-12 bg-transparent text-xl border-none text-center"
       placeholder="hh"
       type="number"
     />
@@ -38,9 +41,9 @@ const value = computed({
     <span class="mx-2 self-center">:</span>
 
     <input
-      v-model="value.minutes"
+      v-model.number="value.minutes"
       maxlength="2"
-      class="w-12 bg-transparent text-center"
+      class="w-12 bg-transparent text-xl border-none text-center"
       placeholder="mm"
       type="number"
     />
@@ -53,7 +56,7 @@ const value = computed({
       ]"
       display-prop="key"
       value-prop="value"
-      class="ml-auto w-16"
+      class="ml-auto self-center w-16"
       no-icon
     />
   </div>
