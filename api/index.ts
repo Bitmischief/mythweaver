@@ -26,7 +26,11 @@ const PORT = process.env.PORT || 8000;
 const app: Application = express();
 
 app.use(express.json());
-app.use(morgan('tiny'));
+app.use(
+  morgan(
+    '{ "method": ":method", "url": ":url", "status": ":status", "contentLength": ":res[content-length]", "responseTime": ":response-time" }'
+  )
+);
 app.use(express.static('public'));
 
 // Create the rate limit rule
