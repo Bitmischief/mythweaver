@@ -17,6 +17,12 @@ import { AppError, HttpCode } from '../lib/errors/AppError';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { processTagsQueue } from '../worker';
 
+const testArray = [
+  1, 2, 3,
+
+  4,
+];
+
 interface GetConjurationsResponse {
   data: Conjuration[];
   offset?: number;
