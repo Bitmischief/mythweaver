@@ -134,4 +134,30 @@ router.delete('/:sessionId', [
   },
 ]);
 
+const postSessionCompleteSchema = z.object({
+  recap: z.string().max(10000),
+});
+
+router.post('/:sessionId/complete', [
+  useAuthenticateRequest(),
+  useValidateRequest(getSessionSchema, {
+    validationType: ValidationTypes.Route,
+  }),
+  useValidateRequest(postSessionCompleteSchema),
+  async (req: Request, res: Response) => {
+    const controller = new SessionController();
+
+    const { sessionId = 0 } = req.params;
+
+    await controller.postCompleteSession(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      sessionId as number,
+      req.body
+    );
+
+    return res.status(200).send();
+  },
+]);
+
 export default router;

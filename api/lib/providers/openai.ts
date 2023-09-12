@@ -1,8 +1,6 @@
-import { Configuration, OpenAIApi } from 'openai';
+import OpenAI from 'openai';
 
 export const getClient = () =>
-  new OpenAIApi(
-    new Configuration({
-      apiKey: process.env.OPENAI_API_KEY,
-    })
-  );
+  new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });

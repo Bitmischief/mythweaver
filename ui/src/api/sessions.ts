@@ -8,6 +8,10 @@ export interface SessionBase {
   transcript?: string | undefined;
   description?: string | undefined;
   campaignId: number;
+  imageUri?: string | undefined;
+  name?: string | undefined;
+  status: 1 | 2;
+  suggestions?: string | undefined;
 }
 
 export interface GetSessionsRequest {
@@ -31,6 +35,10 @@ export interface PatchSessionRequest {
   transcript?: string | undefined;
   description?: string | undefined;
   campaignId: number;
+}
+
+export interface PostCompleteSessionRequest {
+  recap: string;
 }
 
 export const getSessions = (query: GetSessionsRequest) => {
@@ -63,4 +71,8 @@ export const patchSession = (session: PatchSessionRequest) => {
 
 export const deleteSession = (sessionId: number) => {
   return axios.delete(`/sessions/${sessionId}`);
+};
+
+export const postCompleteSession = (sessionId: number, request: PostCompleteSessionRequest) => {
+  return axios.post(`/sessions/${sessionId}/complete`, request);
 };
