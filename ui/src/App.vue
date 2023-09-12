@@ -7,7 +7,6 @@ import {
   NO_CAMPAIGNS_EVENT,
   useEventBus,
 } from '@/lib/events.ts';
-import router from '@/router/router.ts';
 import { onMounted, ref } from 'vue';
 import NavBarHeader from '@/components/Navigation/NavBarHeader.vue';
 import ModalAlternate from '@/components/ModalAlternate.vue';

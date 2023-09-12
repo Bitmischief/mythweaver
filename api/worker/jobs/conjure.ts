@@ -59,7 +59,7 @@ export const conjure = async (request: ConjureEvent) => {
       });
     }
 
-    const generatedJson = response.data.choices[0].text?.trim() || '';
+    const generatedJson = response.choices[0].text?.trim() || '';
     logger.info('Received json from openai', generatedJson);
 
     const conjurationString = sanitizeJson(generatedJson);
