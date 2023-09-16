@@ -79,11 +79,6 @@ export class GeneratorController {
       where: {
         conjurerCode: code,
         userId: null,
-        copies: {
-          none: {
-            userId: userId,
-          },
-        },
       },
       select: {
         id: true,
@@ -171,6 +166,7 @@ export class GeneratorController {
       generatorCode: code,
       arg: request.customArg,
       conjurationRequestId: conjurationRequest.id,
+      userId,
     });
 
     return {
@@ -194,19 +190,6 @@ export class GeneratorController {
       },
       include: {
         conjurations: {
-          include: {
-            copies: {
-              where: {
-                userId: userId,
-              },
-              select: {
-                id: true,
-              },
-            },
-          },
-          where: {
-            userId: null,
-          },
           orderBy: {
             createdAt: 'asc',
           },

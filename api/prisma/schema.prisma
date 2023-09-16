@@ -34,6 +34,7 @@ model User {
   conjurationRequests ConjurationRequest[]
   campaignMemberships CampaignMember[]
   characters          Character[]
+  ConjurationSave     ConjurationSave[]
 
   @@map("users")
 }
@@ -43,7 +44,6 @@ model Conjuration {
   createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
   updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
 
-  originalId           Int?
   userId               Int?
   campaignId           Int?
   conjurationRequestId Int?
@@ -54,14 +54,29 @@ model Conjuration {
   imageAIPrompt String?
   data          Json
   tags          String[]
+  published     Boolean  @default(false)
 
   user               User?               @relation(fields: [userId], references: [id])
   campaign           Campaign?           @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  original           Conjuration?        @relation("OriginalConjuration", fields: [originalId], references: [id])
-  copies             Conjuration[]       @relation("OriginalConjuration")
   conjurationRequest ConjurationRequest? @relation(fields: [conjurationRequestId], references: [id])
+  saves              ConjurationSave[]
 
   @@map("conjurations")
+}
+
+model ConjurationSave {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+
+  userId        Int
+  conjurationId Int
+
+  user        User        @relation(fields: [userId], references: [id])
+  conjuration Conjuration @relation(fields: [conjurationId], references: [id])
+
+  @@unique([userId, conjurationId])
+  @@map("conjuration_users")
 }
 
 model ConjurationRequest {

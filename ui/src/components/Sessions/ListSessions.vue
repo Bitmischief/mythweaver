@@ -5,7 +5,7 @@ import { useEventBus } from '@/lib/events.ts';
 import Session from '@/components/Sessions/Session.vue';
 import { useCampaignStore } from '@/store/campaign.store.ts';
 import { CampaignRole } from '@/api/campaigns.ts';
-import { BoltIcon } from '@heroicons/vue/20/solid';
+import { AdjustmentsVerticalIcon, BoltIcon } from '@heroicons/vue/20/solid';
 
 const eventBus = useEventBus();
 const campaignStore = useCampaignStore();
@@ -50,18 +50,20 @@ async function loadMoreSessions() {
 </script>
 
 <template>
-  <div class="mb-6 w-full flex justify-between">
-    <div class="text-3xl self-center">Sessions</div>
+  <div class="mb-6 flex w-full justify-between rounded-xl py-4">
+    <div class="w-full md:flex md:justify-between">
+      <div class="text-2xl self-center font-bold">Sessions List</div>
 
-    <div class="flex">
-      <router-link
-        v-if="currentUserRole === CampaignRole.DM"
-        to="/sessions/create"
-        class="flex w-full self-center rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 px-4 py-3 transition-all hover:scale-110"
-      >
-        <BoltIcon class="mr-2 h-5 w-5 self-center" />
-        <span class="self-center">Create</span>
-      </router-link>
+      <div class="mt-2 self-center md:mt-0 flex justify-between">
+        <router-link
+          v-if="currentUserRole === CampaignRole.DM"
+          to="/sessions/create"
+          class="flex w-full self-center rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 px-4 py-3 transition-all hover:scale-110"
+        >
+          <BoltIcon class="mr-2 h-5 w-5 self-center" />
+          <span class="self-center">Create</span>
+        </router-link>
+      </div>
     </div>
   </div>
 

@@ -24,4 +24,7 @@ router.use(`/conjurations`, conjurationsRoutes);
 import usersRoutes from './users';
 router.use(`/users`, usersRoutes);
 
+import imagesRoutes from './images';
+router.use(`/images`, imagesRoutes);
+
 export default router;

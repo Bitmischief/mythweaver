@@ -75,6 +75,7 @@ export const conjure = async (request: ConjureEvent) => {
   const createdConjuration = await prisma.conjuration.create({
     data: {
       name: conjuration.name,
+      userId: request.userId,
       data: {
         ...conjuration,
         name: undefined,

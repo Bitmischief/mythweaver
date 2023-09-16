@@ -11,6 +11,7 @@ import { onMounted, ref } from 'vue';
 import NavBarHeader from '@/components/Navigation/NavBarHeader.vue';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import NewCampaign from '@/components/Campaigns/NewCampaign.vue';
+import LightboxRoot from '@/components/LightboxRoot.vue';
 
 const authStore = useAuthStore();
 const eventBus = useEventBus();
@@ -82,4 +83,6 @@ eventBus.$on('global-loading-stop', () => {
       <NewCampaign />
     </div>
   </ModalAlternate>
+
+  <LightboxRoot />
 </template>

@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { CheckIcon, PlusIcon, XMarkIcon } from '@heroicons/vue/20/solid';
 import {
-  addConjuration,
+  saveConjuration,
   Conjuration,
   deleteConjuration,
+  removeConjuration,
 } from '@/api/conjurations.ts';
-import { useCurrentUserId } from '@/lib/hooks.ts';
 import { useRouter } from 'vue-router';
 import { ref } from 'vue';
 import { showSuccess } from '@/lib/notifications.ts';
@@ -19,13 +19,11 @@ const props = defineProps<{
 const emit = defineEmits(['add-conjuration', 'remove-conjuration']);
 
 const router = useRouter();
-const currentUserId = useCurrentUserId();
 
-const isMyConjuration = (conjuration: any) =>
-  conjuration.copies?.length || conjuration.userId === currentUserId.value;
+const isSaved = (conjuration: any) => conjuration.saved;
 
 async function handleAddConjuration(conjurationId: number) {
-  await addConjuration(conjurationId);
+  await saveConjuration(conjurationId);
 
   emit('add-conjuration', { conjurationId });
 }
@@ -35,13 +33,13 @@ async function navigateToViewConjuration(conjurationId: number) {
 }
 
 async function clickDeleteConjuration() {
-  if (!props.conjuration || !isMyConjuration(props.conjuration)) return;
+  if (!props.conjuration || !isSaved(props.conjuration)) return;
 
   const conjurationId = props.conjuration?.copies?.length
     ? props.conjuration?.copies[0].id
     : props.conjuration?.id;
 
-  await deleteConjuration(conjurationId);
+  await removeConjuration(conjurationId);
   showSuccess({ message: 'Successfully removed conjuration' });
 
   emit('remove-conjuration', {
@@ -55,19 +53,17 @@ const showDeleteModal = ref(false);
 </script>
 
 <template>
-  <div v-if="conjuration">
+  <div v-if="conjuration" class="mr-6 mb-6">
     <div
-      class="relative flex cursor-pointer flex-col justify-end rounded-lg shadow-xl"
+      class="relative md:max-w-[23rem] 3xl:max-w-[40rem] flex cursor-pointer flex-col justify-end rounded-t-xl shadow-xl"
       @click="navigateToViewConjuration(conjuration.id)"
     >
-      <div
-        class="h-[20rem] md:h-[30rem] 3xl:h-[40rem] overflow-hidden rounded-t-xl"
-      >
+      <div>
         <img
           v-if="conjuration.imageUri"
           :src="conjuration.imageUri"
           :alt="conjuration.name"
-          class=""
+          class="rounded-t-xl"
         />
         <div v-else class="w-full flex justify-center h-full bg-gray-900/75">
           <div
@@ -79,7 +75,7 @@ const showDeleteModal = ref(false);
       </div>
 
       <div
-        v-if="isMyConjuration(conjuration)"
+        v-if="isSaved(conjuration)"
         class="absolute right-2 top-2 flex h-12 w-12 justify-center rounded-full bg-green-500 hover:bg-red-500 transition-all hover:scale-110 group"
       >
         <XMarkIcon
@@ -100,9 +96,7 @@ const showDeleteModal = ref(false);
         </button>
       </div>
 
-      <div
-        class="flex w-full justify-between rounded-b-lg bg-black/50 p-4 h-[22rem]"
-      >
+      <div class="flex w-full justify-between rounded-b-lg bg-surface-2 p-4">
         <div>
           <div class="text-xl font-bold">{{ conjuration.name }}</div>
           <div class="flex flex-wrap">
@@ -113,20 +107,6 @@ const showDeleteModal = ref(false);
             >
               {{ tag }}
             </div>
-          </div>
-          <div class="mt-4 min-h-[12rem] max-h-[14rem] overflow-y-auto">
-            <template v-if="conjuration.conjurerCode === 'characters'">
-              <div class="self-center mb-2">Background</div>
-              <div class="text-gray-400 pr-6">
-                {{ conjuration.data.background }}
-              </div>
-            </template>
-            <template v-if="conjuration.conjurerCode === 'locations'">
-              <div class="self-center mb-2">History</div>
-              <div class="text-gray-400 pr-6">
-                {{ conjuration.data.history }}
-              </div>
-            </template>
           </div>
         </div>
       </div>
@@ -159,7 +139,7 @@ const showDeleteModal = ref(false);
         class="rounded-xl bg-red-500 px-6 py-3"
         @click="clickDeleteConjuration"
       >
-        Delete Conjuration
+        Remove Conjuration
       </button>
     </div>
   </DeleteModal>

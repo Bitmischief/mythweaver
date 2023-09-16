@@ -35,6 +35,7 @@ processTagsQueue.process(async (job, done) => {
 });
 
 export interface ConjureEvent {
+  userId: number;
   conjurationRequestId: number;
   campaignId: number;
   generatorCode: string;

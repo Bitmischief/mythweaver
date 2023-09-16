@@ -1,44 +1,46 @@
 <script lang="ts" setup>
 import { computed, onMounted, ref, watch } from 'vue';
-import { Conjuration, getConjuration } from '@/api/conjurations.ts';
+import {
+  Conjuration,
+  copyConjuration,
+  getConjuration,
+  removeConjuration,
+  saveConjuration,
+} from '@/api/conjurations.ts';
 import { useRoute, useRouter } from 'vue-router';
-import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/vue';
-import ViewConjurationActions from '@/components/Conjuration/ViewConjuration/ViewConjurationActions.vue';
-import ViewConjurationHeader from '@/components/Conjuration/ViewConjuration/ViewConjurationHeader.vue';
-import ViewConjurationInfo from '@/components/Conjuration/ViewConjuration/ViewConjurationInfo.vue';
 import { useEventBus } from '@/lib/events.ts';
-import ViewConjurationRelated from '@/components/Conjuration/ViewConjuration/ViewConjurationRelated.vue';
+import CustomizeConjuration from '@/components/Conjuration/ViewConjuration/CustomizeConjuration.vue';
+import {
+  ArrowLeftIcon,
+  ArrowPathIcon,
+  DocumentDuplicateIcon,
+  XMarkIcon,
+} from '@heroicons/vue/24/solid';
+import { HeartIcon } from '@heroicons/vue/20/solid';
+import { useCurrentUserId, useQuickConjure } from '@/lib/hooks.ts';
+import { showSuccess } from '@/lib/notifications.ts';
 
 const route = useRoute();
 const router = useRouter();
 const eventBus = useEventBus();
+const quickConjure = useQuickConjure();
+const currentUserId = useCurrentUserId();
 
 const conjuration = ref<Conjuration | null>(null);
-
-const tabs = ref([
-  {
-    name: 'Info',
-    highlight: false,
-  },
-  {
-    name: 'Related',
-    highlight: true,
-    highlightColor: 'bg-blue-500',
-  },
-  {
-    name: 'Quests',
-    soon: true,
-    disabled: true,
-  },
-  // {
-  //   name: "Inventory",
-  //   soon: true,
-  // },
-]);
 
 const conjurationId = computed(() =>
   parseInt(route.params.conjurationId?.toString()),
 );
+
+const editable = computed(
+  () =>
+    conjuration.value?.saved &&
+    conjuration.value?.userId === currentUserId.value,
+);
+
+const isQuickConjure = computed(() => {
+  return route.query.quick === 'true';
+});
 
 onMounted(async () => {
   await loadConjuration();
@@ -58,83 +60,96 @@ async function loadConjuration() {
   }
 }
 
-const backgroundImageInlineStyle = (imageUri: string | undefined): string => {
-  if (!imageUri) {
-    return '';
-  }
+async function handleSaveConjuration() {
+  await saveConjuration(conjurationId.value);
+  showSuccess({ message: 'Successfully saved conjuration!' });
+  await loadConjuration();
+}
 
-  return `background-image: url("${imageUri}");`;
-};
+async function handleRemoveConjuration() {
+  await removeConjuration(conjurationId.value);
+  showSuccess({ message: 'Successfully removed conjuration!' });
+  await router.push('/conjurations');
+}
 
-function emitSaveInfo() {
-  eventBus.$emit('conjuration-save-info', undefined);
+async function handleCopyConjuration() {
+  const response = await copyConjuration(conjurationId.value);
+  showSuccess({ message: 'Successfully copied conjuration!' });
+  await router.push(`/conjurations/view/${response.data.id}`);
 }
 </script>
 
 <template>
-  <div
-    v-if="conjuration"
-    class="relative h-full w-full rounded-lg bg-contain bg-top"
-    :style="backgroundImageInlineStyle(conjuration.imageUri)"
-    @click="emitSaveInfo"
-  >
-    <div
-      class="h-full w-full overflow-y-auto bg-gradient-to-b from-surface/95 to-surface p-12"
-    >
-      <ViewConjurationActions
-        :conjuration="conjuration"
-        @add-conjuration="loadConjuration"
-      />
+  <template v-if="conjuration">
+    <div class="md:flex justify-between mb-6">
+      <div class="md:flex">
+        <router-link
+          :to="`/conjurations`"
+          class="bg-surface-2 flex rounded-md border border-gray-600/50 p-3"
+        >
+          <ArrowLeftIcon class="mr-2 h-4 w-4 self-center" /> Back
+        </router-link>
 
-      <ViewConjurationHeader
-        :conjuration="conjuration"
-        @tags-changed="loadConjuration"
-      />
+        <div
+          v-if="conjuration.saved && !editable"
+          class="md:ml-2 mt-2 md:mt-0 border border-blue-500 rounded-md px-4 flex"
+        >
+          <span class="self-center"
+            >You must make a copy of this conjuration to make changes to
+            it.</span
+          >
+        </div>
+      </div>
 
-      <div class="mt-6 block">
-        <TabGroup>
-          <TabList class="flex w-auto space-x-1 rounded-xl bg-black/25 p-2">
-            <Tab
-              v-for="tab of tabs"
-              :key="`tab-${tab}`"
-              v-slot="{ selected }"
-              :disabled="tab.disabled"
-            >
-              <div
-                class="relative w-full rounded-lg px-6 py-4 text-xl font-medium leading-5 text-white ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2"
-                :class="[
-                  selected
-                    ? 'bg-gray-800 shadow'
-                    : 'text-blue-100 hover:bg-white/[0.12] hover:text-white',
-                ]"
-              >
-                <div
-                  v-if="!selected && tab.highlight"
-                  class="absolute right-1 top-1 h-3 w-3 animate-bounce rounded-full"
-                  :class="tab.highlightColor"
-                ></div>
-                <div
-                  v-if="!selected && tab.soon"
-                  class="absolute right-1 top-1 rounded-xl bg-purple-500 px-2 text-xs"
-                >
-                  soon
-                </div>
-                <span :class="{ 'mr-8': tab.soon }">
-                  {{ tab.name }}
-                </span>
-              </div>
-            </Tab>
-          </TabList>
-          <TabPanels>
-            <TabPanel>
-              <ViewConjurationInfo :conjuration="conjuration" />
-            </TabPanel>
-            <TabPanel>
-              <ViewConjurationRelated :conjuration="conjuration" />
-            </TabPanel>
-          </TabPanels>
-        </TabGroup>
+      <div class="md:flex mt-2 md:mt-0">
+        <button
+          v-if="isQuickConjure"
+          class="mr-2 flex rounded-md bg-amber-500 px-4 py-3 transition-all hover:scale-110"
+          @click="quickConjure(conjuration.conjurerCode)"
+        >
+          <ArrowPathIcon class="mr-2 h-5 w-5 self-center" /> Retry Quick Conjure
+        </button>
+
+        <button
+          v-if="editable"
+          class="md:w-auto md:ml-auto flex justify-center md:justify-start self-center rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 px-4 py-3 transition-all hover:scale-110"
+          @click="
+            eventBus.$emit('save-conjuration', {
+              conjurationId: conjuration.id,
+            })
+          "
+        >
+          <span class="self-center">Save Changes</span>
+        </button>
+
+        <button
+          v-if="conjuration.saved && !editable"
+          class="md:w-auto md:ml-auto flex justify-center md:justify-start self-center rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 px-4 py-3 transition-all hover:scale-110"
+          @click="handleCopyConjuration"
+        >
+          <DocumentDuplicateIcon class="h-5 w-5 mr-2" />
+          <span class="self-center">Copy Conjuration</span>
+        </button>
+
+        <button
+          v-if="!conjuration.saved"
+          class="md:w-auto md:ml-auto flex justify-center md:justify-start self-center rounded-md bg-gradient-to-r from-green-400 to-green-600 px-4 py-3 transition-all hover:scale-110"
+          @click="handleSaveConjuration"
+        >
+          <HeartIcon class="mr-2 h-5 w-5 self-center" />
+          <span class="self-center">Save Conjuration</span>
+        </button>
+
+        <button
+          v-if="conjuration.saved"
+          class="md:ml-2 mt-2 md:mt-0 h-12 flex justify-center md:justify-start self-center rounded-md bg-gradient-to-r from-red-400 to-red-600 px-4 py-3 transition-all hover:scale-110"
+          @click="handleRemoveConjuration"
+        >
+          <XMarkIcon class="h-5 w-5 self-center" />
+        </button>
       </div>
     </div>
-  </div>
+
+    <CustomizeConjuration :conjuration="conjuration" />
+  </template>
 </template>
