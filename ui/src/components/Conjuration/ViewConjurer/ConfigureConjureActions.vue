@@ -22,7 +22,9 @@ async function handleSaveConjuration() {
     conjurationId: props.conjurationId,
   });
 
-  await router.push(`/conjurations/view/${props.conjurationId}`);
+  setTimeout(async () => {
+    await router.push(`/conjurations/view/${props.conjurationId}`);
+  }, 250);
 }
 </script>
 
@@ -37,11 +39,11 @@ async function handleSaveConjuration() {
 
     <div v-if="summonedItems" class="flex">
       <button
-        class="md:w-auto ml-2 flex justify-center md:justify-start self-center rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 px-4 py-3 transition-all hover:scale-110"
+        class="md:w-auto ml-2 flex justify-center md:justify-start self-center rounded-md bg-gradient-to-r from-green-400 to-green-600 px-4 py-3 transition-all hover:scale-110"
         @click="handleSaveConjuration"
       >
         <HeartIcon class="mr-2 h-5 w-5 self-center" />
-        <span class="self-center">Continue</span>
+        <span class="self-center">Save</span>
       </button>
     </div>
   </div>
