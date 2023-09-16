@@ -3,7 +3,6 @@ import { CheckIcon, PlusIcon, XMarkIcon } from '@heroicons/vue/20/solid';
 import {
   saveConjuration,
   Conjuration,
-  deleteConjuration,
   removeConjuration,
 } from '@/api/conjurations.ts';
 import { useRouter } from 'vue-router';

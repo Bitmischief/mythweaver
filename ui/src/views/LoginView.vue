@@ -69,8 +69,8 @@
           <div>
             #1 Join our mailing list
             <a
-              href="https://mythweaver.co/#mailing"
               id="mailing-list-link"
+              href="https://mythweaver.co/#mailing"
               class="ml-2 text-indigo-500"
               >here</a
             >

@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
-import { useEventBus } from "@/lib/events.ts";
-import { TransitionRoot } from "@headlessui/vue";
+import { onMounted, ref } from 'vue';
+import { useEventBus } from '@/lib/events.ts';
+import { TransitionRoot } from '@headlessui/vue';
 
 const eventBus = useEventBus();
 const showMenu = ref(false);
-const uri = ref("");
+const uri = ref('');
 
 onMounted(() => {
-  eventBus.$on("open-lightbox", (imageUri: string) => {
+  eventBus.$on('open-lightbox', (imageUri: string) => {
     toggleMenu();
     uri.value = imageUri;
   });
@@ -18,9 +18,9 @@ function toggleMenu() {
   showMenu.value = !showMenu.value;
 
   if (showMenu.value) {
-    document.body.style.overflow = "hidden";
+    document.body.style.overflow = 'hidden';
   } else {
-    document.body.style.overflow = "auto";
+    document.body.style.overflow = 'auto';
   }
 }
 </script>

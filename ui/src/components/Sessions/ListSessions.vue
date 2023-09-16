@@ -5,7 +5,7 @@ import { useEventBus } from '@/lib/events.ts';
 import Session from '@/components/Sessions/Session.vue';
 import { useCampaignStore } from '@/store/campaign.store.ts';
 import { CampaignRole } from '@/api/campaigns.ts';
-import { AdjustmentsVerticalIcon, BoltIcon } from '@heroicons/vue/20/solid';
+import { BoltIcon } from '@heroicons/vue/20/solid';
 
 const eventBus = useEventBus();
 const campaignStore = useCampaignStore();

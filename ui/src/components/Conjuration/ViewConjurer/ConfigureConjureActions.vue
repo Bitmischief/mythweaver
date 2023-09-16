@@ -14,6 +14,8 @@ const eventBus = useEventBus();
 const router = useRouter();
 
 async function handleSaveConjuration() {
+  if (!props.conjurationId) return;
+
   await saveConjuration(props.conjurationId);
 
   eventBus.$emit('save-conjuration', {

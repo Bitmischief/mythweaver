@@ -17,7 +17,6 @@ import { format } from 'date-fns';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import { showError, showSuccess } from '@/lib/notifications.ts';
 import { AxiosError } from 'axios';
-import { BoltIcon } from '@heroicons/vue/20/solid';
 
 const campaignStore = useCampaignStore();
 const selectedCampaignId = useSelectedCampaignId();
@@ -182,13 +181,13 @@ function handleRequestRemoveMember(memberId: number) {
         <div class="text-2xl self-center font-bold">{{ campaign.name }}</div>
 
         <div class="mt-2 self-center md:mt-0 flex justify-between">
-          <router-link
+          <button
             v-if="currentUserRole === CampaignRole.DM"
-            to="/sessions/create"
             class="flex w-full self-center rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 px-4 py-3 transition-all hover:scale-110"
+            @click="handleSaveCampaign"
           >
             <span class="self-center">Save</span>
-          </router-link>
+          </button>
 
           <button
             class="ml-2 rounded-xl border border-red-500 p-3 text-red-500"
