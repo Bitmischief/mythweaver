@@ -66,12 +66,17 @@ onMounted(() => {
       setTimeout(() => {
         editableConjuration.value.imageUri = payload.imageUri;
         editableConjuration.value.imageAIPrompt = payload.prompt;
-      }, 150);
+      }, 50);
     },
   );
 });
 
 onUpdated(() => {
+  console.log(editableConjuration.value.imageUri, props.conjuration.imageUri);
+  if (!editableConjuration.value.imageUri) {
+    editableConjuration.value.imageUri = props.conjuration.imageUri;
+  }
+
   if (props.conjuration.id !== editableConjuration.value.id) {
     editableConjuration.value = props.conjuration;
   }
