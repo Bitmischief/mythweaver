@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Conjuration, patchConjuration } from '@/api/conjurations.ts';
-import { computed, nextTick, onMounted, onUpdated, ref } from 'vue';
+import { computed, onMounted, onUpdated, ref } from 'vue';
 import {
   CheckIcon,
   XMarkIcon,
