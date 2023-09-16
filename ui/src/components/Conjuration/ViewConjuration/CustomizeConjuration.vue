@@ -63,19 +63,15 @@ onMounted(() => {
     async (payload: { imageUri: string; prompt: string }) => {
       showCustomizeImageModal.value = false;
 
-      await nextTick(() => {
+      setTimeout(() => {
         editableConjuration.value.imageUri = payload.imageUri;
         editableConjuration.value.imageAIPrompt = payload.prompt;
-      });
+      }, 150);
     },
   );
 });
 
 onUpdated(() => {
-  if (props.conjuration.imageUri !== editableConjuration.value.imageUri) {
-    editableConjuration.value.imageUri = props.conjuration.imageUri;
-  }
-
   if (props.conjuration.id !== editableConjuration.value.id) {
     editableConjuration.value = props.conjuration;
   }
