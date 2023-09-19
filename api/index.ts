@@ -11,7 +11,10 @@ import express, {
 import morgan from 'morgan';
 import swaggerUi from 'swagger-ui-express';
 import Router from './routes';
-import { useInjectRequestId } from './lib/requestIdMiddleware';
+import {
+  requestIdAsyncLocalStorage,
+  useInjectRequestId,
+} from './lib/requestIdMiddleware';
 import { errorHandler } from './lib/errors/ErrorHandler';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
@@ -27,9 +30,14 @@ const PORT = process.env.PORT || 8000;
 const app: Application = express();
 
 app.use(express.json());
+
+morgan.token('requestId', () => {
+  return requestIdAsyncLocalStorage.getStore()?.requestId;
+});
+
 app.use(
   morgan(
-    '{ "method": ":method", "url": ":url", "status": ":status", "contentLength": ":res[content-length]", "responseTime": ":response-time" }'
+    '{ "method": ":method", "url": ":url", "status": ":status", "contentLength": ":res[content-length]", "responseTime": ":response-time", "requestId": ":requestId" }'
   )
 );
 app.use(express.static('public'));
