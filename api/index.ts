@@ -18,6 +18,7 @@ import rateLimit from 'express-rate-limit';
 import './worker/index';
 import { ILogObj, Logger } from 'tslog';
 import { useInjectTrackingInfo } from './lib/trackingMiddleware';
+import { migrateConjurationImagesQueue } from './worker';
 
 const logger = new Logger<ILogObj>();
 
@@ -97,3 +98,8 @@ process.on('uncaughtException', (error: Error) => {
 
   errorHandler.handleError(error);
 });
+
+(async () => {
+  logger.info('Starting conjuration image migration');
+  await migrateConjurationImagesQueue.add({});
+})();

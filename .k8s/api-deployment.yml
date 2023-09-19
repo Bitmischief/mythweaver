@@ -87,6 +87,10 @@ spec:
               value: <MAILCHIMP_SERVER_PREFIX>
             - name: MAILCHIMP_TRANSACTIONAL_API_KEY
               value: <MAILCHIMP_TRANSACTIONAL_API_KEY>
+            - name: SPACES_KEY
+              value: <SPACES_KEY>
+            - name: SPACES_SECRET
+              value: <SPACES_SECRET>
           volumeMounts:
             - mountPath: "/app/public/images"
               name: mythweaver-content

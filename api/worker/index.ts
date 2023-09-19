@@ -3,6 +3,7 @@ import { parentLogger } from '../lib/logger';
 import { processTags } from './jobs/processTags';
 import { conjure } from './jobs/conjure';
 import { completeSession } from './jobs/completeSession';
+import { migrateConjurationImages } from './jobs/migrateConjurationImages';
 const logger = parentLogger.getSubLogger();
 
 const config = {
@@ -84,5 +85,26 @@ completeSessionQueue.process(async (job, done) => {
   } catch (err) {
     logger.error('Error processing conjure job!', err);
     done(new Error('Error processing conjure job!'));
+  }
+});
+
+export const migrateConjurationImagesQueue = new Queue(
+  'migrate-conjuration-images',
+  config
+);
+
+migrateConjurationImagesQueue.process(async (job, done) => {
+  logger.info('Processing migrate conjuration images job', job.data);
+
+  try {
+    await migrateConjurationImages();
+    logger.info(
+      'Completed processing migrate conjuration images job',
+      job.data
+    );
+    done();
+  } catch (err) {
+    logger.error('Error processing migrate conjuration images job!', err);
+    done(new Error('Error processing migrate conjuration images job!'));
   }
 });
