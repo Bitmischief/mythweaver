@@ -10,6 +10,7 @@ const s3 = new S3Client({
     accessKeyId: process.env.SPACES_KEY || '',
     secretAccessKey: process.env.SPACES_SECRET || '',
   },
+  region: 'sfo3',
 });
 
 const engineId = 'stable-diffusion-xl-1024-v1-0';
