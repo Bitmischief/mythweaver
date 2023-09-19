@@ -5,6 +5,7 @@ import { isProduction } from './utils';
 const defaultLogObject: ILogObj = {
   requestId: () => requestIdAsyncLocalStorage.getStore()?.requestId,
 };
+
 export const parentLogger = new Logger<ILogObj>(
   {
     type: isProduction ? 'json' : 'pretty',

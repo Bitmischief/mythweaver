@@ -98,8 +98,3 @@ process.on('uncaughtException', (error: Error) => {
 
   errorHandler.handleError(error);
 });
-
-(async () => {
-  logger.info('Starting conjuration image migration');
-  await migrateConjurationImagesQueue.add({});
-})();
