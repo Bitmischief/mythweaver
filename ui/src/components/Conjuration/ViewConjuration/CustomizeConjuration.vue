@@ -15,6 +15,7 @@ import CustomizeConjurationImage from '@/components/Conjuration/ViewConjuration/
 import { showError, showSuccess } from '@/lib/notifications.ts';
 import { AxiosError } from 'axios';
 import { useCurrentUserId } from '@/lib/hooks.ts';
+import { autoGrowTextArea } from '@/lib/util.ts';
 
 const props = defineProps<{
   conjuration: Conjuration;
@@ -72,7 +73,6 @@ onMounted(() => {
 });
 
 onUpdated(() => {
-  console.log(editableConjuration.value.imageUri, props.conjuration.imageUri);
   if (!editableConjuration.value.imageUri) {
     editableConjuration.value.imageUri = props.conjuration.imageUri;
   }
@@ -239,6 +239,8 @@ function beginAddingTag() {
             class="min-h-[10rem] w-full overflow-hidden rounded-xl border border-neutral-800 bg-surface p-3 text-lg shadow-lg"
             :disabled="!editable"
             @click="$event.stopPropagation()"
+            @focus="autoGrowTextArea"
+            @keyup="autoGrowTextArea"
           />
         </div>
       </div>

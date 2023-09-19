@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { trimPlural } from '@/lib/util.ts';
+import { autoGrowTextArea, trimPlural } from '@/lib/util.ts';
 import { Conjurer, postConjure } from '@/api/generators.ts';
 import { ref } from 'vue';
 import { useSelectedCampaignId } from '@/lib/hooks.ts';
@@ -67,9 +67,10 @@ async function generate(generatorCode: string) {
         v-model="prompt"
         type="text"
         maxlength="500"
-        class="mt-4 gradient-border-no-opacity relative h-[20rem] w-full md:w-[20rem] 3xl:w-[50rem] rounded-xl border bg-black px-4 py-2 text-left text-xl text-white resize-none"
+        class="mt-4 gradient-border-no-opacity relative h-[20rem] w-full rounded-xl border bg-black px-4 py-2 text-left text-xl text-white resize-none"
         :placeholder="summoner.customizationHelpPrompt"
         rows="4"
+        @keyup="autoGrowTextArea"
       ></textarea>
       <div class="mt-1 ml-2 text-xs">{{ prompt.length }} / 500</div>
     </div>
