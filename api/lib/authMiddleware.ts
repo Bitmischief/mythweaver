@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 import { parentLogger } from './logger';
+import { prisma } from './providers/prisma';
 const logger = parentLogger.getSubLogger();
 
 export const useAuthenticateRequest = (securityType = 'jwt') => {
@@ -34,8 +35,19 @@ export async function expressAuthentication(
 
     const { userId } = verifyJwt(token);
 
+    const user = await prisma.user.findUnique({
+      where: {
+        id: parseInt(userId),
+      },
+    });
+
+    if (!user) {
+      return false;
+    }
+
     res.locals.auth = {
-      userId,
+      userId: user.id,
+      email: user.email,
     };
 
     return true;

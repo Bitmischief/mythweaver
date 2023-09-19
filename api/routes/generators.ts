@@ -6,6 +6,7 @@ import {
   ValidationTypes,
 } from '../lib/validationMiddleware';
 import { GeneratorController } from '../controllers/generators';
+import { useInjectLoggingInfo } from '../lib/loggingMiddleware';
 
 const router = express.Router();
 
@@ -17,6 +18,7 @@ const getGeneratorsSchema = z.object({
 
 router.get('/', [
   useAuthenticateRequest(),
+  useInjectLoggingInfo(),
   useValidateRequest(getGeneratorsSchema, {
     validationType: ValidationTypes.Query,
   }),
@@ -42,6 +44,7 @@ const generatorIdSchema = z.object({
 
 router.get('/:generatorCode', [
   useAuthenticateRequest(),
+  useInjectLoggingInfo(),
   useValidateRequest(generatorIdSchema, {
     validationType: ValidationTypes.Route,
   }),
@@ -62,6 +65,7 @@ router.get('/:generatorCode', [
 
 router.post('/:generatorCode/generate/quick', [
   useAuthenticateRequest(),
+  useInjectLoggingInfo(),
   useValidateRequest(generatorIdSchema, {
     validationType: ValidationTypes.Route,
   }),
@@ -88,6 +92,7 @@ const postGeneratorGenerateSchema = z.object({
 
 router.post('/:generatorCode/generate', [
   useAuthenticateRequest(),
+  useInjectLoggingInfo(),
   useValidateRequest(generatorIdSchema, {
     validationType: ValidationTypes.Route,
   }),
@@ -114,6 +119,7 @@ const conjurationRequestIdSchema = z.object({
 
 router.get('/requests/:conjurationRequestId', [
   useAuthenticateRequest(),
+  useInjectLoggingInfo(),
   useValidateRequest(conjurationRequestIdSchema, {
     validationType: ValidationTypes.Route,
   }),

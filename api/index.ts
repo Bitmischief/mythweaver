@@ -22,6 +22,10 @@ import './worker/index';
 import { ILogObj, Logger } from 'tslog';
 import { useInjectTrackingInfo } from './lib/trackingMiddleware';
 import { migrateConjurationImagesQueue } from './worker';
+import {
+  loggingInfoAsyncLocalStorage,
+  useInjectLoggingInfo,
+} from './lib/loggingMiddleware';
 
 const logger = new Logger<ILogObj>();
 
@@ -35,9 +39,17 @@ morgan.token('requestId', () => {
   return requestIdAsyncLocalStorage.getStore()?.requestId;
 });
 
+morgan.token('userEmail', () => {
+  return loggingInfoAsyncLocalStorage.getStore()?.userEmail;
+});
+
+morgan.token('userId', () => {
+  return loggingInfoAsyncLocalStorage.getStore()?.userId?.toString() || '';
+});
+
 app.use(
   morgan(
-    '{ "method": ":method", "url": ":url", "status": ":status", "contentLength": ":res[content-length]", "responseTime": ":response-time", "requestId": ":requestId" }'
+    '{ "method": ":method", "url": ":url", "status": ":status", "contentLength": ":res[content-length]", "responseTime": ":response-time", "requestId": ":requestId", "userEmail": ":userEmail", "userId": ":userId" }'
   )
 );
 app.use(express.static('public'));

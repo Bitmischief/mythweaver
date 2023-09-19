@@ -3,6 +3,7 @@ import { useAuthenticateRequest } from '../lib/authMiddleware';
 import { z } from 'zod';
 import { useValidateRequest } from '../lib/validationMiddleware';
 import ImageController from '../controllers/images';
+import { useInjectLoggingInfo } from '../lib/loggingMiddleware';
 
 const router = express.Router();
 
@@ -12,6 +13,7 @@ const postImageSchema = z.object({
 
 router.post('/', [
   useAuthenticateRequest(),
+  useInjectLoggingInfo(),
   useValidateRequest(postImageSchema),
   async (req: Request, res: Response) => {
     const controller = new ImageController();

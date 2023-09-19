@@ -8,12 +8,14 @@ import { lists, Status } from '@mailchimp/mailchimp_marketing';
 import EmailType = lists.EmailType;
 import { format } from 'date-fns';
 import { parentLogger } from '../lib/logger';
+import { useInjectLoggingInfo } from '../lib/loggingMiddleware';
 const logger = parentLogger.getSubLogger();
 
 const router = express.Router();
 
 router.get('/me', [
   useAuthenticateRequest(),
+  useInjectLoggingInfo(),
   async (req: Request, res: Response) => {
     const controller = new UserController();
 
@@ -34,6 +36,7 @@ const patchUsersSchema = z.object({
 
 router.patch('/me', [
   useAuthenticateRequest(),
+  useInjectLoggingInfo(),
   useValidateRequest(patchUsersSchema),
   async (req: Request, res: Response) => {
     const controller = new UserController();

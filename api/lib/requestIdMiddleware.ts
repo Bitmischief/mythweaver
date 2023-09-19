@@ -1,15 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { AsyncLocalStorage } from 'async_hooks';
 import { v4 as uuidv4 } from 'uuid';
-import { ILogObj, Logger } from 'tslog';
-import { isProduction } from './utils';
-
-const logger = new Logger<ILogObj>(
-  {
-    type: isProduction ? 'json' : 'pretty',
-  },
-  {}
-);
+import { parentLogger } from './logger';
 
 export const requestIdAsyncLocalStorage: AsyncLocalStorage<{
   requestId: string;
@@ -22,7 +14,7 @@ export const useInjectRequestId = async (
 ) => {
   const requestId: string = req.headers['x-request-id']?.toString() || uuidv4();
 
-  logger.info('Injecting request id ', requestId);
+  parentLogger.info('Injecting request id ', requestId);
 
   await requestIdAsyncLocalStorage.run({ requestId }, async () => {
     return next();

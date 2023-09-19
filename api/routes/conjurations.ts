@@ -6,6 +6,7 @@ import {
   ValidationTypes,
 } from '../lib/validationMiddleware';
 import ConjurationController from '../controllers/conjurations';
+import { useInjectLoggingInfo } from '../lib/loggingMiddleware';
 
 const router = express.Router();
 
@@ -20,6 +21,7 @@ const getConjurationsSchema = z.object({
 
 router.get('/', [
   useAuthenticateRequest(),
+  useInjectLoggingInfo(),
   useValidateRequest(getConjurationsSchema, {
     validationType: ValidationTypes.Query,
   }),
@@ -58,6 +60,7 @@ const getConjurationTagsSchema = z.object({
 
 router.get('/tags', [
   useAuthenticateRequest(),
+  useInjectLoggingInfo(),
   useValidateRequest(getConjurationTagsSchema, {
     validationType: ValidationTypes.Query,
   }),
@@ -84,6 +87,7 @@ const getConjurationSchema = z.object({
 
 router.get('/:conjurationId', [
   useAuthenticateRequest(),
+  useInjectLoggingInfo(),
   useValidateRequest(getConjurationSchema, {
     validationType: ValidationTypes.Route,
   }),
@@ -107,6 +111,7 @@ const postSaveConjurationsSchema = z.object({
 
 router.post('/:conjurationId/save', [
   useAuthenticateRequest(),
+  useInjectLoggingInfo(),
   useValidateRequest(postSaveConjurationsSchema, {
     validationType: ValidationTypes.Route,
   }),
@@ -133,6 +138,7 @@ const patchConjurationsSchema = z.object({
 
 router.patch('/:conjurationId', [
   useAuthenticateRequest(),
+  useInjectLoggingInfo(),
   useValidateRequest(patchConjurationsSchema),
   useValidateRequest(getConjurationSchema, {
     validationType: ValidationTypes.Route,
@@ -154,6 +160,7 @@ router.patch('/:conjurationId', [
 
 router.delete('/:conjurationId', [
   useAuthenticateRequest(),
+  useInjectLoggingInfo(),
   useValidateRequest(getConjurationSchema, {
     validationType: ValidationTypes.Route,
   }),
@@ -177,6 +184,7 @@ const postRemoveConjurationsSchema = z.object({
 
 router.post('/:conjurationId/remove', [
   useAuthenticateRequest(),
+  useInjectLoggingInfo(),
   useValidateRequest(postRemoveConjurationsSchema, {
     validationType: ValidationTypes.Route,
   }),
@@ -198,6 +206,7 @@ const postCopyConjurationsSchema = z.object({
 
 router.post('/:conjurationId/copy', [
   useAuthenticateRequest(),
+  useInjectLoggingInfo(),
   useValidateRequest(postCopyConjurationsSchema, {
     validationType: ValidationTypes.Route,
   }),
