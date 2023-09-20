@@ -21,11 +21,8 @@ import rateLimit from 'express-rate-limit';
 import './worker/index';
 import { ILogObj, Logger } from 'tslog';
 import { useInjectTrackingInfo } from './lib/trackingMiddleware';
-import { migrateConjurationImagesQueue } from './worker';
-import {
-  loggingInfoAsyncLocalStorage,
-  useInjectLoggingInfo,
-} from './lib/loggingMiddleware';
+import { tagUsersAsEarlyAccessQueue } from './worker';
+import { loggingInfoAsyncLocalStorage } from './lib/loggingMiddleware';
 
 const logger = new Logger<ILogObj>();
 
@@ -118,3 +115,8 @@ process.on('uncaughtException', (error: Error) => {
 
   errorHandler.handleError(error);
 });
+
+(async () => {
+  logger.info('Starting user tagging');
+  await tagUsersAsEarlyAccessQueue.add({});
+})();
