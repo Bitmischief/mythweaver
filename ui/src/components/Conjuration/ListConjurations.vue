@@ -5,7 +5,7 @@ import {
   getConjuration,
   getConjurations,
 } from '@/api/conjurations.ts';
-import { AdjustmentsVerticalIcon, BoltIcon } from '@heroicons/vue/20/solid';
+import { AdjustmentsVerticalIcon, SparklesIcon } from '@heroicons/vue/20/solid';
 import ConjurationQuickView from '@/components/Conjuration/ConjurationListItemView.vue';
 import { debounce } from 'lodash';
 import ConjurationsListFiltering from '@/components/Conjuration/ConjurationsListFiltering.vue';
@@ -145,7 +145,7 @@ async function handleConjurationChange(change: {
             <span class="text-white text-sm font-normal">Saved</span>
           </div>
           <div
-            class="px-3 py-1 self-center rounded-r-md justify-start items-center"
+            class="px-3 py-1 self-center justify-start items-center"
             :class="{
               'bg-neutral-900': conjurationsMineQuery.saved,
               'bg-neutral-700 border border-fuchsia-500/50':
@@ -154,6 +154,17 @@ async function handleConjurationChange(change: {
             @click="conjurationsMineQuery.saved = false"
           >
             <span class="text-white text-sm font-normal">Gallery</span>
+          </div>
+          <div
+            class="px-3 py-1 self-center rounded-r-md justify-start border-l border-l-neutral-800 items-center"
+            :class="{
+              'bg-neutral-900': conjurationsMineQuery.saved,
+              'bg-neutral-700 border border-fuchsia-500/50':
+                !conjurationsMineQuery.saved,
+            }"
+            @click="conjurationsMineQuery.saved = false"
+          >
+            <span class="text-white text-sm font-normal">Mine</span>
           </div>
         </div>
       </div>
@@ -184,11 +195,31 @@ async function handleConjurationChange(change: {
           <button
             class="flex w-full self-center rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 px-4 py-3 transition-all hover:scale-110"
           >
-            <BoltIcon class="mr-2 h-5 w-5 self-center" />
+            <SparklesIcon class="mr-2 h-5 w-5 self-center" />
             <span class="self-center">Create</span>
           </button>
         </router-link>
       </div>
+    </div>
+  </div>
+
+  <div
+    v-if="!conjurations.length && conjurationsMineQuery.saved"
+    class="bg-surface-2 rounded-md p-8 flex justify-center"
+  >
+    <div>
+      <div class="self-center text-neutral-600 text-5xl mb-12">
+        You don't have any saved conjurations
+      </div>
+
+      <router-link to="/conjurations/new" class="flex justify-center">
+        <button
+          class="flex rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 text-3xl px-4 py-3 transition-all hover:scale-125 duration-100"
+        >
+          <SparklesIcon class="mr-4 h-8 w-8 self-center" />
+          <span class="self-center">Conjure</span>
+        </button>
+      </router-link>
     </div>
   </div>
 
