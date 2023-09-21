@@ -83,13 +83,14 @@ onUpdated(() => {
 });
 
 const removeTag = async (tag: string) => {
-  if (!props.conjuration.tags) return;
+  if (!editableConjuration.value.tags) return;
 
-  let tags = [...props.conjuration.tags];
+  let tags = [...editableConjuration.value.tags];
   remove(tags, function (t) {
     return t === tag;
   });
-  await patchConjuration(props.conjuration.id, { tags });
+
+  editableConjuration.value.tags = tags;
 };
 
 const addTag = async () => {
@@ -105,7 +106,10 @@ function showImage() {
 
 async function saveConjuration() {
   try {
-    await patchConjuration(props.conjuration.id, editableConjuration.value);
+    await patchConjuration(props.conjuration.id, {
+      ...editableConjuration.value,
+      data: Object.fromEntries(dataArray.value.map((x) => [x.key, x.value])),
+    });
     showSuccess({ message: 'Successfully saved conjuration' });
   } catch (e) {
     const err = e as AxiosError;
@@ -172,7 +176,7 @@ function beginAddingTag() {
             :disabled="!editable"
           />
         </div>
-        <div class="mt-2 flex flex-wrap justify-center">
+        <div class="mt-2 flex flex-wrap">
           <div class="mt-3 flex flex-wrap">
             <div
               v-for="tag of editableConjuration.tags"
