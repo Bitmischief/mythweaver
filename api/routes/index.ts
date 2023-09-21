@@ -27,4 +27,7 @@ router.use(`/users`, usersRoutes);
 import charactersRoutes from './characters';
 router.use(`/characters`, charactersRoutes);
 
+import imagesRoutes from './images';
+router.use(`/images`, imagesRoutes);
+
 export default router;

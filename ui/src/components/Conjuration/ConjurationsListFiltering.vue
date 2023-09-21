@@ -23,8 +23,6 @@ const conjurers = ref<Conjurer[]>([]);
 
 const conjurationsFilterQuery = ref({
   campaignId: selectedCampaignId.value,
-  mine: false,
-  saved: false,
   conjurerCodes: [],
   tags: [],
 });
@@ -67,30 +65,6 @@ function removeTag(tag: string) {
     <div class="md:w-[499px] p-6 bg-neutral-900 rounded-[20px]">
       <div class="text-2xl border-b border-gray-700 pb-2 mb-6">
         Filter Conjurations
-      </div>
-
-      <div class="">
-        <div class="mb-1 text-gray-300">Mine</div>
-        <div class="mb-1 text-xs text-neutral-500">
-          Get conjurations you have created
-        </div>
-        <input
-          v-model="conjurationsFilterQuery.mine"
-          type="checkbox"
-          class="h-6 w-6 gradient-border-no-opacity bg-surface focus:bg-fuchsia-500"
-        />
-      </div>
-
-      <div class="mt-4">
-        <div class="mb-1 text-gray-300">Saved</div>
-        <div class="mb-1 text-xs text-neutral-500">
-          Get conjurations you have saved
-        </div>
-        <input
-          v-model="conjurationsFilterQuery.saved"
-          type="checkbox"
-          class="h-6 w-6 gradient-border-no-opacity bg-surface focus:bg-fuchsia-500"
-        />
       </div>
 
       <div class="mt-4">

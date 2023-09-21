@@ -6,6 +6,7 @@ import {
   ValidationTypes,
 } from '../lib/validationMiddleware';
 import SessionController from '../controllers/sessions';
+import { useInjectLoggingInfo } from '../lib/loggingMiddleware';
 
 const router = express.Router();
 
@@ -17,6 +18,7 @@ const getSessionsSchema = z.object({
 
 router.get('/', [
   useAuthenticateRequest(),
+  useInjectLoggingInfo(),
   useValidateRequest(getSessionsSchema, {
     validationType: ValidationTypes.Query,
   }),
@@ -43,6 +45,7 @@ const getSessionSchema = z.object({
 
 router.get('/:sessionId', [
   useAuthenticateRequest(),
+  useInjectLoggingInfo(),
   useValidateRequest(getSessionSchema, {
     validationType: ValidationTypes.Route,
   }),
@@ -71,6 +74,7 @@ const postSessionsSchema = z.object({
 
 router.post('/', [
   useAuthenticateRequest(),
+  useInjectLoggingInfo(),
   useValidateRequest(postSessionsSchema),
   async (req: Request, res: Response) => {
     const controller = new SessionController();
@@ -94,6 +98,7 @@ const patchSessionsSchema = z.object({
 
 router.patch('/:sessionId', [
   useAuthenticateRequest(),
+  useInjectLoggingInfo(),
   useValidateRequest(patchSessionsSchema),
   useValidateRequest(getSessionSchema, {
     validationType: ValidationTypes.Route,
@@ -116,6 +121,7 @@ router.patch('/:sessionId', [
 
 router.delete('/:sessionId', [
   useAuthenticateRequest(),
+  useInjectLoggingInfo(),
   useValidateRequest(getSessionSchema, {
     validationType: ValidationTypes.Route,
   }),
@@ -128,6 +134,33 @@ router.delete('/:sessionId', [
       res.locals.auth.userId,
       res.locals.trackingInfo,
       sessionId as number
+    );
+
+    return res.status(200).send();
+  },
+]);
+
+const postSessionCompleteSchema = z.object({
+  recap: z.string().max(10000),
+});
+
+router.post('/:sessionId/complete', [
+  useAuthenticateRequest(),
+  useInjectLoggingInfo(),
+  useValidateRequest(getSessionSchema, {
+    validationType: ValidationTypes.Route,
+  }),
+  useValidateRequest(postSessionCompleteSchema),
+  async (req: Request, res: Response) => {
+    const controller = new SessionController();
+
+    const { sessionId = 0 } = req.params;
+
+    await controller.postCompleteSession(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      sessionId as number,
+      req.body
     );
 
     return res.status(200).send();

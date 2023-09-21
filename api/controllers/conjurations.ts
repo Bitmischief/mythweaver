@@ -18,7 +18,7 @@ import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { processTagsQueue } from '../worker';
 
 interface GetConjurationsResponse {
-  data: Conjuration[];
+  data: (Conjuration & { saved: boolean })[];
   offset?: number;
   limit?: number;
 }
@@ -52,7 +52,6 @@ export default class ConjurationController {
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
     @Query() campaignId?: number,
-    @Query() mine?: boolean,
     @Query() saved?: boolean,
     @Query() conjurerCodeString?: string,
     @Query() tags?: string,
@@ -66,11 +65,11 @@ export default class ConjurationController {
 
     const conjurations = await prisma.conjuration.findMany({
       where: {
-        userId: saved ? userId : null,
-        campaignId: saved ? campaignId : undefined,
-        conjurationRequest: mine
+        saves: saved
           ? {
-              userId,
+              some: {
+                userId,
+              },
             }
           : undefined,
         conjurerCode: conjurerCodes?.length
@@ -78,6 +77,7 @@ export default class ConjurationController {
               in: conjurerCodes,
             }
           : undefined,
+        published: true,
         OR: tags
           ? [
               {
@@ -96,12 +96,9 @@ export default class ConjurationController {
         createdAt: 'desc',
       },
       include: {
-        copies: {
+        saves: {
           where: {
-            userId: userId,
-          },
-          select: {
-            id: true,
+            userId,
           },
         },
       },
@@ -110,7 +107,11 @@ export default class ConjurationController {
     track(AppEvent.GetConjurations, userId, trackingInfo);
 
     return {
-      data: conjurations,
+      data: conjurations.map((c) => ({
+        ...c,
+        saves: undefined,
+        saved: c.saves.length > 0,
+      })),
       offset: offset,
       limit: limit,
     };
@@ -123,18 +124,15 @@ export default class ConjurationController {
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
     @Route() conjurationId = 0
-  ): Promise<Conjuration> {
+  ): Promise<Conjuration & { saves: undefined; saved: boolean }> {
     const conjuration = await prisma.conjuration.findUnique({
       where: {
         id: conjurationId,
       },
       include: {
-        copies: {
+        saves: {
           where: {
-            userId: userId,
-          },
-          select: {
-            id: true,
+            userId,
           },
         },
       },
@@ -149,20 +147,24 @@ export default class ConjurationController {
 
     track(AppEvent.GetConjuration, userId, trackingInfo);
 
-    return conjuration;
+    return {
+      ...conjuration,
+      saves: undefined,
+      saved: conjuration.saves.length > 0,
+    };
   }
 
   @Security('jwt')
-  @OperationId('createConjuration')
-  @Post('/')
-  public async postConjurations(
+  @OperationId('saveConjuration')
+  @Post('/:conjurationId/save')
+  public async postSaveConjuration(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Body() request: PostConjurationsRequest
+    @Route() conjurationId: number
   ): Promise<void> {
     const existingConjuration = await prisma.conjuration.findUnique({
       where: {
-        id: request.conjurationId,
+        id: conjurationId,
       },
     });
 
@@ -173,23 +175,32 @@ export default class ConjurationController {
       });
     }
 
-    if (existingConjuration.userId !== null) {
+    if (
+      !existingConjuration.published &&
+      existingConjuration.userId !== userId
+    ) {
       throw new AppError({
-        description: 'You cannot add this conjuration!',
+        description: 'You cannot save this conjuration!',
         httpCode: HttpCode.FORBIDDEN,
       });
     }
 
-    track(AppEvent.CreateConjuration, userId, trackingInfo);
+    track(AppEvent.SaveConjuration, userId, trackingInfo);
 
-    await prisma.conjuration.create({
-      data: {
-        ...existingConjuration,
-        id: undefined,
-        data: existingConjuration.data as any,
-        originalId: existingConjuration.id,
+    await prisma.conjurationSave.upsert({
+      where: {
+        userId_conjurationId: {
+          userId,
+          conjurationId,
+        },
+      },
+      create: {
         userId,
-        campaignId: request.campaignId,
+        conjurationId,
+      },
+      update: {
+        userId,
+        conjurationId,
       },
     });
   }
@@ -300,5 +311,76 @@ export default class ConjurationController {
       offset: offset,
       limit: limit,
     };
+  }
+
+  @Security('jwt')
+  @OperationId('removeConjuration')
+  @Post('/:conjurationId/remove')
+  public async postRemoveConjuration(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Route() conjurationId: number
+  ): Promise<void> {
+    const existingConjurationSave = await prisma.conjurationSave.findUnique({
+      where: {
+        userId_conjurationId: {
+          userId,
+          conjurationId,
+        },
+      },
+    });
+
+    if (!existingConjurationSave) {
+      throw new AppError({
+        description: 'Conjuration save not found.',
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    track(AppEvent.RemoveConjuration, userId, trackingInfo);
+
+    await prisma.conjurationSave.delete({
+      where: {
+        id: existingConjurationSave.id,
+      },
+    });
+  }
+
+  @Security('jwt')
+  @OperationId('copyConjuration')
+  @Post('/:conjurationId/copy')
+  public async postCopyConjuration(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Route() conjurationId: number
+  ): Promise<any> {
+    const existingConjuration = await prisma.conjuration.findUnique({
+      where: {
+        id: conjurationId,
+      },
+    });
+
+    if (!existingConjuration) {
+      throw new AppError({
+        description: 'Conjuration not found.',
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    track(AppEvent.CopyConjuration, userId, trackingInfo);
+
+    return prisma.conjuration.create({
+      data: {
+        ...existingConjuration,
+        id: undefined,
+        data: existingConjuration.data as any,
+        userId,
+        saves: {
+          create: {
+            userId,
+          },
+        },
+      },
+    });
   }
 }

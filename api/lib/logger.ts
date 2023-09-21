@@ -1,10 +1,7 @@
 import { Logger, ILogObj } from 'tslog';
-import { requestIdAsyncLocalStorage } from './requestIdMiddleware';
 import { isProduction } from './utils';
+import { defaultLogObject } from './defaultLogObject';
 
-const defaultLogObject: ILogObj = {
-  requestId: () => requestIdAsyncLocalStorage.getStore()?.requestId,
-};
 export const parentLogger = new Logger<ILogObj>(
   {
     type: isProduction ? 'json' : 'pretty',

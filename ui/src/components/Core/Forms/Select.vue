@@ -136,7 +136,7 @@ const showCheckIcon = (option: any) => {
               :class="[
                 active ? 'bg-purple-800/20 text-purple-200' : 'text-white',
                 'relative cursor-default select-none py-2',
-                !noIcon ? 'pl-10 pr-4' : '',
+                !noIcon ? 'pl-10 pr-4' : 'text-center',
               ]"
             >
               <span

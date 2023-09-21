@@ -11,13 +11,18 @@ import express, {
 import morgan from 'morgan';
 import swaggerUi from 'swagger-ui-express';
 import Router from './routes';
-import { useInjectRequestId } from './lib/requestIdMiddleware';
+import {
+  requestIdAsyncLocalStorage,
+  useInjectRequestId,
+} from './lib/requestIdMiddleware';
 import { errorHandler } from './lib/errors/ErrorHandler';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import './worker/index';
 import { ILogObj, Logger } from 'tslog';
 import { useInjectTrackingInfo } from './lib/trackingMiddleware';
+import { tagUsersAsEarlyAccessQueue } from './worker';
+import { loggingInfoAsyncLocalStorage } from './lib/loggingMiddleware';
 
 const logger = new Logger<ILogObj>();
 
@@ -26,7 +31,24 @@ const PORT = process.env.PORT || 8000;
 const app: Application = express();
 
 app.use(express.json());
-app.use(morgan('tiny'));
+
+morgan.token('requestId', () => {
+  return requestIdAsyncLocalStorage.getStore()?.requestId;
+});
+
+morgan.token('userEmail', () => {
+  return loggingInfoAsyncLocalStorage.getStore()?.userEmail;
+});
+
+morgan.token('userId', () => {
+  return loggingInfoAsyncLocalStorage.getStore()?.userId?.toString() || '';
+});
+
+app.use(
+  morgan(
+    '{ "method": ":method", "url": ":url", "status": ":status", "contentLength": ":res[content-length]", "responseTime": ":response-time", "requestId": ":requestId", "userEmail": ":userEmail", "userId": ":userId" }'
+  )
+);
 app.use(express.static('public'));
 
 // Create the rate limit rule

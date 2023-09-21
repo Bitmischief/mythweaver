@@ -28,6 +28,7 @@
               Only those with early access can currently use MythWeaver.
             </div>
             <div
+              id="early-access-link"
               class="mt-2 cursor-pointer text-center text-xl text-purple-300 underline"
               @click="showEarlyAccessModal = true"
             >
@@ -68,6 +69,7 @@
           <div>
             #1 Join our mailing list
             <a
+              id="mailing-list-link"
               href="https://mythweaver.co/#mailing"
               class="ml-2 text-indigo-500"
               >here</a

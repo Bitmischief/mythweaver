@@ -18,3 +18,12 @@ export function trimPlural(s: string | undefined): string | undefined {
 
   return s;
 }
+
+export function autoGrowTextArea(evt: FocusEvent | KeyboardEvent) {
+  const textArea = evt.target as HTMLTextAreaElement;
+
+  if (!textArea) return;
+
+  textArea.style.height = 'auto';
+  textArea.style.height = textArea.scrollHeight + 'px';
+}

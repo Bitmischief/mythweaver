@@ -2,6 +2,8 @@ import Queue from 'bull';
 import { parentLogger } from '../lib/logger';
 import { processTags } from './jobs/processTags';
 import { conjure } from './jobs/conjure';
+import { completeSession } from './jobs/completeSession';
+import { tagUsersAsEarlyAccess } from './jobs/tagUsersAsEarlyAccess';
 const logger = parentLogger.getSubLogger();
 
 const config = {
@@ -34,6 +36,7 @@ processTagsQueue.process(async (job, done) => {
 });
 
 export interface ConjureEvent {
+  userId: number;
   conjurationRequestId: number;
   campaignId: number;
   generatorCode: string;
@@ -60,5 +63,45 @@ conjureQueue.process(async (job, done) => {
   } catch (err) {
     logger.error('Error processing conjure job!', err);
     done(new Error('Error processing conjure job!'));
+  }
+});
+
+export interface CompleteSessionEvent {
+  sessionId: number;
+}
+
+export const completeSessionQueue = new Queue<CompleteSessionEvent>(
+  'complete-session',
+  config
+);
+
+completeSessionQueue.process(async (job, done) => {
+  logger.info('Processing complete session job', job.data);
+
+  try {
+    await completeSession(job.data);
+    logger.info('Completed processing conjure job', job.data);
+    done();
+  } catch (err) {
+    logger.error('Error processing conjure job!', err);
+    done(new Error('Error processing conjure job!'));
+  }
+});
+
+export const tagUsersAsEarlyAccessQueue = new Queue(
+  'tag-users-early-access',
+  config
+);
+
+tagUsersAsEarlyAccessQueue.process(async (job, done) => {
+  logger.info('Processing tag users as early access job', job.data);
+
+  try {
+    await tagUsersAsEarlyAccess();
+    logger.info('Completed processing tag users as early access job', job.data);
+    done();
+  } catch (err) {
+    logger.error('Error processing tag users as early access job!', err);
+    done(new Error('Error processing tag users as early access job!'));
   }
 });

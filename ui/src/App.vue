@@ -2,10 +2,16 @@
 import Navbar from '@/components/Navigation/NavBar.vue';
 import { useAuthStore } from '@/store';
 import NotificationHandler from '@/components/Notifications/NotificationHandler.vue';
-import { NO_CAMPAIGNS_EVENT, useEventBus } from '@/lib/events.ts';
-import router from '@/router/router.ts';
-import { onMounted } from 'vue';
+import {
+  CAMPAIGN_CREATED_EVENT,
+  NO_CAMPAIGNS_EVENT,
+  useEventBus,
+} from '@/lib/events.ts';
+import { onMounted, ref } from 'vue';
 import NavBarHeader from '@/components/Navigation/NavBarHeader.vue';
+import ModalAlternate from '@/components/ModalAlternate.vue';
+import NewCampaign from '@/components/Campaigns/NewCampaign.vue';
+import LightboxRoot from '@/components/LightboxRoot.vue';
 
 const authStore = useAuthStore();
 const eventBus = useEventBus();
@@ -16,8 +22,23 @@ onMounted(async () => {
   }
 });
 
+const showCreateCampaign = ref(false);
+
 eventBus.$on(NO_CAMPAIGNS_EVENT, () => {
-  router.push('/campaigns/new');
+  showCreateCampaign.value = true;
+});
+
+eventBus.$on(CAMPAIGN_CREATED_EVENT, () => {
+  showCreateCampaign.value = false;
+});
+
+const showLoading = ref(false);
+eventBus.$on('global-loading-start', () => {
+  showLoading.value = true;
+});
+
+eventBus.$on('global-loading-stop', () => {
+  showLoading.value = false;
 });
 </script>
 
@@ -46,7 +67,7 @@ eventBus.$on(NO_CAMPAIGNS_EVENT, () => {
     <NotificationHandler />
 
     <div
-      v-if="authStore.isLoading"
+      v-if="authStore.isLoading || showLoading"
       class="absolute w-full h-full bg-black opacity-95"
     >
       <div class="flex justify-center items-center w-full h-full">
@@ -56,4 +77,12 @@ eventBus.$on(NO_CAMPAIGNS_EVENT, () => {
       </div>
     </div>
   </div>
+
+  <ModalAlternate :show="showCreateCampaign">
+    <div class="md:w-[800px] p-6 bg-neutral-900 rounded-[20px]">
+      <NewCampaign />
+    </div>
+  </ModalAlternate>
+
+  <LightboxRoot />
 </template>

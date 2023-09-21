@@ -6,12 +6,12 @@ import {
   ValidationTypes,
 } from '../lib/validationMiddleware';
 import ConjurationController from '../controllers/conjurations';
+import { useInjectLoggingInfo } from '../lib/loggingMiddleware';
 
 const router = express.Router();
 
 const getConjurationsSchema = z.object({
   campaignId: z.coerce.number().default(0),
-  mine: z.coerce.boolean().default(false).optional(),
   saved: z.coerce.boolean().default(false).optional(),
   conjurerCodes: z.string().optional(),
   tags: z.string().optional(),
@@ -21,6 +21,7 @@ const getConjurationsSchema = z.object({
 
 router.get('/', [
   useAuthenticateRequest(),
+  useInjectLoggingInfo(),
   useValidateRequest(getConjurationsSchema, {
     validationType: ValidationTypes.Query,
   }),
@@ -29,7 +30,6 @@ router.get('/', [
 
     const {
       campaignId = 0,
-      mine = false,
       saved = false,
       conjurerCodes,
       tags,
@@ -41,7 +41,6 @@ router.get('/', [
       res.locals.auth.userId,
       res.locals.trackingInfo,
       campaignId as number,
-      mine as boolean,
       saved as boolean,
       conjurerCodes as string,
       tags as string,
@@ -61,6 +60,7 @@ const getConjurationTagsSchema = z.object({
 
 router.get('/tags', [
   useAuthenticateRequest(),
+  useInjectLoggingInfo(),
   useValidateRequest(getConjurationTagsSchema, {
     validationType: ValidationTypes.Query,
   }),
@@ -87,6 +87,7 @@ const getConjurationSchema = z.object({
 
 router.get('/:conjurationId', [
   useAuthenticateRequest(),
+  useInjectLoggingInfo(),
   useValidateRequest(getConjurationSchema, {
     validationType: ValidationTypes.Route,
   }),
@@ -104,35 +105,40 @@ router.get('/:conjurationId', [
   },
 ]);
 
-const postConjurationsSchema = z.object({
-  campaignId: z.number(),
-  conjurationId: z.number(),
+const postSaveConjurationsSchema = z.object({
+  conjurationId: z.coerce.number(),
 });
 
-router.post('/', [
+router.post('/:conjurationId/save', [
   useAuthenticateRequest(),
-  useValidateRequest(postConjurationsSchema),
+  useInjectLoggingInfo(),
+  useValidateRequest(postSaveConjurationsSchema, {
+    validationType: ValidationTypes.Route,
+  }),
   async (req: Request, res: Response) => {
     const controller = new ConjurationController();
 
-    const response = await controller.postConjurations(
+    const response = await controller.postSaveConjuration(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      req.body
+      req.params.conjurationId as unknown as number
     );
-    return res.status(201).send(response);
+    return res.status(200).send(response);
   },
 ]);
 
 const patchConjurationsSchema = z.object({
   name: z.string().optional(),
   imageUri: z.string().optional(),
+  imageAIPrompt: z.string().optional(),
   tags: z.array(z.string()).optional(),
   data: z.any().optional(),
+  published: z.boolean().optional(),
 });
 
 router.patch('/:conjurationId', [
   useAuthenticateRequest(),
+  useInjectLoggingInfo(),
   useValidateRequest(patchConjurationsSchema),
   useValidateRequest(getConjurationSchema, {
     validationType: ValidationTypes.Route,
@@ -154,6 +160,7 @@ router.patch('/:conjurationId', [
 
 router.delete('/:conjurationId', [
   useAuthenticateRequest(),
+  useInjectLoggingInfo(),
   useValidateRequest(getConjurationSchema, {
     validationType: ValidationTypes.Route,
   }),
@@ -168,6 +175,50 @@ router.delete('/:conjurationId', [
       conjurationId as number
     );
     return res.status(200).send();
+  },
+]);
+
+const postRemoveConjurationsSchema = z.object({
+  conjurationId: z.coerce.number(),
+});
+
+router.post('/:conjurationId/remove', [
+  useAuthenticateRequest(),
+  useInjectLoggingInfo(),
+  useValidateRequest(postRemoveConjurationsSchema, {
+    validationType: ValidationTypes.Route,
+  }),
+  async (req: Request, res: Response) => {
+    const controller = new ConjurationController();
+
+    const response = await controller.postRemoveConjuration(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      req.params.conjurationId as unknown as number
+    );
+    return res.status(200).send(response);
+  },
+]);
+
+const postCopyConjurationsSchema = z.object({
+  conjurationId: z.coerce.number(),
+});
+
+router.post('/:conjurationId/copy', [
+  useAuthenticateRequest(),
+  useInjectLoggingInfo(),
+  useValidateRequest(postCopyConjurationsSchema, {
+    validationType: ValidationTypes.Route,
+  }),
+  async (req: Request, res: Response) => {
+    const controller = new ConjurationController();
+
+    const response = await controller.postCopyConjuration(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      req.params.conjurationId as unknown as number
+    );
+    return res.status(200).send(response);
   },
 ]);
 

@@ -5,7 +5,7 @@ import {
   getConjuration,
   getConjurations,
 } from '@/api/conjurations.ts';
-import { AdjustmentsVerticalIcon, BoltIcon } from '@heroicons/vue/20/solid';
+import { AdjustmentsVerticalIcon, SparklesIcon } from '@heroicons/vue/20/solid';
 import ConjurationQuickView from '@/components/Conjuration/ConjurationListItemView.vue';
 import { debounce } from 'lodash';
 import ConjurationsListFiltering from '@/components/Conjuration/ConjurationsListFiltering.vue';
@@ -14,22 +14,27 @@ const pagingDone = ref(false);
 const conjurations = ref<Conjuration[]>([]);
 const showFilters = ref(false);
 
+const defaultPaging = {
+  offset: 0,
+  limit: 20,
+};
+const conjurationsPagingQuery = ref(defaultPaging);
+
+const defaultFilters = {
+  conjurerCodes: [],
+  tags: [],
+};
+const conjurationsFilterQuery = ref(defaultFilters);
+
+const conjurationsMineQuery = ref({
+  saved: true,
+});
+
 const conjurationsQuery = computed(() => ({
   ...conjurationsFilterQuery.value,
   ...conjurationsPagingQuery.value,
+  ...conjurationsMineQuery.value,
 }));
-
-const initialPaging = {
-  offset: 0,
-  limit: 8,
-};
-const conjurationsPagingQuery = ref(initialPaging);
-const conjurationsFilterQuery = ref({
-  mine: false,
-  saved: false,
-  conjurerCodes: [],
-  tags: [],
-});
 
 onMounted(async () => {
   await loadConjurations();
@@ -58,7 +63,7 @@ watch(
 );
 
 watch(
-  conjurationsFilterQuery,
+  [conjurationsFilterQuery, conjurationsMineQuery],
   async () => {
     pagingDone.value = false;
     if (conjurationsPagingQuery.value.offset === 0) {
@@ -112,7 +117,6 @@ async function handleConjurationChange(change: {
   const conjurationIndex = conjurations.value.findIndex((c) => c.id === id);
 
   conjurations.value[conjurationIndex] = conjurationResponse.data;
-  console.log(conjurationResponse.data);
 }
 </script>
 
@@ -123,13 +127,64 @@ async function handleConjurationChange(change: {
     @update-filters="handleFiltersUpdated"
   />
 
-  <div class="mb-6 flex w-full justify-between rounded-xl p-4">
+  <div class="mb-6 flex w-full justify-between rounded-xl py-4">
     <div class="w-full md:flex md:justify-between">
-      <div class="text-2xl self-center font-bold">Conjurations List</div>
+      <div class="flex">
+        <div class="text-2xl self-center font-bold mr-6">Conjurations List</div>
+
+        <div class="flex cursor-pointer">
+          <div
+            class="px-3 py-1 self-center rounded-l-md justify-start items-center"
+            :class="{
+              'bg-neutral-900': !conjurationsMineQuery.saved,
+              'bg-neutral-700 border border-fuchsia-500/50':
+                conjurationsMineQuery.saved,
+            }"
+            @click="conjurationsMineQuery.saved = true"
+          >
+            <span class="text-white text-sm font-normal">Saved</span>
+          </div>
+          <div
+            class="px-3 py-1 self-center justify-start items-center"
+            :class="{
+              'bg-neutral-900': conjurationsMineQuery.saved,
+              'bg-neutral-700 border border-fuchsia-500/50':
+                !conjurationsMineQuery.saved,
+            }"
+            @click="conjurationsMineQuery.saved = false"
+          >
+            <span class="text-white text-sm font-normal">Gallery</span>
+          </div>
+          <!--          <div-->
+          <!--            class="px-3 py-1 self-center rounded-r-md justify-start border-l border-l-neutral-800 items-center"-->
+          <!--            :class="{-->
+          <!--              'bg-neutral-900': conjurationsMineQuery.saved,-->
+          <!--              'bg-neutral-700 border border-fuchsia-500/50':-->
+          <!--                !conjurationsMineQuery.saved,-->
+          <!--            }"-->
+          <!--            @click="conjurationsMineQuery.saved = false"-->
+          <!--          >-->
+          <!--            <span class="text-white text-sm font-normal">Mine</span>-->
+          <!--          </div>-->
+        </div>
+      </div>
 
       <div class="mt-2 self-center md:mt-0 flex justify-between">
         <button
-          class="w-[122px] mr-2 h-[46px] p-3 bg-neutral-900 rounded-md justify-start items-center gap-[5px] inline-flex transition-all hover:scale-110"
+          v-if="
+            JSON.stringify(conjurationsFilterQuery) !==
+            JSON.stringify(defaultFilters)
+          "
+          class="mr-2 p-3 rounded-md justify-start items-center gap-[5px] inline-flex transition-all hover:scale-110"
+          @click="conjurationsFilterQuery = defaultFilters"
+        >
+          <span class="text-white text-sm font-normal underline">
+            Clear Filters
+          </span>
+        </button>
+
+        <button
+          class="mr-2 p-3 bg-neutral-900 rounded-md justify-start items-center gap-[5px] inline-flex transition-all hover:scale-110"
           @click="showFilters = true"
         >
           <AdjustmentsVerticalIcon class="w-5 h-5 mr-2" />
@@ -140,7 +195,7 @@ async function handleConjurationChange(change: {
           <button
             class="flex w-full self-center rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 px-4 py-3 transition-all hover:scale-110"
           >
-            <BoltIcon class="mr-2 h-5 w-5 self-center" />
+            <SparklesIcon class="mr-2 h-5 w-5 self-center" />
             <span class="self-center">Create</span>
           </button>
         </router-link>
@@ -149,9 +204,26 @@ async function handleConjurationChange(change: {
   </div>
 
   <div
-    v-if="conjurations.length"
-    class="grid grid-cols-1 gap-8 md:grid-cols-2 3xl:grid-cols-4"
+    v-if="!conjurations.length && conjurationsMineQuery.saved"
+    class="bg-surface-2 rounded-md p-8 flex justify-center"
   >
+    <div>
+      <div class="self-center text-neutral-600 text-5xl mb-12">
+        You don't have any saved conjurations
+      </div>
+
+      <router-link to="/conjurations/new" class="flex justify-center">
+        <button
+          class="flex rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 text-3xl px-4 py-3 transition-all hover:scale-125 duration-100"
+        >
+          <SparklesIcon class="mr-4 h-8 w-8 self-center" />
+          <span class="self-center">Conjure</span>
+        </button>
+      </router-link>
+    </div>
+  </div>
+
+  <div v-if="conjurations.length" class="flex flex-wrap justify-items-center">
     <ConjurationQuickView
       v-for="conjuration of conjurations"
       :key="conjuration.name"

@@ -7,6 +7,7 @@ import {
 } from '../lib/validationMiddleware';
 import CampaignController from '../controllers/campaigns';
 import rateLimit from 'express-rate-limit';
+import { useInjectLoggingInfo } from '../lib/loggingMiddleware';
 
 const router = express.Router();
 
@@ -17,6 +18,7 @@ const getCampaignsSchema = z.object({
 
 router.get('/', [
   useAuthenticateRequest(),
+  useInjectLoggingInfo(),
   useValidateRequest(getCampaignsSchema, {
     validationType: ValidationTypes.Query,
   }),
@@ -42,6 +44,7 @@ const getCampaignSchema = z.object({
 
 router.get('/:campaignId', [
   useAuthenticateRequest(),
+  useInjectLoggingInfo(),
   useValidateRequest(getCampaignSchema, {
     validationType: ValidationTypes.Route,
   }),
@@ -68,6 +71,7 @@ const postCampaignSchema = z.object({
 
 router.post('/', [
   useAuthenticateRequest(),
+  useInjectLoggingInfo(),
   useValidateRequest(postCampaignSchema),
   async (req: Request, res: Response) => {
     const controller = new CampaignController();
@@ -94,6 +98,7 @@ const putCampaignSchema = z.object({
 
 router.put('/:campaignId', [
   useAuthenticateRequest(),
+  useInjectLoggingInfo(),
   useValidateRequest(putCampaignIdSchema, {
     validationType: ValidationTypes.Route,
   }),
@@ -120,6 +125,7 @@ const deleteCampaignSchema = z.object({
 
 router.delete('/:campaignId', [
   useAuthenticateRequest(),
+  useInjectLoggingInfo(),
   useValidateRequest(deleteCampaignSchema, {
     validationType: ValidationTypes.Route,
   }),
@@ -149,6 +155,7 @@ const getCampaignMembersSchema = z.object({
 
 router.get('/:campaignId/members', [
   useAuthenticateRequest(),
+  useInjectLoggingInfo(),
   useValidateRequest(getCampaignMembersRouteSchema, {
     validationType: ValidationTypes.Route,
   }),
@@ -182,6 +189,7 @@ const postInviteCampaignMemberSchema = z.object({
 
 router.post('/:campaignId/members', [
   useAuthenticateRequest(),
+  useInjectLoggingInfo(),
   useValidateRequest(postInviteCampaignMemberRouteSchema, {
     validationType: ValidationTypes.Route,
   }),
@@ -209,6 +217,7 @@ const deleteCampaignMemberRouteSchema = z.object({
 
 router.delete('/:campaignId/members/:memberId', [
   useAuthenticateRequest(),
+  useInjectLoggingInfo(),
   useValidateRequest(deleteCampaignMemberRouteSchema, {
     validationType: ValidationTypes.Route,
   }),

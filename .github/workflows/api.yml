@@ -61,7 +61,9 @@ jobs:
           sed -i 's|<MAILCHIMP_AUDIENCE_ID>|${{ secrets.MAILCHIMP_AUDIENCE_ID }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml &&
           sed -i 's|<MAILCHIMP_SERVER_PREFIX>|${{ secrets.MAILCHIMP_SERVER_PREFIX }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml &&
           sed -i 's|<MAILCHIMP_API_KEY>|${{ secrets.MAILCHIMP_API_KEY }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml &&
-          sed -i 's|<MAILCHIMP_TRANSACTIONAL_API_KEY>|${{ secrets.MAILCHIMP_TRANSACTIONAL_API_KEY }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<MAILCHIMP_TRANSACTIONAL_API_KEY>|${{ secrets.MAILCHIMP_TRANSACTIONAL_API_KEY }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml &&
+          sed -i 's|<SPACES_KEY>|${{ secrets.SPACES_KEY }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml &&
+          sed -i 's|<SPACES_SECRET>|${{ secrets.SPACES_SECRET }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
 
       - name: Save DigitalOcean kubeconfig with short-lived credentials
         run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 ${{ secrets.CLUSTER_NAME }}

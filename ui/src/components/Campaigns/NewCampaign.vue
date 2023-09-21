@@ -23,9 +23,11 @@ const campaign = ref<Campaign>({
 const rpgSystems = ref<RpgSystem[]>([]);
 const adventures = ref<PublicAdventure[]>([]);
 const systemsLimit = ref(999);
+const campaignName = ref<HTMLElement | null>(null);
 
 onMounted(async () => {
   await loadRpgSystems();
+  campaignName.value?.focus();
 });
 
 watch(
@@ -71,20 +73,25 @@ const atmosphere = ref<string[]>([]);
 </script>
 
 <template>
-  <div class="">
+  <div class="text-white">
     <div class="text-2xl">Let's Create A Campaign</div>
+    <div class="text-lg text-neutral-500">
+      We'll use this information to help you get started generating the best
+      content possible.
+    </div>
 
     <div class="mt-8 text-lg text-gray-400">
       What should we call this campaign?
     </div>
 
     <input
+      ref="campaignName"
       v-model="campaign.name"
       autofocus
       class="gradient-border-no-opacity relative mt-2 h-12 w-full rounded-xl border bg-black px-4 text-left text-white"
     />
 
-    <div class="mt-8 text-lg text-gray-400">
+    <div class="mt-8 mb-1 text-lg text-gray-400">
       What roleplaying system are you using?
     </div>
 
@@ -118,7 +125,7 @@ const atmosphere = ref<string[]>([]);
     </template>
 
     <template v-if="campaign.rpgSystemCode !== 'other'">
-      <div class="mt-6 text-lg text-gray-400">
+      <div class="mt-6 mb-1 text-lg text-gray-400">
         Are you playing an official campaign/adventure?
       </div>
 

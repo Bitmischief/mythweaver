@@ -3,3 +3,5 @@
 /api/coverage/
 
 .idea/
+
+.k8s/setup/datadog-values.yml

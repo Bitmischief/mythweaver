@@ -6,6 +6,7 @@ import {
   ValidationTypes,
 } from '../lib/validationMiddleware';
 import { RpgSystemController } from '../controllers/rpgSystems';
+import { useInjectLoggingInfo } from '../lib/loggingMiddleware';
 
 const router = express.Router();
 
@@ -17,6 +18,7 @@ const getRpgSystemsSchema = z.object({
 
 router.get('/', [
   useAuthenticateRequest(),
+  useInjectLoggingInfo(),
   useValidateRequest(getRpgSystemsSchema, {
     validationType: ValidationTypes.Query,
   }),

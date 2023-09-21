@@ -1,16 +1,17 @@
 import axios from 'axios';
-import { useSelectedCampaignId } from '@/lib/hooks.ts';
 
 export interface Conjuration {
   id: number;
   userId: number | undefined;
   conjurerCode: string;
   name: string;
-  imageUri?: string;
+  imageUri: string;
   data: any;
   tags?: string[];
   copies?: Conjuration[];
   originalId?: number;
+  imageAIPrompt: string;
+  saved: boolean;
 }
 
 export interface GetConjurationsRequest {
@@ -47,11 +48,8 @@ export const getConjurationTags = (request: GetConjurationTagsRequest) => {
   });
 };
 
-export const addConjuration = (conjurationId: number) => {
-  const selectedCampaignId = useSelectedCampaignId();
-
-  return axios.post('/conjurations', {
-    campaignId: selectedCampaignId.value,
+export const saveConjuration = (conjurationId: number) => {
+  return axios.post(`/conjurations/${conjurationId}/save`, {
     conjurationId,
   });
 };
@@ -73,4 +71,12 @@ export const patchConjuration = (conjurationId: number, request: PatchConjuratio
 
 export const deleteConjuration = (conjurationId: number) => {
   return axios.delete(`/conjurations/${conjurationId}`);
+};
+
+export const removeConjuration = (conjurationId: number) => {
+  return axios.post(`/conjurations/${conjurationId}/remove`);
+};
+
+export const copyConjuration = (conjurationId: number) => {
+  return axios.post(`/conjurations/${conjurationId}/copy`);
 };

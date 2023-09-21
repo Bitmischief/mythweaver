@@ -33,7 +33,9 @@ async function logout() {
     </MenuButton>
 
     <template #content>
-      <div class="rounded-b-xl bg-surface-2 p-4">
+      <div
+        class="rounded-b-xl relative z-50 bg-surface-2 border-b-2 border-x-2 border-neutral-800 p-4"
+      >
         <MenuItem>
           <button
             class="w-full rounded-xl border-2 border-red-500 px-3 py-1"

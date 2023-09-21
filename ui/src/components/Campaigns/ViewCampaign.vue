@@ -176,24 +176,26 @@ function handleRequestRemoveMember(memberId: number) {
 
 <template>
   <div v-if="campaign">
-    <div
-      v-if="currentUserRole === CampaignRole.DM"
-      class="flex justify-between"
-    >
-      <div class="text-2xl">
-        {{ campaign.name }}
-      </div>
+    <div class="mb-6 flex w-full justify-between rounded-xl py-4">
+      <div class="w-full md:flex md:justify-between">
+        <div class="text-2xl self-center font-bold">{{ campaign.name }}</div>
 
-      <div>
-        <button class="rounded-xl bg-green-500 p-3" @click="handleSaveCampaign">
-          Save
-        </button>
-        <button
-          class="ml-2 rounded-xl border border-red-500 p-3 text-red-500"
-          @click="handleDeleteCampaign"
-        >
-          Delete
-        </button>
+        <div class="mt-2 self-center md:mt-0 flex justify-between">
+          <button
+            v-if="currentUserRole === CampaignRole.DM"
+            class="flex w-full self-center rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 px-4 py-3 transition-all hover:scale-110"
+            @click="handleSaveCampaign"
+          >
+            <span class="self-center">Save</span>
+          </button>
+
+          <button
+            class="ml-2 rounded-xl border border-red-500 p-3 text-red-500"
+            @click="handleDeleteCampaign"
+          >
+            Delete
+          </button>
+        </div>
       </div>
     </div>
 
