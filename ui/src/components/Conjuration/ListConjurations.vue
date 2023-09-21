@@ -155,17 +155,17 @@ async function handleConjurationChange(change: {
           >
             <span class="text-white text-sm font-normal">Gallery</span>
           </div>
-          <div
-            class="px-3 py-1 self-center rounded-r-md justify-start border-l border-l-neutral-800 items-center"
-            :class="{
-              'bg-neutral-900': conjurationsMineQuery.saved,
-              'bg-neutral-700 border border-fuchsia-500/50':
-                !conjurationsMineQuery.saved,
-            }"
-            @click="conjurationsMineQuery.saved = false"
-          >
-            <span class="text-white text-sm font-normal">Mine</span>
-          </div>
+          <!--          <div-->
+          <!--            class="px-3 py-1 self-center rounded-r-md justify-start border-l border-l-neutral-800 items-center"-->
+          <!--            :class="{-->
+          <!--              'bg-neutral-900': conjurationsMineQuery.saved,-->
+          <!--              'bg-neutral-700 border border-fuchsia-500/50':-->
+          <!--                !conjurationsMineQuery.saved,-->
+          <!--            }"-->
+          <!--            @click="conjurationsMineQuery.saved = false"-->
+          <!--          >-->
+          <!--            <span class="text-white text-sm font-normal">Mine</span>-->
+          <!--          </div>-->
         </div>
       </div>
 
