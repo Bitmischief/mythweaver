@@ -3,7 +3,7 @@ import { parentLogger } from '../lib/logger';
 import { processTags } from './jobs/processTags';
 import { conjure } from './jobs/conjure';
 import { completeSession } from './jobs/completeSession';
-import { migrateConjurationImages } from './jobs/migrateConjurationImages';
+import { tagUsersAsEarlyAccess } from './jobs/tagUsersAsEarlyAccess';
 const logger = parentLogger.getSubLogger();
 
 const config = {
@@ -88,27 +88,6 @@ completeSessionQueue.process(async (job, done) => {
   }
 });
 
-export const migrateConjurationImagesQueue = new Queue(
-  'migrate-conjuration-images',
-  config
-);
-
-migrateConjurationImagesQueue.process(async (job, done) => {
-  logger.info('Processing migrate conjuration images job', job.data);
-
-  try {
-    await migrateConjurationImages();
-    logger.info(
-      'Completed processing migrate conjuration images job',
-      job.data
-    );
-    done();
-  } catch (err) {
-    logger.error('Error processing migrate conjuration images job!', err);
-    done(new Error('Error processing migrate conjuration images job!'));
-  }
-});
-
 export const tagUsersAsEarlyAccessQueue = new Queue(
   'tag-users-early-access',
   config
@@ -118,7 +97,7 @@ tagUsersAsEarlyAccessQueue.process(async (job, done) => {
   logger.info('Processing tag users as early access job', job.data);
 
   try {
-    await migrateConjurationImages();
+    await tagUsersAsEarlyAccess();
     logger.info('Completed processing tag users as early access job', job.data);
     done();
   } catch (err) {

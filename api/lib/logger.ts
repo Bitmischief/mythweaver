@@ -4,8 +4,7 @@ import { defaultLogObject } from './defaultLogObject';
 
 export const parentLogger = new Logger<ILogObj>(
   {
-    // type: isProduction ? 'json' : 'pretty',
-    type: 'json',
+    type: isProduction ? 'json' : 'pretty',
   },
   defaultLogObject
 );
