@@ -115,8 +115,3 @@ process.on('uncaughtException', (error: Error) => {
 
   errorHandler.handleError(error);
 });
-
-(async () => {
-  logger.info('Starting user tagging');
-  await tagUsersAsEarlyAccessQueue.add({});
-})();
