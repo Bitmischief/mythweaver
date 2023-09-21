@@ -6,6 +6,7 @@ import md5 from 'md5';
 const logger = parentLogger.getSubLogger();
 
 export const tagUsersAsEarlyAccess = async () => {
+  logger.info('Tagging users as early access');
   const take = 100;
   let skip = 0;
   let moreUsers = true;
