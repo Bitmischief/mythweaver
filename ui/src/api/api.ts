@@ -33,6 +33,7 @@ axios.interceptors.request.use(
 );
 
 const MAX_REFRESH_RETRIES = 5;
+let refreshPromise: Promise<void> | null = null;
 
 axios.interceptors.response.use(
   (res) => {
@@ -55,12 +56,18 @@ axios.interceptors.response.use(
         !originalConfig._retry &&
         originalConfig._retryCount < MAX_REFRESH_RETRIES
       ) {
+        if (refreshPromise) {
+          await refreshPromise;
+          return axios(originalConfig);
+        }
+
         originalConfig._retry = true;
         originalConfig._retryCount++;
 
         try {
-          await authStore.refresh();
-
+          refreshPromise = authStore.refresh();
+          await refreshPromise;
+          refreshPromise = null;
           return axios(originalConfig);
         } catch (_error) {
           return Promise.reject(_error);
