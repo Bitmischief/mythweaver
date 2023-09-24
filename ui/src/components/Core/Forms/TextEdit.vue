@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
+import { autoGrowTextArea } from '@/lib/util.ts';
 
 const props = defineProps<{
   modelValue: string;
-  dataKey: string;
   disabled?: boolean;
 }>();
 
@@ -18,12 +18,6 @@ const value = computed({
 
 const edit = ref(false);
 const input = ref<HTMLInputElement | null>(null);
-
-function textareaGrow(e: any) {
-  e.target.style.height = '5px';
-  e.target.style.height =
-    Math.max(e.target.style.minHeight, e.target.scrollHeight) + 'px';
-}
 
 function enableEdit() {
   if (props.disabled) return;
@@ -51,8 +45,8 @@ function enableEdit() {
       v-model="value"
       class="min-h-[20rem] w-full overflow-hidden rounded-xl border border-green-500 bg-surface p-3 text-lg shadow-lg"
       @click="$event.stopPropagation()"
-      @blur="emit('update:modelValue')"
-      @input="textareaGrow"
+      @blur="emit('update:modelValue', value)"
+      @focus="autoGrowTextArea"
     />
   </div>
 </template>

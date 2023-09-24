@@ -1,24 +1,35 @@
 import {
   Body,
-  Delete,
-  Get,
   Inject,
   OperationId,
   Patch,
   Post,
-  Query,
   Route,
   Security,
   Tags,
 } from 'tsoa';
 import { prisma } from '../lib/providers/prisma';
 import { AppError, HttpCode } from '../lib/errors/AppError';
-import { Session } from '@prisma/client';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 
 interface PostCharactersRequest {
   campaignId: number;
   name: string;
+  age: number;
+  race: string;
+  class: string;
+  imageUri: string;
+  background: string;
+  personality: string;
+  looks: string;
+}
+
+interface PatchCharactersRequest {
+  name: string;
+  age: number;
+  race: string;
+  class: string;
+  imageUri: string;
   background: string;
   personality: string;
   looks: string;
@@ -60,7 +71,36 @@ export default class CharacterController {
       },
     });
 
-    track(AppEvent.GetSessions, userId, trackingInfo);
+    track(AppEvent.CreateCharacter, userId, trackingInfo);
+
+    return character;
+  }
+
+  @Security('jwt')
+  @OperationId('patchCharacter')
+  @Patch('/:characterId')
+  public async patchCharacter(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Route() characterId: number,
+    @Body() request: PatchCharactersRequest
+  ): Promise<any> {
+    const character = await prisma.character.findUnique({
+      where: {
+        id: characterId,
+      },
+    });
+
+    await prisma.character.update({
+      where: {
+        id: characterId,
+      },
+      data: {
+        ...request,
+      },
+    });
+
+    track(AppEvent.UpdateCharacter, userId, trackingInfo);
 
     return character;
   }

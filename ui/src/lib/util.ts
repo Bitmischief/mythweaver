@@ -25,5 +25,5 @@ export function autoGrowTextArea(evt: FocusEvent | KeyboardEvent) {
   if (!textArea) return;
 
   textArea.style.height = 'auto';
-  textArea.style.height = textArea.scrollHeight + 'px';
+  textArea.style.height = textArea.scrollHeight + 1 + 'px';
 }

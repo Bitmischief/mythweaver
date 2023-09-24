@@ -138,4 +138,27 @@ router.get('/requests/:conjurationRequestId', [
   },
 ]);
 
+const postGenerateArbitrarySchema = z.object({
+  background: z.any().optional(),
+  context: z.string(),
+  propertyName: z.string().min(3).max(100),
+});
+
+router.post('/arbitrary', [
+  useAuthenticateRequest(),
+  useInjectLoggingInfo(),
+  useValidateRequest(postGenerateArbitrarySchema),
+  async (req: Request, res: Response) => {
+    const controller = new GeneratorController();
+
+    const response = await controller.postGenerateArbitrary(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      req.body
+    );
+
+    return res.status(200).send(response);
+  },
+]);
+
 export default router;

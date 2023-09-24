@@ -78,8 +78,8 @@ eventBus.$on('global-loading-stop', () => {
     </div>
   </div>
 
-  <ModalAlternate :show="showCreateCampaign">
-    <div class="md:w-[800px] p-6 bg-neutral-900 rounded-[20px]">
+  <ModalAlternate :show="showCreateCampaign" extra-dark>
+    <div class="md:w-[800px] p-6 bg-neutral-900 rounded-md">
       <NewCampaign />
     </div>
   </ModalAlternate>

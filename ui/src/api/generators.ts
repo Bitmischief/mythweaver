@@ -38,3 +38,13 @@ export const postQuickConjure = (code: string) => {
 export const getConjurationRequest = (conjurationRequestId: number) => {
   return axios.get(`/generators/requests/${conjurationRequestId}`);
 };
+
+export interface PostGenerateArbitraryRequest {
+  background: any;
+  context: string;
+  propertyName: string;
+}
+
+export const postGenerateArbitrary = (request: PostGenerateArbitraryRequest) => {
+  return axios.post(`/generators/arbitrary`, request);
+};

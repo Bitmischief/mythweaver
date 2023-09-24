@@ -508,6 +508,8 @@ export default class CampaignController {
       });
     }
 
+    track(AppEvent.GetCharacter, userId, trackingInfo);
+
     return character;
   }
 }

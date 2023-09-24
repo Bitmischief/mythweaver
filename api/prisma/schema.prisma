@@ -183,6 +183,9 @@ model Character {
   campaignId       Int?
 
   name        String
+  age         Int
+  race        String
+  class       String
   imageUri    String?
   background  String?
   personality String?

@@ -1,14 +1,16 @@
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import LightboxImage from '@/components/LightboxImage.vue';
 import { conjureImage } from '@/api/images.ts';
 import { useEventBus } from '@/lib/events.ts';
 import { ArrowsPointingOutIcon } from '@heroicons/vue/20/solid';
+import { autoGrowTextArea } from '@/lib/util.ts';
 
 const props = defineProps<{
   prompt: string;
-  imageUri: string;
-  looks: string;
+  imageUri?: string;
+  looks?: string;
+  noActions?: boolean;
 }>();
 
 const emit = defineEmits(['cancel']);
@@ -21,6 +23,16 @@ const done = ref(false);
 const imageUris = ref([] as string[]);
 const selectedImgUri = ref('');
 
+onMounted(() => {
+  eventBus.$on('conjure-image', async () => {
+    await conjure();
+  });
+});
+
+onUnmounted(() => {
+  eventBus.$off('conjure-image');
+});
+
 async function conjure() {
   conjuring.value = true;
   done.value = false;
@@ -29,6 +41,8 @@ async function conjure() {
   imageUris.value = conjureImageResponse.data;
   done.value = true;
   conjuring.value = false;
+
+  eventBus.$emit('conjure-image-done', {});
 }
 
 function setImage() {
@@ -43,32 +57,62 @@ function setImage() {
 
 <template>
   <template v-if="!conjuring && !done">
-    <div class="text-4xl">Customize</div>
-    <div class="text-2xl mt-4 text-fuchsia-300">
-      Modify the prompt for the AI engine to generate a new image
+    <div class="mt-4 bg-fuchsia-200/5 rounded-md py-3 pb-6 p-6">
+      <div class="text-2xl 3xl:text-4xl">Customize</div>
+      <div class="text-lg 3xl:text-2xl mt-0 text-fuchsia-300">
+        {{
+          prompt.length
+            ? 'Modify the prompt for the AI engine to generate a new image'
+            : 'What does it look like?'
+        }}
+      </div>
+      <div class="mt-4 text-neutral-400">Example prompts:</div>
+      <ul class="mt-4">
+        <li class="mb-3 text-neutral-500 text-lg">
+          - floating island with giant clock gears, populated with mythical
+          creatures
+        </li>
+        <li class="mb-3 text-neutral-500 text-lg">
+          - battle scene with futuristic robots and a golden palace in the
+          background
+        </li>
+        <li class="text-neutral-500 text-lg">
+          - ancient castle at night, with a full moon, gargoyles, and shadows
+        </li>
+      </ul>
     </div>
 
-    <div class="md:flex md:justify-between mt-8">
-      <LightboxImage :src="imageUri" class="w-72 h-72 my-auto rounded-md" />
-      <div class="md:ml-4">
-        <div class="text-md text-neutral-500">Original Prompt</div>
-        <div class="text-lg text-neutral-200">
-          {{ props.prompt }}
-        </div>
+    <div class="md:flex md:justify-between mt-4">
+      <LightboxImage
+        v-if="imageUri"
+        :src="imageUri"
+        class="w-72 h-72 my-auto rounded-md"
+      />
+      <div :class="{ 'md:ml-4': prompt.length }">
+        <template v-if="prompt.length">
+          <div class="text-md text-neutral-500">Original Prompt</div>
+          <div class="text-lg text-neutral-200">
+            {{ props.prompt }}
+          </div>
+        </template>
 
-        <div class="text-md text-neutral-500 mt-4">Looks</div>
-        <div class="text-lg text-neutral-200">
-          {{ props.looks }}
-        </div>
+        <template v-if="props.looks">
+          <div class="text-md text-neutral-500 mt-4">Looks</div>
+          <div class="text-lg text-neutral-200">
+            {{ props.looks }}
+          </div>
+        </template>
       </div>
     </div>
 
     <textarea
       v-model="editablePrompt"
-      class="my-8 md:min-h-[10rem] w-full overflow-hidden rounded-md resize-none text-2xl border border-neutral-800 bg-surface p-3 shadow-lg"
+      class="my-4 3xl:my-8 w-full overflow-hidden rounded-md resize-none text-lg 3xl:text-2xl border border-neutral-800 bg-surface p-3 shadow-lg"
+      placeholder="a male human paladin with a longsword and shield"
+      @keyup="autoGrowTextArea"
     />
 
-    <div class="flex justify-center">
+    <div v-if="!noActions" class="flex justify-center">
       <button
         class="ml-2 bg-neutral-800 px-4 text-lg rounded-md flex transition-all h-12 hover:scale-110 mr-2"
         @click="emit('cancel')"
@@ -112,8 +156,11 @@ function setImage() {
   <template v-else-if="done && !conjuring && imageUris.length">
     <div class="text-4xl text-neutral-500 mb-8">Voila!</div>
 
-    <div class="grid grid-cols-2 gap-2">
-      <div class="relative">
+    <div
+      class="grid gap-2"
+      :class="{ 'grid-cols-3': !imageUri, 'grid-cols-4': imageUri }"
+    >
+      <div v-if="imageUri" class="relative">
         <div class="absolute w-full h-full bg-black/50 flex justify-center">
           <span class="self-center uppercase font-bold text-neutral-300"
             >Original</span
@@ -148,9 +195,9 @@ function setImage() {
       </div>
     </div>
 
-    <div class="mt-6 flex justify-between">
+    <div v-if="!noActions" class="mt-6 flex justify-between">
       <button
-        class="bg-surface-2 w-36 flex rounded-md border border-gray-600/50 p-3"
+        class="bg-surface-2 w-36 flex rounded-md border text-center border-gray-600/50 p-3"
         @click="
           done = false;
           conjuring = false;

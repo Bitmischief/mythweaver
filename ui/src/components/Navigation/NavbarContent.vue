@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import { onMounted, watch, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { CAMPAIGN_CREATED_EVENT, useEventBus } from '@/lib/events.ts';
 import { useRouter } from 'vue-router';
 import { useCampaignStore } from '@/store/campaign.store.ts';
 import { storeToRefs } from 'pinia';
-import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue';
-import { Campaign } from '@/api/campaigns.ts';
+import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
+import { Campaign, CampaignRole } from '@/api/campaigns.ts';
 import {
-  PlusIcon,
+  BoltIcon,
+  BookmarkIcon,
+  BookOpenIcon,
+  ChatBubbleLeftRightIcon,
   CheckIcon,
   ChevronUpDownIcon,
-  BoltIcon,
-  ChatBubbleLeftRightIcon,
-  BookOpenIcon,
-  BookmarkIcon,
+  PlusIcon,
   UserIcon,
 } from '@heroicons/vue/20/solid';
 
@@ -26,8 +26,12 @@ const campaignStore = useCampaignStore();
 
 const emit = defineEmits(['nav-item-selected']);
 
-const { selectedCampaign, selectedCampaignId, campaigns } =
-  storeToRefs(campaignStore);
+const {
+  selectedCampaign,
+  selectedCampaignRole,
+  selectedCampaignId,
+  campaigns,
+} = storeToRefs(campaignStore);
 
 const filteredCampaigns = ref<Campaign[]>([]);
 const query = ref('');
@@ -164,6 +168,7 @@ async function navigateToCreateCampaign() {
       <div v-else class="whitespace-nowrap">Edit Campaign</div>
     </router-link>
     <router-link
+      v-if="selectedCampaignRole === CampaignRole.Player"
       class="text-md my-0.5 p-3 text-gray-300 flex overflow-hidden"
       :class="[
         router.currentRoute.value.path.startsWith('/character')

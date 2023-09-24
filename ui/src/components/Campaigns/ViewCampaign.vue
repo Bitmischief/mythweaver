@@ -190,6 +190,7 @@ function handleRequestRemoveMember(memberId: number) {
           </button>
 
           <button
+            v-if="currentUserRole === CampaignRole.DM"
             class="ml-2 rounded-xl border border-red-500 p-3 text-red-500"
             @click="handleDeleteCampaign"
           >

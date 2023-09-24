@@ -17,6 +17,8 @@ import { parentLogger } from '../lib/logger';
 import conjurers, { Generator, getGenerator } from '../data/conjurers';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { conjureQueue } from '../worker';
+import { sanitizeJson } from '../lib/utils';
+import { getClient } from '../lib/providers/openai';
 
 const logger = parentLogger.getSubLogger();
 
@@ -30,6 +32,12 @@ export interface PostGeneratorGenerate {
   campaignId: number;
   count: number;
   customArg?: string;
+}
+
+export interface PostGenerateArbitraryRequest {
+  background: any;
+  context: string;
+  propertyName: string;
 }
 
 @Route('generators')
@@ -196,5 +204,47 @@ export class GeneratorController {
         },
       },
     });
+  }
+
+  @Post('/arbitrary')
+  @Security('jwt')
+  @OperationId('postGenerateArbitrary')
+  public async postGenerateArbitrary(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Body() request: PostGenerateArbitraryRequest
+  ): Promise<any> {
+    track(AppEvent.GetConjurer, userId, trackingInfo);
+
+    const openai = getClient();
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4',
+      messages: [
+        {
+          role: 'system',
+          content:
+            'You are a helpful assistant who is knowledgeable in dungeons and dragons.',
+        },
+        {
+          role: 'user',
+          content: `Please generate me a random ${request.propertyName} for a ${
+            request.context
+          }. Use the following as general background about the ${
+            request.context
+          } to help guide you. ${JSON.stringify(
+            request.background
+          )}. Please return the response in the following JSON format: { "propertyName": "", "propertyValue": "" }.
+          Where propertyValue is a string. 
+          Do not include any other text in your response.`,
+        },
+      ],
+    });
+
+    const gptResponse = response.choices[0]?.message?.content;
+    logger.info('Received raw response from openai', gptResponse);
+    const gptJson = sanitizeJson(gptResponse || '');
+    logger.info('Received sanitized json', gptJson);
+
+    return gptJson;
   }
 }

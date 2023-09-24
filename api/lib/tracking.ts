@@ -38,6 +38,9 @@ export enum AppEvent {
   UpdateUser = 'Update User',
   GetLoggedInUser = 'Get Logged In User',
   GetCampaignMembers = 'Get Campaign Members',
+  GetCharacter = 'Get Character',
+  CreateCharacter = 'Create Character',
+  UpdateCharacter = 'Update Character',
 }
 
 export interface TrackingInfo {
