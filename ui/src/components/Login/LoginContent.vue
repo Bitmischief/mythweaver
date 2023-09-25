@@ -41,7 +41,12 @@ const callback = async (googleResponse: any) => {
   <div class="flex justify-center">
     <div class="w-[13.25rem]">
       <div class="flex justify-center">
-        <GoogleLogin :callback="callback" class="w-full" prompt auto-login />
+        <GoogleLogin
+          :callback="callback"
+          class="w-full mx-auto"
+          prompt
+          auto-login
+        />
       </div>
     </div>
   </div>

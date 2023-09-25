@@ -18,7 +18,10 @@
     ><div class="md:w-[499px] p-6 bg-neutral-900 rounded-[20px]">
       <div class="flex justify-center">
         <div>
-          <img src="/images/logo-horizontal.svg" class="mx-auto h-20 w-auto" />
+          <img
+            src="/images/logo-horizontal.svg"
+            class="mx-auto h-20 w-auto mb-8"
+          />
 
           <LoginContent @login-failed="showEarlyAccessModal = true" />
         </div>
