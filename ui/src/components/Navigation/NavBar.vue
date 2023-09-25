@@ -4,6 +4,7 @@ import { ref } from 'vue';
 import { Dialog, DialogPanel } from '@headlessui/vue';
 import { useAuthStore } from '@/store';
 import NavbarContent from '@/components/Navigation/NavbarContent.vue';
+import EarlyAccessInfo from '@/components/Navigation/EarlyAccessInfo.vue';
 
 const authStore = useAuthStore();
 const showPanel = ref(false);
@@ -34,6 +35,7 @@ const toggleCollapsed = function () {
             class="h-12 w-auto mx-auto"
           />
           <img v-else src="/favicon.png" class="h-12 w-auto" />
+
           <div
             class="self-center text-purple-400 md:mb-6 md:hidden"
             @click="showPanel = true"
@@ -41,6 +43,7 @@ const toggleCollapsed = function () {
             <Bars3Icon class="h-8 w-8" />
           </div>
         </div>
+        <EarlyAccessInfo class="text-center self-center md:hidden mt-2" />
 
         <div class="hidden w-full md:flex">
           <NavbarContent :collapsed="collapsed" />

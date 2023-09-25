@@ -3,18 +3,9 @@ import { UserIcon, ChevronDownIcon } from '@heroicons/vue/20/solid';
 import Menu from '@/components/Core/General/Menu.vue';
 import { MenuButton, MenuItem } from '@headlessui/vue';
 import { useAuthStore } from '@/store';
-import { useEarlyAccessCutoff, useEarlyAccessExempt } from '@/lib/hooks.ts';
-import { formatDistance } from 'date-fns';
-import { computed } from 'vue';
+import EarlyAccessInfo from '@/components/Navigation/EarlyAccessInfo.vue';
 
 const authStore = useAuthStore();
-const earlyAccessCutoff = useEarlyAccessCutoff();
-const earlyAccessExempt = useEarlyAccessExempt();
-const earlyAccessDistance = computed(() =>
-  earlyAccessCutoff.value
-    ? formatDistance(new Date(), new Date(earlyAccessCutoff.value))
-    : '',
-);
 
 async function logout() {
   await authStore.logout();
@@ -33,22 +24,7 @@ async function logout() {
   <!--  </div>-->
 
   <div class="flex">
-    <div v-if="!earlyAccessExempt" class="self-center">
-      <div class="self-center mr-6 text-sm text-neutral-400">
-        Early access ends in
-        <span class="text-neutral-300 font-bold italic">{{
-          earlyAccessDistance
-        }}</span>
-
-        <a
-          href="https://mythweaver.co/earlyaccess"
-          target="_blank"
-          class="ml-2 text-xs text-neutral-300 px-2 p-0.5 rounded-md bg-neutral-600"
-        >
-          learn more
-        </a>
-      </div>
-    </div>
+    <EarlyAccessInfo class="self-center" />
 
     <Menu class="self-center">
       <MenuButton class="flex cursor-pointer">
