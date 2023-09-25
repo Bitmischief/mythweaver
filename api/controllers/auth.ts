@@ -6,6 +6,10 @@ import jwt from 'jsonwebtoken';
 import { parentLogger } from '../lib/logger';
 import { AppEvent, identify, track, TrackingInfo } from '../lib/tracking';
 import CampaignController from './campaigns';
+import mailchimpClient from '../lib/mailchimpMarketing';
+import { lists, Status } from '@mailchimp/mailchimp_marketing';
+import { format } from 'date-fns';
+import EmailType = lists.EmailType;
 const logger = parentLogger.getSubLogger();
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -76,6 +80,27 @@ export default class AuthController {
           earlyAccessCutoffAt: earlyAccessEnd,
         },
       });
+
+      const response = (await mailchimpClient.lists.batchListMembers(
+        process.env.MAILCHIMP_AUDIENCE_ID as string,
+        {
+          members: [
+            {
+              email_address: email.toLowerCase(),
+              email_type: 'html' as EmailType,
+              status: 'subscribed' as Status,
+              ip_opt: trackingInfo.ip,
+              ip_signup: trackingInfo.ip,
+              timestamp_signup: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+              timestamp_opt: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+            },
+          ],
+        }
+      )) as any;
+
+      if (response?.errors?.length > 0) {
+        logger.warn('Received errors from Mailchimp', response.errors);
+      }
 
       track(AppEvent.Registered, user.id, trackingInfo, { email });
     }
