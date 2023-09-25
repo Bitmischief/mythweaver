@@ -21,6 +21,7 @@ const earlyAccessDistance = computed(() =>
       }}</span>
 
       <a
+        v-if="earlyAccessCutoff !== '2023-10-17T08:00:00.000Z'"
         href="https://mythweaver.co/earlyaccess"
         target="_blank"
         class="ml-2 text-xs text-neutral-300 text-center px-2 p-0.5 rounded-md bg-neutral-600"
