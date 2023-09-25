@@ -27,6 +27,9 @@ model User {
   updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
   email     String    @unique
 
+  earlyAccessCutoffAt DateTime @default("2023-10-17T08:00:00.000Z")
+  earlyAccessExempt   Boolean  @default(false)
+
   refreshTokens       RefreshToken[]
   campaigns           Campaign[]
   sessions            Session[]

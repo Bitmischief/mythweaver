@@ -66,6 +66,29 @@ export default class AuthController {
       },
     });
 
+    if (!user) {
+      const earlyAccessEnd = new Date();
+      earlyAccessEnd.setHours(new Date().getHours() + 48);
+
+      user = await prisma.user.create({
+        data: {
+          email: email.toLowerCase(),
+          earlyAccessCutoffAt: earlyAccessEnd,
+        },
+      });
+
+      track(AppEvent.Registered, user.id, trackingInfo, { email });
+    }
+
+    if (new Date() > user.earlyAccessCutoffAt && !user.earlyAccessExempt) {
+      logger.info(`User ${user.id} early access has expired`, user);
+
+      throw new AppError({
+        httpCode: HttpCode.FORBIDDEN,
+        description: "User's early access has expired",
+      });
+    }
+
     if (request.inviteCode) {
       const invite = await prisma.campaignMember.findUnique({
         where: {
@@ -80,37 +103,12 @@ export default class AuthController {
         });
       }
 
-      user = await prisma.user.findUnique({
-        where: {
-          email: email.toLowerCase(),
-        },
-      });
-
-      if (!user) {
-        user = await prisma.user.create({
-          data: {
-            email: email.toLowerCase(),
-          },
-        });
-
-        track(AppEvent.Registered, user.id, trackingInfo, { email });
-      }
-
       const campaignController = new CampaignController();
       await campaignController.acceptInvite(
         user.id,
         trackingInfo,
         request.inviteCode
       );
-    }
-
-    if (!user) {
-      logger.info('User did not exist, early access not available....');
-
-      throw new AppError({
-        httpCode: HttpCode.BAD_REQUEST,
-        description: 'User is not enabled for early access!',
-      });
     }
 
     track(AppEvent.LoggedIn, user.id, trackingInfo, { email });
@@ -147,6 +145,24 @@ export default class AuthController {
       throw new AppError({
         httpCode: HttpCode.UNAUTHORIZED,
         description: 'Invalid refresh token provided',
+      });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (
+      !user ||
+      (new Date() > user.earlyAccessCutoffAt && !user.earlyAccessExempt)
+    ) {
+      logger.info(`User ${userId} early access has expired`, user);
+
+      throw new AppError({
+        httpCode: HttpCode.FORBIDDEN,
+        description: "User's early access has expired",
       });
     }
 

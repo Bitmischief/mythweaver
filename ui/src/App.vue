@@ -7,14 +7,30 @@ import {
   NO_CAMPAIGNS_EVENT,
   useEventBus,
 } from '@/lib/events.ts';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import NavBarHeader from '@/components/Navigation/NavBarHeader.vue';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import NewCampaign from '@/components/Campaigns/NewCampaign.vue';
 import LightboxRoot from '@/components/LightboxRoot.vue';
+import { useEarlyAccessStore } from '@/store/earlyAccess.store.ts';
+import { storeToRefs } from 'pinia';
+import { SparklesIcon } from '@heroicons/vue/20/solid';
+import { useEarlyAccessCutoff } from '@/lib/hooks.ts';
+import { differenceInHours } from 'date-fns';
 
 const authStore = useAuthStore();
 const eventBus = useEventBus();
+const earlyAccessStore = useEarlyAccessStore();
+const earlyAccessCutoff = useEarlyAccessCutoff();
+
+const { confirmed: confirmedEarlyAccess } = storeToRefs(earlyAccessStore);
+
+const showConfirmEarlyAccess = computed(() => {
+  return (
+    !confirmedEarlyAccess.value &&
+    differenceInHours(new Date(earlyAccessCutoff.value || ''), new Date()) <= 48
+  );
+});
 
 onMounted(async () => {
   if (authStore.tokens) {
@@ -40,6 +56,10 @@ eventBus.$on('global-loading-start', () => {
 eventBus.$on('global-loading-stop', () => {
   showLoading.value = false;
 });
+
+function confirmEarlyAccessTerms() {
+  earlyAccessStore.confirm();
+}
 </script>
 
 <template>
@@ -81,6 +101,54 @@ eventBus.$on('global-loading-stop', () => {
   <ModalAlternate :show="showCreateCampaign">
     <div class="md:w-[800px] p-6 bg-neutral-900 rounded-[20px]">
       <NewCampaign />
+    </div>
+  </ModalAlternate>
+
+  <ModalAlternate :show="!!authStore.tokens && showConfirmEarlyAccess">
+    <div
+      class="md:w-[1000px] max-h-[90vh] p-6 bg-neutral-900 rounded-[20px] overflow-y-auto text-white text-center"
+    >
+      <div class="text-4xl">🐉 Welcome to MythWeaver! 🎲</div>
+
+      <div class="mt-4 text-xl text-neutral-500">
+        You've just unlocked <span class="font-bold">Early Access</span> to
+        MythWeaver
+      </div>
+
+      <div class="text-xl mt-8 mb-2">⏳ 48-Hour Access ⌛</div>
+      <div class="text-lg text-neutral-500">
+        Yup, you read it right. You've got 48 hours of unrestricted journeying
+        within MythWeaver. Consider this your mini-adventure before the main
+        campaign.
+      </div>
+
+      <div class="text-xl mt-6 mb-2">🚀 Kickstarter October 17th 📅</div>
+      <div class="text-lg text-neutral-500">
+        Our Kickstarter launches on October 17th. Trust me—you won't want to
+        miss the special artifacts and rewards we have for our early backers.
+        There's even a treasure chest or two!
+      </div>
+
+      <div class="text-xl mt-6 mb-2">📢 Extend Your Early Access! ✨</div>
+      <div class="text-lg text-neutral-500">
+        Fancy extending this 48-hour teaser till our Kickstarter launch? It's
+        super easy! Set up Kickstarter Launch Notifications:
+        <a
+          href="https://mythweaver.co/earlyaccess"
+          target="_blank"
+          class="underline text-fuchsia-300"
+        >
+          Click here to learn more.
+        </a>
+      </div>
+
+      <button
+        class="flex justify-center mt-6 mx-auto w-[50%] self-center rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 px-4 py-3 transition-all hover:scale-110"
+        @click="confirmEarlyAccessTerms"
+      >
+        <SparklesIcon class="mr-2 h-5 w-5 self-center" />
+        <span class="self-center">Let's Go!</span>
+      </button>
     </div>
   </ModalAlternate>
 
