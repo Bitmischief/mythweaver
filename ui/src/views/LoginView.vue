@@ -31,7 +31,6 @@
 import { ref } from 'vue';
 import { shuffleArray } from '@/lib/util.ts';
 import LoginContent from '@/components/Login/LoginContent.vue';
-import Modal from '@/components/Modal.vue';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 
 const images = [
