@@ -38,6 +38,7 @@ model User {
   campaignMemberships CampaignMember[]
   characters          Character[]
   ConjurationSave     ConjurationSave[]
+  MagicLink           MagicLink[]
 
   @@map("users")
 }
@@ -157,7 +158,7 @@ model Tag {
 model CampaignMember {
   id        Int       @id @default(autoincrement())
   createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
-  updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)"))
+  updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
 
   userId     Int?
   campaignId Int
@@ -179,7 +180,7 @@ model CampaignMember {
 model Character {
   id        Int       @id @default(autoincrement())
   createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
-  updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)"))
+  updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
 
   campaignMemberId Int?
   userId           Int
@@ -203,4 +204,20 @@ model Character {
   @@index([userId, campaignId], name: "characters_user_id_campaign_id")
   @@index([campaignMemberId], name: "characters_campaign_member_id")
   @@map("characters")
+}
+
+model MagicLink {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+
+  userId     Int
+  token      String   @unique
+  expiresAt  DateTime
+  inviteCode String?
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([token], name: "magic_links_token")
+  @@map("magic_links")
 }
