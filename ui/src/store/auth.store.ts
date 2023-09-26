@@ -37,9 +37,13 @@ export const useAuthStore = defineStore({
         this.isLoading = false;
       }
     },
-    async login(credential: string, inviteCode: string | undefined): Promise<boolean> {
+    async login(
+      type: 'GOOGLE' | 'MAGIC_LINK',
+      credential: string,
+      inviteCode: string | undefined = undefined,
+    ): Promise<boolean> {
       try {
-        const response = await postToken(credential, inviteCode);
+        const response = await postToken(type, credential, inviteCode);
 
         this.tokens = response.data;
 
@@ -52,8 +56,9 @@ export const useAuthStore = defineStore({
         await router.push(this.returnUrl || '/');
         return true;
       } catch (err: any) {
-        if (err.response.status === 400) {
+        if (err.response.status === 403) {
           showError({ message: 'Your user is not authorized for early access!' });
+          await router.push('/earlyaccess');
           return false;
         } else {
           showError({ message: 'Unable to login, please try again soon.' });
