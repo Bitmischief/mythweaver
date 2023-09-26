@@ -92,6 +92,13 @@ export default class AuthController {
         });
       }
 
+      if (new Date() > new Date(magicLink.expiresAt)) {
+        throw new AppError({
+          httpCode: HttpCode.BAD_REQUEST,
+          description: 'Magic link has expired',
+        });
+      }
+
       if (magicLink.inviteCode) {
         const campaignController = new CampaignController();
         await campaignController.acceptInvite(
