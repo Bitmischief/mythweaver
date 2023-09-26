@@ -21,7 +21,6 @@ import rateLimit from 'express-rate-limit';
 import './worker/index';
 import { ILogObj, Logger } from 'tslog';
 import { useInjectTrackingInfo } from './lib/trackingMiddleware';
-import { tagUsersAsEarlyAccessQueue } from './worker';
 import { loggingInfoAsyncLocalStorage } from './lib/loggingMiddleware';
 
 const logger = new Logger<ILogObj>();

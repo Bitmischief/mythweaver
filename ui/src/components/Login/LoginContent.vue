@@ -3,7 +3,7 @@ import { computed, ref } from 'vue';
 import { SparklesIcon } from '@heroicons/vue/20/solid';
 import { postMagicLink } from '@/api/auth.ts';
 import { useRouter } from 'vue-router';
-import { AxiosError } from 'axios/index';
+import { AxiosError } from 'axios';
 import { showError } from '@/lib/notifications.ts';
 
 const props = defineProps<{

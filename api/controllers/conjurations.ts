@@ -29,11 +29,6 @@ interface GetConjurationTagsResponse {
   limit?: number;
 }
 
-interface PostConjurationsRequest {
-  campaignId: number;
-  conjurationId: number;
-}
-
 interface PatchConjurationRequest {
   campaignId: number;
   name: string;
