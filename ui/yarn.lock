@@ -31,6 +31,18 @@
   dependencies:
     "@jridgewell/trace-mapping" "0.3.9"
 
+"@datadog/browser-core@4.50.0":
+  version "4.50.0"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-core/-/browser-core-4.50.0.tgz#cccac137af5c8921489f20b7e0104be7c0bc27af"
+  integrity sha512-I5fRko3h3xAbH/pktCFyGi6LaktL4E0KbBnYn0dcHE8fv/CHCSmAuz3bne5bElMIyzHRGZa1T7f8ttPFXTAZPw==
+
+"@datadog/browser-logs@^4.50.0":
+  version "4.50.0"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-logs/-/browser-logs-4.50.0.tgz#cefebb5817494dde5ed5a99811bd67aa9885619a"
+  integrity sha512-thKfGGONhb4fM1U8QqUK2VPlZDoJ8FM1ncVjzwOviGrnl8s8f8eJvjZEhWAJk1IaMnonwUHfbZfJChASw/Nl2A==
+  dependencies:
+    "@datadog/browser-core" "4.50.0"
+
 "@esbuild/android-arm64@0.18.17":
   version "0.18.17"
   resolved "https://registry.yarnpkg.com/@esbuild/android-arm64/-/android-arm64-0.18.17.tgz#9e00eb6865ed5f2dbe71a1e96f2c52254cd92903"

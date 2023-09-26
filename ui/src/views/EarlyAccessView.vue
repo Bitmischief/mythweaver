@@ -51,14 +51,9 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import { shuffleArray } from '@/lib/util.ts';
 import ModalAlternate from '@/components/ModalAlternate.vue';
-import { useAuthStore } from '@/store';
-import { useRouter } from 'vue-router';
-
-const authStore = useAuthStore();
-const router = useRouter();
 
 const images = [
   '00dc4632-7923-479c-a504-f350c39b9fd9.png',
@@ -81,10 +76,4 @@ const images = [
   'f3b3166e-6462-43e3-90a6-def3f6dc7a2e.png',
 ];
 const randomizedImages = ref<string[]>(shuffleArray(images));
-
-onMounted(async () => {
-  if (authStore.tokens) {
-    await router.push('/');
-  }
-});
 </script>

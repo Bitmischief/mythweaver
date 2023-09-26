@@ -3,6 +3,8 @@ import { computed, ref } from 'vue';
 import { SparklesIcon } from '@heroicons/vue/20/solid';
 import { postMagicLink } from '@/api/auth.ts';
 import { useRouter } from 'vue-router';
+import { AxiosError } from 'axios/index';
+import { showError } from '@/lib/notifications.ts';
 
 const props = defineProps<{
   inviteCode?: string | undefined;
@@ -13,7 +15,6 @@ const router = useRouter();
 const email = ref('');
 const triedToSubmit = ref(false);
 const isLoading = ref(false);
-const completed = ref(false);
 
 const isEmailValid = computed(() => {
   const regex = new RegExp(
@@ -28,12 +29,18 @@ async function login() {
     return;
   }
 
-  isLoading.value = true;
-  await postMagicLink(email.value, props.inviteCode);
-  isLoading.value = false;
-  completed.value = true;
-
-  await router.push('/preauth');
+  try {
+    isLoading.value = true;
+    await postMagicLink(email.value, props.inviteCode);
+    await router.push('/preauth');
+  } catch (e) {
+    const err = e as AxiosError;
+    showError({
+      message: (err?.response?.data as any)?.message?.toString() || '',
+    });
+  } finally {
+    isLoading.value = false;
+  }
 }
 </script>
 
