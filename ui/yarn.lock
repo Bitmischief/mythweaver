@@ -43,6 +43,21 @@
   dependencies:
     "@datadog/browser-core" "4.50.0"
 
+"@datadog/browser-rum-core@4.50.0":
+  version "4.50.0"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-rum-core/-/browser-rum-core-4.50.0.tgz#4de02318f1ec03764fab9248f4b650b5292f270a"
+  integrity sha512-Ci+ZTWQ2IB91dRVFbfop8e/LjGCEqjy3MtTtlm+pg1x5JtY1cArcrH7swJcYfNnGBMXjDWiyRXgYaVH73WLfFQ==
+  dependencies:
+    "@datadog/browser-core" "4.50.0"
+
+"@datadog/browser-rum@^4.50.0":
+  version "4.50.0"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-rum/-/browser-rum-4.50.0.tgz#bb342baf7333346147ba198298dfee21f3b1e491"
+  integrity sha512-DlzNejHvQgaNn4U56z0Ynguz8uYn/xG7hFzZqJkJuq/LplRHGn1KFc3xdfS/Sc9VgivdAMAIzAV0F3nC+tns2A==
+  dependencies:
+    "@datadog/browser-core" "4.50.0"
+    "@datadog/browser-rum-core" "4.50.0"
+
 "@esbuild/android-arm64@0.18.17":
   version "0.18.17"
   resolved "https://registry.yarnpkg.com/@esbuild/android-arm64/-/android-arm64-0.18.17.tgz#9e00eb6865ed5f2dbe71a1e96f2c52254cd92903"
