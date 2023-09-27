@@ -51,7 +51,7 @@ export default class ConjurationController {
     @Query() conjurerCodeString?: string,
     @Query() tags?: string,
     @Query() offset?: number,
-    @Query() limit?: number
+    @Query() limit?: number,
   ): Promise<GetConjurationsResponse> {
     const conjurerCodes = conjurerCodeString
       ?.split(',')
@@ -118,7 +118,7 @@ export default class ConjurationController {
   public async getConjuration(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() conjurationId = 0
+    @Route() conjurationId = 0,
   ): Promise<Conjuration & { saves: undefined; saved: boolean }> {
     const conjuration = await prisma.conjuration.findUnique({
       where: {
@@ -155,7 +155,7 @@ export default class ConjurationController {
   public async postSaveConjuration(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() conjurationId: number
+    @Route() conjurationId: number,
   ): Promise<void> {
     const existingConjuration = await prisma.conjuration.findUnique({
       where: {
@@ -207,12 +207,12 @@ export default class ConjurationController {
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
     @Route() conjurationId: number,
-    @Body() request: PatchConjurationRequest
+    @Body() request: PatchConjurationRequest,
   ): Promise<Conjuration> {
     const conjuration = await this.getConjuration(
       userId,
       trackingInfo,
-      conjurationId
+      conjurationId,
     );
 
     if (conjuration.userId === null || conjuration.userId !== userId) {
@@ -247,12 +247,12 @@ export default class ConjurationController {
   public async deleteConjuration(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() conjurationId: number
+    @Route() conjurationId: number,
   ): Promise<boolean> {
     const conjuration = await this.getConjuration(
       userId,
       trackingInfo,
-      conjurationId
+      conjurationId,
     );
 
     if (conjuration.userId === null || conjuration.userId !== userId) {
@@ -281,7 +281,7 @@ export default class ConjurationController {
     @Inject() trackingInfo: TrackingInfo,
     @Query() term?: string,
     @Query() offset?: number,
-    @Query() limit?: number
+    @Query() limit?: number,
   ): Promise<GetConjurationTagsResponse> {
     offset = offset || 0;
     limit = limit || 50;
@@ -314,7 +314,7 @@ export default class ConjurationController {
   public async postRemoveConjuration(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() conjurationId: number
+    @Route() conjurationId: number,
   ): Promise<void> {
     const existingConjurationSave = await prisma.conjurationSave.findUnique({
       where: {
@@ -347,7 +347,7 @@ export default class ConjurationController {
   public async postCopyConjuration(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() conjurationId: number
+    @Route() conjurationId: number,
   ): Promise<any> {
     const existingConjuration = await prisma.conjuration.findUnique({
       where: {

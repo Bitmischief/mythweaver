@@ -21,7 +21,7 @@ router.post('/', [
     const response = await controller.postImage(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      req.body
+      req.body,
     );
 
     return res.status(200).send(response);

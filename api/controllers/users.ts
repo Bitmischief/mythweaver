@@ -29,7 +29,7 @@ export default class UserController {
   @Get('/me')
   public async getUser(
     @Inject() userId: number,
-    @Inject() trackingInfo: TrackingInfo
+    @Inject() trackingInfo: TrackingInfo,
   ): Promise<User> {
     const user = await prisma.user.findUnique({
       where: {
@@ -55,7 +55,7 @@ export default class UserController {
   public async patchUser(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Body() request: PatchUserRequest
+    @Body() request: PatchUserRequest,
   ): Promise<User> {
     track(AppEvent.UpdateUser, userId, trackingInfo);
 

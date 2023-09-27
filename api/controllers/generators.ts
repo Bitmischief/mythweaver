@@ -42,7 +42,7 @@ export class GeneratorController {
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
     @Query() offset = 0,
-    @Query() limit = 50
+    @Query() limit = 50,
   ): Promise<GetGeneratorsResponse> {
     const data = conjurers.slice(offset, offset + limit);
 
@@ -61,7 +61,7 @@ export class GeneratorController {
   public getGenerator(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Path() code: string
+    @Path() code: string,
   ): Generator | undefined {
     track(AppEvent.GetConjurer, userId, trackingInfo);
     return getGenerator(code);
@@ -73,7 +73,7 @@ export class GeneratorController {
   public async postGeneratorGenerateQuick(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Path() code: string
+    @Path() code: string,
   ): Promise<Conjuration | null> {
     const validIdObjects = await prisma.conjuration.findMany({
       where: {
@@ -124,7 +124,7 @@ export class GeneratorController {
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
     @Path() code: string,
-    @Body() request: PostGeneratorGenerate
+    @Body() request: PostGeneratorGenerate,
   ): Promise<any> {
     const campaign = await prisma.campaign.findUnique({
       where: {
@@ -179,7 +179,7 @@ export class GeneratorController {
   public async getConjurationRequest(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Path() conjurationRequestId: number
+    @Path() conjurationRequestId: number,
   ): Promise<any> {
     track(AppEvent.GetConjurationRequests, userId, trackingInfo);
 

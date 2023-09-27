@@ -45,7 +45,7 @@ router.get('/', [
       conjurerCodes as string,
       tags as string,
       offset as number,
-      limit as number
+      limit as number,
     );
 
     return res.status(200).send(response);
@@ -74,7 +74,7 @@ router.get('/tags', [
       res.locals.trackingInfo,
       term as string,
       offset as number,
-      limit as number
+      limit as number,
     );
 
     return res.status(200).send(response);
@@ -99,7 +99,7 @@ router.get('/:conjurationId', [
     const response = await controller.getConjuration(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      conjurationId as number
+      conjurationId as number,
     );
     return res.status(200).send(response);
   },
@@ -121,7 +121,7 @@ router.post('/:conjurationId/save', [
     const response = await controller.postSaveConjuration(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      req.params.conjurationId as unknown as number
+      req.params.conjurationId as unknown as number,
     );
     return res.status(200).send(response);
   },
@@ -152,7 +152,7 @@ router.patch('/:conjurationId', [
       res.locals.auth.userId,
       res.locals.trackingInfo,
       conjurationId as number,
-      req.body
+      req.body,
     );
     return res.status(200).send(response);
   },
@@ -172,7 +172,7 @@ router.delete('/:conjurationId', [
     await controller.deleteConjuration(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      conjurationId as number
+      conjurationId as number,
     );
     return res.status(200).send();
   },
@@ -194,7 +194,7 @@ router.post('/:conjurationId/remove', [
     const response = await controller.postRemoveConjuration(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      req.params.conjurationId as unknown as number
+      req.params.conjurationId as unknown as number,
     );
     return res.status(200).send(response);
   },
@@ -216,7 +216,7 @@ router.post('/:conjurationId/copy', [
     const response = await controller.postCopyConjuration(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      req.params.conjurationId as unknown as number
+      req.params.conjurationId as unknown as number,
     );
     return res.status(200).send(response);
   },

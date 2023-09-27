@@ -4,7 +4,7 @@ import { NextFunction, Request, Response } from 'express';
 export const useInjectTrackingInfo = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   res.locals.trackingInfo = extractTrackingInfo(req);
 

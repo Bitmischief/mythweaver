@@ -27,13 +27,13 @@ class ErrorHandler {
 
   private handleCriticalError(
     error: Error | AppError,
-    response?: Response
+    response?: Response,
   ): void {
     logger.fatal(
       'Critical uncaught error',
       error?.message,
       (error as AppError)?.description,
-      (error as AxiosError)?.response?.data
+      (error as AxiosError)?.response?.data,
     );
 
     if (response && response.status) {

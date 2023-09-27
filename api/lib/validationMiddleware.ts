@@ -20,7 +20,7 @@ export const useValidateRequest = (
   schema: ZodObject<any>,
   options: ValidationOptions = {
     validationType: ValidationTypes.Body,
-  }
+  },
 ) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     if (!options) {

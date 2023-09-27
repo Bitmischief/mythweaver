@@ -26,7 +26,7 @@ router.post('/token', [
     const controller = new AuthController();
     const response = await controller.postToken(
       req.body,
-      res.locals.trackingInfo
+      res.locals.trackingInfo,
     );
     return res.send(response);
   },
@@ -51,7 +51,7 @@ router.post('/refresh', [
     const controller = new AuthController();
     const response = await controller.postRefresh(
       req.body,
-      res.locals.trackingInfo
+      res.locals.trackingInfo,
     );
     return res.send(response);
   },
@@ -77,7 +77,7 @@ router.post('/magic-link', [
     const controller = new AuthController();
     const response = await controller.postMagicLink(
       res.locals.trackingInfo,
-      req.body
+      req.body,
     );
     return res.send(response);
   },

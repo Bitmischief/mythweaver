@@ -123,7 +123,7 @@ export const completeSession = async (request: CompleteSessionEvent) => {
           name: 'SESSION_IMAGE_URI',
           content: imageUri,
         },
-      ]
+      ],
     );
   }
 };

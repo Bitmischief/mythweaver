@@ -49,7 +49,7 @@ export const generateImage = async (prompt: string, count = 1) => {
         Accept: 'application/json',
         Authorization: `Bearer ${apiKey}`,
       },
-    }
+    },
   );
 
   if (!response.status.toString().startsWith('2')) {
@@ -82,7 +82,7 @@ export const saveImageLocally = (imageId: string, imageBase64: string) => {
 
   fs.writeFileSync(
     `${dataDir}/${imageId}.png`,
-    Buffer.from(imageBase64, 'base64')
+    Buffer.from(imageBase64, 'base64'),
   );
 
   return `${process.env.API_URL}/images/${imageId}.png`;

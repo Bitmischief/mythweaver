@@ -20,7 +20,7 @@ export interface ProcessTagsEvent {
 
 export const processTagsQueue = new Queue<ProcessTagsEvent>(
   'process-tags',
-  config
+  config,
 );
 
 processTagsQueue.process(async (job, done) => {
@@ -72,7 +72,7 @@ export interface CompleteSessionEvent {
 
 export const completeSessionQueue = new Queue<CompleteSessionEvent>(
   'complete-session',
-  config
+  config,
 );
 
 completeSessionQueue.process(async (job, done) => {
@@ -90,7 +90,7 @@ completeSessionQueue.process(async (job, done) => {
 
 export const tagUsersAsEarlyAccessQueue = new Queue(
   'tag-users-early-access',
-  config
+  config,
 );
 
 tagUsersAsEarlyAccessQueue.process(async (job, done) => {

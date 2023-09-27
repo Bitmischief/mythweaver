@@ -25,7 +25,7 @@ export const useAuthenticateRequest = (securityType = 'jwt') => {
 export async function expressAuthentication(
   req: Request,
   res: Response,
-  securityName: string
+  securityName: string,
 ): Promise<boolean> {
   if (securityName === 'jwt') {
     const token =

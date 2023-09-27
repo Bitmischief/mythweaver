@@ -59,7 +59,7 @@ export interface TrackingInfo {
 
 export const extractTrackingInfo = (req: Request): TrackingInfo => {
   const parser = new UAParser().setUA(
-    req.headers['user-agent']?.toString() || ''
+    req.headers['user-agent']?.toString() || '',
   );
 
   const ip = (
@@ -100,7 +100,7 @@ export const track = (
   event: AppEvent,
   userId: number,
   trackingInfo: TrackingInfo,
-  properties: any = {}
+  properties: any = {},
 ) => {
   if (process.env.API_URL !== 'https://api.mythweaver.co') return;
 

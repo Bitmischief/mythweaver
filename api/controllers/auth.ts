@@ -56,7 +56,7 @@ export default class AuthController {
   @SuccessResponse('200', 'Success')
   public async postToken(
     @Body() request: TokenRequest,
-    @Inject() trackingInfo: TrackingInfo
+    @Inject() trackingInfo: TrackingInfo,
   ): Promise<TokenResponse> {
     let email: string | undefined;
 
@@ -104,7 +104,7 @@ export default class AuthController {
         await campaignController.acceptInvite(
           magicLink.user.id,
           trackingInfo,
-          magicLink.inviteCode
+          magicLink.inviteCode,
         );
       }
 
@@ -150,7 +150,7 @@ export default class AuthController {
               timestamp_opt: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
             },
           ],
-        }
+        },
       )) as any;
 
       if (response?.errors?.length > 0) {
@@ -163,7 +163,7 @@ export default class AuthController {
     if (new Date() > user.earlyAccessCutoffAt && !user.earlyAccessExempt) {
       logger.info(
         `User ${user.id} - ${user.email} early access has expired`,
-        user
+        user,
       );
 
       throw new AppError({
@@ -190,7 +190,7 @@ export default class AuthController {
       await campaignController.acceptInvite(
         user.id,
         trackingInfo,
-        request.inviteCode
+        request.inviteCode,
       );
     }
 
@@ -204,14 +204,14 @@ export default class AuthController {
   @SuccessResponse('200', 'Success')
   public async postRefresh(
     @Body() request: RefreshRequest,
-    @Inject() trackingInfo: TrackingInfo
+    @Inject() trackingInfo: TrackingInfo,
   ): Promise<TokenResponse> {
     let userId;
 
     try {
       const payload = jwt.verify(
         request.refreshToken,
-        process.env.JWT_REFRESH_SECRET_KEY || ''
+        process.env.JWT_REFRESH_SECRET_KEY || '',
       );
 
       userId = (payload as any).userId;
@@ -283,7 +283,7 @@ export default class AuthController {
   @Post('/magic-link')
   public async postMagicLink(
     @Inject() trackingInfo: TrackingInfo,
-    @Body() request: MagicLinkRequest
+    @Body() request: MagicLinkRequest,
   ): Promise<any> {
     let user = await prisma.user.findUnique({
       where: {
@@ -316,7 +316,7 @@ export default class AuthController {
               timestamp_opt: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
             },
           ],
-        }
+        },
       )) as any;
 
       if (response?.errors?.length > 0) {
@@ -352,7 +352,7 @@ export default class AuthController {
           name: 'LINK',
           content: link,
         },
-      ]
+      ],
     );
   }
 
@@ -371,7 +371,7 @@ export default class AuthController {
       {
         algorithm: 'HS256',
         expiresIn: jwtRefreshExpirySeconds,
-      }
+      },
     );
 
     logger.info('Saving refresh token', refreshToken, userId);

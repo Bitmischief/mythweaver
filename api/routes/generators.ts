@@ -31,7 +31,7 @@ router.get('/', [
       res.locals.auth.userId,
       res.locals.trackingInfo,
       offset as number,
-      limit as number
+      limit as number,
     );
 
     return res.status(200).send(response);
@@ -56,7 +56,7 @@ router.get('/:generatorCode', [
     const response = await controller.getGenerator(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      generatorCode as string
+      generatorCode as string,
     );
 
     return res.status(200).send(response);
@@ -77,7 +77,7 @@ router.post('/:generatorCode/generate/quick', [
     const response = await controller.postGeneratorGenerateQuick(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      generatorCode as string
+      generatorCode as string,
     );
 
     return res.status(200).send(response);
@@ -106,7 +106,7 @@ router.post('/:generatorCode/generate', [
       res.locals.auth.userId,
       res.locals.trackingInfo,
       generatorCode as string,
-      req.body
+      req.body,
     );
 
     return res.status(200).send(response);
@@ -131,7 +131,7 @@ router.get('/requests/:conjurationRequestId', [
     const response = await controller.getConjurationRequest(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      conjurationRequestId as number
+      conjurationRequestId as number,
     );
 
     return res.status(200).send(response);

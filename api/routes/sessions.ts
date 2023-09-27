@@ -32,7 +32,7 @@ router.get('/', [
       res.locals.trackingInfo,
       campaignId as number,
       offset as number,
-      limit as number
+      limit as number,
     );
 
     return res.status(200).send(response);
@@ -57,7 +57,7 @@ router.get('/:sessionId', [
     const response = await controller.getSession(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      sessionId as number
+      sessionId as number,
     );
 
     return res.status(200).send(response);
@@ -82,7 +82,7 @@ router.post('/', [
     const response = await controller.postSession(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      req.body
+      req.body,
     );
 
     return res.status(201).send(response);
@@ -112,7 +112,7 @@ router.patch('/:sessionId', [
       res.locals.auth.userId,
       res.locals.trackingInfo,
       sessionId as number,
-      req.body
+      req.body,
     );
 
     return res.status(200).send(response);
@@ -133,7 +133,7 @@ router.delete('/:sessionId', [
     await controller.deleteSession(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      sessionId as number
+      sessionId as number,
     );
 
     return res.status(200).send();
@@ -160,7 +160,7 @@ router.post('/:sessionId/complete', [
       res.locals.auth.userId,
       res.locals.trackingInfo,
       sessionId as number,
-      req.body
+      req.body,
     );
 
     return res.status(200).send();

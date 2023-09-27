@@ -31,7 +31,7 @@ router.get('/', [
       res.locals.auth.userId,
       res.locals.trackingInfo,
       offset as number,
-      limit as number
+      limit as number,
     );
 
     return res.status(200).send(response);
@@ -56,7 +56,7 @@ router.get('/:campaignId', [
     const response = await controller.getCampaign(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      campaignId as number
+      campaignId as number,
     );
     return res.status(200).send(response);
   },
@@ -79,7 +79,7 @@ router.post('/', [
     const response = await controller.createCampaign(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      req.body
+      req.body,
     );
     return res.status(201).send(response);
   },
@@ -112,7 +112,7 @@ router.put('/:campaignId', [
       res.locals.auth.userId,
       res.locals.trackingInfo,
       campaignId as number,
-      req.body
+      req.body,
     );
 
     return res.status(200).send(response);
@@ -137,7 +137,7 @@ router.delete('/:campaignId', [
     const response = await controller.deleteCampaign(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      campaignId as number
+      campaignId as number,
     );
 
     return res.status(200).send(response);
@@ -172,7 +172,7 @@ router.get('/:campaignId/members', [
       res.locals.trackingInfo,
       req.params.campaignId as unknown as number,
       offset as number,
-      limit as number
+      limit as number,
     );
 
     return res.status(200).send(response);
@@ -203,7 +203,7 @@ router.post('/:campaignId/members', [
       res.locals.auth.userId,
       res.locals.trackingInfo,
       req.params.campaignId as unknown as number,
-      req.body
+      req.body,
     );
 
     return res.status(200).send(response);
@@ -228,7 +228,7 @@ router.delete('/:campaignId/members/:memberId', [
       res.locals.auth.userId,
       res.locals.trackingInfo,
       req.params.campaignId as unknown as number,
-      req.params.memberId as unknown as number
+      req.params.memberId as unknown as number,
     );
 
     return res.status(200).send(response);
@@ -257,7 +257,7 @@ router.get('/invites/:inviteCode', [
 
     const response = await controller.getInvite(
       res.locals.trackingInfo,
-      req.params.inviteCode as unknown as string
+      req.params.inviteCode as unknown as string,
     );
 
     return res.status(200).send(response);
@@ -279,7 +279,7 @@ router.post('/invites/:inviteCode', [
     const response = await controller.acceptInvite(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      req.params.inviteCode as unknown as string
+      req.params.inviteCode as unknown as string,
     );
 
     return res.status(200).send(response);
