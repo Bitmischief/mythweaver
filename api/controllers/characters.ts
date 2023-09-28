@@ -44,7 +44,7 @@ export default class CharacterController {
   public async postCharacter(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Body() request: PostCharactersRequest
+    @Body() request: PostCharactersRequest,
   ): Promise<any> {
     const campaignMember = await prisma.campaignMember.findUnique({
       where: {
@@ -83,7 +83,7 @@ export default class CharacterController {
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
     @Route() characterId: number,
-    @Body() request: PatchCharactersRequest
+    @Body() request: PatchCharactersRequest,
   ): Promise<any> {
     const character = await prisma.character.findUnique({
       where: {

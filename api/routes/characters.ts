@@ -30,7 +30,7 @@ router.post('/', [
     const response = await controller.postCharacter(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      req.body
+      req.body,
     );
     return res.status(201).send(response);
   },
@@ -64,7 +64,7 @@ router.patch('/:characterId', [
       res.locals.auth.userId,
       res.locals.trackingInfo,
       req.params.characterId as unknown as number,
-      req.body
+      req.body,
     );
 
     return res.status(200).send(response);
