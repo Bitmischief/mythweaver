@@ -123,6 +123,14 @@ function beginAddingTag() {
   addingTag.value = true;
   tagInput.value?.focus();
 }
+
+function normalizeKeyName(key: string) {
+  return key
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .split(' ')
+    .map((x) => x.charAt(0).toUpperCase() + x.slice(1))
+    .join(' ');
+}
 </script>
 
 <template>
@@ -236,7 +244,7 @@ function beginAddingTag() {
           :class="{ 'mb-8': i !== dataArray.length - 1 }"
         >
           <div class="mb-1 text-2xl">
-            {{ data.key }}
+            {{ normalizeKeyName(data.key) }}
           </div>
           <textarea
             v-model="data.value"

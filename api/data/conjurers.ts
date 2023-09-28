@@ -70,6 +70,19 @@ const conjurers: Generator[] = [
     basePromptExtraContext:
       "Please thoroughly flesh out the location's history, including historical events, climate and unique look, using at least 100 words to describe the history of this location. Please populate tags with any values you think applicable to this location, to allow easy searching.",
   },
+  {
+    code: 'monsters',
+    name: 'Monsters',
+    description: 'Create terrifying monsters to challenge your players.',
+    customizationHelpPrompt:
+      'a towering, hulking beast with a single eye and a gaping maw, covered in thick, matted fur, and a long, barbed tail that lashes out at anything that comes near',
+    imageUri: 'monsters.png',
+    formatPrompt:
+      '{ "name": "", "description": "", "storyImpact": "", "playerInteraction": "", "specialAbilities": "", "imageAIPrompt": "", "tags": [""] }',
+    allowsImageGeneration: true,
+    basePromptExtraContext:
+      "Please generate a uniquely terrifying, monstrous creature worthy of testing our adventurer's mettle. Please populate tags with any values you think applicable to this location, to allow easy searching.",
+  },
   // {
   //   code: "items",
   //   name: "Items",
