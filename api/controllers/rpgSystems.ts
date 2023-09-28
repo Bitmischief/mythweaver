@@ -19,7 +19,7 @@ export class RpgSystemController {
     @Inject() trackingInfo: TrackingInfo,
     @Query() term?: string,
     @Query() offset?: number,
-    @Query() limit?: number
+    @Query() limit?: number,
   ): Promise<GetRpgSystemsResponse> {
     track(AppEvent.GetRpgSystems, userId, trackingInfo);
 

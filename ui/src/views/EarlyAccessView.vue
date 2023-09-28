@@ -22,33 +22,38 @@
           class="mx-auto h-20 w-auto mb-8"
         />
 
-        <div class="text-neutral-200 text-3xl mb-2 text-center">
-          Welcome to MythWeaver
-        </div>
-        <div class="text-center text-lg mb-6 text-neutral-500">
-          Let's weave something
-          <span
-            class="bg-clip-text font-bold text-transparent bg-gradient-to-r from-fuchsia-500/75 to-blue-400/75"
-            >magical</span
-          >
+        <div class="text-red-500 text-3xl mb-2 text-center">
+          Your Early Access has Expired
         </div>
 
-        <LoginContent @login-failed="showEarlyAccessModal = true" />
+        <div class="text-neutral-400 mt-4 text-xl text-center">
+          Want an extension? Click the button below to learn more!
+        </div>
+
+        <div class="flex mt-8">
+          <router-link
+            to="/login"
+            class="block w-[12rem] text-center bg-neutral-800 rounded-md py-2 px-2"
+          >
+            Back to login
+          </router-link>
+          <a
+            href="https://mythweaver.co/earlyaccess"
+            target="_blank"
+            class="bg-gradient-to-r w-full from-fuchsia-500 to-blue-400 transition-all hover:scale-110 py-2 ml-2 text-center px-4 rounded-md"
+          >
+            Learn More
+          </a>
+        </div>
       </div>
     </div>
   </ModalAlternate>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import { shuffleArray } from '@/lib/util.ts';
-import LoginContent from '@/components/Login/LoginContent.vue';
 import ModalAlternate from '@/components/ModalAlternate.vue';
-import { useAuthStore } from '@/store';
-import { useRouter } from 'vue-router';
-
-const authStore = useAuthStore();
-const router = useRouter();
 
 const images = [
   '00dc4632-7923-479c-a504-f350c39b9fd9.png',
@@ -71,12 +76,4 @@ const images = [
   'f3b3166e-6462-43e3-90a6-def3f6dc7a2e.png',
 ];
 const randomizedImages = ref<string[]>(shuffleArray(images));
-
-const showEarlyAccessModal = ref(false);
-
-onMounted(async () => {
-  if (authStore.tokens) {
-    await router.push('/');
-  }
-});
 </script>

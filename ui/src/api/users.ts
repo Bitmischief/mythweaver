@@ -3,6 +3,8 @@ import axios from 'axios';
 export interface User {
   id: number;
   email: string;
+  earlyAccessCutoffAt: string;
+  earlyAccessExempt: boolean;
 }
 
 export const getCurrentUser = () => {

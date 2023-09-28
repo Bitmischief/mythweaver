@@ -36,13 +36,13 @@ export const tagUsersAsEarlyAccess = async () => {
               },
             ],
           ],
-        }
+        },
       );
 
       console.log(
         `The return type for this endpoint is null, so this should be true: ${
           response === null
-        }`
+        }`,
       );
 
       logger.info('Successfully tagged user as early access');

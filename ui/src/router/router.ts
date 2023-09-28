@@ -15,6 +15,9 @@ import NewSession from '@/components/Sessions/NewSession.vue';
 import ListConjurations from '@/components/Conjuration/ListConjurations.vue';
 import ViewConjuration from '@/components/Conjuration/ViewConjuration.vue';
 import InviteView from '@/views/InviteView.vue';
+import MagicLink from '@/components/Auth/MagicLink.vue';
+import PreAuthView from '@/views/PreAuthView.vue';
+import EarlyAccessView from '@/views/EarlyAccessView.vue';
 import CharactersView from '@/views/CharactersView.vue';
 
 const router = createRouter({
@@ -24,6 +27,21 @@ const router = createRouter({
       name: 'LOGIN',
       path: '/login',
       component: LoginView,
+    },
+    {
+      name: 'PREAUTH',
+      path: '/preauth',
+      component: PreAuthView,
+    },
+    {
+      name: 'EARLY_ACCESS',
+      path: '/earlyaccess',
+      component: EarlyAccessView,
+    },
+    {
+      name: 'MAGIC_LINK',
+      path: '/auth/magic-link',
+      component: MagicLink,
     },
     {
       name: 'INVITE',

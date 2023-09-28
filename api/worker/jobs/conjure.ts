@@ -114,16 +114,16 @@ export const conjure = async (request: ConjureEvent) => {
 const buildPrompt = (
   generator: Generator,
   campaign?: Campaign | undefined,
-  customArg?: string | undefined
+  customArg?: string | undefined,
 ) => {
   let prompt = `You are a master storyteller. Please generate me a unique ${trimPlural(
-    generator.name.toLowerCase()
+    generator.name.toLowerCase(),
   )}`;
 
   if (campaign) {
     const rpgSystem = getRpgSystem(campaign.rpgSystemCode);
     const publicAdventure = rpgSystem?.publicAdventures?.find(
-      (a) => a.code === campaign.publicAdventureCode
+      (a) => a.code === campaign.publicAdventureCode,
     );
 
     if (!rpgSystem) {
@@ -149,14 +149,14 @@ const buildPrompt = (
   }
 
   prompt += `Please focus on generating a distinctly unique and different ${trimPlural(
-    generator.name.toLowerCase()
+    generator.name.toLowerCase(),
   )} with really engaging, immersive and compelling attributes. Please return JSON only so that I can easily deserialize into a javascript object. Use the following format. ${
     generator.formatPrompt
   }. Please escape any double quotes in any JSON properties with a backslash.`;
 
   if (generator.allowsImageGeneration) {
     prompt += `Please generate a prompt to be used by an AI image generator to generate an portrait image for this ${trimPlural(
-      generator.name.toLowerCase()
+      generator.name.toLowerCase(),
     )} to be stored in the JSON property 'imageAIPrompt'. ${
       generator.imagePromptExtraContext
     }. `;

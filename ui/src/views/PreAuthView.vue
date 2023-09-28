@@ -23,32 +23,32 @@
         />
 
         <div class="text-neutral-200 text-3xl mb-2 text-center">
-          Welcome to MythWeaver
-        </div>
-        <div class="text-center text-lg mb-6 text-neutral-500">
-          Let's weave something
-          <span
-            class="bg-clip-text font-bold text-transparent bg-gradient-to-r from-fuchsia-500/75 to-blue-400/75"
-            >magical</span
-          >
+          Check your email
         </div>
 
-        <LoginContent @login-failed="showEarlyAccessModal = true" />
+        <div class="text-neutral-400 mt-4 text-xl text-center">
+          We've emailed you a login link
+        </div>
+
+        <div class="text-neutral-500 mt-1 text-sm text-center">
+          (double check promotions/spam)
+        </div>
+
+        <router-link
+          to="/login"
+          class="mt-8 block mx-auto w-[12rem] text-center bg-neutral-800 rounded-md py-2 px-4"
+        >
+          Back to login
+        </router-link>
       </div>
     </div>
   </ModalAlternate>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import { shuffleArray } from '@/lib/util.ts';
-import LoginContent from '@/components/Login/LoginContent.vue';
 import ModalAlternate from '@/components/ModalAlternate.vue';
-import { useAuthStore } from '@/store';
-import { useRouter } from 'vue-router';
-
-const authStore = useAuthStore();
-const router = useRouter();
 
 const images = [
   '00dc4632-7923-479c-a504-f350c39b9fd9.png',
@@ -71,12 +71,4 @@ const images = [
   'f3b3166e-6462-43e3-90a6-def3f6dc7a2e.png',
 ];
 const randomizedImages = ref<string[]>(shuffleArray(images));
-
-const showEarlyAccessModal = ref(false);
-
-onMounted(async () => {
-  if (authStore.tokens) {
-    await router.push('/');
-  }
-});
 </script>

@@ -15,7 +15,7 @@ export default class ImageController {
   public async postImage(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Body() request: PostImageRequest
+    @Body() request: PostImageRequest,
   ): Promise<any> {
     return await generateImage(request.prompt, 3);
   }

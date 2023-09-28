@@ -27,3 +27,5 @@ export function autoGrowTextArea(evt: FocusEvent | KeyboardEvent) {
   textArea.style.height = 'auto';
   textArea.style.height = textArea.scrollHeight + 1 + 'px';
 }
+
+export const isProduction = window.location.origin === 'https://app.mythweaver.co';

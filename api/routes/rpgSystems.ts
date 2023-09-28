@@ -32,7 +32,7 @@ router.get('/', [
       res.locals.trackingInfo,
       term as string,
       offset as number,
-      limit as number
+      limit as number,
     );
 
     return res.status(200).send(response);

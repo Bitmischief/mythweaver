@@ -10,7 +10,7 @@ export const requestIdAsyncLocalStorage: AsyncLocalStorage<{
 export const useInjectRequestId = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const requestId: string = req.headers['x-request-id']?.toString() || uuidv4();
 

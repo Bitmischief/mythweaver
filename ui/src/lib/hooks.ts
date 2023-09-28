@@ -22,3 +22,13 @@ export function useQuickConjure() {
     await router.push(`/conjurations/view/${quickConjureResponse.data.id}?quick=true`);
   };
 }
+
+export function useEarlyAccessCutoff() {
+  const store = useAuthStore();
+  return computed(() => store.user?.earlyAccessCutoffAt);
+}
+
+export function useEarlyAccessExempt() {
+  const store = useAuthStore();
+  return computed(() => store.user?.earlyAccessExempt || false);
+}

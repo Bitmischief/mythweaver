@@ -59,7 +59,7 @@ export default class SessionController {
     @Inject() trackingInfo: TrackingInfo,
     @Query() campaignId: number,
     @Query() offset?: number,
-    @Query() limit?: number
+    @Query() limit?: number,
   ): Promise<GetSessionsResponse> {
     const sessions = await prisma.session.findMany({
       where: {
@@ -88,7 +88,7 @@ export default class SessionController {
   public async getSession(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() sessionId = 0
+    @Route() sessionId = 0,
   ): Promise<Session> {
     const session = await prisma.session.findUnique({
       where: {
@@ -121,7 +121,7 @@ export default class SessionController {
   public async postSession(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Body() request: PostSessionRequest
+    @Body() request: PostSessionRequest,
   ): Promise<Session> {
     const session = await prisma.session.create({
       data: {
@@ -142,7 +142,7 @@ export default class SessionController {
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
     @Route() sessionId: number,
-    @Body() request: PatchSessionRequest
+    @Body() request: PatchSessionRequest,
   ): Promise<Session> {
     await this.getSession(userId, trackingInfo, sessionId);
 
@@ -167,7 +167,7 @@ export default class SessionController {
   public async deleteSession(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() sessionId: number
+    @Route() sessionId: number,
   ): Promise<boolean> {
     await this.getSession(userId, trackingInfo, sessionId);
 
@@ -189,7 +189,7 @@ export default class SessionController {
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
     @Route() sessionId: number,
-    @Body() request: PostCompleteSessionRequest
+    @Body() request: PostCompleteSessionRequest,
   ): Promise<boolean> {
     const session = await this.getSession(userId, trackingInfo, sessionId);
     const campaignMember = await prisma.campaignMember.findUnique({

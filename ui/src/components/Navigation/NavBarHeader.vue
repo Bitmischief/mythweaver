@@ -3,6 +3,7 @@ import { UserIcon, ChevronDownIcon } from '@heroicons/vue/20/solid';
 import Menu from '@/components/Core/General/Menu.vue';
 import { MenuButton, MenuItem } from '@headlessui/vue';
 import { useAuthStore } from '@/store';
+import EarlyAccessInfo from '@/components/Navigation/EarlyAccessInfo.vue';
 
 const authStore = useAuthStore();
 
@@ -22,29 +23,33 @@ async function logout() {
   <!--    />-->
   <!--  </div>-->
 
-  <Menu class="self-center">
-    <MenuButton class="flex cursor-pointer">
-      <div
-        class="mr-1 bg-slate-400 rounded-full w-10 h-10 self-center flex justify-center"
-      >
-        <UserIcon class="h-8 w-8 self-center text-gray-100" />
-      </div>
-      <ChevronDownIcon class="h-5 w-5 self-center text-gray-100" />
-    </MenuButton>
+  <div class="flex">
+    <EarlyAccessInfo class="self-center" />
 
-    <template #content>
-      <div
-        class="rounded-b-xl relative z-50 bg-surface-2 border-b-2 border-x-2 border-neutral-800 p-4"
-      >
-        <MenuItem>
-          <button
-            class="w-full rounded-xl border-2 border-red-500 px-3 py-1"
-            @click="logout"
-          >
-            Logout
-          </button>
-        </MenuItem>
-      </div>
-    </template>
-  </Menu>
+    <Menu class="self-center">
+      <MenuButton class="flex cursor-pointer">
+        <div
+          class="mr-1 bg-slate-400 rounded-full w-10 h-10 self-center flex justify-center"
+        >
+          <UserIcon class="h-8 w-8 self-center text-gray-100" />
+        </div>
+        <ChevronDownIcon class="h-5 w-5 self-center text-gray-100" />
+      </MenuButton>
+
+      <template #content>
+        <div
+          class="rounded-b-xl relative z-50 bg-surface-2 border-b-2 border-x-2 border-neutral-800 p-4"
+        >
+          <MenuItem>
+            <button
+              class="w-full rounded-xl border-2 border-red-500 px-3 py-1"
+              @click="logout"
+            >
+              Logout
+            </button>
+          </MenuItem>
+        </div>
+      </template>
+    </Menu>
+  </div>
 </template>

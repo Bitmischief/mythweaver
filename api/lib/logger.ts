@@ -6,5 +6,5 @@ export const parentLogger = new Logger<ILogObj>(
   {
     type: isProduction ? 'json' : 'pretty',
   },
-  defaultLogObject
+  defaultLogObject,
 );

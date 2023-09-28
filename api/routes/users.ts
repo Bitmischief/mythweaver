@@ -21,7 +21,7 @@ router.get('/me', [
 
     const response = await controller.getUser(
       res.locals.auth.userId,
-      res.locals.trackingInfo
+      res.locals.trackingInfo,
     );
     return res.status(200).send(response);
   },
@@ -44,7 +44,7 @@ router.patch('/me', [
     const response = await controller.patchUser(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      req.body
+      req.body,
     );
     return res.status(200).send(response);
   },
@@ -75,7 +75,7 @@ router.post('/prerelease', [
       process.env.MAILCHIMP_AUDIENCE_ID as string,
       {
         members: [newMember],
-      }
+      },
     )) as any;
 
     if (response?.errors?.length > 0) {

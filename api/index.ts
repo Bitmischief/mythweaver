@@ -21,7 +21,6 @@ import rateLimit from 'express-rate-limit';
 import './worker/index';
 import { ILogObj, Logger } from 'tslog';
 import { useInjectTrackingInfo } from './lib/trackingMiddleware';
-import { tagUsersAsEarlyAccessQueue } from './worker';
 import { loggingInfoAsyncLocalStorage } from './lib/loggingMiddleware';
 
 const logger = new Logger<ILogObj>();
@@ -46,8 +45,8 @@ morgan.token('userId', () => {
 
 app.use(
   morgan(
-    '{ "method": ":method", "url": ":url", "status": ":status", "contentLength": ":res[content-length]", "responseTime": ":response-time", "requestId": ":requestId", "userEmail": ":userEmail", "userId": ":userId" }'
-  )
+    '{ "method": ":method", "url": ":url", "status": ":status", "contentLength": ":res[content-length]", "responseTime": ":response-time", "requestId": ":requestId", "userEmail": ":userEmail", "userId": ":userId" }',
+  ),
 );
 app.use(express.static('public'));
 
@@ -84,7 +83,7 @@ app.use(
     swaggerOptions: {
       url: '/swagger.json',
     },
-  })
+  }),
 );
 
 const errorHandlerMiddleware: ErrorRequestHandler = (
@@ -92,7 +91,7 @@ const errorHandlerMiddleware: ErrorRequestHandler = (
   req: Request,
   res: Response,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  next: NextFunction
+  next: NextFunction,
 ) => {
   logger.info('Error handler middleware', err?.message);
   errorHandler.handleError(err, res);

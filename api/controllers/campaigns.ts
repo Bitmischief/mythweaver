@@ -64,7 +64,7 @@ export default class CampaignController {
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
     @Query() offset = 0,
-    @Query() limit = 25
+    @Query() limit = 25,
   ): Promise<GetCampaignsResponse> {
     const campaigns = await prisma.campaign.findMany({
       where: {
@@ -93,7 +93,7 @@ export default class CampaignController {
   public async getCampaign(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() campaignId = 0
+    @Route() campaignId = 0,
   ): Promise<Campaign> {
     const campaign = await prisma.campaign.findUnique({
       where: {
@@ -126,7 +126,7 @@ export default class CampaignController {
   public async createCampaign(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Body() request: PostCampaignRequest
+    @Body() request: PostCampaignRequest,
   ): Promise<Campaign> {
     track(AppEvent.CreateCampaign, userId, trackingInfo);
 
@@ -152,7 +152,7 @@ export default class CampaignController {
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
     @Route() campaignId = 0,
-    @Body() request: PutCampaignRequest
+    @Body() request: PutCampaignRequest,
   ): Promise<Campaign> {
     const campaign = await prisma.campaign.findUnique({
       where: {
@@ -193,7 +193,7 @@ export default class CampaignController {
   public async deleteCampaign(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() campaignId: number
+    @Route() campaignId: number,
   ): Promise<void> {
     const campaign = await prisma.campaign.findUnique({
       where: {
@@ -232,7 +232,7 @@ export default class CampaignController {
     @Inject() trackingInfo: TrackingInfo,
     @Route() campaignId = 0,
     @Query() offset = 0,
-    @Query() limit = 25
+    @Query() limit = 25,
   ): Promise<GetCampaignMembersResponse> {
     const user = await prisma.user.findUnique({
       where: {
@@ -278,7 +278,7 @@ export default class CampaignController {
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
     @Route() campaignId = 0,
-    @Body() request: InviteMemberRequest
+    @Body() request: InviteMemberRequest,
   ): Promise<any> {
     const campaign = await prisma.campaign.findUnique({
       where: {
@@ -335,7 +335,7 @@ export default class CampaignController {
           name: 'INVITE_URL',
           content: `${urlPrefix}/invite?c=${inviteCode}`,
         },
-      ]
+      ],
     );
   }
 
@@ -346,7 +346,7 @@ export default class CampaignController {
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
     @Route() campaignId = 0,
-    @Route() memberId = 0
+    @Route() memberId = 0,
   ): Promise<any> {
     const actingMember = await prisma.campaignMember.findUnique({
       where: {
@@ -398,7 +398,7 @@ export default class CampaignController {
   @Get('/invites/:inviteCode')
   public async getInvite(
     @Inject() trackingInfo: TrackingInfo,
-    @Route() inviteCode: string
+    @Route() inviteCode: string,
   ): Promise<any> {
     const invite = await prisma.campaignMember.findUnique({
       where: {
@@ -441,7 +441,7 @@ export default class CampaignController {
   public async acceptInvite(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() inviteCode: string
+    @Route() inviteCode: string,
   ) {
     const invite = await prisma.campaignMember.findUnique({
       where: {
@@ -474,7 +474,7 @@ export default class CampaignController {
   public async getMyCampaignCharacter(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() campaignId: number
+    @Route() campaignId: number,
   ) {
     const actingUserCampaignMember = await prisma.campaignMember.findUnique({
       where: {
