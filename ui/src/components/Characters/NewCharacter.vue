@@ -23,10 +23,22 @@ onMounted(() => {
   eventBus.$on('conjure-image-done', () => {
     conjureImageDone.value = true;
   });
+
+  eventBus.$on(
+    'updated-conjuration-image',
+    async (payload: { imageUri: string; prompt: string }) => {
+      console.log('on updated-conjuration-image');
+      setTimeout(() => {
+        character.value.imageUri = payload.imageUri;
+        step.value++;
+      }, 50);
+    },
+  );
 });
 
 onUnmounted(() => {
   eventBus.$off('conjure-image-done');
+  eventBus.$off('updated-conjuration-image');
 });
 
 const isPropertyGenerating = function (propertyName: string) {
@@ -79,6 +91,10 @@ function generateImage() {
   eventBus.$emit('conjure-image', {});
   conjureImageStarted.value = true;
 }
+
+function setSelectedImage() {
+  eventBus.$emit('set-selected-conjuration-image', {});
+}
 </script>
 
 <template>
@@ -111,7 +127,7 @@ function generateImage() {
 
       <NewCharacterLooks v-if="step === 3" v-model="character" />
 
-      <NewCharacterConfirm v-if="step === 4" v-model="character" />
+      <NewCharacterConfirm v-if="step === 4" :character="character" />
     </div>
 
     <div class="flex mt-8" :class="{ 'justify-between': step === 4 }">
@@ -150,7 +166,7 @@ function generateImage() {
       <button
         v-if="step === 3 && conjureImageDone"
         class="flex self-center rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 px-4 py-3 transition-all hover:scale-110"
-        @click="step++"
+        @click="setSelectedImage"
       >
         <span class="self-center">Continue</span>
       </button>

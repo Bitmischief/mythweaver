@@ -17,6 +17,7 @@ import { storeToRefs } from 'pinia';
 import { SparklesIcon } from '@heroicons/vue/20/solid';
 import { useEarlyAccessCutoff } from '@/lib/hooks.ts';
 import { differenceInHours } from 'date-fns';
+import CustomizeConjurationImage from '@/components/Conjuration/ViewConjuration/CustomizeConjurationImage.vue';
 
 const authStore = useAuthStore();
 const eventBus = useEventBus();
@@ -55,6 +56,24 @@ eventBus.$on('global-loading-start', () => {
 
 eventBus.$on('global-loading-stop', () => {
   showLoading.value = false;
+});
+
+const showCustomizeImageModal = ref(false);
+const customizeImageArgs = ref<CustomizeImageRequest | undefined>(undefined);
+export interface CustomizeImageRequest {
+  imageUri: string;
+  prompt: string;
+  looks: string;
+}
+eventBus.$on('toggle-customize-image-modal', (args: CustomizeImageRequest) => {
+  console.log('on toggle image modal');
+  showCustomizeImageModal.value = !showCustomizeImageModal.value;
+
+  if (!args) {
+    customizeImageArgs.value = undefined;
+  } else {
+    customizeImageArgs.value = args;
+  }
 });
 
 function confirmEarlyAccessTerms() {
@@ -149,6 +168,19 @@ function confirmEarlyAccessTerms() {
         <SparklesIcon class="mr-2 h-5 w-5 self-center" />
         <span class="self-center">Let's Go!</span>
       </button>
+    </div>
+  </ModalAlternate>
+
+  <ModalAlternate :show="showCustomizeImageModal" extra-dark>
+    <div
+      class="md:w-[800px] p-6 px-12 bg-neutral-900 rounded-[20px] text-white text-center"
+    >
+      <CustomizeConjurationImage
+        :prompt="customizeImageArgs?.prompt"
+        :image-uri="customizeImageArgs?.imageUri"
+        :looks="customizeImageArgs?.looks"
+        @cancel="showCustomizeImageModal = false"
+      />
     </div>
   </ModalAlternate>
 

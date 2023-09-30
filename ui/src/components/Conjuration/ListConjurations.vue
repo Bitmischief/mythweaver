@@ -117,6 +117,10 @@ async function handleConjurationChange(change: {
   const conjurationIndex = conjurations.value.findIndex((c) => c.id === id);
 
   conjurations.value[conjurationIndex] = conjurationResponse.data;
+
+  if (!conjurations.value[conjurationIndex].saved) {
+    conjurations.value.splice(conjurationIndex, 1);
+  }
 }
 </script>
 

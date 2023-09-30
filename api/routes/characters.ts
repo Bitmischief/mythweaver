@@ -18,7 +18,7 @@ const postCharactersSchema = z.object({
   name: z.string().max(50),
   background: z.string().max(2000),
   personality: z.string().max(2000),
-  looks: z.string().max(2000),
+  looks: z.string().max(2000).optional().nullable(),
 });
 
 router.post('/', [
@@ -48,7 +48,7 @@ const patchCharactersSchema = z.object({
   name: z.string().max(50),
   background: z.string().max(2000),
   personality: z.string().max(2000),
-  looks: z.string().max(2000),
+  looks: z.string().max(2000).optional().nullable(),
 });
 
 router.patch('/:characterId', [

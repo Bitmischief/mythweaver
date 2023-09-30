@@ -3,7 +3,7 @@ import { computed, ref } from 'vue';
 import { autoGrowTextArea } from '@/lib/util.ts';
 
 const props = defineProps<{
-  modelValue: string;
+  modelValue: string | undefined;
   disabled?: boolean;
 }>();
 
@@ -37,16 +37,17 @@ function enableEdit() {
       class="mt-2 cursor-pointer whitespace-pre-wrap text-lg text-gray-400"
       @click="enableEdit"
     >
-      {{ value }}
+      {{ value ? value : 'no value provided' }}
     </div>
     <textarea
       v-show="edit"
       ref="input"
       v-model="value"
-      class="min-h-[20rem] w-full overflow-hidden rounded-xl border border-green-500 bg-surface p-3 text-lg shadow-lg"
-      @click="$event.stopPropagation()"
+      class="min-h-[10rem] w-full overflow-hidden rounded-xl border border-green-500 bg-surface p-3 text-lg shadow-lg"
       @blur="emit('update:modelValue', value)"
+      @click="$event.stopPropagation()"
       @focus="autoGrowTextArea"
+      @keyup="autoGrowTextArea"
     />
   </div>
 </template>

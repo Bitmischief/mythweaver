@@ -9,9 +9,12 @@ import { AxiosError } from 'axios';
 import { showError, showSuccess } from '@/lib/notifications.ts';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import NewCharacter from '@/components/Characters/NewCharacter.vue';
-import { UserIcon } from '@heroicons/vue/20/solid';
 import Accordion from '@/components/Core/Accordion.vue';
 import TextEdit from '@/components/Core/Forms/TextEdit.vue';
+import CustomizableImage from '@/components/Images/CustomizableImage.vue';
+import { useEventBus } from '@/lib/events.ts';
+
+const eventBus = useEventBus();
 
 const character = ref<Character | undefined>(undefined);
 const createNewCharacter = ref(false);
@@ -19,6 +22,16 @@ const createNewCharacter = ref(false);
 onMounted(async () => {
   await init();
 });
+
+eventBus.$on(
+  'updated-conjuration-image',
+  async (payload: { imageUri: string; prompt: string }) => {
+    console.log('on updated-conjuration-image');
+    if (!character.value) return;
+    character.value.imageUri = payload.imageUri;
+    eventBus.$emit('toggle-customize-image-modal');
+  },
+);
 
 async function init() {
   try {
@@ -52,9 +65,7 @@ async function updateCharacter() {
     <div v-if="character">
       <div class="md:flex justify-between">
         <div class="md:flex">
-          <div
-            class="md:w-[12rem] 3xl:w-[20rem] md:h-[12rem] 3xl:h-[20rem] group relative cursor-pointer"
-          >
+          <div class="md:w-[20rem] 3xl:w-[30rem] group relative cursor-pointer">
             <div
               class="group-hover:block hidden absolute w-full h-full bg-black/50"
             >
@@ -66,42 +77,35 @@ async function updateCharacter() {
                 </div>
               </div>
             </div>
-            <img
-              v-if="character.imageUri"
-              :src="character.imageUri"
-              class="rounded-[10px]"
+            <CustomizableImage
+              :image-uri="character.imageUri"
+              :editable="true"
               :alt="character.name"
             />
-            <div
-              v-else
-              class="bg-neutral-800 rounded-xl w-full h-full flex justify-center"
-            >
-              <UserIcon class="w-[80%] h-[80%] self-center opacity-10" />
-            </div>
           </div>
-          <div class="md:ml-6 mt-6 md:mt-0 self-center">
+          <div class="md:ml-4 mt-6 md:mt-0 self-center">
             <div>
               <input
                 v-model="character.name"
-                class="text-3xl 3xl:text-5xl bg-transparent border-0 pl-0"
+                class="text-3xl 3xl:text-5xl rounded-md pl-1 bg-transparent border-0 pl-0"
               />
             </div>
             <div>
               <input
                 v-model="character.age"
-                class="text-lg bg-transparent border-0 py-1 px-0"
+                class="text-lg bg-transparent rounded-md pl-1 border-0 py-1 px-0"
               />
             </div>
             <div>
               <input
                 v-model="character.race"
-                class="text-lg 3xl:text-5xl bg-transparent border-0 py-1 px-0"
+                class="text-lg bg-transparent rounded-md pl-1 border-0 py-1 px-0"
               />
             </div>
             <div>
               <input
                 v-model="character.class"
-                class="text-lg 3xl:text-5xl bg-transparent border-0 py-1 px-0"
+                class="text-lg bg-transparent rounded-md pl-1 border-0 py-1 px-0"
               />
             </div>
           </div>

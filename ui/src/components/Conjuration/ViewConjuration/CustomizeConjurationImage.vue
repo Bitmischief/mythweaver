@@ -7,7 +7,7 @@ import { ArrowsPointingOutIcon } from '@heroicons/vue/20/solid';
 import { autoGrowTextArea } from '@/lib/util.ts';
 
 const props = defineProps<{
-  prompt: string;
+  prompt?: string;
   imageUri?: string;
   looks?: string;
   noActions?: boolean;
@@ -27,6 +27,10 @@ onMounted(() => {
   eventBus.$on('conjure-image', async () => {
     await conjure();
   });
+
+  eventBus.$on('set-selected-conjuration-image', () => {
+    setImage();
+  });
 });
 
 onUnmounted(() => {
@@ -37,7 +41,7 @@ async function conjure() {
   conjuring.value = true;
   done.value = false;
 
-  const conjureImageResponse = await conjureImage(editablePrompt.value);
+  const conjureImageResponse = await conjureImage(editablePrompt.value || '');
   imageUris.value = conjureImageResponse.data;
   done.value = true;
   conjuring.value = false;
@@ -48,6 +52,7 @@ async function conjure() {
 function setImage() {
   if (!selectedImgUri.value.length) return;
 
+  console.log('set image');
   eventBus.$emit('updated-conjuration-image', {
     imageUri: selectedImgUri.value,
     prompt: editablePrompt.value,
@@ -58,19 +63,20 @@ function setImage() {
 <template>
   <template v-if="!conjuring && !done">
     <div class="mt-4 bg-fuchsia-200/5 rounded-md py-3 pb-6 p-6">
-      <div class="text-2xl 3xl:text-4xl">Customize</div>
-      <div class="text-lg 3xl:text-2xl mt-0 text-fuchsia-300">
+      <div class="text-2xl 3xl:text-4xl">
+        {{ prompt?.length ? 'Customize' : "Let's build a character" }}
+      </div>
+      <div class="mt-2 text-lg 3xl:text-2xl text-fuchsia-300">
         {{
-          prompt.length
+          prompt?.length
             ? 'Modify the prompt for the AI engine to generate a new image'
-            : 'What does it look like?'
+            : 'What do they look like?'
         }}
       </div>
-      <div class="mt-4 text-neutral-400">Example prompts:</div>
+      <div class="mt-6 text-neutral-400">Example prompts:</div>
       <ul class="mt-4">
         <li class="mb-3 text-neutral-500 text-lg">
-          - floating island with giant clock gears, populated with mythical
-          creatures
+          - a male human wizard with a staff and a spellbook
         </li>
         <li class="mb-3 text-neutral-500 text-lg">
           - battle scene with futuristic robots and a golden palace in the
@@ -88,8 +94,8 @@ function setImage() {
         :src="imageUri"
         class="w-72 h-72 my-auto rounded-md"
       />
-      <div :class="{ 'md:ml-4': prompt.length }">
-        <template v-if="prompt.length">
+      <div :class="{ 'md:ml-4': prompt?.length }">
+        <template v-if="prompt?.length">
           <div class="text-md text-neutral-500">Original Prompt</div>
           <div class="text-lg text-neutral-200">
             {{ props.prompt }}
@@ -158,7 +164,10 @@ function setImage() {
 
     <div
       class="grid gap-2"
-      :class="{ 'grid-cols-3': !imageUri, 'grid-cols-4': imageUri }"
+      :class="{
+        'grid-cols-3 3xl:grid-cols-2': !imageUri,
+        'grid-cols-4 3xl:grid-cols-2': imageUri,
+      }"
     >
       <div v-if="imageUri" class="relative">
         <div class="absolute w-full h-full bg-black/50 flex justify-center">
@@ -197,7 +206,7 @@ function setImage() {
 
     <div v-if="!noActions" class="mt-6 flex justify-between">
       <button
-        class="bg-surface-2 w-36 flex rounded-md border text-center border-gray-600/50 p-3"
+        class="bg-surface-2 w-36 rounded-md border text-center border-gray-600/50 p-3"
         @click="
           done = false;
           conjuring = false;

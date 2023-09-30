@@ -32,7 +32,7 @@ export const useAuthStore = defineStore({
         const userResponse = await getCurrentUser();
         this.user = userResponse.data;
       } catch (err) {
-        await this.logout();
+        showError({ message: 'Unable to load user, please try again soon.' });
       } finally {
         this.isLoading = false;
       }

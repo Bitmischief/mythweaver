@@ -3,7 +3,7 @@ import CustomizeConjurationImage from '@/components/Conjuration/ViewConjuration/
 </script>
 
 <template>
-  <div class="">
+  <div class="mt-8">
     <CustomizeConjurationImage prompt="" no-actions />
   </div>
 </template>

@@ -5,12 +5,12 @@ export interface Character {
   id: number;
   imageUri: string;
   name: string;
-  age: number;
-  race: string;
-  class: string;
-  background: string;
-  personality: string;
-  looks: string;
+  age?: number;
+  race?: string;
+  class?: string;
+  background?: string;
+  personality?: string;
+  looks?: string;
 }
 
 export const getCurrentCampaignCharacter = () => {
