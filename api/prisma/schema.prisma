@@ -191,7 +191,7 @@ model Character {
   race        String
   class       String
   imageUri    String?
-  background  String?
+  backstory   String?
   personality String?
   looks       String?
   goals       String?

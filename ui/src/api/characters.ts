@@ -8,7 +8,7 @@ export interface Character {
   age?: number;
   race?: string;
   class?: string;
-  background?: string;
+  backstory?: string;
   personality?: string;
   looks?: string;
 }

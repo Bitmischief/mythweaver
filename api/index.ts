@@ -72,7 +72,6 @@ const corsOptions = {
     : ['https://app.mythweaver.co', 'https://mythweaver.co'],
 };
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
 
 app.use(Router);
 

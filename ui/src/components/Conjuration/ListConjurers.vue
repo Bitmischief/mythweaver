@@ -1,9 +1,9 @@
 <template>
-  <div v-if="generators.length" class="grid grid-cols-1 gap-8 md:grid-cols-2">
+  <div v-if="generators.length" class="grid grid-cols-1 gap-8 md:grid-cols-4">
     <div
       v-for="gen of generators"
       :key="gen.name"
-      class="flex h-60 cursor-pointer flex-col justify-end rounded-lg bg-cover bg-center shadow-xl md:h-[20rem] 3xl:h-[30rem]"
+      class="flex h-60 cursor-pointer flex-col justify-end rounded-lg bg-cover bg-top shadow-xl md:h-[20rem] 3xl:h-[30rem]"
       :style="backgroundImageInlineStyle(gen.imageUri)"
     >
       <div class="rounded-b-lg bg-black/50 p-4">

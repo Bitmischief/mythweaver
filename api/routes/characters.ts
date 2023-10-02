@@ -16,7 +16,7 @@ const postCharactersSchema = z.object({
   class: z.string().max(50),
   imageUri: z.string().max(2000),
   name: z.string().max(50),
-  background: z.string().max(2000),
+  backstory: z.string().max(2000),
   personality: z.string().max(2000),
   looks: z.string().max(2000).optional().nullable(),
 });
@@ -46,7 +46,7 @@ const patchCharactersSchema = z.object({
   class: z.string().max(50),
   imageUri: z.string().max(2000),
   name: z.string().max(50),
-  background: z.string().max(2000),
+  backstory: z.string().max(2000),
   personality: z.string().max(2000),
   looks: z.string().max(2000).optional().nullable(),
 });

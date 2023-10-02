@@ -11,6 +11,8 @@ const props = defineProps<{
   imageUri?: string;
   looks?: string;
   noActions?: boolean;
+  cancelButtonTextOverride?: string;
+  inModal?: boolean;
 }>();
 
 const emit = defineEmits(['cancel']);
@@ -52,11 +54,15 @@ async function conjure() {
 function setImage() {
   if (!selectedImgUri.value.length) return;
 
-  console.log('set image');
+  console.log('setImage', selectedImgUri.value, editablePrompt.value);
   eventBus.$emit('updated-conjuration-image', {
     imageUri: selectedImgUri.value,
     prompt: editablePrompt.value,
   });
+
+  if (props.inModal) {
+    eventBus.$emit('toggle-customize-image-modal');
+  }
 }
 </script>
 
@@ -118,12 +124,14 @@ function setImage() {
       @keyup="autoGrowTextArea"
     />
 
-    <div v-if="!noActions" class="flex justify-center">
+    <div v-if="!noActions" class="flex">
       <button
         class="ml-2 bg-neutral-800 px-4 text-lg rounded-md flex transition-all h-12 hover:scale-110 mr-2"
         @click="emit('cancel')"
       >
-        <span class="self-center">Cancel</span>
+        <span class="self-center">{{
+          cancelButtonTextOverride ? cancelButtonTextOverride : 'Cancel'
+        }}</span>
       </button>
       <button
         class="bg-gradient-to-r text-lg md:w-52 from-fuchsia-500 flex to-blue-400 h-12 transition-all hover:scale-110 px-4 rounded-md"
@@ -165,8 +173,8 @@ function setImage() {
     <div
       class="grid gap-2"
       :class="{
-        'grid-cols-3 3xl:grid-cols-2': !imageUri,
-        'grid-cols-4 3xl:grid-cols-2': imageUri,
+        '3xl:grid-cols-3 grid-cols-2': !imageUri,
+        '3xl:grid-cols-4 grid-cols-2': imageUri,
       }"
     >
       <div v-if="imageUri" class="relative">

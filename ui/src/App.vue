@@ -66,7 +66,6 @@ export interface CustomizeImageRequest {
   looks: string;
 }
 eventBus.$on('toggle-customize-image-modal', (args: CustomizeImageRequest) => {
-  console.log('on toggle image modal');
   showCustomizeImageModal.value = !showCustomizeImageModal.value;
 
   if (!args) {
@@ -179,6 +178,7 @@ function confirmEarlyAccessTerms() {
         :prompt="customizeImageArgs?.prompt"
         :image-uri="customizeImageArgs?.imageUri"
         :looks="customizeImageArgs?.looks"
+        in-modal
         @cancel="showCustomizeImageModal = false"
       />
     </div>

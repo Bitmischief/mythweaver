@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import {
   Character,
   getCurrentCampaignCharacter,
@@ -18,22 +18,28 @@ const eventBus = useEventBus();
 
 const character = ref<Character | undefined>(undefined);
 const createNewCharacter = ref(false);
+const loading = ref(false);
 
 onMounted(async () => {
   await init();
+
+  eventBus.$on(
+    'updated-conjuration-image',
+    async (payload: { imageUri: string; prompt: string }) => {
+      console.log('updated-conjuration-image', payload, character.value);
+      if (!character.value) return;
+
+      character.value.imageUri = payload.imageUri;
+    },
+  );
 });
 
-eventBus.$on(
-  'updated-conjuration-image',
-  async (payload: { imageUri: string; prompt: string }) => {
-    console.log('on updated-conjuration-image');
-    if (!character.value) return;
-    character.value.imageUri = payload.imageUri;
-    eventBus.$emit('toggle-customize-image-modal');
-  },
-);
+onUnmounted(() => {
+  eventBus.$off('updated-conjuration-image');
+});
 
 async function init() {
+  loading.value = true;
   try {
     const response = await getCurrentCampaignCharacter();
     character.value = response.data;
@@ -45,7 +51,13 @@ async function init() {
     } else {
       showError({ message: 'Failed to load character' });
     }
+  } finally {
+    loading.value = false;
   }
+}
+
+function reload() {
+  location.reload();
 }
 
 async function updateCharacter() {
@@ -61,7 +73,7 @@ async function updateCharacter() {
 </script>
 
 <template>
-  <div class="p-4">
+  <div v-if="!loading" class="p-4">
     <div v-if="character">
       <div class="md:flex justify-between">
         <div class="md:flex">
@@ -120,11 +132,11 @@ async function updateCharacter() {
       </div>
 
       <Accordion
-        title="Background"
+        title="Backstory"
         default-open
         class="mt-6 border-t border-neutral-800 pt-4"
       >
-        <TextEdit v-model="character.background" />
+        <TextEdit v-model="character.backstory" />
       </Accordion>
 
       <Accordion
@@ -154,7 +166,7 @@ async function updateCharacter() {
     <div
       class="md:w-[1000px] max-h-[90vh] p-6 bg-neutral-900 overflow-y-auto rounded-[20px]"
     >
-      <NewCharacter @close="createNewCharacter = false" @created="init" />
+      <NewCharacter @close="createNewCharacter = false" @created="reload" />
     </div>
   </ModalAlternate>
 </template>

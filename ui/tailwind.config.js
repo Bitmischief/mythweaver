@@ -1,9 +1,12 @@
+const FormKitVariants = require('@formkit/themes/tailwindcss');
+
 module.exports = {
   content: [
     './index.html',
     './src/App.vue',
     './src/components/**/*.{js,vue}',
     './src/views/**/*.{js,vue}',
+    './tailwind-theme.ts',
   ],
   theme: {
     extend: {
@@ -23,7 +26,7 @@ module.exports = {
       },
     },
   },
-  plugins: [require('@tailwindcss/forms')],
+  plugins: [require('@tailwindcss/forms'), FormKitVariants],
   variants: {
     extend: {
       display: ['group-hover'],

@@ -19,7 +19,7 @@ interface PostCharactersRequest {
   race: string;
   class: string;
   imageUri: string;
-  background: string;
+  backstory: string;
   personality: string;
   looks: string;
 }
@@ -30,7 +30,7 @@ interface PatchCharactersRequest {
   race: string;
   class: string;
   imageUri: string;
-  background: string;
+  backstory: string;
   personality: string;
   looks: string;
 }
