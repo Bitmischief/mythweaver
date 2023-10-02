@@ -75,4 +75,4 @@ jobs:
         run: kubectl apply -f $GITHUB_WORKSPACE/.k8s/ingress.yml
 
       - name: Verify deployment
-        run: kubectl rollout status statefulset/mythweaver-api
+        run: kubectl rollout status deployment/mythweaver-api
