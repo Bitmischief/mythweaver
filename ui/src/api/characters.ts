@@ -20,10 +20,13 @@ export const getCurrentCampaignCharacter = () => {
 
 export interface PostCharactersRequest {
   name: string;
-  imageUri: string;
-  background: string;
-  personality: string;
-  looks: string;
+  age?: number;
+  race?: string;
+  class?: string;
+  imageUri?: string;
+  backstory?: string;
+  personality?: string;
+  looks?: string;
 }
 
 export const postCharacters = (request: PostCharactersRequest) => {
@@ -35,9 +38,12 @@ export const postCharacters = (request: PostCharactersRequest) => {
 };
 
 export interface PatchCharactersRequest {
-  name?: string;
+  name: string;
+  age?: number;
+  race?: string;
+  class?: string;
   imageUri?: string;
-  background?: string;
+  backstory?: string;
   personality?: string;
   looks?: string;
 }

@@ -45,7 +45,8 @@ function submit(payload: any) {
           </div>
           <FormKit
             v-model="value.age"
-            type="text"
+            type="number"
+            number
             name="age"
             validation="required|number"
             class="w-full p-2 mt-2 bg-neutral-800 rounded-[10px]"
