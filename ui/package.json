@@ -32,7 +32,7 @@
     "@headlessui/vue": "^1.7.16",
     "@heroicons/vue": "^2.0.18",
     "@types/lodash": "^4.14.198",
-    "@types/md5": "^2.3.2",
+    "@types/md5": "^2.3.3",
     "@types/node": "^20.7.0",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
