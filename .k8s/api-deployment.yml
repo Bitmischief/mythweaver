@@ -10,20 +10,8 @@ spec:
   selector:
     app: mythweaver-api
 ---
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: mythweaver-content-pvc
-spec:
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 50Gi
-  storageClassName: do-block-storage
----
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   name: mythweaver-api
   labels:
@@ -34,7 +22,11 @@ spec:
   selector:
     matchLabels:
       app: mythweaver-api
-  minReadySeconds: 5
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  minReadySeconds: 10
   template:
     metadata:
       labels:
@@ -91,12 +83,10 @@ spec:
               value: <SPACES_KEY>
             - name: SPACES_SECRET
               value: <SPACES_SECRET>
-          volumeMounts:
-            - mountPath: "/app/public/images"
-              name: mythweaver-content
-      nodeSelector:
-        type: storage
-      volumes:
-        - name: mythweaver-content
-          persistentVolumeClaim:
-            claimName: mythweaver-content-pvc
+          readinessProbe:
+            httpGet:
+              path: /docs
+              port: 8000
+              initialDelaySeconds: 5
+              periodSeconds: 5
+              successThreshold: 1
