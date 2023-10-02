@@ -29,6 +29,13 @@ const PORT = process.env.PORT || 8000;
 
 const app: Application = express();
 
+const corsOptions = {
+  origin: process.env.CORS_ALLOWED_ORIGINS
+    ? JSON.parse(process.env.CORS_ALLOWED_ORIGINS || '*')
+    : ['https://app.mythweaver.co', 'https://mythweaver.co'],
+};
+app.use(cors(corsOptions));
+
 app.use(express.json());
 
 morgan.token('requestId', () => {
@@ -65,13 +72,6 @@ app.use(apiRequestLimiter);
 app.set('trust proxy', 1); // trust first proxy
 app.use(useInjectRequestId);
 app.use(useInjectTrackingInfo);
-
-const corsOptions = {
-  origin: process.env.CORS_ALLOWED_ORIGINS
-    ? JSON.parse(process.env.CORS_ALLOWED_ORIGINS || '*')
-    : ['https://app.mythweaver.co', 'https://mythweaver.co'],
-};
-app.use(cors(corsOptions));
 
 app.use(Router);
 
