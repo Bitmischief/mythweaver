@@ -29,9 +29,8 @@ const PORT = process.env.PORT || 8000;
 
 const app: Application = express();
 
-const whitelist = JSON.parse(process.env.CORS_ALLOWED_ORIGINS || '[]');
 const corsOptions = {
-  origin: whitelist,
+  origin: ['https://app.mythweaver.co', 'https://mythweaver.co'],
 };
 app.use(cors(corsOptions));
 
