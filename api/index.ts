@@ -30,9 +30,7 @@ const PORT = process.env.PORT || 8000;
 const app: Application = express();
 
 const corsOptions = {
-  origin: process.env.CORS_ALLOWED_ORIGINS
-    ? JSON.parse(process.env.CORS_ALLOWED_ORIGINS || '*')
-    : ['https://app.mythweaver.co', 'https://mythweaver.co'],
+  origin: ['https://app.mythweaver.co', 'https://mythweaver.co'],
 };
 app.use(cors(corsOptions));
 
