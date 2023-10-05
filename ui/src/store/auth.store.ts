@@ -3,6 +3,7 @@ import { postToken, postRefresh } from '@/api/auth.ts';
 import router from '@/router/router.ts';
 import { showError } from '@/lib/notifications.ts';
 import { getCurrentUser, User } from '@/api/users.ts';
+import { datadogLogs } from '@datadog/browser-logs';
 
 interface AuthStoreState {
   tokens: any;
@@ -62,6 +63,7 @@ export const useAuthStore = defineStore({
           return false;
         } else {
           showError({ message: 'Unable to login, please try again soon.' });
+          datadogLogs.logger.error('Unable to log in', { err });
           return true;
         }
       }
