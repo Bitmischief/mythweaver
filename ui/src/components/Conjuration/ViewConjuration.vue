@@ -51,12 +51,14 @@ watch(conjurationId, async () => {
 });
 
 async function loadConjuration() {
-  const response = await getConjuration(conjurationId.value);
-  conjuration.value = response.data;
+  if (conjurationId.value) {
+    const response = await getConjuration(conjurationId.value);
+    conjuration.value = response.data;
 
-  if (conjuration.value?.copies?.length) {
-    await router.push(`/conjurations/view/${conjuration.value.copies[0].id}`);
-    await loadConjuration();
+    if (conjuration.value?.copies?.length) {
+      await router.push(`/conjurations/view/${conjuration.value.copies[0].id}`);
+      await loadConjuration();
+    }
   }
 }
 
