@@ -6,6 +6,8 @@ import { useRouter } from 'vue-router';
 import { AxiosError } from 'axios';
 import { showError } from '@/lib/notifications.ts';
 
+const fbq = (window as any).fbq;
+
 const props = defineProps<{
   inviteCode?: string | undefined;
 }>();
@@ -32,6 +34,7 @@ async function login() {
   try {
     isLoading.value = true;
     await postMagicLink(email.value, props.inviteCode);
+    fbq('track', 'Lead');
     await router.push('/preauth');
   } catch (e) {
     const err = e as AxiosError;
