@@ -10,10 +10,10 @@ metadata:
     service.beta.kubernetes.io/do-loadbalancer-size-unit: "1"
     nginx.ingress.kubernetes.io/use-regex: "true"
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      add_header Access-Control-Allow-Methods "POST, GET, OPTIONS";
+      add_header Access-Control-Allow-Methods "PUT, GET, POST, OPTIONS, PATCH, DELETE";
       add_header Access-Control-Allow-Credentials true;
     nginx.ingress.kubernetes.io/enable-cors: "true"
-    nginx.ingress.kubernetes.io/cors-allow-methods: "PUT, GET, POST, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "PUT, GET, POST, OPTIONS, PATCH, DELETE"
     nginx.ingress.kubernetes.io/cors-allow-origin: "https://mythweaver.co, https://app.mythweaver.co"
 spec:
   tls:
