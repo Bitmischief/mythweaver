@@ -23,14 +23,14 @@
         />
 
         <div class="text-neutral-200 text-3xl mb-2 text-center">
-          Check your email
+          We've emailed you a one-time login link
         </div>
 
         <div class="text-neutral-400 mt-4 text-xl text-center">
-          We've emailed you a login link
+          This link will expire in one hour
         </div>
 
-        <div class="text-neutral-500 mt-1 text-sm text-center">
+        <div class="text-neutral-500 mt-1 text-sm text-center underline">
           (double check promotions/spam)
         </div>
 

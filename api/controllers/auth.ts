@@ -94,7 +94,7 @@ export default class AuthController {
 
       if (new Date() > new Date(magicLink.expiresAt)) {
         throw new AppError({
-          httpCode: HttpCode.BAD_REQUEST,
+          httpCode: HttpCode.UNAUTHORIZED,
           description: 'Magic link has expired',
         });
       }

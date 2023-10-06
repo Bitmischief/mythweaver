@@ -61,6 +61,14 @@ export const useAuthStore = defineStore({
           showError({ message: 'Your user is not authorized for early access!' });
           await router.push('/earlyaccess');
           return false;
+        }
+        if (err.response.status === 401) {
+          showError({
+            message:
+              "Your magic link has expired! Enter your email again and we'll send you a new one!",
+          });
+          await router.push('/login');
+          return false;
         } else {
           showError({ message: 'Unable to login, please try again soon.' });
           datadogLogs.logger.error('Unable to log in', { err });
