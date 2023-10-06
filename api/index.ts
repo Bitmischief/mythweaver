@@ -29,10 +29,8 @@ const PORT = process.env.PORT || 8000;
 
 const app: Application = express();
 
-const corsOptions = {
-  origin: ['https://app.mythweaver.co', 'https://mythweaver.co'],
-};
-app.use(cors(corsOptions));
+app.use(cors());
+app.options('*', cors());
 
 app.use(express.json());
 
