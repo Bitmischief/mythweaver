@@ -200,15 +200,15 @@
   resolved "https://registry.yarnpkg.com/@eslint/js/-/js-8.49.0.tgz#86f79756004a97fa4df866835093f1df3d03c333"
   integrity sha512-1S8uAY/MTJqVx0SC4epBq+N2yhuwtNwLbJYNZyhL2pO1ZVKn5HFXav5T41Ryzy9K9V7ZId2JB2oy/W4aCd9/2w==
 
-"@formkit/addons@^1.2.1":
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/@formkit/addons/-/addons-1.2.1.tgz#d90b56c8f6f4244ae8bf61ee6c4a0d1e2868ade7"
-  integrity sha512-Rmld9N93gyMqqsmTNLOTRd2+RFNCXSd3IRfgaX53HulLBwWSfecmRYMFzl58XNdw81vEb3bf5n/RHqxtqN7n6g==
+"@formkit/addons@^1.2.2":
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/@formkit/addons/-/addons-1.2.2.tgz#645ad9eaef1c3a373e0a9f19c5e55b5cf48d09fe"
+  integrity sha512-5c4m0cToD8AbOFD38clEZSBNcXHY7xKjlEXvxs8lDlC4DSCkrdcbp5KgCFHJqci4p8z1zkxG/H8GXwYFaVRtTw==
   dependencies:
     "@formkit/auto-animate" latest
-    "@formkit/core" "1.2.1"
-    "@formkit/inputs" "1.2.1"
-    "@formkit/utils" "1.2.1"
+    "@formkit/core" "1.2.2"
+    "@formkit/inputs" "1.2.2"
+    "@formkit/utils" "1.2.2"
 
 "@formkit/auto-animate@latest":
   version "0.8.0"
@@ -221,6 +221,13 @@
   integrity sha512-0sbtvYg1NzESYTOymUPjHYbNENeomBaN3UFsPgpQHZD6bkl+uH7wk0EZWFcdtpVXzd288DZIxQu5cLNj7u1+tg==
   dependencies:
     "@formkit/utils" "1.2.1"
+
+"@formkit/core@1.2.2":
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/@formkit/core/-/core-1.2.2.tgz#4461b416a678b32ccc37e2f2268615460850ad6a"
+  integrity sha512-aJoZW7ZWXdwVBdw2acv62aPaecZ44PnK9eyp/hdMrMxT9xW3I84MytCdII8DYpxLmloaE+NoUANZIvlkTRGlHg==
+  dependencies:
+    "@formkit/utils" "1.2.2"
 
 "@formkit/dev@1.2.1":
   version "1.2.1"
@@ -254,6 +261,14 @@
     "@formkit/core" "1.2.1"
     "@formkit/utils" "1.2.1"
 
+"@formkit/inputs@1.2.2":
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/@formkit/inputs/-/inputs-1.2.2.tgz#5515c149969412f3472b6977b8d4e5b6447c5f1f"
+  integrity sha512-apVGQ+9eHRD8qi9h0LRvaI9UrumDUwXQSw3gMQfDvfCjkqZXY4+m/WS3FraqHH4Mqs7cjryYRYrHYpAaVQtqKQ==
+  dependencies:
+    "@formkit/core" "1.2.2"
+    "@formkit/utils" "1.2.2"
+
 "@formkit/observer@1.2.1":
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/@formkit/observer/-/observer-1.2.1.tgz#3278d0e8fe9a9d8ef8c06a57427ed3a817a866ff"
@@ -282,6 +297,11 @@
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/@formkit/utils/-/utils-1.2.1.tgz#097a913e7208284e28793cbd497cfb32e5892835"
   integrity sha512-PHu/VR3nQHr1Lt6wb+J9pbUfVWdqqX6Qdq0NSjmUEtkNzvQlvRPXHpWePHiPgNR60G7zLoPHfnoCclfOMetTOQ==
+
+"@formkit/utils@1.2.2":
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/@formkit/utils/-/utils-1.2.2.tgz#67687119ec747077890b399541058388cd5f3098"
+  integrity sha512-4EGm4nfZGSJik0QRAEybxO52F3QhbOfX/KgtWfB3/dDUEOCx5RWDxIs/CU2yI4bceDl2aK8l/yDYwCYK9SO5MA==
 
 "@formkit/validation@1.2.1":
   version "1.2.1"
