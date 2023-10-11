@@ -86,7 +86,7 @@ function confirmEarlyAccessTerms() {
     <div class="block w-full">
       <div
         v-if="!!authStore.tokens"
-        class="justify-end mr-4 bg-surface-2 h-[5rem] hidden md:flex"
+        class="justify-end bg-surface-2 h-[5rem] hidden md:flex"
       >
         <NavBarHeader />
       </div>

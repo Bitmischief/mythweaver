@@ -103,16 +103,16 @@ function processConjuringComplete() {
         "
       />
 
-      <div class="block md:flex">
+      <div class="block 3xl:flex">
         <div
-          class="bg-surface-2 w-full md:w-[25rem] h-full md:p-8 p-4 rounded-md"
+          class="bg-surface-2 w-full 3xl:w-[25rem] h-full md:p-8 p-4 rounded-md"
         >
           <ConfigureConjure
             :summoner="summoner"
             @begin-conjuring="handleBeginConjuring"
           />
         </div>
-        <div class="mt-8 md:mt-0 md:ml-8 bg-surface-2 w-full rounded-md">
+        <div class="mt-8 3xl:mt-0 3xl:ml-8 bg-surface-2 w-full rounded-md">
           <div
             v-if="!generating && !conjuration"
             class="flex justify-center h-full"

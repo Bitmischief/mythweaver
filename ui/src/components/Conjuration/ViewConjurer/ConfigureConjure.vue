@@ -5,6 +5,7 @@ import { ref } from 'vue';
 import { useSelectedCampaignId } from '@/lib/hooks.ts';
 import { BoltIcon } from '@heroicons/vue/20/solid';
 import ModalAlternate from '@/components/ModalAlternate.vue';
+import Accordion from '@/components/Core/Accordion.vue';
 
 defineProps<{
   summoner: Conjurer;
@@ -13,6 +14,14 @@ defineProps<{
 const emit = defineEmits(['begin-conjuring']);
 
 const selectedCampaignId = useSelectedCampaignId();
+
+const request = ref({
+  prompt: '',
+  preset: 'fantasy-art',
+  imagePrompt: '',
+  imageNegativePrompt: '',
+  imageReferenceImage: '',
+});
 
 const prompt = ref('');
 const existingConjuration = ref(false);
@@ -49,7 +58,7 @@ async function generate(generatorCode: string) {
 </script>
 
 <template>
-  <div class="text-3xl">
+  <div class="text-xl">
     {{ summoner.name }}
   </div>
 
@@ -57,32 +66,79 @@ async function generate(generatorCode: string) {
     {{ summoner.description }}
   </div>
 
-  <div class="mt-8 text-gray-200">
-    <div class="my-8">
-      <div class="text-xl">
-        Describe what kind of
-        {{ trimPlural(summoner.name.toLowerCase()) }} you're looking for
+  <FormKit type="form">
+    <div class="mt-8 text-gray-200">
+      <div class="my-8">
+        <div class="text-lg mb-4">
+          Describe what kind of
+          {{ trimPlural(summoner.name.toLowerCase()) }} you're looking for
+        </div>
+        <FormKit
+          v-model="request.prompt"
+          label="Prompt"
+          name="prompt"
+          help="This is used to generate the text elements of your conjuration."
+          type="textarea"
+          validation="required|maxlength:500"
+          :placeholder="summoner.customizationHelpPrompt"
+          auto-height
+        />
+        <div class="-mt-3 text-xs">{{ request.prompt.length }} / 500</div>
       </div>
-      <textarea
-        v-model="prompt"
-        type="text"
-        maxlength="500"
-        class="mt-4 gradient-border-no-opacity relative h-[20rem] w-full rounded-xl border bg-black px-4 py-2 text-left text-xl text-white resize-none"
-        :placeholder="summoner.customizationHelpPrompt"
-        rows="4"
-        @keyup="autoGrowTextArea"
-      ></textarea>
-      <div class="mt-1 ml-2 text-xs">{{ prompt.length }} / 500</div>
-    </div>
 
-    <button
-      class="w-full md:w-auto md:ml-auto flex justify-center md:justify-start self-center rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 px-4 py-3 transition-all hover:scale-110"
-      @click="generate(summoner.code)"
-    >
-      <BoltIcon class="mr-2 h-5 w-5 self-center" />
-      <span class="self-center">Conjure </span>
-    </button>
-  </div>
+      <Accordion title="Image Customization">
+        <div class="ml-2">
+          <div>
+            <FormKit
+              v-model="request.preset"
+              type="select"
+              label="Preset Image Style"
+              :options="{
+                'fantasy-art': 'Fantasy Art',
+                'digital-art': 'Digital Art',
+                'comic-book': 'Comic Book',
+              }"
+              validation="required"
+            />
+          </div>
+
+          <div>
+            <FormKit
+              v-model="request.imagePrompt"
+              label="Prompt"
+              type="text"
+              validation="required"
+            />
+          </div>
+
+          <div>
+            <FormKit
+              v-model="request.imageNegativePrompt"
+              label="Negative Prompt"
+              type="text"
+              validation="required"
+            />
+          </div>
+
+          <div>
+            <FormKit
+              type="file"
+              label="Reference Image (optional)"
+              accept=".png, .jpg, .jpeg"
+            />
+          </div>
+        </div>
+      </Accordion>
+
+      <button
+        class="w-full md:w-auto md:ml-auto flex justify-center md:justify-start self-center rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 px-4 py-3 transition-all hover:scale-110"
+        @click="generate(summoner.code)"
+      >
+        <BoltIcon class="mr-2 h-5 w-5 self-center" />
+        <span class="self-center">Conjure </span>
+      </button>
+    </div>
+  </FormKit>
 
   <ModalAlternate :show="showExistinConjurationWarning">
     <div class="md:w-[800px] p-6 bg-neutral-900 rounded-[20px] text-center">
