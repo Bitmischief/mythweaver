@@ -86,6 +86,7 @@ export class GeneratorController {
     const validIdObjects = await prisma.conjuration.findMany({
       where: {
         conjurerCode: code,
+        published: true,
       },
       select: {
         id: true,
