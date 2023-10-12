@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import { v4 as uuidv4 } from 'uuid';
 import { isProduction } from '../lib/utils';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { sleep } from 'openai/core';
 
 const s3 = new S3Client({
   endpoint: 'https://sfo3.digitaloceanspaces.com',
@@ -25,7 +26,12 @@ interface GenerationResponse {
   }>;
 }
 
-export const generateImage = async (prompt: string, count = 1) => {
+export const generateImage = async (
+  prompt: string,
+  count = 1,
+  negativePrompt?: string,
+  stylePreset = 'fantasy-art',
+) => {
   if (!apiKey) throw new Error('Missing Stability API key.');
 
   const response = await axios.post(
@@ -34,6 +40,11 @@ export const generateImage = async (prompt: string, count = 1) => {
       text_prompts: [
         {
           text: prompt,
+          weight: 1,
+        },
+        {
+          text: `blurry, bad, ${negativePrompt}`,
+          weight: -1,
         },
       ],
       cfg_scale: 7,
@@ -41,7 +52,7 @@ export const generateImage = async (prompt: string, count = 1) => {
       width: 1024,
       steps: 30,
       samples: count,
-      style_preset: 'fantasy-art',
+      style_preset: stylePreset,
     },
     {
       headers: {
@@ -69,6 +80,7 @@ export const generateImage = async (prompt: string, count = 1) => {
       url = saveImageLocally(imageId, image.base64);
     }
 
+    await sleep(1000);
     urls.push(url);
   }
 

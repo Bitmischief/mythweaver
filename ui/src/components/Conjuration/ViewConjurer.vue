@@ -61,6 +61,12 @@ function handleBeginConjuring(data: { conjurationRequestId: number }) {
   animationDone.value = false;
   generating.value = true;
 
+  document.getElementById('conjuration')?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'center',
+    inline: 'center',
+  });
+
   conjurationRequestId.value = data.conjurationRequestId;
 
   pollingIntervalId.value = setInterval(async () => {
@@ -112,10 +118,22 @@ function processConjuringComplete() {
             @begin-conjuring="handleBeginConjuring"
           />
         </div>
-        <div class="mt-8 3xl:mt-0 3xl:ml-8 bg-surface-2 w-full rounded-md">
+
+        <ConfigureConjureActions
+          class="flex 3xl:hidden mt-6"
+          :summoned-items="summonedItems.length > 0"
+          :conjuration-id="
+            summonedItems.length > 0 ? summonedItems[0].id : undefined
+          "
+        />
+
+        <div
+          id="conjuration"
+          class="mt-8 3xl:mt-0 3xl:ml-8 bg-surface-2 w-full rounded-md"
+        >
           <div
             v-if="!generating && !conjuration"
-            class="flex justify-center h-full"
+            class="flex min-h-[20rem] justify-center h-full"
           >
             <div class="self-center">
               <div class="text-neutral-700 text-center text-3xl">
@@ -140,7 +158,7 @@ function processConjuringComplete() {
       </div>
 
       <ConfigureConjureActions
-        class="flex md:hidden mt-6"
+        class="flex 3xl:hidden mt-6"
         :summoned-items="summonedItems.length > 0"
         :conjuration-id="
           summonedItems.length > 0 ? summonedItems[0].id : undefined

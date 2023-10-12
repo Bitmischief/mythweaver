@@ -88,11 +88,14 @@ model ConjurationRequest {
   createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
   updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
 
-  userId        Int
-  campaignId    Int
-  generatorCode String
-  count         Int
-  args          Json
+  userId              Int
+  campaignId          Int
+  generatorCode       String
+  count               Int
+  args                Json
+  imagePrompt         String?
+  imageNegativePrompt String?
+  imageStylePreset    String?
 
   user         User?         @relation(fields: [userId], references: [id])
   conjurations Conjuration[]

@@ -4,6 +4,8 @@ import { generateImage } from '../services/imageGeneration';
 
 interface PostImageRequest {
   prompt: string;
+  negativePrompt?: string;
+  stylePreset?: string;
 }
 
 @Route('images')
@@ -17,6 +19,11 @@ export default class ImageController {
     @Inject() trackingInfo: TrackingInfo,
     @Body() request: PostImageRequest,
   ): Promise<any> {
-    return await generateImage(request.prompt, 3);
+    return await generateImage(
+      request.prompt,
+      3,
+      request.negativePrompt,
+      request.stylePreset,
+    );
   }
 }

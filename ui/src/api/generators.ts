@@ -20,6 +20,9 @@ export interface PostConjureRequest {
   count: number;
   campaignId: number;
   customArg?: string;
+  imageStylePreset?: string;
+  imagePrompt?: string;
+  imageNegativePrompt?: string;
 }
 
 export interface CustomArg {

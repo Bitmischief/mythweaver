@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { autoGrowTextArea, trimPlural } from '@/lib/util.ts';
+import { trimPlural } from '@/lib/util.ts';
 import { Conjurer, postConjure } from '@/api/generators.ts';
 import { ref } from 'vue';
 import { useSelectedCampaignId } from '@/lib/hooks.ts';
-import { BoltIcon } from '@heroicons/vue/20/solid';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import Accordion from '@/components/Core/Accordion.vue';
 
@@ -23,7 +22,6 @@ const request = ref({
   imageReferenceImage: '',
 });
 
-const prompt = ref('');
 const existingConjuration = ref(false);
 const showExistinConjurationWarning = ref(false);
 const existinConjurationOverride = ref(false);
@@ -45,8 +43,7 @@ async function generate(generatorCode: string) {
   const generateResponse = await postConjure(generatorCode, {
     count: 1,
     campaignId: selectedCampaignId.value || 0,
-    customArg:
-      prompt.value.length > 500 ? prompt.value.slice(0, 500) : prompt.value,
+    ...request.value,
   });
 
   emit('begin-conjuring', {
@@ -66,7 +63,12 @@ async function generate(generatorCode: string) {
     {{ summoner.description }}
   </div>
 
-  <FormKit type="form">
+  <FormKit
+    v-slot="{ disabled }"
+    :actions="false"
+    type="form"
+    @submit="generate(summoner.code)"
+  >
     <div class="mt-8 text-gray-200">
       <div class="my-8">
         <div class="text-lg mb-4">
@@ -75,19 +77,19 @@ async function generate(generatorCode: string) {
         </div>
         <FormKit
           v-model="request.prompt"
-          label="Prompt"
+          label="Backstory Prompt"
           name="prompt"
           help="This is used to generate the text elements of your conjuration."
           type="textarea"
-          validation="required|maxlength:500"
+          validation="maxlength:500"
           :placeholder="summoner.customizationHelpPrompt"
           auto-height
         />
         <div class="-mt-3 text-xs">{{ request.prompt.length }} / 500</div>
       </div>
 
-      <Accordion title="Image Customization">
-        <div class="ml-2">
+      <Accordion title="Image Customization" subtitle="(optional)">
+        <div class="px-0.5">
           <div>
             <FormKit
               v-model="request.preset"
@@ -98,16 +100,17 @@ async function generate(generatorCode: string) {
                 'digital-art': 'Digital Art',
                 'comic-book': 'Comic Book',
               }"
-              validation="required"
             />
           </div>
 
           <div>
             <FormKit
               v-model="request.imagePrompt"
-              label="Prompt"
-              type="text"
-              validation="required"
+              label="Image Prompt"
+              help="This is used to generate the image for your conjuration."
+              type="textarea"
+              placeholder="a male human with gleaming silver armor and a fiery sword"
+              auto-height
             />
           </div>
 
@@ -115,28 +118,21 @@ async function generate(generatorCode: string) {
             <FormKit
               v-model="request.imageNegativePrompt"
               label="Negative Prompt"
-              type="text"
-              validation="required"
-            />
-          </div>
-
-          <div>
-            <FormKit
-              type="file"
-              label="Reference Image (optional)"
-              accept=".png, .jpg, .jpeg"
+              type="textarea"
+              placeholder="horns, mountains"
+              auto-height
             />
           </div>
         </div>
       </Accordion>
 
-      <button
-        class="w-full md:w-auto md:ml-auto flex justify-center md:justify-start self-center rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 px-4 py-3 transition-all hover:scale-110"
-        @click="generate(summoner.code)"
-      >
-        <BoltIcon class="mr-2 h-5 w-5 self-center" />
-        <span class="self-center">Conjure </span>
-      </button>
+      <div class="mt-8 md:mt-2">
+        <FormKit
+          type="submit"
+          :disabled="disabled as boolean"
+          label="Conjure"
+        />
+      </div>
     </div>
   </FormKit>
 
