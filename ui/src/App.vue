@@ -140,9 +140,9 @@ function confirmEarlyAccessTerms() {
         campaign.
       </div>
 
-      <div class="text-xl mt-6 mb-2">🚀 Kickstarter October 17th 📅</div>
+      <div class="text-xl mt-6 mb-2">🚀 Kickstarter October 24th 📅</div>
       <div class="text-lg text-neutral-500">
-        Our Kickstarter launches on October 17th. Trust me—you won't want to
+        Our Kickstarter launches on October 24th. Trust me—you won't want to
         miss the special artifacts and rewards we have for our early backers.
         There's even a treasure chest or two!
       </div>
