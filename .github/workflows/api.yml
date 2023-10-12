@@ -80,7 +80,7 @@ jobs:
   production:
     runs-on: ubuntu-latest
     environment: production
-    needs: [staging]
+    needs: [development]
     steps:
       - name: Checkout master
         uses: actions/checkout@main
