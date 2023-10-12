@@ -150,7 +150,7 @@ function confirmEarlyAccessTerms() {
       <div class="text-xl mt-6 mb-2">📢 Extend Your Early Access! ✨</div>
       <div class="text-lg text-neutral-500">
         Fancy extending this 48-hour teaser till our Kickstarter launch? It's
-        super easy! Set up Kickstarter Launch Notifications:
+        super easy!
         <a
           href="https://mythweaver.co/earlyaccess"
           target="_blank"

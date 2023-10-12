@@ -65,7 +65,7 @@ spec:
             - name: REDIS_PORT
               value: "<REDIS_PORT>"
             - name: API_URL
-              value: "https://api.mythweaver.co"
+              value: <API_URL>
             - name: STABILITY_API_KEY
               value: <STABILITY_API_KEY>
             - name: MIXPANEL_TOKEN
