@@ -11,9 +11,9 @@ on:
       - ".k8s/**"
 
 jobs:
-  staging:
+  development:
     runs-on: ubuntu-latest
-    environment: staging
+    environment: development
     steps:
       - name: Checkout master
         uses: actions/checkout@main
