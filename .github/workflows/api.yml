@@ -23,14 +23,11 @@ jobs:
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
-      - name: Build container image
-        run: docker build -t ${{ secrets.REGISTRY_NAME }}/mythweaver-api:$(echo $GITHUB_SHA | head -c7) -f .docker/Dockerfile.api .
-
-      - name: Log in to DockerHub Container Registry with short-lived credentials
-        run: docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_TOKEN }}
-
       - name: Setup node
         uses: actions/setup-node@v3
+
+      - name: Build container image
+        run: docker build -t ${{ secrets.REGISTRY_NAME }}/mythweaver-api:$(echo $GITHUB_SHA | head -c7) -f .docker/Dockerfile.api .
 
       - name: Migrate database
         run: >
@@ -40,8 +37,10 @@ jobs:
           yarn prisma migrate deploy &&
           yarn prisma db seed
 
-      - name: Push image to DigitalOcean Container Registry
-        run: docker push ${{ secrets.REGISTRY_NAME }}/mythweaver-api:$(echo $GITHUB_SHA | head -c7)
+      - name: Log in to DockerHub and Push Container
+        run: |
+          docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_TOKEN }}
+          docker push ${{ secrets.REGISTRY_NAME }}/mythweaver-api:$(echo $GITHUB_SHA | head -c7)
 
       - name: Update deployment file
         run: >
@@ -90,12 +89,6 @@ jobs:
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
-      - name: Build container image
-        run: docker build -t ${{ secrets.REGISTRY_NAME }}/mythweaver-api:$(echo $GITHUB_SHA | head -c7) -f .docker/Dockerfile.api .
-
-      - name: Log in to DockerHub Container Registry with short-lived credentials
-        run: docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_TOKEN }}
-
       - name: Setup node
         uses: actions/setup-node@v3
 
@@ -107,8 +100,13 @@ jobs:
           yarn prisma migrate deploy &&
           yarn prisma db seed
 
-      - name: Push image to DigitalOcean Container Registry
-        run: docker push ${{ secrets.REGISTRY_NAME }}/mythweaver-api:$(echo $GITHUB_SHA | head -c7)
+      - name: Build container image
+        run: docker build -t ${{ secrets.REGISTRY_NAME }}/mythweaver-api:$(echo $GITHUB_SHA | head -c7) -f .docker/Dockerfile.api .
+
+      - name: Log in to DockerHub and Push Container
+        run: |
+          docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_TOKEN }}
+          docker push ${{ secrets.REGISTRY_NAME }}/mythweaver-api:$(echo $GITHUB_SHA | head -c7)
 
       - name: Update deployment file
         run: >
