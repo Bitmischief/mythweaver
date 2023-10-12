@@ -1,0 +1,44 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mythweaver-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    service.beta.kubernetes.io/do-loadbalancer-redirect-http-to-https: "true"
+    service.beta.kubernetes.io/do-loadbalancer-enable-proxy-protocol: "true"
+    service.beta.kubernetes.io/do-loadbalancer-size-unit: "1"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      add_header Access-Control-Allow-Methods "PUT, GET, POST, OPTIONS, PATCH, DELETE";
+      add_header Access-Control-Allow-Credentials true;
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "PUT, GET, POST, OPTIONS, PATCH, DELETE"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://dev-app.mythweaver.co"
+spec:
+  tls:
+    - hosts:
+        - dev-app.mythweaver.co
+        - dev-api.mythweaver.co
+      secretName: mythweaver-tls
+  rules:
+    - host: "dev-app.mythweaver.co"
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: mythweaver-ui
+                port:
+                  number: 80
+    - host: "dev-api.mythweaver.co"
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: mythweaver-api
+                port:
+                  number: 80
