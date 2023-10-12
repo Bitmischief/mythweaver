@@ -11,9 +11,9 @@ on:
       - ".k8s/**"
 
 jobs:
-  build:
+  staging:
     runs-on: ubuntu-latest
-    environment: production
+    environment: staging
     steps:
       - name: Checkout master
         uses: actions/checkout@main
@@ -35,7 +35,74 @@ jobs:
       - name: Migrate database
         run: >
           cd api &&
-          export DATABASE_URL="${{secrets.PUBLIC_DATABASE_URL}}" &&
+          export DATABASE_URL="${{secrets.DATABASE_URL}}" &&
+          yarn install &&
+          yarn prisma migrate deploy &&
+          yarn prisma db seed
+
+      - name: Push image to DigitalOcean Container Registry
+        run: docker push ${{ secrets.REGISTRY_NAME }}/mythweaver-api:$(echo $GITHUB_SHA | head -c7)
+
+      - name: Update deployment file
+        run: >
+          TAG=$(echo $GITHUB_SHA | head -c7) && 
+          sed -i 's|<IMAGE>|${{ secrets.REGISTRY_NAME }}/mythweaver-api:'${TAG}'|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml &&
+          sed -i 's|<DATABASE_URL>|${{ secrets.DATABASE_URL }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml &&
+          sed -i 's|<JWT_SECRET_KEY>|${{ secrets.JWT_SECRET_KEY }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml &&
+          sed -i 's|<JWT_REFRESH_SECRET_KEY>|${{ secrets.JWT_REFRESH_SECRET_KEY }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml &&
+          sed -i 's|<GOOGLE_CLIENT_ID>|${{ secrets.GOOGLE_CLIENT_ID }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml &&
+          sed -i 's|<GOOGLE_CLIENT_SECRET>|${{ secrets.GOOGLE_CLIENT_SECRET }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml &&
+          sed -i 's|<OPENAI_API_KEY>|${{ secrets.OPENAI_API_KEY }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml &&
+          sed -i 's|<REDIS_ENDPOINT>|${{ secrets.REDIS_ENDPOINT }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml &&
+          sed -i 's|<REDIS_PASSWORD>|${{ secrets.REDIS_PASSWORD }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml &&
+          sed -i 's|<REDIS_PORT>|${{ secrets.REDIS_PORT }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml &&
+          sed -i 's|<STABILITY_API_KEY>|${{ secrets.STABILITY_API_KEY }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml &&
+          sed -i 's|<MIXPANEL_TOKEN>|${{ secrets.MIXPANEL_TOKEN }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml &&
+          sed -i 's|<MAILCHIMP_AUDIENCE_ID>|${{ secrets.MAILCHIMP_AUDIENCE_ID }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml &&
+          sed -i 's|<MAILCHIMP_SERVER_PREFIX>|${{ secrets.MAILCHIMP_SERVER_PREFIX }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml &&
+          sed -i 's|<MAILCHIMP_API_KEY>|${{ secrets.MAILCHIMP_API_KEY }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml &&
+          sed -i 's|<MAILCHIMP_TRANSACTIONAL_API_KEY>|${{ secrets.MAILCHIMP_TRANSACTIONAL_API_KEY }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml &&
+          sed -i 's|<SPACES_KEY>|${{ secrets.SPACES_KEY }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml &&
+          sed -i 's|<SPACES_SECRET>|${{ secrets.SPACES_SECRET }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+
+      - name: Save DigitalOcean kubeconfig with short-lived credentials
+        run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 ${{ secrets.CLUSTER_NAME }}
+
+      - name: Deploy to DigitalOcean Kubernetes
+        run: kubectl apply -f $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+
+      - name: Deploy ingress to DigitalOcean Kubernetes
+        run: kubectl apply -f $GITHUB_WORKSPACE/.k8s/ingress.yml
+
+      - name: Verify deployment
+        run: kubectl rollout status deployment/mythweaver-api
+
+  production:
+    runs-on: ubuntu-latest
+    environment: production
+    needs: [staging]
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@main
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Build container image
+        run: docker build -t ${{ secrets.REGISTRY_NAME }}/mythweaver-api:$(echo $GITHUB_SHA | head -c7) -f .docker/Dockerfile.api .
+
+      - name: Log in to DockerHub Container Registry with short-lived credentials
+        run: docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+
+      - name: Migrate database
+        run: >
+          cd api &&
+          export DATABASE_URL="${{secrets.DATABASE_URL}}" &&
           yarn install &&
           yarn prisma migrate deploy &&
           yarn prisma db seed
