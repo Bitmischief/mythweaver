@@ -1,7 +1,7 @@
 import axios from 'axios';
 import fs from 'node:fs';
 import { v4 as uuidv4 } from 'uuid';
-import { isProduction } from '../lib/utils';
+import { isLocalDevelopment } from '../lib/utils';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { sleep } from 'openai/core';
 
@@ -74,7 +74,7 @@ export const generateImage = async (
     const imageId = uuidv4();
     let url = '';
 
-    if (isProduction) {
+    if (!isLocalDevelopment) {
       url = await uploadImage(imageId, image.base64);
     } else {
       url = saveImageLocally(imageId, image.base64);

@@ -1,4 +1,6 @@
 export const isProduction = process.env.API_URL === 'https://api.mythweaver.co';
+export const isLocalDevelopment =
+  process.env.API_URL === 'http://localhost:8000';
 
 export function shuffle<T>(array: T[]): T[] {
   let currentIndex = array.length,
