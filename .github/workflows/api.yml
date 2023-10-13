@@ -49,6 +49,7 @@ jobs:
           TAG=$(echo $GITHUB_SHA | head -c7) && 
           sed -i 's|<IMAGE>|${{ secrets.REGISTRY_NAME }}/mythweaver-api:'${TAG}'|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml &&
           sed -i 's|<API_URL>|${{ vars.API_URL }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml &&
+          sed -i 's|<APP_URL>|${{ vars.APP_URL }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml &&
           sed -i 's|<DATABASE_URL>|${{ secrets.DATABASE_URL }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml &&
           sed -i 's|<JWT_SECRET_KEY>|${{ secrets.JWT_SECRET_KEY }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml &&
           sed -i 's|<JWT_REFRESH_SECRET_KEY>|${{ secrets.JWT_REFRESH_SECRET_KEY }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml &&

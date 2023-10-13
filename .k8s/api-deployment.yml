@@ -66,6 +66,8 @@ spec:
               value: "<REDIS_PORT>"
             - name: API_URL
               value: <API_URL>
+            - name: APP_URL
+              value: <APP_URL>
             - name: STABILITY_API_KEY
               value: <STABILITY_API_KEY>
             - name: MIXPANEL_TOKEN
