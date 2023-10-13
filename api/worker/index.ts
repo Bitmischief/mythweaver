@@ -6,13 +6,7 @@ import { completeSession } from './jobs/completeSession';
 import { tagUsersAsEarlyAccess } from './jobs/tagUsersAsEarlyAccess';
 const logger = parentLogger.getSubLogger();
 
-const config = {
-  redis: {
-    port: process.env.REDIS_PORT as unknown as number,
-    host: process.env.REDIS_ENDPOINT,
-    password: process.env.REDIS_PASSWORD,
-  },
-};
+const config = process.env.REDIS_ENDPOINT || '';
 
 export interface ProcessTagsEvent {
   conjurationIds: number[];
