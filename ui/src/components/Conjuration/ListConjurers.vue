@@ -1,5 +1,8 @@
 <template>
-  <div v-if="generators.length" class="grid grid-cols-1 gap-8 md:grid-cols-4">
+  <div
+    v-if="generators.length"
+    class="grid grid-cols-1 gap-8 md:grid-cols-2 3xl:grid-cols-4"
+  >
     <div
       v-for="gen of generators"
       :key="gen.name"

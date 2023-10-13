@@ -32,6 +32,10 @@ export interface PostGeneratorGenerate {
   campaignId: number;
   count: number;
   customArg?: string;
+  prompt?: string;
+  imageStylePreset?: string;
+  imagePrompt?: string;
+  imageNegativePrompt?: string;
 }
 
 export interface PostGenerateArbitraryRequest {
@@ -164,7 +168,10 @@ export class GeneratorController {
         campaignId: request.campaignId,
         generatorCode: code,
         count: request.count,
-        args: [request.customArg || ''],
+        args: [request.customArg || request.prompt || ''],
+        imageStylePreset: request.imageStylePreset,
+        imagePrompt: request.imagePrompt,
+        imageNegativePrompt: request.imageNegativePrompt,
       },
     });
 
@@ -172,9 +179,12 @@ export class GeneratorController {
       count: request.count,
       campaignId: request.campaignId,
       generatorCode: code,
-      arg: request.customArg,
+      arg: request.customArg || request.prompt || '',
       conjurationRequestId: conjurationRequest.id,
       userId,
+      imageStylePreset: request.imageStylePreset,
+      imagePrompt: request.imagePrompt,
+      imageNegativePrompt: request.imageNegativePrompt,
     });
 
     return {

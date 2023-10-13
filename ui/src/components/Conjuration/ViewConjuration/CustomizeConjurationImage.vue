@@ -8,6 +8,7 @@ import { autoGrowTextArea } from '@/lib/util.ts';
 
 const props = defineProps<{
   prompt?: string;
+  negativePrompt?: string;
   imageUri?: string;
   looks?: string;
   noActions?: boolean;
@@ -20,6 +21,8 @@ const emit = defineEmits(['cancel']);
 const eventBus = useEventBus();
 
 const editablePrompt = ref(props.prompt);
+const editableNegativePrompt = ref(props.negativePrompt);
+const stylePreset = ref('fantasy-art');
 const conjuring = ref(false);
 const done = ref(false);
 const imageUris = ref([] as string[]);
@@ -43,7 +46,10 @@ async function conjure() {
   conjuring.value = true;
   done.value = false;
 
-  const conjureImageResponse = await conjureImage(editablePrompt.value || '');
+  const conjureImageResponse = await conjureImage(
+    editablePrompt.value || '',
+    editableNegativePrompt.value || '',
+  );
   imageUris.value = conjureImageResponse.data;
   done.value = true;
   conjuring.value = false;
@@ -94,16 +100,18 @@ function setImage() {
       </ul>
     </div>
 
-    <div class="md:flex md:justify-between mt-4">
+    <div class="md:flex mb-4 md:justify-between mt-4">
       <LightboxImage
         v-if="imageUri"
         :src="imageUri"
-        class="w-72 h-72 my-auto rounded-md"
+        class="w-72 h-72 mx-auto md:my-auto rounded-md"
       />
       <div :class="{ 'md:ml-4': prompt?.length }">
         <template v-if="prompt?.length">
-          <div class="text-md text-neutral-500">Original Prompt</div>
-          <div class="text-lg text-neutral-200">
+          <div class="mt-2 md:mt-0 text-md text-neutral-500">
+            Original Prompt
+          </div>
+          <div class="md:text-lg text-neutral-200">
             {{ props.prompt }}
           </div>
         </template>
@@ -117,29 +125,55 @@ function setImage() {
       </div>
     </div>
 
-    <textarea
-      v-model="editablePrompt"
-      class="my-4 3xl:my-8 w-full overflow-hidden rounded-md resize-none text-lg 3xl:text-2xl border border-neutral-800 bg-surface p-3 shadow-lg"
-      placeholder="a male human paladin with a longsword and shield"
-      @keyup="autoGrowTextArea"
-    />
+    <FormKit
+      v-slot="{ disabled }"
+      type="form"
+      :actions="false"
+      @submit="conjure"
+    >
+      <FormKit
+        v-model="editablePrompt"
+        type="textarea"
+        label="Prompt"
+        placeholder="a male human paladin with a longsword and shield"
+        auto-height
+      />
 
-    <div v-if="!noActions" class="flex">
-      <button
-        class="ml-2 bg-neutral-800 px-4 text-lg rounded-md flex transition-all h-12 hover:scale-110 mr-2"
-        @click="emit('cancel')"
-      >
-        <span class="self-center">{{
-          cancelButtonTextOverride ? cancelButtonTextOverride : 'Cancel'
-        }}</span>
-      </button>
-      <button
-        class="bg-gradient-to-r text-lg md:w-52 from-fuchsia-500 flex to-blue-400 h-12 transition-all hover:scale-110 px-4 rounded-md"
-        @click="conjure"
-      >
-        <span class="self-center text-center w-full"> Continue </span>
-      </button>
-    </div>
+      <FormKit
+        v-model="editableNegativePrompt"
+        type="textarea"
+        label="Negative prompt"
+        placeholder="hands, low-resolution"
+        auto-height
+      />
+
+      <FormKit
+        v-model="stylePreset"
+        type="select"
+        label="Preset Image Style"
+        :options="{
+          'fantasy-art': 'Fantasy Art',
+          'digital-art': 'Digital Art',
+          'comic-book': 'Comic Book',
+        }"
+      />
+
+      <div v-if="!noActions" class="flex">
+        <button
+          class="ml-2 bg-neutral-800 px-4 text-lg rounded-md flex transition-all h-12 hover:scale-110 mr-2"
+          @click="emit('cancel')"
+        >
+          <span class="self-center">{{
+            cancelButtonTextOverride ? cancelButtonTextOverride : 'Cancel'
+          }}</span>
+        </button>
+        <FormKit
+          type="submit"
+          :disabled="disabled as boolean"
+          label="Conjure"
+        />
+      </div>
+    </FormKit>
   </template>
   <template v-else-if="conjuring && !done">
     <div class="text-4xl text-neutral-500 mb-2">Conjuring...</div>

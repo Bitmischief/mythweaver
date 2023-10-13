@@ -86,7 +86,7 @@ function confirmEarlyAccessTerms() {
     <div class="block w-full">
       <div
         v-if="!!authStore.tokens"
-        class="justify-end mr-4 bg-surface-2 h-[5rem] hidden md:flex"
+        class="justify-end bg-surface-2 h-[5rem] hidden md:flex"
       >
         <NavBarHeader />
       </div>
@@ -172,7 +172,7 @@ function confirmEarlyAccessTerms() {
 
   <ModalAlternate :show="showCustomizeImageModal" extra-dark>
     <div
-      class="md:w-[800px] p-6 px-12 bg-neutral-900 rounded-[20px] text-white text-center"
+      class="md:w-[800px] p-2 md:p-6 md:px-12 bg-neutral-900 rounded-[20px] text-white text-center"
     >
       <CustomizeConjurationImage
         :prompt="customizeImageArgs?.prompt"

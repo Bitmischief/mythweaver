@@ -9,6 +9,8 @@ const router = express.Router();
 
 const postImageSchema = z.object({
   prompt: z.string().max(250),
+  negativePrompt: z.string().max(250).optional(),
+  stylePreset: z.string().max(250).optional(),
 });
 
 router.post('/', [

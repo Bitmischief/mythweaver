@@ -203,13 +203,11 @@ function normalizeKeyName(key: string) {
           <div class="mb-1 text-lg text-neutral-400">
             {{ normalizeKeyName(data.key) }}
           </div>
-          <textarea
+          <FormKit
             v-model="data.value"
-            class="min-h-[10rem] w-full overflow-hidden rounded-xl border border-neutral-800 bg-surface p-3 text-lg shadow-lg"
+            type="textarea"
             :disabled="!editable"
-            @click="$event.stopPropagation()"
-            @focus="autoGrowTextArea"
-            @keyup="autoGrowTextArea"
+            auto-height
           />
         </div>
       </div>

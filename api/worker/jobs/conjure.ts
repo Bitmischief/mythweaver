@@ -35,7 +35,12 @@ export const conjure = async (request: ConjureEvent) => {
     });
   }
 
-  const prompt = buildPrompt(generator, campaign, request.arg);
+  const prompt = buildPrompt(
+    generator,
+    campaign,
+    request.arg,
+    !!request.imagePrompt,
+  );
 
   let conjuration: any = undefined;
 
@@ -83,7 +88,7 @@ export const conjure = async (request: ConjureEvent) => {
         imageUri: undefined,
         tags: undefined,
       },
-      imageAIPrompt: conjuration.imageAIPrompt,
+      imageAIPrompt: request.imagePrompt || conjuration.imageAIPrompt,
       imageUri: conjuration.imageUri,
       conjurerCode: generator.code || '',
       tags: [
@@ -96,7 +101,15 @@ export const conjure = async (request: ConjureEvent) => {
     },
   });
 
-  conjuration.imageUri = (await generateImage(conjuration.imageAIPrompt, 1))[0];
+  conjuration.imageUri = (
+    await generateImage(
+      request.imagePrompt || conjuration.imageAIPrompt,
+      1,
+      request.imageNegativePrompt,
+      request.imageStylePreset,
+    )
+  )[0];
+
   await prisma.conjuration.update({
     where: {
       id: createdConjuration.id,
@@ -115,6 +128,7 @@ const buildPrompt = (
   generator: Generator,
   campaign?: Campaign | undefined,
   customArg?: string | undefined,
+  generateImagePrompt = true,
 ) => {
   let prompt = `You are a master storyteller. Please generate me a unique ${trimPlural(
     generator.name.toLowerCase(),
@@ -154,7 +168,7 @@ const buildPrompt = (
     generator.formatPrompt
   }. Please escape any double quotes in any JSON properties with a backslash.`;
 
-  if (generator.allowsImageGeneration) {
+  if (generator.allowsImageGeneration && generateImagePrompt) {
     prompt += `Please generate a prompt to be used by an AI image generator to generate an portrait image for this ${trimPlural(
       generator.name.toLowerCase(),
     )} to be stored in the JSON property 'imageAIPrompt'. ${

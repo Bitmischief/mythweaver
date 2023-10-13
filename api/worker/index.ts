@@ -36,6 +36,9 @@ export interface ConjureEvent {
   generatorCode: string;
   count: number;
   arg?: string | undefined;
+  imageStylePreset?: string | undefined;
+  imagePrompt?: string | undefined;
+  imageNegativePrompt?: string | undefined;
 }
 
 export const conjureQueue = new Queue<ConjureEvent>('conjuring', config);

@@ -1,33 +1,42 @@
 <script setup lang="ts">
-import { ChevronDownIcon } from '@heroicons/vue/20/solid';
+import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/vue/20/solid';
 import { ref } from 'vue';
+import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue';
 
 const props = defineProps<{
   title: string;
+  subtitle?: string;
   defaultOpen?: boolean;
 }>();
-
-const open = ref(props.defaultOpen || false);
 </script>
 
 <template>
-  <div>
-    <div class="flex mb-4 cursor-pointer" @click="open = !open">
-      <ChevronDownIcon
-        class="w-6 h-6 text-neutral-400 mr-2 transition-all duration-300 ease-in-out self-center"
-        :class="{ 'transform rotate-180': open }"
-      />
-      <div class="text-white text-lg font-semibold self-center">
-        {{ title }}
+  <Disclosure v-slot="{ open }">
+    <DisclosureButton class="text-white text-lg font-semibold self-center">
+      <div class="flex">
+        <span>{{ title }}</span>
+        <ChevronUpIcon
+          :class="open ? 'rotate-180 transform' : ''"
+          class="h-5 w-5 self-center ml-2 transition-all duration-300 ease-in-out"
+        />
       </div>
-    </div>
-    <div class="overflow-hidden">
-      <div
-        class="md:w-[1125px] text-neutral-200 text-[15px] font-normal leading-7 overflow-hidden transition-all duration-200 ease-in-out"
-        :class="{ 'mt-0': open, 'mt-[-1000%] md:mt-[-100%]': !open }"
-      >
-        <slot></slot>
-      </div>
-    </div>
-  </div>
+    </DisclosureButton>
+    <transition
+      enter-active-class="transition duration-500 ease-out"
+      enter-from-class="transform scale-95 opacity-0"
+      enter-to-class="transform scale-100 opacity-100"
+      leave-active-class="transition duration-300 ease-out"
+      leave-from-class="transform scale-100 opacity-100"
+      leave-to-class="transform scale-95 opacity-0"
+    >
+      <DisclosurePanel>
+        <div v-if="subtitle" class="mt-1 text-left text-sm text-neutral-500">
+          {{ subtitle }}
+        </div>
+        <div class="pt-4">
+          <slot></slot>
+        </div>
+      </DisclosurePanel>
+    </transition>
+  </Disclosure>
 </template>
