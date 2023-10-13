@@ -39,7 +39,7 @@ export const conjure = async (request: ConjureEvent) => {
     generator,
     campaign,
     request.arg,
-    !!request.imagePrompt,
+    !request.imagePrompt,
   );
 
   let conjuration: any = undefined;
