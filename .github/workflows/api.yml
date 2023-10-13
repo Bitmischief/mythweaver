@@ -13,7 +13,9 @@ on:
 jobs:
   development:
     runs-on: ubuntu-latest
-    environment: development
+    environment:
+      name: development
+      url: https://dev-api.mythweaver.co
     steps:
       - name: Checkout master
         uses: actions/checkout@main
@@ -78,7 +80,9 @@ jobs:
 
   production:
     runs-on: ubuntu-latest
-    environment: production
+    environment:
+      name: production
+      url: https://api.mythweaver.co
     needs: [development]
     steps:
       - name: Checkout master
