@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/vue/20/solid';
-import { ref } from 'vue';
+import { ChevronUpIcon } from '@heroicons/vue/20/solid';
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue';
 
-const props = defineProps<{
+defineProps<{
   title: string;
   subtitle?: string;
   defaultOpen?: boolean;

@@ -7,7 +7,6 @@ import { useEventBus } from '@/lib/events.ts';
 import { showError, showSuccess } from '@/lib/notifications.ts';
 import { AxiosError } from 'axios';
 import { useCurrentUserId } from '@/lib/hooks.ts';
-import { autoGrowTextArea } from '@/lib/util.ts';
 import CustomizableImage from '@/components/Images/CustomizableImage.vue';
 
 const props = defineProps<{

@@ -14,7 +14,13 @@ const emit = defineEmits(['begin-conjuring']);
 
 const selectedCampaignId = useSelectedCampaignId();
 
-const request = ref({
+const request = ref<{
+  prompt: string;
+  preset: 'fantasy-art' | 'digital-art' | 'comic-book';
+  imagePrompt: string;
+  imageNegativePrompt: string;
+  imageReferenceImage: string;
+}>({
   prompt: '',
   preset: 'fantasy-art',
   imagePrompt: '',

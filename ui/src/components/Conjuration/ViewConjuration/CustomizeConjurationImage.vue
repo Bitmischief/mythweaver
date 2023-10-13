@@ -4,7 +4,6 @@ import LightboxImage from '@/components/LightboxImage.vue';
 import { conjureImage } from '@/api/images.ts';
 import { useEventBus } from '@/lib/events.ts';
 import { ArrowsPointingOutIcon } from '@heroicons/vue/20/solid';
-import { autoGrowTextArea } from '@/lib/util.ts';
 
 const props = defineProps<{
   prompt?: string;
@@ -22,7 +21,9 @@ const eventBus = useEventBus();
 
 const editablePrompt = ref(props.prompt);
 const editableNegativePrompt = ref(props.negativePrompt);
-const stylePreset = ref('fantasy-art');
+const stylePreset = ref<
+  'fantasy-art' | 'digital-art' | 'comic-book' | undefined
+>('fantasy-art');
 const conjuring = ref(false);
 const done = ref(false);
 const imageUris = ref([] as string[]);
