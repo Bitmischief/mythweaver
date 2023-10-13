@@ -8,7 +8,7 @@ const logger = parentLogger.getSubLogger();
 
 const config = {
   redis: {
-    port: 6379,
+    port: process.env.REDIS_PORT,
     host: process.env.REDIS_ENDPOINT,
     password: process.env.REDIS_PASSWORD,
   },
