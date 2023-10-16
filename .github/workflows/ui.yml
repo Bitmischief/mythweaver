@@ -26,7 +26,7 @@ jobs:
       - name: Prepare .env
         run: |
           cd ui
-          echo VITE_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} >> .env
+          echo VITE_INTERCOM_APP_TOKEN=${{ vars.INTERCOM_APP_TOKEN }} >> .env 
           echo VITE_API_URL=${{ vars.API_URL }} >> .env
           echo VITE_DD_CLIENT_TOKEN=${{ vars.DD_CLIENT_TOKEN }} >> .env
           echo VITE_DD_APP_ID=${{ vars.DD_APP_ID }} >> .env
