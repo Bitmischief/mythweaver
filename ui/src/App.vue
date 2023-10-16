@@ -40,6 +40,10 @@ onMounted(async () => {
     await authStore.loadCurrentUser();
   }
 
+  eventBus.$on('user-loaded', async () => {
+    await initIntercom();
+  });
+
   await initIntercom();
 });
 

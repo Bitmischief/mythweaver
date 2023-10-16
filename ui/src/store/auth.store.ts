@@ -4,6 +4,7 @@ import router from '@/router/router.ts';
 import { showError } from '@/lib/notifications.ts';
 import { getCurrentUser, User } from '@/api/users.ts';
 import { datadogLogs } from '@datadog/browser-logs';
+import { useEventBus } from '@/lib/events.ts';
 
 interface AuthStoreState {
   tokens: any;
@@ -32,6 +33,9 @@ export const useAuthStore = defineStore({
       try {
         const userResponse = await getCurrentUser();
         this.user = userResponse.data;
+
+        const eventBus = useEventBus();
+        eventBus.$emit('user-loaded', this.user);
       } catch (err) {
         showError({ message: 'Unable to load user, please try again soon.' });
       } finally {
