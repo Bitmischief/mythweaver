@@ -36,6 +36,11 @@
   resolved "https://registry.yarnpkg.com/@datadog/browser-core/-/browser-core-4.50.0.tgz#cccac137af5c8921489f20b7e0104be7c0bc27af"
   integrity sha512-I5fRko3h3xAbH/pktCFyGi6LaktL4E0KbBnYn0dcHE8fv/CHCSmAuz3bne5bElMIyzHRGZa1T7f8ttPFXTAZPw==
 
+"@datadog/browser-core@5.0.0":
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-core/-/browser-core-5.0.0.tgz#226646b4fb24271169933ba9f7c360b98a3cb4fc"
+  integrity sha512-n3DRTlURc2EnN0sRPpUiI5RWopZHbA+GBbo+DM8xuMsI/cZceox9AIeIWgE+wAvxD0mhrXxQTFM0SSW74DaJaA==
+
 "@datadog/browser-logs@^4.50.0":
   version "4.50.0"
   resolved "https://registry.yarnpkg.com/@datadog/browser-logs/-/browser-logs-4.50.0.tgz#cefebb5817494dde5ed5a99811bd67aa9885619a"
@@ -43,20 +48,20 @@
   dependencies:
     "@datadog/browser-core" "4.50.0"
 
-"@datadog/browser-rum-core@4.50.0":
-  version "4.50.0"
-  resolved "https://registry.yarnpkg.com/@datadog/browser-rum-core/-/browser-rum-core-4.50.0.tgz#4de02318f1ec03764fab9248f4b650b5292f270a"
-  integrity sha512-Ci+ZTWQ2IB91dRVFbfop8e/LjGCEqjy3MtTtlm+pg1x5JtY1cArcrH7swJcYfNnGBMXjDWiyRXgYaVH73WLfFQ==
+"@datadog/browser-rum-core@5.0.0":
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-rum-core/-/browser-rum-core-5.0.0.tgz#a31bd7632585702f028845c00412793676f132b6"
+  integrity sha512-7pCetYShl4M+3kr3rr0ETdR2fsVgIUzM+2w4LWKG92O+MoeIHEewEf1YLVap1J1C+T7Qr5Ms/3L9NuVvQUJXuw==
   dependencies:
-    "@datadog/browser-core" "4.50.0"
+    "@datadog/browser-core" "5.0.0"
 
-"@datadog/browser-rum@^4.50.0":
-  version "4.50.0"
-  resolved "https://registry.yarnpkg.com/@datadog/browser-rum/-/browser-rum-4.50.0.tgz#bb342baf7333346147ba198298dfee21f3b1e491"
-  integrity sha512-DlzNejHvQgaNn4U56z0Ynguz8uYn/xG7hFzZqJkJuq/LplRHGn1KFc3xdfS/Sc9VgivdAMAIzAV0F3nC+tns2A==
+"@datadog/browser-rum@^5.0.0":
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-rum/-/browser-rum-5.0.0.tgz#985f04e85ab53e8a821c98fe09f93538ea8bec77"
+  integrity sha512-obXGZ3lqn88xUoXqEViZCItcK3dP59u+5XV/G7vlyNLfpYJ+3CMdvKmlQW9cJeocu4yWgF6qMtA0Co7QHUK6NA==
   dependencies:
-    "@datadog/browser-core" "4.50.0"
-    "@datadog/browser-rum-core" "4.50.0"
+    "@datadog/browser-core" "5.0.0"
+    "@datadog/browser-rum-core" "5.0.0"
 
 "@esbuild/android-arm64@0.18.17":
   version "0.18.17"
