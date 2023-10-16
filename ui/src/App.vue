@@ -7,7 +7,7 @@ import {
   NO_CAMPAIGNS_EVENT,
   useEventBus,
 } from '@/lib/events.ts';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, onUpdated, ref } from 'vue';
 import NavBarHeader from '@/components/Navigation/NavBarHeader.vue';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import NewCampaign from '@/components/Campaigns/NewCampaign.vue';
@@ -18,11 +18,13 @@ import { SparklesIcon } from '@heroicons/vue/20/solid';
 import { useEarlyAccessCutoff } from '@/lib/hooks.ts';
 import { differenceInHours } from 'date-fns';
 import CustomizeConjurationImage from '@/components/Conjuration/ViewConjuration/CustomizeConjurationImage.vue';
+import { useIntercom } from '@homebaseai/vue3-intercom';
 
 const authStore = useAuthStore();
 const eventBus = useEventBus();
 const earlyAccessStore = useEarlyAccessStore();
 const earlyAccessCutoff = useEarlyAccessCutoff();
+const intercom = useIntercom();
 
 const { confirmed: confirmedEarlyAccess } = storeToRefs(earlyAccessStore);
 
@@ -37,7 +39,23 @@ onMounted(async () => {
   if (authStore.tokens) {
     await authStore.loadCurrentUser();
   }
+
+  await initIntercom();
 });
+
+onUpdated(async () => {
+  await initIntercom();
+});
+
+async function initIntercom() {
+  await intercom.boot({
+    app_id: import.meta.env.VITE_INTERCOM_APP_TOKEN as string,
+    user_id: authStore.user?.id,
+    name: authStore.user?.email,
+    email: authStore.user?.email,
+    created_at: authStore.user?.createdAt,
+  } as any);
+}
 
 const showCreateCampaign = ref(false);
 
