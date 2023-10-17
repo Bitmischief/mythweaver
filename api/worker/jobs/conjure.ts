@@ -39,7 +39,7 @@ export const conjure = async (request: ConjureEvent) => {
     generator,
     campaign,
     request.arg,
-    !request.imagePrompt,
+    request.imagePrompt,
   );
 
   let conjuration: any = undefined;
@@ -48,10 +48,19 @@ export const conjure = async (request: ConjureEvent) => {
     let response: any;
 
     try {
-      response = await openai.completions.create({
-        model: 'text-davinci-003',
-        prompt,
-        max_tokens: 3000,
+      response = await openai.chat.completions.create({
+        model: 'gpt-4',
+        messages: [
+          {
+            role: 'system',
+            content:
+              'You are a helpful assistant who is knowledgeable in tabletop roleplaying games.',
+          },
+          {
+            role: 'user',
+            content: prompt,
+          },
+        ],
       });
     } catch (err: any) {
       logger.error('Error generating character with openai', err.response.data);
@@ -64,7 +73,7 @@ export const conjure = async (request: ConjureEvent) => {
       });
     }
 
-    const generatedJson = response.choices[0].text?.trim() || '';
+    const generatedJson = response.choices[0]?.message?.content || '';
     logger.info('Received json from openai', generatedJson);
 
     const conjurationString = sanitizeJson(generatedJson);
@@ -136,7 +145,7 @@ const buildPrompt = (
   generator: Generator,
   campaign?: Campaign | undefined,
   customArg?: string | undefined,
-  generateImagePrompt = true,
+  imagePrompt?: string | undefined,
 ) => {
   let prompt = `You are a master storyteller. Please generate me a unique ${trimPlural(
     generator.name.toLowerCase(),
@@ -174,14 +183,16 @@ const buildPrompt = (
     generator.name.toLowerCase(),
   )} with really engaging, immersive and compelling attributes. Please return JSON only so that I can easily deserialize into a javascript object. Use the following format. ${
     generator.formatPrompt
-  }. Please escape any double quotes in any JSON properties with a backslash.`;
+  }. Please escape any double quotes in any JSON properties with a backslash. `;
 
-  if (generator.allowsImageGeneration && generateImagePrompt) {
+  if (generator.allowsImageGeneration && !imagePrompt) {
     prompt += `Please generate a prompt to be used by an AI image generator to generate an portrait image for this ${trimPlural(
       generator.name.toLowerCase(),
     )} to be stored in the JSON property 'imageAIPrompt'. ${
       generator.imagePromptExtraContext
     }. `;
+  } else if (imagePrompt) {
+    prompt += `Please reference this image prompt I am using for the character portrait to further guide your generation: "${imagePrompt}". `;
   }
 
   if (generator.basePromptExtraContext) {

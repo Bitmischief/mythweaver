@@ -36,7 +36,7 @@ const conjurers: Generator[] = [
       '{ \n      "name": "", \n      "looks": "", \n      "imageAIPrompt": "", \n      "personality": "",\n      "quirks": ""\n      "fears": ""\n      "hobbies": ""\n      "background": ""\n      "tags": [""]\n    }',
     allowsImageGeneration: true,
     imagePromptExtraContext:
-      "Include the character's TTRPG class, gender, facial features and clothing.",
+      "Include the characters' sex and any defining visual characteristics in the prompt.",
     basePromptExtraContext:
       "Please thoroughly flesh out the character's backstory, including their motivations, goals, and fears, using at least 100 words to describe the background of this character. Please populate tags with any values you think applicable to this character, to allow easy searching, including their race, occupation, gender, class and any others you deem helpful.",
     supportedImageStylePresets: ['fantasy-art', 'digital-art', 'comic-book'],
