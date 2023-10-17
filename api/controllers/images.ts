@@ -5,7 +5,13 @@ import { generateImage } from '../services/imageGeneration';
 interface PostImageRequest {
   prompt: string;
   negativePrompt?: string;
-  stylePreset?: string;
+  stylePreset?: ImageStylePreset;
+}
+
+export enum ImageStylePreset {
+  FANTASY_ART = 'fantasy-art',
+  DIGITAL_ART = 'digital-art',
+  COMIC_BOOK = 'comic-book',
 }
 
 @Route('images')
@@ -19,11 +25,12 @@ export default class ImageController {
     @Inject() trackingInfo: TrackingInfo,
     @Body() request: PostImageRequest,
   ): Promise<any> {
-    return await generateImage(
-      request.prompt,
-      3,
-      request.negativePrompt,
-      request.stylePreset,
-    );
+    return await generateImage({
+      userId,
+      prompt: request.prompt,
+      count: 3,
+      negativePrompt: request.negativePrompt,
+      stylePreset: request.stylePreset,
+    });
   }
 }

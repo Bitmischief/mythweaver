@@ -22,6 +22,7 @@ const conjurationsPagingQuery = ref(defaultPaging);
 
 const defaultFilters = {
   conjurerCodes: [],
+  imageStylePreset: undefined,
   tags: [],
 };
 const conjurationsFilterQuery = ref(defaultFilters);

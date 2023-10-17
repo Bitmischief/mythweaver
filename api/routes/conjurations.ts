@@ -7,6 +7,7 @@ import {
 } from '../lib/validationMiddleware';
 import ConjurationController from '../controllers/conjurations';
 import { useInjectLoggingInfo } from '../lib/loggingMiddleware';
+import { ImageStylePreset } from '../controllers/images';
 
 const router = express.Router();
 
@@ -14,6 +15,7 @@ const getConjurationsSchema = z.object({
   campaignId: z.coerce.number().default(0),
   saved: z.coerce.boolean().default(false).optional(),
   conjurerCodes: z.string().optional(),
+  stylePreset: z.enum(['fantasy-art', 'digital-art', 'comic-book']).optional(),
   tags: z.string().optional(),
   offset: z.coerce.number().default(0).optional(),
   limit: z.coerce.number().min(1).default(25).optional(),
@@ -32,6 +34,7 @@ router.get('/', [
       campaignId = 0,
       saved = false,
       conjurerCodes,
+      stylePreset,
       tags,
       offset = 0,
       limit = 25,
@@ -43,6 +46,7 @@ router.get('/', [
       campaignId as number,
       saved as boolean,
       conjurerCodes as string,
+      stylePreset as ImageStylePreset,
       tags as string,
       offset as number,
       limit as number,

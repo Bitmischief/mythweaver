@@ -11,6 +11,7 @@ export interface Generator {
   children?: Generator[];
   promptOverride?: string;
   basePromptExtraContext?: string;
+  supportedImageStylePresets?: string[];
 }
 
 export interface GeneratorCustomArg {
@@ -38,6 +39,7 @@ const conjurers: Generator[] = [
       "Include the character's TTRPG class, gender, facial features and clothing.",
     basePromptExtraContext:
       "Please thoroughly flesh out the character's backstory, including their motivations, goals, and fears, using at least 100 words to describe the background of this character. Please populate tags with any values you think applicable to this character, to allow easy searching, including their race, occupation, gender, class and any others you deem helpful.",
+    supportedImageStylePresets: ['fantasy-art', 'digital-art', 'comic-book'],
   },
   // {
   //   code: "encounters",
@@ -69,6 +71,7 @@ const conjurers: Generator[] = [
     allowsImageGeneration: true,
     basePromptExtraContext:
       "Please thoroughly flesh out the location's history, including historical events, climate and unique look, using at least 100 words to describe the history of this location. Please populate tags with any values you think applicable to this location, to allow easy searching.",
+    supportedImageStylePresets: ['fantasy-art', 'digital-art'],
   },
   {
     code: 'monsters',
@@ -82,6 +85,7 @@ const conjurers: Generator[] = [
     allowsImageGeneration: true,
     basePromptExtraContext:
       "Please generate a uniquely terrifying, monstrous creature worthy of testing our adventurer's mettle. Please populate tags with any values you think applicable to this location, to allow easy searching.",
+    supportedImageStylePresets: ['fantasy-art', 'digital-art'],
   },
   // {
   //   code: "items",

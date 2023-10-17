@@ -4,6 +4,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { isLocalDevelopment } from '../lib/utils';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { sleep } from 'openai/core';
+import { prisma } from '../lib/providers/prisma';
+import { ImageStylePreset } from '../controllers/images';
 
 const s3 = new S3Client({
   endpoint: 'https://sfo3.digitaloceanspaces.com',
@@ -26,24 +28,34 @@ interface GenerationResponse {
   }>;
 }
 
-export const generateImage = async (
-  prompt: string,
-  count = 1,
-  negativePrompt?: string,
-  stylePreset = 'fantasy-art',
-) => {
+export interface ImageRequest {
+  userId: number;
+  prompt: string;
+  count: number;
+  negativePrompt?: string;
+  stylePreset?: ImageStylePreset;
+  linking?: {
+    sessionId?: number;
+    conjurationId?: number;
+    characterId?: number;
+  };
+}
+
+export const generateImage = async (request: ImageRequest) => {
   if (!apiKey) throw new Error('Missing Stability API key.');
+
+  const preset = request.stylePreset || 'fantasy-art';
 
   const response = await axios.post(
     `${apiHost}/v1/generation/${engineId}/text-to-image`,
     {
       text_prompts: [
         {
-          text: prompt,
+          text: request.prompt,
           weight: 1,
         },
         {
-          text: `blurry, bad, ${negativePrompt}`,
+          text: `blurry, bad, ${request.negativePrompt}`,
           weight: -1,
         },
       ],
@@ -51,8 +63,8 @@ export const generateImage = async (
       height: 1024,
       width: 1024,
       steps: 30,
-      samples: count,
-      style_preset: stylePreset,
+      samples: request.count,
+      style_preset: preset,
     },
     {
       headers: {
@@ -82,6 +94,17 @@ export const generateImage = async (
 
     await sleep(1000);
     urls.push(url);
+
+    await prisma.image.create({
+      data: {
+        userId: request.userId,
+        uri: url,
+        prompt: request.prompt,
+        negativePrompt: request.negativePrompt,
+        stylePreset: preset,
+        ...request.linking,
+      },
+    });
   }
 
   return urls;

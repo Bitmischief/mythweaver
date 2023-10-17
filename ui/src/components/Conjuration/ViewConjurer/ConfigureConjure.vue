@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { trimPlural } from '@/lib/util.ts';
 import { Conjurer, postConjure } from '@/api/generators.ts';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useSelectedCampaignId } from '@/lib/hooks.ts';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import Accordion from '@/components/Core/Accordion.vue';
 
-defineProps<{
+const props = defineProps<{
   summoner: Conjurer;
 }>();
 
@@ -16,13 +16,13 @@ const selectedCampaignId = useSelectedCampaignId();
 
 const request = ref<{
   prompt: string;
-  preset: 'fantasy-art' | 'digital-art' | 'comic-book';
+  imageStylePreset: 'fantasy-art' | 'digital-art' | 'comic-book';
   imagePrompt: string;
   imageNegativePrompt: string;
   imageReferenceImage: string;
 }>({
   prompt: '',
-  preset: 'fantasy-art',
+  imageStylePreset: 'fantasy-art',
   imagePrompt: '',
   imageNegativePrompt: '',
   imageReferenceImage: '',
@@ -31,6 +31,20 @@ const request = ref<{
 const existingConjuration = ref(false);
 const showExistinConjurationWarning = ref(false);
 const existinConjurationOverride = ref(false);
+
+const imagePresetStyles = computed(() => {
+  return props.summoner.supportedImageStylePresets?.reduce(
+    (a, v) => ({ ...a, [v]: toTitleCase(v) }),
+    {},
+  );
+});
+
+function toTitleCase(str: string) {
+  return str
+    .match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g)
+    ?.map((x) => x.charAt(0).toUpperCase() + x.slice(1))
+    .join(' ');
+}
 
 async function generate(generatorCode: string) {
   if (!selectedCampaignId.value) {
@@ -98,14 +112,10 @@ async function generate(generatorCode: string) {
         <div class="px-0.5">
           <div>
             <FormKit
-              v-model="request.preset"
+              v-model="request.imageStylePreset"
               type="select"
               label="Preset Image Style"
-              :options="{
-                'fantasy-art': 'Fantasy Art',
-                'digital-art': 'Digital Art',
-                'comic-book': 'Comic Book',
-              }"
+              :options="imagePresetStyles"
             />
           </div>
 

@@ -19,6 +19,7 @@ import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { conjureQueue } from '../worker';
 import { sanitizeJson } from '../lib/utils';
 import { getClient } from '../lib/providers/openai';
+import { ImageStylePreset } from './images';
 
 const logger = parentLogger.getSubLogger();
 
@@ -33,7 +34,7 @@ export interface PostGeneratorGenerate {
   count: number;
   customArg?: string;
   prompt?: string;
-  imageStylePreset?: string;
+  imageStylePreset?: ImageStylePreset;
   imagePrompt?: string;
   imageNegativePrompt?: string;
 }

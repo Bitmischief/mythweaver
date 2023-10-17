@@ -19,6 +19,7 @@ export interface GetConjurationsRequest {
   mine?: boolean;
   saved?: boolean;
   conjurerCodes?: string[] | undefined;
+  imageStylePreset?: string;
   tags?: string[];
   offset: number;
   limit: number;
@@ -32,6 +33,7 @@ export const getConjurations = (request: GetConjurationsRequest) => {
       saved: request.saved === false ? undefined : request.saved,
       conjurerCodes: request.conjurerCodes?.join(','),
       tags: request.tags?.join(','),
+      stylePreset: request.imageStylePreset,
     },
   });
 };

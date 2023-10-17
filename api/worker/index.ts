@@ -4,6 +4,7 @@ import { processTags } from './jobs/processTags';
 import { conjure } from './jobs/conjure';
 import { completeSession } from './jobs/completeSession';
 import { tagUsersAsEarlyAccess } from './jobs/tagUsersAsEarlyAccess';
+import { ImageStylePreset } from '../controllers/images';
 const logger = parentLogger.getSubLogger();
 
 const config = process.env.REDIS_ENDPOINT || '';
@@ -36,7 +37,7 @@ export interface ConjureEvent {
   generatorCode: string;
   count: number;
   arg?: string | undefined;
-  imageStylePreset?: string | undefined;
+  imageStylePreset?: ImageStylePreset;
   imagePrompt?: string | undefined;
   imageNegativePrompt?: string | undefined;
 }
@@ -64,6 +65,7 @@ conjureQueue.process(async (job, done) => {
 });
 
 export interface CompleteSessionEvent {
+  userId: number;
   sessionId: number;
 }
 

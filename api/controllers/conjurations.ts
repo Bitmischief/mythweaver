@@ -16,6 +16,7 @@ import { Conjuration } from '@prisma/client';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { processTagsQueue } from '../worker';
+import { ImageStylePreset } from './images';
 
 interface GetConjurationsResponse {
   data: (Conjuration & { saved: boolean })[];
@@ -49,6 +50,7 @@ export default class ConjurationController {
     @Query() campaignId?: number,
     @Query() saved?: boolean,
     @Query() conjurerCodeString?: string,
+    @Query() stylePreset?: ImageStylePreset,
     @Query() tags?: string,
     @Query() offset?: number,
     @Query() limit?: number,
@@ -73,6 +75,13 @@ export default class ConjurationController {
             }
           : undefined,
         published: true,
+        images: stylePreset
+          ? {
+              some: {
+                stylePreset: stylePreset,
+              },
+            }
+          : undefined,
         OR: tags
           ? [
               {

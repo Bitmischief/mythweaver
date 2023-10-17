@@ -38,7 +38,8 @@ model User {
   campaignMemberships CampaignMember[]
   characters          Character[]
   ConjurationSave     ConjurationSave[]
-  MagicLink           MagicLink[]
+  magicLinks          MagicLink[]
+  images              Image[]
 
   @@map("users")
 }
@@ -64,6 +65,7 @@ model Conjuration {
   campaign           Campaign?           @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   conjurationRequest ConjurationRequest? @relation(fields: [conjurationRequestId], references: [id])
   saves              ConjurationSave[]
+  images             Image[]
 
   @@map("conjurations")
 }
@@ -142,6 +144,7 @@ model Session {
 
   user     User     @relation(fields: [userId], references: [id])
   campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  images   Image[]
 
   @@map("sessions")
 }
@@ -205,12 +208,37 @@ model Character {
   user           User            @relation(fields: [userId], references: [id])
   campaign       Campaign?       @relation(fields: [campaignId], references: [id], onDelete: SetNull)
   campaignMember CampaignMember? @relation(fields: [campaignMemberId], references: [id], onDelete: SetNull)
+  images         Image[]
 
   @@unique([campaignMemberId])
   @@unique([userId, campaignId])
   @@index([userId, campaignId], name: "characters_user_id_campaign_id")
   @@index([campaignMemberId], name: "characters_campaign_member_id")
   @@map("characters")
+}
+
+model Image {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+
+  userId         Int
+  uri            String
+  prompt         String
+  negativePrompt String?
+  stylePreset    String?
+
+  conjurationId Int?
+  sessionId     Int?
+  characterId   Int?
+
+  user        User         @relation(fields: [userId], references: [id])
+  conjuration Conjuration? @relation(fields: [conjurationId], references: [id], onDelete: SetNull)
+  session     Session?     @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+  character   Character?   @relation(fields: [characterId], references: [id], onDelete: SetNull)
+
+  @@index([userId], name: "images_user_id")
+  @@map("images")
 }
 
 model MagicLink {

@@ -64,7 +64,13 @@ export const completeSession = async (request: CompleteSessionEvent) => {
     },
   });
 
-  const imageUri = (await generateImage(gptJsonParsed.prompt, 1))[0];
+  const imageUri = (
+    await generateImage({
+      userId: request.userId,
+      prompt: gptJsonParsed.prompt,
+      count: 1,
+    })
+  )[0];
 
   await prisma.session.update({
     where: {

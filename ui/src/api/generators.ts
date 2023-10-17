@@ -6,6 +6,7 @@ export interface Conjurer {
   description: string;
   customizationHelpPrompt?: string;
   imageUri?: string;
+  supportedImageStylePresets?: string[];
 }
 
 export const getConjurers = () => {

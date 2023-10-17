@@ -101,13 +101,21 @@ export const conjure = async (request: ConjureEvent) => {
     },
   });
 
+  const imagePrompt = request.imagePrompt?.length
+    ? request.imagePrompt
+    : conjuration.imageAIPrompt;
+
   conjuration.imageUri = (
-    await generateImage(
-      request.imagePrompt || conjuration.imageAIPrompt,
-      1,
-      request.imageNegativePrompt,
-      request.imageStylePreset,
-    )
+    await generateImage({
+      userId: request.userId,
+      prompt: imagePrompt,
+      count: 1,
+      negativePrompt: request.imageNegativePrompt,
+      stylePreset: request.imageStylePreset,
+      linking: {
+        conjurationId: createdConjuration.id,
+      },
+    })
   )[0];
 
   await prisma.conjuration.update({

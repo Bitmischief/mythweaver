@@ -217,7 +217,7 @@ export default class SessionController {
       },
     });
 
-    await completeSessionQueue.add({ sessionId: sessionId });
+    await completeSessionQueue.add({ userId, sessionId: sessionId });
 
     track(AppEvent.CompleteSession, userId, trackingInfo);
 
