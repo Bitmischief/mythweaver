@@ -14,3 +14,8 @@ ALTER TABLE "images" ADD CONSTRAINT "images_sessionId_fkey" FOREIGN KEY ("sessio
 
 -- AddForeignKey
 ALTER TABLE "images" ADD CONSTRAINT "images_characterId_fkey" FOREIGN KEY ("characterId") REFERENCES "characters"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+INSERT INTO "images" ("userId", "uri", "prompt", "negativePrompt", "stylePreset", "conjurationId")
+SELECT "userId", "imageUri", '', '', 'fantasy-art', "id"
+FROM "conjurations"
+WHERE "imageUri" IS NOT NULL

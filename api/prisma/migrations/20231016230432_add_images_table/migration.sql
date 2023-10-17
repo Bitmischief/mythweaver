@@ -14,8 +14,3 @@ CREATE TABLE "images" (
 
 -- CreateIndex
 CREATE INDEX "images_user_id" ON "images"("userId");
-
-INSERT INTO "images" ("userId", "uri", "prompt", "negativePrompt", "stylePreset", "conjurationId")
-SELECT "userId", "imageUri", '', '', 'fantasy-art', "id"
-FROM "conjurations"
-WHERE "imageUri" IS NOT NULL
