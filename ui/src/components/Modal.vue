@@ -1,6 +1,6 @@
 <template>
   <TransitionRoot as="template" :show="show" v-bind="$attrs">
-    <Dialog as="div" class="relative z-50" @close="emit('close')">
+    <Dialog as="div" class="relative z-40" @close="emit('close')">
       <TransitionChild
         as="template"
         enter="ease-out duration-300"

@@ -4,6 +4,7 @@ import LightboxImage from '@/components/LightboxImage.vue';
 import { conjureImage } from '@/api/images.ts';
 import { useEventBus } from '@/lib/events.ts';
 import { ArrowsPointingOutIcon } from '@heroicons/vue/20/solid';
+import { showError } from '@/lib/notifications.ts';
 
 const props = defineProps<{
   prompt?: string;
@@ -44,18 +45,25 @@ onUnmounted(() => {
 });
 
 async function conjure() {
-  conjuring.value = true;
-  done.value = false;
+  try {
+    conjuring.value = true;
+    done.value = false;
 
-  const conjureImageResponse = await conjureImage(
-    editablePrompt.value || '',
-    editableNegativePrompt.value || '',
-  );
-  imageUris.value = conjureImageResponse.data;
-  done.value = true;
-  conjuring.value = false;
+    const conjureImageResponse = await conjureImage(
+      editablePrompt.value || '',
+      editableNegativePrompt.value || '',
+    );
+    imageUris.value = conjureImageResponse.data;
+    done.value = true;
+    conjuring.value = false;
 
-  eventBus.$emit('conjure-image-done', {});
+    eventBus.$emit('conjure-image-done', {});
+  } catch {
+    showError({ message: 'We encountered an error conjuring this image.' });
+
+    conjuring.value = false;
+    done.value = false;
+  }
 }
 
 function setImage() {

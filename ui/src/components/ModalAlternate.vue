@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="show"
-    class="absolute left-0 top-0 w-full h-full z-50"
+    class="absolute left-0 top-0 w-full h-full z-40"
     aria-labelledby="modal-title"
     role="dialog"
     aria-modal="true"
