@@ -18,4 +18,4 @@ ALTER TABLE "images" ADD CONSTRAINT "images_characterId_fkey" FOREIGN KEY ("char
 INSERT INTO "images" ("userId", "uri", "prompt", "negativePrompt", "stylePreset", "conjurationId")
 SELECT "userId", "imageUri", '', '', 'fantasy-art', "id"
 FROM "conjurations"
-WHERE "imageUri" IS NOT NULL
+WHERE "imageUri" IS NOT NULL AND "userId" IS NOT NULL;
