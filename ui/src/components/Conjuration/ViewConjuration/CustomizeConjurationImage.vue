@@ -144,6 +144,7 @@ function setImage() {
         v-model="editablePrompt"
         type="textarea"
         label="Prompt"
+        validation="length:0,500"
         placeholder="a male human paladin with a longsword and shield"
         auto-height
       />
@@ -152,6 +153,7 @@ function setImage() {
         v-model="editableNegativePrompt"
         type="textarea"
         label="Negative prompt"
+        validation="length:0,500"
         placeholder="hands, low-resolution"
         auto-height
       />

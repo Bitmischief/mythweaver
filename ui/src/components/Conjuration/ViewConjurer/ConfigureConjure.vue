@@ -101,7 +101,7 @@ async function generate(generatorCode: string) {
           name="prompt"
           help="This is used to generate the text elements of your conjuration."
           type="textarea"
-          validation="maxlength:500"
+          validation="length:0,500"
           :placeholder="summoner.customizationHelpPrompt"
           auto-height
         />
@@ -125,6 +125,7 @@ async function generate(generatorCode: string) {
               label="Image Prompt"
               help="This is used to generate the image for your conjuration."
               type="textarea"
+              validation="length:0,500"
               placeholder="a male human with gleaming silver armor and a fiery sword"
               auto-height
             />
@@ -135,6 +136,7 @@ async function generate(generatorCode: string) {
               v-model="request.imageNegativePrompt"
               label="Negative Prompt"
               type="textarea"
+              validation="length:0,500"
               placeholder="horns, mountains"
               auto-height
             />

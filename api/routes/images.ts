@@ -8,8 +8,8 @@ import { useInjectLoggingInfo } from '../lib/loggingMiddleware';
 const router = express.Router();
 
 const postImageSchema = z.object({
-  prompt: z.string().max(250),
-  negativePrompt: z.string().max(250).optional(),
+  prompt: z.string().max(500),
+  negativePrompt: z.string().max(500).optional(),
   stylePreset: z.string().max(250).optional(),
 });
 
