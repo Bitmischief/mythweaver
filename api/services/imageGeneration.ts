@@ -55,7 +55,7 @@ export const generateImage = async (request: ImageRequest) => {
           weight: 1,
         },
         {
-          text: `blurry, bad, ${request.negativePrompt}`,
+          text: `nude, naked, lewd, nsfw, blurry, bad, ${request.negativePrompt}`,
           weight: -1,
         },
       ],
