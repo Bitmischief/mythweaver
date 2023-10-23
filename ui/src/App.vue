@@ -15,8 +15,6 @@ import LightboxRoot from '@/components/LightboxRoot.vue';
 import { useEarlyAccessStore } from '@/store/earlyAccess.store.ts';
 import { storeToRefs } from 'pinia';
 import { SparklesIcon } from '@heroicons/vue/20/solid';
-import { useEarlyAccessCutoff } from '@/lib/hooks.ts';
-import { differenceInHours } from 'date-fns';
 import CustomizeConjurationImage from '@/components/Conjuration/ViewConjuration/CustomizeConjurationImage.vue';
 import { useIntercom } from '@homebaseai/vue3-intercom';
 import { patchCurrentUser } from '@/api/users.ts';
@@ -25,16 +23,12 @@ import { showError } from '@/lib/notifications.ts';
 const authStore = useAuthStore();
 const eventBus = useEventBus();
 const earlyAccessStore = useEarlyAccessStore();
-const earlyAccessCutoff = useEarlyAccessCutoff();
 const intercom = useIntercom();
 
 const { confirmed: confirmedEarlyAccess } = storeToRefs(earlyAccessStore);
 
 const showConfirmEarlyAccess = computed(() => {
-  return (
-    !confirmedEarlyAccess.value &&
-    differenceInHours(new Date(earlyAccessCutoff.value || ''), new Date()) <= 48
-  );
+  return !confirmedEarlyAccess.value;
 });
 
 onMounted(async () => {
