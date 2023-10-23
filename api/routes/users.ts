@@ -32,6 +32,7 @@ const patchUsersSchema = z.object({
   imageUri: z.string().optional(),
   tags: z.array(z.string()).optional(),
   data: z.array(z.object({ key: z.string(), value: z.any() })).optional(),
+  confirmEarlyAccessStart: z.boolean().optional(),
 });
 
 router.patch('/me', [

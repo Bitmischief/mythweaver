@@ -19,6 +19,8 @@ import { useEarlyAccessCutoff } from '@/lib/hooks.ts';
 import { differenceInHours } from 'date-fns';
 import CustomizeConjurationImage from '@/components/Conjuration/ViewConjuration/CustomizeConjurationImage.vue';
 import { useIntercom } from '@homebaseai/vue3-intercom';
+import { patchCurrentUser } from '@/api/users.ts';
+import { showError } from '@/lib/notifications.ts';
 
 const authStore = useAuthStore();
 const eventBus = useEventBus();
@@ -97,8 +99,13 @@ eventBus.$on('toggle-customize-image-modal', (args: CustomizeImageRequest) => {
   }
 });
 
-function confirmEarlyAccessTerms() {
-  earlyAccessStore.confirm();
+async function confirmEarlyAccessTerms() {
+  try {
+    await patchCurrentUser({ confirmEarlyAccessStart: true });
+    earlyAccessStore.confirm();
+  } catch (err) {
+    showError({ message: 'Failed to start early access!' });
+  }
 }
 </script>
 
@@ -150,36 +157,55 @@ function confirmEarlyAccessTerms() {
     >
       <div class="text-4xl">🐉 Welcome to MythWeaver! 🎲</div>
 
-      <div class="mt-4 text-xl text-neutral-500">
-        You've just unlocked <span class="font-bold">Early Access</span> to
-        MythWeaver
+      <div class="mt-4 text-xl text-neutral-400">
+        You've just unlocked an
+        <span class="font-bold">Early Access</span> preview!
       </div>
 
-      <div class="text-xl mt-8 mb-2">⏳ 48-Hour Access ⌛</div>
-      <div class="text-lg text-neutral-500">
-        Yup, you read it right. You've got 48 hours of unrestricted journeying
+      <div class="text-xl mt-8 mb-2">⏳ 24-Hour Access ⌛</div>
+      <div class="text-lg text-neutral-400">
+        Yup, you read it right. You've got 24 hours of unrestricted journeying
         within MythWeaver. Consider this your mini-adventure before the main
         campaign.
       </div>
 
-      <div class="text-xl mt-6 mb-2">🚀 Kickstarter October 24th 📅</div>
-      <div class="text-lg text-neutral-500">
-        Our Kickstarter launches on October 24th. Trust me—you won't want to
-        miss the special artifacts and rewards we have for our early backers.
-        There's even a treasure chest or two!
+      <div class="text-xl mt-6 mb-2">
+        🚀 Early Access after your 24 Hours 🚀
+      </div>
+      <div class="text-lg text-neutral-400">
+        After your 24-hour access, you'll need to back our Kickstarter at
+        Guardian tier ($70) or higher to continue your adventure.
+
+        <div class="mt-4">
+          <a
+            href="https://www.kickstarter.com/projects/mythweaver/mythweaver-ai-dungeon-master-assistant"
+            target="_blank"
+            class="bg-fuchsia-500 text-white rounded-md px-4 py-2 transition-all hover:scale-110"
+            >Back Now!</a
+          >
+        </div>
       </div>
 
-      <div class="text-xl mt-6 mb-2">📢 Extend Your Early Access! ✨</div>
-      <div class="text-lg text-neutral-500">
-        Fancy extending this 48-hour teaser till our Kickstarter launch? It's
-        super easy!
-        <a
-          href="https://mythweaver.co/earlyaccess"
-          target="_blank"
-          class="underline text-fuchsia-300"
-        >
-          Click here to learn more.
-        </a>
+      <div class="text-xl mt-6 mb-2">❓ FAQ ❓</div>
+      <div class="text-lg text-neutral-400">
+        <ul>
+          <li>
+            <div class="font-bold text-neutral-300">
+              What happens to my data if my early access expires?
+            </div>
+            Your data will be saved, but you won't be able to access it until
+            either you back our Kickstarter at Guardian tier or higher or we
+            launch MythWeaver to the public (planned for January 2024).
+          </li>
+          <li class="mt-4">
+            <div class="font-bold text-neutral-300">
+              Does early access consume any of my purchased subscription period?
+            </div>
+            No! Early access is a free bonus perk to backers of Guardian tier
+            and higher, your subscription will begin when MythWeaver is publicly
+            launched.
+          </li>
+        </ul>
       </div>
 
       <button
@@ -187,7 +213,7 @@ function confirmEarlyAccessTerms() {
         @click="confirmEarlyAccessTerms"
       >
         <SparklesIcon class="mr-2 h-5 w-5 self-center" />
-        <span class="self-center">Let's Go!</span>
+        <span class="self-center">Start 24 hour access!</span>
       </button>
     </div>
   </ModalAlternate>

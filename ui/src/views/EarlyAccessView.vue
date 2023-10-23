@@ -27,7 +27,8 @@
         </div>
 
         <div class="text-neutral-400 mt-4 text-xl text-center">
-          Want an extension? Click the button below to learn more!
+          Want access through public launch in January? Back us now on
+          Kickstarter with any pledge tier that includes `early access`!
         </div>
 
         <div class="flex mt-8">
@@ -38,11 +39,11 @@
             Back to login
           </router-link>
           <a
-            href="https://mythweaver.co/earlyaccess"
+            href="https://www.kickstarter.com/projects/mythweaver/mythweaver-ai-dungeon-master-assistant"
             target="_blank"
-            class="bg-gradient-to-r w-full from-fuchsia-500 to-blue-400 transition-all hover:scale-110 py-2 ml-2 text-center px-4 rounded-md"
+            class="bg-gradient-to-r w-full from-green-500 to-green-400 transition-all hover:scale-110 py-2 ml-2 text-center px-4 rounded-md"
           >
-            Learn More
+            Continue Early Access
           </a>
         </div>
       </div>

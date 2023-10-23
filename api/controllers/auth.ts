@@ -127,7 +127,7 @@ export default class AuthController {
 
     if (!user) {
       const earlyAccessEnd = new Date();
-      earlyAccessEnd.setHours(new Date().getHours() + 48);
+      earlyAccessEnd.setHours(new Date().getHours() + 24);
 
       user = await prisma.user.create({
         data: {

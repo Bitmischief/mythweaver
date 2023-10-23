@@ -19,6 +19,7 @@ interface PatchUserRequest {
   imageUri?: string;
   data: any;
   tags?: string[];
+  confirmEarlyAccessStart?: boolean;
 }
 
 @Route('users')
@@ -59,13 +60,30 @@ export default class UserController {
   ): Promise<User> {
     track(AppEvent.UpdateUser, userId, trackingInfo);
 
+    if (request.confirmEarlyAccessStart) {
+      const earlyAccessEnd = new Date();
+      earlyAccessEnd.setHours(new Date().getHours() + 24);
+
+      await prisma.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          earlyAccessCutoffAt: earlyAccessEnd,
+        },
+      });
+    }
+
+    const payload = {
+      ...request,
+      confirmEarlyAccessStart: undefined,
+    };
+
     return prisma.user.update({
       where: {
         id: userId,
       },
-      data: {
-        ...request,
-      },
+      data: payload,
     });
   }
 }

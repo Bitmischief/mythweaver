@@ -11,3 +11,7 @@ export interface User {
 export const getCurrentUser = () => {
   return axios.get('/users/me');
 };
+
+export const patchCurrentUser = (payload: any) => {
+  return axios.patch('/users/me', payload);
+};
