@@ -152,8 +152,8 @@ async function confirmEarlyAccessTerms() {
       <div class="text-4xl">🐉 Welcome to MythWeaver! 🎲</div>
 
       <div class="mt-4 text-xl text-neutral-400">
-        You've just unlocked an
-        <span class="font-bold">Early Access</span> preview!
+        You've just unlocked
+        <span class="font-bold">Trial Access</span>!
       </div>
 
       <div class="text-xl mt-8 mb-2">⏳ 24-Hour Access ⌛</div>
@@ -163,12 +163,11 @@ async function confirmEarlyAccessTerms() {
         campaign.
       </div>
 
-      <div class="text-xl mt-6 mb-2">
-        🚀 Early Access after your 24 Hours 🚀
-      </div>
+      <div class="text-xl mt-6 mb-2">🚀 Early Access 🚀</div>
       <div class="text-lg text-neutral-400">
-        After your 24-hour access, you'll need to back our Kickstarter at
-        Guardian tier ($70) or higher to continue your adventure.
+        After your 24-hour access, you'll need to back our Kickstarter at Adept
+        tier or higher to continue your adventure, until our public launch in
+        January.
 
         <div class="mt-4">
           <a
@@ -185,7 +184,7 @@ async function confirmEarlyAccessTerms() {
         <ul>
           <li>
             <div class="font-bold text-neutral-300">
-              What happens to my data if my early access expires?
+              What happens to my data if my trial access expires?
             </div>
             Your data will be saved, but you won't be able to access it until
             either you back our Kickstarter at Guardian tier or higher or we

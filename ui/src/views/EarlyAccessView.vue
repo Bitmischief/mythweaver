@@ -28,7 +28,9 @@
 
         <div class="text-neutral-400 mt-4 text-xl text-center">
           Want access through public launch in January? Back us now on
-          Kickstarter with any pledge tier that includes `early access`!
+          Kickstarter with any pledge tier that includes `early access`! Also be
+          sure to follow us on social media where we will give away early access
+          periodically!
         </div>
 
         <div class="flex mt-8">
