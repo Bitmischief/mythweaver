@@ -169,17 +169,17 @@ async function confirmEarlyAccessTerms() {
         tier or higher to continue your adventure, until our public launch in
         January.
 
-        <div class="mt-4">
+        <div class="my-12">
           <a
             href="https://www.kickstarter.com/projects/mythweaver/mythweaver-ai-dungeon-master-assistant"
             target="_blank"
-            class="bg-fuchsia-500 text-white rounded-md px-4 py-2 transition-all hover:scale-110"
-            >Back Now!</a
+            class="bg-neutral-700 text-white rounded-md px-4 py-2 transition-all hover:scale-110"
+            >Go to Kickstarter</a
           >
         </div>
       </div>
 
-      <div class="text-xl mt-6 mb-2">❓ FAQ ❓</div>
+      <div class="text-3xl mt-6 mb-2">❓ FAQ ❓</div>
       <div class="text-lg text-neutral-400">
         <ul>
           <li>
@@ -187,15 +187,15 @@ async function confirmEarlyAccessTerms() {
               What happens to my data if my trial access expires?
             </div>
             Your data will be saved, but you won't be able to access it until
-            either you back our Kickstarter at Guardian tier or higher or we
-            launch MythWeaver to the public (planned for January 2024).
+            either you back our Kickstarter at Adept tier or higher or we launch
+            MythWeaver to the public (planned for January 2024).
           </li>
           <li class="mt-4">
             <div class="font-bold text-neutral-300">
               Does early access consume any of my purchased subscription period?
             </div>
-            No! Early access is a free bonus perk to backers of Guardian tier
-            and higher, your subscription will begin when MythWeaver is publicly
+            No! Early access is a free bonus perk to backers of Adept tier and
+            higher, your subscription will begin when MythWeaver is publicly
             launched.
           </li>
         </ul>
@@ -206,7 +206,7 @@ async function confirmEarlyAccessTerms() {
         @click="confirmEarlyAccessTerms"
       >
         <SparklesIcon class="mr-2 h-5 w-5 self-center" />
-        <span class="self-center">Start 24 hour access!</span>
+        <span class="self-center">Start 24 hour trial!</span>
       </button>
     </div>
   </ModalAlternate>
