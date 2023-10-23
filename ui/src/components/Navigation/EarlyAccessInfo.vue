@@ -15,18 +15,17 @@ const earlyAccessDistance = computed(() =>
 <template>
   <div v-if="!earlyAccessExempt">
     <div class="self-center mr-6 text-sm text-neutral-400">
-      Early access ends in
+      Trial access ends in
       <span class="text-neutral-300 font-bold italic">{{
         earlyAccessDistance
       }}</span>
 
       <a
-        v-if="earlyAccessCutoff !== '2023-10-17T08:00:00.000Z'"
-        href="https://mythweaver.co/earlyaccess"
+        href="https://www.kickstarter.com/projects/mythweaver/mythweaver-ai-dungeon-master-assistant"
         target="_blank"
-        class="ml-2 text-xs text-neutral-300 text-center px-2 p-0.5 rounded-md bg-neutral-600"
+        class="ml-2 text-xs text-white text-center px-3 p-1 rounded-md bg-green-500"
       >
-        extend
+        Purchase Early Access
       </a>
     </div>
   </div>
