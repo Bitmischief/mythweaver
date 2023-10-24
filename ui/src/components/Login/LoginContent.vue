@@ -68,6 +68,22 @@ async function login() {
       The email provided is invalid
     </div>
 
+    <div class="mt-1 text-xs text-neutral-500">
+      By continuing you are agreeing to the
+      <a
+        href="https://mythweaver.co/docs/terms.pdf"
+        class="underline"
+        target="_blank"
+        >Terms</a
+      >,
+      <a
+        href="https://mythweaver.co/docs/privacy.pdf"
+        class="underline"
+        target="_blank"
+        >Privacy Policy</a
+      >, and to sign up for our mailing list.
+    </div>
+
     <button
       class="mt-4 w-full flex text-center justify-center self-center rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 px-4 py-3 transition-all hover:scale-110"
       @click="login"
