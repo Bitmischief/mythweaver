@@ -242,11 +242,6 @@ export default class AuthController {
       (new Date() > user.earlyAccessCutoffAt && !user.earlyAccessExempt)
     ) {
       logger.info(`User ${userId} early access has expired`, user);
-
-      throw new AppError({
-        httpCode: HttpCode.FORBIDDEN,
-        description: "User's early access has expired",
-      });
     }
 
     const dbToken = await prisma.refreshToken.findUnique({
