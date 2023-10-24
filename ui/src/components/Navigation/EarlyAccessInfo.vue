@@ -21,7 +21,8 @@ const earlyAccessDistance = computed(() =>
       }}</span>
 
       <a
-        href="https://www.kickstarter.com/projects/mythweaver/mythweaver-ai-dungeon-master-assistant"
+        href="
+https://www.kickstarter.com/projects/mythweaver/mythweaver-ai-dungeon-master-assistant?ref=3glebk"
         target="_blank"
         class="ml-2 text-xs text-white text-center px-3 p-1 rounded-md bg-green-500"
       >

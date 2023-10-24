@@ -171,7 +171,8 @@ async function confirmEarlyAccessTerms() {
 
         <div class="my-12">
           <a
-            href="https://www.kickstarter.com/projects/mythweaver/mythweaver-ai-dungeon-master-assistant"
+            href="
+https://www.kickstarter.com/projects/mythweaver/mythweaver-ai-dungeon-master-assistant?ref=3glebk"
             target="_blank"
             class="bg-neutral-700 text-white rounded-md px-4 py-2 transition-all hover:scale-110"
             >Go to Kickstarter</a

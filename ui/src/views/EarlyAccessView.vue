@@ -41,7 +41,8 @@
             Back to login
           </router-link>
           <a
-            href="https://www.kickstarter.com/projects/mythweaver/mythweaver-ai-dungeon-master-assistant"
+            href="
+https://www.kickstarter.com/projects/mythweaver/mythweaver-ai-dungeon-master-assistant?ref=3glebk"
             target="_blank"
             class="bg-gradient-to-r w-full from-green-500 to-green-400 transition-all hover:scale-110 py-2 ml-2 text-center px-4 rounded-md"
           >

@@ -63,7 +63,10 @@ export const conjure = async (request: ConjureEvent) => {
         ],
       });
     } catch (err: any) {
-      logger.error('Error generating character with openai', err.response.data);
+      logger.error(
+        'Error generating character with openai',
+        err.response?.data,
+      );
     }
 
     if (!response) {
