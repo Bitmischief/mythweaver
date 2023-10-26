@@ -19,16 +19,18 @@ import CustomizeConjurationImage from '@/components/Conjuration/ViewConjuration/
 import { useIntercom } from '@homebaseai/vue3-intercom';
 import { patchCurrentUser } from '@/api/users.ts';
 import { showError } from '@/lib/notifications.ts';
+import { useEarlyAccessExempt } from '@/lib/hooks.ts';
 
 const authStore = useAuthStore();
 const eventBus = useEventBus();
 const earlyAccessStore = useEarlyAccessStore();
 const intercom = useIntercom();
+const earlyAccessExempt = useEarlyAccessExempt();
 
 const { confirmed: confirmedEarlyAccess } = storeToRefs(earlyAccessStore);
 
 const showConfirmEarlyAccess = computed(() => {
-  return !confirmedEarlyAccess.value;
+  return !earlyAccessExempt.value && !confirmedEarlyAccess.value;
 });
 
 onMounted(async () => {
