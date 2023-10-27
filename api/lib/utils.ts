@@ -30,6 +30,7 @@ export function sanitizeJson(json: string): string {
   const jsonStart = Array.from(json).findIndex((char) => char === '{');
   json = json.slice(jsonStart);
   json = json.replace(/ {4}|[\t\n\r]/gm, ' ');
+  json = json.replace('```json', '');
 
   if (isValidJson(json)) {
     return json;

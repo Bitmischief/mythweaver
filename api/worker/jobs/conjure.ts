@@ -76,13 +76,14 @@ export const conjure = async (request: ConjureEvent) => {
       });
     }
 
-    const generatedJson = response.choices[0]?.message?.content || '';
-    logger.info('Received json from openai', generatedJson);
-
-    const conjurationString = sanitizeJson(generatedJson);
-    logger.info('Sanitized json from openai...', conjurationString);
-
+    let generatedJson;
     try {
+      generatedJson = response.choices[0]?.message?.content || '';
+      logger.info('Received json from openai', generatedJson);
+
+      const conjurationString = sanitizeJson(generatedJson);
+      logger.info('Sanitized json from openai...', conjurationString);
+
       conjuration = JSON.parse(conjurationString || '');
     } catch (e) {
       logger.warn('Failed to parse conjuration string', e, generatedJson);
@@ -201,6 +202,8 @@ const buildPrompt = (
   if (generator.basePromptExtraContext) {
     prompt += generator.basePromptExtraContext;
   }
+
+  prompt += ` Please return me only JSON and no other text.`;
 
   logger.info('Built prompt', prompt);
 
