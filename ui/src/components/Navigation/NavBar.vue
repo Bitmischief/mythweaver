@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Bars3Icon, ChevronDoubleLeftIcon } from '@heroicons/vue/24/solid';
-import { ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import { Dialog, DialogPanel } from '@headlessui/vue';
 import { useAuthStore } from '@/store';
 import NavbarContent from '@/components/Navigation/NavbarContent.vue';
@@ -8,6 +8,24 @@ import EarlyAccessInfo from '@/components/Navigation/EarlyAccessInfo.vue';
 
 const authStore = useAuthStore();
 const showPanel = ref(false);
+
+const statusRefreshId = ref(0);
+
+onMounted(() => {
+  statusRefreshId.value = setInterval(() => {
+    refreshStatusBadge();
+  }, 60 * 1000) as unknown as number;
+});
+
+onUnmounted(() => {
+  clearInterval(statusRefreshId.value);
+});
+
+function refreshStatusBadge() {
+  (document.querySelector('[data-status-badge]') as HTMLIFrameElement).src = (
+    document.querySelector('[data-status-badge]') as HTMLIFrameElement
+  ).src;
+}
 
 async function logout() {
   await authStore.logout();
@@ -25,9 +43,9 @@ const toggleCollapsed = function () {
     :class="{ 'md:max-w-[90px] md:min-w-[90px]': collapsed }"
   >
     <div
-      class="bg-surface-2 md:h-full flex flex-col justify-between p-4 relative"
+      class="bg-surface-2 md:h-[calc(100%-2.5rem)] flex flex-col justify-between p-4 relative"
     >
-      <div>
+      <div class="h-full">
         <div class="flex justify-between">
           <img
             v-if="!collapsed"
@@ -45,8 +63,19 @@ const toggleCollapsed = function () {
         </div>
         <EarlyAccessInfo class="text-center self-center md:hidden mt-2" />
 
-        <div class="hidden w-full md:flex">
+        <div class="hidden w-full h-full md:flex md:flex-col justify-between">
           <NavbarContent :collapsed="collapsed" />
+
+          <div class="flex justify-center">
+            <iframe
+              data-status-badge="true"
+              src="https://status.mythweaver.co/badge?theme=dark"
+              height="30"
+              class="w-full"
+              frameborder="0"
+              scrolling="no"
+            ></iframe>
+          </div>
         </div>
         <div
           class="hidden h-8 w-8 absolute inset-y-1/2 -right-5 md:flex justify-center items-center cursor-pointer z-10"
@@ -79,8 +108,15 @@ const toggleCollapsed = function () {
               </div>
 
               <div class="">
+                <iframe
+                  data-status-badge="true"
+                  src="https://status.mythweaver.co/badge?theme=dark"
+                  height="30"
+                  frameborder="0"
+                  scrolling="no"
+                ></iframe>
                 <button
-                  class="w-full border-2 border-white/5 text-gray-300"
+                  class="mt-4 w-full border-2 border-white/5 text-gray-300"
                   @click="logout"
                 >
                   Logout
