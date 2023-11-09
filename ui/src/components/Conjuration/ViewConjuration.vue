@@ -14,7 +14,6 @@ import {
   ArrowLeftIcon,
   ArrowPathIcon,
   DocumentDuplicateIcon,
-  XMarkIcon,
 } from '@heroicons/vue/24/solid';
 import { HeartIcon } from '@heroicons/vue/20/solid';
 import { useCurrentUserId, useQuickConjure } from '@/lib/hooks.ts';
@@ -69,9 +68,11 @@ async function handleSaveConjuration() {
 }
 
 async function handleRemoveConjuration() {
-  await removeConjuration(conjurationId.value);
-  showSuccess({ message: 'Successfully removed conjuration!' });
-  await router.push('/conjurations');
+  if (confirm('Are you sure you want to delete this conjuration?')) {
+    await removeConjuration(conjurationId.value);
+    showSuccess({ message: 'Successfully removed conjuration!' });
+    await router.push('/conjurations');
+  }
 }
 
 async function handleCopyConjuration() {
@@ -147,7 +148,7 @@ async function handleCopyConjuration() {
           class="md:ml-2 mt-2 md:mt-0 h-12 flex justify-center md:justify-start self-center rounded-md bg-gradient-to-r from-red-400 to-red-600 px-4 py-3 transition-all hover:scale-110"
           @click="handleRemoveConjuration"
         >
-          <XMarkIcon class="h-5 w-5 self-center" />
+          Delete
         </button>
       </div>
     </div>
