@@ -97,7 +97,7 @@ export default class ConjurationController {
       skip: offset,
       take: limit,
       orderBy: {
-        createdAt: saved ? undefined : 'desc',
+        createdAt: 'desc',
       },
       include: {
         saves: {
