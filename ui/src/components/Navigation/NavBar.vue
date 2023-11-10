@@ -71,7 +71,7 @@ const toggleCollapsed = function () {
               data-status-badge="true"
               src="https://status.mythweaver.co/badge?theme=dark"
               height="30"
-              class="w-full"
+              :class="[collapsed ? 'w-5' : 'w-full']"
               frameborder="0"
               scrolling="no"
             ></iframe>
