@@ -1,4 +1,8 @@
-import { setHeadlessWhen, setCommonPlugins, setWindowSize } from '@codeceptjs/configure';
+import {
+  setHeadlessWhen,
+  setCommonPlugins,
+  setWindowSize
+} from '@codeceptjs/configure';
 setHeadlessWhen(process.env.HEADLESS);
 setWindowSize(1920, 1080);
 
@@ -16,7 +20,8 @@ export const config: CodeceptJS.MainConfig = {
     }
   },
   include: {
-    I: './steps_file'
+    I: './steps_file',
+    loginPage: "./pages/login.ts",
   },
   name: 'test'
 }

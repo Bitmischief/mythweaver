@@ -1,8 +1,8 @@
-Feature('Register Early Access');
+Feature('Magic Link');
 
-Scenario('Can get to mailing list page', ({ I }) => {
-  I.amOnPage('/');
-  I.click('#early-access-link')
-  I.click('#mailing-list-link')
-  I.amOnPage('mythweaver.co/#mailing')
+Scenario('Send myself a magic link with valid e-mail', ({ I, loginPage }) => {
+  loginPage.login('Andrew.S.Lobdell@gmail.com');
+  I.click('Back to login');
+  I.see('Welcome to MythWeaver');
 });
+
