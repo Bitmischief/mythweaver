@@ -54,6 +54,7 @@ async function login() {
     <input
       v-model="email"
       autofocus
+      name="email"
       class="text-2xl mt-2 py-4 w-full rounded-xl border bg-black px-4 text-left text-white"
       :class="{
         'border-red-500': !isEmailValid && triedToSubmit,
