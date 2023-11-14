@@ -150,7 +150,7 @@ async function handleConjurationChange(change: {
             <span class="text-white text-sm font-normal">Saved</span>
           </div>
           <div
-            class="px-3 py-1 self-center justify-start items-center"
+            class="px-3 py-1 self-center justify-start rounded-r-md items-center"
             :class="{
               'bg-neutral-900': conjurationsMineQuery.saved,
               'bg-neutral-700 border border-fuchsia-500/50':
