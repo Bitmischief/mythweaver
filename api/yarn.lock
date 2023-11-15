@@ -2017,10 +2017,10 @@
   resolved "https://registry.yarnpkg.com/@types/mailchimp__mailchimp_marketing/-/mailchimp__mailchimp_marketing-3.0.17.tgz#eec8e40340daed0ca90c7a121584ae92aa72e230"
   integrity sha512-j0rZvpHMhIBzzvvnc4aPeqffgN1enw7gSthEX6Bc9I+GLhuSiU07TCuftbL4FhMqRvSxFSWn9OhHGDtV5z6UCg==
 
-"@types/mailchimp__mailchimp_transactional@^1.0.6":
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/@types/mailchimp__mailchimp_transactional/-/mailchimp__mailchimp_transactional-1.0.6.tgz#70e99016133b1a0318c4142443cfb4f8b94d3ecb"
-  integrity sha512-e3YJxEjCWOR6456KbYhThCn78CiyKB1MCLG8NjkDhq6I4jnVm2gJPd5PwbJupCASASEwHVAUZBePECbseQCwnQ==
+"@types/mailchimp__mailchimp_transactional@^1.0.9":
+  version "1.0.9"
+  resolved "https://registry.yarnpkg.com/@types/mailchimp__mailchimp_transactional/-/mailchimp__mailchimp_transactional-1.0.9.tgz#a791e1110bef597146e179ec45a82418fc990169"
+  integrity sha512-1X8pnyWDGo9FlBwM643XeAFeLSxTXxC4/Ejgjbo4tnqM1+OdBOH1rBRUlJ18EijrDiKTPEF3dZUCrt+ARaVXPg==
   dependencies:
     axios "^0.21.1"
 
