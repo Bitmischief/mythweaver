@@ -26,7 +26,7 @@ jobs:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
       - name: Setup node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
 
       - name: Build container image
         run: docker build -t ${{ secrets.REGISTRY_NAME }}/mythweaver-api:$(echo $GITHUB_SHA | head -c7) -f .docker/Dockerfile.api .
@@ -94,7 +94,7 @@ jobs:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
       - name: Setup node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
 
       - name: Migrate database
         run: >
