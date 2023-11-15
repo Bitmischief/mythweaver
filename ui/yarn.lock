@@ -2890,10 +2890,10 @@ vue-tsc@^1.8.18:
     "@vue/typescript" "1.8.18"
     semver "^7.5.4"
 
-vue3-google-login@^2.0.23:
-  version "2.0.23"
-  resolved "https://registry.yarnpkg.com/vue3-google-login/-/vue3-google-login-2.0.23.tgz#072864807f54bd883acfd3976329bdcdd7ca3f0b"
-  integrity sha512-kYn8UFJOGw+cv1lQqj4mYaDMCDmLDKxEVjFdoiS+en4BQhf0cqpaYTUxbdcHPxqATnZmuJmHsebuBbR93ktVpA==
+vue3-google-login@^2.0.25:
+  version "2.0.25"
+  resolved "https://registry.yarnpkg.com/vue3-google-login/-/vue3-google-login-2.0.25.tgz#ee5dbd758a4ff658faab4f7faf1637423301df30"
+  integrity sha512-b6EfYFF2KH1qSiiCKI9WmPB79GdXifPB8qOt48RRmo1F5h3UcigrrqzQCosjcRLcTqUpRQcZ9TeKYP4ZVroNHQ==
 
 vue@^3.2.47, vue@^3.3.4, vue@^3.3.8:
   version "3.3.8"
