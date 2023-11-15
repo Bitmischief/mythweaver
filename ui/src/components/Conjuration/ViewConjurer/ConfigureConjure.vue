@@ -101,11 +101,11 @@ async function generate(generatorCode: string) {
           name="prompt"
           help="This is used to generate the text elements of your conjuration."
           type="textarea"
-          validation="length:0,500"
+          validation="length:0,1000"
           :placeholder="summoner.customizationHelpPrompt"
           auto-height
         />
-        <div class="-mt-3 text-xs">{{ request.prompt.length }} / 500</div>
+        <div class="-mt-3 text-xs">{{ request.prompt.length }} / 1000</div>
       </div>
 
       <Accordion title="Image Customization" subtitle="(optional)">
@@ -125,7 +125,7 @@ async function generate(generatorCode: string) {
               label="Image Prompt"
               help="This is used to generate the image for your conjuration."
               type="textarea"
-              validation="length:0,500"
+              validation="length:0,1000"
               placeholder="a male human with gleaming silver armor and a fiery sword"
               auto-height
             />
@@ -136,7 +136,7 @@ async function generate(generatorCode: string) {
               v-model="request.imageNegativePrompt"
               label="Negative Prompt"
               type="textarea"
-              validation="length:0,500"
+              validation="length:0,1000"
               placeholder="horns, mountains"
               auto-height
             />

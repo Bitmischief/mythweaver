@@ -67,7 +67,7 @@ async function loadMoreSessions() {
     </div>
   </div>
 
-  <div class="flex flex-wrap">
+  <div v-if="sessions.length" class="flex flex-wrap">
     <router-link
       v-for="(session, i) of sessions"
       :key="i"
@@ -76,6 +76,15 @@ async function loadMoreSessions() {
     >
       <Session :session="session" :full="false" class="mb-6" />
     </router-link>
+  </div>
+  <div v-else>
+    <div
+      class="min-h-[10rem] flex justify-center text-center text-xl text-gray-500 divider"
+    >
+      <div class="self-center">
+        No sessions have been created in this campaign!
+      </div>
+    </div>
   </div>
 
   <div v-if="loadMore" class="mt-4 flex justify-center">
