@@ -20,6 +20,7 @@ import { useIntercom } from '@homebaseai/vue3-intercom';
 import { patchCurrentUser } from '@/api/users.ts';
 import { showError } from '@/lib/notifications.ts';
 import { useEarlyAccessExempt } from '@/lib/hooks.ts';
+import { connect } from '@/lib/serverEvents.ts';
 
 const authStore = useAuthStore();
 const eventBus = useEventBus();
@@ -36,6 +37,12 @@ const showConfirmEarlyAccess = computed(() => {
 onMounted(async () => {
   if (authStore.tokens) {
     await authStore.loadCurrentUser();
+    const pusher = await connect();
+
+    const channel = pusher.subscribe('my-channel');
+    channel.bind('my-event', function (data: any) {
+      console.log(JSON.stringify(data));
+    });
   }
 
   eventBus.$on('user-loaded', async () => {
