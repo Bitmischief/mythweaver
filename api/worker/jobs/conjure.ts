@@ -8,6 +8,10 @@ import { ConjureEvent, processTagsQueue } from '../index';
 import { getRpgSystem } from '../../data/rpgSystems';
 import { getClient } from '../../lib/providers/openai';
 import { parentLogger } from '../../lib/logger';
+import {
+  sendWebsocketMessage,
+  WebSocketEvent,
+} from '../../services/websockets';
 
 const logger = parentLogger.getSubLogger();
 const openai = getClient();
@@ -113,6 +117,12 @@ export const conjure = async (request: ConjureEvent) => {
       conjurationRequestId: request.conjurationRequestId,
     },
   });
+
+  await sendWebsocketMessage(
+    request.userId,
+    WebSocketEvent.ConjurationCreated,
+    createdConjuration,
+  );
 
   const imagePrompt = request.imagePrompt?.length
     ? request.imagePrompt

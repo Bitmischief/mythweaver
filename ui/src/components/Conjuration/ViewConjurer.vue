@@ -1,38 +1,36 @@
 <script setup lang="ts">
-import { onMounted, ref, onUnmounted, computed } from 'vue';
-import {
-  getConjurer,
-  Conjurer,
-  getConjurationRequest,
-} from '@/api/generators.ts';
+import { onMounted, ref, computed } from 'vue';
+import { getConjurer, Conjurer } from '@/api/generators.ts';
 import { useRoute } from 'vue-router';
 import SummoningLoader from '@/components/Conjuration/ConjuringLoader.vue';
-import { useEventBus } from '@/lib/events.ts';
 import ConfigureConjure from '@/components/Conjuration/ViewConjurer/ConfigureConjure.vue';
 import CustomizeConjuration from '@/components/Conjuration/ViewConjuration/CustomizeConjuration.vue';
 import ConfigureConjureActions from '@/components/Conjuration/ViewConjurer/ConfigureConjureActions.vue';
+import { useCurrentUserId } from '@/lib/hooks.ts';
+import { pusher, ServerEvent } from '@/lib/serverEvents.ts';
+import { showError } from '@/lib/notifications.ts';
 
 const route = useRoute();
-const eventBus = useEventBus();
+const userId = useCurrentUserId();
 
 const summoner = ref<Conjurer | undefined>(undefined);
 
 const generating = ref(false);
 const animationDone = ref(false);
-const summonedItems = ref<any[]>([]);
 
 const conjurationRequestId = ref<number | undefined>(undefined);
-const pollingIntervalId = ref<number | undefined>(undefined);
 
+const createdConjuration = ref<any>(undefined);
 const conjuration = computed(() => {
-  if (!summonedItems.value.length) return undefined;
+  if (!createdConjuration.value) return undefined;
 
   return {
-    ...summonedItems.value[0],
+    ...createdConjuration.value,
     saved: true,
     published: true,
   };
 });
+const conjurationId = computed(() => conjuration.value?.id);
 
 onMounted(async () => {
   const getGeneratorResponse = await getConjurer(
@@ -40,22 +38,6 @@ onMounted(async () => {
   );
   summoner.value = getGeneratorResponse.data;
 });
-
-onUnmounted(() => {
-  if (pollingIntervalId.value) {
-    clearInterval(pollingIntervalId.value);
-  }
-});
-
-async function loadConjurationRequest() {
-  if (!conjurationRequestId.value) return;
-
-  const conjurationRequestResponse = await getConjurationRequest(
-    conjurationRequestId.value,
-  );
-
-  summonedItems.value = conjurationRequestResponse.data.conjurations;
-}
 
 function handleBeginConjuring(data: { conjurationRequestId: number }) {
   animationDone.value = false;
@@ -69,32 +51,23 @@ function handleBeginConjuring(data: { conjurationRequestId: number }) {
 
   conjurationRequestId.value = data.conjurationRequestId;
 
-  pollingIntervalId.value = setInterval(async () => {
-    await loadConjurationRequest();
+  if (!userId.value) {
+    throw new Error('No userId to bind server events to!');
+  }
 
-    if (summonedItems.value.length > 0) {
-      processConjuringPartiallyComplete();
-    }
-    if (
-      summonedItems.value.length &&
-      summonedItems.value.every((c: any) => c.imageUri)
-    ) {
-      processConjuringComplete();
-    }
-  }, 5 * 1000) as unknown as number;
-}
-
-function processConjuringPartiallyComplete() {
-  generating.value = false;
-  eventBus.$emit('summoningDone', {});
-
-  eventBus.$on('summoningAnimationDone', () => {
-    animationDone.value = true;
+  const channel = pusher.subscribe(userId.value.toString());
+  channel.bind(ServerEvent.ConjurationCreated, function (data: any) {
+    generating.value = false;
+    createdConjuration.value = data;
   });
-}
 
-function processConjuringComplete() {
-  clearInterval(pollingIntervalId.value);
+  channel.bind(ServerEvent.ConjurationError, function () {
+    generating.value = false;
+    showError({
+      message:
+        'There was a server error creating your conjuration. Reach out to support for help resolving this issue.',
+    });
+  });
 }
 </script>
 
@@ -103,10 +76,8 @@ function processConjuringComplete() {
     <div class="z-10 h-full w-full rounded-xl p-4">
       <ConfigureConjureActions
         class=""
-        :summoned-items="summonedItems.length > 0"
-        :conjuration-id="
-          summonedItems.length > 0 ? summonedItems[0].id : undefined
-        "
+        :summoned-items="!!conjuration"
+        :conjuration-id="conjurationId"
       />
 
       <div class="block 3xl:flex">
@@ -121,10 +92,8 @@ function processConjuringComplete() {
 
         <ConfigureConjureActions
           class="flex 3xl:hidden mt-6"
-          :summoned-items="summonedItems.length > 0"
-          :conjuration-id="
-            summonedItems.length > 0 ? summonedItems[0].id : undefined
-          "
+          :summoned-items="!!conjuration"
+          :conjuration-id="conjurationId"
         />
 
         <div
@@ -159,10 +128,8 @@ function processConjuringComplete() {
 
       <ConfigureConjureActions
         class="flex 3xl:hidden mt-6"
-        :summoned-items="summonedItems.length > 0"
-        :conjuration-id="
-          summonedItems.length > 0 ? summonedItems[0].id : undefined
-        "
+        :summoned-items="!!conjuration"
+        :conjuration-id="conjurationId"
       />
     </div>
   </div>
