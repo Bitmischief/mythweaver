@@ -15,7 +15,7 @@
     "@datadog/browser-logs": "^4.50.0",
     "@datadog/browser-rum": "^5.0.0",
     "@formkit/addons": "^1.2.2",
-    "@formkit/icons": "^1.2.2",
+    "@formkit/icons": "^1.3.0",
     "@formkit/themes": "^1.2.2",
     "@formkit/vue": "^1.2.2",
     "@homebaseai/vue3-intercom": "^2.0.2",
