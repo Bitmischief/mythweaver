@@ -136,7 +136,7 @@ model Session {
   status      Int      @default(1)
   summary     String?
   transcript  String?
-  description String?
+  planning    String?
   recap       String?
   imageUri    String?
   suggestions String?

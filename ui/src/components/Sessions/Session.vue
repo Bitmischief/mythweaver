@@ -1,16 +1,9 @@
 <script lang="ts" setup>
 import { SessionBase } from '@/api/sessions.ts';
-import { format, parseISO } from 'date-fns';
-import { computed } from 'vue';
 
-const props = defineProps<{
+defineProps<{
   session: SessionBase;
 }>();
-
-const whenString = computed(() => format(parseISO(props.session.when), 'PP'));
-const whenTimeString = computed(() =>
-  format(parseISO(props.session.when), 'p'),
-);
 </script>
 
 <template>
@@ -39,34 +32,6 @@ const whenTimeString = computed(() =>
           :src="session.imageUri || '/images/session_bg_square.png'"
           class="md:w-[400px] md:h-[400px] object-cover rounded-t-[10px]"
         />
-      </div>
-
-      <div
-        class="p-3 w-full flex-col justify-start items-start gap-2.5 inline-flex"
-      >
-        <div class="w-full">
-          <div class="text-white text-lg font-semibold flex-wrap">
-            {{ session.name ? session.name : whenString }}
-          </div>
-        </div>
-        <div class="justify-start items-center gap-3 inline-flex">
-          <div
-            class="opacity-70 text-gray-200 text-sm font-normal leading-relaxed"
-          >
-            {{ session.status === 2 ? whenString : whenTimeString }}
-          </div>
-        </div>
-        <div
-          class="w-full overflow-hidden text-neutral-500 text-sm font-normal leading-relaxed"
-        >
-          <p class="truncate">
-            {{
-              session.status === 2
-                ? session.summary
-                : session.description || 'No description provided'
-            }}
-          </p>
-        </div>
       </div>
     </div>
   </div>

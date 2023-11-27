@@ -3,10 +3,9 @@ import { useSelectedCampaignId } from '@/lib/hooks.ts';
 
 export interface SessionBase {
   id: number;
-  when: string;
   summary?: string | undefined;
   transcript?: string | undefined;
-  description?: string | undefined;
+  planning?: string | undefined;
   campaignId: number;
   imageUri?: string | undefined;
   name?: string | undefined;
@@ -21,16 +20,15 @@ export interface GetSessionsRequest {
 
 export interface PostSessionRequest {
   id: number;
-  when: Date;
-  summary?: string | undefined;
-  transcript?: string | undefined;
-  description?: string | undefined;
+  name?: string | undefined;
+  planning?: string | undefined;
   campaignId: number;
 }
 
 export interface PatchSessionRequest {
   id: number;
-  when: Date;
+  name?: string | undefined;
+  planning?: string | undefined;
   summary?: string | undefined;
   transcript?: string | undefined;
   description?: string | undefined;

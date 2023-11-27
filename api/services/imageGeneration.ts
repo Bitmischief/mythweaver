@@ -16,7 +16,7 @@ const s3 = new S3Client({
   region: 'sfo3',
 });
 
-const engineId = 'stable-diffusion-xl-1024-v1-0';
+const engineId = 'stable-diffusion-v1-6';
 const apiHost = process.env.API_HOST ?? 'https://api.stability.ai';
 const apiKey = process.env.STABILITY_API_KEY;
 
