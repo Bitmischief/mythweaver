@@ -1,0 +1,109 @@
+<script setup lang="ts">
+import { useRouter } from 'vue-router';
+import { ref } from 'vue';
+import { Collection } from '@/api/collections.ts';
+import DeleteModal from '@/components/Core/General/DeleteModal.vue';
+// import { showSuccess } from '@/lib/notifications.ts';
+
+const props = defineProps<{
+  collection: Collection | undefined;
+  skeleton?: boolean;
+}>();
+
+const emit = defineEmits(['add-collection', 'remove-collection']);
+
+const router = useRouter();
+
+const isSaved = (collection: any) => collection.saved;
+
+async function handleAddCollection(collectionId: number) {
+  console.log(collectionId);
+  // await saveConjuration(conjurationId);
+  // emit('add-conjuration', { conjurationId });
+}
+
+async function navigateToViewCollection(collectionId: number) {
+  await router.push(`/collections/view/${collectionId}`);
+}
+
+async function clickDeleteCollection() {
+  if (!props.collection || !isSaved(props.collection)) return;
+  const collectionId = props.collection?.id;
+  console.log(collectionId);
+  // await removeCollection(collectionId);
+  // showSuccess({ message: 'Successfully removed conjuration' });
+  // emit('remove-collection', {
+  //   collectionId,
+
+  // });
+  // showDeleteModal.value = false;
+}
+
+const showDeleteModal = ref(false);
+</script>
+
+<template>
+  <div v-if="collection" class="mr-6 mb-6">
+    <div
+      class="relative md:max-w-[23rem] 3xl:max-w-[40rem] flex cursor-pointer flex-col justify-end rounded-t-xl shadow-xl"
+      @click="navigateToViewCollection(collection.id)"
+    >
+      <!-- <div> -->
+
+      <div
+        v-if="isSaved(collection)"
+        class="absolute right-2 top-2 flex h-12 w-12 justify-center rounded-full bg-green-500 hover:bg-red-500 transition-all hover:scale-110 group"
+      >
+        <XMarkIcon
+          class="h-8 w-8 hidden group-hover:flex self-center text-white"
+          @click.stop="showDeleteModal = true"
+        />
+        <CheckIcon
+          class="h-8 w-8 self-center text-white flex group-hover:hidden"
+        />
+      </div>
+      <div
+        v-else
+        class="absolute right-2 top-2 flex h-12 w-12 justify-center rounded-full bg-gray-800 hover:bg-green-500 transition-all hover:scale-110"
+        @click.stop="handleAddCollection(collection.id)"
+      >
+        <button class="self-center">
+          <PlusIcon class="h-8 w-8 text-white" />
+        </button>
+      </div>
+
+      <div class="flex w-full justify-between rounded-b-lg bg-surface-2 p-4">
+        <div>
+          <div class="text-xl font-bold">{{ collection.name }}</div>
+          <div class="flex flex-wrap">
+            <div class="mr-1 mt-1 rounded-xl bg-gray-800 px-2 py-1 text-xs">
+              {{ collection.description }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <DeleteModal v-model="showDeleteModal">
+    <div class="text-center text-8xl">Wait!</div>
+    <div class="mt-8 text-center text-3xl">
+      Are you sure you want to remove this collection from your list?
+    </div>
+
+    <div class="mt-12 flex justify-center">
+      <button
+        class="mr-6 rounded-xl border border-green-500 px-6 py-3"
+        @click="showDeleteModal = false"
+      >
+        No, keep collection
+      </button>
+      <button
+        class="rounded-xl bg-red-500 px-6 py-3"
+        @click="clickDeleteCollection"
+      >
+        Remove collection
+      </button>
+    </div>
+  </DeleteModal>
+</template>

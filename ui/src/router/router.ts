@@ -57,6 +57,14 @@ const router = createRouter({
       },
     },
     {
+      name: 'HOME',
+      path: '/',
+      redirect: '/collections',
+      meta: {
+        authRequired: true,
+      },
+    },
+    {
       name: 'CHARACTERS',
       path: '/character',
       component: CharactersView,
@@ -86,6 +94,33 @@ const router = createRouter({
     {
       name: 'CONJURING',
       path: '/conjurations',
+      component: ConjuringView,
+      meta: {
+        authRequired: true,
+      },
+      children: [
+        {
+          path: 'list',
+          alias: '',
+          component: ListConjurations,
+        },
+        {
+          path: 'view/:conjurationId',
+          component: ViewConjuration,
+        },
+        {
+          path: 'new',
+          component: ListConjurers,
+        },
+        {
+          path: 'conjure/:summonerCode',
+          component: ViewConjurer,
+        },
+      ],
+    },
+    {
+      name: 'COLLECTION',
+      path: '/collections',
       component: ConjuringView,
       meta: {
         authRequired: true,

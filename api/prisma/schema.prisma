@@ -34,14 +34,71 @@ model User {
   campaigns           Campaign[]
   sessions            Session[]
   conjurations        Conjuration[]
+  collections         Collection[]
   conjurationRequests ConjurationRequest[]
+  collectionRequests  CollectionRequest[]
   campaignMemberships CampaignMember[]
   characters          Character[]
   ConjurationSave     ConjurationSave[]
+  CollectionSave      CollectionSave[]
   magicLinks          MagicLink[]
   images              Image[]
 
   @@map("users")
+}
+
+model Collection {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+
+  userId     Int?
+  campaignId Int?
+  parentId   Int?
+
+  name        String
+  description String
+  published   Boolean @default(false)
+
+  user                User?              @relation(fields: [userId], references: [id])
+  campaign            Campaign?          @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  CollectionRequest   CollectionRequest? @relation(fields: [collectionRequestId], references: [id])
+  collectionRequestId Int?
+  saves               CollectionSave[]
+
+  @@map("collections")
+}
+
+model CollectionSave {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  parentId     Int
+
+  userId       Int
+  collectionId Int
+
+  user       User       @relation(fields: [userId], references: [id])
+  collection Collection @relation(fields: [collectionId], references: [id])
+
+  @@unique([userId, collectionId])
+  @@map("collection_users")
+}
+
+model CollectionRequest {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+
+  userId     Int
+  campaignId Int
+  count      Int
+  args       Json
+
+  user        User?        @relation(fields: [userId], references: [id])
+  collections Collection[]
+
+  @@map("collection_requests")
 }
 
 model Conjuration {
@@ -119,6 +176,7 @@ model Campaign {
   user         User             @relation(fields: [userId], references: [id])
   sessions     Session[]
   conjurations Conjuration[]
+  collections  Collection[]
   members      CampaignMember[]
   characters   Character[]
 
