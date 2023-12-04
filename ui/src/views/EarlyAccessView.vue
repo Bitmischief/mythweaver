@@ -27,10 +27,8 @@
         </div>
 
         <div class="text-neutral-400 mt-4 text-xl text-center">
-          Want access through public launch in January? Back us now on
-          Kickstarter with any pledge tier that includes `early access`! Also be
-          sure to follow us on social media where we will give away early access
-          periodically!
+          Want to continue using MythWeaver? Pre-order now and get early access
+          until launch!
         </div>
 
         <div class="flex mt-8">
@@ -41,12 +39,11 @@
             Back to login
           </router-link>
           <a
-            href="
-https://www.kickstarter.com/projects/mythweaver/mythweaver-ai-dungeon-master-assistant?ref=3glebk"
+            href="https://mythweaver.backerkit.com/hosted_preorders"
             target="_blank"
             class="bg-gradient-to-r w-full from-green-500 to-green-400 transition-all hover:scale-110 py-2 ml-2 text-center px-4 rounded-md"
           >
-            Continue Early Access
+            Purchase Early Access
           </a>
         </div>
       </div>
