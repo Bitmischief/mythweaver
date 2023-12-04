@@ -62,7 +62,7 @@ export default class UserController {
 
     if (request.confirmEarlyAccessStart) {
       const earlyAccessEnd = new Date();
-      earlyAccessEnd.setHours(new Date().getHours() + 24);
+      earlyAccessEnd.setHours(new Date().getHours() + 48);
 
       await prisma.user.update({
         where: {

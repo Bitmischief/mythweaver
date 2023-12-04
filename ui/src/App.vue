@@ -158,26 +158,25 @@ async function confirmEarlyAccessTerms() {
         <span class="font-bold">Trial Access</span>!
       </div>
 
-      <div class="text-xl mt-8 mb-2">⏳ 24-Hour Access ⌛</div>
+      <div class="text-xl mt-8 mb-2">⏳ 48-Hour Access ⌛</div>
       <div class="text-lg text-neutral-400">
-        Yup, you read it right. You've got 24 hours of unrestricted journeying
+        Yup, you read it right. You've got 48 hours of unrestricted journeying
         within MythWeaver. Consider this your mini-adventure before the main
         campaign.
       </div>
 
       <div class="text-xl mt-6 mb-2">🚀 Early Access 🚀</div>
       <div class="text-lg text-neutral-400">
-        After your 24-hour access, you'll need to back our Kickstarter at Adept
+        After your 48-hour access, you'll need to back our Kickstarter at Adept
         tier or higher to continue your adventure, until our public launch in
         January.
 
-        <div class="my-12">
+        <div class="my-6 mb-10">
           <a
-            href="
-https://www.kickstarter.com/projects/mythweaver/mythweaver-ai-dungeon-master-assistant?ref=3glebk"
+            href="https://mythweaver.backerkit.com/hosted_preorders"
             target="_blank"
             class="bg-neutral-700 text-white rounded-md px-4 py-2 transition-all hover:scale-110"
-            >Go to Kickstarter</a
+            >Pre-Order Now</a
           >
         </div>
       </div>
@@ -190,16 +189,14 @@ https://www.kickstarter.com/projects/mythweaver/mythweaver-ai-dungeon-master-ass
               What happens to my data if my trial access expires?
             </div>
             Your data will be saved, but you won't be able to access it until
-            either you back our Kickstarter at Adept tier or higher or we launch
-            MythWeaver to the public (planned for January 2024).
+            either you pre-order MythWeaver or we launch MythWeaver to the
+            public (planned for January 2024).
           </li>
           <li class="mt-4">
             <div class="font-bold text-neutral-300">
               Does early access consume any of my purchased subscription period?
             </div>
-            No! Early access is a free bonus perk to backers of Adept tier and
-            higher, your subscription will begin when MythWeaver is publicly
-            launched.
+            No! Early access is a free bonus perk to for pre-order purchasers.
           </li>
         </ul>
       </div>
@@ -209,7 +206,7 @@ https://www.kickstarter.com/projects/mythweaver/mythweaver-ai-dungeon-master-ass
         @click="confirmEarlyAccessTerms"
       >
         <SparklesIcon class="mr-2 h-5 w-5 self-center" />
-        <span class="self-center">Start 24 hour trial!</span>
+        <span class="self-center">Start 48 hour trial!</span>
       </button>
     </div>
   </ModalAlternate>
