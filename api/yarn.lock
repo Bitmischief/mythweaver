@@ -5113,17 +5113,10 @@ node-domexception@1.0.0:
   resolved "https://registry.yarnpkg.com/node-domexception/-/node-domexception-1.0.0.tgz#6888db46a1f71c0b76b3f7555016b63fe64766e5"
   integrity sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==
 
-node-fetch@^2.6.7:
+node-fetch@^2.6.7, node-fetch@^2.6.9:
   version "2.7.0"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.7.0.tgz#d0f0fa6e3e2dc1d27efcd8ad99d550bda94d187d"
   integrity sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==
-  dependencies:
-    whatwg-url "^5.0.0"
-
-node-fetch@^2.6.9:
-  version "2.6.12"
-  resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.12.tgz#02eb8e22074018e3d5a83016649d04df0e348fba"
-  integrity sha512-C/fGU2E8ToujUivIO0H+tpQ6HWo4eEmchoPIoXtxCrVghxdKq+QOHqEZW7tuP3KlV3bC8FRMO5nMCC7Zm1VP6g==
   dependencies:
     whatwg-url "^5.0.0"
 
@@ -5249,10 +5242,10 @@ onetime@^6.0.0:
   dependencies:
     mimic-fn "^4.0.0"
 
-openai@^4.3.1:
-  version "4.6.0"
-  resolved "https://registry.yarnpkg.com/openai/-/openai-4.6.0.tgz#0335111cf71c608b68dbdca19f8ccbd9cfb0cd97"
-  integrity sha512-LuONkTgoe4D172raQCv+eEK5OdLGnY/M4JrUz/pxRGevZwqDqy3xhBbCeWX8QLCbFcnITYsu/VBJXZJ0rDAMpA==
+openai@^4.20.1:
+  version "4.20.1"
+  resolved "https://registry.yarnpkg.com/openai/-/openai-4.20.1.tgz#afa0d496d125b5a0f6cebcb4b9aeabf71e00214e"
+  integrity sha512-Dd3q8EvINfganZFtg6V36HjrMaihqRgIcKiHua4Nq9aw/PxOP48dhbsk8x5klrxajt5Lpnc1KTOG5i1S6BKAJA==
   dependencies:
     "@types/node" "^18.11.18"
     "@types/node-fetch" "^2.6.4"
@@ -5262,6 +5255,7 @@ openai@^4.3.1:
     form-data-encoder "1.7.2"
     formdata-node "^4.3.2"
     node-fetch "^2.6.7"
+    web-streams-polyfill "^3.2.1"
 
 optionator@^0.9.3:
   version "0.9.3"
@@ -6276,6 +6270,11 @@ web-streams-polyfill@4.0.0-beta.3:
   version "4.0.0-beta.3"
   resolved "https://registry.yarnpkg.com/web-streams-polyfill/-/web-streams-polyfill-4.0.0-beta.3.tgz#2898486b74f5156095e473efe989dcf185047a38"
   integrity sha512-QW95TCTaHmsYfHDybGMwO5IJIM93I/6vTRk+daHTWFPhwh+C8Cg7j7XyKrwrj8Ib6vYXe0ocYNrmzY4xAAN6ug==
+
+web-streams-polyfill@^3.2.1:
+  version "3.2.1"
+  resolved "https://registry.yarnpkg.com/web-streams-polyfill/-/web-streams-polyfill-3.2.1.tgz#71c2718c52b45fd49dbeee88634b3a60ceab42a6"
+  integrity sha512-e0MO3wdXWKrLbL0DgGnUV7WHVuw9OUvL4hjgnPkIeEvESk74gAITi5G606JtZPp39cd8HA9VQzCIvA49LpPN5Q==
 
 webidl-conversions@^3.0.0:
   version "3.0.1"
