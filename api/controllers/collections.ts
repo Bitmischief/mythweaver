@@ -22,6 +22,7 @@ interface GetCollectionsResponse {
   data: (Collection & { saved: boolean })[];
   offset?: number;
   limit?: number;
+  parentId?: number;
 }
 
 interface GetCollectionTagsResponse {
@@ -45,13 +46,10 @@ export default class CollectionController {
   public async getCollections(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Query() campaignId?: number,
     @Query() saved?: boolean,
-    @Query() conjurerCodeString?: string,
-    @Query() stylePreset?: ImageStylePreset,
-    @Query() tags?: string,
     @Query() offset?: number,
     @Query() limit?: number,
+    @Query() parentId?: any,
   ): Promise<GetCollectionsResponse> {
     const collections = await prisma.collection.findMany({
       where: {
@@ -62,6 +60,7 @@ export default class CollectionController {
               },
             }
           : undefined,
+        parentId: parentId ? parentId : null,
       },
       skip: offset,
       take: limit,

@@ -12,7 +12,8 @@ import CollectionQuickView from '@/components/Collection/CollectionListItemView.
 import { debounce } from 'lodash';
 import ConjurationsListFiltering from '@/components/Conjuration/ConjurationsListFiltering.vue';
 
-const pagingDone = ref(false);
+const pagingConjurationDone = ref(false);
+const pagingCollectionDone = ref(false);
 const conjurations = ref<Conjuration[]>([]);
 const collections = ref<Collection[]>([]);
 const showFilters = ref(false);
@@ -57,7 +58,7 @@ const collectionsQuery = computed(() => ({
 }));
 
 onMounted(async () => {
-  // await loadConjurations();
+  await loadConjurations();
   await loadCollections();
 
   const viewParent = document.querySelector('#view-parent');
@@ -86,7 +87,7 @@ watch(
 watch(
   [conjurationsFilterQuery, conjurationsMineQuery],
   async () => {
-    pagingDone.value = false;
+    pagingConjurationDone.value = false;
     if (conjurationsPagingQuery.value.offset === 0) {
       await loadConjurations();
     } else {
@@ -103,7 +104,7 @@ const pageConjurations = debounce(() => {
 }, 250);
 
 async function loadConjurations(append = false) {
-  if (pagingDone.value) return;
+  if (pagingConjurationDone.value) return;
 
   const conjurationsResponse = await getConjurations({
     ...conjurationsQuery.value,
@@ -116,25 +117,22 @@ async function loadConjurations(append = false) {
   }
 
   if (conjurationsResponse.data.data.length === 0) {
-    pagingDone.value = true;
+    pagingConjurationDone.value = true;
   }
 }
 
-async function loadCollections(append = false) {
-  if (pagingDone.value) return;
+async function loadCollections() {
+  if (pagingCollectionDone.value) return;
 
   const collectionsResponse = await getCollections({
     ...collectionsQuery.value,
+    parentId: null,
   });
 
-  if (!append) {
-    collections.value = collectionsResponse.data.data;
-  } else {
-    collections.value.push(...collectionsResponse.data.data);
-  }
+  collections.value = collectionsResponse.data.data;
 
   if (collectionsResponse.data.data.length === 0) {
-    pagingDone.value = true;
+    pagingCollectionDone.value = true;
   }
 }
 
@@ -177,6 +175,14 @@ async function handleConjurationChange(change: {
 //     conjurations.value.splice(collectionIndex, 1);
 //   }
 // }
+
+async function childIsDragging() {
+  console.log('child being draggggged');
+}
+async function childDropped(elem: any) {
+  console.log('child being dropped');
+  console.log(elem);
+}
 </script>
 
 <template>
@@ -323,6 +329,7 @@ async function handleConjurationChange(change: {
       :conjuration="conjuration"
       @add-conjuration="handleConjurationChange"
       @remove-conjuration="handleConjurationChange"
+      @drag="childIsDragging"
     />
   </div>
   <!-- Conjurations and Saved Page -->
@@ -337,6 +344,8 @@ async function handleConjurationChange(change: {
       v-for="collection of collections"
       :key="collection.name"
       :collection="collection"
+      @drag="childIsDragging"
+      @drop="childDropped"
     />
   </div>
   <!-- End Collections Page 
@@ -367,7 +376,10 @@ async function handleConjurationChange(change: {
   </div>
   <!-- End No Collections Page -->
 
-  <div v-if="conjurations.length && pagingDone" class="my-12 pb-12 w-full">
+  <div
+    v-if="conjurations.length && pagingConjurationDone && pagingCollectionDone"
+    class="my-12 pb-12 w-full"
+  >
     <div class="text-center text-xl text-gray-500 divider">
       No more conjurations to show!
     </div>

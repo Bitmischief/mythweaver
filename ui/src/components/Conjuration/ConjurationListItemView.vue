@@ -15,7 +15,7 @@ const props = defineProps<{
   skeleton?: boolean;
 }>();
 
-const emit = defineEmits(['add-conjuration', 'remove-conjuration']);
+const emit = defineEmits(['add-conjuration', 'remove-conjuration', 'drag']);
 
 const router = useRouter();
 
@@ -49,10 +49,27 @@ async function clickDeleteConjuration() {
 }
 
 const showDeleteModal = ref(false);
+
+async function dragStart() {
+  emit('drag', {});
+}
+async function dragging() {
+  emit('drag', {});
+}
+async function dragend() {
+  emit('drag', {});
+}
 </script>
 
 <template>
-  <div v-if="conjuration" class="mr-6 mb-6">
+  <div
+    v-if="conjuration"
+    class="mr-6 mb-6"
+    draggable="true"
+    @dragstart="dragStart"
+    @drag="dragging"
+    @dragend="dragend"
+  >
     <div
       class="relative md:max-w-[23rem] 3xl:max-w-[40rem] flex cursor-pointer flex-col justify-end rounded-t-xl shadow-xl"
       @click="navigateToViewConjuration(conjuration.id)"

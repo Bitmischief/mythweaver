@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
-import { ref } from 'vue';
-import { Collection } from '@/api/collections.ts';
+import { computed, ref, onMounted } from 'vue';
+import { Collection, getCollections } from '@/api/collections.ts';
 import DeleteModal from '@/components/Core/General/DeleteModal.vue';
 // import { showSuccess } from '@/lib/notifications.ts';
 
@@ -10,9 +10,39 @@ const props = defineProps<{
   skeleton?: boolean;
 }>();
 
-const emit = defineEmits(['add-collection', 'remove-collection']);
+const defaultPaging = {
+  offset: 0,
+  limit: 20,
+};
+
+const defaultFilters = {
+  conjurerCodes: [],
+  imageStylePreset: undefined,
+  tags: [],
+};
+const collectionsPagingQuery = ref(defaultPaging);
+
+const collectionsFilterQuery = ref(defaultFilters);
+
+const collectionsMineQuery = ref({});
+
+const collectionsQuery = computed(() => ({
+  ...collectionsFilterQuery.value,
+  ...collectionsPagingQuery.value,
+  ...collectionsMineQuery.value,
+}));
+
+const emit = defineEmits([
+  'add-collection',
+  'remove-collection',
+  'drag',
+  'drop',
+]);
+
+const childCollections = ref<Collection[]>([]);
 
 const router = useRouter();
+let hoverClass = 'unhover';
 
 const isSaved = (collection: any) => collection.saved;
 
@@ -38,17 +68,67 @@ async function clickDeleteCollection() {
   // });
   // showDeleteModal.value = false;
 }
+async function dragStart() {
+  emit('drag', {});
+}
+async function dragging() {
+  emit('drag', {});
+}
+async function dragend() {
+  emit('drag', {});
+}
+async function drop(elem: any) {
+  console.log('dropped in child');
+  emit('drop', elem);
+}
+async function dragenter(e: Event) {
+  e.preventDefault();
+  hoverClass = 'hover';
+}
+async function dragover(e: Event) {
+  e.preventDefault();
+}
+async function dragleave(e: Event) {
+  e.preventDefault();
+  hoverClass = 'unhover';
+}
 
 const showDeleteModal = ref(false);
+
+onMounted(async () => {
+  await loadCollections();
+});
+
+async function loadCollections() {
+  const collectionsResponse = await getCollections({
+    ...collectionsQuery.value,
+    parentId: props.collection?.id,
+  });
+  childCollections.value = collectionsResponse.data.data;
+}
 </script>
 
 <template>
-  <div v-if="collection" class="mr-6 mb-6">
+  <div
+    v-if="collection"
+    class="mr-6 mb-6"
+    :class="hoverClass"
+    draggable="true"
+    @drop="drop"
+    @dragstart="dragStart"
+    @drag="dragging"
+    @dragend="dragend"
+    @dragenter="dragenter"
+    @dragover="dragover"
+    @dragleave="dragleave"
+  >
     <div
       class="relative md:max-w-[23rem] 3xl:max-w-[40rem] flex cursor-pointer flex-col justify-end rounded-t-xl shadow-xl"
       @click="navigateToViewCollection(collection.id)"
     >
-      <!-- <div> -->
+      <div v-for="child of childCollections" :key="child.name">
+        {{ child.name }}
+      </div>
 
       <div
         v-if="isSaved(collection)"
@@ -107,3 +187,9 @@ const showDeleteModal = ref(false);
     </div>
   </DeleteModal>
 </template>
+
+<style scoped>
+.hover {
+  border: 2px solid green;
+}
+</style>

@@ -6,6 +6,7 @@ export interface Collection {
   name: string;
   description: string;
   saved: boolean;
+  children: any;
 }
 
 export interface getCollectionsRequest {
@@ -14,6 +15,7 @@ export interface getCollectionsRequest {
   saved?: boolean;
   offset: number;
   limit: number;
+  parentId: any;
 }
 
 export const getCollections = (request: getCollectionsRequest) => {
@@ -22,6 +24,7 @@ export const getCollections = (request: getCollectionsRequest) => {
       ...request,
       mine: request.mine === false ? undefined : request.mine,
       saved: request.saved === false ? undefined : request.saved,
+      parentId: request.parentId ? request.parentId : 0,
     },
   });
 };
