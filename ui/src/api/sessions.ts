@@ -12,6 +12,8 @@ export interface SessionBase {
   name?: string | undefined;
   status: 1 | 2;
   suggestions?: string | undefined;
+  audioName?: string | undefined;
+  audioUri?: string | undefined;
 }
 
 export interface GetSessionsRequest {
@@ -75,4 +77,8 @@ export const deleteSession = (sessionId: number) => {
 
 export const postCompleteSession = (sessionId: number, request: PostCompleteSessionRequest) => {
   return axios.post(`/sessions/${sessionId}/complete`, request);
+};
+
+export const postSessionAudio = (sessionId: number, request: FormData) => {
+  return axios.post(`/sessions/${sessionId}/audio`, request);
 };

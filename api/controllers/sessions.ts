@@ -43,6 +43,16 @@ interface PostCompleteSessionRequest {
   recap: string;
 }
 
+interface PostSessionAudioRequest {
+  audioName: string;
+  audioUri: string;
+}
+
+interface PostSessionAudioResponse {
+  audioName: string;
+  audioUri: string;
+}
+
 export enum SessionStatus {
   UPCOMING = 1,
   COMPLETED = 2,
@@ -222,5 +232,49 @@ export default class SessionController {
     track(AppEvent.CompleteSession, userId, trackingInfo);
 
     return true;
+  }
+
+  @Security('jwt')
+  @OperationId('postSessionAudio')
+  @Post('/:sessionId/audio')
+  public async postSessionAudio(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Route() sessionId: number,
+    @Body() request: PostSessionAudioRequest,
+  ): Promise<PostSessionAudioResponse> {
+    const session = await this.getSession(userId, trackingInfo, sessionId);
+    const campaignMember = await prisma.campaignMember.findUnique({
+      where: {
+        userId_campaignId: {
+          userId,
+          campaignId: session.campaignId,
+        },
+      },
+    });
+
+    if (!campaignMember || campaignMember.role !== CampaignRole.DM) {
+      throw new AppError({
+        description: 'You do not have permission to add audio to this session.',
+        httpCode: HttpCode.FORBIDDEN,
+      });
+    }
+
+    await prisma.session.update({
+      where: {
+        id: sessionId,
+      },
+      data: {
+        audioName: request.audioName,
+        audioUri: request.audioUri,
+      },
+    });
+
+    track(AppEvent.SessionAudioUploaded, userId, trackingInfo);
+
+    return {
+      audioName: request.audioName,
+      audioUri: request.audioUri,
+    };
   }
 }
