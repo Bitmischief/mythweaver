@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { CheckIcon, PlusIcon, XMarkIcon } from '@heroicons/vue/20/solid';
 import {
   saveConjuration,
   Conjuration,
@@ -15,7 +14,12 @@ const props = defineProps<{
   skeleton?: boolean;
 }>();
 
-const emit = defineEmits(['add-conjuration', 'remove-conjuration', 'drag']);
+const emit = defineEmits([
+  'add-conjuration',
+  'remove-conjuration',
+  'drag',
+  'dragstart',
+]);
 
 const router = useRouter();
 
@@ -51,7 +55,7 @@ async function clickDeleteConjuration() {
 const showDeleteModal = ref(false);
 
 async function dragStart() {
-  emit('drag', {});
+  emit('dragstart', props.conjuration);
 }
 async function dragging() {
   emit('drag', {});
@@ -80,6 +84,7 @@ async function dragend() {
           :src="conjuration.imageUri"
           :alt="conjuration.name"
           class="rounded-t-xl"
+          style="pointer-events: none"
         />
         <div v-else class="w-full flex justify-center h-full bg-gray-900/75">
           <div

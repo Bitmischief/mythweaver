@@ -13,6 +13,8 @@ export enum AppEvent {
   CreateCampaign = 'Create Campaign',
   UpdateCampaign = 'Update Campaign',
   DeleteCampaign = 'Delete Campaign',
+  GetCollectionConjurations = 'Get Collection Conjurations',
+  CreateCollectionConjuration = 'Create Collection Conjuration',
   GetConjurations = 'Get Conjurations',
   GetConjuration = 'Get Conjuration',
   CreateConjuration = 'Create Conjuration',

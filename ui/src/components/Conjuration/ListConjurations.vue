@@ -4,13 +4,24 @@ import {
   Conjuration,
   getConjuration,
   getConjurations,
+  createCollectionConjuration,
 } from '@/api/conjurations.ts';
-import { Collection, getCollections } from '@/api/collections.ts';
+import {
+  Collection,
+  getCollections,
+  patchCollection,
+} from '@/api/collections.ts';
 import { AdjustmentsVerticalIcon, SparklesIcon } from '@heroicons/vue/20/solid';
 import ConjurationQuickView from '@/components/Conjuration/ConjurationListItemView.vue';
 import CollectionQuickView from '@/components/Collection/CollectionListItemView.vue';
 import { debounce } from 'lodash';
 import ConjurationsListFiltering from '@/components/Conjuration/ConjurationsListFiltering.vue';
+import { showError, showSuccess } from '@/lib/notifications.ts';
+
+import { useRouter } from 'vue-router';
+
+// const route = useRoute();
+const router = useRouter();
 
 const pagingConjurationDone = ref(false);
 const pagingCollectionDone = ref(false);
@@ -56,6 +67,8 @@ const collectionsQuery = computed(() => ({
   ...collectionsPagingQuery.value,
   ...collectionsMineQuery.value,
 }));
+
+let currentDragTarget: any = null;
 
 onMounted(async () => {
   await loadConjurations();
@@ -177,11 +190,59 @@ async function handleConjurationChange(change: {
 // }
 
 async function childIsDragging() {
-  console.log('child being draggggged');
+  // console.log('child being draggggged');
 }
-async function childDropped(elem: any) {
-  console.log('child being dropped');
-  console.log(elem);
+
+async function childDragStart(collection: number) {
+  currentDragTarget = collection;
+}
+async function childDragEnd(collection: number) {
+  console.log(collection);
+}
+async function conjurationDragStart(conjuration: number) {
+  currentDragTarget = conjuration;
+}
+
+async function childDropped(collection: number) {
+  // console.log('child being dropped');
+  let parentId = collection;
+  let childType = currentDragTarget.conjurerCode
+    ? currentDragTarget.conjurerCode
+    : 'collection';
+  if (childType == 'collection') {
+    let myCollectionId = currentDragTarget;
+    const myCollection: any = collections.value.find((collection) => {
+      return (collection.id = myCollectionId);
+    });
+    if (myCollection) {
+      myCollection.parentId = parentId;
+      const response = await patchCollection(myCollection.id, myCollection);
+      if (response.status === 200) {
+        showSuccess({ message: 'collection saved' });
+      } else {
+        showError({
+          message: 'Failed to save collection. Please try again in a moment.',
+        });
+      }
+    }
+  } else if (childType == 'characters') {
+    let conjurationId = currentDragTarget.id;
+    let parentId = collection;
+    const response = await createCollectionConjuration({
+      conjurationId: conjurationId,
+      collectionId: parentId,
+    });
+    if (response.status === 200) {
+      showSuccess({ message: 'collection saved' });
+      await router.push(`/collections/view/${parentId}`);
+      await loadConjurations();
+      await loadCollections();
+    } else {
+      showError({
+        message: 'Failed to save collection. Please try again in a moment.',
+      });
+    }
+  }
 }
 </script>
 
@@ -298,7 +359,11 @@ async function childDropped(elem: any) {
 
   <!-- No Conjurations Page -->
   <div
-    v-if="!conjurations.length && conjurationsMineQuery.tab == SAVED"
+    v-if="
+      !conjurations.length &&
+      !collections.length &&
+      conjurationsMineQuery.tab == SAVED
+    "
     class="bg-surface-2 rounded-md p-8 flex justify-center"
   >
     <div>
@@ -320,16 +385,29 @@ async function childDropped(elem: any) {
 
   <!-- Conjurations and Saved Page -->
   <div
-    v-if="conjurations.length && conjurationsMineQuery.tab !== COLLECTIONS"
+    v-if="
+      (conjurations.length || collections.length) &&
+      conjurationsMineQuery.tab !== COLLECTIONS
+    "
     class="flex flex-wrap justify-items-center"
   >
+    <!-- Collections View Here -->
+    <CollectionQuickView
+      v-for="collection of collections"
+      :key="collection.name"
+      :collection="collection"
+      @drag="childIsDragging"
+      @drop="childDropped"
+      @dragstart="childDragStart"
+      @dragend="childDragEnd"
+    />
     <ConjurationQuickView
       v-for="conjuration of conjurations"
       :key="conjuration.name"
       :conjuration="conjuration"
       @add-conjuration="handleConjurationChange"
       @remove-conjuration="handleConjurationChange"
-      @drag="childIsDragging"
+      @dragstart="conjurationDragStart"
     />
   </div>
   <!-- Conjurations and Saved Page -->
@@ -344,8 +422,8 @@ async function childDropped(elem: any) {
       v-for="collection of collections"
       :key="collection.name"
       :collection="collection"
-      @drag="childIsDragging"
       @drop="childDropped"
+      @dragstart="childDragStart"
     />
   </div>
   <!-- End Collections Page 

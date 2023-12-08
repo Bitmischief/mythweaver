@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { useSelectedCampaignId } from '@/lib/hooks.ts';
 
 export interface Collection {
   id: number;
@@ -7,6 +8,7 @@ export interface Collection {
   description: string;
   saved: boolean;
   children: any;
+  [key: string]: any;
 }
 
 export interface getCollectionsRequest {
@@ -41,9 +43,10 @@ export const getCollection = (collectionId: number) => {
 export interface PatchCollectionsRequest {
   name?: string;
   description?: string;
+  parentId?: number;
 }
 
-export const patchCollections = (collectionId: number, request: PatchCollectionsRequest) => {
+export const patchCollection = (collectionId: number, request: PatchCollectionsRequest) => {
   return axios.patch(`/collections/${collectionId}`, request);
 };
 
@@ -57,4 +60,17 @@ export const removeCollection = (collectionId: number) => {
 
 export const copyCollection = (collectionId: number) => {
   return axios.post(`/collections/${collectionId}/copy`);
+};
+
+export interface PostCollectionsRequest {
+  name: string;
+  description: string;
+}
+
+export const postCollection = (request: PostCollectionsRequest) => {
+  const selectedCampaignId = useSelectedCampaignId();
+  return axios.post(`/collections`, {
+    campaignId: selectedCampaignId.value,
+    ...request,
+  });
 };

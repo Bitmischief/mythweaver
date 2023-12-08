@@ -60,11 +60,12 @@ model Collection {
   description String
   published   Boolean @default(false)
 
-  user                User?              @relation(fields: [userId], references: [id])
-  campaign            Campaign?          @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  CollectionRequest   CollectionRequest? @relation(fields: [collectionRequestId], references: [id])
-  collectionRequestId Int?
-  saves               CollectionSave[]
+  user                      User?                       @relation(fields: [userId], references: [id])
+  campaign                  Campaign?                   @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  CollectionRequest         CollectionRequest?          @relation(fields: [collectionRequestId], references: [id])
+  collectionRequestId       Int?
+  saves                     CollectionSave[]
+  ConjurationsToCollections ConjurationsToCollections[]
 
   @@map("collections")
 }
@@ -73,7 +74,7 @@ model CollectionSave {
   id        Int       @id @default(autoincrement())
   createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
   updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
-  parentId     Int
+  parentId  Int
 
   userId       Int
   collectionId Int
@@ -101,6 +102,19 @@ model CollectionRequest {
   @@map("collection_requests")
 }
 
+model ConjurationsToCollections {
+  id            Int       @id @default(autoincrement())
+  createdAt     DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  updatedAt     DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  conjurationId Int?
+  collectionId  Int?
+
+  conjuration Conjuration? @relation(fields: [conjurationId], references: [id])
+  collection  Collection?  @relation(fields: [collectionId], references: [id])
+
+  @@map("conjurations_to_collections")
+}
+
 model Conjuration {
   id        Int       @id @default(autoincrement())
   createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
@@ -118,11 +132,12 @@ model Conjuration {
   tags          String[]
   published     Boolean  @default(false)
 
-  user               User?               @relation(fields: [userId], references: [id])
-  campaign           Campaign?           @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  conjurationRequest ConjurationRequest? @relation(fields: [conjurationRequestId], references: [id])
-  saves              ConjurationSave[]
-  images             Image[]
+  user                      User?                       @relation(fields: [userId], references: [id])
+  campaign                  Campaign?                   @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  conjurationRequest        ConjurationRequest?         @relation(fields: [conjurationRequestId], references: [id])
+  saves                     ConjurationSave[]
+  images                    Image[]
+  ConjurationsToCollections ConjurationsToCollections[]
 
   @@map("conjurations")
 }

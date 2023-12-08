@@ -32,14 +32,56 @@ interface GetCollectionTagsResponse {
 }
 
 interface PatchCollectionRequest {
-  campaignId: number;
   name: string;
   description?: string;
+}
+
+interface PostCollectionsRequest {
+  campaignId: number;
+  name: string;
+  description: string;
 }
 
 @Route('collections')
 @Tags('Collections')
 export default class CollectionController {
+  @Security('jwt')
+  @OperationId('createCollection')
+  @Post('/')
+  public async postCollection(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Body() request: PostCollectionsRequest,
+  ): Promise<any> {
+    const campaignMember = await prisma.campaignMember.findUnique({
+      where: {
+        userId_campaignId: {
+          campaignId: request.campaignId,
+          userId,
+        },
+      },
+    });
+
+    if (!campaignMember) {
+      throw new AppError({
+        httpCode: HttpCode.FORBIDDEN,
+        description:
+          'You must be a member of the campaign to create a collection.',
+      });
+    }
+
+    const collection = await prisma.collection.create({
+      data: {
+        userId,
+        ...request,
+      },
+    });
+
+    track(AppEvent.CreateCollection, userId, trackingInfo);
+
+    return collection;
+  }
+
   @Security('jwt')
   @OperationId('getCollections')
   @Get('/')

@@ -8,6 +8,8 @@ import ConjuringView from '@/views/ConjuringView.vue';
 import ListConjurers from '@/components/Conjuration/ListConjurers.vue';
 import ViewConjurer from '@/components/Conjuration/ViewConjurer.vue';
 import ViewCampaign from '@/components/Campaigns/ViewCampaign.vue';
+import ViewCollection from '@/components/Collection/ViewCollection.vue';
+import NewCollection from '@/components/Collection/NewCollection.vue';
 import SessionsView from '@/views/SessionsView.vue';
 import ViewSession from '@/components/Sessions/ViewSession.vue';
 import ListSessions from '@/components/Sessions/ListSessions.vue';
@@ -132,16 +134,12 @@ const router = createRouter({
           component: ListConjurations,
         },
         {
-          path: 'view/:conjurationId',
-          component: ViewConjuration,
+          path: 'view/:collectionId',
+          component: ViewCollection,
         },
         {
           path: 'new',
-          component: ListConjurers,
-        },
-        {
-          path: 'conjure/:summonerCode',
-          component: ViewConjurer,
+          component: NewCollection,
         },
       ],
     },

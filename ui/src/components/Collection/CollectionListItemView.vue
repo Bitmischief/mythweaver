@@ -1,9 +1,14 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 import { computed, ref, onMounted } from 'vue';
-import { Collection, getCollections } from '@/api/collections.ts';
+import {
+  Collection,
+  getCollections,
+  removeCollection,
+} from '@/api/collections.ts';
+import { Conjuration, getCollectionConjurations } from '@/api/conjurations.ts';
 import DeleteModal from '@/components/Core/General/DeleteModal.vue';
-// import { showSuccess } from '@/lib/notifications.ts';
+import { showSuccess } from '@/lib/notifications.ts';
 
 const props = defineProps<{
   collection: Collection | undefined;
@@ -36,10 +41,13 @@ const emit = defineEmits([
   'add-collection',
   'remove-collection',
   'drag',
+  'dragstart',
+  'dragend',
   'drop',
 ]);
 
 const childCollections = ref<Collection[]>([]);
+const childConjurations = ref<Conjuration[]>([]);
 
 const router = useRouter();
 let hoverClass = 'unhover';
@@ -59,27 +67,26 @@ async function navigateToViewCollection(collectionId: number) {
 async function clickDeleteCollection() {
   if (!props.collection || !isSaved(props.collection)) return;
   const collectionId = props.collection?.id;
-  console.log(collectionId);
-  // await removeCollection(collectionId);
-  // showSuccess({ message: 'Successfully removed conjuration' });
-  // emit('remove-collection', {
-  //   collectionId,
-
-  // });
-  // showDeleteModal.value = false;
+  // console.log(collectionId);
+  await removeCollection(collectionId);
+  showSuccess({ message: 'Successfully removed conjuration' });
+  emit('remove-collection', {
+    collectionId,
+  });
+  showDeleteModal.value = false;
 }
 async function dragStart() {
-  emit('drag', {});
+  emit('dragstart', props.collection?.id);
 }
 async function dragging() {
   emit('drag', {});
 }
 async function dragend() {
-  emit('drag', {});
+  emit('dragend', props.collection?.id);
 }
-async function drop(elem: any) {
+async function drop() {
   console.log('dropped in child');
-  emit('drop', elem);
+  emit('drop', props.collection?.id);
 }
 async function dragenter(e: Event) {
   e.preventDefault();
@@ -97,6 +104,7 @@ const showDeleteModal = ref(false);
 
 onMounted(async () => {
   await loadCollections();
+  await loadConjurations();
 });
 
 async function loadCollections() {
@@ -106,12 +114,20 @@ async function loadCollections() {
   });
   childCollections.value = collectionsResponse.data.data;
 }
+
+async function loadConjurations() {
+  const collectionsResponse = await getCollectionConjurations({
+    collectionId: props.collection?.id,
+  });
+  childConjurations.value = collectionsResponse.data.data;
+}
 </script>
 
 <template>
   <div
     v-if="collection"
-    class="mr-6 mb-6"
+    :id="'' + collection.id"
+    class="mr-6 mb-6 collection_container"
     :class="hoverClass"
     draggable="true"
     @drop="drop"
@@ -126,8 +142,45 @@ async function loadCollections() {
       class="relative md:max-w-[23rem] 3xl:max-w-[40rem] flex cursor-pointer flex-col justify-end rounded-t-xl shadow-xl"
       @click="navigateToViewCollection(collection.id)"
     >
-      <div v-for="child of childCollections" :key="child.name">
-        {{ child.name }}
+      <div
+        class="flex flex-wrap"
+        style="width: 368px; height: 368px; background-color: #1f2937"
+      >
+        <template
+          v-for="child of childCollections.slice(0, 4)"
+          :key="child.name"
+        >
+          <div
+            class="bg-gradient-to-r from-fuchsia-500 to-blue-400"
+            style="
+              width: 184px;
+              height: 184px;
+              text-align: center;
+              display: table;
+            "
+          >
+            <div style="vertical-align: middle; display: table-cell">
+              {{ child.name }}
+            </div>
+          </div>
+        </template>
+        <template v-if="childCollections.length < 4">
+          <template v-for="child of childConjurations" :key="child.name">
+            <div
+              :value="child"
+              :style="{ backgroundImage: 'url(\'' + child.imageUri + '\')' }"
+              style="
+                background-size: cover;
+                background-position: center center;
+                height: 184px;
+                width: 184px;
+                background-repeat: no-repeat;
+              "
+            />
+            <!-- {{ child.name }} -->
+            <!-- </div> -->
+          </template>
+        </template>
       </div>
 
       <div

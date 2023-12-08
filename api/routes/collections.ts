@@ -11,6 +11,27 @@ import { ImageStylePreset } from '../controllers/images';
 
 const router = express.Router();
 
+const postCollectionSchema = z.object({
+  campaignId: z.number(),
+  name: z.string().max(50),
+  description: z.string().max(300),
+});
+
+router.post('/', [
+  useAuthenticateRequest(),
+  useValidateRequest(postCollectionSchema),
+  async (req: Request, res: Response) => {
+    const controller = new CollectionController();
+
+    const response = await controller.postCollection(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      req.body,
+    );
+    return res.status(201).send(response);
+  },
+]);
+
 const getCollectionsSchema = z.object({
   campaignId: z.coerce.number().default(0),
   saved: z.coerce.boolean().default(false).optional(),
@@ -121,11 +142,8 @@ router.post('/:collectionId/save', [
 
 const patchCollectionsSchema = z.object({
   name: z.string().optional(),
-  imageUri: z.string().optional(),
-  imageAIPrompt: z.string().optional(),
-  tags: z.array(z.string()).optional(),
-  data: z.any().optional(),
-  published: z.boolean().optional(),
+  description: z.string().optional(),
+  parentId: z.number().optional(),
 });
 
 router.patch('/:collectionId', [
