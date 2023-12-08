@@ -9,6 +9,7 @@ import {
 import { Conjuration, getCollectionConjurations } from '@/api/conjurations.ts';
 import DeleteModal from '@/components/Core/General/DeleteModal.vue';
 import { showSuccess } from '@/lib/notifications.ts';
+import { CheckIcon, XMarkIcon } from '@heroicons/vue/20/solid';
 
 const props = defineProps<{
   collection: Collection | undefined;
@@ -39,6 +40,7 @@ const collectionsQuery = computed(() => ({
 
 const emit = defineEmits([
   'add-collection',
+  'view-collection',
   'remove-collection',
   'drag',
   'dragstart',
@@ -52,20 +54,17 @@ const childConjurations = ref<Conjuration[]>([]);
 const router = useRouter();
 let hoverClass = 'unhover';
 
-const isSaved = (collection: any) => collection.saved;
-
-async function handleAddCollection(collectionId: number) {
-  console.log(collectionId);
-  // await saveConjuration(conjurationId);
-  // emit('add-conjuration', { conjurationId });
-}
+// async function handleAddCollection(collectionId: number) {
+//   console.log(collectionId);
+// }
 
 async function navigateToViewCollection(collectionId: number) {
   await router.push(`/collections/view/${collectionId}`);
+  emit('view-collection');
 }
 
 async function clickDeleteCollection() {
-  if (!props.collection || !isSaved(props.collection)) return;
+  if (!props.collection) return;
   const collectionId = props.collection?.id;
   // console.log(collectionId);
   await removeCollection(collectionId);
@@ -184,7 +183,6 @@ async function loadConjurations() {
       </div>
 
       <div
-        v-if="isSaved(collection)"
         class="absolute right-2 top-2 flex h-12 w-12 justify-center rounded-full bg-green-500 hover:bg-red-500 transition-all hover:scale-110 group"
       >
         <XMarkIcon
@@ -194,15 +192,6 @@ async function loadConjurations() {
         <CheckIcon
           class="h-8 w-8 self-center text-white flex group-hover:hidden"
         />
-      </div>
-      <div
-        v-else
-        class="absolute right-2 top-2 flex h-12 w-12 justify-center rounded-full bg-gray-800 hover:bg-green-500 transition-all hover:scale-110"
-        @click.stop="handleAddCollection(collection.id)"
-      >
-        <button class="self-center">
-          <PlusIcon class="h-8 w-8 text-white" />
-        </button>
       </div>
 
       <div class="flex w-full justify-between rounded-b-lg bg-surface-2 p-4">

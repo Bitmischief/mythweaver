@@ -2,10 +2,13 @@
 import { Collection, postCollection } from '@/api/collections.ts';
 import { ref } from 'vue';
 import { showError, showSuccess } from '@/lib/notifications.ts';
+
+import { useRouter } from 'vue-router';
 // import { useEventBus } from '@/lib/events.ts';
 
 const emit = defineEmits(['close', 'created']);
 
+const router = useRouter();
 // const eventBus = useEventBus();
 
 const collection = ref<Collection>({} as Collection);
@@ -15,7 +18,7 @@ async function createCollection() {
   const response = await postCollection(collection.value);
   if (response.status === 201) {
     showSuccess({ message: 'collection created' });
-    emit('created');
+    await router.push(`/conjurations`);
   } else {
     showError({
       message: 'Failed to create collection. Please try again in a moment.',
@@ -59,7 +62,7 @@ async function createCollection() {
             </div>
             <FormKit
               v-model="collection.description"
-              type="text"
+              type="textarea"
               name="Description"
               validation="required"
               class="w-full p-2 mt-2 bg-neutral-800 rounded-[10px]"

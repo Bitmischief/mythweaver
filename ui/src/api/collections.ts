@@ -30,9 +30,17 @@ export const getCollections = (request: getCollectionsRequest) => {
     },
   });
 };
-export const saveCollection = (collectionId: number) => {
-  return axios.post(`/collections/${collectionId}/save`, {
-    collectionId,
+
+export interface SaveCollectionsRequest {
+  id: number;
+  name: string;
+  description: string;
+  parentId: number | undefined;
+  [key: string]: any;
+}
+export const saveCollection = (request: SaveCollectionsRequest) => {
+  return axios.post(`/collections/${request.id}/save`, {
+    request,
   });
 };
 
@@ -44,6 +52,7 @@ export interface PatchCollectionsRequest {
   name?: string;
   description?: string;
   parentId?: number;
+  [key: string]: any;
 }
 
 export const patchCollection = (collectionId: number, request: PatchCollectionsRequest) => {

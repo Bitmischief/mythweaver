@@ -8,6 +8,7 @@ import { useRouter } from 'vue-router';
 import { ref } from 'vue';
 import { showSuccess } from '@/lib/notifications.ts';
 import DeleteModal from '@/components/Core/General/DeleteModal.vue';
+import { CheckIcon, XMarkIcon, PlusIcon } from '@heroicons/vue/20/solid';
 
 const props = defineProps<{
   conjuration: Conjuration | undefined;

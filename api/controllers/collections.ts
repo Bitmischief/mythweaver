@@ -330,12 +330,9 @@ export default class CollectionController {
     @Inject() trackingInfo: TrackingInfo,
     @Route() collectionId: number,
   ): Promise<void> {
-    const existingCollectionSave = await prisma.collectionSave.findUnique({
+    const existingCollectionSave = await prisma.collection.findUnique({
       where: {
-        userId_collectionId: {
-          userId,
-          collectionId,
-        },
+        id: collectionId,
       },
     });
 
@@ -348,9 +345,14 @@ export default class CollectionController {
 
     track(AppEvent.RemoveCollection, userId, trackingInfo);
 
-    await prisma.collectionSave.delete({
+    await prisma.collection.delete({
       where: {
         id: existingCollectionSave.id,
+      },
+    });
+    await prisma.collection.deleteMany({
+      where: {
+        parentId: existingCollectionSave.id,
       },
     });
   }

@@ -78,7 +78,6 @@ onUpdated(() => {
         <FormKit
           v-model="editableCollection.description"
           type="textarea"
-          validation="length:0,50"
           placeholder="Collection Name"
           auto-height
           :disabled="!editable"

@@ -16,13 +16,13 @@
         </div>
         <div class="mt-2 flex justify-between">
           <button
-            class="rounded-lg bg-purple-500 px-4 py-3 shadow-xl"
+            class="rounded-lg bg-purple-500 px-4 py-3 shadow-xl hover:scale-110"
             @click="quickConjure(gen.code)"
           >
             Quick Conjure
           </button>
           <button
-            class="rounded-lg bg-gray-900/75 px-4 py-3 shadow-xl"
+            class="rounded-lg bg-gray-900/75 px-4 py-3 shadow-xl hover:scale-110"
             @click="navigateToConjurer(gen.code)"
           >
             Customize
@@ -45,7 +45,7 @@
         </div>
         <div class="mt-2 flex justify-end">
           <button
-            class="rounded-lg bg-gray-900/75 px-4 py-3 shadow-xl"
+            class="rounded-lg bg-gray-900/75 px-4 py-3 shadow-xl hover:scale-110"
             @click="navigateToCreateCollection"
           >
             Create

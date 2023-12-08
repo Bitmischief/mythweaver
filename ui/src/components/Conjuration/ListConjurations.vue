@@ -173,6 +173,15 @@ async function handleConjurationChange(change: {
   // }
 }
 
+async function removeCollection() {
+  await loadConjurations();
+  await loadCollections();
+}
+async function removeConjuration() {
+  await loadConjurations();
+  await loadCollections();
+}
+
 // async function handleCollectionChange(change: {
 //   collectionId: number;
 //   parentCollectionId?: number;
@@ -219,6 +228,9 @@ async function childDropped(collection: number) {
       const response = await patchCollection(myCollection.id, myCollection);
       if (response.status === 200) {
         showSuccess({ message: 'collection saved' });
+        await router.push(`/collections/view/${parentId}`);
+        await loadConjurations();
+        await loadCollections();
       } else {
         showError({
           message: 'Failed to save collection. Please try again in a moment.',
@@ -400,14 +412,15 @@ async function childDropped(collection: number) {
       @drop="childDropped"
       @dragstart="childDragStart"
       @dragend="childDragEnd"
+      @remove-collection="removeCollection"
     />
     <ConjurationQuickView
       v-for="conjuration of conjurations"
       :key="conjuration.name"
       :conjuration="conjuration"
       @add-conjuration="handleConjurationChange"
-      @remove-conjuration="handleConjurationChange"
       @dragstart="conjurationDragStart"
+      @remove-conjuration="removeConjuration"
     />
   </div>
   <!-- Conjurations and Saved Page -->

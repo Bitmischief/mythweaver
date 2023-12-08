@@ -109,8 +109,8 @@ model ConjurationsToCollections {
   conjurationId Int?
   collectionId  Int?
 
-  conjuration Conjuration? @relation(fields: [conjurationId], references: [id])
-  collection  Collection?  @relation(fields: [collectionId], references: [id])
+  conjuration Conjuration? @relation(fields: [conjurationId], references: [id], onDelete: Cascade)
+  collection  Collection?  @relation(fields: [collectionId], references: [id], onDelete: Cascade)
 
   @@map("conjurations_to_collections")
 }

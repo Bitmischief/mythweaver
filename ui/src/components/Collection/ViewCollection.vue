@@ -7,8 +7,8 @@ import {
   getCollection,
   getCollections,
   removeCollection,
-  saveCollection,
 } from '@/api/collections.ts';
+import { ArrowLeftIcon, DocumentDuplicateIcon } from '@heroicons/vue/24/solid';
 import {
   Conjuration,
   // getConjuration,
@@ -16,23 +16,24 @@ import {
   getCollectionConjurations,
 } from '@/api/conjurations.ts';
 import { useRoute, useRouter } from 'vue-router';
-import { useEventBus } from '@/lib/events.ts';
+// import { useEventBus } from '@/lib/events.ts';
 import CustomizeCollection from '@/components/Collection/ViewCollection/CustomizeCollection.vue';
 import ConjurationQuickView from '@/components/Conjuration/ConjurationListItemView.vue';
 import CollectionQuickView from '@/components/Collection/CollectionListItemView.vue';
+import { PlusIcon } from '@heroicons/vue/20/solid';
 import { HeartIcon } from '@heroicons/vue/20/solid';
 import { useCurrentUserId } from '@/lib/hooks.ts';
 import { showSuccess, showError } from '@/lib/notifications.ts';
 
 const route = useRoute();
 const router = useRouter();
-const eventBus = useEventBus();
+// const eventBus = useEventBus();
 const currentUserId = useCurrentUserId();
 
 const collection = ref<Collection | null>(null);
 
-const conjurations = ref<Conjuration[]>([]);
-const collections = ref<Collection[]>([]);
+const conjurations = ref<Conjuration[] | null>([]);
+const collections = ref<Collection[] | null>([]);
 
 let currentDragTarget: any = null;
 
@@ -97,9 +98,27 @@ async function loadCollection() {
 
 // Save collection
 async function handleSaveCollection() {
-  await saveCollection(collectionId.value);
-  showSuccess({ message: 'Successfully saved collection!' });
-  await loadCollection();
+  if (collection.value) {
+    const response = await patchCollection(
+      collection.value.id,
+      collection.value,
+    );
+    if (response.status === 200) {
+      showSuccess({ message: 'collection saved' });
+      await loadCollection();
+      await loadCollections();
+    } else {
+      showError({
+        message: 'Failed to save collection. Please try again in a moment.',
+      });
+    }
+    showSuccess({ message: 'Successfully saved collection!' });
+    await loadCollection();
+  }
+}
+
+async function createNewCollection() {
+  await router.push('/collections/new');
 }
 
 // Remove Collection
@@ -132,7 +151,7 @@ async function loadCollections() {
   conjurations.value = collectionConjurationsResponse.data.data;
   let collectionConjurations =
     collectionConjurationsResponse.data.collectionConjurations;
-  conjurations.value.forEach((conjuration) => {
+  conjurations.value?.forEach((conjuration) => {
     let targetConjuration = collectionConjurations.find(
       (collectionConjuration: any) => {
         return collectionConjuration.conjurationId == conjuration.id;
@@ -153,9 +172,9 @@ async function childDragStart(collection: number) {
 async function childDragEnd(collection: number) {
   console.log(collection);
 }
-// async function conjurationDragStart(conjuration: number) {
-//   currentDragTarget = conjuration;
-// }
+async function conjurationDragStart(conjuration: number) {
+  currentDragTarget = conjuration;
+}
 
 async function childDropped(collection: number) {
   // console.log('child being dropped');
@@ -165,17 +184,17 @@ async function childDropped(collection: number) {
     : 'collection';
   if (childType == 'collection') {
     let myCollectionId = currentDragTarget;
-    const myCollection = collections.value.find((collection) => {
+    const myCollection = collections.value?.find((collection) => {
       return (collection.id = myCollectionId);
     });
     if (myCollection) {
       myCollection.parentId = parentId;
-      const response = await patchCollection(myCollection.id, {
-        name: myCollection.name,
-        description: myCollection.description,
-      });
+      const response = await patchCollection(myCollection.id, myCollection);
       if (response.status === 200) {
         showSuccess({ message: 'collection saved' });
+        await router.push(`/collections/view/${parentId}`);
+        await loadCollection();
+        await loadCollections();
       } else {
         showError({
           message: 'Failed to save collection. Please try again in a moment.',
@@ -185,7 +204,7 @@ async function childDropped(collection: number) {
   } else if (childType == 'characters') {
     let conjurationId = currentDragTarget.id;
     let parentId = collection;
-    let currentConjuration: any = conjurations.value.filter((conjuration) => {
+    let currentConjuration: any = conjurations.value?.filter((conjuration) => {
       return conjuration.id == conjurationId;
     })[0];
     const response = await updateCollectionConjuration({
@@ -205,18 +224,35 @@ async function childDropped(collection: number) {
     }
   }
 }
+
+async function viewCollection() {
+  collections.value = null;
+  collection.value = null;
+  conjurations.value = null;
+  await loadCollection();
+  await loadCollections();
+}
+
+async function backClicked() {
+  if (collection.value?.parentId) {
+    await router.push(`/collections/view/${collection.value.parentId}`);
+    viewCollection();
+  } else {
+    await router.push(`/conjurations`);
+  }
+}
 </script>
 
 <template>
   <div v-if="collection">
     <div class="md:flex justify-between mb-6">
       <div class="md:flex">
-        <router-link
-          :to="`/collections`"
+        <div
           class="bg-surface-2 flex rounded-md border border-gray-600/50 p-3"
+          @click="backClicked"
         >
           <ArrowLeftIcon class="mr-2 h-4 w-4 self-center" /> Back
-        </router-link>
+        </div>
 
         <div
           v-if="collection.saved && !editable"
@@ -233,11 +269,7 @@ async function childDropped(collection: number) {
         <button
           v-if="editable"
           class="md:w-auto md:ml-auto flex justify-center md:justify-start self-center rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 px-4 py-3 transition-all hover:scale-110"
-          @click="
-            eventBus.$emit('save-collection', {
-              collectionId: collection.id,
-            })
-          "
+          @click="handleSaveCollection"
         >
           <span class="self-center">Save Changes</span>
         </button>
@@ -258,6 +290,13 @@ async function childDropped(collection: number) {
         >
           <HeartIcon class="mr-2 h-5 w-5 self-center" />
           <span class="self-center">Save Collection</span>
+        </button>
+        <button
+          class="md:w-auto ml-3 flex justify-center md:justify-start self-center rounded-md bg-gradient-to-r from-green-400 to-green-600 px-4 py-3 transition-all hover:scale-110"
+          @click="createNewCollection"
+        >
+          <PlusIcon class="mr-2 h-5 w-5 self-center" />
+          <span class="self-center">Create New Collection</span>
         </button>
 
         <button
@@ -280,11 +319,13 @@ async function childDropped(collection: number) {
         @drop="childDropped"
         @dragstart="childDragStart"
         @dragend="childDragEnd"
+        @view-collection="viewCollection"
       />
       <ConjurationQuickView
         v-for="conjuration of conjurations"
         :key="conjuration.name"
         :conjuration="conjuration"
+        @dragstart="conjurationDragStart"
       />
     </div>
   </div>
