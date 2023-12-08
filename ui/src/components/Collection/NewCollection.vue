@@ -28,9 +28,7 @@ async function createCollection() {
 </script>
 
 <template>
-  <div
-    class="flex h-full p-2 overflow-y-auto pr-6 pb-1 flex-col justify-between"
-  >
+  <div class="flex h-full p-2 overflow-y-auto pr-6 pb-1 flex-col">
     <div class="text-3xl">
       Create your collection to start grouping your conjurations
     </div>
