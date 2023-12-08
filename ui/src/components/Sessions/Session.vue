@@ -14,24 +14,18 @@ defineProps<{
       <div
         class="relative rounded-tl-[10px] rounded-tr-[10px] bg-neutral-600 flex justify-center"
       >
-        <div class="absolute top-2 right-2">
-          <div
-            v-if="session.status === 1"
-            class="bg-fuchsia-500 rounded-xl py-1 px-3 text-sm"
-          >
-            upcoming
-          </div>
-          <div
-            v-if="session.status === 2"
-            class="bg-green-500 rounded-xl py-1 px-3 text-sm"
-          >
-            completed
-          </div>
-        </div>
         <img
           :src="session.imageUri || '/images/session_bg_square.png'"
           class="md:w-[400px] md:h-[400px] object-cover rounded-t-[10px]"
         />
+      </div>
+
+      <div class="text-xl p-3 text-neutral-200 truncate">
+        {{ session.name }}
+
+        <div class="text-sm text-neutral-400 truncate">
+          {{ session.summary || 'No summary provided' }}
+        </div>
       </div>
     </div>
   </div>

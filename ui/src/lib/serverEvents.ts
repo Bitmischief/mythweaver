@@ -13,4 +13,8 @@ export const pusher = new Pusher(pusherAppKey, {
 export enum ServerEvent {
   ConjurationCreated = 'conjuration-created',
   ConjurationError = 'conjuration-error',
+  ImageCreated = 'image-created',
+  ImageError = 'image-error',
+  SessionUpdated = 'session-updated',
+  SessionImageUpdated = 'session-image-updated',
 }

@@ -3,14 +3,24 @@ import { useSelectedCampaignId } from '@/lib/hooks.ts';
 
 export interface SessionBase {
   id: number;
+  processing: boolean;
+  archived: boolean;
+  completed: boolean;
+  name?: string | undefined;
+  planning?: string | undefined;
+  recap?: string | undefined;
   summary?: string | undefined;
   transcript?: string | undefined;
-  planning?: string | undefined;
   campaignId: number;
   imageUri?: string | undefined;
-  name?: string | undefined;
-  status: 1 | 2;
   suggestions?: string | undefined;
+
+  suggestedName?: string | undefined;
+  suggestedSummary?: string | undefined;
+  suggestedTranscript?: string | undefined;
+  suggestedImageUri?: string | undefined;
+  suggestedSuggestions?: string | undefined;
+  suggestedImagePrompt?: string | undefined;
 }
 
 export interface GetSessionsRequest {
@@ -19,10 +29,7 @@ export interface GetSessionsRequest {
 }
 
 export interface PostSessionRequest {
-  id: number;
   name?: string | undefined;
-  planning?: string | undefined;
-  campaignId: number;
 }
 
 export interface PatchSessionRequest {
@@ -35,7 +42,7 @@ export interface PatchSessionRequest {
   campaignId: number;
 }
 
-export interface PostCompleteSessionRequest {
+export interface PostGenerateSummaryRequest {
   recap: string;
 }
 
@@ -71,6 +78,10 @@ export const deleteSession = (sessionId: number) => {
   return axios.delete(`/sessions/${sessionId}`);
 };
 
-export const postCompleteSession = (sessionId: number, request: PostCompleteSessionRequest) => {
-  return axios.post(`/sessions/${sessionId}/complete`, request);
+export const postGenerateSummary = (sessionId: number, request: PostGenerateSummaryRequest) => {
+  return axios.post(`/sessions/${sessionId}/generate-summary`, request);
+};
+
+export const postCompleteSession = (sessionId: number) => {
+  return axios.post(`/sessions/${sessionId}/complete`);
 };

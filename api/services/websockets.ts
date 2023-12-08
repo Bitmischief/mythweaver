@@ -19,4 +19,8 @@ export const sendWebsocketMessage = async (
 export enum WebSocketEvent {
   ConjurationCreated = 'conjuration-created',
   ConjurationError = 'conjuration-error',
+  ImageCreated = 'image-created',
+  ImageError = 'image-error',
+  SessionUpdated = 'session-updated',
+  SessionImageUpdated = 'session-image-updated',
 }

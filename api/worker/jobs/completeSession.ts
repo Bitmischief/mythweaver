@@ -6,6 +6,10 @@ import { sanitizeJson, urlPrefix } from '../../lib/utils';
 import { generateImage } from '../../services/imageGeneration';
 import { SessionStatus } from '../../controllers/sessions';
 import { sendTransactionalEmail } from '../../lib/transactionalEmail';
+import {
+  sendWebsocketMessage,
+  WebSocketEvent,
+} from '../../services/websockets';
 
 const logger = parentLogger.getSubLogger();
 const openai = getClient();
@@ -17,8 +21,17 @@ export const completeSession = async (request: CompleteSessionEvent) => {
     },
   });
 
+  await prisma.session.update({
+    where: {
+      id: request.sessionId,
+    },
+    data: {
+      processing: true,
+    },
+  });
+
   const response = await openai.chat.completions.create({
-    model: 'gpt-4',
+    model: 'gpt-4-1106-preview',
     messages: [
       {
         role: 'system',
@@ -52,17 +65,31 @@ export const completeSession = async (request: CompleteSessionEvent) => {
 
   logger.info('Received summary from openai', gptJsonParsed);
 
-  await prisma.session.update({
+  let updatedSession = await prisma.session.update({
     where: {
       id: request.sessionId,
     },
     data: {
-      summary: gptJsonParsed.summary,
-      suggestions: gptJsonParsed.suggestions,
-      name: gptJsonParsed.name,
-      status: SessionStatus.COMPLETED,
+      name: session?.name === 'New Session' ? gptJsonParsed.name : undefined,
+      summary: !session?.summary ? gptJsonParsed.summary : undefined,
+      suggestions: !session?.suggestions
+        ? gptJsonParsed.suggestions
+        : undefined,
+      suggestedName:
+        session?.name === 'New Session' ? undefined : gptJsonParsed.name,
+      suggestedSummary: !session?.summary ? undefined : gptJsonParsed.summary,
+      suggestedSuggestions: !session?.suggestions
+        ? undefined
+        : gptJsonParsed.suggestions,
+      suggestedImagePrompt: gptJsonParsed.prompt,
     },
   });
+
+  await sendWebsocketMessage(
+    request.userId,
+    WebSocketEvent.SessionUpdated,
+    updatedSession,
+  );
 
   const imageUri = (
     await generateImage({
@@ -72,64 +99,19 @@ export const completeSession = async (request: CompleteSessionEvent) => {
     })
   )[0];
 
-  await prisma.session.update({
+  updatedSession = await prisma.session.update({
     where: {
       id: request.sessionId,
     },
     data: {
-      imageUri,
+      imageUri: !session?.imageUri ? imageUri : undefined,
+      suggestedImageUri: imageUri,
     },
   });
 
-  const campaign = await prisma.campaign.findUnique({
-    where: {
-      id: session?.campaignId,
-    },
-    include: {
-      members: {
-        include: {
-          user: true,
-        },
-      },
-    },
-  });
-
-  if (!campaign) {
-    throw new Error('Campaign not found');
-  }
-
-  for (const member of campaign.members) {
-    const email = member.user?.email || member.email;
-    await sendTransactionalEmail(
-      'post-session',
-      `🎲 MythWeaver Session Recap: ${campaign.name} 🐉`,
-      email || '',
-      [
-        {
-          name: 'CHARACTER_NAME',
-          content: email,
-        },
-        {
-          name: 'CAMPAIGN_NAME',
-          content: campaign.name,
-        },
-        {
-          name: 'SUMMARY',
-          content: gptJsonParsed.summary,
-        },
-        {
-          name: 'SUGGESTIONS',
-          content: gptJsonParsed.suggestions,
-        },
-        {
-          name: 'SESSION_URL',
-          content: `${urlPrefix}/sessions/${session?.id}/edit`,
-        },
-        {
-          name: 'SESSION_IMAGE_URI',
-          content: imageUri,
-        },
-      ],
-    );
-  }
+  await sendWebsocketMessage(
+    request.userId,
+    WebSocketEvent.SessionImageUpdated,
+    updatedSession,
+  );
 };

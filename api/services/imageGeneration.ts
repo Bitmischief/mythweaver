@@ -6,6 +6,7 @@ import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { sleep } from 'openai/core';
 import { prisma } from '../lib/providers/prisma';
 import { ImageStylePreset } from '../controllers/images';
+import { sendWebsocketMessage, WebSocketEvent } from './websockets';
 
 const s3 = new S3Client({
   endpoint: 'https://sfo3.digitaloceanspaces.com',
@@ -95,7 +96,7 @@ export const generateImage = async (request: ImageRequest) => {
     await sleep(1000);
     urls.push(url);
 
-    await prisma.image.create({
+    const createdImage = await prisma.image.create({
       data: {
         userId: request.userId,
         uri: url,
@@ -105,6 +106,12 @@ export const generateImage = async (request: ImageRequest) => {
         ...request.linking,
       },
     });
+
+    await sendWebsocketMessage(
+      request.userId,
+      WebSocketEvent.ImageCreated,
+      createdImage,
+    );
   }
 
   return urls;

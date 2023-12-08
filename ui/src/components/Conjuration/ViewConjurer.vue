@@ -68,6 +68,17 @@ function handleBeginConjuring(data: { conjurationRequestId: number }) {
         'There was a server error creating your conjuration. Reach out to support for help resolving this issue.',
     });
   });
+
+  channel.bind(ServerEvent.ImageCreated, function (data: any) {
+    createdConjuration.value.imageUri = data.uri;
+  });
+
+  channel.bind(ServerEvent.ImageError, function () {
+    showError({
+      message:
+        'There was a server error creating your image. Reach out to support for help resolving this issue.',
+    });
+  });
 }
 </script>
 

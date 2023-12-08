@@ -131,9 +131,10 @@ model Session {
   updatedAt  DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
   userId     Int
   campaignId Int
+  processing Boolean   @default(false)
+  completed  Boolean   @default(false)
+  archived   Boolean   @default(false)
 
-  when        DateTime
-  status      Int      @default(1)
   summary     String?
   transcript  String?
   planning    String?
@@ -141,6 +142,12 @@ model Session {
   imageUri    String?
   suggestions String?
   name        String?
+
+  suggestedName        String?
+  suggestedSummary     String?
+  suggestedSuggestions String?
+  suggestedImagePrompt String?
+  suggestedImageUri    String?
 
   user     User     @relation(fields: [userId], references: [id])
   campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
