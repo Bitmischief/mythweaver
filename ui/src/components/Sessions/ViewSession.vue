@@ -11,13 +11,16 @@ import {
 import { useRoute, useRouter } from 'vue-router';
 import { showError, showSuccess } from '@/lib/notifications.ts';
 import Menu from '@/components/Core/General/Menu.vue';
-import { ChevronDownIcon } from '@heroicons/vue/20/solid';
+import { ChevronDownIcon, MicrophoneIcon } from '@heroicons/vue/20/solid';
 import { MenuButton, MenuItem } from '@headlessui/vue';
 import { pusher, ServerEvent } from '@/lib/serverEvents.ts';
 import { useCurrentUserId } from '@/lib/hooks.ts';
 import CustomizableImage from '@/components/Images/CustomizableImage.vue';
 import { useEventBus } from '@/lib/events.ts';
 import RegeneratableTextEdit from '@/components/Core/Forms/RegeneratableTextEdit.vue';
+import AudioUpload from '@/components/Core/Forms/AudioUpload.vue';
+import ModalAlternate from '@/components/ModalAlternate.vue';
+import AudioPlayback from '@/components/Core/General/AudioPlayback.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -26,6 +29,7 @@ const eventBus = useEventBus();
 
 const session = ref<SessionBase>({} as SessionBase);
 const loadingCompleteSession = ref(false);
+const showUploadAudioModal = ref(false);
 
 onMounted(async () => {
   await init();
@@ -122,6 +126,14 @@ async function completeSession() {
   }
   loadingCompleteSession.value = false;
 }
+
+function handleAudioUpload(payload: { audioUri: string; audioName: string }) {
+  session.value = {
+    ...session.value,
+    ...payload,
+  };
+  showUploadAudioModal.value = false;
+}
 </script>
 
 <template>
@@ -142,10 +154,10 @@ async function completeSession() {
         </div>
       </div>
 
-      <div>
+      <div class="flex">
         <button
           v-if="session.summary && !session.completed"
-          class="h-12 rounded-md bg-fuchsia-500 px-3 py-1 transition-all hover:scale-110"
+          class="h-12 rounded-md self-center bg-fuchsia-500 px-3 py-1 transition-all hover:scale-110"
           :disabled="loadingCompleteSession"
           @click="completeSession"
         >
@@ -153,9 +165,23 @@ async function completeSession() {
           <span v-else>Mark Complete</span>
         </button>
 
-        <Menu>
+        <AudioPlayback
+          v-if="session.audioUri"
+          class="self-center"
+          :audio-uri="session.audioUri"
+        />
+        <div
+          v-else
+          class="h-12 self-center rounded-md bg-fuchsia-500 flex px-3 py-1 transition-all hover:scale-110 cursor-pointer"
+          @click="showUploadAudioModal = true"
+        >
+          <MicrophoneIcon class="w-5 h-5 mr-1 self-center" />
+          <span class="self-center">Upload Audio</span>
+        </div>
+
+        <Menu class="self-center">
           <MenuButton
-            class="bg-surface-2 ml-2 flex h-12 w-full justify-center rounded-md border-2 border-gray-600/50 px-3 py-1 text-white transition-all hover:scale-110"
+            class="bg-surface-2 ml-2 self-center flex h-12 w-full justify-center rounded-md border-2 border-gray-600/50 px-3 py-1 text-white transition-all hover:scale-110"
           >
             <span class="text-md self-center"> More </span>
             <ChevronDownIcon
@@ -270,5 +296,29 @@ async function completeSession() {
     <div class="mt-8 h-full">
       <router-view />
     </div>
+
+    <ModalAlternate :show="showUploadAudioModal">
+      <div class="md:w-[499px] p-6 bg-neutral-900 rounded-[20px]">
+        <AudioUpload :session="session" @audio-uploaded="handleAudioUpload" />
+      </div>
+    </ModalAlternate>
   </div>
 </template>
+
+<style scoped>
+audio {
+  width: 100%;
+  margin-bottom: 2rem;
+}
+audio::-webkit-media-controls-panel {
+  background: linear-gradient(
+    to right,
+    rgb(135, 27, 164, 0.75),
+    rgba(217, 117, 244, 0.75),
+    rgba(64, 170, 241, 0.75)
+  );
+}
+input[type='file'] {
+  display: none;
+}
+</style>

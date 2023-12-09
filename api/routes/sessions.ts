@@ -7,6 +7,10 @@ import {
 } from '../lib/validationMiddleware';
 import SessionController from '../controllers/sessions';
 import { useInjectLoggingInfo } from '../lib/loggingMiddleware';
+import {
+  useAudioFileUploader,
+  useAudioUploadAuthorizer,
+} from '../lib/audioFileMiddleware';
 
 const router = express.Router();
 
@@ -190,6 +194,33 @@ router.post('/:sessionId/complete', [
     );
 
     return res.status(200).send();
+  },
+]);
+
+router.post('/:sessionId/audio', [
+  useAuthenticateRequest(),
+  useInjectLoggingInfo(),
+  useValidateRequest(getSessionSchema, {
+    validationType: ValidationTypes.Route,
+  }),
+  useAudioUploadAuthorizer(),
+  useAudioFileUploader(),
+  async (req: Request, res: Response) => {
+    const controller = new SessionController();
+
+    const file = req.file as any;
+    const { sessionId = 0 } = req.params;
+    const response = await controller.postSessionAudio(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      sessionId as number,
+      {
+        audioName: file?.originalname ?? '',
+        audioUri: file?.location ?? '',
+      },
+    );
+
+    return res.status(200).send(response);
   },
 ]);
 

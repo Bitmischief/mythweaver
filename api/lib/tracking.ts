@@ -42,6 +42,7 @@ export enum AppEvent {
   GetCharacter = 'Get Character',
   CreateCharacter = 'Create Character',
   UpdateCharacter = 'Update Character',
+  SessionAudioUploaded = 'Session Audio Uploaded',
 }
 
 export interface TrackingInfo {

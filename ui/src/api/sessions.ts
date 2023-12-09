@@ -21,6 +21,8 @@ export interface SessionBase {
   suggestedImageUri?: string | undefined;
   suggestedSuggestions?: string | undefined;
   suggestedImagePrompt?: string | undefined;
+  audioName?: string | undefined;
+  audioUri?: string | undefined;
 }
 
 export interface GetSessionsRequest {
@@ -84,4 +86,8 @@ export const postGenerateSummary = (sessionId: number, request: PostGenerateSumm
 
 export const postCompleteSession = (sessionId: number) => {
   return axios.post(`/sessions/${sessionId}/complete`);
+};
+
+export const postSessionAudio = (sessionId: number, request: FormData) => {
+  return axios.post(`/sessions/${sessionId}/audio`, request);
 };
