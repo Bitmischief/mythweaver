@@ -31,6 +31,7 @@ jobs:
           echo VITE_DD_CLIENT_TOKEN=${{ vars.DD_CLIENT_TOKEN }} >> .env
           echo VITE_DD_APP_ID=${{ vars.DD_APP_ID }} >> .env
           echo VITE_DD_RUM_CLIENT_TOKEN=${{ vars.DD_RUM_CLIENT_TOKEN }} >> .env
+          echo VITE_PUSHER_APP_KEY=${{ vars.PUSHER_KEY }} >> .env
 
       - name: Build container image
         run: docker build -t ${{ secrets.REGISTRY_NAME }}/mythweaver-ui:$(echo $GITHUB_SHA | head -c7) -f .docker/Dockerfile.ui .
