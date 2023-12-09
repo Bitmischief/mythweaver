@@ -7,6 +7,10 @@ import {
 } from '../lib/validationMiddleware';
 import SessionController from '../controllers/sessions';
 import { useInjectLoggingInfo } from '../lib/loggingMiddleware';
+import {
+  useAudioFileUploader,
+  useAudioUploadAuthorizer,
+} from '../lib/audioFileMiddleware';
 
 const router = express.Router();
 
@@ -66,10 +70,7 @@ router.get('/:sessionId', [
 
 const postSessionsSchema = z.object({
   campaignId: z.coerce.number(),
-  when: z.string().datetime(),
-  summary: z.string().optional(),
-  transcript: z.string().optional(),
-  description: z.string().optional(),
+  name: z.string().optional().default('New Session'),
 });
 
 router.post('/', [
@@ -90,10 +91,18 @@ router.post('/', [
 ]);
 
 const patchSessionsSchema = z.object({
-  when: z.string().datetime(),
+  name: z.string().nullable().optional(),
+  planning: z.string().nullable().optional(),
+  imageUri: z.string().nullable().optional(),
+  recap: z.string().nullable().optional(),
   summary: z.string().nullable().optional(),
   transcript: z.string().nullable().optional(),
-  description: z.string().nullable().optional(),
+  suggestions: z.string().nullable().optional(),
+  suggestedName: z.string().nullable().optional(),
+  suggestedSummary: z.string().nullable().optional(),
+  suggestedSuggestions: z.string().nullable().optional(),
+  suggestedImageUri: z.string().nullable().optional(),
+  suggestedImagePrompt: z.string().nullable().optional(),
 });
 
 router.patch('/:sessionId', [
@@ -140,9 +149,32 @@ router.delete('/:sessionId', [
   },
 ]);
 
-const postSessionCompleteSchema = z.object({
+const postGenerateSummarySchema = z.object({
   recap: z.string().max(10000),
 });
+
+router.post('/:sessionId/generate-summary', [
+  useAuthenticateRequest(),
+  useInjectLoggingInfo(),
+  useValidateRequest(getSessionSchema, {
+    validationType: ValidationTypes.Route,
+  }),
+  useValidateRequest(postGenerateSummarySchema),
+  async (req: Request, res: Response) => {
+    const controller = new SessionController();
+
+    const { sessionId = 0 } = req.params;
+
+    await controller.postGenerateSummary(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      sessionId as number,
+      req.body,
+    );
+
+    return res.status(200).send();
+  },
+]);
 
 router.post('/:sessionId/complete', [
   useAuthenticateRequest(),
@@ -150,7 +182,6 @@ router.post('/:sessionId/complete', [
   useValidateRequest(getSessionSchema, {
     validationType: ValidationTypes.Route,
   }),
-  useValidateRequest(postSessionCompleteSchema),
   async (req: Request, res: Response) => {
     const controller = new SessionController();
 
@@ -160,10 +191,36 @@ router.post('/:sessionId/complete', [
       res.locals.auth.userId,
       res.locals.trackingInfo,
       sessionId as number,
-      req.body,
     );
 
     return res.status(200).send();
+  },
+]);
+
+router.post('/:sessionId/audio', [
+  useAuthenticateRequest(),
+  useInjectLoggingInfo(),
+  useValidateRequest(getSessionSchema, {
+    validationType: ValidationTypes.Route,
+  }),
+  useAudioUploadAuthorizer(),
+  useAudioFileUploader(),
+  async (req: Request, res: Response) => {
+    const controller = new SessionController();
+
+    const file = req.file as any;
+    const { sessionId = 0 } = req.params;
+    const response = await controller.postSessionAudio(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      sessionId as number,
+      {
+        audioName: file?.originalname ?? '',
+        audioUri: file?.location ?? '',
+      },
+    );
+
+    return res.status(200).send(response);
   },
 ]);
 

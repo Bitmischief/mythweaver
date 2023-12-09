@@ -17,6 +17,10 @@ import { Session } from '@prisma/client';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { CampaignRole } from './campaigns';
 import { completeSessionQueue } from '../worker';
+import { sendTransactionalEmail } from '../lib/transactionalEmail';
+import { urlPrefix } from '../lib/utils';
+import { parentLogger } from '../lib/logger';
+const logger = parentLogger.getSubLogger();
 
 interface GetSessionsResponse {
   data: Session[];
@@ -26,21 +30,31 @@ interface GetSessionsResponse {
 
 interface PostSessionRequest {
   campaignId: number;
-  when: Date;
-  summary?: string;
-  transcript?: string;
-  description?: string;
+  name: string;
 }
 
 interface PatchSessionRequest {
-  when: Date;
+  name?: string;
+  imageUri?: string;
+  planning?: string;
+  recap?: string;
   summary?: string;
   transcript?: string;
-  description?: string;
+  suggestions?: string;
 }
 
 interface PostCompleteSessionRequest {
   recap: string;
+}
+
+interface PostSessionAudioRequest {
+  audioName: string;
+  audioUri: string;
+}
+
+interface PostSessionAudioResponse {
+  audioName: string;
+  audioUri: string;
 }
 
 export enum SessionStatus {
@@ -69,7 +83,7 @@ export default class SessionController {
       skip: offset,
       take: limit,
       orderBy: {
-        when: 'desc',
+        createdAt: 'desc',
       },
     });
 
@@ -169,23 +183,34 @@ export default class SessionController {
     @Inject() trackingInfo: TrackingInfo,
     @Route() sessionId: number,
   ): Promise<boolean> {
-    await this.getSession(userId, trackingInfo, sessionId);
+    const session = await this.getSession(userId, trackingInfo, sessionId);
 
-    await prisma.session.delete({
-      where: {
-        id: sessionId,
-      },
-    });
-
-    track(AppEvent.DeleteSession, userId, trackingInfo);
+    if (!session.archived) {
+      await prisma.session.update({
+        where: {
+          id: sessionId,
+        },
+        data: {
+          archived: true,
+        },
+      });
+      track(AppEvent.ArchiveSession, userId, trackingInfo);
+    } else {
+      await prisma.session.delete({
+        where: {
+          id: sessionId,
+        },
+      });
+      track(AppEvent.DeleteSession, userId, trackingInfo);
+    }
 
     return true;
   }
 
   @Security('jwt')
-  @OperationId('completeSession')
-  @Post('/:sessionId/complete')
-  public async postCompleteSession(
+  @OperationId('generateSummary')
+  @Post('/:sessionId/generate-summary')
+  public async postGenerateSummary(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
     @Route() sessionId: number,
@@ -222,5 +247,139 @@ export default class SessionController {
     track(AppEvent.CompleteSession, userId, trackingInfo);
 
     return true;
+  }
+
+  @Security('jwt')
+  @OperationId('completeSession')
+  @Post('/:sessionId/complete')
+  public async postCompleteSession(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Route() sessionId: number,
+  ) {
+    const session = await prisma.session.findUnique({
+      where: {
+        id: sessionId,
+      },
+    });
+
+    if (!session) {
+      logger.warn('Session not found', sessionId);
+
+      throw new AppError({
+        description: 'Session not found.',
+        httpCode: HttpCode.BAD_REQUEST,
+      });
+    }
+
+    const campaign = await prisma.campaign.findUnique({
+      where: {
+        id: session?.campaignId,
+      },
+      include: {
+        members: {
+          include: {
+            user: true,
+          },
+        },
+      },
+    });
+
+    if (!campaign) {
+      logger.warn('Campaign not found', sessionId);
+
+      throw new AppError({
+        description: 'Campaign not found.',
+        httpCode: HttpCode.BAD_REQUEST,
+      });
+    }
+
+    for (const member of campaign.members) {
+      const email = member.user?.email || member.email;
+      await sendTransactionalEmail(
+        'post-session',
+        `🎲 MythWeaver Session Recap: ${campaign.name} 🐉`,
+        email || '',
+        [
+          {
+            name: 'CHARACTER_NAME',
+            content: email || '',
+          },
+          {
+            name: 'CAMPAIGN_NAME',
+            content: campaign.name,
+          },
+          {
+            name: 'SUMMARY',
+            content: session.summary || '',
+          },
+          {
+            name: 'SUGGESTIONS',
+            content: session.suggestions || '',
+          },
+          {
+            name: 'SESSION_URL',
+            content: `${urlPrefix}/sessions/${session?.id}/edit`,
+          },
+          {
+            name: 'SESSION_IMAGE_URI',
+            content: session.imageUri || '',
+          },
+        ],
+      );
+    }
+
+    await prisma.session.update({
+      where: {
+        id: sessionId,
+      },
+      data: {
+        completed: true,
+      },
+    });
+  }
+
+  @Security('jwt')
+  @OperationId('postSessionAudio')
+  @Post('/:sessionId/audio')
+  public async postSessionAudio(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Route() sessionId: number,
+    @Body() request: PostSessionAudioRequest,
+  ): Promise<PostSessionAudioResponse> {
+    const session = await this.getSession(userId, trackingInfo, sessionId);
+    const campaignMember = await prisma.campaignMember.findUnique({
+      where: {
+        userId_campaignId: {
+          userId,
+          campaignId: session.campaignId,
+        },
+      },
+    });
+
+    if (!campaignMember || campaignMember.role !== CampaignRole.DM) {
+      throw new AppError({
+        description: 'You do not have permission to add audio to this session.',
+        httpCode: HttpCode.FORBIDDEN,
+      });
+    }
+
+    await prisma.session.update({
+      where: {
+        id: sessionId,
+      },
+      data: {
+        audioName: request.audioName,
+        audioUri: request.audioUri,
+      },
+    });
+
+    track(AppEvent.SessionAudioUploaded, userId, trackingInfo);
+
+    return {
+      audioName: request.audioName,
+      audioUri: request.audioUri,
+    };
   }
 }

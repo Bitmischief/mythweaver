@@ -10,7 +10,7 @@ import { showError, showSuccess } from '@/lib/notifications.ts';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import NewCharacter from '@/components/Characters/NewCharacter.vue';
 import Accordion from '@/components/Core/Accordion.vue';
-import TextEdit from '@/components/Core/Forms/TextEdit.vue';
+import TextEdit from '@/components/Core/Forms/RegeneratableTextEdit.vue';
 import CustomizableImage from '@/components/Images/CustomizableImage.vue';
 import { useEventBus } from '@/lib/events.ts';
 
@@ -136,18 +136,26 @@ async function updateCharacter() {
         default-open
         class="mt-6 border-t border-neutral-800 pt-4"
       >
-        <TextEdit v-model="character.backstory" />
+        <TextEdit
+          v-model="character.backstory"
+          label="Backstory"
+          disable-generation
+        />
       </Accordion>
 
       <Accordion
         title="Personality"
         class="mt-2 border-t border-neutral-800 pt-4"
       >
-        <TextEdit v-model="character.personality" />
+        <TextEdit
+          v-model="character.personality"
+          label="Personality"
+          disable-generation
+        />
       </Accordion>
 
       <Accordion title="Looks" class="mt-2 border-t border-neutral-800 pt-4">
-        <TextEdit v-model="character.looks" />
+        <TextEdit v-model="character.looks" label="Looks" disable-generation />
       </Accordion>
     </div>
     <div v-else>

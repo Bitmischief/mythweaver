@@ -229,7 +229,7 @@ export class GeneratorController {
 
     const openai = getClient();
     const response = await openai.chat.completions.create({
-      model: 'gpt-4',
+      model: 'gpt-4-1106-preview',
       messages: [
         {
           role: 'system',
@@ -238,7 +238,7 @@ export class GeneratorController {
         },
         {
           role: 'user',
-          content: `Please generate me a random ${request.propertyName} for a ${
+          content: `Please generate me a ${request.propertyName} for a ${
             request.context
           }. Use the following as general background about the ${
             request.context

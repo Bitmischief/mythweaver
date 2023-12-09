@@ -69,7 +69,6 @@ async function conjure() {
 function setImage() {
   if (!selectedImgUri.value.length) return;
 
-  console.log('setImage', selectedImgUri.value, editablePrompt.value);
   eventBus.$emit('updated-conjuration-image', {
     imageUri: selectedImgUri.value,
     prompt: editablePrompt.value,

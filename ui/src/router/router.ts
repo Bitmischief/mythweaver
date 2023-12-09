@@ -11,7 +11,6 @@ import ViewCampaign from '@/components/Campaigns/ViewCampaign.vue';
 import SessionsView from '@/views/SessionsView.vue';
 import ViewSession from '@/components/Sessions/ViewSession.vue';
 import ListSessions from '@/components/Sessions/ListSessions.vue';
-import NewSession from '@/components/Sessions/NewSession.vue';
 import ListConjurations from '@/components/Conjuration/ListConjurations.vue';
 import ViewConjuration from '@/components/Conjuration/ViewConjuration.vue';
 import InviteView from '@/views/InviteView.vue';
@@ -19,6 +18,8 @@ import MagicLink from '@/components/Auth/MagicLink.vue';
 import PreAuthView from '@/views/PreAuthView.vue';
 import EarlyAccessView from '@/views/EarlyAccessView.vue';
 import CharactersView from '@/views/CharactersView.vue';
+import ViewSessionPlanning from '@/components/Sessions/ViewSessionPlanning.vue';
+import ViewSessionSummary from '@/components/Sessions/ViewSessionSummary.vue';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -139,12 +140,18 @@ const router = createRouter({
           component: ListSessions,
         },
         {
-          path: 'create',
-          component: NewSession,
-        },
-        {
-          path: ':sessionId/edit',
+          path: ':sessionId',
           component: ViewSession,
+          children: [
+            {
+              path: 'planning',
+              component: ViewSessionPlanning,
+            },
+            {
+              path: 'summary',
+              component: ViewSessionSummary,
+            },
+          ],
         },
       ],
     },

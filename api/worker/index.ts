@@ -5,6 +5,7 @@ import { conjure } from './jobs/conjure';
 import { completeSession } from './jobs/completeSession';
 import { tagUsersAsEarlyAccess } from './jobs/tagUsersAsEarlyAccess';
 import { ImageStylePreset } from '../controllers/images';
+import { sendWebsocketMessage, WebSocketEvent } from '../services/websockets';
 const logger = parentLogger.getSubLogger();
 
 const config = process.env.REDIS_ENDPOINT || '';
@@ -60,6 +61,16 @@ conjureQueue.process(async (job, done) => {
     done();
   } catch (err) {
     logger.error('Error processing conjure job!', err);
+
+    await sendWebsocketMessage(
+      job.data.userId,
+      WebSocketEvent.ConjurationError,
+      {
+        message:
+          'There was an error generating your conjuration. Please try again.',
+      },
+    );
+
     done(new Error('Error processing conjure job!'));
   }
 });

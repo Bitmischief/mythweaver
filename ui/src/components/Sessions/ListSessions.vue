@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
-import { getSessions, SessionBase } from '@/api/sessions.ts';
+import { getSessions, postSession, SessionBase } from '@/api/sessions.ts';
 import { useEventBus } from '@/lib/events.ts';
 import Session from '@/components/Sessions/Session.vue';
 import { useCampaignStore } from '@/store/campaign.store.ts';
 import { CampaignRole } from '@/api/campaigns.ts';
 import { BoltIcon } from '@heroicons/vue/20/solid';
+import { showSuccess } from '@/lib/notifications.ts';
+import { useRouter } from 'vue-router';
 
 const eventBus = useEventBus();
 const campaignStore = useCampaignStore();
+const router = useRouter();
 
 const sessionsSearch = ref({
   offset: 0,
@@ -47,6 +50,13 @@ async function loadMoreSessions() {
   sessionsSearch.value.offset += sessionsSearch.value.limit;
   await loadSessions();
 }
+
+async function handleCreateSession() {
+  const createSessionResponse = await postSession({});
+
+  showSuccess({ message: 'Session created!' });
+  await router.push(`/sessions/${createSessionResponse.data.id}/planning`);
+}
 </script>
 
 <template>
@@ -55,14 +65,14 @@ async function loadMoreSessions() {
       <div class="text-2xl self-center font-bold">Sessions List</div>
 
       <div class="mt-2 self-center md:mt-0 flex justify-between">
-        <router-link
+        <button
           v-if="currentUserRole === CampaignRole.DM"
-          to="/sessions/create"
           class="flex w-full self-center rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 px-4 py-3 transition-all hover:scale-110"
+          @click="handleCreateSession"
         >
           <BoltIcon class="mr-2 h-5 w-5 self-center" />
           <span class="self-center">Create</span>
-        </router-link>
+        </button>
       </div>
     </div>
   </div>
@@ -71,7 +81,7 @@ async function loadMoreSessions() {
     <router-link
       v-for="(session, i) of sessions"
       :key="i"
-      :to="`/sessions/${session.id}/edit`"
+      :to="`/sessions/${session.id}/planning`"
       class="mr-6"
     >
       <Session :session="session" :full="false" class="mb-6" />
