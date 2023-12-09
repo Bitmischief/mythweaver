@@ -34,7 +34,7 @@ export default {
   },
   textarea: {
     inner: 'h-full',
-    input: 'w-full h-full resize-none',
+    input: 'w-full h-full resize-none min-h-[6rem]',
   },
   select: {
     inner:
