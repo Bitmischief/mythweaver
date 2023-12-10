@@ -2,10 +2,8 @@ import { CompleteSessionEvent } from '../index';
 import { getClient } from '../../lib/providers/openai';
 import { parentLogger } from '../../lib/logger';
 import { prisma } from '../../lib/providers/prisma';
-import { sanitizeJson, urlPrefix } from '../../lib/utils';
+import { sanitizeJson } from '../../lib/utils';
 import { generateImage } from '../../services/imageGeneration';
-import { SessionStatus } from '../../controllers/sessions';
-import { sendTransactionalEmail } from '../../lib/transactionalEmail';
 import {
   sendWebsocketMessage,
   WebSocketEvent,

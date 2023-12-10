@@ -12,7 +12,7 @@ import {
   Tags,
 } from 'tsoa';
 import { prisma } from '../lib/providers/prisma';
-import { Conjuration, ConjurationsToCollections } from '@prisma/client';
+import { Conjuration } from '@prisma/client';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { processTagsQueue } from '../worker';
@@ -39,17 +39,6 @@ interface PatchConjurationRequest {
   tags?: string[];
 }
 
-interface CreateCollectionConjurationRequest {
-  conjurationId: number;
-  collectionId: number;
-}
-
-interface UpdateCollectionConjurationRequest {
-  id: number;
-  conjurationId: number;
-  collectionId: number;
-}
-
 @Route('conjurations')
 @Tags('Conjurations')
 export default class ConjurationController {
@@ -67,6 +56,7 @@ export default class ConjurationController {
     @Query() tags?: string,
     @Query() offset?: number,
     @Query() limit?: number,
+    @Query() collectionId?: number,
   ): Promise<GetConjurationsResponse> {
     const conjurerCodes = conjurerCodeString
       ?.split(',')
@@ -101,6 +91,13 @@ export default class ConjurationController {
           ? {
               some: {
                 stylePreset: stylePreset,
+              },
+            }
+          : undefined,
+        collections: collectionId
+          ? {
+              some: {
+                id: collectionId,
               },
             }
           : undefined,
@@ -140,33 +137,6 @@ export default class ConjurationController {
       })),
       offset: offset,
       limit: limit,
-    };
-  }
-
-  @Security('jwt')
-  @OperationId('getCollectionConjurations')
-  @Get('/collectionConjurations')
-  public async getCollectionConjurations(
-    @Inject() userId: number,
-    @Inject() trackingInfo: TrackingInfo,
-    @Query() collectionId?: number,
-  ): Promise<GetConjurationsResponse> {
-    const collectionConjurations =
-      await prisma.conjurationsToCollections.findMany({
-        where: {
-          collectionId: collectionId,
-        },
-        orderBy: {
-          createdAt: 'desc',
-        },
-      });
-
-    track(AppEvent.GetCollectionConjurations, userId, trackingInfo);
-
-    return {
-      data: collectionConjurations.map((c: any) => ({
-        ...c,
-      })),
     };
   }
 
@@ -297,45 +267,6 @@ export default class ConjurationController {
     });
 
     return updatedConjuration;
-  }
-
-  @Security('jwt')
-  @OperationId('createCollectionConjuration')
-  @Post('/createCollectionConjuration')
-  public async createCollectionConjuration(
-    @Inject() userId: number,
-    @Inject() trackingInfo: TrackingInfo,
-    @Body() request: CreateCollectionConjurationRequest,
-  ): Promise<ConjurationsToCollections> {
-    track(AppEvent.CreateCollectionConjuration, userId, trackingInfo);
-
-    return prisma.conjurationsToCollections.create({
-      data: {
-        conjurationId: request.conjurationId,
-        collectionId: request.collectionId,
-      },
-    });
-  }
-
-  @Security('jwt')
-  @OperationId('updateCollectionConjuration')
-  @Post('/updateCollectionConjuration')
-  public async updateCollectionConjuration(
-    @Inject() userId: number,
-    @Inject() trackingInfo: TrackingInfo,
-    @Body() request: UpdateCollectionConjurationRequest,
-  ): Promise<ConjurationsToCollections> {
-    track(AppEvent.CreateCollectionConjuration, userId, trackingInfo);
-
-    return prisma.conjurationsToCollections.update({
-      where: {
-        id: request.id,
-      },
-      data: {
-        conjurationId: request.conjurationId,
-        collectionId: request.collectionId,
-      },
-    });
   }
 
   @Security('jwt')

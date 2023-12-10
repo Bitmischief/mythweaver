@@ -6,29 +6,22 @@ import {
   OperationId,
   Patch,
   Post,
+  Put,
   Query,
   Route,
   Security,
   Tags,
 } from 'tsoa';
 import { prisma } from '../lib/providers/prisma';
-import { Collection } from '@prisma/client';
+import { Collection, ConjurationCollections } from '@prisma/client';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
-import { processTagsQueue } from '../worker';
-import { ImageStylePreset } from './images';
 
 interface GetCollectionsResponse {
-  data: (Collection & { saved: boolean })[];
+  data: Collection[];
   offset?: number;
   limit?: number;
   parentId?: number;
-}
-
-interface GetCollectionTagsResponse {
-  data: string[];
-  offset?: number;
-  limit?: number;
 }
 
 interface PatchCollectionRequest {
@@ -37,9 +30,19 @@ interface PatchCollectionRequest {
 }
 
 interface PostCollectionsRequest {
-  campaignId: number;
   name: string;
   description: string;
+}
+
+interface CreateCollectionConjurationRequest {
+  conjurationId: number;
+  collectionId: number;
+}
+
+interface UpdateCollectionConjurationRequest {
+  id: number;
+  conjurationId: number;
+  collectionId: number;
 }
 
 @Route('collections')
@@ -53,23 +56,6 @@ export default class CollectionController {
     @Inject() trackingInfo: TrackingInfo,
     @Body() request: PostCollectionsRequest,
   ): Promise<any> {
-    const campaignMember = await prisma.campaignMember.findUnique({
-      where: {
-        userId_campaignId: {
-          campaignId: request.campaignId,
-          userId,
-        },
-      },
-    });
-
-    if (!campaignMember) {
-      throw new AppError({
-        httpCode: HttpCode.FORBIDDEN,
-        description:
-          'You must be a member of the campaign to create a collection.',
-      });
-    }
-
     const collection = await prisma.collection.create({
       data: {
         userId,
@@ -88,20 +74,12 @@ export default class CollectionController {
   public async getCollections(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Query() saved?: boolean,
     @Query() offset?: number,
     @Query() limit?: number,
     @Query() parentId?: any,
   ): Promise<GetCollectionsResponse> {
     const collections = await prisma.collection.findMany({
       where: {
-        saves: saved
-          ? {
-              some: {
-                userId,
-              },
-            }
-          : undefined,
         parentId: parentId ? parentId : null,
       },
       skip: offset,
@@ -109,23 +87,12 @@ export default class CollectionController {
       orderBy: {
         createdAt: 'desc',
       },
-      include: {
-        saves: {
-          where: {
-            userId,
-          },
-        },
-      },
     });
 
     track(AppEvent.GetCollections, userId, trackingInfo);
 
     return {
-      data: collections.map((c) => ({
-        ...c,
-        saves: undefined,
-        saved: c.saves.length > 0,
-      })),
+      data: collections,
       offset: offset,
       limit: limit,
     };
@@ -138,17 +105,10 @@ export default class CollectionController {
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
     @Route() collectionId = 0,
-  ): Promise<Collection & { saves: undefined; saved: boolean }> {
+  ): Promise<Collection> {
     const collection = await prisma.collection.findUnique({
       where: {
         id: collectionId,
-      },
-      include: {
-        saves: {
-          where: {
-            userId,
-          },
-        },
       },
     });
 
@@ -161,61 +121,7 @@ export default class CollectionController {
 
     track(AppEvent.GetCollection, userId, trackingInfo);
 
-    return {
-      ...collection,
-      saves: undefined,
-      saved: collection.saves.length > 0,
-    };
-  }
-
-  @Security('jwt')
-  @OperationId('saveCollection')
-  @Post('/:collectionId/save')
-  public async postSaveCollection(
-    @Inject() userId: number,
-    @Inject() trackingInfo: TrackingInfo,
-    @Route() collectionId: number,
-    @Inject() parentId: number,
-  ): Promise<void> {
-    const existingCollection = await prisma.collection.findUnique({
-      where: {
-        id: collectionId,
-      },
-    });
-
-    if (!existingCollection) {
-      throw new AppError({
-        description: 'Collection not found.',
-        httpCode: HttpCode.NOT_FOUND,
-      });
-    }
-
-    if (!existingCollection.published && existingCollection.userId !== userId) {
-      throw new AppError({
-        description: 'You cannot save this collection!',
-        httpCode: HttpCode.FORBIDDEN,
-      });
-    }
-
-    track(AppEvent.SaveCollection, userId, trackingInfo);
-
-    await prisma.collectionSave.upsert({
-      where: {
-        userId_collectionId: {
-          userId,
-          collectionId,
-        },
-      },
-      create: {
-        userId,
-        collectionId,
-        parentId,
-      },
-      update: {
-        userId,
-        collectionId,
-      },
-    });
+    return collection;
   }
 
   @Security('jwt')
@@ -242,7 +148,7 @@ export default class CollectionController {
 
     track(AppEvent.UpdateCollection, userId, trackingInfo);
 
-    const updatedCollection = prisma.collection.update({
+    return prisma.collection.update({
       where: {
         id: collectionId,
       },
@@ -251,8 +157,6 @@ export default class CollectionController {
         ...request,
       },
     });
-
-    return updatedCollection;
   }
 
   @Security('jwt')
@@ -288,104 +192,19 @@ export default class CollectionController {
   }
 
   @Security('jwt')
-  @OperationId('getCollectionTags')
-  @Get('/tags')
-  public async getCollectionTags(
+  @OperationId('createCollectionConjuration')
+  @Post(':collectionId/conjurations')
+  public async createCollectionConjuration(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Query() term?: string,
-    @Query() offset?: number,
-    @Query() limit?: number,
-  ): Promise<GetCollectionTagsResponse> {
-    offset = offset || 0;
-    limit = limit || 50;
+    @Body() request: CreateCollectionConjurationRequest,
+  ): Promise<ConjurationCollections> {
+    track(AppEvent.CreateCollectionConjuration, userId, trackingInfo);
 
-    const tags = await prisma.tag.findMany({
-      where: {
-        name: {
-          contains: term,
-        },
-      },
-      orderBy: {
-        usageCount: 'desc',
-      },
-      skip: offset,
-      take: limit,
-    });
-
-    track(AppEvent.GetCollectionTags, userId, trackingInfo);
-
-    return {
-      data: tags.map((t) => t.name),
-      offset: offset,
-      limit: limit,
-    };
-  }
-
-  @Security('jwt')
-  @OperationId('removeCollection')
-  @Post('/:collectionId/remove')
-  public async postRemoveCollection(
-    @Inject() userId: number,
-    @Inject() trackingInfo: TrackingInfo,
-    @Route() collectionId: number,
-  ): Promise<void> {
-    const existingCollectionSave = await prisma.collection.findUnique({
-      where: {
-        id: collectionId,
-      },
-    });
-
-    if (!existingCollectionSave) {
-      throw new AppError({
-        description: 'Collection save not found.',
-        httpCode: HttpCode.NOT_FOUND,
-      });
-    }
-
-    track(AppEvent.RemoveCollection, userId, trackingInfo);
-
-    await prisma.collection.delete({
-      where: {
-        id: existingCollectionSave.id,
-      },
-    });
-    await prisma.collection.deleteMany({
-      where: {
-        parentId: existingCollectionSave.id,
-      },
-    });
-  }
-
-  @Security('jwt')
-  @OperationId('copyCollection')
-  @Post('/:collectionId/copy')
-  public async postCopyCollection(
-    @Inject() userId: number,
-    @Inject() trackingInfo: TrackingInfo,
-    @Route() collectionId: number,
-  ): Promise<any> {
-    const existingCollection = await prisma.collection.findUnique({
-      where: {
-        id: collectionId,
-      },
-    });
-
-    if (!existingCollection) {
-      throw new AppError({
-        description: 'Collection not found.',
-        httpCode: HttpCode.NOT_FOUND,
-      });
-    }
-
-    track(AppEvent.CopyCollection, userId, trackingInfo);
-
-    return prisma.collection.create({
+    return prisma.conjurationCollections.create({
       data: {
-        ...existingCollection,
-        id: undefined,
-        description: existingCollection.description as any,
-        userId,
+        conjurationId: request.conjurationId,
+        collectionId: request.collectionId,
       },
     });
   }

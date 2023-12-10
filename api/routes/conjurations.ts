@@ -19,6 +19,7 @@ const getConjurationsSchema = z.object({
   tags: z.string().optional(),
   offset: z.coerce.number().default(0).optional(),
   limit: z.coerce.number().min(1).default(25).optional(),
+  collectionId: z.coerce.number().optional(),
 });
 
 router.get('/', [
@@ -52,47 +53,8 @@ router.get('/', [
       tags as string,
       offset as number,
       limit as number,
-    );
-
-    return res.status(200).send(response);
-  },
-]);
-
-// collectionConjurations
-
-const getCollectionConjurationsSchema = z.object({
-  collectionId: z.coerce.number().default(0),
-});
-
-router.get('/collectionConjurations', [
-  useAuthenticateRequest(),
-  useInjectLoggingInfo(),
-  useValidateRequest(getCollectionConjurationsSchema, {
-    validationType: ValidationTypes.Query,
-  }),
-  async (req: Request, res: Response) => {
-    const controller = new ConjurationController();
-    const getCollectionsResponse = await controller.getCollectionConjurations(
-      res.locals.auth.userId,
-      res.locals.trackingInfo,
       req.query.collectionId as unknown as number,
     );
-
-    const conjurationIds = [] as Array<number>;
-    getCollectionsResponse.data.forEach((item: any) => {
-      conjurationIds.push(parseInt(item.conjurationId));
-    });
-
-    const response = await controller.getConjurations(
-      res.locals.auth.userId,
-      res.locals.trackingInfo,
-      undefined,
-      true,
-      undefined,
-      conjurationIds.join(','),
-    );
-
-    response.collectionConjurations = getCollectionsResponse.data;
 
     return res.status(200).send(response);
   },
@@ -198,53 +160,6 @@ router.patch('/:conjurationId', [
       res.locals.auth.userId,
       res.locals.trackingInfo,
       conjurationId as number,
-      req.body,
-    );
-    return res.status(200).send(response);
-  },
-]);
-
-const createCollectionConjurationSchema = z.object({
-  conjurationId: z.number().optional(),
-  collectionId: z.number().optional(),
-});
-
-const updateCollectionConjurationSchema = z.object({
-  id: z.number().optional(),
-  conjurationId: z.number().optional(),
-  collectionId: z.number().optional(),
-});
-
-router.post('/createCollectionConjuration', [
-  useAuthenticateRequest(),
-  useInjectLoggingInfo(),
-  useValidateRequest(createCollectionConjurationSchema, {
-    validationType: ValidationTypes.Route,
-  }),
-  async (req: Request, res: Response) => {
-    const controller = new ConjurationController();
-
-    const response = await controller.createCollectionConjuration(
-      res.locals.auth.userId,
-      res.locals.trackingInfo,
-      req.body,
-    );
-    return res.status(200).send(response);
-  },
-]);
-
-router.post('/updateCollectionConjuration', [
-  useAuthenticateRequest(),
-  useInjectLoggingInfo(),
-  useValidateRequest(updateCollectionConjurationSchema, {
-    validationType: ValidationTypes.Route,
-  }),
-  async (req: Request, res: Response) => {
-    const controller = new ConjurationController();
-
-    const response = await controller.updateCollectionConjuration(
-      res.locals.auth.userId,
-      res.locals.trackingInfo,
       req.body,
     );
     return res.status(200).send(response);
