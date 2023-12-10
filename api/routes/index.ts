@@ -21,6 +21,9 @@ router.use(`/sessions`, sessionsRoutes);
 import conjurationsRoutes from './conjurations';
 router.use(`/conjurations`, conjurationsRoutes);
 
+import collectionsRoutes from './collections';
+router.use(`/collections`, collectionsRoutes);
+
 import usersRoutes from './users';
 router.use(`/users`, usersRoutes);
 

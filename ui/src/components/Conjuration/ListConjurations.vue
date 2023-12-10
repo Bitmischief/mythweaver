@@ -4,21 +4,41 @@ import {
   Conjuration,
   getConjuration,
   getConjurations,
+  createCollectionConjuration,
 } from '@/api/conjurations.ts';
+import {
+  Collection,
+  getCollections,
+  patchCollection,
+} from '@/api/collections.ts';
 import { AdjustmentsVerticalIcon, SparklesIcon } from '@heroicons/vue/20/solid';
 import ConjurationQuickView from '@/components/Conjuration/ConjurationListItemView.vue';
+import CollectionQuickView from '@/components/Collection/CollectionListItemView.vue';
 import { debounce } from 'lodash';
 import ConjurationsListFiltering from '@/components/Conjuration/ConjurationsListFiltering.vue';
+import { showError, showSuccess } from '@/lib/notifications.ts';
 
-const pagingDone = ref(false);
+import { useRouter } from 'vue-router';
+
+// const route = useRoute();
+const router = useRouter();
+
+const pagingConjurationDone = ref(false);
+const pagingCollectionDone = ref(false);
 const conjurations = ref<Conjuration[]>([]);
+const collections = ref<Collection[]>([]);
 const showFilters = ref(false);
+
+const SAVED = 0;
+const GALLERY = 1;
+const COLLECTIONS = 2;
 
 const defaultPaging = {
   offset: 0,
   limit: 20,
 };
 const conjurationsPagingQuery = ref(defaultPaging);
+const collectionsPagingQuery = ref(defaultPaging);
 
 const defaultFilters = {
   conjurerCodes: [],
@@ -27,8 +47,13 @@ const defaultFilters = {
 };
 const conjurationsFilterQuery = ref(defaultFilters);
 
+const collectionsFilterQuery = ref(defaultFilters);
+
 const conjurationsMineQuery = ref({
-  saved: true,
+  tab: SAVED,
+});
+const collectionsMineQuery = ref({
+  tab: SAVED,
 });
 
 const conjurationsQuery = computed(() => ({
@@ -37,8 +62,17 @@ const conjurationsQuery = computed(() => ({
   ...conjurationsMineQuery.value,
 }));
 
+const collectionsQuery = computed(() => ({
+  ...collectionsFilterQuery.value,
+  ...collectionsPagingQuery.value,
+  ...collectionsMineQuery.value,
+}));
+
+let currentDragTarget: any = null;
+
 onMounted(async () => {
   await loadConjurations();
+  await loadCollections();
 
   const viewParent = document.querySelector('#view-parent');
   viewParent?.addEventListener('scroll', () => {
@@ -66,7 +100,7 @@ watch(
 watch(
   [conjurationsFilterQuery, conjurationsMineQuery],
   async () => {
-    pagingDone.value = false;
+    pagingConjurationDone.value = false;
     if (conjurationsPagingQuery.value.offset === 0) {
       await loadConjurations();
     } else {
@@ -83,7 +117,7 @@ const pageConjurations = debounce(() => {
 }, 250);
 
 async function loadConjurations(append = false) {
-  if (pagingDone.value) return;
+  if (pagingConjurationDone.value) return;
 
   const conjurationsResponse = await getConjurations({
     ...conjurationsQuery.value,
@@ -96,7 +130,22 @@ async function loadConjurations(append = false) {
   }
 
   if (conjurationsResponse.data.data.length === 0) {
-    pagingDone.value = true;
+    pagingConjurationDone.value = true;
+  }
+}
+
+async function loadCollections() {
+  if (pagingCollectionDone.value) return;
+
+  const collectionsResponse = await getCollections({
+    ...collectionsQuery.value,
+    parentId: null,
+  });
+
+  collections.value = collectionsResponse.data.data;
+
+  if (collectionsResponse.data.data.length === 0) {
+    pagingCollectionDone.value = true;
   }
 }
 
@@ -119,8 +168,92 @@ async function handleConjurationChange(change: {
 
   conjurations.value[conjurationIndex] = conjurationResponse.data;
 
-  if (!conjurations.value[conjurationIndex].saved) {
-    conjurations.value.splice(conjurationIndex, 1);
+  // if (conjurations.value[conjurationIndex].tab !== SAVED) {
+  //   conjurations.value.splice(conjurationIndex, 1);
+  // }
+}
+
+async function removeCollection() {
+  await loadConjurations();
+  await loadCollections();
+}
+async function removeConjuration() {
+  await loadConjurations();
+  await loadCollections();
+}
+
+// async function handleCollectionChange(change: {
+//   collectionId: number;
+//   parentCollectionId?: number;
+// }) {
+//   const id = change.parentCollectionId || change.collectionId;
+//   const collectionResponse = await getCollection(id);
+
+//   const collectionIndex = conjurations.value.findIndex((c) => c.id === id);
+
+//   conjurations.value[collectionIndex] = collectionResponse.data;
+
+//   if (conjurations.value[collectionIndex].tab !== SAVED) {
+//     conjurations.value.splice(collectionIndex, 1);
+//   }
+// }
+
+async function childIsDragging() {
+  // console.log('child being draggggged');
+}
+
+async function childDragStart(collection: number) {
+  currentDragTarget = collection;
+}
+async function childDragEnd(collection: number) {
+  console.log(collection);
+}
+async function conjurationDragStart(conjuration: number) {
+  currentDragTarget = conjuration;
+}
+
+async function childDropped(collection: number) {
+  // console.log('child being dropped');
+  let parentId = collection;
+  let childType = currentDragTarget.conjurerCode
+    ? currentDragTarget.conjurerCode
+    : 'collection';
+  if (childType == 'collection') {
+    let myCollectionId = currentDragTarget;
+    const myCollection: any = collections.value.find((collection) => {
+      return (collection.id = myCollectionId);
+    });
+    if (myCollection) {
+      myCollection.parentId = parentId;
+      const response = await patchCollection(myCollection.id, myCollection);
+      if (response.status === 200) {
+        showSuccess({ message: 'collection saved' });
+        await router.push(`/collections/view/${parentId}`);
+        await loadConjurations();
+        await loadCollections();
+      } else {
+        showError({
+          message: 'Failed to save collection. Please try again in a moment.',
+        });
+      }
+    }
+  } else if (childType == 'characters') {
+    let conjurationId = currentDragTarget.id;
+    let parentId = collection;
+    const response = await createCollectionConjuration({
+      conjurationId: conjurationId,
+      collectionId: parentId,
+    });
+    if (response.status === 200) {
+      showSuccess({ message: 'collection saved' });
+      await router.push(`/collections/view/${parentId}`);
+      await loadConjurations();
+      await loadCollections();
+    } else {
+      showError({
+        message: 'Failed to save collection. Please try again in a moment.',
+      });
+    }
   }
 }
 </script>
@@ -138,28 +271,48 @@ async function handleConjurationChange(change: {
         <div class="text-2xl self-center font-bold mr-6">Conjurations List</div>
 
         <div class="flex cursor-pointer">
+          <!-- Saved Tab -->
           <div
             class="px-3 py-1 self-center rounded-l-md justify-start items-center"
             :class="{
-              'bg-neutral-900': !conjurationsMineQuery.saved,
+              'bg-neutral-900': conjurationsMineQuery.tab !== SAVED,
               'bg-neutral-700 border border-fuchsia-500/50':
-                conjurationsMineQuery.saved,
+                conjurationsMineQuery.tab == SAVED,
             }"
-            @click="conjurationsMineQuery.saved = true"
+            @click="conjurationsMineQuery.tab = SAVED"
           >
             <span class="text-white text-sm font-normal">Saved</span>
           </div>
+          <!-- End Saved Tab -->
+
+          <!-- Gallery Tab -->
           <div
-            class="px-3 py-1 self-center justify-start rounded-r-md items-center"
+            class="px-3 py-1 self-center justify-start items-center"
             :class="{
-              'bg-neutral-900': conjurationsMineQuery.saved,
+              'bg-neutral-900': conjurationsMineQuery.tab !== GALLERY,
               'bg-neutral-700 border border-fuchsia-500/50':
-                !conjurationsMineQuery.saved,
+                conjurationsMineQuery.tab == GALLERY,
             }"
-            @click="conjurationsMineQuery.saved = false"
+            @click="conjurationsMineQuery.tab = GALLERY"
           >
             <span class="text-white text-sm font-normal">Gallery</span>
           </div>
+          <!-- End Gallery Tab -->
+
+          <!-- Collections Tab -->
+          <div
+            class="px-3 py-1 self-center justify-start rounded-r-md items-center"
+            :class="{
+              'bg-neutral-900': conjurationsMineQuery.tab !== COLLECTIONS,
+              'bg-neutral-700 border border-fuchsia-500/50':
+                conjurationsMineQuery.tab == COLLECTIONS,
+            }"
+            @click="conjurationsMineQuery.tab = COLLECTIONS"
+          >
+            <span class="text-white text-sm font-normal">Collections</span>
+          </div>
+          <!-- End Collections Tab -->
+
           <!--          <div-->
           <!--            class="px-3 py-1 self-center rounded-r-md justify-start border-l border-l-neutral-800 items-center"-->
           <!--            :class="{-->
@@ -174,7 +327,9 @@ async function handleConjurationChange(change: {
         </div>
       </div>
 
+      <!-- Buttons Header -->
       <div class="mt-2 self-center md:mt-0 flex justify-between">
+        <!-- Clear Filters Button -->
         <button
           v-if="
             JSON.stringify(conjurationsFilterQuery) !==
@@ -187,7 +342,9 @@ async function handleConjurationChange(change: {
             Clear Filters
           </span>
         </button>
+        <!-- End Clear Filters Button -->
 
+        <!-- Filters Button -->
         <button
           class="mr-2 p-3 bg-neutral-900 rounded-md justify-start items-center gap-[5px] inline-flex transition-all hover:scale-110"
           @click="showFilters = true"
@@ -195,7 +352,9 @@ async function handleConjurationChange(change: {
           <AdjustmentsVerticalIcon class="w-5 h-5 mr-2" />
           <span class="text-white text-sm font-normal">Filters</span>
         </button>
+        <!-- End Filters Button -->
 
+        <!-- Create Button -->
         <router-link to="/conjurations/new" class="flex">
           <button
             class="flex w-full self-center rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 px-4 py-3 transition-all hover:scale-110"
@@ -204,12 +363,19 @@ async function handleConjurationChange(change: {
             <span class="self-center">Create</span>
           </button>
         </router-link>
+        <!-- End Create Button -->
       </div>
+      <!-- End Buttons Header -->
     </div>
   </div>
 
+  <!-- No Conjurations Page -->
   <div
-    v-if="!conjurations.length && conjurationsMineQuery.saved"
+    v-if="
+      !conjurations.length &&
+      !collections.length &&
+      conjurationsMineQuery.tab == SAVED
+    "
     class="bg-surface-2 rounded-md p-8 flex justify-center"
   >
     <div>
@@ -227,18 +393,84 @@ async function handleConjurationChange(change: {
       </router-link>
     </div>
   </div>
+  <!-- End No Conjurations Page -->
 
-  <div v-if="conjurations.length" class="flex flex-wrap justify-items-center">
+  <!-- Conjurations and Saved Page -->
+  <div
+    v-if="
+      (conjurations.length || collections.length) &&
+      conjurationsMineQuery.tab !== COLLECTIONS
+    "
+    class="flex flex-wrap justify-items-center"
+  >
+    <!-- Collections View Here -->
+    <CollectionQuickView
+      v-for="collection of collections"
+      :key="collection.name"
+      :collection="collection"
+      @drag="childIsDragging"
+      @drop="childDropped"
+      @dragstart="childDragStart"
+      @dragend="childDragEnd"
+      @remove-collection="removeCollection"
+    />
     <ConjurationQuickView
       v-for="conjuration of conjurations"
       :key="conjuration.name"
       :conjuration="conjuration"
       @add-conjuration="handleConjurationChange"
-      @remove-conjuration="handleConjurationChange"
+      @dragstart="conjurationDragStart"
+      @remove-conjuration="removeConjuration"
     />
   </div>
+  <!-- Conjurations and Saved Page -->
 
-  <div v-if="conjurations.length && pagingDone" class="my-12 pb-12 w-full">
+  <!-- Collections Page -->
+  <div
+    v-if="collections.length && conjurationsMineQuery.tab == COLLECTIONS"
+    class="flex flex-wrap justify-items-center"
+  >
+    <!-- Collections View Here -->
+    <CollectionQuickView
+      v-for="collection of collections"
+      :key="collection.name"
+      :collection="collection"
+      @drop="childDropped"
+      @dragstart="childDragStart"
+    />
+  </div>
+  <!-- End Collections Page 
+  
+      @add-collection="handCollectionChange"
+      @remove-collection="handCollectionChange"
+  -->
+
+  <!-- No Collections Page -->
+  <div
+    v-if="!collections.length && conjurationsMineQuery.tab == COLLECTIONS"
+    class="bg-surface-2 rounded-md p-8 flex justify-center"
+  >
+    <div>
+      <div class="self-center text-neutral-600 text-5xl mb-12">
+        You don't have any saved conjurations
+      </div>
+
+      <router-link to="/conjurations/new" class="flex justify-center">
+        <button
+          class="flex rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 text-3xl px-4 py-3 transition-all hover:scale-125 duration-100"
+        >
+          <SparklesIcon class="mr-4 h-8 w-8 self-center" />
+          <span class="self-center">Conjure</span>
+        </button>
+      </router-link>
+    </div>
+  </div>
+  <!-- End No Collections Page -->
+
+  <div
+    v-if="conjurations.length && pagingConjurationDone && pagingCollectionDone"
+    class="my-12 pb-12 w-full"
+  >
     <div class="text-center text-xl text-gray-500 divider">
       No more conjurations to show!
     </div>

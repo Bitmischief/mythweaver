@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { CheckIcon, PlusIcon, XMarkIcon } from '@heroicons/vue/20/solid';
 import {
   saveConjuration,
   Conjuration,
@@ -9,13 +8,19 @@ import { useRouter } from 'vue-router';
 import { ref } from 'vue';
 import { showSuccess } from '@/lib/notifications.ts';
 import DeleteModal from '@/components/Core/General/DeleteModal.vue';
+import { CheckIcon, XMarkIcon, PlusIcon } from '@heroicons/vue/20/solid';
 
 const props = defineProps<{
   conjuration: Conjuration | undefined;
   skeleton?: boolean;
 }>();
 
-const emit = defineEmits(['add-conjuration', 'remove-conjuration']);
+const emit = defineEmits([
+  'add-conjuration',
+  'remove-conjuration',
+  'drag',
+  'dragstart',
+]);
 
 const router = useRouter();
 
@@ -49,10 +54,27 @@ async function clickDeleteConjuration() {
 }
 
 const showDeleteModal = ref(false);
+
+async function dragStart() {
+  emit('dragstart', props.conjuration);
+}
+async function dragging() {
+  emit('drag', {});
+}
+async function dragend() {
+  emit('drag', {});
+}
 </script>
 
 <template>
-  <div v-if="conjuration" class="mr-6 mb-6">
+  <div
+    v-if="conjuration"
+    class="mr-6 mb-6"
+    draggable="true"
+    @dragstart="dragStart"
+    @drag="dragging"
+    @dragend="dragend"
+  >
     <div
       class="relative md:max-w-[23rem] 3xl:max-w-[40rem] flex cursor-pointer flex-col justify-end rounded-t-xl shadow-xl"
       @click="navigateToViewConjuration(conjuration.id)"
@@ -63,6 +85,7 @@ const showDeleteModal = ref(false);
           :src="conjuration.imageUri"
           :alt="conjuration.name"
           class="rounded-t-xl"
+          style="pointer-events: none"
         />
         <div v-else class="w-full flex justify-center h-full bg-gray-900/75">
           <div

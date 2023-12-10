@@ -25,6 +25,8 @@ import { loggingInfoAsyncLocalStorage } from './lib/loggingMiddleware';
 
 const logger = new Logger<ILogObj>();
 
+logger.info(process.env);
+
 const PORT = process.env.PORT || 8000;
 
 const app: Application = express();

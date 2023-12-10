@@ -12,7 +12,7 @@ import {
   Tags,
 } from 'tsoa';
 import { prisma } from '../lib/providers/prisma';
-import { Conjuration } from '@prisma/client';
+import { Conjuration, ConjurationsToCollections } from '@prisma/client';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { processTagsQueue } from '../worker';
@@ -20,6 +20,7 @@ import { ImageStylePreset } from './images';
 
 interface GetConjurationsResponse {
   data: (Conjuration & { saved: boolean })[];
+  collectionConjurations?: object;
   offset?: number;
   limit?: number;
 }
@@ -38,6 +39,17 @@ interface PatchConjurationRequest {
   tags?: string[];
 }
 
+interface CreateCollectionConjurationRequest {
+  conjurationId: number;
+  collectionId: number;
+}
+
+interface UpdateCollectionConjurationRequest {
+  id: number;
+  conjurationId: number;
+  collectionId: number;
+}
+
 @Route('conjurations')
 @Tags('Conjurations')
 export default class ConjurationController {
@@ -50,6 +62,7 @@ export default class ConjurationController {
     @Query() campaignId?: number,
     @Query() saved?: boolean,
     @Query() conjurerCodeString?: string,
+    @Query() includesIdString?: string,
     @Query() stylePreset?: ImageStylePreset,
     @Query() tags?: string,
     @Query() offset?: number,
@@ -59,6 +72,10 @@ export default class ConjurationController {
       ?.split(',')
       .map((c) => c.trim())
       .filter((c) => c.length > 0);
+
+    const includedIds = includesIdString
+      ?.split(',')
+      .map((c) => parseInt(c.trim()));
 
     const conjurations = await prisma.conjuration.findMany({
       where: {
@@ -72,6 +89,11 @@ export default class ConjurationController {
         conjurerCode: conjurerCodes?.length
           ? {
               in: conjurerCodes,
+            }
+          : undefined,
+        id: includedIds?.length
+          ? {
+              in: includedIds,
             }
           : undefined,
         published: true,
@@ -118,6 +140,33 @@ export default class ConjurationController {
       })),
       offset: offset,
       limit: limit,
+    };
+  }
+
+  @Security('jwt')
+  @OperationId('getCollectionConjurations')
+  @Get('/collectionConjurations')
+  public async getCollectionConjurations(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Query() collectionId?: number,
+  ): Promise<GetConjurationsResponse> {
+    const collectionConjurations =
+      await prisma.conjurationsToCollections.findMany({
+        where: {
+          collectionId: collectionId,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
+
+    track(AppEvent.GetCollectionConjurations, userId, trackingInfo);
+
+    return {
+      data: collectionConjurations.map((c: any) => ({
+        ...c,
+      })),
     };
   }
 
@@ -248,6 +297,45 @@ export default class ConjurationController {
     });
 
     return updatedConjuration;
+  }
+
+  @Security('jwt')
+  @OperationId('createCollectionConjuration')
+  @Post('/createCollectionConjuration')
+  public async createCollectionConjuration(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Body() request: CreateCollectionConjurationRequest,
+  ): Promise<ConjurationsToCollections> {
+    track(AppEvent.CreateCollectionConjuration, userId, trackingInfo);
+
+    return prisma.conjurationsToCollections.create({
+      data: {
+        conjurationId: request.conjurationId,
+        collectionId: request.collectionId,
+      },
+    });
+  }
+
+  @Security('jwt')
+  @OperationId('updateCollectionConjuration')
+  @Post('/updateCollectionConjuration')
+  public async updateCollectionConjuration(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Body() request: UpdateCollectionConjurationRequest,
+  ): Promise<ConjurationsToCollections> {
+    track(AppEvent.CreateCollectionConjuration, userId, trackingInfo);
+
+    return prisma.conjurationsToCollections.update({
+      where: {
+        id: request.id,
+      },
+      data: {
+        conjurationId: request.conjurationId,
+        collectionId: request.collectionId,
+      },
+    });
   }
 
   @Security('jwt')

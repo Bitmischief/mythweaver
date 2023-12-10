@@ -12,6 +12,7 @@ export interface Conjuration {
   originalId?: number;
   imageAIPrompt: string;
   saved: boolean;
+  [key: string]: any;
 }
 
 export interface GetConjurationsRequest {
@@ -19,6 +20,7 @@ export interface GetConjurationsRequest {
   mine?: boolean;
   saved?: boolean;
   conjurerCodes?: string[] | undefined;
+  includesIdString?: string[] | undefined;
   imageStylePreset?: string;
   tags?: string[];
   offset: number;
@@ -32,8 +34,21 @@ export const getConjurations = (request: GetConjurationsRequest) => {
       mine: request.mine === false ? undefined : request.mine,
       saved: request.saved === false ? undefined : request.saved,
       conjurerCodes: request.conjurerCodes?.join(','),
+      includesIdString: request.includesIdString?.join(','),
       tags: request.tags?.join(','),
       stylePreset: request.imageStylePreset,
+    },
+  });
+};
+
+export interface getCollectionConjurationsRequest {
+  collectionId?: number;
+}
+
+export const getCollectionConjurations = (request: getCollectionConjurationsRequest) => {
+  return axios.get('/conjurations/collectionConjurations', {
+    params: {
+      ...request,
     },
   });
 };
@@ -69,6 +84,22 @@ export interface PatchConjurationsRequest {
 
 export const patchConjuration = (conjurationId: number, request: PatchConjurationsRequest) => {
   return axios.patch(`/conjurations/${conjurationId}`, request);
+};
+
+export interface CreateCollectionConjurationRequest {
+  conjurationId?: number;
+  collectionId?: number;
+}
+export interface UpdateCollectionConjurationRequest {
+  id: number;
+  conjurationId?: number;
+  collectionId?: number;
+}
+export const createCollectionConjuration = (request: CreateCollectionConjurationRequest) => {
+  return axios.post('/conjurations/createCollectionConjuration', request);
+};
+export const updateCollectionConjuration = (request: UpdateCollectionConjurationRequest) => {
+  return axios.post('/conjurations/updateCollectionConjuration', request);
 };
 
 export const deleteConjuration = (conjurationId: number) => {

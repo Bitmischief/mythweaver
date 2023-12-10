@@ -16,16 +16,39 @@
         </div>
         <div class="mt-2 flex justify-between">
           <button
-            class="rounded-lg bg-purple-500 px-4 py-3 shadow-xl"
+            class="rounded-lg bg-purple-500 px-4 py-3 shadow-xl hover:scale-110"
             @click="quickConjure(gen.code)"
           >
             Quick Conjure
           </button>
           <button
-            class="rounded-lg bg-gray-900/75 px-4 py-3 shadow-xl"
+            class="rounded-lg bg-gray-900/75 px-4 py-3 shadow-xl hover:scale-110"
             @click="navigateToConjurer(gen.code)"
           >
             Customize
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- Create Collections -->
+    <div
+      class="flex h-60 cursor-pointer flex-col justify-end rounded-lg bg-cover bg-top shadow-xl md:h-[20rem] 3xl:h-[30rem]"
+      :style="backgroundImageInlineStyle('characters/townfolk/bartender.png')"
+    >
+      <div class="rounded-b-lg bg-black/50 p-4">
+        <div>
+          <div class="text-xl font-bold">Collections</div>
+          <div class="text-gray-300">
+            Create a collection to organize and maintain an orderly group of
+            conjurations.
+          </div>
+        </div>
+        <div class="mt-2 flex justify-end">
+          <button
+            class="rounded-lg bg-gray-900/75 px-4 py-3 shadow-xl hover:scale-110"
+            @click="navigateToCreateCollection"
+          >
+            Create
           </button>
         </div>
       </div>
@@ -64,5 +87,9 @@ async function navigateToConjurer(
   generatorCode: string | undefined = undefined,
 ) {
   await router.push(`/conjurations/conjure/${generatorCode}`);
+}
+
+async function navigateToCreateCollection() {
+  await router.push('/collections/new');
 }
 </script>
