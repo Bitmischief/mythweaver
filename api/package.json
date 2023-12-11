@@ -19,7 +19,7 @@
     "@jest/globals": "^29.7.0",
     "@types/cors": "^2.8.14",
     "@types/express": "^4.17.21",
-    "@types/jest": "^29.5.8",
+    "@types/jest": "^29.5.11",
     "@types/jsonwebtoken": "^9.0.5",
     "@types/mailchimp__mailchimp_marketing": "^3.0.17",
     "@types/mailchimp__mailchimp_transactional": "^1.0.9",
