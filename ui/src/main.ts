@@ -1,5 +1,5 @@
 import { createApp } from 'vue';
-import { defaultConfig, DefaultConfigOptions, plugin } from '@formkit/vue';
+import { defaultConfig, plugin } from '@formkit/vue';
 import config from '../formkit.config.ts';
 
 import '@/index.css';
@@ -15,7 +15,7 @@ const app = createApp(App);
 
 app.use(VueIntercom);
 
-app.use(plugin, defaultConfig(config as unknown as DefaultConfigOptions));
+app.use(plugin, defaultConfig(config()));
 
 initLogging();
 initSessionTracking();

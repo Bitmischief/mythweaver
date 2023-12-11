@@ -1,15 +1,10 @@
-import { generateClasses } from '@formkit/themes';
-import { genesisIcons } from '@formkit/icons';
-import tailwindTheme from './tailwind-theme';
-import { createAutoAnimatePlugin, createAutoHeightTextareaPlugin } from '@formkit/addons'; // change to your theme's path
+import { rootClasses } from './formkit.theme.ts';
+import { createAutoAnimatePlugin, createAutoHeightTextareaPlugin } from '@formkit/addons';
 import { defineFormKitConfig } from '@formkit/vue';
 
 export default defineFormKitConfig({
-  icons: {
-    ...genesisIcons,
-  },
   config: {
-    classes: generateClasses(tailwindTheme),
+    rootClasses,
   },
   plugins: [createAutoAnimatePlugin(), createAutoHeightTextareaPlugin()],
 });

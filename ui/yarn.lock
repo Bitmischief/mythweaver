@@ -244,13 +244,6 @@
     "@formkit/utils" "1.4.0"
     "@formkit/validation" "1.4.0"
 
-"@formkit/icons@^1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@formkit/icons/-/icons-1.4.0.tgz#4c51bc5db32494f5bbb1556b44886fe6e29efdee"
-  integrity sha512-rY2xffy+JtiMO6uOSZP2OOioCcQea7L0QVZa5qkRmlDdlq3rmbBe9Hlv54S2//ZObWFk7p3GaUpBSPMGUb1ZZQ==
-  dependencies:
-    "@formkit/core" "1.4.0"
-
 "@formkit/inputs@1.4.0":
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/@formkit/inputs/-/inputs-1.4.0.tgz#12fd0fb2931d010665d97cedd4e9e7bfaf72d3ae"
