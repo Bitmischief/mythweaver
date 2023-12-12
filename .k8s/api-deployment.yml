@@ -85,7 +85,7 @@ spec:
             - name: SPACES_SECRET
               value: <SPACES_SECRET>
             - name: PUSHER_APP_ID
-              value: <PUSHER_APP_ID>
+              value: "<PUSHER_APP_ID>"
             - name: PUSHER_CLUSTER
               value: <PUSHER_CLUSTER>
             - name: PUSHER_KEY
