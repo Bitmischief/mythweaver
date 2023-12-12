@@ -266,7 +266,7 @@ function handleAudioUpload(payload: { audioUri: string; audioName: string }) {
             >
             <span v-if="session.processing">Processing</span>
             <span v-else-if="session.archived">Archived</span>
-            <span v-if="session.completed">Completed</span>
+            <span v-else-if="session.completed">Completed</span>
           </div>
 
           <div class="mt-4 text-neutral-400">

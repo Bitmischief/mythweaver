@@ -13,9 +13,14 @@ const eventBus = useEventBus();
 const campaignStore = useCampaignStore();
 const router = useRouter();
 
-const sessionsSearch = ref({
+const sessionsSearch = ref<{
+  offset: number;
+  limit: number;
+  archived: boolean | undefined;
+}>({
   offset: 0,
   limit: 25,
+  archived: undefined,
 });
 const sessions = ref<SessionBase[]>([]);
 const loadMore = ref(false);
@@ -66,8 +71,21 @@ async function handleCreateSession() {
 
       <div class="mt-2 self-center md:mt-0 flex justify-between">
         <button
+          class="self-center w-[10rem] underline text-sm mr-4 hover:rounded-md hover:bg-neutral-800 px-4 py-3 transition-all hover:scale-110"
+          @click="
+            sessionsSearch.archived =
+              sessionsSearch.archived === undefined ? true : undefined;
+            init();
+          "
+        >
+          <span v-if="!sessionsSearch.archived" class="self-center"
+            >View Archived</span
+          >
+          <span v-else class="self-center">View All</span>
+        </button>
+        <button
           v-if="currentUserRole === CampaignRole.DM"
-          class="flex w-full self-center rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 px-4 py-3 transition-all hover:scale-110"
+          class="flex justify-center self-center rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 px-4 py-3 transition-all hover:scale-110"
           @click="handleCreateSession"
         >
           <BoltIcon class="mr-2 h-5 w-5 self-center" />
