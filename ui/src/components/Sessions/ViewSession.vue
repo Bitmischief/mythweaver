@@ -241,7 +241,7 @@ function handleAudioUpload(payload: { audioUri: string; audioName: string }) {
               name: undefined,
             }"
             :disable-generation="!session.recap"
-            input-class="$reset text-xl md:text-3xl 3xl:text-5xl border-none bg-transparent text-white w-full pl-0"
+            input-class="$reset text-xl focus:ring-0 md:text-3xl 3xl:text-5xl border-none bg-transparent text-white w-full pl-0"
             outer-class="$reset"
             hide-label
             label="Name"
