@@ -295,7 +295,7 @@ function handleAudioUpload(payload: { audioUri: string; audioName: string }) {
       </div>
     </div>
 
-    <div class="mt-8 h-full">
+    <div class="mt-8">
       <router-view />
     </div>
 
