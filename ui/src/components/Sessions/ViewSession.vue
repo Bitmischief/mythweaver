@@ -140,26 +140,26 @@ function handleAudioUpload(payload: { audioUri: string; audioName: string }) {
 
 <template>
   <div v-if="session" class="my-8 md:min-h-[calc(100%-37rem)] pb-6">
-    <div class="flex justify-between">
+    <div class="md:flex justify-between">
       <router-link
         :to="`/sessions`"
-        class="bg-surface-2 flex rounded-xl border-2 border-gray-600/50 p-3"
+        class="bg-surface-2 flex rounded-md border-2 border-gray-600/50 p-3"
       >
         <ArrowLeftIcon class="mr-2 h-4 w-4 self-center" /> Back to list
       </router-link>
 
       <div v-if="session.processing">
         <div
-          class="animate-pulse bg-amber-700 rounded-md px-3 text-white text-lg"
+          class="animate-pulse md:mt-0 mt-3 bg-amber-700 rounded-md px-3 text-white text-lg"
         >
           Processing...
         </div>
       </div>
 
-      <div class="flex">
+      <div class="md:flex">
         <button
           v-if="session.summary && !session.completed"
-          class="h-12 rounded-md self-center bg-green-500 mr-2 px-3 py-1 transition-all hover:scale-110"
+          class="h-12 rounded-md self-center bg-green-500 mt-3 md:mt-0 w-full md:w-auto md:mr-2 px-3 py-1 transition-all hover:scale-110"
           :disabled="loadingCompleteSession"
           @click="completeSession"
         >
@@ -169,21 +169,21 @@ function handleAudioUpload(payload: { audioUri: string; audioName: string }) {
 
         <AudioPlayback
           v-if="session.audioUri"
-          class="self-center"
+          class="self-center mt-3 md:mt-0 mx-auto md:mx-0"
           :audio-uri="session.audioUri"
         />
         <div
           v-else
-          class="h-12 self-center rounded-md bg-fuchsia-500 flex px-3 py-1 transition-all hover:scale-110 cursor-pointer"
+          class="h-12 self-center mt-3 md:mt-0 w-full md:w-auto rounded-md bg-fuchsia-500 flex px-3 py-1 transition-all hover:scale-110 cursor-pointer"
           @click="showUploadAudioModal = true"
         >
           <MicrophoneIcon class="w-5 h-5 mr-1 self-center" />
           <span class="self-center">Upload Audio</span>
         </div>
 
-        <Menu class="self-center">
+        <Menu class="mt-3 md:mt-0 self-center md:ml-0 md:w-auto">
           <MenuButton
-            class="bg-surface-2 ml-2 self-center flex h-12 w-full justify-center rounded-md border-2 border-gray-600/50 px-3 py-1 text-white transition-all hover:scale-110"
+            class="bg-surface-2 md:ml-2 self-center flex h-12 w-full justify-center rounded-md border-2 border-gray-600/50 px-3 py-1 text-white transition-all hover:scale-110"
           >
             <span class="text-md self-center"> More </span>
             <ChevronDownIcon
@@ -231,7 +231,7 @@ function handleAudioUpload(payload: { audioUri: string; audioName: string }) {
           />
         </div>
 
-        <div class="md:ml-6 w-full">
+        <div class="md:ml-6 mt-3 md:mt-0 w-full">
           <RegeneratableTextEdit
             v-model="session.name"
             auto-height

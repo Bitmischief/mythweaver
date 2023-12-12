@@ -122,7 +122,7 @@ async function clickSaveSession() {
     />
   </template>
 
-  <div class="flex justify-end">
+  <div v-if="session.summary" class="flex justify-end">
     <button
       class="rounded-md bg-green-500 text-lg py-1 px-3"
       @click="clickSaveSession"
