@@ -7,16 +7,14 @@ defineProps<{
 </script>
 
 <template>
-  <div
-    class="w-[150px] md:w-[400px] transition-all ease-in-out hover:scale-[105%]"
-  >
+  <div class="transition-all ease-in-out hover:scale-[105%]">
     <div class="bg-neutral-900 rounded-[10px]">
       <div
         class="relative rounded-tl-[10px] rounded-tr-[10px] bg-neutral-600 flex justify-center"
       >
         <img
           :src="session.imageUri || '/images/session_bg_square.png'"
-          class="md:w-[400px] md:h-[400px] object-cover rounded-t-[10px]"
+          class="object-cover rounded-t-[10px]"
         />
       </div>
 

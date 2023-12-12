@@ -95,14 +95,17 @@ async function handleCreateSession() {
     </div>
   </div>
 
-  <div v-if="sessions.length" class="flex flex-wrap">
+  <div
+    v-if="sessions.length"
+    class="grid grid-cols-1 place-items-stretch lg:grid-cols-2 2xl:grid-cols-3 3xl:grid-cols-4 gap-4"
+  >
     <router-link
       v-for="(session, i) of sessions"
       :key="i"
       :to="`/sessions/${session.id}/planning`"
       class="mr-6"
     >
-      <Session :session="session" :full="false" class="mb-6" />
+      <Session :session="session" :full="false" />
     </router-link>
   </div>
   <div v-else>
