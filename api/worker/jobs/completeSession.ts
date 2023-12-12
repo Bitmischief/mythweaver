@@ -104,6 +104,7 @@ export const completeSession = async (request: CompleteSessionEvent) => {
     data: {
       imageUri: !session?.imageUri ? imageUri : undefined,
       suggestedImageUri: imageUri,
+      processing: false,
     },
   });
 

@@ -46,6 +46,7 @@ onMounted(async () => {
     session.value.summary = data.summary;
     session.value.recap = data.recap;
     session.value.suggestions = data.suggestions;
+    session.value.processing = data.processing;
   });
 
   const channel = pusher.subscribe(userId.value.toString());
@@ -56,6 +57,7 @@ onMounted(async () => {
   channel.bind(ServerEvent.SessionImageUpdated, function (data: any) {
     session.value.imageUri = data.imageUri;
     session.value.suggestedImageUri = data.suggestedImageUri;
+    session.value.processing = data.processing;
   });
 });
 
@@ -157,7 +159,7 @@ function handleAudioUpload(payload: { audioUri: string; audioName: string }) {
       <div class="flex">
         <button
           v-if="session.summary && !session.completed"
-          class="h-12 rounded-md self-center bg-fuchsia-500 px-3 py-1 transition-all hover:scale-110"
+          class="h-12 rounded-md self-center bg-green-500 mr-2 px-3 py-1 transition-all hover:scale-110"
           :disabled="loadingCompleteSession"
           @click="completeSession"
         >
