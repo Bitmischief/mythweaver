@@ -89,21 +89,23 @@ export const completeSession = async (request: CompleteSessionEvent) => {
     updatedSession,
   );
 
-  const imageUri = (
-    await generateImage({
-      userId: request.userId,
-      prompt: gptJsonParsed.prompt,
-      count: 1,
-    })
-  )[0];
+  const uris = await generateImage({
+    userId: request.userId,
+    prompt: gptJsonParsed.prompt,
+    count: 1,
+  });
+
+  if (!uris) {
+    throw new Error('Error generating image');
+  }
 
   updatedSession = await prisma.session.update({
     where: {
       id: request.sessionId,
     },
     data: {
-      imageUri: !session?.imageUri ? imageUri : undefined,
-      suggestedImageUri: imageUri,
+      imageUri: !session?.imageUri ? uris[0] : undefined,
+      suggestedImageUri: uris[0],
       processing: false,
     },
   });

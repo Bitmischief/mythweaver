@@ -14,6 +14,8 @@ export enum ServerEvent {
   ConjurationCreated = 'conjuration-created',
   ConjurationError = 'conjuration-error',
   ImageCreated = 'image-created',
+  ImageFiltered = 'image-filtered',
+  ImagePromptRephrased = 'image-prompt-rephrased',
   ImageError = 'image-error',
   SessionUpdated = 'session-updated',
   SessionImageUpdated = 'session-image-updated',

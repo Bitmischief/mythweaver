@@ -9,6 +9,8 @@ const props = defineProps<{
   prompt?: string;
   editable?: boolean;
   alt?: string;
+  imageConjurationFailed?: boolean;
+  imageConjurationFailureReason?: string;
 }>();
 
 const emit = defineEmits(['set-image']);
@@ -40,7 +42,7 @@ function showImage() {
 
 <template>
   <div class="relative">
-    <div v-if="editable && imageUri" class="absolute flex top-2 right-2">
+    <div class="absolute flex top-2 right-2">
       <button
         class="bg-neutral-800 border border-neutral-600 px-2 md:px-4 rounded-md flex transition-all h-8 md:h-12 hover:scale-110"
         @click="showCustomizeImageModal"
@@ -69,8 +71,19 @@ function showImage() {
       v-else
       class="w-full min-h-[20rem] flex justify-center h-full bg-surface"
     >
-      <div class="self-center text-center text-[2rem] text-white animate-pulse">
+      <div
+        v-if="!imageConjurationFailed"
+        class="self-center text-center text-[2rem] text-white animate-pulse"
+      >
         Conjuring image...
+      </div>
+      <div v-else class="flex">
+        <div class="self-center text-red-300">
+          <div class="text-center text-[2rem]">Conjuration failed</div>
+          <div class="text-center text-[1rem]">
+            {{ imageConjurationFailureReason }}
+          </div>
+        </div>
       </div>
     </div>
   </div>

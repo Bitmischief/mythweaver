@@ -11,6 +11,8 @@ import CustomizableImage from '@/components/Images/CustomizableImage.vue';
 
 const props = defineProps<{
   conjuration: Conjuration;
+  imageConjurationFailed?: boolean;
+  imageConjurationFailureReason?: string;
 }>();
 
 const eventBus = useEventBus();
@@ -131,6 +133,8 @@ function normalizeKeyName(key: string) {
           :prompt="editableConjuration.imageAIPrompt"
           :editable="editable"
           :alt="editableConjuration.name"
+          :image-conjuration-failed="imageConjurationFailed"
+          :image-conjuration-failure-reason="imageConjurationFailureReason"
         />
 
         <div class="mt-4 text-4xl font-bold text-center">

@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import { useAuthStore } from '@/store';
 import { postQuickConjure } from '@/api/generators.ts';
 import { useRouter } from 'vue-router';
+import { pusher } from '@/lib/serverEvents.ts';
 
 export function useSelectedCampaignId() {
   const store = useCampaignStore();
@@ -31,4 +32,14 @@ export function useEarlyAccessCutoff() {
 export function useEarlyAccessExempt() {
   const store = useAuthStore();
   return computed(() => store.user?.earlyAccessExempt || false);
+}
+
+export function useWebsocketChannel() {
+  const userId = useCurrentUserId();
+
+  if (!userId.value) {
+    throw new Error('No userId to bind server events to!');
+  }
+
+  return pusher.subscribe(userId.value.toString());
 }

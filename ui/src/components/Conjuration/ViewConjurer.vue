@@ -6,17 +6,19 @@ import SummoningLoader from '@/components/Conjuration/ConjuringLoader.vue';
 import ConfigureConjure from '@/components/Conjuration/ViewConjurer/ConfigureConjure.vue';
 import CustomizeConjuration from '@/components/Conjuration/ViewConjuration/CustomizeConjuration.vue';
 import ConfigureConjureActions from '@/components/Conjuration/ViewConjurer/ConfigureConjureActions.vue';
-import { useCurrentUserId } from '@/lib/hooks.ts';
-import { pusher, ServerEvent } from '@/lib/serverEvents.ts';
+import { useWebsocketChannel } from '@/lib/hooks.ts';
+import { ServerEvent } from '@/lib/serverEvents.ts';
 import { showError } from '@/lib/notifications.ts';
 
 const route = useRoute();
-const userId = useCurrentUserId();
+const channel = useWebsocketChannel();
 
 const summoner = ref<Conjurer | undefined>(undefined);
 
 const generating = ref(false);
 const animationDone = ref(false);
+const imageGenerationFailed = ref(false);
+const imageGenerationFailureReason = ref('');
 
 const conjurationRequestId = ref<number | undefined>(undefined);
 
@@ -51,11 +53,6 @@ function handleBeginConjuring(data: { conjurationRequestId: number }) {
 
   conjurationRequestId.value = data.conjurationRequestId;
 
-  if (!userId.value) {
-    throw new Error('No userId to bind server events to!');
-  }
-
-  const channel = pusher.subscribe(userId.value.toString());
   channel.bind(ServerEvent.ConjurationCreated, function (data: any) {
     generating.value = false;
     createdConjuration.value = data;
@@ -73,11 +70,22 @@ function handleBeginConjuring(data: { conjurationRequestId: number }) {
     createdConjuration.value.imageUri = data.uri;
   });
 
-  channel.bind(ServerEvent.ImageError, function () {
+  channel.bind(ServerEvent.ImageFiltered, function () {
+    const message =
+      'The generated image was filtered out by our content moderation system. Please try again.';
     showError({
-      message:
-        'There was a server error creating your image. Reach out to support for help resolving this issue.',
+      message,
     });
+    imageGenerationFailed.value = true;
+    imageGenerationFailureReason.value = message;
+  });
+
+  channel.bind(ServerEvent.ImageError, function (data: any) {
+    showError({
+      message: data.message,
+    });
+    imageGenerationFailed.value = true;
+    imageGenerationFailureReason.value = data.message;
   });
 }
 </script>
@@ -131,7 +139,11 @@ function handleBeginConjuring(data: { conjurationRequestId: number }) {
           </template>
           <template v-else-if="conjuration">
             <div class="p-4">
-              <CustomizeConjuration :conjuration="conjuration" />
+              <CustomizeConjuration
+                :conjuration="conjuration"
+                :image-conjuration-failed="imageGenerationFailed"
+                :image-conjuration-failure-reason="imageGenerationFailureReason"
+              />
             </div>
           </template>
         </div>

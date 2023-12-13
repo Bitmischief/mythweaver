@@ -213,7 +213,7 @@ async function confirmEarlyAccessTerms() {
 
   <ModalAlternate :show="showCustomizeImageModal" extra-dark>
     <div
-      class="md:w-[800px] p-2 md:p-6 md:px-12 bg-neutral-900 rounded-[20px] text-white text-center"
+      class="w-[90vw] max-h-[80vh] p-2 md:p-6 md:px-12 pb-6 overflow-y-auto bg-neutral-900 rounded-[20px] text-white text-center"
     >
       <CustomizeConjurationImage
         :prompt="customizeImageArgs?.prompt"

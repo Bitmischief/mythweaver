@@ -20,12 +20,12 @@ export default class ImageController {
   @Security('jwt')
   @OperationId('generateImage')
   @Post('/')
-  public async postImage(
+  public postImage(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
     @Body() request: PostImageRequest,
-  ): Promise<any> {
-    return await generateImage({
+  ): void {
+    generateImage({
       userId,
       prompt: request.prompt,
       count: 3,

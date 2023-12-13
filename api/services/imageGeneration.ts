@@ -1,12 +1,14 @@
-import axios from 'axios';
+import axios, { AxiosError, AxiosResponse } from 'axios';
 import fs from 'node:fs';
 import { v4 as uuidv4 } from 'uuid';
 import { isLocalDevelopment } from '../lib/utils';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { sleep } from 'openai/core';
 import { prisma } from '../lib/providers/prisma';
 import { ImageStylePreset } from '../controllers/images';
 import { sendWebsocketMessage, WebSocketEvent } from './websockets';
+import { rephraseImagePrompt } from './promptHelper';
+import { parentLogger } from '../lib/logger';
+const logger = parentLogger.getSubLogger();
 
 const s3 = new S3Client({
   endpoint: 'https://sfo3.digitaloceanspaces.com',
@@ -25,8 +27,9 @@ interface GenerationResponse {
   artifacts: Array<{
     base64: string;
     seed: number;
-    finishReason: string;
+    finishReason: 'SUCCESS' | 'CONTENT_FILTERED' | 'ERROR';
   }>;
+  updatedPrompt?: string | undefined;
 }
 
 export interface ImageRequest {
@@ -47,74 +50,149 @@ export const generateImage = async (request: ImageRequest) => {
 
   const preset = request.stylePreset || 'fantasy-art';
 
-  const response = await axios.post(
-    `${apiHost}/v1/generation/${engineId}/text-to-image`,
-    {
-      text_prompts: [
-        {
-          text: request.prompt,
-          weight: 1,
-        },
-        {
-          text: `blurry, bad, ${request.negativePrompt}`,
-          weight: -1,
-        },
-      ],
-      cfg_scale: 7,
-      height: 1024,
-      width: 1024,
-      steps: 30,
-      samples: request.count,
-      style_preset: preset,
-    },
-    {
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-    },
-  );
-
-  if (!response.status.toString().startsWith('2')) {
-    throw new Error(`Non-200 response: ${response.data}`);
-  }
-
-  const responseJSON = response.data as GenerationResponse;
   const urls: string[] = [];
+  let validImageCount = 0;
+  let tries = 0;
+  const maxImageTries = 30;
 
-  for (const image of responseJSON.artifacts) {
-    const imageId = uuidv4();
-    let url = '';
+  do {
+    tries += request.count;
 
-    if (!isLocalDevelopment) {
-      url = await uploadImage(imageId, image.base64);
-    } else {
-      url = saveImageLocally(imageId, image.base64);
+    const imageResponse = await postToStableDiffusion(request, preset);
+
+    if (!imageResponse) {
+      return undefined;
     }
 
-    await sleep(1000);
-    urls.push(url);
+    if (imageResponse.updatedPrompt) {
+      await sendWebsocketMessage(
+        request.userId,
+        WebSocketEvent.ImagePromptRephrased,
+        imageResponse.updatedPrompt,
+      );
+    }
 
-    const createdImage = await prisma.image.create({
-      data: {
-        userId: request.userId,
-        uri: url,
-        prompt: request.prompt,
-        negativePrompt: request.negativePrompt,
-        stylePreset: preset,
-        ...request.linking,
-      },
-    });
-
-    await sendWebsocketMessage(
-      request.userId,
-      WebSocketEvent.ImageCreated,
-      createdImage,
+    const artifacts = imageResponse.artifacts.filter(
+      (a) => a.finishReason === 'SUCCESS',
     );
+    validImageCount += artifacts.length;
+
+    if (validImageCount > request.count) {
+      const extraCount = validImageCount - request.count;
+      artifacts.splice(artifacts.length - extraCount, extraCount);
+    }
+
+    for (const image of artifacts) {
+      const imageId = uuidv4();
+      let url = '';
+
+      if (!isLocalDevelopment) {
+        url = await uploadImage(imageId, image.base64);
+      } else {
+        url = saveImageLocally(imageId, image.base64);
+      }
+
+      urls.push(url);
+
+      const createdImage = await prisma.image.create({
+        data: {
+          userId: request.userId,
+          uri: url,
+          prompt: request.prompt,
+          negativePrompt: request.negativePrompt,
+          stylePreset: preset,
+          ...request.linking,
+        },
+      });
+
+      await sendWebsocketMessage(
+        request.userId,
+        WebSocketEvent.ImageCreated,
+        createdImage,
+      );
+    }
+  } while (validImageCount < request.count && tries < maxImageTries);
+
+  if (validImageCount < request.count) {
+    await sendWebsocketMessage(request.userId, WebSocketEvent.ImageFiltered, {
+      message:
+        'The image generation service was unable to generate an image that met the criteria. Please try again.',
+    });
   }
 
   return urls;
+};
+
+const postToStableDiffusion = async (
+  request: ImageRequest,
+  preset: string,
+  promptHistory: string[] = [],
+  depth = 0,
+): Promise<GenerationResponse | undefined> => {
+  if (depth > 5) {
+    return undefined;
+  }
+
+  let response: AxiosResponse<any, any>;
+
+  try {
+    response = await axios.post(
+      `${apiHost}/v1/generation/${engineId}/text-to-image`,
+      {
+        text_prompts: [
+          {
+            text: request.prompt,
+            weight: 1,
+          },
+          {
+            text: `blurry, bad, ${request.negativePrompt}`,
+            weight: -1,
+          },
+        ],
+        cfg_scale: 7,
+        height: 1024,
+        width: 1024,
+        steps: 30,
+        samples: request.count,
+        style_preset: preset,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Authorization: `Bearer ${apiKey}`,
+        },
+      },
+    );
+  } catch (err) {
+    if ((err as AxiosError)?.response?.status === 400) {
+      logger.info(
+        'Received 400 from Stable Diffusion',
+        (err as AxiosError)?.response?.data,
+      );
+      logger.warn(`Image prompt: ${request.prompt} failed.`);
+
+      promptHistory.push(request.prompt);
+      request.prompt = await rephraseImagePrompt(promptHistory);
+      return await postToStableDiffusion(
+        request,
+        preset,
+        promptHistory,
+        ++depth,
+      );
+    } else {
+      await sendWebsocketMessage(request.userId, WebSocketEvent.ImageError, {
+        message: 'There was an error generating your image. Please try again.',
+      });
+
+      return undefined;
+    }
+  }
+
+  return {
+    artifacts: response.data.artifacts,
+    updatedPrompt: request.prompt,
+  };
 };
 
 export const saveImageLocally = (imageId: string, imageBase64: string) => {
