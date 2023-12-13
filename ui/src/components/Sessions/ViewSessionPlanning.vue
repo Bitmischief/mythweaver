@@ -37,10 +37,7 @@ async function clickSaveSession() {
     v-model="session.planning"
     label="Planning"
     type="textarea"
-    outer-class="h-full"
-    wrapper-class="h-full"
-    inner-class="h-full"
-    input-class="$reset formkit-input appearance-none bg-transparent focus:outline-none focus:ring-0 focus:shadow-none text-xl gradient-border-no-opacity w-full resize-none h-full"
+    auto-height
     placeholder="Last Session Recap:
 - Discovered the ancient map leading to the Lost Temple.
 - Escaped the ambush set by the Crimson Bandit Guild.
