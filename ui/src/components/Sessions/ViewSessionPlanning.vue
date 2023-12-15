@@ -3,8 +3,11 @@ import { getSession, patchSession, SessionBase } from '@/api/sessions.ts';
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { showError, showSuccess } from '@/lib/notifications.ts';
+import { useCurrentUserRole } from '@/lib/hooks.ts';
+import { CampaignRole } from '@/api/campaigns.ts';
 
 const route = useRoute();
+const currentUserRole = useCurrentUserRole();
 
 const session = ref<SessionBase>({} as SessionBase);
 
@@ -37,6 +40,7 @@ async function clickSaveSession() {
     v-model="session.planning"
     label="Planning"
     type="textarea"
+    :disabled="currentUserRole !== CampaignRole.DM"
     auto-height
     placeholder="Last Session Recap:
 - Discovered the ancient map leading to the Lost Temple.

@@ -62,11 +62,14 @@ async function generate() {
       :help="help"
       :type="type"
       :input-class="inputClass"
-      :outer-class="`${outerClass} w-[calc(100%-2rem)]`"
+      :outer-class="`${outerClass} ${
+        disabled ? 'w-full' : 'w-[calc(100%-2rem)]'
+      }`"
+      :disabled="disabled"
     />
 
     <ArrowPathIcon
-      v-if="!disableGeneration"
+      v-if="!disableGeneration && !disabled"
       class="h-8 w-8 text-gray-400 cursor-pointer self-center ml-2"
       :class="{ 'animate-spin': isPropertyGenerating }"
       @click="generate"
@@ -74,7 +77,7 @@ async function generate() {
   </div>
 
   <Suggestion
-    v-if="suggestion"
+    v-if="suggestion && !disabled"
     class="my-2"
     :suggestion="suggestion"
     @accept="

@@ -5,10 +5,12 @@
     aria-labelledby="modal-title"
     role="dialog"
     aria-modal="true"
+    @click="emit('close')"
   >
     <div
       class="fixed inset-0 bg-black bg-opacity-5 backdrop-blur-[3px] transition-opacity"
       :class="{ 'bg-opacity-5': !extraDark, 'bg-opacity-90': extraDark }"
+      @click="emit('close')"
     ></div>
 
     <div class="fixed inset-0 z-10 overflow-y-auto" @click="emit('close')">

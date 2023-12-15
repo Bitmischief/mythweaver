@@ -14,18 +14,20 @@ import Menu from '@/components/Core/General/Menu.vue';
 import { ChevronDownIcon, MicrophoneIcon } from '@heroicons/vue/20/solid';
 import { MenuButton, MenuItem } from '@headlessui/vue';
 import { pusher, ServerEvent } from '@/lib/serverEvents.ts';
-import { useCurrentUserId } from '@/lib/hooks.ts';
+import { useCurrentUserId, useCurrentUserRole } from '@/lib/hooks.ts';
 import CustomizableImage from '@/components/Images/CustomizableImage.vue';
 import { useEventBus } from '@/lib/events.ts';
 import RegeneratableTextEdit from '@/components/Core/Forms/RegeneratableTextEdit.vue';
 import AudioUpload from '@/components/Core/Forms/AudioUpload.vue';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import AudioPlayback from '@/components/Core/General/AudioPlayback.vue';
+import { CampaignRole } from '@/api/campaigns.ts';
 
 const route = useRoute();
 const router = useRouter();
 const userId = useCurrentUserId();
 const eventBus = useEventBus();
+const currentUserRole = useCurrentUserRole();
 
 const session = ref<SessionBase>({} as SessionBase);
 const loadingCompleteSession = ref(false);
@@ -38,15 +40,18 @@ onMounted(async () => {
     throw new Error('No userId to bind server events to!');
   }
 
-  eventBus.$on('session-processing', () => {
+  eventBus.$on('session-processing', (payload: { recap: string }) => {
     session.value.processing = true;
+    session.value.recap = payload.recap;
   });
 
-  eventBus.$on('session-summary-panel-updated', (data: any) => {
+  eventBus.$on('session-summary-panel-updated', async (data: any) => {
     session.value.summary = data.summary;
     session.value.recap = data.recap;
     session.value.suggestions = data.suggestions;
     session.value.processing = data.processing;
+
+    await router.push('summary');
   });
 
   const channel = pusher.subscribe(userId.value.toString());
@@ -99,6 +104,20 @@ async function clickDeleteSession() {
     }
   } else {
     showError({ message: 'Failed to delete session. Try again soon!' });
+  }
+}
+
+async function clickUnarchiveSession() {
+  const putSessionResponse = await patchSession({
+    ...session.value,
+    archived: false,
+  });
+
+  if (putSessionResponse.status === 200) {
+    showSuccess({ message: 'Session unarchived successfully!' });
+    await init();
+  } else {
+    showError({ message: 'Failed to unarchive session. Try again soon!' });
   }
 }
 
@@ -156,7 +175,7 @@ function handleAudioUpload(payload: { audioUri: string; audioName: string }) {
         </div>
       </div>
 
-      <div class="md:flex">
+      <div v-if="currentUserRole === CampaignRole.DM" class="md:flex">
         <button
           v-if="session.summary && !session.completed"
           class="h-12 rounded-md self-center bg-green-500 mt-3 md:mt-0 w-full md:w-auto md:mr-2 px-3 py-1 transition-all hover:scale-110"
@@ -201,14 +220,24 @@ function handleAudioUpload(payload: { audioUri: string; audioName: string }) {
                   Archive
                 </button>
               </MenuItem>
-              <MenuItem v-if="session.archived">
-                <button
-                  class="w-full rounded-xl border-2 border-red-500 px-3 py-1"
-                  @click="clickDeleteSession"
-                >
-                  Delete
-                </button>
-              </MenuItem>
+              <template v-else>
+                <MenuItem>
+                  <button
+                    class="w-full rounded-xl border-2 border-green-500 px-3 py-1 mb-3"
+                    @click="clickUnarchiveSession"
+                  >
+                    Unarchive
+                  </button>
+                </MenuItem>
+                <MenuItem>
+                  <button
+                    class="w-full rounded-xl border-2 border-red-500 px-3 py-1"
+                    @click="clickDeleteSession"
+                  >
+                    Delete
+                  </button>
+                </MenuItem>
+              </template>
             </div>
           </template>
         </Menu>
@@ -219,12 +248,11 @@ function handleAudioUpload(payload: { audioUri: string; audioName: string }) {
       <div class="md:flex mb-6">
         <div>
           <CustomizableImage
-            :editable="true"
+            :editable="currentUserRole === CampaignRole.DM"
             :image-uri="session.imageUri || '/images/session_bg_square.png'"
             :prompt="session.suggestedImagePrompt"
             class="rounded-md w-[20rem]"
             @set-image="
-              console.log('set-image', $event);
               session.imageUri = $event.imageUri;
               session.suggestedImagePrompt = $event.prompt;
             "
@@ -234,6 +262,7 @@ function handleAudioUpload(payload: { audioUri: string; audioName: string }) {
         <div class="md:ml-6 mt-3 md:mt-0 w-full">
           <RegeneratableTextEdit
             v-model="session.name"
+            :disabled="currentUserRole !== CampaignRole.DM"
             auto-height
             context="session"
             :background="{
@@ -278,13 +307,19 @@ function handleAudioUpload(payload: { audioUri: string; audioName: string }) {
         </div>
       </div>
       <div
-        class="flex gap-4 text-neutral-400 rounded-md uppercase w-full bg-neutral-800 py-4 px-2"
+        class="flex gap-8 text-neutral-400 rounded-md uppercase w-full bg-neutral-800 py-4 px-2"
       >
         <router-link
           to="planning"
           :class="{ 'text-white font-bold': route.path.endsWith('planning') }"
         >
           Planning
+        </router-link>
+        <router-link
+          to="recap"
+          :class="{ 'text-white font-bold': route.path.endsWith('recap') }"
+        >
+          Game Master Recap
         </router-link>
         <router-link
           to="summary"
@@ -299,7 +334,10 @@ function handleAudioUpload(payload: { audioUri: string; audioName: string }) {
       <router-view />
     </div>
 
-    <ModalAlternate :show="showUploadAudioModal">
+    <ModalAlternate
+      :show="showUploadAudioModal"
+      @close="showUploadAudioModal = false"
+    >
       <div class="md:w-[499px] p-6 bg-neutral-900 rounded-[20px]">
         <AudioUpload :session="session" @audio-uploaded="handleAudioUpload" />
       </div>

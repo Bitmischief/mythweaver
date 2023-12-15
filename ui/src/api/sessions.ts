@@ -42,6 +42,7 @@ export interface PatchSessionRequest {
   transcript?: string | undefined;
   description?: string | undefined;
   campaignId: number;
+  archived?: boolean | undefined;
 }
 
 export interface PostGenerateSummaryRequest {

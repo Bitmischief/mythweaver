@@ -94,6 +94,7 @@ router.post('/', [
 
 const patchSessionsSchema = z.object({
   name: z.string().nullable().optional(),
+  archived: z.boolean().nullable().optional(),
   planning: z.string().nullable().optional(),
   imageUri: z.string().nullable().optional(),
   recap: z.string().nullable().optional(),

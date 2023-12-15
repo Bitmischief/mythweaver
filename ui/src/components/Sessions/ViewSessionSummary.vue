@@ -1,21 +1,18 @@
 <script lang="ts" setup>
-import {
-  getSession,
-  patchSession,
-  postGenerateSummary,
-  SessionBase,
-} from '@/api/sessions.ts';
+import { getSession, patchSession, SessionBase } from '@/api/sessions.ts';
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { showError, showSuccess } from '@/lib/notifications.ts';
 import { pusher, ServerEvent } from '@/lib/serverEvents.ts';
-import { useCurrentUserId } from '@/lib/hooks.ts';
+import { useCurrentUserId, useCurrentUserRole } from '@/lib/hooks.ts';
 import { useEventBus } from '@/lib/events.ts';
 import RegeneratableTextEdit from '@/components/Core/Forms/RegeneratableTextEdit.vue';
+import { CampaignRole } from '@/api/campaigns.ts';
 
 const route = useRoute();
 const userId = useCurrentUserId();
 const eventBus = useEventBus();
+const currentUserRole = useCurrentUserRole();
 
 const session = ref<SessionBase>({} as SessionBase);
 
@@ -39,31 +36,6 @@ async function init() {
   session.value = response.data as SessionBase;
 }
 
-async function generateSummary() {
-  if (!session.value.recap) {
-    showError({ message: 'You must provide a recap first!' });
-    return;
-  }
-
-  try {
-    await postGenerateSummary(session.value.id, {
-      recap: session.value.recap || '',
-    });
-
-    eventBus.$emit('session-updated', {
-      summary: session.value.summary,
-      suggestedSummary: session.value.suggestedSummary,
-    });
-
-    showSuccess({
-      message:
-        'Generating summary. This session will update soon with an image, summary and suggestions.',
-    });
-  } catch (e) {
-    showError({ message: 'Failed to complete session. Try again soon!' });
-  }
-}
-
 async function clickSaveSession() {
   const putSessionResponse = await patchSession({
     ...session.value,
@@ -83,25 +55,19 @@ async function clickSaveSession() {
 </script>
 
 <template>
-  <FormKit
-    v-model="session.recap"
-    auto-height
-    label="Game Master's Recap"
-    type="textarea"
-  />
-
-  <template v-if="!session.summary">
-    <button
-      class="rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 px-4 py-1 h-12 transition-all hover:scale-110"
-      @click="generateSummary"
+  <div v-if="!session.summary" class="text-center text-neutral-300 text-xl">
+    No summary yet. Provide a
+    <router-link to="recap" class="underline text-fuchsia-200"
+      >recap</router-link
     >
-      Generate Summary
-    </button>
-  </template>
+    and click "Generate Summary" to get started.
+  </div>
+
   <template v-if="session.summary || session.suggestedSummary">
     <RegeneratableTextEdit
       v-model="session.summary"
       auto-height
+      :disabled="currentUserRole !== CampaignRole.DM"
       context="session"
       :background="session"
       label="Summary"
@@ -113,6 +79,7 @@ async function clickSaveSession() {
     <RegeneratableTextEdit
       v-model="session.suggestions"
       auto-height
+      :disabled="currentUserRole !== CampaignRole.DM"
       context="session"
       :background="session"
       label="Suggestions"
@@ -122,7 +89,10 @@ async function clickSaveSession() {
     />
   </template>
 
-  <div v-if="session.summary" class="flex justify-end">
+  <div
+    v-if="session.summary && currentUserRole === CampaignRole.DM"
+    class="flex justify-end"
+  >
     <button
       class="rounded-md bg-green-500 text-lg py-1 px-3"
       @click="clickSaveSession"

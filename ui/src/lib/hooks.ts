@@ -1,8 +1,8 @@
 import { useCampaignStore } from '@/store/campaign.store.ts';
-import { computed } from 'vue';
+import { computed, onMounted, Ref } from 'vue';
 import { useAuthStore } from '@/store';
 import { postQuickConjure } from '@/api/generators.ts';
-import { useRouter } from 'vue-router';
+import { onBeforeRouteLeave, useRouter } from 'vue-router';
 import { pusher } from '@/lib/serverEvents.ts';
 
 export function useSelectedCampaignId() {
@@ -42,4 +42,23 @@ export function useWebsocketChannel() {
   }
 
   return pusher.subscribe(userId.value.toString());
+}
+
+export function useUnsavedChangesWarning(originalValue: Ref<any>, currentValue: Ref<any>) {
+  onMounted(() => {
+    onBeforeRouteLeave(() => {
+      console.log('originalValue', originalValue.value);
+      console.log('currentValue', currentValue.value);
+      if (JSON.stringify(originalValue.value) === JSON.stringify(currentValue.value)) {
+        return true;
+      }
+
+      return window.confirm('Do you really want to leave? you have unsaved changes!');
+    });
+  });
+}
+
+export function useCurrentUserRole() {
+  const campaignStore = useCampaignStore();
+  return computed(() => campaignStore.selectedCampaignRole);
 }
