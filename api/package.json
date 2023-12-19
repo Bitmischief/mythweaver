@@ -46,7 +46,7 @@
     "typescript": "^5.3.2"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.429.0",
+    "@aws-sdk/client-s3": "^3.474.0",
     "@mailchimp/mailchimp_marketing": "^3.0.80",
     "@mailchimp/mailchimp_transactional": "^1.0.50",
     "@prisma/client": "^5.7.1",
