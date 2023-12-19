@@ -153,7 +153,7 @@ router.delete('/:sessionId', [
 ]);
 
 const postGenerateSummarySchema = z.object({
-  recap: z.string().max(10000),
+  recap: z.string().max(15000),
 });
 
 router.post('/:sessionId/generate-summary', [

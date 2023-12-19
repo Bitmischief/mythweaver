@@ -8,6 +8,7 @@ import {
   sendWebsocketMessage,
   WebSocketEvent,
 } from '../../services/websockets';
+import { Session } from '@prisma/client';
 
 const logger = parentLogger.getSubLogger();
 const openai = getClient();
@@ -63,56 +64,73 @@ export const completeSession = async (request: CompleteSessionEvent) => {
 
   logger.info('Received summary from openai', gptJsonParsed);
 
-  let updatedSession = await prisma.session.update({
-    where: {
-      id: request.sessionId,
-    },
-    data: {
-      name: session?.name === 'New Session' ? gptJsonParsed.name : undefined,
-      summary: !session?.summary ? gptJsonParsed.summary : undefined,
-      suggestions: !session?.suggestions
-        ? gptJsonParsed.suggestions
-        : undefined,
-      suggestedName:
-        session?.name === 'New Session' ? undefined : gptJsonParsed.name,
-      suggestedSummary: !session?.summary ? undefined : gptJsonParsed.summary,
-      suggestedSuggestions: !session?.suggestions
-        ? undefined
-        : gptJsonParsed.suggestions,
-      suggestedImagePrompt: gptJsonParsed.prompt,
-    },
-  });
+  if (session?.summary) {
+    await prisma.session.update({
+      where: {
+        id: request.sessionId,
+      },
+      data: {
+        suggestedSummary: gptJsonParsed.summary,
+      },
+    });
+  } else {
+    await prisma.session.update({
+      where: {
+        id: request.sessionId,
+      },
+      data: {
+        name: session?.name === 'New Session' ? gptJsonParsed.name : undefined,
+        summary: !session?.summary ? gptJsonParsed.summary : undefined,
+        suggestions: !session?.suggestions
+          ? gptJsonParsed.suggestions
+          : undefined,
+        suggestedName:
+          session?.name === 'New Session' ? undefined : gptJsonParsed.name,
+        suggestedSummary: !session?.summary ? undefined : gptJsonParsed.summary,
+        suggestedSuggestions: !session?.suggestions
+          ? undefined
+          : gptJsonParsed.suggestions,
+        suggestedImagePrompt: gptJsonParsed.prompt,
+      },
+    });
 
-  await sendWebsocketMessage(
-    request.userId,
-    WebSocketEvent.SessionUpdated,
-    updatedSession,
-  );
+    const uris = await generateImage({
+      userId: request.userId,
+      prompt: gptJsonParsed.prompt,
+      count: 1,
+    });
 
-  const uris = await generateImage({
-    userId: request.userId,
-    prompt: gptJsonParsed.prompt,
-    count: 1,
-  });
+    if (!uris) {
+      throw new Error('Error generating image');
+    }
 
-  if (!uris) {
-    throw new Error('Error generating image');
-  }
-
-  updatedSession = await prisma.session.update({
-    where: {
-      id: request.sessionId,
-    },
-    data: {
+    const payload = {
       imageUri: !session?.imageUri ? uris[0] : undefined,
       suggestedImageUri: uris[0],
+    };
+
+    await prisma.session.update({
+      where: {
+        id: request.sessionId,
+      },
+      data: payload,
+    });
+
+    await sendWebsocketMessage(
+      request.userId,
+      WebSocketEvent.SessionImageUpdated,
+      payload,
+    );
+  }
+
+  await prisma.session.update({
+    where: {
+      id: request.sessionId,
+    },
+    data: {
       processing: false,
     },
   });
 
-  await sendWebsocketMessage(
-    request.userId,
-    WebSocketEvent.SessionImageUpdated,
-    updatedSession,
-  );
+  await sendWebsocketMessage(request.userId, WebSocketEvent.SessionUpdated, {});
 };

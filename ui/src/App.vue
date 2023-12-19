@@ -119,7 +119,9 @@ async function confirmEarlyAccessTerms() {
       <div
         id="view-parent"
         class="flex w-full flex-col overflow-y-auto rounded-tr-2xl md:rounded-tr-none"
-        :class="{ 'rounded-tl-2xl pb-6  bg-surface p-4': !!authStore.tokens }"
+        :class="{
+          'rounded-tl-2xl pb-6 mb-6 bg-surface p-4': !!authStore.tokens,
+        }"
         :style="{
           height: `${!!authStore.tokens ? 'calc(100vh - 5rem)' : 'auto'}`,
         }"

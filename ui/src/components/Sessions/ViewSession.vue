@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ArrowLeftIcon } from '@heroicons/vue/24/solid';
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, onUnmounted, ref, watch } from 'vue';
 import {
   SessionBase,
   deleteSession,
@@ -13,8 +13,8 @@ import { showError, showSuccess } from '@/lib/notifications.ts';
 import Menu from '@/components/Core/General/Menu.vue';
 import { ChevronDownIcon, MicrophoneIcon } from '@heroicons/vue/20/solid';
 import { MenuButton, MenuItem } from '@headlessui/vue';
-import { pusher, ServerEvent } from '@/lib/serverEvents.ts';
-import { useCurrentUserId, useCurrentUserRole } from '@/lib/hooks.ts';
+import { ServerEvent } from '@/lib/serverEvents.ts';
+import { useCurrentUserRole, useWebsocketChannel } from '@/lib/hooks.ts';
 import CustomizableImage from '@/components/Images/CustomizableImage.vue';
 import { useEventBus } from '@/lib/events.ts';
 import RegeneratableTextEdit from '@/components/Core/Forms/RegeneratableTextEdit.vue';
@@ -22,10 +22,11 @@ import AudioUpload from '@/components/Core/Forms/AudioUpload.vue';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import AudioPlayback from '@/components/Core/General/AudioPlayback.vue';
 import { CampaignRole } from '@/api/campaigns.ts';
+import { debounce } from 'lodash';
 
 const route = useRoute();
 const router = useRouter();
-const userId = useCurrentUserId();
+const channel = useWebsocketChannel();
 const eventBus = useEventBus();
 const currentUserRole = useCurrentUserRole();
 
@@ -33,12 +34,12 @@ const session = ref<SessionBase>({} as SessionBase);
 const loadingCompleteSession = ref(false);
 const showUploadAudioModal = ref(false);
 
+const sessionName = ref('');
+const sessionImageUri = ref('');
+const sessionSuggestedImagePrompt = ref('');
+
 onMounted(async () => {
   await init();
-
-  if (!userId.value) {
-    throw new Error('No userId to bind server events to!');
-  }
 
   eventBus.$on('session-processing', (payload: { recap: string }) => {
     session.value.processing = true;
@@ -54,31 +55,55 @@ onMounted(async () => {
     await router.push('summary');
   });
 
-  const channel = pusher.subscribe(userId.value.toString());
-  channel.bind(ServerEvent.SessionUpdated, function (data: any) {
-    session.value = data;
+  channel.bind(ServerEvent.SessionUpdated, async function () {
+    await init();
   });
 
-  channel.bind(ServerEvent.SessionImageUpdated, function (data: any) {
+  channel.bind(ServerEvent.SessionImageUpdated, async function (data: any) {
     session.value.imageUri = data.imageUri;
     session.value.suggestedImageUri = data.suggestedImageUri;
-    session.value.processing = data.processing;
   });
 });
 
+onUnmounted(() => {
+  eventBus.$off('session-processing');
+  eventBus.$off('session-summary-panel-updated');
+
+  channel.unbind(ServerEvent.SessionUpdated);
+  channel.unbind(ServerEvent.SessionImageUpdated);
+});
+
 watch(
-  session,
-  async () => {
+  sessionName,
+  debounce(async () => {
+    if (sessionName.value === session.value.name) {
+      return;
+    }
+
     await saveSession();
-  },
-  { deep: true },
+  }, 250),
+);
+
+watch(
+  sessionImageUri,
+  debounce(async () => {
+    if (sessionImageUri.value === session.value.imageUri) {
+      return;
+    }
+
+    await saveSession();
+  }, 250),
 );
 
 async function init() {
   const response = await getSession(
     parseInt(route.params.sessionId.toString()),
   );
+
   session.value = response.data as SessionBase;
+  sessionName.value = session.value.name || '';
+  sessionImageUri.value = session.value.imageUri || '';
+  sessionSuggestedImagePrompt.value = session.value.suggestedImagePrompt || '';
 }
 
 async function clickDeleteSession() {
@@ -123,10 +148,16 @@ async function clickUnarchiveSession() {
 
 async function saveSession() {
   const putSessionResponse = await patchSession({
-    ...session.value,
+    id: session.value.id,
+    campaignId: session.value.campaignId,
+    name: sessionName.value,
+    imageUri: sessionImageUri.value,
+    suggestedImagePrompt: sessionSuggestedImagePrompt.value,
   });
 
-  if (putSessionResponse.status !== 200) {
+  if (putSessionResponse.status === 200) {
+    showSuccess({ message: 'Changes saved!' });
+  } else {
     showError({ message: 'Failed to save session' });
   }
 }
@@ -158,7 +189,7 @@ function handleAudioUpload(payload: { audioUri: string; audioName: string }) {
 </script>
 
 <template>
-  <div v-if="session" class="my-8 md:min-h-[calc(100%-37rem)] pb-6">
+  <div v-if="session" class="my-8 md:min-h-[calc(100%-37rem)] pb-12">
     <div class="md:flex justify-between">
       <router-link
         :to="`/sessions`"
@@ -200,7 +231,9 @@ function handleAudioUpload(payload: { audioUri: string; audioName: string }) {
           <span class="self-center">Upload Audio</span>
         </div>
 
-        <Menu class="mt-3 md:mt-0 self-center md:ml-0 md:w-auto">
+        <Menu
+          class="mt-3 md:mt-0 self-center md:ml-0 w-[calc(100%-1.5rem)] ml-3 md:w-auto"
+        >
           <MenuButton
             class="bg-surface-2 md:ml-2 self-center flex h-12 w-full justify-center rounded-md border-2 border-gray-600/50 px-3 py-1 text-white transition-all hover:scale-110"
           >
@@ -249,19 +282,19 @@ function handleAudioUpload(payload: { audioUri: string; audioName: string }) {
         <div>
           <CustomizableImage
             :editable="currentUserRole === CampaignRole.DM"
-            :image-uri="session.imageUri || '/images/session_bg_square.png'"
-            :prompt="session.suggestedImagePrompt"
+            :image-uri="sessionImageUri || '/images/session_bg_square.png'"
+            :prompt="sessionSuggestedImagePrompt"
             class="rounded-md w-[20rem]"
             @set-image="
-              session.imageUri = $event.imageUri;
-              session.suggestedImagePrompt = $event.prompt;
+              sessionImageUri = $event.imageUri;
+              sessionSuggestedImagePrompt = $event.prompt;
             "
           />
         </div>
 
         <div class="md:ml-6 mt-3 md:mt-0 w-full">
           <RegeneratableTextEdit
-            v-model="session.name"
+            v-model="sessionName"
             :disabled="currentUserRole !== CampaignRole.DM"
             auto-height
             context="session"
@@ -330,7 +363,7 @@ function handleAudioUpload(payload: { audioUri: string; audioName: string }) {
       </div>
     </div>
 
-    <div class="mt-8">
+    <div class="mt-8 overflow-y-auto pb-6">
       <router-view />
     </div>
 

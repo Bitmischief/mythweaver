@@ -41,8 +41,17 @@ export interface PatchSessionRequest {
   summary?: string | undefined;
   transcript?: string | undefined;
   description?: string | undefined;
-  campaignId: number;
+  campaignId?: number;
   archived?: boolean | undefined;
+  imageUri?: string | undefined;
+  suggestions?: string | undefined;
+
+  suggestedName?: string | undefined;
+  suggestedSummary?: string | undefined;
+  suggestedTranscript?: string | undefined;
+  suggestedImageUri?: string | undefined;
+  suggestedSuggestions?: string | undefined;
+  suggestedImagePrompt?: string | undefined;
 }
 
 export interface PostGenerateSummaryRequest {

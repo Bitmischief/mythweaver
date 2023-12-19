@@ -18,9 +18,10 @@ const props = defineProps<{
   outerClass?: string;
   hideLabel?: boolean;
   disableGeneration?: boolean;
+  suggestion?: string;
 }>();
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits(['update:modelValue', 'clearSuggestion']);
 
 const value = computed({
   get: () => props.modelValue,
@@ -30,7 +31,7 @@ const value = computed({
 });
 
 const isPropertyGenerating = ref(false);
-const suggestion = ref('');
+const suggestion = ref(props.suggestion);
 
 async function generate() {
   if (isPropertyGenerating.value || !props.context) return;
@@ -83,7 +84,11 @@ async function generate() {
     @accept="
       value = suggestion;
       suggestion = '';
+      emit('clearSuggestion');
     "
-    @reject="suggestion = ''"
+    @reject="
+      suggestion = '';
+      emit('clearSuggestion');
+    "
   />
 </template>
