@@ -247,13 +247,17 @@ function setImage() {
 
     <div
       v-if="imagePromptRephrased"
-      class="bg-amber-800 w-fit mx-auto mb-6 p-4 rounded-md"
+      class="bg-fuchsia-500/10 w-fit mx-auto mb-6 p-4 rounded-md"
     >
       <div class="text-xl text-neutral-400">
-        We rephrased your prompt to make it more likely to generate a good
-        image.
+        We rephrased your prompt to make it more likely to generate an image.
       </div>
-      <div class="text-lg text-neutral-100">
+      <div class="mt-2 text-lg text-left text-neutral-100">
+        <span class="font-bold text-neutral-400">Original:</span>
+        {{ editablePrompt }}
+      </div>
+      <div class="text-lg text-left text-neutral-100">
+        <span class="font-bold text-neutral-400">Rephrased:</span>
         {{ rephrasedPrompt }}
       </div>
     </div>

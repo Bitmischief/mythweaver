@@ -58,7 +58,13 @@ export const generateImage = async (request: ImageRequest) => {
   do {
     tries += request.count;
 
-    const imageResponse = await postToStableDiffusion(request, preset);
+    const imageResponse = await postToStableDiffusion(
+      {
+        ...request,
+        count: request.count - validImageCount,
+      },
+      preset,
+    );
 
     if (!imageResponse) {
       return undefined;
@@ -191,7 +197,7 @@ const postToStableDiffusion = async (
 
   return {
     artifacts: response.data.artifacts,
-    updatedPrompt: request.prompt,
+    updatedPrompt: depth === 0 ? undefined : request.prompt,
   };
 };
 
