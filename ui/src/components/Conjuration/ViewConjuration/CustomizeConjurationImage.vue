@@ -38,6 +38,7 @@ const imageError = ref(false);
 const imageFiltered = ref(false);
 const imagePromptRephrased = ref(false);
 const rephrasedPrompt = ref('');
+const loading = ref(false);
 
 onMounted(() => {
   eventBus.$on('conjure-image', async () => {
@@ -74,6 +75,10 @@ onMounted(() => {
     imageError.value = true;
     conjuring.value = false;
   });
+
+  channel.bind(ServerEvent.ImageGenerationDone, function () {
+    loading.value = false;
+  });
 });
 
 onUnmounted(() => {
@@ -85,10 +90,12 @@ async function conjure() {
     conjuring.value = true;
     imageError.value = false;
     imageFiltered.value = false;
+    loading.value = true;
 
     await conjureImage(
       editablePrompt.value || '',
       editableNegativePrompt.value || '',
+      stylePreset.value || 'fantasy-art',
     );
 
     eventBus.$emit('conjure-image-done', {});
@@ -301,6 +308,13 @@ function setImage() {
               : (selectedImgUri = imgUri)
           "
         />
+      </div>
+
+      <div
+        v-if="loading"
+        class="flex justify-center min-h-[20rem] text-fuchsia-200 animate-pulse text-2xl"
+      >
+        <div class="self-center">Generating image....</div>
       </div>
     </div>
 

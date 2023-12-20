@@ -81,14 +81,12 @@ export const generateImage = async (request: ImageRequest) => {
     const artifacts = imageResponse.artifacts.filter(
       (a) => a.finishReason === 'SUCCESS',
     );
-    validImageCount += artifacts.length;
-
-    if (validImageCount > request.count) {
-      const extraCount = validImageCount - request.count;
-      artifacts.splice(artifacts.length - extraCount, extraCount);
-    }
 
     for (const image of artifacts) {
+      if (validImageCount === request.count) {
+        break;
+      }
+
       const imageId = uuidv4();
       let url = '';
 
@@ -116,6 +114,8 @@ export const generateImage = async (request: ImageRequest) => {
         WebSocketEvent.ImageCreated,
         createdImage,
       );
+
+      validImageCount++;
     }
   } while (validImageCount < request.count && tries < maxImageTries);
 
@@ -124,6 +124,12 @@ export const generateImage = async (request: ImageRequest) => {
       message:
         'The image generation service was unable to generate an image that met the criteria. Please try again.',
     });
+  } else {
+    await sendWebsocketMessage(
+      request.userId,
+      WebSocketEvent.ImageGenerationDone,
+      {},
+    );
   }
 
   return urls;
