@@ -171,28 +171,12 @@ const postToStableDiffusion = async (
       },
     );
   } catch (err) {
-    if ((err as AxiosError)?.response?.status === 400) {
-      logger.info(
-        'Received 400 from Stable Diffusion',
-        (err as AxiosError)?.response?.data,
-      );
-      logger.warn(`Image prompt: ${request.prompt} failed.`);
+    await sendWebsocketMessage(request.userId, WebSocketEvent.ImageError, {
+      message:
+        'There was an error generating your image. Your prompt was rejected by the content filtering system. Please try again.',
+    });
 
-      promptHistory.push(request.prompt);
-      request.prompt = await rephraseImagePrompt(promptHistory);
-      return await postToStableDiffusion(
-        request,
-        preset,
-        promptHistory,
-        ++depth,
-      );
-    } else {
-      await sendWebsocketMessage(request.userId, WebSocketEvent.ImageError, {
-        message: 'There was an error generating your image. Please try again.',
-      });
-
-      return undefined;
-    }
+    return undefined;
   }
 
   return {
