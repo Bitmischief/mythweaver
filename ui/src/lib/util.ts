@@ -28,4 +28,20 @@ export function autoGrowTextArea(evt: FocusEvent | KeyboardEvent) {
   textArea.style.height = textArea.scrollHeight + 1 + 'px';
 }
 
+export function waitUntil(condition: () => boolean, timeout = 10000): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const start = Date.now();
+
+    const interval = setInterval(() => {
+      if (condition()) {
+        clearInterval(interval);
+        resolve();
+      } else if (Date.now() - start > timeout) {
+        clearInterval(interval);
+        reject(new Error('Timeout waiting for condition'));
+      }
+    }, 100);
+  });
+}
+
 export const isProduction = window.location.origin === 'https://app.mythweaver.co';

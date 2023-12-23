@@ -65,6 +65,10 @@ jobs:
           sed -i 's|<MAILCHIMP_TRANSACTIONAL_API_KEY>|${{ secrets.MAILCHIMP_TRANSACTIONAL_API_KEY }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           sed -i 's|<SPACES_KEY>|${{ secrets.SPACES_KEY }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           sed -i 's|<SPACES_SECRET>|${{ secrets.SPACES_SECRET }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<PUSHER_APP_ID>|${{ secrets.PUSHER_APP_ID }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<PUSHER_CLUSTER>|${{ secrets.PUSHER_CLUSTER }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<PUSHER_KEY>|${{ secrets.PUSHER_KEY }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<PUSHER_SECRET>|${{ secrets.PUSHER_SECRET }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           sed -i 's|<MIN_REPLICAS>|${{ vars.MIN_REPLICAS }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           sed -i 's|<MAX_REPLICAS>|${{ vars.MAX_REPLICAS }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           cat $GITHUB_WORKSPACE/.k8s/api-deployment.yml
@@ -133,6 +137,10 @@ jobs:
           sed -i 's|<MAILCHIMP_TRANSACTIONAL_API_KEY>|${{ secrets.MAILCHIMP_TRANSACTIONAL_API_KEY }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           sed -i 's|<SPACES_KEY>|${{ secrets.SPACES_KEY }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           sed -i 's|<SPACES_SECRET>|${{ secrets.SPACES_SECRET }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<PUSHER_APP_ID>|${{ secrets.PUSHER_APP_ID }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<PUSHER_CLUSTER>|${{ secrets.PUSHER_CLUSTER }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<PUSHER_KEY>|${{ secrets.PUSHER_KEY }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<PUSHER_SECRET>|${{ secrets.PUSHER_SECRET }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           sed -i 's|<MIN_REPLICAS>|${{ vars.MIN_REPLICAS }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           sed -i 's|<MAX_REPLICAS>|${{ vars.MAX_REPLICAS }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           cat $GITHUB_WORKSPACE/.k8s/api-deployment.yml

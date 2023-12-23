@@ -8,6 +8,10 @@ import { ConjureEvent, processTagsQueue } from '../index';
 import { getRpgSystem } from '../../data/rpgSystems';
 import { getClient } from '../../lib/providers/openai';
 import { parentLogger } from '../../lib/logger';
+import {
+  sendWebsocketMessage,
+  WebSocketEvent,
+} from '../../services/websockets';
 
 const logger = parentLogger.getSubLogger();
 const openai = getClient();
@@ -114,22 +118,35 @@ export const conjure = async (request: ConjureEvent) => {
     },
   });
 
+  await sendWebsocketMessage(
+    request.userId,
+    WebSocketEvent.ConjurationCreated,
+    createdConjuration,
+  );
+
   const imagePrompt = request.imagePrompt?.length
     ? request.imagePrompt
     : conjuration.imageAIPrompt;
 
-  conjuration.imageUri = (
-    await generateImage({
-      userId: request.userId,
-      prompt: imagePrompt,
-      count: 1,
-      negativePrompt: request.imageNegativePrompt,
-      stylePreset: request.imageStylePreset,
-      linking: {
-        conjurationId: createdConjuration.id,
-      },
-    })
-  )[0];
+  const uris = await generateImage({
+    userId: request.userId,
+    prompt: imagePrompt,
+    count: 1,
+    negativePrompt: request.imageNegativePrompt,
+    stylePreset: request.imageStylePreset,
+    linking: {
+      conjurationId: createdConjuration.id,
+    },
+  });
+
+  if (!uris) {
+    throw new AppError({
+      description: 'Error generating image.',
+      httpCode: HttpCode.INTERNAL_SERVER_ERROR,
+    });
+  }
+
+  conjuration.imageUri = uris[0];
 
   await prisma.conjuration.update({
     where: {

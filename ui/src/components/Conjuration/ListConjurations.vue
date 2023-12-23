@@ -228,7 +228,10 @@ async function handleConjurationChange(change: {
     </div>
   </div>
 
-  <div v-if="conjurations.length" class="flex flex-wrap justify-items-center">
+  <div
+    v-if="conjurations.length"
+    class="grid grid-cols-1 place-items-stretch lg:grid-cols-2 2xl:grid-cols-3 3xl:grid-cols-4 gap-4"
+  >
     <ConjurationQuickView
       v-for="conjuration of conjurations"
       :key="conjuration.name"

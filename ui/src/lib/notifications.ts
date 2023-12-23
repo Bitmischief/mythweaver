@@ -15,6 +15,7 @@ export const showSuccess = (options: NotificationOptions) => {
 export const showError = (options: NotificationOptions) => {
   const eventBus = useEventBus();
   eventBus.$emit('showNotification', {
+    timeout: 10000,
     ...options,
     type: 'error',
   });

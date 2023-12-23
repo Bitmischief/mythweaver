@@ -1,10 +1,12 @@
 <script lang="ts" setup>
-import { onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import LightboxImage from '@/components/LightboxImage.vue';
 import { conjureImage } from '@/api/images.ts';
 import { useEventBus } from '@/lib/events.ts';
 import { ArrowsPointingOutIcon } from '@heroicons/vue/20/solid';
 import { showError } from '@/lib/notifications.ts';
+import { useWebsocketChannel } from '@/lib/hooks.ts';
+import { ServerEvent } from '@/lib/serverEvents.ts';
 
 const props = defineProps<{
   prompt?: string;
@@ -19,6 +21,7 @@ const props = defineProps<{
 const emit = defineEmits(['cancel']);
 
 const eventBus = useEventBus();
+const channel = useWebsocketChannel();
 
 const editablePrompt = ref(props.prompt);
 const editableNegativePrompt = ref(props.negativePrompt);
@@ -26,9 +29,16 @@ const stylePreset = ref<
   'fantasy-art' | 'digital-art' | 'comic-book' | undefined
 >('fantasy-art');
 const conjuring = ref(false);
-const done = ref(false);
-const imageUris = ref([] as string[]);
+const done = computed(() => {
+  return imageUris.value.length > 0;
+});
+const imageUris = ref<string[]>([]);
 const selectedImgUri = ref('');
+const imageError = ref(false);
+const imageFiltered = ref(false);
+const imagePromptRephrased = ref(false);
+const rephrasedPrompt = ref('');
+const loading = ref(false);
 
 onMounted(() => {
   eventBus.$on('conjure-image', async () => {
@@ -37,6 +47,37 @@ onMounted(() => {
 
   eventBus.$on('set-selected-conjuration-image', () => {
     setImage();
+  });
+
+  channel.bind(ServerEvent.ImageCreated, function (data: any) {
+    imageUris.value.push(data.uri);
+    conjuring.value = false;
+  });
+
+  channel.bind(ServerEvent.ImageFiltered, function () {
+    showError({
+      message:
+        'The generated image was filtered out by our content moderation system. Please try again.',
+    });
+    imageFiltered.value = true;
+    conjuring.value = false;
+  });
+
+  channel.bind(ServerEvent.ImagePromptRephrased, function (prompt: string) {
+    imagePromptRephrased.value = true;
+    rephrasedPrompt.value = prompt;
+  });
+
+  channel.bind(ServerEvent.ImageError, function (data: any) {
+    showError({
+      message: data.message,
+    });
+    imageError.value = true;
+    conjuring.value = false;
+  });
+
+  channel.bind(ServerEvent.ImageGenerationDone, function () {
+    loading.value = false;
   });
 });
 
@@ -47,29 +88,25 @@ onUnmounted(() => {
 async function conjure() {
   try {
     conjuring.value = true;
-    done.value = false;
+    imageError.value = false;
+    imageFiltered.value = false;
+    loading.value = true;
 
-    const conjureImageResponse = await conjureImage(
+    await conjureImage(
       editablePrompt.value || '',
       editableNegativePrompt.value || '',
+      stylePreset.value || 'fantasy-art',
     );
-    imageUris.value = conjureImageResponse.data;
-    done.value = true;
-    conjuring.value = false;
 
     eventBus.$emit('conjure-image-done', {});
   } catch {
     showError({ message: 'We encountered an error conjuring this image.' });
-
-    conjuring.value = false;
-    done.value = false;
   }
 }
 
 function setImage() {
   if (!selectedImgUri.value.length) return;
 
-  console.log('setImage', selectedImgUri.value, editablePrompt.value);
   eventBus.$emit('updated-conjuration-image', {
     imageUri: selectedImgUri.value,
     prompt: editablePrompt.value,
@@ -216,6 +253,23 @@ function setImage() {
     <div class="text-4xl text-neutral-500 mb-8">Voila!</div>
 
     <div
+      v-if="imagePromptRephrased"
+      class="bg-fuchsia-500/10 w-fit mx-auto mb-6 p-4 rounded-md"
+    >
+      <div class="text-xl text-neutral-400">
+        We rephrased your prompt to make it more likely to generate an image.
+      </div>
+      <div class="mt-2 text-lg text-left text-neutral-100">
+        <span class="font-bold text-neutral-400">Original:</span>
+        {{ editablePrompt }}
+      </div>
+      <div class="text-lg text-left text-neutral-100">
+        <span class="font-bold text-neutral-400">Rephrased:</span>
+        {{ rephrasedPrompt }}
+      </div>
+    </div>
+
+    <div
       class="grid gap-2"
       :class="{
         '3xl:grid-cols-3 grid-cols-2': !imageUri,
@@ -255,13 +309,20 @@ function setImage() {
           "
         />
       </div>
+
+      <div
+        v-if="loading"
+        class="flex justify-center min-h-[20rem] text-fuchsia-200 animate-pulse text-2xl"
+      >
+        <div class="self-center">Generating image....</div>
+      </div>
     </div>
 
     <div v-if="!noActions" class="mt-6 flex justify-between">
       <button
         class="bg-surface-2 w-36 rounded-md border text-center border-gray-600/50 p-3"
         @click="
-          done = false;
+          imageUris = [];
           conjuring = false;
         "
       >

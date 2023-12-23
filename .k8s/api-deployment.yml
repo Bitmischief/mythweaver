@@ -84,6 +84,14 @@ spec:
               value: <SPACES_KEY>
             - name: SPACES_SECRET
               value: <SPACES_SECRET>
+            - name: PUSHER_APP_ID
+              value: "<PUSHER_APP_ID>"
+            - name: PUSHER_CLUSTER
+              value: <PUSHER_CLUSTER>
+            - name: PUSHER_KEY
+              value: <PUSHER_KEY>
+            - name: PUSHER_SECRET
+              value: <PUSHER_SECRET>
           readinessProbe:
             httpGet:
               path: /docs

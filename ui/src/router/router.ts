@@ -11,7 +11,6 @@ import ViewCampaign from '@/components/Campaigns/ViewCampaign.vue';
 import SessionsView from '@/views/SessionsView.vue';
 import ViewSession from '@/components/Sessions/ViewSession.vue';
 import ListSessions from '@/components/Sessions/ListSessions.vue';
-import NewSession from '@/components/Sessions/NewSession.vue';
 import ListConjurations from '@/components/Conjuration/ListConjurations.vue';
 import ViewConjuration from '@/components/Conjuration/ViewConjuration.vue';
 import InviteView from '@/views/InviteView.vue';
@@ -19,34 +18,64 @@ import MagicLink from '@/components/Auth/MagicLink.vue';
 import PreAuthView from '@/views/PreAuthView.vue';
 import EarlyAccessView from '@/views/EarlyAccessView.vue';
 import CharactersView from '@/views/CharactersView.vue';
+import ViewSessionPlanning from '@/components/Sessions/ViewSessionPlanning.vue';
+import ViewSessionSummary from '@/components/Sessions/ViewSessionSummary.vue';
+import ViewSessionRecap from '@/components/Sessions/ViewSessionRecap.vue';
+import AuthenticatedView from '@/views/AuthenticatedView.vue';
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
-      name: 'LOGIN',
       path: '/login',
-      component: LoginView,
+      redirect: '/auth/login',
     },
     {
-      name: 'PREAUTH',
       path: '/preauth',
-      component: PreAuthView,
+      redirect: '/auth/preauth',
     },
     {
-      name: 'EARLY_ACCESS',
       path: '/earlyaccess',
-      component: EarlyAccessView,
+      redirect: '/auth/earlyaccess',
     },
     {
-      name: 'MAGIC_LINK',
-      path: '/auth/magic-link',
-      component: MagicLink,
+      path: '/magic-link',
+      redirect: '/auth/magic-link',
     },
     {
-      name: 'INVITE',
       path: '/invite',
-      component: InviteView,
+      redirect: '/auth/invite',
+    },
+    {
+      name: 'AUTH',
+      path: '/auth',
+      children: [
+        {
+          name: 'LOGIN',
+          path: 'login',
+          component: LoginView,
+        },
+        {
+          name: 'PREAUTH',
+          path: 'preauth',
+          component: PreAuthView,
+        },
+        {
+          name: 'EARLY_ACCESS',
+          path: 'earlyaccess',
+          component: EarlyAccessView,
+        },
+        {
+          name: 'MAGIC_LINK',
+          path: 'magic-link',
+          component: MagicLink,
+        },
+        {
+          name: 'INVITE',
+          path: 'invite',
+          component: InviteView,
+        },
+      ],
     },
     {
       name: 'HOME',
@@ -55,96 +84,109 @@ const router = createRouter({
       meta: {
         authRequired: true,
       },
-    },
-    {
-      name: 'CHARACTERS',
-      path: '/character',
-      component: CharactersView,
-      meta: {
-        authRequired: true,
-      },
-    },
-    {
-      name: 'CAMPAIGNS',
-      path: '/campaigns',
-      component: CampaignsView,
-      meta: {
-        authRequired: true,
-      },
+      component: AuthenticatedView,
       children: [
         {
-          path: 'list',
-          alias: '',
-          component: ListCampaigns,
+          name: 'CHARACTERS',
+          path: '/character',
+          component: CharactersView,
+          meta: {
+            authRequired: true,
+          },
         },
         {
-          path: 'new',
-          component: NewCampaign,
-        },
-      ],
-    },
-    {
-      name: 'CONJURING',
-      path: '/conjurations',
-      component: ConjuringView,
-      meta: {
-        authRequired: true,
-      },
-      children: [
-        {
-          path: 'list',
-          alias: '',
-          component: ListConjurations,
-        },
-        {
-          path: 'view/:conjurationId',
-          component: ViewConjuration,
+          name: 'CAMPAIGNS',
+          path: '/campaigns',
+          component: CampaignsView,
+          meta: {
+            authRequired: true,
+          },
+          children: [
+            {
+              path: 'list',
+              alias: '',
+              component: ListCampaigns,
+            },
+            {
+              path: 'new',
+              component: NewCampaign,
+            },
+          ],
         },
         {
-          path: 'new',
-          component: ListConjurers,
+          name: 'CONJURING',
+          path: '/conjurations',
+          component: ConjuringView,
+          meta: {
+            authRequired: true,
+          },
+          children: [
+            {
+              path: 'list',
+              alias: '',
+              component: ListConjurations,
+            },
+            {
+              path: 'view/:conjurationId',
+              component: ViewConjuration,
+            },
+            {
+              path: 'new',
+              component: ListConjurers,
+            },
+            {
+              path: 'conjure/:summonerCode',
+              component: ViewConjurer,
+            },
+          ],
         },
         {
-          path: 'conjure/:summonerCode',
-          component: ViewConjurer,
-        },
-      ],
-    },
-    {
-      name: 'CAMPAIGN',
-      path: '/campaign',
-      component: CampaignsView,
-      meta: {
-        authRequired: true,
-      },
-      children: [
-        {
-          path: 'edit',
-          alias: '',
-          component: ViewCampaign,
-        },
-      ],
-    },
-    {
-      name: 'SESSION',
-      path: '/sessions',
-      component: SessionsView,
-      meta: {
-        authRequired: true,
-      },
-      children: [
-        {
-          path: 'list',
-          alias: '',
-          component: ListSessions,
+          name: 'CAMPAIGN',
+          path: '/campaign',
+          component: CampaignsView,
+          meta: {
+            authRequired: true,
+          },
+          children: [
+            {
+              path: 'edit',
+              alias: '',
+              component: ViewCampaign,
+            },
+          ],
         },
         {
-          path: 'create',
-          component: NewSession,
-        },
-        {
-          path: ':sessionId/edit',
-          component: ViewSession,
+          name: 'SESSION',
+          path: '/sessions',
+          component: SessionsView,
+          meta: {
+            authRequired: true,
+          },
+          children: [
+            {
+              path: 'list',
+              alias: '',
+              component: ListSessions,
+            },
+            {
+              path: ':sessionId',
+              component: ViewSession,
+              children: [
+                {
+                  path: 'planning',
+                  component: ViewSessionPlanning,
+                },
+                {
+                  path: 'recap',
+                  component: ViewSessionRecap,
+                },
+                {
+                  path: 'summary',
+                  component: ViewSessionSummary,
+                },
+              ],
+            },
+          ],
         },
       ],
     },

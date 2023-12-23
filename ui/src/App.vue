@@ -119,7 +119,9 @@ async function confirmEarlyAccessTerms() {
       <div
         id="view-parent"
         class="flex w-full flex-col overflow-y-auto rounded-tr-2xl md:rounded-tr-none"
-        :class="{ 'rounded-tl-2xl pb-6  bg-surface p-4': !!authStore.tokens }"
+        :class="{
+          'rounded-tl-2xl pb-6 mb-6 bg-surface p-4': !!authStore.tokens,
+        }"
         :style="{
           height: `${!!authStore.tokens ? 'calc(100vh - 5rem)' : 'auto'}`,
         }"
@@ -213,7 +215,7 @@ async function confirmEarlyAccessTerms() {
 
   <ModalAlternate :show="showCustomizeImageModal" extra-dark>
     <div
-      class="md:w-[800px] p-2 md:p-6 md:px-12 bg-neutral-900 rounded-[20px] text-white text-center"
+      class="w-[90vw] max-h-[80vh] p-2 md:p-6 md:px-12 pb-6 overflow-y-auto bg-neutral-900 rounded-[20px] text-white text-center"
     >
       <CustomizeConjurationImage
         :prompt="customizeImageArgs?.prompt"
