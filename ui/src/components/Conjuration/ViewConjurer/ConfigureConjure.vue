@@ -5,6 +5,7 @@ import { computed, ref } from 'vue';
 import { useSelectedCampaignId } from '@/lib/hooks.ts';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import Accordion from '@/components/Core/Accordion.vue';
+import axios from 'axios';
 
 const props = defineProps<{
   summoner: Conjurer;
@@ -29,8 +30,9 @@ const request = ref<{
 });
 
 const existingConjuration = ref(false);
-const showExistinConjurationWarning = ref(false);
-const existinConjurationOverride = ref(false);
+const showExistingConjurationWarning = ref(false);
+const existingConjurationOverride = ref(false);
+const isErrored = ref(false);
 
 const imagePresetStyles = computed(() => {
   return props.summoner.supportedImageStylePresets?.reduce(
@@ -51,13 +53,13 @@ async function generate(generatorCode: string) {
     return;
   }
 
-  if (existingConjuration.value && !existinConjurationOverride.value) {
-    showExistinConjurationWarning.value = true;
+  if (existingConjuration.value && !existingConjurationOverride.value) {
+    showExistingConjurationWarning.value = true;
     return;
   }
 
-  if (existinConjurationOverride.value) {
-    existinConjurationOverride.value = false;
+  if (existingConjurationOverride.value) {
+    existingConjurationOverride.value = false;
   }
 
   const generateResponse = await postConjure(generatorCode, {
@@ -66,8 +68,14 @@ async function generate(generatorCode: string) {
     ...request.value,
   });
 
+  if (axios.isAxiosError(generateResponse)) {
+    isErrored.value = true;
+    return;
+  }
+  isErrored.value = false;
+
   emit('begin-conjuring', {
-    conjurationRequestId: generateResponse.data.conjurationRequestId,
+    conjurationRequestId: generateResponse?.data.conjurationRequestId,
   });
 
   existingConjuration.value = true;
@@ -79,7 +87,7 @@ async function generate(generatorCode: string) {
     {{ summoner.name }}
   </div>
 
-  <div class="mt-1 text-gray-400 text-sm">
+  <div class="mt-1 text-sm text-gray-400">
     {{ summoner.description }}
   </div>
 
@@ -91,7 +99,7 @@ async function generate(generatorCode: string) {
   >
     <div class="mt-8 text-gray-200">
       <div class="my-8">
-        <div class="text-lg mb-4">
+        <div class="mb-4 text-lg">
           Describe what kind of
           {{ trimPlural(summoner.name.toLowerCase()) }} you're looking for
         </div>
@@ -150,31 +158,34 @@ async function generate(generatorCode: string) {
           :disabled="disabled as boolean"
           label="Conjure"
         />
+        <p v-show="isErrored" class="text-right text-red-500">
+          An error occurred, please try again
+        </p>
       </div>
     </div>
   </FormKit>
 
-  <ModalAlternate :show="showExistinConjurationWarning">
+  <ModalAlternate :show="showExistingConjurationWarning">
     <div class="md:w-[800px] p-6 bg-neutral-900 rounded-[20px] text-center">
       <div class="text-4xl">Are you sure?</div>
-      <div class="text-2xl mt-4 text-red-300">
+      <div class="mt-4 text-2xl text-red-300">
         You have an unsaved conjuration, performing a new conjuration will
         remove your existing unsaved conjuration.
       </div>
 
-      <div class="mt-8 flex justify-center">
+      <div class="flex justify-center mt-8">
         <button
-          class="bg-gradient-to-r text-lg from-fuchsia-500 flex to-blue-400 h-12 transition-all hover:scale-110 px-4 rounded-md"
-          @click="showExistinConjurationWarning = false"
+          class="flex h-12 px-4 text-lg transition-all rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 hover:scale-110"
+          @click="showExistingConjurationWarning = false"
         >
           <span class="self-center">Cancel</span>
         </button>
         <button
-          class="ml-2 bg-neutral-800 px-4 text-lg rounded-md flex transition-all h-12 hover:scale-110 border border-red-500"
+          class="flex h-12 px-4 ml-2 text-lg transition-all border border-red-500 rounded-md bg-neutral-800 hover:scale-110"
           @click="
-            existinConjurationOverride = true;
+            existingConjurationOverride = true;
             generate(summoner.code);
-            showExistinConjurationWarning = false;
+            showExistingConjurationWarning = false;
           "
         >
           <span class="self-center">Overwrite Existing Conjuration</span>
