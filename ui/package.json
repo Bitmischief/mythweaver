@@ -12,7 +12,7 @@
     "prepare": "cd ../ && husky install ./ui/.husky"
   },
   "dependencies": {
-    "@datadog/browser-logs": "^5.5.1",
+    "@datadog/browser-logs": "^5.6.0",
     "@datadog/browser-rum": "^5.5.0",
     "@formkit/addons": "^1.4.0",
     "@formkit/themes": "^1.4.0",
