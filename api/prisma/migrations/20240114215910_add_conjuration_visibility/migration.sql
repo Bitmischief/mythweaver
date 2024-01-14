@@ -8,4 +8,4 @@
 CREATE TYPE "ConjurationVisibility" AS ENUM ('PUBLIC', 'PRIVATE');
 
 -- AlterTable
-ALTER TABLE "conjurations" ADD COLUMN     "visibility" "ConjurationVisibility" NOT NULL;
+ALTER TABLE "conjurations" ADD COLUMN     "visibility" "ConjurationVisibility" NOT NULL DEFAULT('PUBLIC');
