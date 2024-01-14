@@ -1,5 +1,5 @@
 import { Generator, getGenerator } from '../../data/conjurers';
-import { Campaign } from '@prisma/client';
+import { Campaign, ConjurationVisibility } from '@prisma/client';
 import { AppError, HttpCode } from '../../lib/errors/AppError';
 import { sanitizeJson, trimPlural } from '../../lib/utils';
 import { generateImage } from '../../services/imageGeneration';
@@ -98,6 +98,7 @@ export const conjure = async (request: ConjureEvent) => {
     data: {
       name: conjuration.name,
       userId: request.userId,
+      visibility: ConjurationVisibility.PRIVATE,
       data: {
         ...conjuration,
         name: undefined,

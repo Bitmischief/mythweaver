@@ -12,7 +12,7 @@ import {
   Tags,
 } from 'tsoa';
 import { prisma } from '../lib/providers/prisma';
-import { Conjuration } from '@prisma/client';
+import { Conjuration, ConjurationVisibility } from '@prisma/client';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { processTagsQueue } from '../worker';
@@ -36,6 +36,7 @@ interface PatchConjurationRequest {
   imageUri?: string;
   data: any;
   tags?: string[];
+  visibility?: ConjurationVisibility;
 }
 
 @Route('conjurations')
@@ -75,6 +76,7 @@ export default class ConjurationController {
             }
           : undefined,
         published: true,
+        visibility: saved ? undefined : ConjurationVisibility.PUBLIC,
         images: stylePreset
           ? {
               some: {

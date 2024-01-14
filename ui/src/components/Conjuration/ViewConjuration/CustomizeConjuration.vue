@@ -144,6 +144,21 @@ function normalizeKeyName(key: string) {
             :disabled="!editable"
           />
         </div>
+
+        <div class="mt-2">
+          <FormKit
+            v-model="editableConjuration.visibility"
+            type="select"
+            help="Controls whether any MythWeaver user can view this conjuration or only you."
+            placeholder="Select a planet"
+            name="visibility"
+            :options="{
+              PUBLIC: 'Public',
+              PRIVATE: 'Private',
+            }"
+          />
+        </div>
+
         <div class="mt-2 flex flex-wrap">
           <div class="mt-3 flex flex-wrap">
             <div

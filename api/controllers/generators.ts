@@ -11,7 +11,7 @@ import {
   Body,
 } from 'tsoa';
 import { prisma } from '../lib/providers/prisma';
-import { Conjuration } from '@prisma/client';
+import { Conjuration, ConjurationVisibility } from '@prisma/client';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import { parentLogger } from '../lib/logger';
 import conjurers, { Generator, getGenerator } from '../data/conjurers';
@@ -92,6 +92,7 @@ export class GeneratorController {
       where: {
         conjurerCode: code,
         published: true,
+        visibility: ConjurationVisibility.PUBLIC,
       },
       select: {
         id: true,

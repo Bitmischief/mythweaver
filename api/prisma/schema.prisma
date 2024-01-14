@@ -30,19 +30,24 @@ model User {
   earlyAccessCutoffAt DateTime @default("2023-10-17T08:00:00.000Z")
   earlyAccessExempt   Boolean  @default(false)
 
-  refreshTokens       RefreshToken[]
-  campaigns           Campaign[]
-  sessions            Session[]
-  conjurations        Conjuration[]
-  conjurationRequests ConjurationRequest[]
-  campaignMemberships CampaignMember[]
-  characters          Character[]
-  ConjurationSave     ConjurationSave[]
-  magicLinks          MagicLink[]
-  images              Image[]
+  refreshTokens         RefreshToken[]
+  campaigns             Campaign[]
+  sessions              Session[]
+  conjurations          Conjuration[]
+  conjurationRequests   ConjurationRequest[]
+  campaignMemberships   CampaignMember[]
+  characters            Character[]
+  ConjurationSave       ConjurationSave[]
+  magicLinks            MagicLink[]
+  images                Image[]
   transcriptionRequests TranscriptionRequest[]
 
   @@map("users")
+}
+
+enum ConjurationVisibility {
+  PUBLIC
+  PRIVATE
 }
 
 model Conjuration {
@@ -55,12 +60,13 @@ model Conjuration {
   conjurationRequestId Int?
 
   name          String
+  visibility    ConjurationVisibility @default(PUBLIC)
   conjurerCode  String
   imageUri      String?
   imageAIPrompt String?
   data          Json
   tags          String[]
-  published     Boolean  @default(false)
+  published     Boolean               @default(false)
 
   user               User?               @relation(fields: [userId], references: [id])
   campaign           Campaign?           @relation(fields: [campaignId], references: [id], onDelete: Cascade)
@@ -136,15 +142,15 @@ model Session {
   completed  Boolean   @default(false)
   archived   Boolean   @default(false)
 
-  summary     String?
-  transcript  String?
-  planning    String?
-  recap       String?
-  imageUri    String?
-  suggestions String?
-  name        String?
-  audioName   String?
-  audioUri    String?
+  summary                String?
+  transcript             String?
+  planning               String?
+  recap                  String?
+  imageUri               String?
+  suggestions            String?
+  name                   String?
+  audioName              String?
+  audioUri               String?
   transcriptionRequestId Int?
 
   suggestedName        String?
@@ -153,10 +159,10 @@ model Session {
   suggestedImagePrompt String?
   suggestedImageUri    String?
 
-  user     User     @relation(fields: [userId], references: [id])
-  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  user                 User                  @relation(fields: [userId], references: [id])
+  campaign             Campaign              @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   transcriptionRequest TranscriptionRequest? @relation(fields: [transcriptionRequestId], references: [id], onDelete: Cascade)
-  images   Image[]
+  images               Image[]
 
   @@map("sessions")
 }
@@ -274,12 +280,12 @@ model TranscriptionRequest {
   createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
   updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
 
-  userId              Int
-  sessionId           Int
-  generatorCode       String
-  status              String
+  userId        Int
+  sessionId     Int
+  generatorCode String
+  status        String
 
-  user         User?         @relation(fields: [userId], references: [id])
+  user     User?     @relation(fields: [userId], references: [id])
   sessions Session[]
 
   @@map("transcription_requests")

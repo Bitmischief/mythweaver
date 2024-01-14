@@ -1,10 +1,16 @@
 import axios from 'axios';
 
+export enum ConjurationVisibility {
+  Public = 'public',
+  Private = 'private',
+}
+
 export interface Conjuration {
   id: number;
   userId: number | undefined;
   conjurerCode: string;
   name: string;
+  visibility: ConjurationVisibility;
   imageUri: string;
   data: any;
   tags?: string[];

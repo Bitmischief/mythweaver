@@ -138,6 +138,7 @@ const patchConjurationsSchema = z.object({
   tags: z.array(z.string()).optional(),
   data: z.any().optional(),
   published: z.boolean().optional(),
+  visibility: z.enum(['PUBLIC', 'PRIVATE']).optional(),
 });
 
 router.patch('/:conjurationId', [
