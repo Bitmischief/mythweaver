@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 export enum ConjurationVisibility {
-  Public = 'public',
-  Private = 'private',
+  Public = 'PUBLIC',
+  Private = 'PRIVATE',
 }
 
 export interface Conjuration {
