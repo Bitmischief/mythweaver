@@ -156,6 +156,7 @@ function normalizeKeyName(key: string) {
               PUBLIC: 'Public',
               PRIVATE: 'Private',
             }"
+            :disabled="!editable"
           />
         </div>
 
