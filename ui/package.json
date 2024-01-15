@@ -27,7 +27,7 @@
     "pinia": "^2.1.7",
     "pusher-js": "^8.3.0",
     "serve": "^14.2.1",
-    "vue": "^3.3.12",
+    "vue": "^3.4.14",
     "vue-router": "^4.2.5"
   },
   "devDependencies": {
