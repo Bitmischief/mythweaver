@@ -7,15 +7,16 @@ import { storeToRefs } from 'pinia';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
 import { Campaign, CampaignRole } from '@/api/campaigns.ts';
 import {
-  BoltIcon,
   BookmarkIcon,
-  BookOpenIcon,
-  ChatBubbleLeftRightIcon,
   CheckIcon,
   ChevronUpDownIcon,
   PlusIcon,
-  UserIcon,
 } from '@heroicons/vue/20/solid';
+import {
+  Squares2X2Icon,
+  SparklesIcon,
+  PhotoIcon,
+} from '@heroicons/vue/24/outline'
 
 defineProps<{
   collapsed?: boolean;
@@ -77,18 +78,20 @@ async function navigateToCreateCampaign() {
     <Menu v-model="selectedCampaignId" class="my-6 mt-4">
       <div class="relative mt-1">
         <MenuButton
-          class="gradient-border relative h-12 w-full cursor-pointer rounded-xl border bg-black pl-3 pr-8 text-left text-white flex items-center"
+          class="relative h-10 w-full cursor-pointer rounded-xl default-border-no-opacity border border-zinc-900 pl-4 pr-8 text-left text-white flex items-center text-sm"
         >
           <BookmarkIcon v-show="collapsed" class="w-6 h-6 overflow-visible" />
-          <span class="block truncate">{{ selectedCampaign?.name }}</span>
+          <span class="block truncate">{{ selectedCampaign?.name || 'New Campaign' }}</span>
           <span
             v-if="!collapsed"
             class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
           >
             <ChevronUpDownIcon
-              class="h-5 w-5 text-gray-400"
+              v-if="selectedCampaign?.name"
+              class="h-5 w-5 text-white"
               aria-hidden="true"
             />
+            <PlusIcon v-else class="mr-2 h-5 w-5 text-white" />
           </span>
         </MenuButton>
 
@@ -98,7 +101,7 @@ async function navigateToCreateCampaign() {
           leave-to-class="opacity-0"
         >
           <MenuItems
-            class="gradient-border-no-opacity absolute mt-1 max-h-60 max-w-[300px] z-50 overflow-auto rounded-md py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+            class="default-border-no-opacity absolute mt-1 max-h-60 max-w-[300px] z-50 overflow-auto rounded-md py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none text-sm"
             :class="{ 'w-auto': collapsed, 'w-full': !collapsed }"
           >
             <MenuItem
@@ -111,7 +114,7 @@ async function navigateToCreateCampaign() {
               <div
                 :class="[
                   active ? 'bg-purple-800/20 text-purple-200' : 'text-white',
-                  'relative cursor-default select-none py-2 pl-10 pr-4',
+                  'relative cursor-default select-none py-2 rl-10 pl-4',
                 ]"
                 @click="selectedCampaignId = campaign.id"
               >
@@ -126,7 +129,7 @@ async function navigateToCreateCampaign() {
                 >
                 <span
                   v-if="selectedCampaign?.id === campaign.id"
-                  class="absolute inset-y-0 left-0 flex items-center pl-3 text-purple-300"
+                  class="absolute inset-y-0 right-0 flex items-center pr-4 text-purple-300"
                 >
                   <CheckIcon class="h-5 w-5" aria-hidden="true" />
                 </span>
@@ -135,18 +138,19 @@ async function navigateToCreateCampaign() {
             <MenuItem
               v-slot="{ active }"
               as="template"
-              :value="undefined"
+              :key="'new_campaign'"
+              :value="-1"
               @click="navigateToCreateCampaign"
               @keyup.enter="navigateToCreateCampaign"
             >
               <div
                 :class="[
                   active ? 'bg-purple-800/20 text-purple-200' : 'text-white',
-                  'relative flex cursor-default select-none py-2 pl-3',
+                  'relative flex justify-between cursor-default select-none py-2 pl-4',
                 ]"
               >
-                <PlusIcon class="mr-2 h-5 w-5 text-green-500" />
-                <span> Create New </span>
+                <span> New Campaign </span>
+                <PlusIcon class="mr-4 h-5 w-5 text-white" />
               </div>
             </MenuItem>
           </MenuItems>
@@ -154,58 +158,80 @@ async function navigateToCreateCampaign() {
       </div>
     </Menu>
 
+    <div class="text-xs text-gray-500 font-bold mb-3">
+      CAMPAIGN
+    </div>
     <router-link
-      class="text-md my-0.5 p-3 text-gray-300 flex overflow-hidden"
+      class="nav-item"
       :class="[
-        router.currentRoute.value.path.startsWith('/campaign')
-          ? 'gradient-border-no-opacity '
+        router.currentRoute.value.fullPath.startsWith('/campaign/overview')
+          ? 'default-border-no-opacity'
           : '',
       ]"
-      to="/campaign"
+      to="/campaign/overview"
       @click="emit('nav-item-selected')"
     >
-      <BookOpenIcon v-if="collapsed" class="h-6 w-full" />
-      <div v-else class="whitespace-nowrap">Edit Campaign</div>
+      <Squares2X2Icon class="h-5 mr-2" />
+      <div v-if="!collapsed" class="whitespace-nowrap">Overview</div>
     </router-link>
     <router-link
-      v-if="selectedCampaignRole === CampaignRole.Player"
-      class="text-md my-0.5 p-3 text-gray-300 flex overflow-hidden"
+      v-if="selectedCampaignRole === CampaignRole.Player || true"
+      class="nav-item"
       :class="[
         router.currentRoute.value.path.startsWith('/character')
-          ? 'gradient-border-no-opacity '
+          ? 'default-border-no-opacity'
           : '',
       ]"
       to="/character"
       @click="emit('nav-item-selected')"
     >
-      <UserIcon v-if="collapsed" class="h-6 w-full" />
-      <div v-else class="whitespace-nowrap">Character</div>
+      <img src="@/assets/icons/characters.svg" class="h-5 mr-2" />
+      <div v-if="!collapsed" class="whitespace-nowrap">Characters</div>
     </router-link>
     <router-link
-      class="text-md my-0.5 p-3 text-gray-300 flex overflow-hidden"
+      class="nav-item"
       :class="[
         router.currentRoute.value.path.startsWith('/sessions')
-          ? 'gradient-border-no-opacity '
+          ? 'default-border-no-opacity'
           : '',
       ]"
       to="/sessions"
       @click="emit('nav-item-selected')"
     >
-      <ChatBubbleLeftRightIcon v-if="collapsed" class="h-6 w-full" />
-      <div v-else class="whitespace-nowrap">Sessions</div>
+      <img src="@/assets/icons/sessions.svg" class="h-5 mr-2" />
+      <div v-if="!collapsed" class="whitespace-nowrap">Sessions</div>
     </router-link>
+
+    <div class="text-xs text-gray-500 font-bold mb-3 mt-6">
+      TOOLS
+    </div>
+
     <router-link
-      class="text-md my-0.5 p-3 text-gray-300 flex overflow-hidden"
+      class="nav-item"
       :class="[
-        router.currentRoute.value.path.startsWith('/conjurations')
-          ? 'gradient-border-no-opacity '
+        router.currentRoute.value.fullPath.startsWith('/conjurations#gallery')
+          ? 'default-border-no-opacity'
           : '',
       ]"
-      to="/conjurations"
+      to="/conjurations#gallery"
       @click="emit('nav-item-selected')"
     >
-      <BoltIcon v-if="collapsed" class="h-6 w-full" />
-      <div v-else class="whitespace-nowrap">Conjurations</div>
+      <PhotoIcon class="h-5 mr-2" />
+      <div v-if="!collapsed" class="whitespace-nowrap">Gallery</div>
+    </router-link>
+
+    <router-link
+      class="nav-item"
+      :class="[
+        router.currentRoute.value.fullPath.startsWith('/conjurations#saved')
+          ? 'default-border-no-opacity'
+          : '',
+      ]"
+      to="/conjurations#saved"
+      @click="emit('nav-item-selected')"
+    >
+      <SparklesIcon class="h-5 mr-2" />
+      <div v-if="!collapsed" class="whitespace-nowrap">My Conjurations</div>
     </router-link>
   </div>
 </template>

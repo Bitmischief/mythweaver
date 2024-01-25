@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { SparklesIcon } from '@heroicons/vue/20/solid';
+import { SparklesIcon } from '@heroicons/vue/24/outline';
 import { postMagicLink } from '@/api/auth.ts';
 import { useRouter } from 'vue-router';
 import { AxiosError } from 'axios';
@@ -49,18 +49,19 @@ async function login() {
 
 <template>
   <div class="w-full">
-    <div class="text-neutral-500">Enter your email address</div>
+    <div class="text-white">Email address</div>
 
     <input
       v-model="email"
       autofocus
       name="email"
-      class="text-2xl mt-2 py-4 w-full rounded-xl border bg-black px-4 text-left text-white"
+      class="input-primary"
       :class="{
         'border-red-500': !isEmailValid && triedToSubmit,
         'gradient-border-no-opacity': isEmailValid || !triedToSubmit,
       }"
       @keyup.enter="login"
+      placeholder="Enter your email address"
     />
     <div
       v-if="!isEmailValid && triedToSubmit"
@@ -69,7 +70,7 @@ async function login() {
       The email provided is invalid
     </div>
 
-    <div class="mt-1 text-xs text-neutral-500">
+    <div class="mt-1 text-xs text-neutral-500 text-center px-1">
       By continuing you are agreeing to the
       <a
         href="https://mythweaver.co/docs/terms.pdf"
@@ -86,14 +87,14 @@ async function login() {
     </div>
 
     <button
-      class="mt-4 w-full flex text-center justify-center self-center rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 px-4 py-3 transition-all hover:scale-110"
+      class="mt-6 w-full flex text-center justify-center self-center rounded-md bg-gradient-to-r from-fuchsia-500 to-violet-500 px-4 py-3 transition-all hover:scale-110"
       @click="login"
     >
       <template v-if="!isLoading">
-        <SparklesIcon class="mr-2 h-5 w-5 self-center" />
-        <span class="self-center text-xl">Login</span>
+        <span class="self-center text-sm">Send magic link</span>
+        <SparklesIcon class="ml-2 h-5 w-5 self-center" />
       </template>
-      <span v-else class="text-xl animate-pulse">loading...</span>
+      <span v-else class="text-sm animate-pulse">loading...</span>
     </button>
   </div>
 </template>

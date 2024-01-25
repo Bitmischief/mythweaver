@@ -17,10 +17,12 @@ import { format } from 'date-fns';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import { showError, showSuccess } from '@/lib/notifications.ts';
 import { AxiosError } from 'axios';
+import { useRouter } from 'vue-router';
 
 const campaignStore = useCampaignStore();
 const selectedCampaignId = useSelectedCampaignId();
 const eventBus = useEventBus();
+const router = useRouter();
 
 const campaign = ref<Campaign>({} as Campaign);
 const rpgSystems = ref<RpgSystem[]>([]);
@@ -35,7 +37,7 @@ const currentUserRole = computed(() => campaignStore.selectedCampaignRole);
 
 onMounted(async () => {
   if (!selectedCampaignId.value) {
-    return;
+    router.push('/campaigns/new');
   }
 
   await init();

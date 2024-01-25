@@ -11,12 +11,12 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-        gilroy: ['Gilroy', 'sans-serif'],
+        sans: ['"Rebond Grotesque"'],
       },
       colors: {
-        surface: '#0A090C',
-        'surface-2': '#161518',
+        surface: '#050712',
+        'surface-2': '#0F111B',
+        'surface-3': '#1E202A',
         gradient:
           'linear-gradient(to right, rgba(64, 170, 241, 0.8), rgba(217, 117, 244, 0.8))',
       },

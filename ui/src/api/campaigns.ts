@@ -30,7 +30,7 @@ export interface CampaignMember {
   joinedAt: string;
   user: {
     id: number;
-    email: number;
+    email: string;
   };
 }
 

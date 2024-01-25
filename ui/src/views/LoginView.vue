@@ -2,6 +2,11 @@
   <div class="flex h-screen overflow-y-hidden">
     <div class="relative">
       <div class="absolute w-full h-full bg-black/95"></div>
+      <img
+        class="absolute bottom-0 w-full z-50 invisible lg:visible pointer-events-none"
+        src="/images/MW_login_fg.png"
+        alt="fg"
+      />
 
       <div class="grid grid-cols-2 gap-0 md:grid-cols-5">
         <img
@@ -14,26 +19,36 @@
     </div>
   </div>
 
-  <ModalAlternate :show="true"
-    ><div class="md:w-[499px] p-6 bg-neutral-900 rounded-[20px]">
-      <div class="w-full">
-        <img
-          src="/images/logo-horizontal.svg"
-          class="mx-auto h-20 w-auto mb-8"
-        />
+  <ModalAlternate :show="true">
+    <div class="rounded-[25px] bg-gradient-to-r from-fuchsia-500/75 to-purple-500/75 p-0.5">
+      <div class="md:flex p-1 bg-neutral-900 rounded-[25px]">
+        <div class="md:w-[464px] bg-neutral-800 p-6 w-full rounded-[25px]">
+          <img
+            src="/images/logo-horizontal-2.svg"
+            class="mx-auto h-12 w-auto mb-8"
+          />
 
-        <div class="text-neutral-200 text-3xl mb-2 text-center">
-          Welcome to MythWeaver
-        </div>
-        <div class="text-center text-lg mb-6 text-neutral-500">
-          Let's weave something
-          <span
-            class="bg-clip-text font-bold text-transparent bg-gradient-to-r from-fuchsia-500/75 to-blue-400/75"
-            >magical</span
-          >
-        </div>
+          <div class="text-neutral-200 text-2xl mb-4 text-center">
+            Welcome to MythWeaver
+          </div>
+          <div class="text-center text-sm mb-8 text-neutral-500">
+            <div class="w-2/3 mx-auto">
+              Enter your email address and we'll email you a one time magic login link.
+            </div>
+          </div>
 
-        <LoginContent @login-failed="showEarlyAccessModal = true" />
+          <LoginContent @login-failed="showEarlyAccessModal = true" />
+        </div>
+        <div class="md:w-[250px] p-6">
+          <div class="flex mb-8">
+            <span class="self-center">48 hours free trial</span>
+            <SparklesIcon class="self-center ml-2 h-5 w-5 text-yellow-500" />
+          </div>
+          <div class="text-sm mb-8 text-neutral-500">
+            Fantastic news, adventurers! Immerse yourself in the enchanting world of
+            MythWeaver for 48 hours, absolutely free.
+          </div>
+        </div>
       </div>
     </div>
   </ModalAlternate>
@@ -46,6 +61,7 @@ import LoginContent from '@/components/Login/LoginContent.vue';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import { useAuthStore } from '@/store';
 import { useRouter } from 'vue-router';
+import { SparklesIcon } from '@heroicons/vue/20/solid'
 
 const authStore = useAuthStore();
 const router = useRouter();

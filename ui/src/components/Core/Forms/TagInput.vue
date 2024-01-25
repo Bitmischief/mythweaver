@@ -60,7 +60,7 @@ function removeVal(val: string) {
     <div class="relative mt-2 h-12 w-full">
       <input
         v-model="tagInput"
-        class="gradient-border-no-opacity relative h-full w-full rounded-xl border bg-black px-4 text-left text-white"
+        class="input-ghost"
         placeholder="cyberpunk"
         @keyup.enter="addVal"
       />
@@ -71,7 +71,7 @@ function removeVal(val: string) {
         @click="addVal"
       >
         <PlusIcon class="mr-1 h-4 w-4 self-center text-white" @click="addVal" />
-        <span class="max-h-8 self-center overflow-y-clip"
+        <span class="text-sm max-h-8 self-center overflow-y-clip"
           >Add {{ tagInput }}</span
         >
       </button>

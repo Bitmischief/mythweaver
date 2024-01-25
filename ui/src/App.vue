@@ -107,23 +107,23 @@ async function confirmEarlyAccessTerms() {
 
 <template>
   <div class="block h-screen bg-surface-2 text-white md:flex">
-    <Navbar v-if="!!authStore.tokens" class="w-full md:max-w-[300px]" />
+    <Navbar v-if="!!authStore.tokens" class="w-full md:max-w-[256px]" />
     <div class="block w-full">
       <div
         v-if="!!authStore.tokens"
-        class="justify-end bg-surface-2 h-[5rem] hidden md:flex"
+        class="justify-end bg-surface-2 h-[4rem] hidden md:flex border-b border-zinc-900"
       >
         <NavBarHeader />
       </div>
 
       <div
         id="view-parent"
-        class="flex w-full flex-col overflow-y-auto rounded-tr-2xl md:rounded-tr-none"
+        class="flex w-full flex-col overflow-y-auto md:rounded-tr-none"
         :class="{
-          'rounded-tl-2xl pb-6 mb-6 bg-surface p-4': !!authStore.tokens,
+          'pb-6 mb-6 bg-surface p-5 px-8': !!authStore.tokens,
         }"
         :style="{
-          height: `${!!authStore.tokens ? 'calc(100vh - 5rem)' : 'auto'}`,
+          height: `${!!authStore.tokens ? 'calc(100vh - 4rem)' : 'auto'}`,
         }"
       >
         <router-view />

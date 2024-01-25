@@ -22,6 +22,7 @@ import ViewSessionPlanning from '@/components/Sessions/ViewSessionPlanning.vue';
 import ViewSessionSummary from '@/components/Sessions/ViewSessionSummary.vue';
 import ViewSessionRecap from '@/components/Sessions/ViewSessionRecap.vue';
 import AuthenticatedView from '@/views/AuthenticatedView.vue';
+import OverviewCampaign from '@/components/Campaigns/OverviewCampaign.vue';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -152,6 +153,10 @@ const router = createRouter({
               path: 'edit',
               alias: '',
               component: ViewCampaign,
+            },
+            {
+              path: 'overview',
+              component: OverviewCampaign,
             },
           ],
         },
