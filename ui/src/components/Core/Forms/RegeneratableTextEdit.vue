@@ -15,6 +15,7 @@ const props = defineProps<{
   autoHeight?: boolean;
   disabled?: boolean;
   inputClass?: string;
+  innerClass?: string;
   outerClass?: string;
   hideLabel?: boolean;
   disableGeneration?: boolean;
@@ -63,6 +64,7 @@ async function generate() {
       :help="help"
       :type="type"
       :input-class="inputClass"
+      :inner-class="innerClass"
       :outer-class="`${outerClass} ${
         disabled ? 'w-full' : 'w-[calc(100%-2rem)]'
       }`"
@@ -71,7 +73,7 @@ async function generate() {
 
     <ArrowPathIcon
       v-if="!disableGeneration && !disabled"
-      class="h-8 w-8 text-gray-400 cursor-pointer self-center ml-2"
+      class="h-6 w-6 text-gray-400 cursor-pointer self-center ml-2 mb-4"
       :class="{ 'animate-spin': isPropertyGenerating }"
       @click="generate"
     />

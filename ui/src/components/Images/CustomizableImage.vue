@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import LightboxImage from '@/components/LightboxImage.vue';
 import { ArrowsPointingOutIcon } from '@heroicons/vue/20/solid';
+import { PencilSquareIcon } from '@heroicons/vue/24/outline';
 import { useEventBus } from '@/lib/events.ts';
 import { onMounted } from 'vue';
 
@@ -11,6 +12,7 @@ const props = defineProps<{
   alt?: string;
   imageConjurationFailed?: boolean;
   imageConjurationFailureReason?: string;
+  type: string;
 }>();
 
 const emit = defineEmits(['set-image']);
@@ -42,22 +44,29 @@ function showImage() {
 
 <template>
   <div class="relative">
+    <div
+      class="absolute left-2 top-2 flex h-6 justify-center items-center rounded-full bg-white/50 group text-black text-xs font-bold px-4"
+    >
+      {{ type }}
+    </div>
+
     <div class="absolute flex top-2 right-2">
       <button
-        class="bg-neutral-800 border border-neutral-600 px-2 md:px-4 rounded-md flex transition-all h-8 md:h-12 hover:scale-110"
+        class="flex button-white bg-white/50"
         @click="showCustomizeImageModal"
       >
+        <PencilSquareIcon class="h-4 mr-1" />
         <span class="self-center">Customize</span>
       </button>
     </div>
 
     <div
       v-if="editable && imageUri"
-      class="absolute flex bottom-2 right-2 cursor-pointer"
+      class="absolute flex bottom-2 right-2 cursor-pointer bg-white/50 rounded-[8px]"
       @click="showImage"
     >
       <ArrowsPointingOutIcon
-        class="w-8 h-8 self-center transition-all hover:scale-125"
+        class="p-1 w-8 h-8 self-center transition-all hover:scale-125 text-black"
       />
     </div>
 

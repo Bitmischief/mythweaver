@@ -9,13 +9,12 @@ import { AdjustmentsVerticalIcon, SparklesIcon } from '@heroicons/vue/20/solid';
 import ConjurationQuickView from '@/components/Conjuration/ConjurationListItemView.vue';
 import { debounce } from 'lodash';
 import ConjurationsListFiltering from '@/components/Conjuration/ConjurationsListFiltering.vue';
-import { useRouter, useRoute } from 'vue-router'
+import { useRoute } from 'vue-router';
 
 const pagingDone = ref(false);
 const conjurations = ref<Conjuration[]>([]);
 const showFilters = ref(false);
 
-const router = useRouter();
 const route = useRoute();
 
 const defaultPaging = {
@@ -67,11 +66,11 @@ watch(
   () => route.hash,
   () => {
     if (route.hash === '#gallery') {
-      conjurationsMineQuery.value.saved = false
+      conjurationsMineQuery.value.saved = false;
     } else {
-      conjurationsMineQuery.value.saved = true
+      conjurationsMineQuery.value.saved = true;
     }
-  }
+  },
 );
 
 watch(
@@ -156,7 +155,12 @@ async function handleConjurationChange(change: {
   <div class="flex w-full justify-between rounded-xl pb-8">
     <div class="w-full md:flex md:justify-between">
       <div class="flex">
-        <div v-if="conjurationsMineQuery.saved" class="text-xl self-center mr-6">My Conjurations</div>
+        <div
+          v-if="conjurationsMineQuery.saved"
+          class="text-xl self-center mr-6"
+        >
+          My Conjurations
+        </div>
         <div v-else class="text-xl self-center mr-6">Gallery</div>
       </div>
 

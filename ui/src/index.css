@@ -32,7 +32,7 @@
 }
 
 .default-border-no-opacity {
-  background: #1E202A;
+  background: #1e202a;
   border-radius: 12px;
 }
 
@@ -72,21 +72,35 @@ input[type='number'] {
   border-radius: 8px;
 }
 
+.truncate-2-line {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
 @layer components {
   .button-primary {
-    @apply bg-surface-3 hover:-translate-y-1 text-white text-sm rounded-[12px] px-4 py-2;
+    @apply bg-surface-3 text-white text-sm rounded-[12px] px-4 py-2 hover:cursor-pointer;
   }
   .button-ghost {
-    @apply bg-transparent hover:-translate-y-1 text-fuchsia-500 text-sm border border-fuchsia-500 rounded-[12px] px-4 py-2;
+    @apply bg-transparent text-fuchsia-500 text-sm border border-fuchsia-500 rounded-[12px] px-4 py-2 hover:cursor-pointer;
+  }
+  .button-gradient {
+    @apply bg-gradient-to-r from-fuchsia-500 to-violet-500 rounded-[12px] text-sm px-4 py-2 hover:cursor-pointer;
+  }
+  .button-white {
+    @apply bg-white text-black rounded-[12px] text-sm px-4 py-2 hover:cursor-pointer;
   }
   .input-primary {
     @apply text-sm mt-2 py-4 w-full rounded border bg-black px-4 text-left text-white;
   }
   .input-ghost {
-    @apply text-sm py-3 bg-surface-2 w-full rounded-[12px] border-surface-3
+    @apply text-sm py-3 bg-surface-2 w-full rounded-[12px] border-surface-3;
   }
   .select-ghost {
-    @apply text-sm py-3 px-3 text-white text-left cursor-pointer bg-surface-2 w-full rounded-[12px] border border-surface-3
+    @apply text-sm py-3 px-3 text-white text-left cursor-pointer bg-surface-2 w-full rounded-[12px] border border-surface-3;
   }
   .nav-item {
     @apply text-sm my-0.5 py-2 px-4 text-gray-300 flex overflow-hidden;

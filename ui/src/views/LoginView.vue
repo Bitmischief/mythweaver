@@ -20,7 +20,9 @@
   </div>
 
   <ModalAlternate :show="true">
-    <div class="rounded-[25px] bg-gradient-to-r from-fuchsia-500/75 to-purple-500/75 p-0.5">
+    <div
+      class="rounded-[25px] bg-gradient-to-r from-fuchsia-500/75 to-purple-500/75 p-0.5"
+    >
       <div class="md:flex p-1 bg-neutral-900 rounded-[25px]">
         <div class="md:w-[464px] bg-neutral-800 p-6 w-full rounded-[25px]">
           <img
@@ -33,7 +35,8 @@
           </div>
           <div class="text-center text-sm mb-8 text-neutral-500">
             <div class="w-2/3 mx-auto">
-              Enter your email address and we'll email you a one time magic login link.
+              Enter your email address and we'll email you a one time magic
+              login link.
             </div>
           </div>
 
@@ -45,8 +48,8 @@
             <SparklesIcon class="self-center ml-2 h-5 w-5 text-yellow-500" />
           </div>
           <div class="text-sm mb-8 text-neutral-500">
-            Fantastic news, adventurers! Immerse yourself in the enchanting world of
-            MythWeaver for 48 hours, absolutely free.
+            Fantastic news, adventurers! Immerse yourself in the enchanting
+            world of MythWeaver for 48 hours, absolutely free.
           </div>
         </div>
       </div>
@@ -61,7 +64,7 @@ import LoginContent from '@/components/Login/LoginContent.vue';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import { useAuthStore } from '@/store';
 import { useRouter } from 'vue-router';
-import { SparklesIcon } from '@heroicons/vue/20/solid'
+import { SparklesIcon } from '@heroicons/vue/20/solid';
 
 const authStore = useAuthStore();
 const router = useRouter();

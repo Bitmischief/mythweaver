@@ -122,6 +122,18 @@ function normalizeKeyName(key: string) {
     .join(' ')
     .toLowerCase();
 }
+
+const conjurationType = computed(() => {
+  if (props.conjuration.conjurerCode === 'monsters') {
+    return 'Monster';
+  } else if (props.conjuration.conjurerCode === 'locations') {
+    return 'Location';
+  } else if (props.conjuration.conjurerCode === 'characters') {
+    return 'NPC';
+  } else {
+    return '';
+  }
+});
 </script>
 
 <template>
@@ -135,6 +147,7 @@ function normalizeKeyName(key: string) {
           :alt="editableConjuration.name"
           :image-conjuration-failed="imageConjurationFailed"
           :image-conjuration-failure-reason="imageConjurationFailureReason"
+          :type="conjurationType"
         />
 
         <div class="mt-4 text-4xl font-bold text-center">

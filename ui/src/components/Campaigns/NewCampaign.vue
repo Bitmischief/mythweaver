@@ -74,15 +74,15 @@ const atmosphere = ref<string[]>([]);
 
 <template>
   <div class="flex items-center justify-center h-full">
-    <div class="text-white min-w-[30em] max-w-[50em] min-h-[30em] max-h-[50em] bg-surface-2 rounded-[20px] p-10">
+    <div
+      class="text-white min-w-[30em] max-w-[50em] min-h-[30em] max-h-[50em] bg-surface-2 rounded-[20px] p-10"
+    >
       <div class="text-center text-white text-xl text-neutral-500">
-        No campaign yet. <br/>
+        No campaign yet. <br />
         Create or join one.
       </div>
 
-      <div class="mt-8 text-sm text-gray-400 m-1">
-        Campaign Name
-      </div>
+      <div class="mt-8 text-sm text-gray-400 m-1">Campaign Name</div>
 
       <input
         ref="campaignName"
@@ -92,9 +92,7 @@ const atmosphere = ref<string[]>([]);
         placeholder="What should we call this campaign?"
       />
 
-      <div class="mt-8 mb-1 text-sm text-gray-400 m-1">
-        Roleplaying System
-      </div>
+      <div class="mt-8 mb-1 text-sm text-gray-400 m-1">Roleplaying System</div>
 
       <Select
         v-model="campaign.rpgSystemCode"
@@ -106,7 +104,8 @@ const atmosphere = ref<string[]>([]);
 
       <template v-if="campaign.rpgSystemCode === 'other'">
         <div class="mt-6 text-sm text-gray-400">
-          Please describe your campaign's universe and atmosphere in a few words:
+          Please describe your campaign's universe and atmosphere in a few
+          words:
         </div>
 
         <div class="text-xs mt-2 p-2 text-gray-400">
@@ -127,9 +126,7 @@ const atmosphere = ref<string[]>([]);
       </template>
 
       <template v-if="campaign.rpgSystemCode !== 'other'">
-        <div class="mt-6 mb-1 text-sm text-gray-400">
-          Campaign
-        </div>
+        <div class="mt-6 mb-1 text-sm text-gray-400">Campaign</div>
 
         <Select
           v-model="campaign.publicAdventureCode"

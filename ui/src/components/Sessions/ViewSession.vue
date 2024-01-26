@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ArrowLeftIcon } from '@heroicons/vue/24/solid';
-import { onMounted, onUnmounted, ref, watch } from 'vue';
+import { ArrowLeftIcon, EllipsisVerticalIcon } from '@heroicons/vue/24/solid';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import {
   SessionBase,
   deleteSession,
@@ -11,7 +11,7 @@ import {
 import { useRoute, useRouter } from 'vue-router';
 import { showError, showSuccess } from '@/lib/notifications.ts';
 import Menu from '@/components/Core/General/Menu.vue';
-import { ChevronDownIcon, MicrophoneIcon } from '@heroicons/vue/20/solid';
+import { MicrophoneIcon } from '@heroicons/vue/20/solid';
 import { MenuButton, MenuItem } from '@headlessui/vue';
 import { ServerEvent } from '@/lib/serverEvents.ts';
 import { useCurrentUserRole, useWebsocketChannel } from '@/lib/hooks.ts';
@@ -186,30 +186,39 @@ function handleAudioUpload(payload: { audioUri: string; audioName: string }) {
   };
   showUploadAudioModal.value = false;
 }
+
+const sessionType = computed(() => {
+  if (session.value.completed) {
+    return 'Completed';
+  } else if (session.value.archived) {
+    return 'Archived';
+  } else if (session.value.planning || session.value.recap) {
+    return 'In Progress';
+  } else {
+    return 'Upcoming';
+  }
+});
 </script>
 
 <template>
-  <div v-if="session" class="my-8 md:min-h-[calc(100%-37rem)] pb-12">
-    <div class="md:flex justify-between">
-      <router-link
-        :to="`/sessions`"
-        class="bg-surface-2 flex rounded-md border-2 border-gray-600/50 p-3"
-      >
+  <div v-if="session" class="min-h-[calc(100%-37rem)] py-2 pb-12">
+    <div class="flex justify-between">
+      <router-link :to="`/sessions`" class="button-primary flex">
         <ArrowLeftIcon class="mr-2 h-4 w-4 self-center" /> Back to list
       </router-link>
 
       <div v-if="session.processing">
         <div
-          class="animate-pulse md:mt-0 mt-3 bg-amber-700 rounded-md px-3 text-white text-lg"
+          class="animate-pulse mt-3 bg-amber-700 rounded-md px-3 text-white text-lg"
         >
           Processing...
         </div>
       </div>
 
-      <div v-if="currentUserRole === CampaignRole.DM" class="md:flex">
+      <div v-if="currentUserRole === CampaignRole.DM" class="flex">
         <button
           v-if="session.summary && !session.completed"
-          class="h-12 rounded-md self-center bg-green-500 mt-3 md:mt-0 w-full md:w-auto md:mr-2 px-3 py-1 transition-all hover:scale-110"
+          class="button-ghost mr-2"
           :disabled="loadingCompleteSession"
           @click="completeSession"
         >
@@ -219,55 +228,47 @@ function handleAudioUpload(payload: { audioUri: string; audioName: string }) {
 
         <AudioPlayback
           v-if="session.audioUri"
-          class="self-center mt-3 md:mt-0 mx-auto md:mx-0"
+          class="self-center mt-3 md:mt-0 mx-auto mr-2"
           :audio-uri="session.audioUri"
         />
         <div
           v-else
-          class="h-12 self-center mt-3 md:mt-0 w-full md:w-auto rounded-md bg-fuchsia-500 flex px-3 py-1 transition-all hover:scale-110 cursor-pointer"
+          class="button-ghost flex mr-2"
           @click="showUploadAudioModal = true"
         >
-          <MicrophoneIcon class="w-5 h-5 mr-1 self-center" />
-          <span class="self-center">Upload Audio</span>
+          <MicrophoneIcon class="w-4 h-4 mr-1 self-center" />
+          <span class="self-center">Upload Session Audio</span>
         </div>
 
-        <Menu
-          class="mt-3 md:mt-0 self-center md:ml-0 w-[calc(100%-1.5rem)] ml-3 md:w-auto"
-        >
-          <MenuButton
-            class="bg-surface-2 md:ml-2 self-center flex h-12 w-full justify-center rounded-md border-2 border-gray-600/50 px-3 py-1 text-white transition-all hover:scale-110"
-          >
-            <span class="text-md self-center"> More </span>
-            <ChevronDownIcon
-              class="-mr-1 ml-2 h-5 w-5 self-center text-violet-200 hover:text-violet-100"
-              aria-hidden="true"
-            />
+        <Menu class="self-center w-[calc(100%-1.5rem)] ml-3 md:w-auto">
+          <MenuButton class="button-primary">
+            <EllipsisVerticalIcon class="h-5" />
           </MenuButton>
           <template #content>
-            <div class="rounded-xl bg-neutral-800 p-4">
+            <div class="relative z-60 bg-surface-3 p-2 rounded-[20px]">
               <MenuItem v-if="!session.archived">
                 <button
-                  class="w-full rounded-xl border-2 border-red-500 px-3 py-1"
+                  class="w-full rounded-[14px] px-3 py-1 hover:bg-purple-800/20 hover:text-purple-200"
                   @click="clickDeleteSession"
                 >
-                  Archive
+                  Archive session
                 </button>
               </MenuItem>
               <template v-else>
                 <MenuItem>
                   <button
-                    class="w-full rounded-xl border-2 border-green-500 px-3 py-1 mb-3"
+                    class="w-full rounded-[14px] px-3 py-1 hover:bg-purple-800/20 hover:text-purple-200"
                     @click="clickUnarchiveSession"
                   >
-                    Unarchive
+                    Unarchive session
                   </button>
                 </MenuItem>
                 <MenuItem>
                   <button
-                    class="w-full rounded-xl border-2 border-red-500 px-3 py-1"
+                    class="w-full rounded-[14px] px-3 py-1 hover:bg-purple-800/20 hover:text-purple-200"
                     @click="clickDeleteSession"
                   >
-                    Delete
+                    Delete session
                   </button>
                 </MenuItem>
               </template>
@@ -278,13 +279,14 @@ function handleAudioUpload(payload: { audioUri: string; audioName: string }) {
     </div>
 
     <div class="mt-6">
-      <div class="md:flex mb-6">
+      <div class="flex mb-12">
         <div>
           <CustomizableImage
             :editable="currentUserRole === CampaignRole.DM"
             :image-uri="sessionImageUri || '/images/session_bg_square.png'"
             :prompt="sessionSuggestedImagePrompt"
-            class="rounded-md w-[20rem]"
+            class="rounded-md w-[20em]"
+            :type="sessionType"
             @set-image="
               sessionImageUri = $event.imageUri;
               sessionSuggestedImagePrompt = $event.prompt;
@@ -292,7 +294,7 @@ function handleAudioUpload(payload: { audioUri: string; audioName: string }) {
           />
         </div>
 
-        <div class="md:ml-6 mt-3 md:mt-0 w-full">
+        <div class="mx-4 w-full">
           <RegeneratableTextEdit
             v-model="sessionName"
             :disabled="currentUserRole !== CampaignRole.DM"
@@ -303,63 +305,78 @@ function handleAudioUpload(payload: { audioUri: string; audioName: string }) {
               name: undefined,
             }"
             :disable-generation="!session.recap"
-            input-class="$reset text-xl focus:ring-0 md:text-3xl 3xl:text-5xl border-none bg-transparent text-white w-full pl-0"
-            outer-class="$reset"
+            input-class="text-xl"
+            inner-class="border-none"
+            outer-class="bg-surface-2 rounded-[8px]"
             hide-label
             label="Name"
             type="text"
           />
 
-          <div
-            class="mt-2 px-2 w-fit rounded-md font-bold text-neutral-800 text-sm"
-            :class="{
-              'bg-blue-500':
-                !session.completed && !session.processing && !session.archived,
-              'bg-green-500': session.completed,
-              'bg-amber-500': session.processing,
-              'bg-red-500': session.archived,
-            }"
-          >
-            <span
-              v-if="
-                !session.completed && !session.processing && !session.archived
-              "
-              >Active</span
+          <div class="bg-surface-2 rounded-[8px] p-4">
+            <div class="flex align-center text-xl mb-2">
+              <div>Summary</div>
+              <div
+                class="border border-fuchsia-500 rounded-full text-xs flex py-1 px-2 ml-2 flex"
+              >
+                <img
+                  src="@/assets/icons/wand.svg"
+                  alt="wand"
+                  class="h-4 py-1 mr-1"
+                />
+                AI Generated
+              </div>
+            </div>
+            <div
+              v-if="session.summary"
+              class="text-sm text-neutral-500 h-[14em] overflow-y-auto bg-surface-2 pr-2"
             >
-            <span v-if="session.processing">Processing</span>
-            <span v-else-if="session.archived">Archived</span>
-            <span v-else-if="session.completed">Completed</span>
-          </div>
-
-          <div class="mt-4 text-neutral-400">
-            Summary
-            <div class="text-sm text-neutral-500">
               {{ session.summary }}
+            </div>
+            <div
+              v-else
+              class="text-sm text-neutral-500 text-center max-w-[20em] h-[12em] pt-[5em] mx-auto"
+            >
+              Summary will be avilable once this session is completed
             </div>
           </div>
         </div>
       </div>
-      <div
-        class="flex gap-8 text-neutral-400 rounded-md uppercase w-full bg-neutral-800 py-4 px-2"
-      >
-        <router-link
-          to="planning"
-          :class="{ 'text-white font-bold': route.path.endsWith('planning') }"
+      <div class="flex">
+        <div
+          class="flex gap-1 text-neutral-500 rounded-[10px] bg-surface-2 p-1 border border-surface-3 text-sm"
         >
-          Planning
-        </router-link>
-        <router-link
-          to="recap"
-          :class="{ 'text-white font-bold': route.path.endsWith('recap') }"
-        >
-          Game Master Recap
-        </router-link>
-        <router-link
-          to="summary"
-          :class="{ 'text-white font-bold': route.path.endsWith('summary') }"
-        >
-          Summary
-        </router-link>
+          <router-link
+            to="planning"
+            class="w-[12em] text-center py-2 px-4"
+            :class="{
+              'text-white rounded-[10px] bg-surface-3':
+                route.path.endsWith('planning'),
+            }"
+          >
+            Planning
+          </router-link>
+          <router-link
+            to="recap"
+            class="w-[12em] text-center py-2 px-4"
+            :class="{
+              'text-white rounded-[10px] bg-surface-3':
+                route.path.endsWith('recap'),
+            }"
+          >
+            GM's Recap
+          </router-link>
+          <router-link
+            to="summary"
+            class="w-[12em] text-center py-2 px-4"
+            :class="{
+              'text-white rounded-[10px] bg-surface-3':
+                route.path.endsWith('summary'),
+            }"
+          >
+            Summary
+          </router-link>
+        </div>
       </div>
     </div>
 

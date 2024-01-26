@@ -60,8 +60,8 @@ async function login() {
         'border-red-500': !isEmailValid && triedToSubmit,
         'gradient-border-no-opacity': isEmailValid || !triedToSubmit,
       }"
-      @keyup.enter="login"
       placeholder="Enter your email address"
+      @keyup.enter="login"
     />
     <div
       v-if="!isEmailValid && triedToSubmit"

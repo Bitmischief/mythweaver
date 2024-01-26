@@ -110,15 +110,7 @@ async function clickSaveSession() {
     />
   </template>
 
-  <div
-    v-if="summary && currentUserRole === CampaignRole.DM"
-    class="flex justify-end"
-  >
-    <button
-      class="rounded-md bg-green-500 text-lg py-1 px-3"
-      @click="clickSaveSession"
-    >
-      Save Changes
-    </button>
+  <div v-if="summary && currentUserRole === CampaignRole.DM" class="flex">
+    <button class="button-ghost" @click="clickSaveSession">Save Changes</button>
   </div>
 </template>

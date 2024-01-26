@@ -100,9 +100,7 @@ const showCheckIcon = (option: any) => {
 <template>
   <Listbox v-model="value" :multiple="multiple">
     <div class="relative">
-      <ListboxButton
-        class="select-ghost relative"
-      >
+      <ListboxButton class="select-ghost relative">
         <span
           class="block truncate"
           :class="{ 'text-gray-400': showPlaceholder }"

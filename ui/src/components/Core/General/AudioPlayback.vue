@@ -16,7 +16,7 @@ const cleanedAudioUri = computed(() => {
 
 <template>
   <div>
-    <audio controls preload="auto">
+    <audio controls preload="auto" class="h-[2em]">
       <source :src="cleanedAudioUri" type="audio/mpeg" />
     </audio>
   </div>

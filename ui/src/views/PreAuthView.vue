@@ -37,9 +37,9 @@
             to="/login"
             class="mt-8 flex justify-center w-[10rem] bg-neutral-800 rounded-md py-2"
           >
-          <ArrowLeftIcon class="h-5 w-5 mr-2 self-center" />
-          <span class="text-sm self-center">Back to login</span>
-        </router-link>
+            <ArrowLeftIcon class="h-5 w-5 mr-2 self-center" />
+            <span class="text-sm self-center">Back to login</span>
+          </router-link>
         </div>
       </div>
     </div>

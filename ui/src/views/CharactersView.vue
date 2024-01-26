@@ -93,6 +93,7 @@ async function updateCharacter() {
               :image-uri="character.imageUri"
               :editable="true"
               :alt="character.name"
+              type="Character"
             />
           </div>
           <div class="md:ml-4 mt-6 md:mt-0 self-center">

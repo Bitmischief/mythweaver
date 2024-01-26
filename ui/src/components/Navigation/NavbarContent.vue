@@ -16,7 +16,7 @@ import {
   Squares2X2Icon,
   SparklesIcon,
   PhotoIcon,
-} from '@heroicons/vue/24/outline'
+} from '@heroicons/vue/24/outline';
 
 defineProps<{
   collapsed?: boolean;
@@ -81,7 +81,9 @@ async function navigateToCreateCampaign() {
           class="relative h-10 w-full cursor-pointer rounded-xl default-border-no-opacity border border-zinc-900 pl-4 pr-8 text-left text-white flex items-center text-sm"
         >
           <BookmarkIcon v-show="collapsed" class="w-6 h-6 overflow-visible" />
-          <span class="block truncate">{{ selectedCampaign?.name || 'New Campaign' }}</span>
+          <span class="block truncate">{{
+            selectedCampaign?.name || 'New Campaign'
+          }}</span>
           <span
             v-if="!collapsed"
             class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
@@ -137,8 +139,8 @@ async function navigateToCreateCampaign() {
             </MenuItem>
             <MenuItem
               v-slot="{ active }"
-              as="template"
               :key="'new_campaign'"
+              as="template"
               :value="-1"
               @click="navigateToCreateCampaign"
               @keyup.enter="navigateToCreateCampaign"
@@ -158,9 +160,7 @@ async function navigateToCreateCampaign() {
       </div>
     </Menu>
 
-    <div class="text-xs text-gray-500 font-bold mb-3">
-      CAMPAIGN
-    </div>
+    <div class="text-xs text-gray-500 font-bold mb-3">CAMPAIGN</div>
     <router-link
       class="nav-item"
       :class="[
@@ -175,7 +175,7 @@ async function navigateToCreateCampaign() {
       <div v-if="!collapsed" class="whitespace-nowrap">Overview</div>
     </router-link>
     <router-link
-      v-if="selectedCampaignRole === CampaignRole.Player || true"
+      v-if="selectedCampaignRole === CampaignRole.Player"
       class="nav-item"
       :class="[
         router.currentRoute.value.path.startsWith('/character')
@@ -202,9 +202,7 @@ async function navigateToCreateCampaign() {
       <div v-if="!collapsed" class="whitespace-nowrap">Sessions</div>
     </router-link>
 
-    <div class="text-xs text-gray-500 font-bold mb-3 mt-6">
-      TOOLS
-    </div>
+    <div class="text-xs text-gray-500 font-bold mb-3 mt-6">TOOLS</div>
 
     <router-link
       class="nav-item"

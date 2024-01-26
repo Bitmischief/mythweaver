@@ -1,15 +1,11 @@
 <script setup lang="ts">
-import {
-  Conjuration,
-} from '@/api/conjurations.ts';
+import { Conjuration } from '@/api/conjurations.ts';
 import { useRouter } from 'vue-router';
 
-const props = defineProps<{
+defineProps<{
   conjuration: Conjuration | undefined;
   skeleton?: boolean;
 }>();
-
-const emit = defineEmits(['add-conjuration', 'remove-conjuration']);
 
 const router = useRouter();
 
@@ -18,26 +14,26 @@ async function navigateToViewConjuration(conjurationId: number) {
 }
 
 function getConjurationDescription(conjuration: Conjuration) {
-  let text = ''
+  let text = '';
   if (conjuration.conjurerCode === 'characters') {
-    text = conjuration.data.background
+    text = conjuration.data.background;
   } else if (conjuration.conjurerCode === 'locations') {
-    text = conjuration.data.history
+    text = conjuration.data.history;
   } else if (conjuration.conjurerCode === 'monsters') {
-    text = conjuration.data.description
+    text = conjuration.data.description;
   }
-  return text
+  return text;
 }
 
 function conjurationType(conjuration: Conjuration) {
   if (conjuration.conjurerCode === 'monsters') {
-    return 'Monster'
+    return 'Monster';
   } else if (conjuration.conjurerCode === 'locations') {
-    return 'Location'
+    return 'Location';
   } else if (conjuration.conjurerCode === 'characters') {
-    return 'NPC'
+    return 'NPC';
   } else {
-    return ''
+    return '';
   }
 }
 </script>
@@ -64,14 +60,20 @@ function conjurationType(conjuration: Conjuration) {
         </div>
       </div>
 
-      <div class="absolute left-4 top-4 flex h-6 justify-center items-center rounded-full bg-white/50 group text-black text-xs font-bold px-4">
+      <div
+        class="absolute left-4 top-4 flex h-6 justify-center items-center rounded-full bg-white/50 group text-black text-xs font-bold px-4"
+      >
         {{ conjurationType(conjuration) }}
       </div>
 
-      <div class="flex w-full justify-between rounded-b-lg bg-surface-2 px-3 pb-2">
-        <div>
-          <div class="text-md overflow-hidden">{{ conjuration.name }}</div>
-          <div class="flex flex-wrap max-h-[2.5rem] text-sm text-neutral-500 overflow-hidden text-ellipsis">
+      <div
+        class="flex w-full justify-between rounded-b-lg bg-surface-2 px-3 pb-2"
+      >
+        <div class="max-w-[100%]">
+          <div class="relative text-md truncate">
+            {{ conjuration.name }}
+          </div>
+          <div class="text-sm text-neutral-500 truncate-2-line">
             {{ getConjurationDescription(conjuration) }}
           </div>
         </div>

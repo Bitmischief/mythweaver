@@ -5,7 +5,7 @@ import { useEventBus } from '@/lib/events.ts';
 import Session from '@/components/Sessions/Session.vue';
 import { useCampaignStore } from '@/store/campaign.store.ts';
 import { CampaignRole } from '@/api/campaigns.ts';
-import { BoltIcon } from '@heroicons/vue/20/solid';
+import { PlusIcon } from '@heroicons/vue/20/solid';
 import { showSuccess } from '@/lib/notifications.ts';
 import { useRouter } from 'vue-router';
 
@@ -67,11 +67,11 @@ async function handleCreateSession() {
 <template>
   <div class="mb-6 flex w-full justify-between rounded-xl py-4">
     <div class="w-full md:flex md:justify-between">
-      <div class="text-2xl self-center font-bold">Sessions List</div>
+      <div class="text-xl self-center font-bold">Sessions</div>
 
       <div class="mt-2 self-center md:mt-0 flex justify-between">
         <button
-          class="self-center w-[10rem] underline text-sm mr-4 hover:rounded-md hover:bg-neutral-800 px-4 py-3 transition-all hover:scale-110"
+          class="self-center button-primary mr-2"
           @click="
             sessionsSearch.archived =
               sessionsSearch.archived === undefined ? true : undefined;
@@ -85,11 +85,11 @@ async function handleCreateSession() {
         </button>
         <button
           v-if="currentUserRole === CampaignRole.DM"
-          class="flex justify-center self-center rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 px-4 py-3 transition-all hover:scale-110"
+          class="flex justify-center self-center button-ghost"
           @click="handleCreateSession"
         >
-          <BoltIcon class="mr-2 h-5 w-5 self-center" />
-          <span class="self-center">Create</span>
+          <PlusIcon class="mr-2 h-5 w-5 self-center" />
+          <span class="self-center">Create session</span>
         </button>
       </div>
     </div>
@@ -97,7 +97,7 @@ async function handleCreateSession() {
 
   <div
     v-if="sessions.length"
-    class="grid grid-cols-1 place-items-stretch lg:grid-cols-2 2xl:grid-cols-3 3xl:grid-cols-4 gap-4"
+    class="grid grid-cols-1 place-items-stretch sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-5"
   >
     <router-link
       v-for="(session, i) of sessions"
