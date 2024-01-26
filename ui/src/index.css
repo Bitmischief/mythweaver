@@ -94,18 +94,24 @@ input[type='number'] {
     @apply bg-white text-black rounded-[12px] text-sm px-4 py-2 hover:cursor-pointer;
   }
   .input-primary {
-    @apply text-sm mt-2 py-4 w-full rounded border bg-black px-4 text-left text-white;
+    @apply text-sm py-2 w-full border border-surface-3 bg-surface-2 px-4 text-white rounded-[12px] focus:border-fuchsia-500;
+  }
+  .input-secondary {
+    @apply text-sm py-2 w-full border border-surface-3 bg-surface px-4 text-white rounded-[12px] focus:border-fuchsia-500;
   }
   .input-ghost {
-    @apply text-sm py-3 bg-surface-2 w-full rounded-[12px] border-surface-3;
+    @apply text-sm py-3 bg-surface-2 w-full rounded-[12px] border-surface-3 focus:border-fuchsia-500;
   }
   .select-ghost {
-    @apply text-sm py-3 px-3 text-white text-left cursor-pointer bg-surface-2 w-full rounded-[12px] border border-surface-3;
+    @apply text-sm py-3 px-3 text-white text-left cursor-pointer bg-surface-2 w-full rounded-[12px] border border-surface-3 min-h-[3em];
   }
   .nav-item {
     @apply text-sm my-0.5 py-2 px-4 text-gray-300 flex overflow-hidden;
   }
   .bg-gradient {
     @apply bg-gradient-to-r from-fuchsia-500 to-violet-500;
+  }
+  .tag {
+    @apply rounded-full px-4 py-1 bg-surface-3 text-xs m-0.5;
   }
 }

@@ -126,7 +126,7 @@ const atmosphere = ref<string[]>([]);
       </template>
 
       <template v-if="campaign.rpgSystemCode !== 'other'">
-        <div class="mt-6 mb-1 text-sm text-gray-400">Campaign</div>
+        <div class="mt-6 mb-1 text-sm text-gray-400">Campaign Source</div>
 
         <Select
           v-model="campaign.publicAdventureCode"

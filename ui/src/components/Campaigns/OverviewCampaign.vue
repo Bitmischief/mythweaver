@@ -153,22 +153,25 @@ const latestSession = computed(() => {
   <div class="flex justify-between mb-6">
     <div>Overview</div>
     <div class="flex">
-      <button class="button-primary flex mr-2">
+      <router-link to="/campaign/edit" class="button-primary flex mr-2">
         <PencilSquareIcon class="h-5 w-5 mr-1" />
         Edit campaign
-      </button>
-      <button class="button-ghost flex">
+      </router-link>
+      <router-link to="/campaigns/new" class="button-ghost flex">
         <PlusIcon class="h-5 w-5 mr-1" />
         Create new campaign
-      </button>
+      </router-link>
     </div>
   </div>
   <div class="grid grid-cols-5 grid-rows-1 gap-4 mb-10">
-    <div class="rounded-[18px] bg-surface-3 p-4 min-h-[10em] col-span-3">
+    <div class="rounded-[18px] bg-surface-3 p-4 lg:h-[16em] col-span-3">
       <div class="text-lg mb-2">
         {{ campaign.name }}
       </div>
-      <div v-if="campaign.description" class="text-sm text-neutral-400">
+      <div
+        v-if="campaign.description"
+        class="text-sm text-neutral-400 lg:max-h-[14em] overflow-y-auto"
+      >
         {{ campaign.description }}
       </div>
       <div v-else class="text-neutral-500 text-center py-[3em]">
@@ -177,17 +180,23 @@ const latestSession = computed(() => {
     </div>
     <div class="rounded-[18px] bg-surface-3 p-4 min-h-[10em] col-span-2">
       <div v-if="latestSession">
-        <div class="flex">
+        <div class="grid grid-cols-4 relative">
           <img
             :src="latestSession?.imageUri"
-            class="h-14 rounded-[12px]"
+            class="rounded-[12px] col-span-4 lg:col-span-1"
             alt="session img"
           />
-          <div class="px-4">
-            <span class="px-4 py-1 bg-zinc-700 rounded-[12px] text-sm"
-              >Last session</span
+          <div class="col-span-4 lg:col-span-3 lg:pl-4">
+            <span
+              class="px-2 py-1 bg-zinc-700 rounded-[12px] text-sm absolute top-2 left-2 lg:static"
             >
-            <div class="mt-2">{{ latestSession.name }}</div>
+              Last session
+            </span>
+            <div class="mt-2 truncate">
+              <router-link :to="`/sessions/${latestSession.id}/planning`">
+                {{ latestSession.name }}
+              </router-link>
+            </div>
           </div>
         </div>
         <div class="py-4 text-neutral-400 text-sm flex">
@@ -200,7 +209,7 @@ const latestSession = computed(() => {
             {{ format(new Date(latestSession.updatedAt), 'MMMM d, yyyy') }}
           </div>
         </div>
-        <div class="text-neutral-500 max-h-[4.5em] overflow-hidden">
+        <div class="text-neutral-500 h-[8em] lg:h-[6em] overflow-y-auto">
           {{ latestSession.summary }}
         </div>
       </div>
@@ -261,7 +270,7 @@ const latestSession = computed(() => {
           >
             {{ splitEmail(member.user ? member.user.email : member.email) }}
           </div>
-          <div class="text-neutral-400">
+          <div class="text-neutral-400 px-4">
             {{ member.role === 1 ? 'Game Master' : 'Player' }}
           </div>
           <div class="text-neutral-400 text-right">

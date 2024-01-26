@@ -84,19 +84,19 @@ async function handleCopyConjuration() {
 
 <template>
   <template v-if="conjuration">
-    <div class="md:flex justify-between mb-6">
-      <div class="md:flex">
+    <div class="flex justify-between mb-6">
+      <div class="flex">
         <router-link
-          :to="`/conjurations`"
-          class="bg-surface-2 flex rounded-md border border-gray-600/50 p-3"
+          :to="
+            conjuration.saved ? `/conjurations#saved` : `/conjurations#gallery`
+          "
+          class="button-primary flex"
         >
-          <ArrowLeftIcon class="mr-2 h-4 w-4 self-center" /> Back
+          <ArrowLeftIcon class="mr-2 h-4 w-4 self-center" />
+          <div class="self-center">Back</div>
         </router-link>
 
-        <div
-          v-if="conjuration.saved && !editable"
-          class="md:ml-2 mt-2 md:mt-0 border border-blue-500 rounded-md px-4 flex"
-        >
+        <div v-if="conjuration.saved && !editable" class="input-primary ml-4">
           <span class="self-center"
             >You must make a copy of this conjuration to make changes to
             it.</span
@@ -104,10 +104,10 @@ async function handleCopyConjuration() {
         </div>
       </div>
 
-      <div class="md:flex mt-2 md:mt-0">
+      <div class="flex mt-2 mt-0">
         <button
           v-if="isQuickConjure"
-          class="mr-2 flex rounded-md bg-amber-500 px-4 py-3 transition-all hover:scale-110"
+          class="button-gradient flex"
           @click="quickConjure(conjuration.conjurerCode)"
         >
           <ArrowPathIcon class="mr-2 h-5 w-5 self-center" /> Retry Quick Conjure
@@ -115,7 +115,7 @@ async function handleCopyConjuration() {
 
         <button
           v-if="editable"
-          class="md:w-auto md:ml-auto flex justify-center md:justify-start self-center rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 px-4 py-3 transition-all hover:scale-110"
+          class="button-ghost flex"
           @click="
             eventBus.$emit('save-conjuration', {
               conjurationId: conjuration.id,
@@ -127,7 +127,7 @@ async function handleCopyConjuration() {
 
         <button
           v-if="conjuration.saved && !editable"
-          class="md:w-auto md:ml-auto flex justify-center md:justify-start self-center rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 px-4 py-3 transition-all hover:scale-110"
+          class="button-ghost flex"
           @click="handleCopyConjuration"
         >
           <DocumentDuplicateIcon class="h-5 w-5 mr-2" />
@@ -136,7 +136,7 @@ async function handleCopyConjuration() {
 
         <button
           v-if="!conjuration.saved"
-          class="md:w-auto md:ml-auto flex justify-center md:justify-start self-center rounded-md bg-gradient-to-r from-green-400 to-green-600 px-4 py-3 transition-all hover:scale-110"
+          class="button-ghost flex"
           @click="handleSaveConjuration"
         >
           <HeartIcon class="mr-2 h-5 w-5 self-center" />
@@ -145,7 +145,7 @@ async function handleCopyConjuration() {
 
         <button
           v-if="conjuration.saved"
-          class="md:ml-2 mt-2 md:mt-0 h-12 flex justify-center md:justify-start self-center rounded-md bg-gradient-to-r from-red-400 to-red-600 px-4 py-3 transition-all hover:scale-110"
+          class="button-primary flex ml-2"
           @click="handleRemoveConjuration"
         >
           Delete

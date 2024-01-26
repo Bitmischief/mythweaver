@@ -61,7 +61,7 @@ function showImage() {
     </div>
 
     <div
-      v-if="editable && imageUri"
+      v-if="imageUri"
       class="absolute flex bottom-2 right-2 cursor-pointer bg-white/50 rounded-[8px]"
       @click="showImage"
     >

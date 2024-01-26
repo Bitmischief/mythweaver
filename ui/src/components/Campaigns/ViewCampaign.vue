@@ -18,6 +18,7 @@ import ModalAlternate from '@/components/ModalAlternate.vue';
 import { showError, showSuccess } from '@/lib/notifications.ts';
 import { AxiosError } from 'axios';
 import { useRouter } from 'vue-router';
+import { ArrowLeftIcon } from '@heroicons/vue/24/outline';
 
 const campaignStore = useCampaignStore();
 const selectedCampaignId = useSelectedCampaignId();
@@ -178,14 +179,19 @@ function handleRequestRemoveMember(memberId: number) {
 
 <template>
   <div v-if="campaign">
-    <div class="mb-6 flex w-full justify-between rounded-xl py-4">
-      <div class="w-full md:flex md:justify-between">
-        <div class="text-2xl self-center font-bold">{{ campaign.name }}</div>
+    <div class="flex w-full justify-between rounded-xl py-4">
+      <div class="w-full flex justify-between">
+        <div>
+          <router-link class="flex button-primary mr-2" to="/campaign/overview">
+            <ArrowLeftIcon class="h-4 mr-1" />
+            <span class="self-center">Back to overview</span>
+          </router-link>
+        </div>
 
         <div class="mt-2 self-center md:mt-0 flex justify-between">
           <button
             v-if="currentUserRole === CampaignRole.DM"
-            class="flex w-full self-center rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 px-4 py-3 transition-all hover:scale-110"
+            class="button-ghost mr-2"
             @click="handleSaveCampaign"
           >
             <span class="self-center">Save</span>
@@ -193,7 +199,7 @@ function handleRequestRemoveMember(memberId: number) {
 
           <button
             v-if="currentUserRole === CampaignRole.DM"
-            class="ml-2 rounded-xl border border-red-500 p-3 text-red-500"
+            class="button-primary"
             @click="handleDeleteCampaign"
           >
             Delete
@@ -202,20 +208,16 @@ function handleRequestRemoveMember(memberId: number) {
       </div>
     </div>
 
-    <div class="mt-6 text-lg text-gray-400">
-      What should we call this campaign?
-    </div>
+    <div class="mt-6 text-gray-400 text-sm ml-1 mb-1">Campaign Name</div>
 
     <input
       v-model="campaign.name"
       :readonly="currentUserRole !== CampaignRole.DM"
-      class="gradient-border-no-opacity relative mt-2 h-12 w-full rounded-xl border bg-black px-4 text-left text-white"
+      class="input-primary"
       placeholder="Flight of the Valkyries"
     />
 
-    <div class="mt-8 text-lg text-gray-400">
-      What roleplaying system are you using?
-    </div>
+    <div class="mt-8 text-gray-400 text-sm ml-1 mb-1">Roleplaying System</div>
 
     <Select
       v-model="campaign.rpgSystemCode"
@@ -226,18 +228,18 @@ function handleRequestRemoveMember(memberId: number) {
     />
 
     <template v-if="campaign.rpgSystemCode === 'other'">
-      <div class="mt-6 text-lg text-gray-400">
+      <div class="mt-6 text-gray-400 text-sm ml-1 mb-1">
         Please describe your campaign's universe and atmosphere in a few words?
       </div>
 
-      <div class="text-md mt-2 rounded-xl bg-blue-400 p-2">
+      <div class="text-xs mt-2 p-2 text-gray-400">
         We use this information to help generating contextually appropriate
         content for your campaign.
 
-        <div class="mt-1 text-sm">
+        <div class="mt-1 text-xs text-gray-400">
           For example, a sci-fi campaign might have the keywords
           <div class="mt-1 flex">
-            <div class="mr-1 rounded bg-gray-600/20 p-1 px-2">scifi</div>
+            <div class="mr-1 rounded bg-gray-600/20 p-1 px-2">sci-fi</div>
             <div class="mr-1 rounded bg-gray-600/20 p-1 px-2">space</div>
             <div class="mr-1 rounded bg-gray-600/20 p-1 px-2">futuristic</div>
           </div>
@@ -245,9 +247,7 @@ function handleRequestRemoveMember(memberId: number) {
       </div>
     </template>
 
-    <div class="mt-6 text-lg text-gray-400">
-      Are you playing an official campaign/adventure?
-    </div>
+    <div class="mt-6 text-gray-400 text-sm ml-1 mb-1">Campaign Source</div>
 
     <Select
       v-model="campaign.publicAdventureCode"
@@ -256,6 +256,16 @@ function handleRequestRemoveMember(memberId: number) {
       value-prop="code"
       display-prop="name"
       allow-none
+    />
+
+    <div class="mt-6 text-gray-400 text-sm ml-1 mb-1">Campaign Description</div>
+
+    <textarea
+      v-model="campaign.description"
+      :readonly="currentUserRole !== CampaignRole.DM"
+      class="input-primary"
+      placeholder="As ancient evils awaken and long-buried secrets resurface, heroes must rise to restore balance in a world on the brink of chaos..."
+      rows="8"
     />
 
     <div class="mt-12 border-t border-gray-500/25 py-4">
