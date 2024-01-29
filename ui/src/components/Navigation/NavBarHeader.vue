@@ -4,11 +4,17 @@ import Menu from '@/components/Core/General/Menu.vue';
 import { MenuButton, MenuItem } from '@headlessui/vue';
 import { useAuthStore } from '@/store';
 import EarlyAccessInfo from '@/components/Navigation/EarlyAccessInfo.vue';
+import { getBillingPortalUrl } from '@/api/billing.ts';
 
 const authStore = useAuthStore();
 
 async function logout() {
   await authStore.logout();
+}
+
+async function clickBilling() {
+  const portalUrlResponse = await getBillingPortalUrl();
+  location.href = portalUrlResponse.data;
 }
 </script>
 
@@ -40,9 +46,17 @@ async function logout() {
         <div
           class="rounded-b-xl relative z-50 bg-surface-2 border-b-2 border-x-2 border-neutral-800 p-4"
         >
+          <MenuItem class="mb-2">
+            <button
+              class="w-full rounded-md border border-neutral-700 px-3 py-1"
+              @click="clickBilling"
+            >
+              Billing
+            </button>
+          </MenuItem>
           <MenuItem>
             <button
-              class="w-full rounded-xl border-2 border-red-500 px-3 py-1"
+              class="w-full rounded-md border border-red-500 px-3 py-1"
               @click="logout"
             >
               Logout

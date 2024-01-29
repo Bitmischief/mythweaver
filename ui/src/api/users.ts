@@ -6,6 +6,9 @@ export interface User {
   createdAt: string;
   earlyAccessCutoffAt: string;
   earlyAccessExempt: boolean;
+  plan: string;
+  subscriptionPaidThrough: string;
+  imageCredits: number;
 }
 
 export const getCurrentUser = () => {

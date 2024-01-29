@@ -21,14 +21,25 @@ model RefreshToken {
   @@map("refresh_tokens")
 }
 
+enum BillingPlan {
+  FREE
+  BASIC
+  PRO
+}
+
 model User {
   id        Int       @id @default(autoincrement())
   createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
   updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
   email     String    @unique
 
-  earlyAccessCutoffAt DateTime @default("2023-10-17T08:00:00.000Z")
-  earlyAccessExempt   Boolean  @default(false)
+  earlyAccessCutoffAt     DateTime     @default("2023-10-17T08:00:00.000Z")
+  earlyAccessExempt       Boolean      @default(false)
+  billingCustomerId       String?
+  subscriptionPaidThrough DateTime?
+  plan                    BillingPlan?
+  username                String?
+  imageCredits            Int          @default(0)
 
   refreshTokens         RefreshToken[]
   campaigns             Campaign[]
