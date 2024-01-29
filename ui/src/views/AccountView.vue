@@ -8,11 +8,11 @@ const user = computed(() => store.user);
 
 <template>
   <div>
-    <div class="">Plan: {{ user.plan }}</div>
-    <div class="">Email: {{ user.email }}</div>
+    <div class="">Plan: {{ user?.plan }}</div>
+    <div class="">Email: {{ user?.email }}</div>
     <div class="">
-      Subscription Paid Through: {{ user.subscriptionPaidThrough }}
+      Subscription Paid Through: {{ user?.subscriptionPaidThrough }}
     </div>
-    <div class="">Image Credit Count: {{ user.imageCredits }}</div>
+    <div class="">Image Credit Count: {{ user?.imageCredits }}</div>
   </div>
 </template>

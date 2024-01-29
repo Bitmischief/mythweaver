@@ -11,7 +11,7 @@ const proPlanId = computed(() => import.meta.env.VITE_STRIPE_PRO_PLAN_ID);
     <div class="grid grid-cols-2 gap-4">
       <PricingPlan
         name="Basic"
-        yearly-price="50"
+        :yearly-price="50"
         :features="[
           'Create Conjurations',
           'Advanced Character Attribute Generation',
@@ -25,7 +25,7 @@ const proPlanId = computed(() => import.meta.env.VITE_STRIPE_PRO_PLAN_ID);
       <PricingPlan
         name="Pro"
         highlighted
-        yearly-price="150"
+        :yearly-price="150"
         :features="[
           'All Basic features PLUS',
           'Session Recording & Transcripts',
