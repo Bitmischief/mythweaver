@@ -8,6 +8,7 @@ import { ImageStylePreset } from '../controllers/images';
 import { sendWebsocketMessage, WebSocketEvent } from './websockets';
 import { rephraseImagePrompt } from './promptHelper';
 import { parentLogger } from '../lib/logger';
+import { AppEvent, track } from '../lib/tracking';
 const logger = parentLogger.getSubLogger();
 
 const s3 = new S3Client({
@@ -65,6 +66,13 @@ export const generateImage = async (request: ImageRequest) => {
       },
       preset,
     );
+
+    track(AppEvent.ConjureImage, request.userId, undefined, {
+      prompt: request.prompt,
+      negativePrompt: request.negativePrompt,
+      stylePreset: request.stylePreset,
+      count: request.count,
+    });
 
     if (!imageResponse) {
       return undefined;

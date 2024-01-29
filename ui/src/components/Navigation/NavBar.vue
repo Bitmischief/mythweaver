@@ -61,6 +61,7 @@ const toggleCollapsed = function () {
             <Bars3Icon class="h-8 w-8" />
           </div>
         </div>
+
         <EarlyAccessInfo class="self-center md:hidden mt-2" />
 
         <div class="hidden w-full h-full md:flex md:flex-col justify-between">
