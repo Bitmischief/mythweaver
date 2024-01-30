@@ -45,10 +45,7 @@ export default class BillingController {
 
   @Get('/portal-url')
   @SuccessResponse('200', 'Success')
-  public async getPortalUrl(
-    @Inject() userId: number,
-    @Inject() trackingInfo: TrackingInfo,
-  ): Promise<string> {
+  public async getPortalUrl(@Inject() userId: number): Promise<string> {
     const user = await prisma.user.findUnique({
       where: {
         id: userId,

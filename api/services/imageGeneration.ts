@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosResponse } from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import fs from 'node:fs';
 import { v4 as uuidv4 } from 'uuid';
 import { isLocalDevelopment } from '../lib/utils';
@@ -6,10 +6,7 @@ import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { prisma } from '../lib/providers/prisma';
 import { ImageStylePreset } from '../controllers/images';
 import { sendWebsocketMessage, WebSocketEvent } from './websockets';
-import { rephraseImagePrompt } from './promptHelper';
-import { parentLogger } from '../lib/logger';
 import { AppEvent, track } from '../lib/tracking';
-const logger = parentLogger.getSubLogger();
 
 const s3 = new S3Client({
   endpoint: 'https://sfo3.digitaloceanspaces.com',
@@ -146,7 +143,6 @@ export const generateImage = async (request: ImageRequest) => {
 const postToStableDiffusion = async (
   request: ImageRequest,
   preset: string,
-  promptHistory: string[] = [],
   depth = 0,
 ): Promise<GenerationResponse | undefined> => {
   if (depth > 5) {

@@ -8,7 +8,6 @@ import {
   sendWebsocketMessage,
   WebSocketEvent,
 } from '../../services/websockets';
-import { Session } from '@prisma/client';
 
 const logger = parentLogger.getSubLogger();
 const openai = getClient();

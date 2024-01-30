@@ -35,12 +35,7 @@ app.options('*', cors());
 
 app.use(
   express.json({
-    verify(
-      req: http.IncomingMessage,
-      res: http.ServerResponse,
-      buf: Buffer,
-      encoding: string,
-    ) {
+    verify(req: http.IncomingMessage, res: http.ServerResponse, buf: Buffer) {
       (req as any).rawBody = buf;
     },
   }),
