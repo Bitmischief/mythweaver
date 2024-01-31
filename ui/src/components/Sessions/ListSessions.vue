@@ -6,6 +6,7 @@ import Session from '@/components/Sessions/Session.vue';
 import { useCampaignStore } from '@/store/campaign.store.ts';
 import { CampaignRole } from '@/api/campaigns.ts';
 import { PlusIcon } from '@heroicons/vue/20/solid';
+import { UserGroupIcon } from '@heroicons/vue/24/outline';
 import { showSuccess } from '@/lib/notifications.ts';
 import { useRouter } from 'vue-router';
 
@@ -69,7 +70,10 @@ async function handleCreateSession() {
     <div class="w-full md:flex md:justify-between">
       <div class="text-xl self-center font-bold">Sessions</div>
 
-      <div class="mt-2 self-center md:mt-0 flex justify-between">
+      <div
+        v-if="sessions.length"
+        class="mt-2 self-center md:mt-0 flex justify-between"
+      >
         <button
           class="self-center button-primary mr-2"
           @click="
@@ -108,13 +112,33 @@ async function handleCreateSession() {
       <Session :session="session" :full="false" />
     </router-link>
   </div>
-  <div v-else>
-    <div
-      class="min-h-[10rem] flex justify-center text-center text-xl text-gray-500 divider"
-    >
-      <div class="self-center">
-        No sessions have been created in this campaign!
+  <div v-else class="flex justify-center h-full">
+    <div class="flex flex-col justify-center text-center">
+      <div>
+        <UserGroupIcon class="h-14 text-neutral-500 mx-auto" />
       </div>
+      <div class="self-center text-2xl my-4">
+        No sessions have been created for this campaign yet.
+      </div>
+      <div
+        v-if="currentUserRole === CampaignRole.DM"
+        class="text-neutral-500 mb-8 max-w-[40em]"
+      >
+        Session you create for your campaign will appear on this screen. Try
+        creating your first session using the button below.
+      </div>
+      <div v-else class="text-neutral-500 mb-8 max-w-[40em]">
+        Sessions your GM creates for your campaign will appear on this screen.
+        Check back here again after your GM creates your fist session.
+      </div>
+      <button
+        v-if="currentUserRole === CampaignRole.DM"
+        class="flex justify-center self-center button-gradient"
+        @click="handleCreateSession"
+      >
+        <PlusIcon class="mr-2 h-5 w-5 self-center" />
+        <span class="self-center">Create session</span>
+      </button>
     </div>
   </div>
 

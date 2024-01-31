@@ -31,7 +31,7 @@ export function useEarlyAccessCutoff() {
 
 export function useEarlyAccessExempt() {
   const store = useAuthStore();
-  return computed(() => store.user?.earlyAccessExempt || false);
+  return computed(() => store.user?.earlyAccessExempt || store.user?.plan || false);
 }
 
 export function useWebsocketChannel() {

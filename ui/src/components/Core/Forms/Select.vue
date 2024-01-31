@@ -18,6 +18,7 @@ const props = defineProps<{
   multiple?: boolean;
   placeholder?: string;
   readonly?: boolean;
+  secondary?: boolean;
 }>();
 
 const emit = defineEmits(['update:modelValue', 'change']);
@@ -100,7 +101,10 @@ const showCheckIcon = (option: any) => {
 <template>
   <Listbox v-model="value" :multiple="multiple">
     <div class="relative">
-      <ListboxButton class="select-ghost relative">
+      <ListboxButton
+        class="relative"
+        :class="secondary ? 'select-secondary' : 'select-ghost'"
+      >
         <span
           class="block truncate"
           :class="{ 'text-gray-400': showPlaceholder }"

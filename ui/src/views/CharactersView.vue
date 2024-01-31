@@ -18,6 +18,7 @@ const eventBus = useEventBus();
 
 const character = ref<Character | undefined>(undefined);
 const createNewCharacter = ref(false);
+const showCharacterCreate = ref(false);
 const loading = ref(false);
 
 onMounted(async () => {
@@ -164,18 +165,18 @@ async function updateCharacter() {
 
       <button
         class="mt-6 flex self-center rounded-md text-lg bg-gradient-to-r from-fuchsia-500 to-blue-400 px-4 py-3 transition-all hover:scale-110"
-        @click="createNewCharacter = true"
+        @click="showCharacterCreate = true"
       >
         <span class="self-center">Create A Character</span>
       </button>
     </div>
   </div>
 
-  <ModalAlternate :show="createNewCharacter">
+  <ModalAlternate :show="showCharacterCreate">
     <div
       class="md:w-[1000px] max-h-[90vh] p-6 bg-neutral-900 overflow-y-auto rounded-[20px]"
     >
-      <NewCharacter @close="createNewCharacter = false" @created="reload" />
+      <NewCharacter @close="showCharacterCreate = false" @created="reload" />
     </div>
   </ModalAlternate>
 </template>

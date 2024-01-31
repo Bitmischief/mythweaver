@@ -20,6 +20,7 @@ import { useIntercom } from '@homebaseai/vue3-intercom';
 import { patchCurrentUser } from '@/api/users.ts';
 import { showError } from '@/lib/notifications.ts';
 import { useEarlyAccessExempt } from '@/lib/hooks.ts';
+import Loader from './components/Core/Loader.vue';
 
 const authStore = useAuthStore();
 const eventBus = useEventBus();
@@ -133,22 +134,24 @@ async function confirmEarlyAccessTerms() {
 
     <div
       v-if="authStore.isLoading || showLoading"
-      class="absolute w-full h-full bg-black opacity-95"
+      class="absolute w-full h-full bg-surface opacity-95"
     >
       <div class="flex justify-center items-center w-full h-full">
-        <div
-          class="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-white"
-        ></div>
+        <div>
+          <Loader />
+          <div class="text-2xl mt-4">Loading...</div>
+        </div>
       </div>
     </div>
   </div>
 
   <ModalAlternate :show="showCreateCampaign" extra-dark>
-    <div class="md:w-[800px] p-6 bg-neutral-900 rounded-md">
+    <div class="md:w-[800px]">
       <NewCampaign />
     </div>
   </ModalAlternate>
 
+  <!-- todo: update styling of this -->
   <ModalAlternate :show="!!authStore.tokens && showConfirmEarlyAccess">
     <div
       class="md:w-[1000px] max-h-[90vh] p-6 bg-neutral-900 rounded-[20px] overflow-y-auto text-white text-center"
@@ -215,7 +218,7 @@ async function confirmEarlyAccessTerms() {
 
   <ModalAlternate :show="showCustomizeImageModal" extra-dark>
     <div
-      class="w-[90vw] max-h-[80vh] p-2 md:p-6 md:px-12 pb-6 overflow-y-auto bg-neutral-900 rounded-[20px] text-white text-center"
+      class="p-2 md:p-6 md:px-12 pb-6 bg-surface-2 rounded-[20px] text-white text-center"
     >
       <CustomizeConjurationImage
         :prompt="customizeImageArgs?.prompt"

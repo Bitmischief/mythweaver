@@ -8,6 +8,8 @@ import { showError, showSuccess } from '@/lib/notifications.ts';
 import { AxiosError } from 'axios';
 import { useCurrentUserId } from '@/lib/hooks.ts';
 import CustomizableImage from '@/components/Images/CustomizableImage.vue';
+import { useWebsocketChannel } from '@/lib/hooks.ts';
+import { ServerEvent } from '@/lib/serverEvents.ts';
 
 const props = defineProps<{
   conjuration: Conjuration;
@@ -17,6 +19,7 @@ const props = defineProps<{
 
 const eventBus = useEventBus();
 const currentUserId = useCurrentUserId();
+const channel = useWebsocketChannel();
 
 const editableConjuration = ref(props.conjuration);
 const addingTag = ref(false);
@@ -64,6 +67,26 @@ onMounted(() => {
       }, 50);
     },
   );
+
+  channel.bind(ServerEvent.ImageCreated, function (data: any) {
+    if (!editableConjuration.value.imageUri) {
+      editableConjuration.value.imageUri = data.uri;
+    }
+  });
+
+  channel.bind(ServerEvent.ImageFiltered, function () {
+    const message =
+      'The generated image was filtered out by our content moderation system. Please try again.';
+    showError({
+      message,
+    });
+  });
+
+  channel.bind(ServerEvent.ImageError, function (data: any) {
+    showError({
+      message: data.message,
+    });
+  });
 });
 
 onUpdated(() => {
@@ -241,7 +264,7 @@ const conjurationType = computed(() => {
             v-model="data.value"
             type="textarea"
             inner-class="border-none"
-            input-class="$reset input-primary text-neutral-500 border-none focus:ring-fuchsia-500"
+            input-class="$reset input-primary text-white border-none focus:ring-fuchsia-500"
             :disabled="!editable"
             auto-height
           />

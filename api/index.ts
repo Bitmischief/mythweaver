@@ -22,6 +22,7 @@ import './worker/index';
 import { ILogObj, Logger } from 'tslog';
 import { useInjectTrackingInfo } from './lib/trackingMiddleware';
 import { loggingInfoAsyncLocalStorage } from './lib/loggingMiddleware';
+import * as http from 'http';
 
 const logger = new Logger<ILogObj>();
 
@@ -32,7 +33,18 @@ const app: Application = express();
 app.use(cors());
 app.options('*', cors());
 
-app.use(express.json());
+app.use(
+  express.json({
+    verify(
+      req: http.IncomingMessage,
+      res: http.ServerResponse,
+      buf: Buffer,
+      encoding: string,
+    ) {
+      (req as any).rawBody = buf;
+    },
+  }),
+);
 
 morgan.token('requestId', () => {
   return requestIdAsyncLocalStorage.getStore()?.requestId;

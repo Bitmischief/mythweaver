@@ -44,15 +44,14 @@ function showImage() {
 
 <template>
   <div class="relative">
-    <div
-      class="absolute left-2 top-2 flex h-6 justify-center items-center rounded-full bg-white/50 group text-black text-xs font-bold px-4"
-    >
+    <div class="image-badge">
       {{ type }}
     </div>
 
     <div class="absolute flex top-2 right-2">
       <button
         class="flex button-white bg-white/50"
+        :disabled="!props.imageUri"
         @click="showCustomizeImageModal"
       >
         <PencilSquareIcon class="h-4 mr-1" />

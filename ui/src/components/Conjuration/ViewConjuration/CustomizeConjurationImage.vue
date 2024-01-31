@@ -3,10 +3,16 @@ import { computed, onMounted, onUnmounted, ref } from 'vue';
 import LightboxImage from '@/components/LightboxImage.vue';
 import { conjureImage } from '@/api/images.ts';
 import { useEventBus } from '@/lib/events.ts';
-import { ArrowsPointingOutIcon } from '@heroicons/vue/20/solid';
+import {
+  ArrowsPointingOutIcon,
+  XCircleIcon,
+  ArrowPathIcon,
+} from '@heroicons/vue/20/solid';
 import { showError } from '@/lib/notifications.ts';
 import { useWebsocketChannel } from '@/lib/hooks.ts';
 import { ServerEvent } from '@/lib/serverEvents.ts';
+import Select from '@/components/Core/Forms/Select.vue';
+import Loader from '@/components/Core/Loader.vue';
 
 const props = defineProps<{
   prompt?: string;
@@ -25,6 +31,11 @@ const channel = useWebsocketChannel();
 
 const editablePrompt = ref(props.prompt);
 const editableNegativePrompt = ref(props.negativePrompt);
+const imagePresetStyles = ref([
+  { code: 'fantasy-art', name: 'Fantasy Art' },
+  { code: 'digital-art', name: 'Digital Art' },
+  { code: 'comic-book', name: 'Comic Book' },
+]);
 const stylePreset = ref<
   'fantasy-art' | 'digital-art' | 'comic-book' | undefined
 >('fantasy-art');
@@ -40,7 +51,10 @@ const imagePromptRephrased = ref(false);
 const rephrasedPrompt = ref('');
 const loading = ref(false);
 
-onMounted(() => {
+const promptOptions = ref(['Image Style', 'Negative Prompt']);
+const promptOptionsTab = ref(promptOptions.value[0]);
+
+onMounted(async () => {
   eventBus.$on('conjure-image', async () => {
     await conjure();
   });
@@ -120,137 +134,155 @@ function setImage() {
 
 <template>
   <template v-if="!conjuring && !done">
-    <div class="mt-4 bg-fuchsia-200/5 rounded-md py-3 pb-6 p-6">
-      <div class="text-2xl 3xl:text-4xl">
-        {{ prompt?.length ? 'Customize' : "Let's build a character" }}
-      </div>
-      <div class="mt-2 text-lg 3xl:text-2xl text-fuchsia-300">
-        {{
-          prompt?.length
-            ? 'Modify the prompt for the AI engine to generate a new image'
-            : 'What do they look like?'
-        }}
-      </div>
-      <div class="mt-6 text-neutral-400">Example prompts:</div>
-      <ul class="mt-4">
-        <li class="mb-3 text-neutral-500 text-lg">
-          - a male human wizard with a staff and a spellbook
-        </li>
-        <li class="mb-3 text-neutral-500 text-lg">
-          - battle scene with futuristic robots and a golden palace in the
-          background
-        </li>
-        <li class="text-neutral-500 text-lg">
-          - ancient castle at night, with a full moon, gargoyles, and shadows
-        </li>
-      </ul>
-    </div>
-
-    <div class="md:flex mb-4 md:justify-between mt-4">
-      <LightboxImage
-        v-if="imageUri"
-        :src="imageUri"
-        class="w-72 h-72 mx-auto md:my-auto rounded-md"
-      />
-      <div :class="{ 'md:ml-4': prompt?.length }">
-        <template v-if="prompt?.length">
-          <div class="mt-2 md:mt-0 text-md text-neutral-500">
-            Original Prompt
-          </div>
-          <div class="md:text-lg text-neutral-200">
-            {{ props.prompt }}
-          </div>
-        </template>
-
-        <template v-if="props.looks">
-          <div class="text-md text-neutral-500 mt-4">Looks</div>
-          <div class="text-lg text-neutral-200">
-            {{ props.looks }}
-          </div>
-        </template>
+    <div class="md:flex mb-4 justify-center mt-4">
+      <div class="relative">
+        <LightboxImage
+          v-if="imageUri"
+          :src="imageUri"
+          class="w-72 h-72 mx-auto md:my-auto rounded-[25px]"
+        />
+        <div class="image-badge">Original</div>
       </div>
     </div>
 
-    <FormKit
-      v-slot="{ disabled }"
-      type="form"
-      :actions="false"
-      @submit="conjure"
+    <div
+      class="bg-gradient-to-r from-fuchsia-500 to-violet-500 p-px rounded-[20px] purple-shadow min-w-[90vw] md:min-w-[60vw] lg:max-w-[40vw] max-h-[80vh]"
     >
       <FormKit
-        v-model="editablePrompt"
-        type="textarea"
-        label="Prompt"
-        validation="length:0,500"
-        placeholder="a male human paladin with a longsword and shield"
-        auto-height
-      />
+        v-slot="{ disabled }"
+        :actions="false"
+        type="form"
+        @submit="conjure"
+      >
+        <div class="p-3 rounded-[20px] bg-surface-2 min-h-[12em]">
+          <div class="relative pb-1">
+            <FormKit
+              v-model="editablePrompt"
+              :placeholder="`Enter Description`"
+              inner-class="border-none"
+              input-class="$reset input-secondary border-none focus:ring-fuchsia-500 pr-[8em]"
+              help-class="px-1"
+              name="prompt"
+              type="textarea"
+              validation="length:0,1000"
+              auto-height
+            />
+            <div class="absolute top-1 right-1">
+              <button
+                class="flex button-gradient py-1 px-2"
+                :disabled="disabled as boolean"
+                type="submit"
+              >
+                <img
+                  src="@/assets/icons/wand.svg"
+                  alt="wand"
+                  class="h-4 mr-1"
+                />
+                Conjure
+              </button>
+            </div>
+            <div class="absolute text-neutral-500 text-xs right-2 bottom-0">
+              {{ editablePrompt?.length }} / 1000
+            </div>
+          </div>
 
-      <FormKit
-        v-model="editableNegativePrompt"
-        type="textarea"
-        label="Negative prompt"
-        validation="length:0,500"
-        placeholder="hands, low-resolution"
-        auto-height
-      />
+          <div class="flex mt-4 mb-2 justify-center">
+            <div
+              class="flex gap-1 text-neutral-500 rounded-[10px] bg-surface-2 p-1 border border-surface-3 text-sm grow"
+            >
+              <button
+                v-for="(opt, i) in promptOptions"
+                :key="`prompt_option_${i}`"
+                class="grow text-center py-2 px-4"
+                :class="{
+                  'text-white rounded-[10px] bg-surface-3':
+                    promptOptionsTab === opt,
+                }"
+                @click.prevent="promptOptionsTab = opt"
+              >
+                {{ opt }}
+              </button>
+            </div>
+          </div>
 
-      <FormKit
-        v-model="stylePreset"
-        type="select"
-        label="Preset Image Style"
-        :options="{
-          'fantasy-art': 'Fantasy Art',
-          'digital-art': 'Digital Art',
-          'comic-book': 'Comic Book',
-        }"
-      />
-
-      <div v-if="!noActions" class="flex">
-        <button
-          class="ml-2 bg-neutral-800 px-4 text-lg rounded-md flex transition-all h-12 hover:scale-110 mr-2"
-          @click="emit('cancel')"
-        >
-          <span class="self-center">{{
-            cancelButtonTextOverride ? cancelButtonTextOverride : 'Cancel'
-          }}</span>
-        </button>
-        <FormKit
-          type="submit"
-          :disabled="disabled as boolean"
-          label="Conjure"
-        />
-      </div>
-    </FormKit>
+          <div v-if="promptOptionsTab === 'Image Style'">
+            <Select
+              v-model="stylePreset"
+              :options="imagePresetStyles"
+              value-prop="code"
+              display-prop="name"
+              secondary
+            />
+          </div>
+          <div
+            v-if="promptOptionsTab === 'Negative Prompt'"
+            class="relative pb-1"
+          >
+            <FormKit
+              v-model="editableNegativePrompt"
+              placeholder="Negative image prompt (optional)"
+              inner-class="border-none"
+              input-class="$reset input-secondary border-none focus:ring-fuchsia-500"
+              help-class="px-1"
+              type="textarea"
+              name="negative_prompt"
+              validation="length:0,1000"
+              auto-height
+            />
+            <div class="absolute text-neutral-500 text-xs right-2 bottom-0">
+              {{ editableNegativePrompt?.length }} / 1000
+            </div>
+          </div>
+        </div>
+      </FormKit>
+    </div>
+    <button
+      class="px-4 rounded-full absolute right-0 top-0 p-4"
+      @click="emit('cancel')"
+    >
+      <XCircleIcon class="w-6 self-center" />
+    </button>
   </template>
   <template v-else-if="conjuring && !done">
-    <div class="text-4xl text-neutral-500 mb-2">Conjuring...</div>
-    <div class="text-lg text-neutral-500">
-      This can take a minute or two to fully load
+    <div class="p-12">
+      <Loader />
+      <div class="text-3xl m-4">Conjuring</div>
+      <div class="text-lg text-neutral-500">
+        This can take a minute or two to fully load
+      </div>
     </div>
-    <svg
-      class="animate-spin mx-auto my-8 h-16 w-16 text-white"
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-    >
-      <circle
-        class="opacity-25"
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        stroke-width="4"
-      ></circle>
-      <path
-        class="opacity-75"
-        fill="currentColor"
-        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-      ></path>
-    </svg>
   </template>
   <template v-else-if="done && !conjuring && imageUris.length">
-    <div class="text-4xl text-neutral-500 mb-8">Voila!</div>
+    <button
+      class="px-4 rounded-full absolute right-0 top-0 p-4"
+      @click="emit('cancel')"
+    >
+      <XCircleIcon class="w-6 self-center" />
+    </button>
+    <div class="">
+      <div v-if="!noActions" class="mt-6 flex justify-end py-2">
+        <button
+          class="button-primary mr-2 flex"
+          @click="
+            imageUris = [];
+            conjuring = false;
+          "
+        >
+          <ArrowPathIcon class="w-5 mr-1" />
+          Regenerate
+        </button>
+        <button
+          class="button-ghost"
+          :class="{
+            'opacity-50 cursor-default': !selectedImgUri.length,
+            'transition-all hover:scale-110': selectedImgUri.length,
+          }"
+          @click="setImage"
+        >
+          <span class="self-center text-center w-full"> Save Selection </span>
+        </button>
+      </div>
+    </div>
 
     <div
       v-if="imagePromptRephrased"
@@ -269,20 +301,30 @@ function setImage() {
       </div>
     </div>
 
-    <div
-      class="grid gap-2"
-      :class="{
-        '3xl:grid-cols-3 grid-cols-2': !imageUri,
-        '3xl:grid-cols-4 grid-cols-2': imageUri,
-      }"
-    >
+    <div class="grid gap-8 grid-cols-2">
       <div v-if="imageUri" class="relative">
-        <div class="absolute w-full h-full bg-black/50 flex justify-center">
-          <span class="self-center uppercase font-bold text-neutral-300"
-            >Original</span
-          >
+        <div
+          class="absolute flex bottom-2 right-2 cursor-pointer bg-white/50 rounded-[8px]"
+          @click="eventBus.$emit('open-lightbox', imageUri)"
+        >
+          <ArrowsPointingOutIcon
+            class="p-1 w-8 h-8 self-center transition-all hover:scale-125 text-black"
+          />
         </div>
-        <img :src="imageUri" />
+        <img
+          :src="imageUri"
+          class="rounded-[25px] cursor-pointer"
+          :class="{
+            'border-2 border-fuchsia-500': selectedImgUri === imageUri,
+          }"
+          width="400px"
+          @click="
+            selectedImgUri === imageUri
+              ? (selectedImgUri = '')
+              : (selectedImgUri = imageUri)
+          "
+        />
+        <div class="image-badge">Original</div>
       </div>
 
       <div
@@ -291,17 +333,19 @@ function setImage() {
         class="relative cursor-pointer"
       >
         <div
-          class="absolute flex bottom-2 right-2 cursor-pointer"
+          class="absolute flex bottom-2 right-2 cursor-pointer bg-white/50 rounded-[8px]"
           @click="eventBus.$emit('open-lightbox', imgUri)"
         >
           <ArrowsPointingOutIcon
-            class="w-8 h-8 self-center transition-all hover:scale-125"
+            class="p-1 w-8 h-8 self-center transition-all hover:scale-125 text-black"
           />
         </div>
 
         <img
           :src="imgUri"
+          class="rounded-[25px]"
           :class="{ 'border-2 border-fuchsia-500': selectedImgUri === imgUri }"
+          width="400px"
           @click="
             selectedImgUri === imgUri
               ? (selectedImgUri = '')
@@ -316,28 +360,6 @@ function setImage() {
       >
         <div class="self-center">Generating image....</div>
       </div>
-    </div>
-
-    <div v-if="!noActions" class="mt-6 flex justify-between">
-      <button
-        class="bg-surface-2 w-36 rounded-md border text-center border-gray-600/50 p-3"
-        @click="
-          imageUris = [];
-          conjuring = false;
-        "
-      >
-        Retry
-      </button>
-      <button
-        class="bg-gradient-to-r text-lg md:w-52 from-fuchsia-500 flex to-blue-400 h-12 px-4 rounded-md"
-        :class="{
-          'opacity-50 cursor-default': !selectedImgUri.length,
-          'transition-all hover:scale-110': selectedImgUri.length,
-        }"
-        @click="setImage"
-      >
-        <span class="self-center text-center w-full"> Continue </span>
-      </button>
     </div>
   </template>
 </template>

@@ -74,7 +74,14 @@ async function navigateToCreateCampaign() {
 </script>
 
 <template>
-  <div class="flex w-full flex-col">
+  <div class="flex w-full flex-col mt-4">
+    <router-link
+      class="button-gradient flex justify-center"
+      to="/conjurations/new"
+    >
+      <span class="self-center">Conjure</span>
+      <img src="@/assets/icons/wand.svg" alt="wand" class="w-6 p-1 ml-1" />
+    </router-link>
     <Menu v-model="selectedCampaignId" class="my-6 mt-4">
       <div class="relative mt-1">
         <MenuButton

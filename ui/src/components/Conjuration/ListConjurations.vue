@@ -6,6 +6,7 @@ import {
   getConjurations,
 } from '@/api/conjurations.ts';
 import { AdjustmentsVerticalIcon, SparklesIcon } from '@heroicons/vue/20/solid';
+import { PhotoIcon } from '@heroicons/vue/24/outline';
 import ConjurationQuickView from '@/components/Conjuration/ConjurationListItemView.vue';
 import { debounce } from 'lodash';
 import ConjurationsListFiltering from '@/components/Conjuration/ConjurationsListFiltering.vue';
@@ -14,6 +15,7 @@ import { useRoute } from 'vue-router';
 const pagingDone = ref(false);
 const conjurations = ref<Conjuration[]>([]);
 const showFilters = ref(false);
+const loading = ref(false);
 
 const route = useRoute();
 
@@ -41,6 +43,7 @@ const conjurationsQuery = computed(() => ({
 }));
 
 onMounted(async () => {
+  loading.value = true;
   await loadConjurations();
 
   const viewParent = document.querySelector('#view-parent');
@@ -60,6 +63,8 @@ onMounted(async () => {
   } else {
     conjurationsMineQuery.value.saved = true;
   }
+
+  loading.value = false;
 });
 
 watch(
@@ -199,27 +204,32 @@ async function handleConjurationChange(change: {
   </div>
 
   <div
-    v-if="!conjurations.length && conjurationsMineQuery.saved"
-    class="bg-surface-2 rounded-md p-8 flex justify-center"
+    v-if="!conjurations.length && conjurationsMineQuery.saved && !loading"
+    class="flex justify-center h-full"
   >
-    <div>
-      <div class="self-center text-neutral-600 text-5xl mb-12">
-        You don't have any saved conjurations
+    <div class="flex flex-col justify-center text-center">
+      <div>
+        <PhotoIcon class="h-14 text-neutral-500 mx-auto" />
       </div>
-
+      <div class="self-center text-2xl my-4">
+        No conjurations have been saved yet.
+      </div>
+      <div class="text-neutral-500 mb-8 max-w-[40em]">
+        Conjurations you have saved will appear on this screen. Try creating
+        your first conjuration using the button below, or you can visit the
+        Gallery to view and save community generated conjurations.
+      </div>
       <router-link to="/conjurations/new" class="flex justify-center">
-        <button
-          class="flex rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 text-3xl px-4 py-3 transition-all hover:scale-125 duration-100"
-        >
-          <SparklesIcon class="mr-4 h-8 w-8 self-center" />
-          <span class="self-center">Conjure</span>
+        <button class="button-gradient flex">
+          <SparklesIcon class="mr-2 h-5 w-5 self-center" />
+          <span class="self-center">Create Conjuration</span>
         </button>
       </router-link>
     </div>
   </div>
 
   <div
-    v-if="conjurations.length"
+    v-if="conjurations.length && !loading"
     class="grid grid-cols-1 place-items-stretch sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5"
   >
     <ConjurationQuickView

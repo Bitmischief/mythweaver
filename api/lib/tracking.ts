@@ -43,6 +43,7 @@ export enum AppEvent {
   CreateCharacter = 'Create Character',
   UpdateCharacter = 'Update Character',
   SessionAudioUploaded = 'Session Audio Uploaded',
+  PaidSubscription = 'Paid Subscription',
 }
 
 export interface TrackingInfo {
@@ -104,7 +105,7 @@ const init = () => {
 export const track = (
   event: AppEvent,
   userId: number,
-  trackingInfo: TrackingInfo,
+  trackingInfo?: TrackingInfo | undefined,
   properties: any = {},
 ) => {
   if (process.env.API_URL !== 'https://api.mythweaver.co') return;

@@ -1,5 +1,5 @@
 import { Body, Inject, OperationId, Post, Route, Security, Tags } from 'tsoa';
-import { TrackingInfo } from '../lib/tracking';
+import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { generateImage } from '../services/imageGeneration';
 
 interface PostImageRequest {
@@ -25,10 +25,12 @@ export default class ImageController {
     @Inject() trackingInfo: TrackingInfo,
     @Body() request: PostImageRequest,
   ): void {
+    const count = 3;
+
     generateImage({
       userId,
       prompt: request.prompt,
-      count: 3,
+      count,
       negativePrompt: request.negativePrompt,
       stylePreset: request.stylePreset,
     });

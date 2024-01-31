@@ -1,11 +1,15 @@
 <script lang="ts" setup>
 import { useEarlyAccessCutoff, useEarlyAccessExempt } from '@/lib/hooks.ts';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { formatDistance } from 'date-fns';
 import { BoltIcon } from '@heroicons/vue/20/solid';
+import ModalAlternate from '@/components/ModalAlternate.vue';
+import PricingTable from '@/components/Core/PricingTable.vue';
 
 const earlyAccessCutoff = useEarlyAccessCutoff();
 const earlyAccessExempt = useEarlyAccessExempt();
+
+const showUpgradeModal = ref(false);
 const earlyAccessDistance = computed(() =>
   earlyAccessCutoff.value
     ? formatDistance(new Date(), new Date(earlyAccessCutoff.value))
@@ -23,14 +27,26 @@ const earlyAccessDistance = computed(() =>
         }}</span>
       </div>
 
-      <a
-        href="https://mythweaver.backerkit.com/hosted_preorders"
-        target="_blank"
+      <button
         class="ml-2 self-center text-sm flex text-neutral-800 font-bold text-center px-3 p-1 rounded-md bg-amber-400"
+        @click="showUpgradeModal = true"
       >
         <BoltIcon class="w-4 h-4 mr-1 self-center" />
         <span class="self-center">Upgrade</span>
-      </a>
+      </button>
     </div>
+
+    <ModalAlternate
+      :show="showUpgradeModal"
+      extra-dark
+      @close="showUpgradeModal = false"
+    >
+      <div class="md:w-[800px] p-6 bg-neutral-900 rounded-md">
+        <div class="text-4xl text-neutral-300 text-center mb-6">
+          Upgrade Now
+        </div>
+        <PricingTable />
+      </div>
+    </ModalAlternate>
   </div>
 </template>

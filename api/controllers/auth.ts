@@ -22,6 +22,7 @@ import { v4 as uuidv4 } from 'uuid';
 import EmailType = lists.EmailType;
 import { urlPrefix } from '../lib/utils';
 import { sendTransactionalEmail } from '../lib/transactionalEmail';
+import { createCustomer } from '../services/billing';
 const logger = parentLogger.getSubLogger();
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -129,10 +130,13 @@ export default class AuthController {
       const earlyAccessEnd = new Date();
       earlyAccessEnd.setHours(new Date().getHours() + 48);
 
+      const stripeCustomerId = await createCustomer(email);
+
       user = await prisma.user.create({
         data: {
           email: email.toLowerCase(),
           earlyAccessCutoffAt: earlyAccessEnd,
+          billingCustomerId: stripeCustomerId,
         },
       });
 
@@ -290,10 +294,13 @@ export default class AuthController {
       const earlyAccessEnd = new Date();
       earlyAccessEnd.setHours(new Date().getHours() + 48);
 
+      const stripeCustomerId = await createCustomer(request.email);
+
       user = await prisma.user.create({
         data: {
           email: request.email.toLowerCase(),
           earlyAccessCutoffAt: earlyAccessEnd,
+          billingCustomerId: stripeCustomerId,
         },
       });
 

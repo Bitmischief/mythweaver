@@ -5,6 +5,7 @@ import { Dialog, DialogPanel } from '@headlessui/vue';
 import { useAuthStore } from '@/store';
 import NavbarContent from '@/components/Navigation/NavbarContent.vue';
 import EarlyAccessInfo from '@/components/Navigation/EarlyAccessInfo.vue';
+import { useIntercom } from '@homebaseai/vue3-intercom';
 
 const authStore = useAuthStore();
 const showPanel = ref(false);
@@ -32,6 +33,7 @@ async function logout() {
 }
 
 const collapsed = ref(false);
+const intercom = useIntercom();
 </script>
 
 <template>
@@ -58,20 +60,35 @@ const collapsed = ref(false);
             <Bars3Icon class="h-8 w-8" />
           </div>
         </div>
+
         <EarlyAccessInfo class="self-center md:hidden mt-2" />
 
         <div class="hidden w-full h-full md:flex md:flex-col justify-between">
           <NavbarContent :collapsed="collapsed" />
 
-          <div class="flex justify-center">
-            <iframe
-              data-status-badge="true"
-              src="https://status.mythweaver.co/badge?theme=dark"
-              height="30"
-              :class="[collapsed ? 'w-5' : 'w-full']"
-              frameborder="0"
-              scrolling="no"
-            ></iframe>
+          <div>
+            <hr class="py-2 mb-2 border-neutral-800 -mx-5" />
+            <div
+              class="flex px-4 py-2 text-sm text-gray-300 cursor-pointer hover:bg-rounded-purple"
+              @click="intercom.show()"
+            >
+              <img
+                src="@/assets/icons/support.svg"
+                alt="support"
+                class="h-5 mr-2"
+              />
+              Support Center
+            </div>
+            <div class="flex justify-center my-4">
+              <iframe
+                data-status-badge="true"
+                src="https://status.mythweaver.co/badge?theme=dark"
+                height="30"
+                :class="[collapsed ? 'w-5' : 'w-full']"
+                frameborder="0"
+                scrolling="no"
+              ></iframe>
+            </div>
           </div>
         </div>
       </div>
@@ -95,6 +112,18 @@ const collapsed = ref(false);
               </div>
 
               <div class="">
+                <hr class="py-2 border-neutral-800 -mx-4" />
+                <div
+                  class="flex px-1 py-3 text-sm text-gray-300 cursor-pointer hover:bg-rounded-purple"
+                  @click="intercom.show()"
+                >
+                  <img
+                    src="@/assets/icons/support.svg"
+                    alt="support"
+                    class="h-5 mr-2"
+                  />
+                  Support Center
+                </div>
                 <iframe
                   data-status-badge="true"
                   src="https://status.mythweaver.co/badge?theme=dark"
