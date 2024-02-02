@@ -70,10 +70,7 @@ async function handleCreateSession() {
     <div class="w-full md:flex md:justify-between">
       <div class="text-xl self-center font-bold">Sessions</div>
 
-      <div
-        v-if="sessions.length"
-        class="mt-2 self-center md:mt-0 flex justify-between"
-      >
+      <div class="mt-2 self-center md:mt-0 flex justify-between">
         <button
           class="self-center button-primary mr-2"
           @click="
@@ -118,21 +115,28 @@ async function handleCreateSession() {
         <UserGroupIcon class="h-14 text-neutral-500 mx-auto" />
       </div>
       <div class="self-center text-2xl my-4">
-        No sessions have been created for this campaign yet.
+        No sessions have been
+        {{ sessionsSearch.archived ? 'archived' : 'created' }} for this campaign
+        yet.
       </div>
       <div
-        v-if="currentUserRole === CampaignRole.DM"
+        v-if="currentUserRole === CampaignRole.DM && !sessionsSearch.archived"
         class="text-neutral-500 mb-8 max-w-[40em]"
       >
-        Session you create for your campaign will appear on this screen. Try
+        Session you create for selected campaign will appear on this screen. Try
         creating your first session using the button below.
       </div>
-      <div v-else class="text-neutral-500 mb-8 max-w-[40em]">
+      <div
+        v-else-if="
+          currentUserRole !== CampaignRole.DM && !sessionsSearch.archived
+        "
+        class="text-neutral-500 mb-8 max-w-[40em]"
+      >
         Sessions your GM creates for your campaign will appear on this screen.
         Check back here again after your GM creates your fist session.
       </div>
       <button
-        v-if="currentUserRole === CampaignRole.DM"
+        v-if="currentUserRole === CampaignRole.DM && !sessionsSearch.archived"
         class="flex justify-center self-center button-gradient"
         @click="handleCreateSession"
       >

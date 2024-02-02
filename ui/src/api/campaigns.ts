@@ -121,3 +121,7 @@ export const getCampaignInvite = (inviteCode: string) => {
 export const acceptCampaignInvite = (inviteCode: string) => {
   return axios.post(`/campaigns/invites/${inviteCode}`);
 };
+
+export const getCampaignCharacters = (campaignId: number) => {
+  return axios.get(`campaigns/${campaignId}/characters`);
+};

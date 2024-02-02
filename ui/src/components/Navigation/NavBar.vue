@@ -38,7 +38,7 @@ const intercom = useIntercom();
 
 <template>
   <div
-    class="nav-bar px-1 md:h-full border-r border-zinc-900 md:max-w-[256px] md:min-w-[256px]"
+    class="nav-bar px-1 md:h-full border-r border-zinc-900 md:max-w-[256px] md:min-w-[256px] z-10"
     :class="{ 'md:max-w-[90px] md:min-w-[90px]': collapsed }"
   >
     <div
@@ -46,13 +46,25 @@ const intercom = useIntercom();
     >
       <div class="h-full">
         <div class="flex justify-between">
-          <img
-            v-if="!collapsed"
-            src="/images/logo-horizontal-2.svg"
-            class="h-8 w-auto mr-auto mt-1 mb-5"
-          />
+          <div v-if="!collapsed" class="flex">
+            <img
+              src="/images/logo-horizontal-2.svg"
+              class="h-8 w-auto mr-auto mt-1 mb-1 self-center"
+            />
+            <div
+              v-if="authStore.user?.plan"
+              class="self-center text-[12px] mx-2 px-2 skew-x-[-20deg] rounded-tl-[5px] rounded-br-[5px]"
+              :class="{
+                'bg-slate-500': authStore.user.plan === 'FREE',
+                'bg-fuchsia-500': authStore.user.plan === 'BASIC',
+                'bg-gradient-to-r from-fuchsia-500 to-violet-500':
+                  authStore.user.plan === 'PRO',
+              }"
+            >
+              {{ authStore.user.plan }}
+            </div>
+          </div>
           <img v-else src="/favicon.png" class="h-12 w-auto" />
-
           <div
             class="self-center text-purple-400 md:mb-6 md:hidden"
             @click="showPanel = true"

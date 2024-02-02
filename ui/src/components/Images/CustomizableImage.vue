@@ -48,7 +48,7 @@ function showImage() {
       {{ type }}
     </div>
 
-    <div class="absolute flex top-2 right-2">
+    <div v-if="editable" class="absolute flex top-2 right-2">
       <button
         class="flex button-white bg-white/50"
         :disabled="!props.imageUri"
@@ -73,7 +73,7 @@ function showImage() {
       v-if="imageUri"
       :src="imageUri"
       :alt="alt"
-      class="rounded-md"
+      class="rounded-[20px]"
     />
     <div
       v-else

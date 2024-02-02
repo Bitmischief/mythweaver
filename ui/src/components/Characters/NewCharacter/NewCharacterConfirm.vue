@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { Character } from '@/api/characters.ts';
 import LightboxImage from '@/components/LightboxImage.vue';
+import { ArrowLeftIcon } from '@heroicons/vue/24/solid';
 
 defineProps<{
   character: Character;
@@ -10,14 +11,14 @@ const emit = defineEmits(['back', 'complete']);
 </script>
 
 <template>
-  <div class="mt-8 w-full overflow-x-hidden">
+  <div class="mt-8 p-8 w-full overflow-x-hidden">
     <div class="md:flex">
       <LightboxImage
         :src="character.imageUri"
         class="w-full md:w-[15rem] rounded-[10px]"
       />
       <div
-        class="self-center mt-4 md:mt-0 md:ml-6 w-full grid grid-cols-2 3xl:grid-cols-4 gap-4"
+        class="mt-4 md:mt-0 md:ml-6 w-full grid grid-cols-2 3xl:grid-cols-4 gap-4"
       >
         <div>
           <div class="text-md text-neutral-500">Name</div>
@@ -72,16 +73,11 @@ const emit = defineEmits(['back', 'complete']);
   </div>
 
   <div class="mt-8 flex justify-between">
-    <button
-      class="bg-neutral-800 mr-2 mb-4 rounded-md py-2 px-4"
-      @click="emit('back')"
-    >
+    <button class="button-primary flex" @click="emit('back')">
+      <ArrowLeftIcon class="h-4 mr-1 self-center" />
       Back
     </button>
-    <button
-      class="bg-neutral-800 mr-2 mb-4 rounded-md py-2 px-4 bg-gradient-to-r from-fuchsia-500 flex to-blue-400"
-      @click="emit('complete')"
-    >
+    <button class="button-gradient" @click="emit('complete')">
       Save Character
     </button>
   </div>

@@ -146,6 +146,7 @@ const postGenerateArbitrarySchema = z.object({
   background: z.any().optional(),
   context: z.string(),
   propertyName: z.string().min(3).max(100),
+  length: z.number().min(100).max(5000).default(1000),
 });
 
 router.post('/arbitrary', [

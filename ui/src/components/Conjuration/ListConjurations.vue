@@ -183,18 +183,13 @@ async function handleConjurationChange(change: {
           </span>
         </button>
 
-        <button
-          class="mr-2 px-3 py-1.5 bg-neutral-900 rounded-md justify-start items-center gap-[5px] inline-flex transition-all hover:scale-110 text-sm"
-          @click="showFilters = true"
-        >
+        <button class="button-primary flex mr-2" @click="showFilters = true">
           <AdjustmentsVerticalIcon class="w-5 h-5 mr-2" />
           <span class="text-white text-sm font-normal">Filters</span>
         </button>
 
         <router-link to="/conjurations/new" class="flex">
-          <button
-            class="flex w-full self-center rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 px-3 py-1.5 transition-all hover:scale-110 text-sm"
-          >
+          <button class="button-gradient flex">
             <SparklesIcon class="mr-2 h-5 w-5 self-center" />
             <span class="self-center">Create</span>
           </button>

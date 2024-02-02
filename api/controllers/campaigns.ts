@@ -512,4 +512,39 @@ export default class CampaignController {
 
     return character;
   }
+
+  @Security('jwt')
+  @OperationId('getMyCampaignCharacters')
+  @Put('/:campaignId/characters')
+  public async getMyCampaignCharacters(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Route() campaignId: number,
+  ) {
+    const actingUserCampaignMember = await prisma.campaignMember.findUnique({
+      where: {
+        userId_campaignId: {
+          userId,
+          campaignId,
+        },
+      },
+    });
+
+    if (!actingUserCampaignMember) {
+      throw new AppError({
+        httpCode: HttpCode.FORBIDDEN,
+        description: 'You are not a member of this campaign',
+      });
+    }
+
+    const characters = await prisma.character.findMany({
+      where: {
+        campaignId: campaignId,
+      },
+    });
+
+    track(AppEvent.GetCharacters, campaignId, trackingInfo);
+
+    return characters;
+  }
 }

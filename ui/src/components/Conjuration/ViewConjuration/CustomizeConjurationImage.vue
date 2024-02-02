@@ -134,15 +134,18 @@ function setImage() {
 
 <template>
   <template v-if="!conjuring && !done">
-    <div class="md:flex mb-4 justify-center mt-4">
+    <div v-if="imageUri" class="md:flex mb-4 justify-center mt-4">
       <div class="relative">
         <LightboxImage
-          v-if="imageUri"
           :src="imageUri"
           class="w-72 h-72 mx-auto md:my-auto rounded-[25px]"
         />
         <div class="image-badge">Original</div>
       </div>
+    </div>
+    <div v-else class="text-neutral-400 text-center mb-2">
+      Enter a description of you character below to generate a character
+      portrait
     </div>
 
     <div
@@ -244,7 +247,7 @@ function setImage() {
     </button>
   </template>
   <template v-else-if="conjuring && !done">
-    <div class="p-12">
+    <div class="p-12 text-center">
       <Loader />
       <div class="text-3xl m-4">Conjuring</div>
       <div class="text-lg text-neutral-500">

@@ -75,7 +75,6 @@ function removeTag(tag: string) {
           :options="conjurers"
           display-prop="name"
           value-prop="code"
-          class="w-full md:w-[20rem]"
           multiple
           placeholder="Select conjuration types"
         />
@@ -101,14 +100,13 @@ function removeTag(tag: string) {
           ]"
           display-prop="name"
           value-prop="value"
-          class="w-full md:w-[20rem]"
           placeholder="Select image styles"
         />
       </div>
 
       <div class="mt-4">
         <div class="mb-1 text-neutral-400 text-sm">Tags</div>
-        <div class="w-full md:w-[20rem]">
+        <div class="w-full">
           <Autocomplete
             v-model="conjurationsFilterQuery.tags"
             :options="tags.map((t) => ({ value: t }))"

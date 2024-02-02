@@ -11,14 +11,22 @@ import {
   CampaignMember,
   getCampaign,
   PublicAdventure,
+  getCampaignCharacters,
 } from '@/api/campaigns.ts';
-import { getSessions, SessionBase } from '@/api/sessions.ts';
+import { CampaignRole } from '@/api/campaigns.ts';
+import { getSessions, SessionBase, postSession } from '@/api/sessions.ts';
 import { useEventBus } from '@/lib/events.ts';
 import { getRpgSystems, RpgSystem } from '@/api/rpgSystems.ts';
 import { useSelectedCampaignId } from '@/lib/hooks.ts';
 import { useRouter } from 'vue-router';
 import { format } from 'date-fns';
+import { showSuccess } from '@/lib/notifications';
+import { useCampaignStore } from '@/store/campaign.store.ts';
+import { Character } from '@/api/characters';
+import ModalAlternate from '@/components/ModalAlternate.vue';
+import CharacterOverview from '../Characters/CharacterOverview.vue';
 
+const campaignStore = useCampaignStore();
 const selectedCampaignId = useSelectedCampaignId();
 const eventBus = useEventBus();
 const router = useRouter();
@@ -27,6 +35,12 @@ const campaign = ref<Campaign>({} as Campaign);
 const rpgSystems = ref<RpgSystem[]>([]);
 const adventures = ref<PublicAdventure[]>([]);
 const systemsLimit = ref(999);
+const characters = ref<Character[]>([]);
+
+const viewingCharacter = ref<Character>();
+const viewCharacter = ref(false);
+
+const currentUserRole = computed(() => campaignStore.selectedCampaignRole);
 
 const sessionsSearch = ref<{
   offset: number;
@@ -59,6 +73,8 @@ async function init() {
   await loadSessions();
 
   await loadRpgSystems();
+
+  await loadCharacters();
 }
 
 watch(
@@ -95,6 +111,11 @@ async function loadRpgSystems() {
   rpgSystems.value = rpgSystemsResponse.data.data;
 
   loadAdventures();
+}
+
+async function loadCharacters() {
+  const response = await getCampaignCharacters(campaign?.value.id || 0);
+  characters.value = response.data;
 }
 
 function splitEmail(email: string) {
@@ -147,12 +168,32 @@ const latestSession = computed(() => {
 
   return latestSession;
 });
+
+async function handleCreateSession() {
+  if (currentUserRole.value !== CampaignRole.DM) {
+    alert('Only the GM of this campaign can create new sessions');
+    return;
+  }
+
+  const createSessionResponse = await postSession({});
+
+  showSuccess({ message: 'Session created!' });
+  await router.push(`/sessions/${createSessionResponse.data.id}/planning`);
+}
+
+function campaignMemberName(campaignMemberId: number | undefined) {
+  const member = campaign.value.members?.find((m) => m.id === campaignMemberId);
+  if (!member) {
+    return 'n/a';
+  }
+  return splitEmail(member.email);
+}
 </script>
 
 <template>
   <div class="flex justify-between mb-6">
     <div>Overview</div>
-    <div class="flex">
+    <div v-if="currentUserRole === CampaignRole.DM" class="flex">
       <router-link to="/campaign/edit" class="button-primary flex mr-2">
         <PencilSquareIcon class="h-5 w-5 mr-1" />
         Edit campaign
@@ -175,7 +216,16 @@ const latestSession = computed(() => {
         {{ campaign.description }}
       </div>
       <div v-else class="text-neutral-500 text-center py-[3em]">
-        Edit your campaign to add a description
+        This campaign does not have a description
+        <div
+          v-if="currentUserRole === CampaignRole.DM"
+          class="flex justify-around mt-4"
+        >
+          <router-link to="/campaign/edit" class="button-ghost flex mr-2">
+            <PencilSquareIcon class="h-5 w-5 mr-1" />
+            Edit campaign
+          </router-link>
+        </div>
       </div>
     </div>
     <div class="rounded-[18px] bg-surface-3 p-4 min-h-[10em] col-span-2">
@@ -214,7 +264,16 @@ const latestSession = computed(() => {
         </div>
       </div>
       <div v-else class="text-neutral-500 text-center py-[5em]">
-        Looks like you don't have any completed sessions yet.
+        This campaign has no completed sessions
+        <div
+          v-if="currentUserRole === CampaignRole.DM"
+          class="flex justify-around mt-4"
+        >
+          <button class="button-ghost flex mr-2" @click="handleCreateSession">
+            <PlusIcon class="h-5 w-5 mr-1" />
+            Create Session
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -285,5 +344,51 @@ const latestSession = computed(() => {
         </div>
       </div>
     </div>
+    <div v-if="characters?.length" class="mb-8">
+      <div class="flex mb-4">
+        <div class="mr-1">Characters</div>
+        <div
+          class="text-xs bg-gradient-to-r from-fuchsia-500 to-violet-500 rounded-full px-2 py-1"
+        >
+          {{ characters.length }}
+        </div>
+      </div>
+      <div class="flex overflow-x-auto">
+        <div
+          v-for="(char, i) in characters"
+          :key="`char_${i}`"
+          class="bg-surface-3 rounded-[25px] p-1 cursor-pointer"
+          @click="
+            viewingCharacter = char;
+            viewCharacter = true;
+          "
+        >
+          <div class="relative">
+            <img
+              :src="char.imageUri"
+              alt="character portrait"
+              class="rounded-[20px]"
+            />
+            <div
+              class="absolute top-1 left-1 rounded-full bg-white/50 text-black px-2"
+            >
+              {{ campaignMemberName(char.campaignMemberId) }}
+            </div>
+          </div>
+          <div class="py-1 px-2 text-center">
+            {{ char.name }}
+          </div>
+        </div>
+      </div>
+    </div>
+    <ModalAlternate :show="viewCharacter" @close="viewCharacter = false">
+      <div class="bg-surface-2 rounded-[20px] max-w-[75vw] p-6">
+        <CharacterOverview
+          v-if="viewingCharacter"
+          :character="viewingCharacter"
+          @close="viewCharacter = false"
+        />
+      </div>
+    </ModalAlternate>
   </div>
 </template>

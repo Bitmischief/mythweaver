@@ -308,4 +308,26 @@ router.get('/:campaignId/character', [
   },
 ]);
 
+const getCampaignCharactersRouteSchema = z.object({
+  campaignId: z.coerce.number().default(0),
+});
+
+router.get('/:campaignId/characters', [
+  useAuthenticateRequest(),
+  useValidateRequest(getCampaignCharactersRouteSchema, {
+    validationType: ValidationTypes.Route,
+  }),
+  async (req: Request, res: Response) => {
+    const controller = new CampaignController();
+
+    const response = await controller.getMyCampaignCharacters(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      req.params.campaignId as unknown as number,
+    );
+
+    return res.status(200).send(response);
+  },
+]);
+
 export default router;
