@@ -3,13 +3,16 @@ import {
   PencilSquareIcon,
   CalendarDaysIcon,
   ClockIcon,
+  UserGroupIcon,
 } from '@heroicons/vue/24/outline';
 import { PlusIcon } from '@heroicons/vue/20/solid';
 import { computed, onMounted, ref, watch } from 'vue';
 import {
   Campaign,
   CampaignMember,
+  deleteCampaignMember,
   getCampaign,
+  invitePlayerToCampaign,
   PublicAdventure,
   getCampaignCharacters,
 } from '@/api/campaigns.ts';
@@ -20,11 +23,12 @@ import { getRpgSystems, RpgSystem } from '@/api/rpgSystems.ts';
 import { useSelectedCampaignId } from '@/lib/hooks.ts';
 import { useRouter } from 'vue-router';
 import { format } from 'date-fns';
-import { showSuccess } from '@/lib/notifications';
+import { showSuccess, showError } from '@/lib/notifications';
 import { useCampaignStore } from '@/store/campaign.store.ts';
 import { Character } from '@/api/characters';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import CharacterOverview from '../Characters/CharacterOverview.vue';
+import { AxiosError } from 'axios';
 
 const campaignStore = useCampaignStore();
 const selectedCampaignId = useSelectedCampaignId();
@@ -39,6 +43,10 @@ const characters = ref<Character[]>([]);
 
 const viewingCharacter = ref<Character>();
 const viewCharacter = ref(false);
+const showInviteModal = ref(false);
+const showDeleteModal = ref(false);
+const inviteLoading = ref(false);
+const inviteEmail = ref('');
 
 const currentUserRole = computed(() => campaignStore.selectedCampaignRole);
 
@@ -188,6 +196,58 @@ function campaignMemberName(campaignMemberId: number | undefined) {
   }
   return splitEmail(member.email);
 }
+
+async function invitePlayer() {
+  if (!inviteEmail.value) {
+    return;
+  }
+
+  try {
+    inviteLoading.value = true;
+    await invitePlayerToCampaign(
+      inviteEmail.value,
+      selectedCampaignId.value || 0,
+    );
+    showSuccess({
+      message: 'Invite sent successfully',
+      context:
+        'The invitation has been successfully sent. Once accepted, they will be visible in the list of party members.',
+    });
+  } catch (e) {
+    const err = e as AxiosError;
+    showError({
+      message: (err?.response?.data as any)?.message?.toString() || '',
+    });
+    return;
+  }
+
+  await init();
+  inviteLoading.value = false;
+  showInviteModal.value = false;
+}
+
+const requestedRemovedMemberId = ref<number | null>(null);
+const removeMemberLoading = ref(false);
+
+async function handleRemoveMember() {
+  try {
+    removeMemberLoading.value = true;
+    await deleteCampaignMember(
+      selectedCampaignId.value || 0,
+      requestedRemovedMemberId.value || 0,
+    );
+    await init();
+    showDeleteModal.value = false;
+  } catch (e) {
+    const err = e as AxiosError;
+    showError({
+      message: (err?.response?.data as any)?.message?.toString() || '',
+    });
+    return;
+  } finally {
+    removeMemberLoading.value = false;
+  }
+}
 </script>
 
 <template>
@@ -307,39 +367,62 @@ function campaignMemberName(campaignMemberId: number | undefined) {
       </div>
     </div>
     <div class="col-span-3">
-      <div class="flex mb-4">
-        <div class="mr-1">Party members</div>
-        <div
-          class="text-xs bg-gradient-to-r from-fuchsia-500 to-violet-500 rounded-full px-2 py-1"
-        >
-          {{ campaign.members?.length }}
+      <div class="flex justify-between mb-4">
+        <div class="flex">
+          <div class="mr-1 self-center">Party members</div>
+          <div
+            class="text-xs bg-gradient-to-r from-fuchsia-500 to-violet-500 rounded-full px-2 py-1 h-6 self-center"
+          >
+            {{ campaign.members?.length }}
+          </div>
+        </div>
+        <div>
+          <button
+            v-if="currentUserRole === CampaignRole.DM || true"
+            class="button-primary flex"
+            @click="showInviteModal = true"
+          >
+            <UserGroupIcon class="h-5 mr-1" />
+            Add Players
+          </button>
         </div>
       </div>
       <div class="rounded-[18px] bg-surface-3 p-4 col-span-2">
         <div
           v-for="member in campaign.members"
           :key="`${member.id}_member`"
-          class="grid grid-cols-3 text-sm p-2"
+          class="flex text-sm p-2 group justify-between min-h-[3.5em] whitespace-nowrap"
         >
-          <div
-            :class="{
-              'text-white': member.user,
-              'text-neutral-400': !member.user,
-            }"
-          >
-            {{ splitEmail(member.user ? member.user.email : member.email) }}
+          <div class="grid grid-cols-3 grow">
+            <div
+              class="self-center col-span-1"
+              :class="{
+                'text-white': member.user,
+                'text-neutral-400': !member.user,
+              }"
+            >
+              {{ splitEmail(member.user ? member.user.email : member.email) }}
+            </div>
+            <div class="text-neutral-400 px-4 self-center col-span-1">
+              {{ member.role === 1 ? 'Game Master' : 'Player' }}
+            </div>
+            <div
+              class="text-neutral-400 text-right self-center col-span-1 overflow-hidden"
+            >
+              {{ member.user ? 'Joined' : 'Invited' }} on
+              {{
+                format(
+                  new Date(member.user ? member.joinedAt : member.createdAt),
+                  'MMMM d, yyyy',
+                )
+              }}
+            </div>
           </div>
-          <div class="text-neutral-400 px-4">
-            {{ member.role === 1 ? 'Game Master' : 'Player' }}
-          </div>
-          <div class="text-neutral-400 text-right">
-            {{ member.user ? 'Joined' : 'Invited' }} on
-            {{
-              format(
-                new Date(member.user ? member.joinedAt : member.createdAt),
-                'MMMM d, yyyy',
-              )
-            }}
+
+          <div class="hidden group-hover:block pl-4">
+            <button class="button-ghost py-1" @click="showDeleteModal = true">
+              Kick Player
+            </button>
           </div>
         </div>
       </div>
@@ -388,6 +471,68 @@ function campaignMemberName(campaignMemberId: number | undefined) {
           :character="viewingCharacter"
           @close="viewCharacter = false"
         />
+      </div>
+    </ModalAlternate>
+    <ModalAlternate :show="showInviteModal" @close="showInviteModal = false">
+      <div class="md:w-[499px] p-6 bg-surface-2 rounded-[20px]">
+        <img
+          src="@/assets/icons/addPlayer.svg"
+          alt="add player"
+          class="h-14 mx-auto"
+        />
+        <div class="text-center text-white text-2xl my-4">Invite Player</div>
+        <div class="text-center text-neutral-500 mb-4">
+          Summon a fellow adventurer to join your epic tale!
+        </div>
+
+        <input
+          v-model="inviteEmail"
+          autofocus
+          placeholder="Enter player email"
+          class="input-primary"
+          @keyup.enter="invitePlayer"
+        />
+
+        <div class="grid grid-cols-2 gap-4 mt-4">
+          <button class="button-primary" @click="showDeleteModal = false">
+            <span class="self-center"> Cancel </span>
+          </button>
+
+          <button class="button-white" @click="invitePlayer">
+            <span v-if="!inviteLoading">Send Invitation</span>
+            <span v-else class="self-center text-base animate-pulse"
+              >Inviting...</span
+            >
+          </button>
+        </div>
+      </div>
+    </ModalAlternate>
+    <ModalAlternate :show="showDeleteModal" @close="showDeleteModal = false">
+      <div class="md:w-[499px] p-6 bg-surface-2 rounded-[20px]">
+        <img
+          src="@/assets/icons/kickPlayer.svg"
+          alt="kick player"
+          class="h-14 mx-auto"
+        />
+        <div class="text-center text-white text-2xl my-4">Kick Player?</div>
+
+        <div class="text-center text-neutral-500 mb-4">
+          This will remove this player from your campaign. You can always
+          re-invite them.
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <button class="button-primary" @click="showDeleteModal = false">
+            <span class="self-center"> Cancel </span>
+          </button>
+
+          <button class="button-white" @click="handleRemoveMember">
+            <span v-if="!removeMemberLoading">Kick Player</span>
+            <span v-else class="self-center text-base animate-pulse"
+              >Removing...</span
+            >
+          </button>
+        </div>
       </div>
     </ModalAlternate>
   </div>

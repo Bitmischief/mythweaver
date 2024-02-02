@@ -3,9 +3,7 @@ import { computed, onMounted, ref, watch } from 'vue';
 import {
   Campaign,
   CampaignRole,
-  deleteCampaignMember,
   getCampaign,
-  invitePlayerToCampaign,
   PublicAdventure,
 } from '@/api/campaigns.ts';
 import { useCampaignStore } from '@/store/campaign.store.ts';
@@ -14,7 +12,6 @@ import Select from '@/components/Core/Forms/Select.vue';
 import { useSelectedCampaignId } from '@/lib/hooks.ts';
 import { useEventBus } from '@/lib/events.ts';
 import { format } from 'date-fns';
-import ModalAlternate from '@/components/ModalAlternate.vue';
 import { showError, showSuccess } from '@/lib/notifications.ts';
 import { AxiosError } from 'axios';
 import { useRouter } from 'vue-router';
@@ -29,10 +26,6 @@ const campaign = ref<Campaign>({} as Campaign);
 const rpgSystems = ref<RpgSystem[]>([]);
 const adventures = ref<PublicAdventure[]>([]);
 const systemsLimit = ref(999);
-const showInviteModal = ref(false);
-const inviteLoading = ref(false);
-const inviteEmail = ref('');
-const showDeleteModal = ref(false);
 
 const currentUserRole = computed(() => campaignStore.selectedCampaignRole);
 
@@ -123,57 +116,6 @@ async function handleDeleteCampaign() {
     });
     return;
   }
-}
-
-async function invitePlayer() {
-  if (!inviteEmail.value) {
-    return;
-  }
-
-  try {
-    inviteLoading.value = true;
-    await invitePlayerToCampaign(
-      inviteEmail.value,
-      selectedCampaignId.value || 0,
-    );
-  } catch (e) {
-    const err = e as AxiosError;
-    showError({
-      message: (err?.response?.data as any)?.message?.toString() || '',
-    });
-    return;
-  }
-
-  await init();
-  inviteLoading.value = false;
-  showInviteModal.value = false;
-}
-
-async function handleRemoveMember() {
-  try {
-    removeMemberLoading.value = true;
-    await deleteCampaignMember(
-      selectedCampaignId.value || 0,
-      requestedRemovedMemberId.value || 0,
-    );
-    await init();
-    showDeleteModal.value = false;
-  } catch (e) {
-    const err = e as AxiosError;
-    showError({
-      message: (err?.response?.data as any)?.message?.toString() || '',
-    });
-    return;
-  } finally {
-    removeMemberLoading.value = false;
-  }
-}
-
-const requestedRemovedMemberId = ref<number | null>(null);
-const removeMemberLoading = ref(false);
-function handleRequestRemoveMember(memberId: number) {
-  showDeleteModal.value = true;
-  requestedRemovedMemberId.value = memberId;
 }
 </script>
 
@@ -271,54 +213,6 @@ function handleRequestRemoveMember(memberId: number) {
     <div class="mt-12 border-t border-gray-500/25 py-4">
       <div class="flex justify-between">
         <div class="text-2xl">Party Members</div>
-        <button
-          v-if="currentUserRole === CampaignRole.DM"
-          class="border-purple-300 border p-2 rounded-xl transition-all hover:scale-110"
-          @click="showInviteModal = true"
-        >
-          Invite
-        </button>
-
-        <ModalAlternate
-          :show="showInviteModal"
-          @close="showInviteModal = false"
-        >
-          <div class="md:w-[499px] p-6 bg-neutral-900 rounded-[20px]">
-            <div class="text-center text-white text-[26px] font-bold">
-              Invite Player
-            </div>
-            <div
-              class="text-center w-full text-zinc-500 text-sm font-normal leading-[25px]"
-            >
-              Summon a fellow adventurer to join your epic tale!
-            </div>
-
-            <div
-              class="mt-6 text-white text-[17px] w-full text-center font-medium leading-[29px]"
-            >
-              What email address should we use to invite them?
-            </div>
-
-            <input
-              v-model="inviteEmail"
-              autofocus
-              placeholder="email@email.com"
-              class="mt-2 w-full px-4 h-[60px] bg-zinc-950 rounded-[10px] border border-neutral-800"
-              @keyup.enter="invitePlayer"
-            />
-            <button
-              class="mt-4 mx-auto w-full h-[60px] px-[13px] py-[20.50px] bg-gradient-to-r from-fuchsia-500 to-blue-400 rounded-lg justify-center items-start gap-[5px] inline-flex"
-              @click="invitePlayer"
-            >
-              <span v-if="!inviteLoading" class="text-white text-base font-bold"
-                >Send Invite</span
-              >
-              <span v-else class="text-white text-base font-bold animate-pulse"
-                >Inviting...</span
-              >
-            </button>
-          </div>
-        </ModalAlternate>
       </div>
 
       <div class="mt-6">
@@ -372,58 +266,10 @@ function handleRequestRemoveMember(memberId: number) {
                   )
                 }}
               </div>
-
-              <div
-                v-if="member.role !== 1 && currentUserRole === CampaignRole.DM"
-                class="w-[0] group-hover:w-20 transition-all duration-200 self-center group-hover:ml-2 group-hover:delay-0 delay-100 ease-in overflow-x-hidden"
-              >
-                <button
-                  class="rounded-xl bg-red-500 p-2"
-                  @click="handleRequestRemoveMember(member.id)"
-                >
-                  Remove
-                </button>
-              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-
-  <ModalAlternate :show="showDeleteModal" @close="showDeleteModal = false">
-    <div class="md:w-[499px] p-6 bg-neutral-900 rounded-[20px]">
-      <div class="text-center text-white text-[26px] font-bold">
-        Are you sure?
-      </div>
-
-      <div class="text-center text-xl text-gray-500 mb-4">
-        This will remove this player from your campaign. You can always
-        re-invite them.
-      </div>
-
-      <div class="grid grid-cols-2 gap-2">
-        <button
-          class="mx-auto flex w-full h-[60px] px-[13px] py-[20.50px] bg-gradient-to-r from-fuchsia-500 to-blue-400 rounded-lg justify-center items-start gap-[5px] inline-flex"
-          @click="showDeleteModal = false"
-        >
-          <span class="self-center"> Nevermind </span>
-        </button>
-
-        <button
-          class="mx-auto w-full h-[60px] flex px-[13px] py-[20.50px] bg-none border border-red-500 rounded-lg justify-center items-start gap-[5px] inline-flex"
-          @click="handleRemoveMember"
-        >
-          <span
-            v-if="!removeMemberLoading"
-            class="text-white text-base self-center"
-            >Remove Player</span
-          >
-          <span v-else class="text-white self-center text-base animate-pulse"
-            >Removing...</span
-          >
-        </button>
-      </div>
-    </div>
-  </ModalAlternate>
 </template>

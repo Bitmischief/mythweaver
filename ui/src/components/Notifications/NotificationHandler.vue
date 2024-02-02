@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { useEventBus } from '@/lib/events.ts';
+import {
+  CheckCircleIcon,
+  InformationCircleIcon,
+} from '@heroicons/vue/20/solid';
 
 const eventBus = useEventBus();
 
@@ -8,14 +12,21 @@ const showNotification = ref(false);
 const typeRef = ref('');
 const timeoutRef = ref(0);
 const messageRef = ref('');
+const contextRef = ref();
 
 onMounted(() => {
   eventBus.$on('showNotification', (options: any) => {
-    const { type = 'success', timeout = 5000, message } = options || {};
+    const {
+      type = 'success',
+      timeout = 5000,
+      message,
+      context,
+    } = options || {};
 
     typeRef.value = type;
     timeoutRef.value = timeout;
     messageRef.value = message;
+    contextRef.value = context;
 
     showNotification.value = true;
 
@@ -50,51 +61,25 @@ function initTimeout() {
       >
         <div
           v-if="showNotification"
-          class="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg shadow-lg ring-1 ring-black ring-opacity-5"
-          :class="{
-            'bg-green-500': typeRef === 'success',
-            'bg-red-500': typeRef === 'error',
-          }"
+          class="pointer-events-auto bg-surface-3/95 w-full max-w-sm overflow-hidden rounded-lg shadow-lg ring-1 ring-black ring-opacity-5"
         >
           <div class="p-4">
             <div class="flex items-start">
-              <div class="h-full shrink-0 self-center">
-                <svg
+              <div class="self-center">
+                <CheckCircleIcon
                   v-if="typeRef === 'success'"
-                  class="h-6 w-6"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-
-                <svg
+                  class="w-6 text-green-500 green-glow"
+                />
+                <InformationCircleIcon
                   v-else
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="currentColor"
-                  class="h-5 w-5"
-                  aria-hidden="true"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
-                  />
-                </svg>
+                  class="w-6 text-red-500 red-glow"
+                />
               </div>
               <div class="ml-3 w-0 flex-1 pt-0.5">
-                {{ messageRef }}
+                <div class="text-sm">{{ messageRef }}</div>
+                <div v-if="contextRef" class="text-xs text-neutral-500">
+                  {{ contextRef }}
+                </div>
               </div>
               <div class="ml-4 flex shrink-0 self-center">
                 <button
