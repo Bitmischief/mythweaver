@@ -1,5 +1,5 @@
 import { Body, Inject, OperationId, Post, Route, Security, Tags } from 'tsoa';
-import { AppEvent, track, TrackingInfo } from '../lib/tracking';
+import { TrackingInfo } from '../lib/tracking';
 import { generateImage } from '../services/imageGeneration';
 
 interface PostImageRequest {

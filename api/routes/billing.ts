@@ -35,10 +35,7 @@ router.get('/portal-url', [
   async (req: Request, res: Response) => {
     const controller = new BillingController();
 
-    const response = await controller.getPortalUrl(
-      res.locals.auth.userId,
-      res.locals.trackingInfo,
-    );
+    const response = await controller.getPortalUrl(res.locals.auth.userId);
     return res.status(200).send(response);
   },
 ]);

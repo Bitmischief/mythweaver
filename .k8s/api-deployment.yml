@@ -92,6 +92,14 @@ spec:
               value: <PUSHER_KEY>
             - name: PUSHER_SECRET
               value: <PUSHER_SECRET>
+            - name: STRIPE_SECRET_KEY
+              value: <STRIPE_SECRET_KEY>
+            - name: STRIPE_ENDPOINT_SECRET
+              value: <STRIPE_ENDPOINT_SECRET>
+            - name: STRIPE_BASIC_PLAN_ID
+              value: <STRIPE_BASIC_PLAN_ID>
+            - name: STRIPE_PRO_PLAN_ID
+              value: <STRIPE_PRO_PLAN_ID>
           readinessProbe:
             httpGet:
               path: /docs
