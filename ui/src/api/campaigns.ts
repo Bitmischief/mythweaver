@@ -73,8 +73,12 @@ export interface CampaignInvite {
   campaignName: string;
   members: [
     {
-      characterName: string;
-      characterImageUri: string;
+      email: string;
+      role: number;
+      character: {
+        name: string;
+        imageUri: string;
+      };
     },
   ];
 }

@@ -422,16 +422,23 @@ export default class CampaignController {
       },
       include: {
         user: true,
+        character: true,
       },
     });
+
+    console.log(otherMembers);
 
     return {
       campaignName: invite.campaign.name,
       invitingEmail: otherMembers.filter((m) => m.role === CampaignRole.DM)[0]
         ?.user?.email,
       members: otherMembers
-        .filter((m) => m.email !== invite.email && m.role !== CampaignRole.DM)
-        .map((m) => ({ email: m?.user?.email })),
+        .filter((m) => m.email !== invite.email)
+        .map((m) => ({
+          email: m?.email ?? m?.user?.email,
+          role: m?.role,
+          character: m?.character,
+        })),
     };
   }
 
