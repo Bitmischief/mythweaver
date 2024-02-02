@@ -127,7 +127,7 @@ async function loadCharacters() {
 }
 
 function splitEmail(email: string) {
-  return email.substring(0, email.indexOf('@'));
+  return email?.substring(0, email.indexOf('@')) || 'N/A';
 }
 
 const gm = computed(() => {
