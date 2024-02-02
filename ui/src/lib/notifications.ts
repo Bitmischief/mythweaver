@@ -2,6 +2,7 @@ import { useEventBus } from '@/lib/events';
 
 export interface NotificationOptions {
   message: string;
+  context?: string;
 }
 
 export const showSuccess = (options: NotificationOptions) => {

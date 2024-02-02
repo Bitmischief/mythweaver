@@ -11,6 +11,7 @@ export interface Character {
   backstory?: string;
   personality?: string;
   looks?: string;
+  campaignMemberId?: number;
 }
 
 export const getCurrentCampaignCharacter = () => {

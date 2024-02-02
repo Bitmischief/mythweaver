@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import { Character } from '@/api/characters.ts';
 import NewCharacterField from '@/components/Characters/NewCharacter/NewCharacterField.vue';
+import { ArrowRightIcon } from '@heroicons/vue/24/solid';
 
 const props = defineProps<{
   modelValue: Character;
@@ -26,64 +27,64 @@ function submit(payload: any) {
 </script>
 
 <template>
-  <FormKit type="form" @submit="submit">
+  <FormKit v-slot="{ disabled }" :actions="false" type="form" @submit="submit">
     <div class="mt-8">
+      <NewCharacterField
+        required
+        :character="value"
+        :value="value.name"
+        title="Name"
+        type="input"
+        placeholder="Enter your character's name"
+      />
       <div class="flex justify-between">
-        <div class="w-[48%]">
-          <NewCharacterField
-            required
-            :character="value"
-            :value="value.name"
-            title="Name"
-            type="input"
-            placeholder="Enter your character's name"
-          />
-        </div>
-        <div class="w-[48%]">
-          <div class="flex justify-between mb-1">
-            <div class="text-xl self-center">Age</div>
-          </div>
-          <FormKit
-            v-model="value.age"
-            type="number"
-            number
-            name="age"
-            validation="required|number"
-            class="w-full p-2 mt-2 bg-neutral-800 rounded-[10px]"
-            placeholder="Enter your character's age"
-          />
-        </div>
+        <div class="text-sm text-neutral-400 px-1">Age</div>
       </div>
-    </div>
-
-    <div class="mt-8">
+      <FormKit
+        v-model="value.age"
+        type="number"
+        number
+        name="age"
+        validation="required|number"
+        class="w-full p-2 mt-2 bg-neutral-800 rounded-[10px]"
+        placeholder="Enter your character's age"
+      />
       <div class="flex justify-between">
-        <div class="w-[48%]">
-          <div class="flex justify-between">
-            <div class="text-xl">Race</div>
-          </div>
-          <FormKit
-            v-model="value.race"
-            type="text"
-            name="race"
-            validation="required"
-            class="w-full p-2 mt-2 bg-neutral-800 rounded-[10px]"
-            placeholder="Enter your character's race"
-          />
-        </div>
-        <div class="w-[48%]">
-          <div class="flex justify-between">
-            <div class="text-xl">Class</div>
-          </div>
-          <FormKit
-            v-model="value.class"
-            type="text"
-            name="class"
-            validation="required"
-            class="w-full p-2 mt-2 bg-neutral-800 rounded-[10px]"
-            placeholder="Enter your character's class"
-          />
-        </div>
+        <div class="text-sm text-neutral-400 px-1">Race</div>
+      </div>
+      <FormKit
+        v-model="value.race"
+        type="text"
+        name="race"
+        validation="required"
+        class="w-full p-2 mt-2 bg-neutral-800 rounded-[10px]"
+        placeholder="Enter your character's race"
+      />
+
+      <div class="flex justify-between mt-2">
+        <div class="text-sm text-neutral-400 px-1">Class</div>
+      </div>
+      <FormKit
+        v-model="value.class"
+        type="text"
+        name="class"
+        validation="required"
+        class="w-full p-2 mt-2 bg-neutral-800 rounded-[10px]"
+        placeholder="Enter your character's class"
+      />
+    </div>
+    <div class="flex justify-end">
+      <div>
+        <FormKit
+          type="submit"
+          label="Next"
+          input-class="$reset button-ghost flex"
+          :disabled="disabled as boolean"
+        >
+          <template #suffixIcon>
+            <ArrowRightIcon class="w-4 ml-1 self-center" />
+          </template>
+        </FormKit>
       </div>
     </div>
   </FormKit>

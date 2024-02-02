@@ -81,9 +81,9 @@ async function addSessionAudio() {
       </div>
       <div class="mt-4">
         <div
-          class="flex self-center justify-center rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 text-white px-4 py-3 w-full transition-all hover:scale-110"
+          class="button-gradient text-center text-white"
           :class="{
-            'opacity-50 hover:scale-100': audioFile.name === undefined,
+            'opacity-50': audioFile.name === undefined,
           }"
           :disabled="audioFile.name === undefined || audioFileUploading"
           @click="addSessionAudio"

@@ -3,15 +3,15 @@
 @tailwind utilities;
 
 @font-face {
-  font-family: 'Gilroy';
-  src: url('/fonts/Gilroy-Light.otf'), url('/fonts/Gilroy-ExtraBold.ttf');
+  font-family: 'Rebond Grotesque';
+  src: url('/fonts/Rebond-Grotesque.otf'), url('/fonts/Rebond-Grotesque-Semibold.ttf');
 }
 
 .gradient-border {
   background:
     linear-gradient(rgba(23, 23, 23, 0.8), rgba(23, 23, 23, 0.8)) padding-box,
     linear-gradient(to right, rgba(64, 170, 241, 0.15), rgba(217, 117, 244, 0.15)) border-box;
-  border-radius: 5px;
+  border-radius: 12px;
   border: 1px solid transparent;
 }
 
@@ -27,12 +27,13 @@
   background:
     linear-gradient(rgb(23, 23, 23), rgb(23, 23, 23)) padding-box,
     linear-gradient(to right, rgba(64, 170, 241, 0.3), rgba(217, 117, 244, 0.3)) border-box;
-  border-radius: 5px;
+  border-radius: 12px;
   border: 1px solid transparent;
 }
 
-.bg-gradient {
-  background: linear-gradient(to right, rgba(64, 170, 241, 0.8), rgba(217, 117, 244, 0.8));
+.default-border-no-opacity {
+  background: #1e202a;
+  border-radius: 12px;
 }
 
 .bg-gradient-hover {
@@ -69,4 +70,69 @@ input[type='number'] {
   background: #222222;
   border: 1px solid #000000;
   border-radius: 8px;
+}
+
+.truncate-2-line {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.green-glow {
+  box-shadow: 0px 0px 100px 10px rgb(34 197 94 / 75);
+  border-radius: 50%;
+  border: none;
+}
+
+.red-glow {
+  box-shadow: 0px 0px 100px 10px rgb(239 68 68 / 75);
+  border-radius: 50%;
+  border: none;
+}
+
+@layer components {
+  .button-primary {
+    @apply bg-surface-3 text-white text-sm rounded-[12px] px-4 py-2 hover:cursor-pointer;
+  }
+  .button-ghost {
+    @apply bg-transparent text-fuchsia-500 text-sm border border-fuchsia-500 rounded-[12px] px-4 py-2 hover:cursor-pointer;
+  }
+  .button-gradient {
+    @apply bg-gradient-to-r from-fuchsia-500 to-violet-500 rounded-[12px] text-sm px-4 py-2 hover:cursor-pointer;
+  }
+  .button-white {
+    @apply bg-white text-black rounded-[12px] text-sm px-4 py-2 hover:cursor-pointer;
+  }
+  .input-primary {
+    @apply text-sm py-2 w-full border border-surface-3 bg-surface-2 px-4 text-white rounded-[12px] focus:border-fuchsia-500;
+  }
+  .input-secondary {
+    @apply text-sm py-2 w-full border border-surface-3 bg-surface px-4 text-white rounded-[12px] focus:border-fuchsia-500;
+  }
+  .input-ghost {
+    @apply text-sm py-3 bg-surface-2 w-full rounded-[12px] border-surface-3 focus:border-fuchsia-500;
+  }
+  .select-ghost {
+    @apply text-sm py-3 px-3 text-white text-left cursor-pointer bg-surface-2 w-full rounded-[12px] border border-surface-3 min-h-[3em];
+  }
+  .select-secondary {
+    @apply text-sm py-3 px-3 text-white text-left cursor-pointer bg-surface w-full rounded-[12px] border border-surface-3 min-h-[3em];
+  }
+  .nav-item {
+    @apply text-sm my-0.5 py-2 px-4 text-gray-300 flex overflow-hidden bg-rounded-purple;
+  }
+  .bg-gradient {
+    @apply bg-gradient-to-r from-fuchsia-500 to-violet-500;
+  }
+  .tag {
+    @apply rounded-full px-4 py-1 bg-surface-3 text-xs m-0.5;
+  }
+  .bg-rounded-purple {
+    @apply hover:bg-purple-800/20 rounded-full;
+  }
+  .image-badge {
+    @apply absolute left-2 top-2 flex h-6 justify-center items-center rounded-full bg-white/50 text-black text-xs font-bold px-4;
+  }
 }

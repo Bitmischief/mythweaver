@@ -12,7 +12,7 @@ defineProps<{
 <template>
   <Disclosure v-slot="{ open }">
     <DisclosureButton class="text-white text-lg font-semibold self-center">
-      <div class="flex">
+      <div class="flex p-2">
         <span>{{ title }}</span>
         <ChevronUpIcon
           :class="open ? 'rotate-180 transform' : ''"

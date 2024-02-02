@@ -4,6 +4,7 @@ import { Character } from '@/api/characters.ts';
 import { computed, onMounted, onUnmounted } from 'vue';
 import { useEventBus } from '@/lib/events.ts';
 import LightboxImage from '@/components/LightboxImage.vue';
+import { ArrowLeftIcon } from '@heroicons/vue/24/solid';
 
 const props = defineProps<{
   modelValue: Character;
@@ -63,9 +64,15 @@ onUnmounted(() => {
     </div>
     <CustomizeConjurationImage
       v-else
-      prompt=""
+      :prompt="value.looks"
       cancel-button-text-override="Back"
       @cancel="emit('back')"
     />
+    <div class="flex justify-between mt-8">
+      <button class="button-primary mb-4 flex" @click="emit('back')">
+        <ArrowLeftIcon class="w-4 mr-1 self-center" />
+        Back
+      </button>
+    </div>
   </div>
 </template>

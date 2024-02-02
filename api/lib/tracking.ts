@@ -40,6 +40,7 @@ export enum AppEvent {
   GetLoggedInUser = 'Get Logged In User',
   GetCampaignMembers = 'Get Campaign Members',
   GetCharacter = 'Get Character',
+  GetCharacters = 'Get Characters',
   CreateCharacter = 'Create Character',
   UpdateCharacter = 'Update Character',
   SessionAudioUploaded = 'Session Audio Uploaded',

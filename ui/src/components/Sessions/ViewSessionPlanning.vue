@@ -71,12 +71,7 @@ Post-Session:
 - Gather feedback, particularly about puzzle design and combat balance."
   />
 
-  <div class="flex mt-6 justify-end">
-    <button
-      class="rounded-md bg-green-500 text-lg py-1 px-3"
-      @click="clickSaveSession"
-    >
-      Save Changes
-    </button>
+  <div class="flex mt-6">
+    <button class="button-ghost" @click="clickSaveSession">Save Changes</button>
   </div>
 </template>

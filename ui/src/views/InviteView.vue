@@ -11,6 +11,8 @@ import {
 import { useAuthStore } from '@/store';
 import { showSuccess } from '@/lib/notifications.ts';
 import { useCampaignStore } from '@/store/campaign.store.ts';
+import { CampaignRole } from '@/api/campaigns.ts';
+import { QuestionMarkCircleIcon } from '@heroicons/vue/24/outline';
 
 const route = useRoute();
 const router = useRouter();
@@ -41,7 +43,7 @@ onMounted(async () => {
       v-if="invite && !authStore.tokens"
       class="md:w-[499px] p-6 bg-neutral-900 rounded-[20px]"
     >
-      <img src="/images/logo-horizontal.svg" class="h-12 w-auto mx-auto" />
+      <img src="/images/logo-horizontal-2.svg" class="h-12 w-auto mx-auto" />
 
       <div class="mt-6 text-center text-white text-2xl">You're Invited!</div>
 
@@ -57,18 +59,43 @@ onMounted(async () => {
 
       <div
         v-if="invite.members.length"
-        class="mt-4 grid md:grid-cols-4 content-stretch gap-5"
+        class="mt-4 w-full flex flex-nowrap overflow-x-auto overflow-y-hidden h-52 pb-4"
       >
         <div
           v-for="member in invite.members"
-          :key="member.characterName"
-          class="bg-slate-800 rounded-xl h-24 w-24 group"
+          :key="member.email"
+          class="mr-2 h-52 w-52 shrink-0"
         >
-          <div
-            class="group-hover:w-full w-0 h-full bg-black/25 rounded-xl flex justify-center transition-all duration-150 ease-in-out"
-          >
-            <div class="overflow-hidden self-center">
-              {{ member.characterName }}
+          <div class="relative h-48 w-48 bg-surface-3 rounded-[20px]">
+            <img
+              v-if="
+                member.role === CampaignRole.Player &&
+                member.character &&
+                member.character.imageUri
+              "
+              :src="member.character.imageUri"
+              alt="character portrait"
+              class="rounded-[16px]"
+            />
+            <img
+              v-else-if="member.role === CampaignRole.DM"
+              src="@/assets/GM.png"
+              alt="GM portrait"
+              class="rounded-[16px]"
+            />
+            <QuestionMarkCircleIcon
+              v-else
+              class="w-44 h-44 p-4 text-neutral-500 m-auto"
+            />
+            <div
+              class="absolute top-2 left-2 rounded-full bg-white/75 text-black self-center px-2"
+            >
+              {{ member.role === CampaignRole.DM ? 'GM' : 'Player' }}
+            </div>
+            <div
+              class="absolute bottom-2 left-2 right-2 rounded-full bg-white/75 text-black self-center px-2 truncate"
+            >
+              {{ member.email }}
             </div>
           </div>
         </div>

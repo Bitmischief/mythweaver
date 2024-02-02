@@ -5,6 +5,7 @@ export interface GenerateArbitraryPropertyRequest {
   propertyName: string;
   context: 'character' | 'location' | string;
   background: any;
+  length?: number;
 }
 
 export async function generateArbitraryProperty(request: GenerateArbitraryPropertyRequest) {

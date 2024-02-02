@@ -64,25 +64,24 @@ function removeTag(tag: string) {
 <template>
   <ModalAlternate :show="show" @close="emit('close')">
     <div class="md:w-[499px] p-6 bg-neutral-900 rounded-[20px]">
-      <div class="text-2xl border-b border-gray-700 pb-2 mb-6">
+      <div class="text-2xl border-b border-gray-700 pb-2 mb-6 text-center">
         Filter Conjurations
       </div>
 
       <div class="mt-4">
-        <div class="mb-1 text-gray-300">Conjuration Types</div>
+        <div class="mb-1 text-neutral-400 text-sm">Conjuration Types</div>
         <Select
           v-model="conjurationsFilterQuery.conjurerCodes"
           :options="conjurers"
           display-prop="name"
           value-prop="code"
-          class="w-full md:w-[20rem]"
           multiple
           placeholder="Select conjuration types"
         />
       </div>
 
       <div class="mt-4">
-        <div class="mb-1 text-gray-300">Image Style</div>
+        <div class="mb-1 text-neutral-400 text-sm">Image Style</div>
         <Select
           v-model="conjurationsFilterQuery.imageStylePreset"
           :options="[
@@ -101,14 +100,13 @@ function removeTag(tag: string) {
           ]"
           display-prop="name"
           value-prop="value"
-          class="w-full md:w-[20rem]"
           placeholder="Select image styles"
         />
       </div>
 
       <div class="mt-4">
-        <div class="mb-1 text-gray-300">Tags</div>
-        <div class="w-full md:w-[20rem]">
+        <div class="mb-1 text-neutral-400 text-sm">Tags</div>
+        <div class="w-full">
           <Autocomplete
             v-model="conjurationsFilterQuery.tags"
             :options="tags.map((t) => ({ value: t }))"
@@ -137,11 +135,11 @@ function removeTag(tag: string) {
         </div>
 
         <button
-          class="mt-4 flex self-center rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 px-4 py-3 transition-all hover:scale-110"
+          class="flex button-gradient mt-4"
           @click="emit('updateFilters', conjurationsFilterQuery)"
         >
           <BoltIcon class="mr-2 h-5 w-5 self-center" />
-          <span class="self-center">Apply</span>
+          <span class="self-center">Apply Filters</span>
         </button>
       </div>
     </div>

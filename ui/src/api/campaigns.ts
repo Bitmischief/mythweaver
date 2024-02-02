@@ -30,7 +30,7 @@ export interface CampaignMember {
   joinedAt: string;
   user: {
     id: number;
-    email: number;
+    email: string;
   };
 }
 
@@ -73,8 +73,12 @@ export interface CampaignInvite {
   campaignName: string;
   members: [
     {
-      characterName: string;
-      characterImageUri: string;
+      email: string;
+      role: number;
+      character: {
+        name: string;
+        imageUri: string;
+      };
     },
   ];
 }
@@ -120,4 +124,8 @@ export const getCampaignInvite = (inviteCode: string) => {
 
 export const acceptCampaignInvite = (inviteCode: string) => {
   return axios.post(`/campaigns/invites/${inviteCode}`);
+};
+
+export const getCampaignCharacters = (campaignId: number) => {
+  return axios.get(`campaigns/${campaignId}/characters`);
 };

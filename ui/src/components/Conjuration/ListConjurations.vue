@@ -6,13 +6,18 @@ import {
   getConjurations,
 } from '@/api/conjurations.ts';
 import { AdjustmentsVerticalIcon, SparklesIcon } from '@heroicons/vue/20/solid';
+import { PhotoIcon } from '@heroicons/vue/24/outline';
 import ConjurationQuickView from '@/components/Conjuration/ConjurationListItemView.vue';
 import { debounce } from 'lodash';
 import ConjurationsListFiltering from '@/components/Conjuration/ConjurationsListFiltering.vue';
+import { useRoute } from 'vue-router';
 
 const pagingDone = ref(false);
 const conjurations = ref<Conjuration[]>([]);
 const showFilters = ref(false);
+const loading = ref(false);
+
+const route = useRoute();
 
 const defaultPaging = {
   offset: 0,
@@ -38,6 +43,7 @@ const conjurationsQuery = computed(() => ({
 }));
 
 onMounted(async () => {
+  loading.value = true;
   await loadConjurations();
 
   const viewParent = document.querySelector('#view-parent');
@@ -51,7 +57,26 @@ onMounted(async () => {
       pageConjurations();
     }
   });
+
+  if (route.hash === '#gallery') {
+    conjurationsMineQuery.value.saved = false;
+  } else {
+    conjurationsMineQuery.value.saved = true;
+  }
+
+  loading.value = false;
 });
+
+watch(
+  () => route.hash,
+  () => {
+    if (route.hash === '#gallery') {
+      conjurationsMineQuery.value.saved = false;
+    } else {
+      conjurationsMineQuery.value.saved = true;
+    }
+  },
+);
 
 watch(
   conjurationsPagingQuery,
@@ -132,55 +157,25 @@ async function handleConjurationChange(change: {
     @update-filters="handleFiltersUpdated"
   />
 
-  <div class="mb-6 flex w-full justify-between rounded-xl py-4">
+  <div class="flex w-full justify-between rounded-xl pb-8">
     <div class="w-full md:flex md:justify-between">
       <div class="flex">
-        <div class="text-2xl self-center font-bold mr-6">Conjurations List</div>
-
-        <div class="flex cursor-pointer">
-          <div
-            class="px-3 py-1 self-center rounded-l-md justify-start items-center"
-            :class="{
-              'bg-neutral-900': !conjurationsMineQuery.saved,
-              'bg-neutral-700 border border-fuchsia-500/50':
-                conjurationsMineQuery.saved,
-            }"
-            @click="conjurationsMineQuery.saved = true"
-          >
-            <span class="text-white text-sm font-normal">Saved</span>
-          </div>
-          <div
-            class="px-3 py-1 self-center justify-start rounded-r-md items-center"
-            :class="{
-              'bg-neutral-900': conjurationsMineQuery.saved,
-              'bg-neutral-700 border border-fuchsia-500/50':
-                !conjurationsMineQuery.saved,
-            }"
-            @click="conjurationsMineQuery.saved = false"
-          >
-            <span class="text-white text-sm font-normal">Gallery</span>
-          </div>
-          <!--          <div-->
-          <!--            class="px-3 py-1 self-center rounded-r-md justify-start border-l border-l-neutral-800 items-center"-->
-          <!--            :class="{-->
-          <!--              'bg-neutral-900': conjurationsMineQuery.saved,-->
-          <!--              'bg-neutral-700 border border-fuchsia-500/50':-->
-          <!--                !conjurationsMineQuery.saved,-->
-          <!--            }"-->
-          <!--            @click="conjurationsMineQuery.saved = false"-->
-          <!--          >-->
-          <!--            <span class="text-white text-sm font-normal">Mine</span>-->
-          <!--          </div>-->
+        <div
+          v-if="conjurationsMineQuery.saved"
+          class="text-xl self-center mr-6"
+        >
+          My Conjurations
         </div>
+        <div v-else class="text-xl self-center mr-6">Gallery</div>
       </div>
 
-      <div class="mt-2 self-center md:mt-0 flex justify-between">
+      <div class="self-center flex justify-between">
         <button
           v-if="
             JSON.stringify(conjurationsFilterQuery) !==
             JSON.stringify(defaultFilters)
           "
-          class="mr-2 p-3 rounded-md justify-start items-center gap-[5px] inline-flex transition-all hover:scale-110"
+          class="mr-2 px-3 py-1.5 rounded-md justify-start items-center gap-[5px] inline-flex transition-all hover:scale-110 text-sm"
           @click="conjurationsFilterQuery = defaultFilters"
         >
           <span class="text-white text-sm font-normal underline">
@@ -188,18 +183,13 @@ async function handleConjurationChange(change: {
           </span>
         </button>
 
-        <button
-          class="mr-2 p-3 bg-neutral-900 rounded-md justify-start items-center gap-[5px] inline-flex transition-all hover:scale-110"
-          @click="showFilters = true"
-        >
+        <button class="button-primary flex mr-2" @click="showFilters = true">
           <AdjustmentsVerticalIcon class="w-5 h-5 mr-2" />
           <span class="text-white text-sm font-normal">Filters</span>
         </button>
 
         <router-link to="/conjurations/new" class="flex">
-          <button
-            class="flex w-full self-center rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 px-4 py-3 transition-all hover:scale-110"
-          >
+          <button class="button-gradient flex">
             <SparklesIcon class="mr-2 h-5 w-5 self-center" />
             <span class="self-center">Create</span>
           </button>
@@ -209,28 +199,33 @@ async function handleConjurationChange(change: {
   </div>
 
   <div
-    v-if="!conjurations.length && conjurationsMineQuery.saved"
-    class="bg-surface-2 rounded-md p-8 flex justify-center"
+    v-if="!conjurations.length && conjurationsMineQuery.saved && !loading"
+    class="flex justify-center h-full"
   >
-    <div>
-      <div class="self-center text-neutral-600 text-5xl mb-12">
-        You don't have any saved conjurations
+    <div class="flex flex-col justify-center text-center">
+      <div>
+        <PhotoIcon class="h-14 text-neutral-500 mx-auto" />
       </div>
-
+      <div class="self-center text-2xl my-4">
+        No conjurations have been saved yet.
+      </div>
+      <div class="text-neutral-500 mb-8 max-w-[40em]">
+        Conjurations you have saved will appear on this screen. Try creating
+        your first conjuration using the button below, or you can visit the
+        Gallery to view and save community generated conjurations.
+      </div>
       <router-link to="/conjurations/new" class="flex justify-center">
-        <button
-          class="flex rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 text-3xl px-4 py-3 transition-all hover:scale-125 duration-100"
-        >
-          <SparklesIcon class="mr-4 h-8 w-8 self-center" />
-          <span class="self-center">Conjure</span>
+        <button class="button-gradient flex">
+          <SparklesIcon class="mr-2 h-5 w-5 self-center" />
+          <span class="self-center">Create Conjuration</span>
         </button>
       </router-link>
     </div>
   </div>
 
   <div
-    v-if="conjurations.length"
-    class="grid grid-cols-1 place-items-stretch lg:grid-cols-2 2xl:grid-cols-3 3xl:grid-cols-4 gap-4"
+    v-if="conjurations.length && !loading"
+    class="grid grid-cols-1 place-items-stretch sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5"
   >
     <ConjurationQuickView
       v-for="conjuration of conjurations"

@@ -422,16 +422,23 @@ export default class CampaignController {
       },
       include: {
         user: true,
+        character: true,
       },
     });
+
+    console.log(otherMembers);
 
     return {
       campaignName: invite.campaign.name,
       invitingEmail: otherMembers.filter((m) => m.role === CampaignRole.DM)[0]
         ?.user?.email,
       members: otherMembers
-        .filter((m) => m.email !== invite.email && m.role !== CampaignRole.DM)
-        .map((m) => ({ email: m?.user?.email })),
+        .filter((m) => m.email !== invite.email)
+        .map((m) => ({
+          email: m?.email ?? m?.user?.email,
+          role: m?.role,
+          character: m?.character,
+        })),
     };
   }
 
@@ -511,5 +518,40 @@ export default class CampaignController {
     track(AppEvent.GetCharacter, userId, trackingInfo);
 
     return character;
+  }
+
+  @Security('jwt')
+  @OperationId('getMyCampaignCharacters')
+  @Put('/:campaignId/characters')
+  public async getMyCampaignCharacters(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Route() campaignId: number,
+  ) {
+    const actingUserCampaignMember = await prisma.campaignMember.findUnique({
+      where: {
+        userId_campaignId: {
+          userId,
+          campaignId,
+        },
+      },
+    });
+
+    if (!actingUserCampaignMember) {
+      throw new AppError({
+        httpCode: HttpCode.FORBIDDEN,
+        description: 'You are not a member of this campaign',
+      });
+    }
+
+    const characters = await prisma.character.findMany({
+      where: {
+        campaignId: campaignId,
+      },
+    });
+
+    track(AppEvent.GetCharacters, campaignId, trackingInfo);
+
+    return characters;
   }
 }

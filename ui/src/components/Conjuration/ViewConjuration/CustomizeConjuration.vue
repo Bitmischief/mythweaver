@@ -8,6 +8,8 @@ import { showError, showSuccess } from '@/lib/notifications.ts';
 import { AxiosError } from 'axios';
 import { useCurrentUserId } from '@/lib/hooks.ts';
 import CustomizableImage from '@/components/Images/CustomizableImage.vue';
+import { useWebsocketChannel } from '@/lib/hooks.ts';
+import { ServerEvent } from '@/lib/serverEvents.ts';
 
 const props = defineProps<{
   conjuration: Conjuration;
@@ -17,6 +19,7 @@ const props = defineProps<{
 
 const eventBus = useEventBus();
 const currentUserId = useCurrentUserId();
+const channel = useWebsocketChannel();
 
 const editableConjuration = ref(props.conjuration);
 const addingTag = ref(false);
@@ -64,6 +67,26 @@ onMounted(() => {
       }, 50);
     },
   );
+
+  channel.bind(ServerEvent.ImageCreated, function (data: any) {
+    if (!editableConjuration.value.imageUri) {
+      editableConjuration.value.imageUri = data.uri;
+    }
+  });
+
+  channel.bind(ServerEvent.ImageFiltered, function () {
+    const message =
+      'The generated image was filtered out by our content moderation system. Please try again.';
+    showError({
+      message,
+    });
+  });
+
+  channel.bind(ServerEvent.ImageError, function (data: any) {
+    showError({
+      message: data.message,
+    });
+  });
 });
 
 onUpdated(() => {
@@ -119,9 +142,20 @@ function normalizeKeyName(key: string) {
     .replace(/([a-z])([A-Z])/g, '$1 $2')
     .split(' ')
     .map((x) => x.charAt(0).toUpperCase() + x.slice(1))
-    .join(' ')
-    .toLowerCase();
+    .join(' ');
 }
+
+const conjurationType = computed(() => {
+  if (props.conjuration.conjurerCode === 'monsters') {
+    return 'Monster';
+  } else if (props.conjuration.conjurerCode === 'locations') {
+    return 'Location';
+  } else if (props.conjuration.conjurerCode === 'characters') {
+    return 'NPC';
+  } else {
+    return '';
+  }
+});
 </script>
 
 <template>
@@ -135,12 +169,13 @@ function normalizeKeyName(key: string) {
           :alt="editableConjuration.name"
           :image-conjuration-failed="imageConjurationFailed"
           :image-conjuration-failure-reason="imageConjurationFailureReason"
+          :type="conjurationType"
         />
 
-        <div class="mt-4 text-4xl font-bold text-center">
+        <div class="mt-4 font-bold text-center">
           <input
             v-model="editableConjuration.name"
-            class="w-full text-center bg-transparent gradient-border-no-opacity md:text-4xl"
+            class="input-secondary text-2xl"
             :disabled="!editable"
           />
         </div>
@@ -160,33 +195,35 @@ function normalizeKeyName(key: string) {
           />
         </div>
 
-        <div class="mt-2 flex flex-wrap">
-          <div class="mt-3 flex flex-wrap">
+        <div class="mt-5 px-1 flex flex-wrap">
+          <div class="text-xs text-neutral-400">TAGS</div>
+          <div class="flex flex-wrap">
             <div
               v-for="tag of editableConjuration.tags"
               :key="`${editableConjuration.id}-${tag}`"
-              class="mr-2 mt-1 rounded-xl bg-gray-700 px-3 py-1 md:text-lg flex group"
+              class="tag flex group group-hover:pr-2"
             >
               <span class="self-center">{{ tag }}</span>
               <XMarkIcon
                 v-if="editable"
-                class="ml-2 h-6 w-6 self-center cursor-pointer text-white group-hover:flex hidden"
+                class="self-center ml-2 h-4 cursor-pointer text-white hidden group-hover:block"
                 @click="removeTag(tag)"
               />
             </div>
 
             <div
               v-if="!addingTag && editable"
-              class="h-8 w-8 mt-1 font-bold self-center rounded-full bg-gray-700 flex justify-center cursor-pointer transition-all ease-in-out hover:scale-110"
+              class="tag flex cursor-pointer pl-1 pr-3 bg-surface-2 border border-surface-3"
               @click="beginAddingTag"
             >
-              <PlusIcon class="w-5 h-5 self-center" />
+              <PlusIcon class="w-4 h-4 self-center mr-1" />
+              <span class="self-center">Add Tag</span>
             </div>
-            <div v-if="addingTag" class="mr-2 mt-1 relative">
+            <div v-if="addingTag" class="grow mt-1 relative basis-full">
               <input
                 ref="tagInput"
                 v-model="tagText"
-                class="rounded-xl bg-gray-700 px-3 py-1 text-lg flex pr-[4.5rem]"
+                class="input-primary"
                 placeholder="Add tag"
                 autofocus
                 @keydown.enter="addTag"
@@ -218,13 +255,16 @@ function normalizeKeyName(key: string) {
           v-for="(data, i) in dataArray"
           :key="`data-${i}`"
           :class="{ 'mb-8': i !== dataArray.length - 1 }"
+          class="bg-surface-2 rounded-[12px]"
         >
-          <div class="mb-1 text-lg text-neutral-400">
+          <div class="mb-1 text-lg text-white pt-3 px-3">
             {{ normalizeKeyName(data.key) }}
           </div>
           <FormKit
             v-model="data.value"
             type="textarea"
+            inner-class="border-none"
+            input-class="$reset input-primary text-white border-none focus:ring-fuchsia-500"
             :disabled="!editable"
             auto-height
           />

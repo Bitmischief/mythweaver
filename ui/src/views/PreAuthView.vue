@@ -18,28 +18,29 @@
     ><div class="md:w-[499px] p-6 bg-neutral-900 rounded-[20px]">
       <div class="w-full">
         <img
-          src="/images/logo-horizontal.svg"
-          class="mx-auto h-20 w-auto mb-8"
+          src="/images/logo-horizontal-2.svg"
+          class="mx-auto h-12 w-auto mb-8"
         />
 
-        <div class="text-neutral-200 text-3xl mb-2 text-center">
-          We've emailed you a one-time login link
+        <div class="text-neutral-200 text-xl mb-2 text-center">
+          <div class="w-1/2 mx-auto">
+            We've emailed you a one-time login link
+          </div>
         </div>
 
-        <div class="text-neutral-400 mt-4 text-xl text-center">
-          This link will expire in one hour
+        <div class="text-neutral-400 mt-4 px-2 text-sm text-center">
+          This link will expire in one hour. Ensure to check promotions/spam.
         </div>
 
-        <div class="text-neutral-500 mt-1 text-sm text-center underline">
-          (double check promotions/spam)
+        <div class="flex justify-center">
+          <router-link
+            to="/login"
+            class="mt-8 flex justify-center w-[10rem] bg-neutral-800 rounded-md py-2"
+          >
+            <ArrowLeftIcon class="h-5 w-5 mr-2 self-center" />
+            <span class="text-sm self-center">Back to login</span>
+          </router-link>
         </div>
-
-        <router-link
-          to="/login"
-          class="mt-8 block mx-auto w-[12rem] text-center bg-neutral-800 rounded-md py-2 px-4"
-        >
-          Back to login
-        </router-link>
       </div>
     </div>
   </ModalAlternate>
@@ -49,6 +50,7 @@
 import { ref } from 'vue';
 import { shuffleArray } from '@/lib/util.ts';
 import ModalAlternate from '@/components/ModalAlternate.vue';
+import { ArrowLeftIcon } from '@heroicons/vue/20/solid';
 
 const images = [
   '00dc4632-7923-479c-a504-f350c39b9fd9.png',

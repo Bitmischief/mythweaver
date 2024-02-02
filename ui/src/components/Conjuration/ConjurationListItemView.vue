@@ -1,68 +1,55 @@
 <script setup lang="ts">
-import { CheckIcon, PlusIcon, XMarkIcon } from '@heroicons/vue/20/solid';
-import {
-  saveConjuration,
-  Conjuration,
-  removeConjuration,
-} from '@/api/conjurations.ts';
+import { Conjuration } from '@/api/conjurations.ts';
 import { useRouter } from 'vue-router';
-import { ref } from 'vue';
-import { showSuccess } from '@/lib/notifications.ts';
-import DeleteModal from '@/components/Core/General/DeleteModal.vue';
 
-const props = defineProps<{
+defineProps<{
   conjuration: Conjuration | undefined;
   skeleton?: boolean;
 }>();
 
-const emit = defineEmits(['add-conjuration', 'remove-conjuration']);
-
 const router = useRouter();
-
-const isSaved = (conjuration: any) => conjuration.saved;
-
-async function handleAddConjuration(conjurationId: number) {
-  await saveConjuration(conjurationId);
-
-  emit('add-conjuration', { conjurationId });
-}
 
 async function navigateToViewConjuration(conjurationId: number) {
   await router.push(`/conjurations/view/${conjurationId}`);
 }
 
-async function clickDeleteConjuration() {
-  if (!props.conjuration || !isSaved(props.conjuration)) return;
-
-  const conjurationId = props.conjuration?.copies?.length
-    ? props.conjuration?.copies[0].id
-    : props.conjuration?.id;
-
-  await removeConjuration(conjurationId);
-  showSuccess({ message: 'Successfully removed conjuration' });
-
-  emit('remove-conjuration', {
-    conjurationId,
-    parentConjurationId: props.conjuration?.id,
-  });
-  showDeleteModal.value = false;
+function getConjurationDescription(conjuration: Conjuration) {
+  let text = '';
+  if (conjuration.conjurerCode === 'characters') {
+    text = conjuration.data.background;
+  } else if (conjuration.conjurerCode === 'locations') {
+    text = conjuration.data.history;
+  } else if (conjuration.conjurerCode === 'monsters') {
+    text = conjuration.data.description;
+  }
+  return text;
 }
 
-const showDeleteModal = ref(false);
+function conjurationType(conjuration: Conjuration) {
+  if (conjuration.conjurerCode === 'monsters') {
+    return 'Monster';
+  } else if (conjuration.conjurerCode === 'locations') {
+    return 'Location';
+  } else if (conjuration.conjurerCode === 'characters') {
+    return 'NPC';
+  } else {
+    return '';
+  }
+}
 </script>
 
 <template>
-  <div v-if="conjuration" class="mr-6 mb-6">
+  <div v-if="conjuration">
     <div
-      class="relative flex cursor-pointer flex-col justify-end rounded-t-xl shadow-xl"
+      class="relative flex cursor-pointer flex-col justify-end rounded-[20px] shadow-xl bg-surface-2"
       @click="navigateToViewConjuration(conjuration.id)"
     >
-      <div>
+      <div class="m-2">
         <img
           v-if="conjuration.imageUri"
           :src="conjuration.imageUri"
           :alt="conjuration.name"
-          class="rounded-t-xl"
+          class="rounded-[16px]"
         />
         <div v-else class="w-full flex justify-center h-full bg-gray-900/75">
           <div
@@ -74,38 +61,20 @@ const showDeleteModal = ref(false);
       </div>
 
       <div
-        v-if="isSaved(conjuration)"
-        class="absolute right-2 top-2 flex h-12 w-12 justify-center rounded-full bg-green-500 hover:bg-red-500 transition-all hover:scale-110 group"
+        class="absolute left-4 top-4 flex h-6 justify-center items-center rounded-full bg-white/50 group text-black text-xs font-bold px-4"
       >
-        <XMarkIcon
-          class="h-8 w-8 hidden group-hover:flex self-center text-white"
-          @click.stop="showDeleteModal = true"
-        />
-        <CheckIcon
-          class="h-8 w-8 self-center text-white flex group-hover:hidden"
-        />
-      </div>
-      <div
-        v-else
-        class="absolute right-2 top-2 flex h-12 w-12 justify-center rounded-full bg-gray-800 hover:bg-green-500 transition-all hover:scale-110"
-        @click.stop="handleAddConjuration(conjuration.id)"
-      >
-        <button class="self-center">
-          <PlusIcon class="h-8 w-8 text-white" />
-        </button>
+        {{ conjurationType(conjuration) }}
       </div>
 
-      <div class="flex w-full justify-between rounded-b-lg bg-surface-2 p-4">
-        <div>
-          <div class="text-xl font-bold">{{ conjuration.name }}</div>
-          <div class="flex flex-wrap">
-            <div
-              v-for="tag of conjuration.tags"
-              :key="`${conjuration.id}-${tag}`"
-              class="mr-1 mt-1 rounded-xl bg-gray-800 px-2 py-1 text-xs"
-            >
-              {{ tag }}
-            </div>
+      <div
+        class="flex w-full justify-between rounded-b-lg bg-surface-2 px-3 pb-2"
+      >
+        <div class="max-w-[100%]">
+          <div class="relative text-md truncate">
+            {{ conjuration.name }}
+          </div>
+          <div class="text-sm text-neutral-500 truncate-2-line">
+            {{ getConjurationDescription(conjuration) }}
           </div>
         </div>
       </div>
@@ -120,26 +89,4 @@ const showDeleteModal = ref(false);
       </div>
     </div>
   </div>
-
-  <DeleteModal v-model="showDeleteModal">
-    <div class="text-center text-8xl">Wait!</div>
-    <div class="mt-8 text-center text-3xl">
-      Are you sure you want to remove this conjuration from your list?
-    </div>
-
-    <div class="mt-12 flex justify-center">
-      <button
-        class="mr-6 rounded-xl border border-green-500 px-6 py-3"
-        @click="showDeleteModal = false"
-      >
-        No, keep conjuration
-      </button>
-      <button
-        class="rounded-xl bg-red-500 px-6 py-3"
-        @click="clickDeleteConjuration"
-      >
-        Remove Conjuration
-      </button>
-    </div>
-  </DeleteModal>
 </template>

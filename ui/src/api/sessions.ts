@@ -23,6 +23,8 @@ export interface SessionBase {
   suggestedImagePrompt?: string | undefined;
   audioName?: string | undefined;
   audioUri?: string | undefined;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface GetSessionsRequest {

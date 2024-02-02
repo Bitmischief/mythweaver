@@ -18,6 +18,7 @@ const props = defineProps<{
   multiple?: boolean;
   placeholder?: string;
   readonly?: boolean;
+  secondary?: boolean;
 }>();
 
 const emit = defineEmits(['update:modelValue', 'change']);
@@ -101,7 +102,8 @@ const showCheckIcon = (option: any) => {
   <Listbox v-model="value" :multiple="multiple">
     <div class="relative">
       <ListboxButton
-        class="gradient-border-no-opacity relative h-10 w-full cursor-pointer rounded-xl border bg-black px-4 text-left text-white"
+        class="relative"
+        :class="secondary ? 'select-secondary' : 'select-ghost'"
       >
         <span
           class="block truncate"
@@ -122,7 +124,7 @@ const showCheckIcon = (option: any) => {
         leave-to-class="opacity-0"
       >
         <ListboxOptions
-          class="gradient-border-no-opacity absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+          class="default-border-no-opacity absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
         >
           <ListboxOption
             v-for="option in allOptions"

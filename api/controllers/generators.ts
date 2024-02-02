@@ -43,6 +43,7 @@ export interface PostGenerateArbitraryRequest {
   background: any;
   context: string;
   propertyName: string;
+  length: number;
 }
 
 @Route('generators')
@@ -227,7 +228,6 @@ export class GeneratorController {
     @Body() request: PostGenerateArbitraryRequest,
   ): Promise<any> {
     track(AppEvent.GetConjurer, userId, trackingInfo);
-
     const openai = getClient();
     const response = await openai.chat.completions.create({
       model: 'gpt-4-1106-preview',
@@ -247,7 +247,10 @@ export class GeneratorController {
             request.background,
           )}. Please return the response in the following JSON format: { "propertyName": "", "propertyValue": "" }.
           Where propertyValue is a string. 
-          Do not include any other text in your response.`,
+          Do not include any other text in your response.
+          Make sure propertyValue is no more than ${
+            request.length
+          } characters.`,
         },
       ],
     });
