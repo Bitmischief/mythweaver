@@ -21,6 +21,7 @@ import { patchCurrentUser } from '@/api/users.ts';
 import { showError } from '@/lib/notifications.ts';
 import { useEarlyAccessExempt } from '@/lib/hooks.ts';
 import Loader from './components/Core/Loader.vue';
+import Accordion from './components/Core/Accordion.vue';
 
 const authStore = useAuthStore();
 const eventBus = useEventBus();
@@ -151,68 +152,85 @@ async function confirmEarlyAccessTerms() {
     </div>
   </ModalAlternate>
 
-  <!-- todo: update styling of this -->
   <ModalAlternate :show="!!authStore.tokens && showConfirmEarlyAccess">
     <div
-      class="md:w-[1000px] max-h-[90vh] p-6 bg-neutral-900 rounded-[20px] overflow-y-auto text-white text-center"
+      class="bg-gradient-to-r from-fuchsia-500 to-violet-500 p-px rounded-[20px]"
     >
-      <div class="text-4xl">🐉 Welcome to MythWeaver! 🎲</div>
-
-      <div class="mt-4 text-xl text-neutral-400">
-        You've just unlocked
-        <span class="font-bold">Trial Access</span>!
-      </div>
-
-      <div class="text-xl mt-8 mb-2">⏳ 48-Hour Access ⌛</div>
-      <div class="text-lg text-neutral-400">
-        Yup, you read it right. You've got 48 hours of unrestricted journeying
-        within MythWeaver. Consider this your mini-adventure before the main
-        campaign.
-      </div>
-
-      <div class="text-xl mt-6 mb-2">🚀 Early Access 🚀</div>
-      <div class="text-lg text-neutral-400">
-        After your 48-hour access, you'll need to back our Kickstarter at Adept
-        tier or higher to continue your adventure, until our public launch in
-        January.
-
-        <div class="my-6 mb-10">
-          <a
-            href="https://mythweaver.backerkit.com/hosted_preorders"
-            target="_blank"
-            class="bg-neutral-700 text-white rounded-md px-4 py-2 transition-all hover:scale-110"
-            >Pre-Order Now</a
-          >
-        </div>
-      </div>
-
-      <div class="text-3xl mt-6 mb-2">❓ FAQ ❓</div>
-      <div class="text-lg text-neutral-400">
-        <ul>
-          <li>
-            <div class="font-bold text-neutral-300">
-              What happens to my data if my trial access expires?
-            </div>
-            Your data will be saved, but you won't be able to access it until
-            either you pre-order MythWeaver or we launch MythWeaver to the
-            public (planned for January 2024).
-          </li>
-          <li class="mt-4">
-            <div class="font-bold text-neutral-300">
-              Does early access consume any of my purchased subscription period?
-            </div>
-            No! Early access is a free bonus perk to for pre-order purchasers.
-          </li>
-        </ul>
-      </div>
-
-      <button
-        class="flex justify-center mt-6 mx-auto w-[50%] self-center rounded-md bg-gradient-to-r from-fuchsia-500 to-blue-400 px-4 py-3 transition-all hover:scale-110"
-        @click="confirmEarlyAccessTerms"
+      <div
+        class="md:w-[1000px] max-h-[90vh] bg-surface p-6 rounded-[20px] overflow-y-auto text-white text-center"
       >
-        <SparklesIcon class="mr-2 h-5 w-5 self-center" />
-        <span class="self-center">Start 48 hour trial!</span>
-      </button>
+        <span
+          class="text-4xl bg-clip-text font-bold text-transparent bg-gradient-to-r from-purple-500 via-fuchsia-500 to-blue-400 via-violet-500"
+        >
+          Welcome to MythWeaver!
+        </span>
+
+        <div class="text-xl mt-8 mb-2">You have 48-Hours of Access</div>
+        <div class="text-lg text-neutral-400">
+          Yup, you read it right. You've got 48 hours of unrestricted journeying
+          within MythWeaver. Consider this your mini-adventure before the main
+          campaign.
+        </div>
+
+        <div class="grid grid-cols-2 gap-8 my-8">
+          <div class="rounded-[20px] border border-white">
+            <Accordion title="What happens after my 48-hour trial?">
+              <div class="text-neutral-400 p-6">
+                After your 48-hour access ends, you'll need to back our
+                Kickstarter at Adept tier or higher to continue your adventure,
+                until our public launch.
+
+                <div class="my-6 mb-10">
+                  <a
+                    href="https://mythweaver.backerkit.com/hosted_preorders"
+                    target="_blank"
+                    class="button-gradient text-white"
+                    >Pre-Order Now</a
+                  >
+                </div>
+              </div>
+            </Accordion>
+          </div>
+          <div class="rounded-[20px] border border-white">
+            <Accordion title="FAQs">
+              <div class="text-lg text-neutral-400 p-6">
+                <ul class="text-left">
+                  <li>
+                    <div class="font-bold text-neutral-300">
+                      1. What happens to my data if my trial access expires?
+                    </div>
+                    <div class="text-neutral-500">
+                      Your data will be saved, but you won't be able to access
+                      it until either you pre-order MythWeaver or we launch
+                      MythWeaver to the public (planned for January 2024).
+                    </div>
+                  </li>
+                  <li class="mt-4">
+                    <div class="font-bold text-neutral-300">
+                      2. Does early access consume any of my purchased
+                      subscription period?
+                    </div>
+                    <div class="text-neutral-500">
+                      No! Early access is a free bonus perk to for pre-order
+                      purchasers.
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </Accordion>
+          </div>
+        </div>
+
+        <button
+          class="flex button-gradient w-full justify-around"
+          @click="confirmEarlyAccessTerms"
+        >
+          <div class="flex">
+            <SparklesIcon class="mr-2 h-5 w-5 self-center" />
+            <span class="self-center">Start 48-hour trial!</span>
+          </div>
+        </button>
+      </div>
     </div>
   </ModalAlternate>
 
