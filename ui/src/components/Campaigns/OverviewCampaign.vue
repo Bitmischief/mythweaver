@@ -194,7 +194,8 @@ function campaignMemberName(campaignMemberId: number | undefined) {
   if (!member) {
     return 'n/a';
   }
-  return splitEmail(member.email);
+  const email = member.user?.email ? member.user.email : member.email;
+  return splitEmail(email);
 }
 
 async function invitePlayer() {
@@ -264,8 +265,8 @@ async function handleRemoveMember() {
       </router-link>
     </div>
   </div>
-  <div class="grid grid-cols-5 grid-rows-1 gap-4 mb-10">
-    <div class="rounded-[18px] bg-surface-3 p-4 lg:h-[16em] col-span-3">
+  <div class="grid grid-cols-1 lg:grid-cols-5 grid-rows-1 lg:gap-4 mb-10">
+    <div class="rounded-[18px] bg-surface-3 p-4 lg:h-[16em] col-span-3 mt-4">
       <div class="text-lg mb-2">
         {{ campaign.name }}
       </div>
@@ -288,7 +289,7 @@ async function handleRemoveMember() {
         </div>
       </div>
     </div>
-    <div class="rounded-[18px] bg-surface-3 p-4 min-h-[10em] col-span-2">
+    <div class="rounded-[18px] bg-surface-3 p-4 min-h-[10em] col-span-2 mt-4">
       <div v-if="latestSession">
         <div class="grid grid-cols-4 relative">
           <img
@@ -337,9 +338,9 @@ async function handleRemoveMember() {
       </div>
     </div>
   </div>
-  <div class="grid grid-cols-5 grid-rows-1 gap-4">
-    <div class="col-span-2">
-      <div class="mb-4">Campaign info</div>
+  <div class="grid grid-cols-1 lg:grid-cols-5 grid-rows-1 lg:gap-4">
+    <div class="col-span-2 mt-4">
+      <div class="my-3">Campaign info</div>
       <div
         class="rounded-[18px] bg-surface-3 p-4 min-h-[10em] text-neutral-500"
       >
@@ -366,7 +367,7 @@ async function handleRemoveMember() {
         </div>
       </div>
     </div>
-    <div class="col-span-3">
+    <div class="col-span-3 mt-4">
       <div class="flex justify-between mb-4">
         <div class="flex">
           <div class="mr-1 self-center">Party members</div>
@@ -427,7 +428,7 @@ async function handleRemoveMember() {
         </div>
       </div>
     </div>
-    <div v-if="characters?.length" class="mb-8">
+    <div v-if="characters?.length" class="mb-8 mt-4">
       <div class="flex mb-4">
         <div class="mr-1">Characters</div>
         <div
@@ -494,7 +495,7 @@ async function handleRemoveMember() {
         />
 
         <div class="grid grid-cols-2 gap-4 mt-4">
-          <button class="button-primary" @click="showDeleteModal = false">
+          <button class="button-primary" @click="showInviteModal = false">
             <span class="self-center"> Cancel </span>
           </button>
 

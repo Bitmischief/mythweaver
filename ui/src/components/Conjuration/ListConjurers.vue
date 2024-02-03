@@ -4,9 +4,7 @@
     v-if="generators.length && !generating"
     class="flex justify-center my-auto z-10"
   >
-    <div
-      class="min-w-[30em] w-full md:w-[80%] xl:w-[70%] 2xl:w-[60%] 3xl:w-[50%]"
-    >
+    <div class="w-full md:w-[80%] xl:w-[70%] 2xl:w-[60%] 3xl:w-[50%]">
       <img
         src="@/assets/icons/gradient-wand.svg"
         alt="wand"
@@ -23,7 +21,7 @@
           <button
             v-for="(gens, i) in generators"
             :key="`generator_${i}`"
-            class="w-[12em] text-center py-2 px-4"
+            class="w-[8em] md:w-[12em] text-center py-2 px-4"
             :class="{
               'text-white rounded-[10px] bg-surface-3':
                 generator?.code === gens.code,
@@ -70,10 +68,11 @@
                   />
                   Surprise Me
                 </button>
+                <!-- prettier-ignore -->
                 <button
                   v-else
                   class="flex button-gradient py-1 px-2"
-                  :disabled="disabled as boolean"
+                  :disabled="(disabled as boolean)"
                   type="submit"
                 >
                   <img
