@@ -202,7 +202,7 @@ const sessionType = computed(() => {
 
 <template>
   <div v-if="session" class="min-h-[calc(100%-37rem)] py-2 pb-12">
-    <div class="flex justify-between">
+    <div class="flex flex-wrap justify-between">
       <router-link :to="`/sessions`" class="button-primary flex">
         <ArrowLeftIcon class="mr-2 h-4 w-4 self-center" /> Back to list
       </router-link>
@@ -279,8 +279,8 @@ const sessionType = computed(() => {
     </div>
 
     <div class="mt-6">
-      <div class="flex mb-12">
-        <div>
+      <div class="flex flex-wrap mb-12 justify-center">
+        <div class="mb-4 mr-4">
           <CustomizableImage
             :editable="currentUserRole === CampaignRole.DM"
             :image-uri="sessionImageUri || '/images/session_bg_square.png'"
@@ -293,8 +293,7 @@ const sessionType = computed(() => {
             "
           />
         </div>
-
-        <div class="mx-4 w-full">
+        <div class="grow min-w-[30em]">
           <RegeneratableTextEdit
             v-model="sessionName"
             :disabled="currentUserRole !== CampaignRole.DM"
@@ -344,11 +343,11 @@ const sessionType = computed(() => {
       </div>
       <div class="flex">
         <div
-          class="flex gap-1 text-neutral-500 rounded-[10px] bg-surface-2 p-1 border border-surface-3 text-sm"
+          class="flex w-full md:w-auto gap-1 text-neutral-500 rounded-[10px] bg-surface-2 p-1 border border-surface-3 text-sm"
         >
           <router-link
             to="planning"
-            class="w-[12em] text-center py-2 px-4"
+            class="w-[33%] md:w-[12em] text-center py-2 px-4"
             :class="{
               'text-white rounded-[10px] bg-surface-3':
                 route.path.endsWith('planning'),
@@ -358,7 +357,7 @@ const sessionType = computed(() => {
           </router-link>
           <router-link
             to="recap"
-            class="w-[12em] text-center py-2 px-4"
+            class="w-[33%] md:w-[12em] text-center py-2 px-4"
             :class="{
               'text-white rounded-[10px] bg-surface-3':
                 route.path.endsWith('recap'),
@@ -368,7 +367,7 @@ const sessionType = computed(() => {
           </router-link>
           <router-link
             to="summary"
-            class="w-[12em] text-center py-2 px-4"
+            class="w-[33%] md:w-[12em] text-center py-2 px-4"
             :class="{
               'text-white rounded-[10px] bg-surface-3':
                 route.path.endsWith('summary'),

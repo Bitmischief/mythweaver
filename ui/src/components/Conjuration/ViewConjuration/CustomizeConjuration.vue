@@ -264,8 +264,11 @@ const conjurationType = computed(() => {
             v-model="data.value"
             type="textarea"
             inner-class="border-none"
-            input-class="$reset input-primary text-white border-none focus:ring-fuchsia-500"
-            :disabled="!editable"
+            :input-class="{
+              '$reset input-primary border-none focus:ring-fuchsia-500': true,
+              'pointer-events-none': !editable,
+              'dark:text-neutral-400': true,
+            }"
             auto-height
           />
         </div>
