@@ -28,7 +28,7 @@ const credits = computed(() => {
 </script>
 
 <template>
-  <div class="flex pr-6">
+  <div class="flex pr-6 bg-surface-2">
     <EarlyAccessInfo class="self-center" />
     <div class="self-center mr-5">
       <div

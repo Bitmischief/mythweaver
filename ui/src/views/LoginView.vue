@@ -1,7 +1,7 @@
 <template>
   <div class="flex h-screen overflow-y-hidden">
     <div class="relative">
-      <div class="absolute w-full h-full bg-black/95"></div>
+      <div class="absolute w-full h-full bg-black/90"></div>
       <img
         class="absolute bottom-0 w-full z-50 invisible lg:visible pointer-events-none"
         src="/images/MW_login_fg.png"

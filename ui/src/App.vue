@@ -113,9 +113,11 @@ async function confirmEarlyAccessTerms() {
     <div class="block w-full">
       <div
         v-if="!!authStore.tokens"
-        class="justify-end bg-surface-2 h-[4rem] hidden md:flex border-b border-zinc-900"
+        class="hidden md:flex border-b border-zinc-900"
       >
-        <NavBarHeader />
+        <div class="w-full bg-surface-2 z-10 h-[4rem] flex justify-end">
+          <NavBarHeader />
+        </div>
       </div>
 
       <div
@@ -152,7 +154,14 @@ async function confirmEarlyAccessTerms() {
     </div>
   </ModalAlternate>
 
-  <ModalAlternate :show="!!authStore.tokens && showConfirmEarlyAccess">
+  <ModalAlternate
+    :show="
+      !authStore.isLoading &&
+      !showLoading &&
+      !!authStore.tokens &&
+      showConfirmEarlyAccess
+    "
+  >
     <div
       class="bg-gradient-to-r from-fuchsia-500 to-violet-500 p-px rounded-[20px]"
     >

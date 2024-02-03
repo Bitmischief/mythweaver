@@ -70,10 +70,11 @@
                   />
                   Surprise Me
                 </button>
+                <!-- prettier-ignore -->
                 <button
                   v-else
                   class="flex button-gradient py-1 px-2"
-                  :disabled="disabled as boolean"
+                  :disabled="(disabled as boolean)"
                   type="submit"
                 >
                   <img

@@ -1,5 +1,5 @@
 <template>
-  <div class="absolute h-full w-full pointer-events-none">
+  <div class="absolute inset-0 pointer-events-none overflow-hidden z-0">
     <div class="star"></div>
     <div class="meteor-1"></div>
     <div class="meteor-2"></div>

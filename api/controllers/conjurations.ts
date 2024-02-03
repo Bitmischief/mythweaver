@@ -193,6 +193,15 @@ export default class ConjurationController {
 
     track(AppEvent.SaveConjuration, userId, trackingInfo);
 
+    await prisma.conjuration.update({
+      where: {
+        id: conjurationId,
+      },
+      data: {
+        published: true,
+      },
+    });
+
     await prisma.conjurationSave.upsert({
       where: {
         userId_conjurationId: {
