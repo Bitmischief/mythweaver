@@ -47,7 +47,7 @@
                 v-model="request.prompt"
                 :placeholder="`Enter ${generator?.name} Description`"
                 inner-class="border-none"
-                input-class="$reset input-secondary border-none focus:ring-fuchsia-500 pr-[8em]"
+                input-class="$reset input-secondary border-none focus:ring-fuchsia-500 resize-none pr-[8em]"
                 help-class="px-1"
                 name="prompt"
                 type="textarea"
