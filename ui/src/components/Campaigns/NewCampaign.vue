@@ -4,7 +4,6 @@ import {
   Campaign,
   createCampaign,
   PublicAdventure,
-  CampaignRole,
   acceptCampaignInvite,
 } from '@/api/campaigns.ts';
 import { onMounted, ref, watch } from 'vue';
@@ -15,9 +14,7 @@ import { CAMPAIGN_CREATED_EVENT, useEventBus } from '@/lib/events.ts';
 import { useCampaignStore } from '@/store/campaign.store.ts';
 import TagInput from '@/components/Core/Forms/TagInput.vue';
 import Select from '@/components/Core/Forms/Select.vue';
-import { useCurrentUserRole } from '@/lib/hooks';
 
-const currentUserRole = useCurrentUserRole();
 const router = useRouter();
 const eventBus = useEventBus();
 const campaignStore = useCampaignStore();
