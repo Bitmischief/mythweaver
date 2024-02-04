@@ -6,6 +6,7 @@ import { useAuthStore } from '@/store';
 import NavbarContent from '@/components/Navigation/NavbarContent.vue';
 import EarlyAccessInfo from '@/components/Navigation/EarlyAccessInfo.vue';
 import { useIntercom } from '@homebaseai/vue3-intercom';
+import ImageCreditCount from '../Core/ImageCreditCount.vue';
 
 const authStore = useAuthStore();
 const showPanel = ref(false);
@@ -68,11 +69,15 @@ const intercom = useIntercom();
             </div>
           </div>
           <img v-else src="/favicon.png" class="h-12 w-auto" />
-          <div
-            class="self-center text-purple-400 md:mb-6 md:hidden"
-            @click="showPanel = true"
-          >
-            <Bars3Icon class="h-8 w-8" />
+
+          <div class="flex md:hidden">
+            <ImageCreditCount v-if="authStore.user" collapsed />
+            <div
+              class="self-center text-purple-400 md:mb-6 ml-4"
+              @click="showPanel = true"
+            >
+              <Bars3Icon class="h-8 w-8" />
+            </div>
           </div>
         </div>
 

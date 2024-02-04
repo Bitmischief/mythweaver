@@ -133,7 +133,6 @@ async function handleCopyConjuration() {
           <DocumentDuplicateIcon class="h-5 w-5 mr-2" />
           <span class="self-center">Copy Conjuration</span>
         </button>
-
         <button
           v-if="!conjuration.saved"
           class="button-ghost flex"
