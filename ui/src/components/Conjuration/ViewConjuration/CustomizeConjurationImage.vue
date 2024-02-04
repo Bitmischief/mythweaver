@@ -13,6 +13,7 @@ import { useWebsocketChannel } from '@/lib/hooks.ts';
 import { ServerEvent } from '@/lib/serverEvents.ts';
 import Select from '@/components/Core/Forms/Select.vue';
 import Loader from '@/components/Core/Loader.vue';
+import { AxiosError } from 'axios';
 
 const props = defineProps<{
   prompt?: string;
@@ -113,8 +114,21 @@ async function conjure() {
     );
 
     eventBus.$emit('conjure-image-done', {});
-  } catch {
+  } catch (e) {
+    const err = e as AxiosError;
+
+    imageError.value = true;
+    conjuring.value = false;
+
+    if (err.response?.status === 400) {
+      showError({
+        message: (err.response?.data as any)?.message,
+      });
+      return;
+    }
+
     showError({ message: 'We encountered an error conjuring this image.' });
+    return;
   }
 }
 
@@ -246,7 +260,7 @@ function setImage() {
       <XCircleIcon class="w-6 self-center" />
     </button>
   </template>
-  <template v-else-if="conjuring && !done">
+  <template v-else-if="conjuring && !done && !imageError">
     <div class="p-12 text-center">
       <Loader />
       <div class="text-3xl m-4">Conjuring</div>

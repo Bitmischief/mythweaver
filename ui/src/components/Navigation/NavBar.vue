@@ -55,13 +55,16 @@ const intercom = useIntercom();
               v-if="authStore.user?.plan"
               class="self-center text-[12px] mx-2 px-2 skew-x-[-20deg] rounded-tl-[5px] rounded-br-[5px]"
               :class="{
+                'bg-amber-500 text-xs': authStore.user.earlyAccessExempt,
                 'bg-slate-500': authStore.user.plan === 'FREE',
                 'bg-fuchsia-500': authStore.user.plan === 'BASIC',
                 'bg-gradient-to-r from-fuchsia-500 to-violet-500':
                   authStore.user.plan === 'PRO',
               }"
             >
-              {{ authStore.user.plan }}
+              {{
+                authStore.user.earlyAccessExempt ? 'EA' : authStore.user.plan
+              }}
             </div>
           </div>
           <img v-else src="/favicon.png" class="h-12 w-auto" />

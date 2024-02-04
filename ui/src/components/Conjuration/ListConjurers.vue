@@ -176,7 +176,7 @@
       <Loader />
       <div class="text-2xl my-4">Conjuring</div>
       <div class="text-neutral-500">
-        This can take a minute or two to full load
+        This can take a minute or two to fully load
       </div>
     </div>
   </div>
@@ -193,6 +193,7 @@ import { ServerEvent } from '@/lib/serverEvents.ts';
 import { showError } from '@/lib/notifications.ts';
 import Loader from '../Core/Loader.vue';
 import MeteorShower from '../Core/MeteorShower.vue';
+import { AxiosError } from 'axios';
 
 const router = useRouter();
 const quickConjure = useQuickConjure();
@@ -272,11 +273,25 @@ async function generate() {
     existinConjurationOverride.value = false;
   }
 
-  const generateResponse = await postConjure(generator.value.code, {
-    count: 1,
-    campaignId: selectedCampaignId.value || 0,
-    ...request.value,
-  });
+  let generateResponse;
+  try {
+    generateResponse = await postConjure(generator.value.code, {
+      count: 1,
+      campaignId: selectedCampaignId.value || 0,
+      ...request.value,
+    });
+  } catch (e) {
+    const err = e as AxiosError;
+    if (err.response?.status === 400) {
+      showError({
+        message: (err.response?.data as any)?.message,
+      });
+      return;
+    }
+
+    showError({ message: 'We encountered an error conjuring this image.' });
+    return;
+  }
 
   handleBeginConjuring(generateResponse.data);
 

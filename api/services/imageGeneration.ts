@@ -46,6 +46,29 @@ export interface ImageRequest {
 export const generateImage = async (request: ImageRequest) => {
   if (!apiKey) throw new Error('Missing Stability API key.');
 
+  const user = await prisma.user.findUnique({
+    where: {
+      id: request.userId,
+    },
+  });
+
+  if (!user) {
+    await sendWebsocketMessage(request.userId, WebSocketEvent.ImageError, {
+      message: 'User not found.',
+    });
+
+    return undefined;
+  }
+
+  if (user.imageCredits < request.count) {
+    await sendWebsocketMessage(request.userId, WebSocketEvent.ImageError, {
+      message:
+        'You do not have enough image credits to generate this many images. Please try with fewer images, or buy more credits.',
+    });
+
+    return undefined;
+  }
+
   const preset = request.stylePreset || 'fantasy-art';
 
   const urls: string[] = [];
@@ -134,6 +157,23 @@ export const generateImage = async (request: ImageRequest) => {
       request.userId,
       WebSocketEvent.ImageGenerationDone,
       {},
+    );
+
+    const { imageCredits } = await prisma.user.update({
+      where: {
+        id: request.userId,
+      },
+      data: {
+        imageCredits: {
+          decrement: validImageCount,
+        },
+      },
+    });
+
+    await sendWebsocketMessage(
+      request.userId,
+      WebSocketEvent.UserImageCreditCountUpdated,
+      imageCredits,
     );
   }
 

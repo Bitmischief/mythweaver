@@ -163,6 +163,29 @@ export class GeneratorController {
       });
     }
 
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user) {
+      throw new AppError({
+        description: 'User not found.',
+        httpCode: HttpCode.BAD_REQUEST,
+      });
+    }
+
+    if (!user.earlyAccessExempt) {
+      if (user.imageCredits < request.count) {
+        throw new AppError({
+          description:
+            'You do not have enough image credits to generate this many images. Please try with fewer images, or buy more credits.',
+          httpCode: HttpCode.BAD_REQUEST,
+        });
+      }
+    }
+
     track(AppEvent.Conjure, userId, trackingInfo);
 
     const conjurationRequest = await prisma.conjurationRequest.create({

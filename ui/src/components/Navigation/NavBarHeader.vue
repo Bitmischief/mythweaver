@@ -5,6 +5,7 @@ import { useAuthStore } from '@/store';
 import EarlyAccessInfo from '@/components/Navigation/EarlyAccessInfo.vue';
 import { computed } from 'vue';
 import { getBillingPortalUrl } from '@/api/billing.ts';
+import ImageCreditCount from '@/components/Core/ImageCreditCount.vue';
 
 const authStore = useAuthStore();
 
@@ -21,26 +22,13 @@ const username = computed(() => {
   let emailAddress = authStore.user?.email || '';
   return emailAddress.substring(0, emailAddress.indexOf('@'));
 });
-
-const credits = computed(() => {
-  return authStore.user?.imageCredits || '0';
-});
 </script>
 
 <template>
   <div class="flex pr-6 bg-surface-2">
     <EarlyAccessInfo class="self-center" />
     <div class="self-center mr-5">
-      <div
-        class="flex items-center cursor-pointer border border-zinc-800 bg-surface-3 rounded-[25px] py-1 px-2"
-      >
-        <div
-          class="bg-surface rounded-full p-1 mr-2 min-w-[2em] text-center text-fuchsia-500 font-bold px-2"
-        >
-          {{ credits }}
-        </div>
-        <div class="text-neutral-400 mr-2">generations left</div>
-      </div>
+      <ImageCreditCount v-if="authStore.user" />
     </div>
     <Menu class="self-center">
       <MenuButton
