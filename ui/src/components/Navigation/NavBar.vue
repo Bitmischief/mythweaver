@@ -39,7 +39,7 @@ const intercom = useIntercom();
 
 <template>
   <div
-    class="nav-bar px-1 md:h-full border-r border-zinc-900 md:max-w-[256px] md:min-w-[256px] z-10 overflow-y-auto"
+    class="nav-bar md:h-full border-r border-zinc-900 md:max-w-[256px] md:min-w-[256px] z-10 overflow-y-auto"
     :class="{ 'md:max-w-[90px] md:min-w-[90px]': collapsed }"
   >
     <div
