@@ -2,15 +2,10 @@
 import Navbar from '@/components/Navigation/NavBar.vue';
 import { useAuthStore } from '@/store';
 import NotificationHandler from '@/components/Notifications/NotificationHandler.vue';
-import {
-  CAMPAIGN_CREATED_EVENT,
-  NO_CAMPAIGNS_EVENT,
-  useEventBus,
-} from '@/lib/events.ts';
+import { useEventBus } from '@/lib/events.ts';
 import { computed, onMounted, onUpdated, ref } from 'vue';
 import NavBarHeader from '@/components/Navigation/NavBarHeader.vue';
 import ModalAlternate from '@/components/ModalAlternate.vue';
-import NewCampaign from '@/components/Campaigns/NewCampaign.vue';
 import LightboxRoot from '@/components/LightboxRoot.vue';
 import { useEarlyAccessStore } from '@/store/earlyAccess.store.ts';
 import { storeToRefs } from 'pinia';
@@ -60,16 +55,6 @@ async function initIntercom() {
     created_at: authStore.user?.createdAt,
   } as any);
 }
-
-const showCreateCampaign = ref(false);
-
-eventBus.$on(NO_CAMPAIGNS_EVENT, () => {
-  showCreateCampaign.value = true;
-});
-
-eventBus.$on(CAMPAIGN_CREATED_EVENT, () => {
-  showCreateCampaign.value = false;
-});
 
 const showLoading = ref(false);
 eventBus.$on('global-loading-start', () => {
@@ -147,12 +132,6 @@ async function confirmEarlyAccessTerms() {
       </div>
     </div>
   </div>
-
-  <ModalAlternate :show="showCreateCampaign" extra-dark>
-    <div class="md:w-[800px]">
-      <NewCampaign />
-    </div>
-  </ModalAlternate>
 
   <ModalAlternate
     :show="

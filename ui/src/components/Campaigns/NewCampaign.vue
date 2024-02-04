@@ -104,7 +104,7 @@ const atmosphere = ref<string[]>([]);
     <div
       class="text-white min-w-[30em] max-w-[50em] min-h-[30em] max-h-[50em] bg-surface-2 rounded-[20px] p-10"
     >
-      <div v-if="currentUserRole === CampaignRole.DM">
+      <div>
         <div class="text-center text-white text-xl text-neutral-500">
           No campaign yet. <br />
           Create or join one.
@@ -177,12 +177,17 @@ const atmosphere = ref<string[]>([]);
           </button>
         </div>
       </div>
-      <div v-else>
-        <div class="text-center text-white text-xl text-neutral-500">
-          No campaign yet. <br />
-          Join one below.
+      <div class="flex text-neutral-500 mt-8">
+        <div class="grow self-center">
+          <hr class="border-neutral-500" />
         </div>
-        <div class="text-center text-neutral-500 mt-8 mb-2">
+        <div class="mx-4">or</div>
+        <div class="grow self-center">
+          <hr class="border-neutral-500" />
+        </div>
+      </div>
+      <div>
+        <div class="text-center text-neutral-500 mt-4 mb-6">
           Have a link to an ongoing campaign?
         </div>
         <div class="flex">
