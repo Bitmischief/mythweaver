@@ -72,7 +72,7 @@ async function handleCreateCampaign() {
   eventBus.$emit(CAMPAIGN_CREATED_EVENT, undefined);
 
   showSuccess({ message: 'Campaign created!' });
-  await router.push('/campaigns/overview');
+  await router.push('/campaign/overview');
 }
 
 async function joinExistingCampaign() {
