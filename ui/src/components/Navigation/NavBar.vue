@@ -91,7 +91,7 @@ const intercom = useIntercom();
               />
               Support Center
             </div>
-            <div class="flex justify-center my-4">
+            <div class="flex justify-center my-1 ml-3">
               <iframe
                 data-status-badge="true"
                 src="https://status.mythweaver.co/badge?theme=dark"
