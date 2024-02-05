@@ -94,6 +94,9 @@ export class GeneratorController {
         conjurerCode: code,
         published: true,
         visibility: ConjurationVisibility.PUBLIC,
+        NOT: {
+          userId,
+        },
       },
       select: {
         id: true,
