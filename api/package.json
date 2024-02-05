@@ -68,7 +68,7 @@
     "multer-s3": "^3.0.1",
     "openai": "^4.26.0",
     "pusher": "^5.2.0",
-    "stripe": "^14.13.0",
+    "stripe": "^14.15.0",
     "swagger-ui-express": "^5.0.0",
     "tslog": "^4.9.2",
     "tsoa": "^5.1.1",
