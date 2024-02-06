@@ -16,6 +16,7 @@ import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 interface PatchUserRequest {
   campaignId: number;
   name: string;
+  username: string;
   imageUri?: string;
   data: any;
   tags?: string[];

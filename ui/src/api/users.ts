@@ -3,6 +3,7 @@ import axios from 'axios';
 export interface User {
   id: number;
   email: string;
+  username: string;
   createdAt: string;
   earlyAccessCutoffAt: string;
   earlyAccessExempt: boolean;

@@ -71,6 +71,6 @@ const credits = computed(() => {
       </div>
     </div>
 
-    <div v-if="!collapsed" class="text-neutral-400 mx-2">generations left</div>
+    <div v-if="!collapsed" class="text-neutral-400 mx-2">image tokens</div>
   </div>
 </template>

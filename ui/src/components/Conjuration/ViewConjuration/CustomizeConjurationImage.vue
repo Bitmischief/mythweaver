@@ -165,13 +165,8 @@ function setImage() {
     <div
       class="bg-gradient-to-r from-fuchsia-500 to-violet-500 p-px rounded-[20px] purple-shadow min-w-[90vw] md:min-w-[60vw] lg:max-w-[40vw] max-h-[80vh]"
     >
-      <FormKit
-        v-slot="{ disabled }"
-        :actions="false"
-        type="form"
-        @submit="conjure"
-      >
-        <div class="p-3 rounded-[20px] bg-surface-2 min-h-[12em]">
+      <div class="p-3 rounded-[20px] bg-surface-2 min-h-[12em]">
+        <FormKit :actions="false" type="form" @submit="conjure">
           <div class="relative pb-1">
             <FormKit
               v-model="editablePrompt"
@@ -181,13 +176,13 @@ function setImage() {
               help-class="px-1"
               name="prompt"
               type="textarea"
-              validation="length:0,1000"
+              validation="required|length:0,500"
               auto-height
+              validation-visibility="live"
             />
             <div class="absolute top-1 right-1">
               <button
-                class="flex button-gradient py-1 px-2"
-                :disabled="disabled as boolean"
+                class="flex button-gradient py-1 px-2 disabled:opacity-75"
                 type="submit"
               >
                 <img
@@ -199,7 +194,7 @@ function setImage() {
               </button>
             </div>
             <div class="absolute text-neutral-500 text-xs right-2 bottom-0">
-              {{ editablePrompt?.length }} / 1000
+              {{ editablePrompt?.length }} / 500
             </div>
           </div>
 
@@ -243,15 +238,15 @@ function setImage() {
               help-class="px-1"
               type="textarea"
               name="negative_prompt"
-              validation="length:0,1000"
+              validation="length:0,500"
               auto-height
             />
             <div class="absolute text-neutral-500 text-xs right-2 bottom-0">
-              {{ editableNegativePrompt?.length }} / 1000
+              {{ editableNegativePrompt?.length }} / 500
             </div>
           </div>
-        </div>
-      </FormKit>
+        </FormKit>
+      </div>
     </div>
     <button
       class="px-4 rounded-full absolute right-0 top-0 p-4"
@@ -296,7 +291,7 @@ function setImage() {
           }"
           @click="setImage"
         >
-          <span class="self-center text-center w-full"> Save Selection </span>
+          <span class="self-center text-center w-full"> Continue </span>
         </button>
       </div>
     </div>
