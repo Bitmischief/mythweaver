@@ -20,6 +20,7 @@ import { completeSessionQueue } from '../worker';
 import { sendTransactionalEmail } from '../lib/transactionalEmail';
 import { urlPrefix } from '../lib/utils';
 import { parentLogger } from '../lib/logger';
+import { WebSocketEvent, sendWebsocketMessage } from '../services/websockets';
 const logger = parentLogger.getSubLogger();
 
 interface GetSessionsResponse {
@@ -173,6 +174,7 @@ export default class SessionController {
     });
 
     track(AppEvent.UpdateSession, userId, trackingInfo);
+    await sendWebsocketMessage(userId, WebSocketEvent.SessionUpdated, {});
 
     return session;
   }

@@ -419,8 +419,10 @@ async function handleRemoveMember() {
               }}
             </div>
           </div>
-
-          <div class="hidden group-hover:block pl-4">
+          <div
+            v-if="member.role != CampaignRole.DM"
+            class="hidden group-hover:block pl-4"
+          >
             <button class="button-ghost py-1" @click="showDeleteModal = true">
               Kick Player
             </button>

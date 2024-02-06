@@ -214,20 +214,6 @@ async function navigateToCreateCampaign() {
     <router-link
       class="nav-item"
       :class="[
-        router.currentRoute.value.fullPath.startsWith('/conjurations#gallery')
-          ? 'default-border-no-opacity'
-          : '',
-      ]"
-      to="/conjurations#gallery"
-      @click="emit('nav-item-selected')"
-    >
-      <PhotoIcon class="h-5 mr-2" />
-      <div v-if="!collapsed" class="whitespace-nowrap">Gallery</div>
-    </router-link>
-
-    <router-link
-      class="nav-item"
-      :class="[
         router.currentRoute.value.fullPath.startsWith('/conjurations#saved')
           ? 'default-border-no-opacity'
           : '',
@@ -237,6 +223,20 @@ async function navigateToCreateCampaign() {
     >
       <SparklesIcon class="h-5 mr-2" />
       <div v-if="!collapsed" class="whitespace-nowrap">My Conjurations</div>
+    </router-link>
+
+    <router-link
+      class="nav-item"
+      :class="[
+        router.currentRoute.value.fullPath.startsWith('/conjurations#gallery')
+          ? 'default-border-no-opacity'
+          : '',
+      ]"
+      to="/conjurations#gallery"
+      @click="emit('nav-item-selected')"
+    >
+      <PhotoIcon class="h-5 mr-2" />
+      <div v-if="!collapsed" class="whitespace-nowrap">Gallery</div>
     </router-link>
   </div>
 </template>

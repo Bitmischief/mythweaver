@@ -299,7 +299,7 @@ async function generate() {
 }
 
 const animationDone = ref(false);
-const generating = ref(false);
+const generating = ref(true);
 const imageGenerationFailed = ref(false);
 const imageGenerationFailureReason = ref('');
 const conjurationRequestId = ref<number | undefined>(undefined);

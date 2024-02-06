@@ -16,6 +16,7 @@
     0 5px 12px rgba(0, 0, 0, 0.15),
     0px 4px 20px #5c52cc;
   overflow: hidden;
+  z-index: 5;
 }
 .loader:before,
 .loader:after {
