@@ -31,6 +31,7 @@ export interface CampaignMember {
   user: {
     id: number;
     email: string;
+    username: string;
   };
 }
 

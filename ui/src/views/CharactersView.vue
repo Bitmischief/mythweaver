@@ -239,11 +239,13 @@ async function updateCharacter() {
   </div>
 
   <ModalAlternate :show="showCharacterCreate">
-    <div class="p-6 pt-1 bg-surface-2 rounded-[20px] min-w-[50vw]">
-      <button class="absolute top-4 right-4" @click="confirmClose = true">
-        <XCircleIcon class="h-6" />
-      </button>
-      <NewCharacter @close="showCharacterCreate = false" @created="reload" />
+    <div class="mt-8">
+      <div class="relative p-6 pt-1 bg-surface-2 rounded-[20px] min-w-[50vw]">
+        <button class="absolute top-4 right-4" @click="confirmClose = true">
+          <XCircleIcon class="h-6" />
+        </button>
+        <NewCharacter @close="showCharacterCreate = false" @created="reload" />
+      </div>
     </div>
   </ModalAlternate>
   <ModalAlternate :show="confirmClose">

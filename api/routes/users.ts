@@ -29,6 +29,7 @@ router.get('/me', [
 
 const patchUsersSchema = z.object({
   name: z.string().optional(),
+  username: z.string().optional(),
   imageUri: z.string().optional(),
   tags: z.array(z.string()).optional(),
   data: z.array(z.object({ key: z.string(), value: z.any() })).optional(),

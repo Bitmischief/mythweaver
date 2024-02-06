@@ -93,6 +93,13 @@ onMounted(async () => {
               {{ member.role === CampaignRole.DM ? 'GM' : 'Player' }}
             </div>
             <div
+              v-if="member.character"
+              class="absolute bottom-2 left-2 right-2 rounded-full bg-white/75 text-black self-center px-2 truncate"
+            >
+              {{ member.character.name }}
+            </div>
+            <div
+              v-else
               class="absolute bottom-2 left-2 right-2 rounded-full bg-white/75 text-black self-center px-2 truncate"
             >
               {{ member.email }}
