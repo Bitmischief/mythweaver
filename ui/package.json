@@ -40,7 +40,7 @@
     "@typescript-eslint/parser": "^5.62.0",
     "@vitejs/plugin-vue": "^4.6.2",
     "autoprefixer": "^10.4.16",
-    "eslint": "^8.54.0",
+    "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-vue": "^9.20.1",
     "husky": "^8.0.3",
