@@ -19,8 +19,8 @@
   </div>
 </template>
 <style scoped lang="scss">
-$num_meteors: 10; // # of meteors
-$num_stars: 500; // # of stars
+$num_meteors: 5; // # of meteors
+$num_stars: 200; // # of stars
 
 html,
 body {
@@ -48,7 +48,8 @@ $shadow: ();
 @for $i from 1 through $num_meteors {
   $v: random(90) + 9; // left
   $h: random(250) + 200; // top
-  $d: calc(random(150) / 10) + 3; // speed
+  $s: random(10) + 5; // speed
+  $d: random(3); // delay
 
   .meteor-#{$i} {
     position: absolute;
@@ -63,7 +64,11 @@ $shadow: ();
       rgba(92, 82, 204, 0.5),
       rgba(255, 255, 255, 0)
     );
-    animation: meteor $d + s linear infinite;
+    -webkit-animation: meteor $s + s linear infinite;
+    -webkit-animation-delay: $d + s;
+    animation: meteor $s + s linear infinite;
+    animation-delay: $d + s;
+    opacity: 0;
     &:before {
       content: '';
       position: absolute;
@@ -77,6 +82,23 @@ $shadow: ();
   }
 }
 
+@-webkit-keyframes meteor {
+  0% {
+    opacity: 1;
+    margin-top: -300px;
+    margin-right: -300px;
+  }
+  12% {
+    margin-top: 300px;
+    margin-left: -600px;
+    opacity: 0;
+  }
+  100% {
+    margin-top: -300px;
+    margin-right: -300px;
+    opacity: 0;
+  }
+}
 @keyframes meteor {
   0% {
     opacity: 1;
@@ -84,14 +106,13 @@ $shadow: ();
     margin-right: -300px;
   }
   12% {
-    opacity: 0;
-  }
-  15% {
     margin-top: 300px;
     margin-left: -600px;
     opacity: 0;
   }
   100% {
+    margin-top: -300px;
+    margin-right: -300px;
     opacity: 0;
   }
 }

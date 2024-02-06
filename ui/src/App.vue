@@ -112,7 +112,7 @@ async function confirmEarlyAccessTerms() {
           'pb-6 mb-6 bg-surface p-5 px-8': !!authStore.tokens,
         }"
         :style="{
-          height: `${!!authStore.tokens ? 'calc(100vh - 4rem)' : 'auto'}`,
+          height: `${!!authStore.tokens ? 'calc(100vh - 4.1rem)' : 'auto'}`,
         }"
       >
         <router-view />

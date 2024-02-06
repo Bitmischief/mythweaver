@@ -80,7 +80,7 @@ watch(
       return;
     }
 
-    await saveSession();
+    await saveSession('name');
   }, 250),
 );
 
@@ -91,7 +91,7 @@ watch(
       return;
     }
 
-    await saveSession();
+    await saveSession('image');
   }, 250),
 );
 
@@ -146,7 +146,7 @@ async function clickUnarchiveSession() {
   }
 }
 
-async function saveSession() {
+async function saveSession(updated: string) {
   const putSessionResponse = await patchSession({
     id: session.value.id,
     campaignId: session.value.campaignId,
@@ -156,7 +156,7 @@ async function saveSession() {
   });
 
   if (putSessionResponse.status === 200) {
-    showSuccess({ message: 'Changes saved!' });
+    showSuccess({ message: `Session ${updated} saved!` });
   } else {
     showError({ message: 'Failed to save session' });
   }
@@ -279,7 +279,7 @@ const sessionType = computed(() => {
     </div>
 
     <div class="mt-6">
-      <div class="flex flex-wrap mb-12 justify-center">
+      <div class="flex flex-wrap lg:flex-nowrap mb-12 justify-center">
         <div class="mb-4 mr-4">
           <CustomizableImage
             :editable="currentUserRole === CampaignRole.DM"
@@ -293,7 +293,7 @@ const sessionType = computed(() => {
             "
           />
         </div>
-        <div class="grow min-w-[30em]">
+        <div class="grow">
           <RegeneratableTextEdit
             v-model="sessionName"
             :disabled="currentUserRole !== CampaignRole.DM"

@@ -27,7 +27,13 @@ onMounted(async () => {
   await init();
 
   channel.bind(ServerEvent.SessionUpdated, async function () {
-    await init();
+    const response = await getSession(sessionId.value);
+    session.value = {
+      ...session.value,
+      name: response.data.name,
+      imageUri: response.data.imageUri,
+      planning: response.data.planning,
+    };
   });
 });
 

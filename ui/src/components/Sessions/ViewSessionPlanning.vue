@@ -1,21 +1,42 @@
 <script lang="ts" setup>
 import { getSession, patchSession, SessionBase } from '@/api/sessions.ts';
-import { onMounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { showError, showSuccess } from '@/lib/notifications.ts';
-import { useCurrentUserRole } from '@/lib/hooks.ts';
+import { useCurrentUserRole, useWebsocketChannel } from '@/lib/hooks.ts';
+import { ServerEvent } from '@/lib/serverEvents.ts';
 import { CampaignRole } from '@/api/campaigns.ts';
 
 const route = useRoute();
 const currentUserRole = useCurrentUserRole();
+const channel = useWebsocketChannel();
 
 const session = ref<SessionBase>({} as SessionBase);
 
 onMounted(async () => {
   await init();
+
+  channel.bind(ServerEvent.SessionUpdated, async function () {
+    const response = await getSession(
+      parseInt(route.params.sessionId.toString()),
+    );
+    session.value = {
+      ...session.value,
+      name: response.data.name,
+      imageUri: response.data.imageUri,
+    };
+  });
+});
+
+onUnmounted(() => {
+  channel.unbind(ServerEvent.SessionUpdated);
 });
 
 async function init() {
+  await loadSession();
+}
+
+async function loadSession() {
   const response = await getSession(
     parseInt(route.params.sessionId.toString()),
   );

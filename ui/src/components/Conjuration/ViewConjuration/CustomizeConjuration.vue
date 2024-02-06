@@ -10,6 +10,7 @@ import { useCurrentUserId } from '@/lib/hooks.ts';
 import CustomizableImage from '@/components/Images/CustomizableImage.vue';
 import { useWebsocketChannel } from '@/lib/hooks.ts';
 import { ServerEvent } from '@/lib/serverEvents.ts';
+import Select from '@/components/Core/Forms/Select.vue';
 
 const props = defineProps<{
   conjuration: Conjuration;
@@ -181,18 +182,27 @@ const conjurationType = computed(() => {
         </div>
 
         <div class="mt-2">
-          <FormKit
+          <Select
             v-model="editableConjuration.visibility"
-            type="select"
-            help="Controls whether any MythWeaver user can view this conjuration or only you."
-            placeholder="Select a planet"
-            name="visibility"
-            :options="{
-              PUBLIC: 'Public',
-              PRIVATE: 'Private',
-            }"
+            placeholder="Update visibility"
+            :options="[
+              {
+                code: 'PUBLIC',
+                name: 'Public',
+              },
+              {
+                code: 'PRIVATE',
+                name: 'Private',
+              },
+            ]"
+            value-prop="code"
+            display-prop="name"
             :disabled="!editable"
           />
+          <div class="text-neutral-500 text-xs mx-2">
+            Controls whether any MythWeaver user can view this conjuration or
+            only you.
+          </div>
         </div>
 
         <div class="mt-5 px-1 flex flex-wrap">

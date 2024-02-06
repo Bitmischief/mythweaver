@@ -14,6 +14,7 @@ import { CAMPAIGN_CREATED_EVENT, useEventBus } from '@/lib/events.ts';
 import { useCampaignStore } from '@/store/campaign.store.ts';
 import TagInput from '@/components/Core/Forms/TagInput.vue';
 import Select from '@/components/Core/Forms/Select.vue';
+import Loader from '../Core/Loader.vue';
 
 const router = useRouter();
 const eventBus = useEventBus();
@@ -61,18 +62,34 @@ async function loadRpgSystems() {
   loadAdventures();
 }
 
+const loading = ref(false);
+const loadingMessage = ref('');
+
 async function handleCreateCampaign() {
-  const createCampaignResponse = await createCampaign({
-    ...campaign.value,
-    name: campaign.value.name.length ? campaign.value.name : 'New Campaign',
-  });
-  await campaignStore.loadCampaigns();
-  await campaignStore.selectCampaign(createCampaignResponse.data.id);
+  try {
+    loading.value = true;
+    loadingMessage.value = 'Creating campaign...';
 
-  eventBus.$emit(CAMPAIGN_CREATED_EVENT, undefined);
+    const createCampaignResponse = await createCampaign({
+      ...campaign.value,
+      name: campaign.value.name.length ? campaign.value.name : 'New Campaign',
+    });
+    await campaignStore.loadCampaigns();
+    await campaignStore.selectCampaign(createCampaignResponse.data.id);
 
-  showSuccess({ message: 'Campaign created!' });
-  await router.push('/campaign/overview');
+    eventBus.$emit(CAMPAIGN_CREATED_EVENT, undefined);
+
+    showSuccess({ message: 'Campaign created!' });
+    await router.push('/campaign/overview');
+  } catch {
+    showError({
+      message: 'Something went wrong creating your campaign.',
+      context:
+        'Please try again, or contact our support team if the problem persists.',
+    });
+  } finally {
+    loading.value = false;
+  }
 }
 
 async function joinExistingCampaign() {
@@ -81,6 +98,7 @@ async function joinExistingCampaign() {
   }
 
   try {
+    loadingMessage.value = 'Joining campaign...';
     await acceptCampaignInvite(inviteCode.value);
     showSuccess({ message: 'Campaign invite accepted!' });
     await campaignStore.loadCampaigns();
@@ -90,6 +108,8 @@ async function joinExistingCampaign() {
       message:
         'Unable to join an existing campgin using that code, please verify that the code you entered is correct.',
     });
+  } finally {
+    loading.value = false;
   }
 }
 
@@ -99,106 +119,112 @@ const atmosphere = ref<string[]>([]);
 <template>
   <div class="flex items-center justify-center my-auto">
     <div
-      class="text-white min-w-[30em] max-w-[50em] min-h-[30em] max-h-[50em] bg-surface-2 rounded-[20px] p-10"
+      class="text-white min-w-[30em] max-w-[50em] max-h-[50em] bg-surface-2 rounded-[20px] p-10"
     >
-      <div>
-        <div class="text-center text-white text-xl text-neutral-500">
-          No campaign yet. <br />
-          Create or join one.
-        </div>
-        <div class="mt-8 text-sm text-gray-400 m-1">Campaign Name</div>
+      <div v-if="loading">
+        <Loader />
+        <div class="text-center mt-8 mb-2">Creating campaign...</div>
+      </div>
+      <div v-else>
+        <div>
+          <div class="text-center text-white text-xl text-neutral-500">
+            No campaign yet. <br />
+            Create or join one.
+          </div>
+          <div class="mt-8 text-sm text-gray-400 m-1">Campaign Name</div>
 
-        <input
-          ref="campaignName"
-          v-model="campaign.name"
-          autofocus
-          class="input-ghost"
-          placeholder="What should we call this campaign?"
-        />
+          <input
+            ref="campaignName"
+            v-model="campaign.name"
+            autofocus
+            class="input-ghost"
+            placeholder="What should we call this campaign?"
+          />
 
-        <div class="mt-8 mb-1 text-sm text-gray-400 m-1">
-          Roleplaying System
-        </div>
-
-        <Select
-          v-model="campaign.rpgSystemCode"
-          :options="rpgSystems"
-          value-prop="code"
-          display-prop="name"
-          placeholder="What roleplaying system are you using?"
-        />
-
-        <template v-if="campaign.rpgSystemCode === 'other'">
-          <div class="mt-6 text-sm text-gray-400">
-            Please describe your campaign's universe and atmosphere in a few
-            words:
+          <div class="mt-8 mb-1 text-sm text-gray-400 m-1">
+            Roleplaying System
           </div>
 
-          <div class="text-xs mt-2 p-2 text-gray-400">
-            We use this information to help generating contextually appropriate
-            content for your campaign.
+          <Select
+            v-model="campaign.rpgSystemCode"
+            :options="rpgSystems"
+            value-prop="code"
+            display-prop="name"
+            placeholder="What roleplaying system are you using?"
+          />
 
-            <div class="mt-1 text-xs text-gray-400">
-              For example, a sci-fi campaign might have the keywords
-              <div class="mt-1 flex">
-                <div class="mr-1 rounded bg-gray-600/20 p-1 px-2">sci-fi</div>
-                <div class="mr-1 rounded bg-gray-600/20 p-1 px-2">space</div>
-                <div class="mr-1 rounded bg-gray-600/20 p-1 px-2">
-                  futuristic
+          <template v-if="campaign.rpgSystemCode === 'other'">
+            <div class="mt-6 text-sm text-gray-400">
+              Please describe your campaign's universe and atmosphere in a few
+              words:
+            </div>
+
+            <div class="text-xs mt-2 p-2 text-gray-400">
+              We use this information to help generating contextually
+              appropriate content for your campaign.
+
+              <div class="mt-1 text-xs text-gray-400">
+                For example, a sci-fi campaign might have the keywords
+                <div class="mt-1 flex">
+                  <div class="mr-1 rounded bg-gray-600/20 p-1 px-2">sci-fi</div>
+                  <div class="mr-1 rounded bg-gray-600/20 p-1 px-2">space</div>
+                  <div class="mr-1 rounded bg-gray-600/20 p-1 px-2">
+                    futuristic
+                  </div>
                 </div>
               </div>
             </div>
+
+            <TagInput v-model="atmosphere" class="mt-2" />
+          </template>
+
+          <template v-if="campaign.rpgSystemCode !== 'other'">
+            <div class="mt-6 mb-1 text-sm text-gray-400">Campaign Source</div>
+
+            <Select
+              v-model="campaign.publicAdventureCode"
+              :options="adventures"
+              value-prop="code"
+              display-prop="name"
+              allow-none
+            />
+          </template>
+
+          <div v-if="campaign.rpgSystemCode" class="mt-6 text-center">
+            <button
+              class="mt-4 rounded-xl bg-gradient px-4 py-3 text-sm"
+              @click="handleCreateCampaign"
+            >
+              <PlusIcon class="inline-block h-5 w-5" /> Create new campaign
+            </button>
           </div>
-
-          <TagInput v-model="atmosphere" class="mt-2" />
-        </template>
-
-        <template v-if="campaign.rpgSystemCode !== 'other'">
-          <div class="mt-6 mb-1 text-sm text-gray-400">Campaign Source</div>
-
-          <Select
-            v-model="campaign.publicAdventureCode"
-            :options="adventures"
-            value-prop="code"
-            display-prop="name"
-            allow-none
-          />
-        </template>
-
-        <div v-if="campaign.rpgSystemCode" class="mt-6 text-center">
-          <button
-            class="mt-4 rounded-xl bg-gradient px-4 py-3 text-sm"
-            @click="handleCreateCampaign"
-          >
-            <PlusIcon class="inline-block h-5 w-5" /> Create new campaign
-          </button>
         </div>
-      </div>
-      <div class="flex text-neutral-500 mt-8">
-        <div class="grow self-center">
-          <hr class="border-neutral-500" />
+        <div class="flex text-neutral-500 mt-8">
+          <div class="grow self-center">
+            <hr class="border-neutral-500" />
+          </div>
+          <div class="mx-4">or</div>
+          <div class="grow self-center">
+            <hr class="border-neutral-500" />
+          </div>
         </div>
-        <div class="mx-4">or</div>
-        <div class="grow self-center">
-          <hr class="border-neutral-500" />
-        </div>
-      </div>
-      <div>
-        <div class="text-center text-neutral-500 mt-4 mb-6">
-          Have a link to an ongoing campaign?
-        </div>
-        <div class="flex">
-          <input
-            v-model="inviteCode"
-            class="input-primary rounded-r-none"
-            placeholder="Paste campaign invite code here"
-          />
-          <button
-            class="button-primary whitespace-nowrap rounded-l-none"
-            @click="joinExistingCampaign"
-          >
-            Join Campaign
-          </button>
+        <div>
+          <div class="text-center text-neutral-500 mt-4 mb-6">
+            Have a link to an ongoing campaign?
+          </div>
+          <div class="flex">
+            <input
+              v-model="inviteCode"
+              class="input-primary rounded-r-none"
+              placeholder="Paste campaign invite code here"
+            />
+            <button
+              class="button-primary whitespace-nowrap rounded-l-none"
+              @click="joinExistingCampaign"
+            >
+              Join Campaign
+            </button>
+          </div>
         </div>
       </div>
     </div>
