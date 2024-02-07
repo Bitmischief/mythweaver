@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import logger, { MythWeaverLogger } from './logger';
 import { v4 as uuidv4 } from 'uuid';
 
-const getRequestId = (req: Request, res: Response) =>
+export const getRequestId = (req: Request, res: Response) =>
   (res.getHeader('x-request-id') as string) ||
   (req.id as string) ||
   (req.headers['x-request-id'] as string) ||
@@ -12,7 +12,6 @@ export const injectRequestId = (req: Request, res: Response) => {
   const currentLogger = res.locals.logger || logger;
 
   const requestId = getRequestId(req, res);
-  currentLogger.info('Injecting logging info', requestId);
 
   res.locals.logger = currentLogger.child({ requestId });
   return res.locals.logger;

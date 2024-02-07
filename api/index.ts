@@ -16,7 +16,7 @@ import rateLimit from 'express-rate-limit';
 import './worker/index';
 import * as http from 'http';
 import logger from './lib/logger';
-import { useLogger } from './lib/loggingMiddleware';
+import { getRequestId, useLogger } from './lib/loggingMiddleware';
 import pinoHTTP from 'pino-http';
 import { v4 as uuidv4 } from 'uuid';
 import { isLocalDevelopment } from './lib/utils';
@@ -46,6 +46,11 @@ if (!isLocalDevelopment) {
         const id = uuidv4();
         res.setHeader('X-Request-Id', id);
         return id;
+      },
+      customProps: function (req, res) {
+        return {
+          requestId: getRequestId(req, res),
+        };
       },
     }),
   );
@@ -94,7 +99,7 @@ const errorHandlerMiddleware: ErrorRequestHandler = (
 app.use(errorHandlerMiddleware);
 
 app.listen(PORT, async () => {
-  logger.info('Server is running on port', PORT);
+  logger.info(`Server is running on port ${PORT}`);
 });
 
 process.on('unhandledRejection', (reason: Error | any) => {
