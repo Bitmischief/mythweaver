@@ -7,13 +7,12 @@ import { prisma } from '../../lib/providers/prisma';
 import { ConjureEvent, processTagsQueue } from '../index';
 import { getRpgSystem } from '../../data/rpgSystems';
 import { getClient } from '../../lib/providers/openai';
-import { parentLogger } from '../../lib/logger';
 import {
   sendWebsocketMessage,
   WebSocketEvent,
 } from '../../services/websockets';
+import logger from '../../lib/logger';
 
-const logger = parentLogger.getSubLogger();
 const openai = getClient();
 
 export const conjure = async (request: ConjureEvent) => {
@@ -90,7 +89,10 @@ export const conjure = async (request: ConjureEvent) => {
 
       conjuration = JSON.parse(conjurationString || '');
     } catch (e) {
-      logger.warn('Failed to parse conjuration string', e, generatedJson);
+      logger.warn('Failed to parse conjuration string', {
+        error: e,
+        generatedJson,
+      });
     }
   } while (!conjuration || !conjuration?.imageAIPrompt);
 

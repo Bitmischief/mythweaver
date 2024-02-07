@@ -6,7 +6,7 @@ import {
   ValidationTypes,
 } from '../lib/validationMiddleware';
 import ConjurationController from '../controllers/conjurations';
-import { useInjectLoggingInfo } from '../lib/loggingMiddleware';
+import { useInjectLoggingInfo, useLogger } from '../lib/loggingMiddleware';
 import { ImageStylePreset } from '../controllers/images';
 
 const router = express.Router();
@@ -43,6 +43,7 @@ router.get('/', [
     const response = await controller.getConjurations(
       res.locals.auth.userId,
       res.locals.trackingInfo,
+      useLogger(res),
       campaignId as number,
       saved as boolean,
       conjurerCodes as string,
@@ -76,6 +77,7 @@ router.get('/tags', [
     const response = await controller.getConjurationTags(
       res.locals.auth.userId,
       res.locals.trackingInfo,
+      useLogger(res),
       term as string,
       offset as number,
       limit as number,
@@ -103,6 +105,7 @@ router.get('/:conjurationId', [
     const response = await controller.getConjuration(
       res.locals.auth.userId,
       res.locals.trackingInfo,
+      useLogger(res),
       conjurationId as number,
     );
     return res.status(200).send(response);
@@ -125,6 +128,7 @@ router.post('/:conjurationId/save', [
     const response = await controller.postSaveConjuration(
       res.locals.auth.userId,
       res.locals.trackingInfo,
+      useLogger(res),
       req.params.conjurationId as unknown as number,
     );
     return res.status(200).send(response);
@@ -156,6 +160,7 @@ router.patch('/:conjurationId', [
     const response = await controller.patchConjuration(
       res.locals.auth.userId,
       res.locals.trackingInfo,
+      useLogger(res),
       conjurationId as number,
       req.body,
     );
@@ -177,6 +182,7 @@ router.delete('/:conjurationId', [
     await controller.deleteConjuration(
       res.locals.auth.userId,
       res.locals.trackingInfo,
+      useLogger(res),
       conjurationId as number,
     );
     return res.status(200).send();
@@ -199,6 +205,7 @@ router.post('/:conjurationId/remove', [
     const response = await controller.postRemoveConjuration(
       res.locals.auth.userId,
       res.locals.trackingInfo,
+      useLogger(res),
       req.params.conjurationId as unknown as number,
     );
     return res.status(200).send(response);
@@ -221,6 +228,7 @@ router.post('/:conjurationId/copy', [
     const response = await controller.postCopyConjuration(
       res.locals.auth.userId,
       res.locals.trackingInfo,
+      useLogger(res),
       req.params.conjurationId as unknown as number,
     );
     return res.status(200).send(response);

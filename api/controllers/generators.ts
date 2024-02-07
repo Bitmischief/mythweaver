@@ -13,15 +13,13 @@ import {
 import { prisma } from '../lib/providers/prisma';
 import { Conjuration, ConjurationVisibility } from '@prisma/client';
 import { AppError, HttpCode } from '../lib/errors/AppError';
-import { parentLogger } from '../lib/logger';
 import conjurers, { Generator, getGenerator } from '../data/conjurers';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { conjureQueue } from '../worker';
 import { sanitizeJson } from '../lib/utils';
 import { getClient } from '../lib/providers/openai';
 import { ImageStylePreset } from './images';
-
-const logger = parentLogger.getSubLogger();
+import { MythWeaverLogger } from '../lib/logger';
 
 export interface GetGeneratorsResponse {
   data: any[];
@@ -55,6 +53,7 @@ export class GeneratorController {
   public async getGenerators(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Query() offset = 0,
     @Query() limit = 50,
   ): Promise<GetGeneratorsResponse> {
@@ -75,6 +74,7 @@ export class GeneratorController {
   public getGenerator(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Path() code: string,
   ): Generator | undefined {
     track(AppEvent.GetConjurer, userId, trackingInfo);
@@ -87,6 +87,7 @@ export class GeneratorController {
   public async postGeneratorGenerateQuick(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Path() code: string,
   ): Promise<Conjuration | null> {
     const validIdObjects = await prisma.conjuration.findMany({
@@ -124,7 +125,10 @@ export class GeneratorController {
           },
         });
       } catch {
-        logger.warn('Failed to get random conjuration', idx, validIds);
+        logger.warn('Failed to get random conjuration', {
+          idx,
+          validIds,
+        });
       } finally {
         tries++;
       }
@@ -141,6 +145,7 @@ export class GeneratorController {
   public async postGeneratorGenerate(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Path() code: string,
     @Body() request: PostGeneratorGenerate,
   ): Promise<any> {
@@ -157,7 +162,7 @@ export class GeneratorController {
       });
     }
 
-    const generator = this.getGenerator(userId, trackingInfo, code);
+    const generator = this.getGenerator(userId, trackingInfo, logger, code);
 
     if (!generator) {
       throw new AppError({
@@ -226,6 +231,7 @@ export class GeneratorController {
   public async getConjurationRequest(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Path() conjurationRequestId: number,
   ): Promise<any> {
     track(AppEvent.GetConjurationRequests, userId, trackingInfo);
@@ -251,6 +257,7 @@ export class GeneratorController {
   public async postGenerateArbitrary(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Body() request: PostGenerateArbitraryRequest,
   ): Promise<any> {
     track(AppEvent.GetConjurer, userId, trackingInfo);

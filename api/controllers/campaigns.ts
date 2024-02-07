@@ -18,6 +18,7 @@ import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { sendTransactionalEmail } from '../lib/transactionalEmail';
 import { v4 as uuidv4 } from 'uuid';
 import { urlPrefix } from '../lib/utils';
+import { MythWeaverLogger } from '../lib/logger';
 
 export interface GetCampaignsResponse {
   data: Campaign[];
@@ -63,9 +64,12 @@ export default class CampaignController {
   public async getCampaigns(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Query() offset = 0,
     @Query() limit = 25,
   ): Promise<GetCampaignsResponse> {
+    logger.info('Getting campaigns');
+
     const campaigns = await prisma.campaign.findMany({
       where: {
         members: {
@@ -93,6 +97,7 @@ export default class CampaignController {
   public async getCampaign(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Route() campaignId = 0,
   ): Promise<Campaign> {
     const campaign = await prisma.campaign.findUnique({
@@ -126,6 +131,7 @@ export default class CampaignController {
   public async createCampaign(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Body() request: PostCampaignRequest,
   ): Promise<Campaign> {
     track(AppEvent.CreateCampaign, userId, trackingInfo);
@@ -151,6 +157,7 @@ export default class CampaignController {
   public async putCampaign(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Route() campaignId = 0,
     @Body() request: PutCampaignRequest,
   ): Promise<Campaign> {
@@ -193,6 +200,7 @@ export default class CampaignController {
   public async deleteCampaign(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Route() campaignId: number,
   ): Promise<void> {
     const campaign = await prisma.campaign.findUnique({
@@ -230,6 +238,7 @@ export default class CampaignController {
   public async getCampaignMembers(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Route() campaignId = 0,
     @Query() offset = 0,
     @Query() limit = 25,
@@ -277,6 +286,7 @@ export default class CampaignController {
   public async inviteCampaignMember(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Route() campaignId = 0,
     @Body() request: InviteMemberRequest,
   ): Promise<any> {
@@ -345,6 +355,7 @@ export default class CampaignController {
   public async deleteCampaignMember(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Route() campaignId = 0,
     @Route() memberId = 0,
   ): Promise<any> {
@@ -398,6 +409,7 @@ export default class CampaignController {
   @Get('/invites/:inviteCode')
   public async getInvite(
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Route() inviteCode: string,
   ): Promise<any> {
     const invite = await prisma.campaignMember.findUnique({
@@ -448,6 +460,7 @@ export default class CampaignController {
   public async acceptInvite(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Route() inviteCode: string,
   ) {
     const invite = await prisma.campaignMember.findUnique({
@@ -481,6 +494,7 @@ export default class CampaignController {
   public async getMyCampaignCharacter(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Route() campaignId: number,
   ) {
     const actingUserCampaignMember = await prisma.campaignMember.findUnique({
@@ -526,6 +540,7 @@ export default class CampaignController {
   public async getMyCampaignCharacters(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Route() campaignId: number,
   ) {
     const actingUserCampaignMember = await prisma.campaignMember.findUnique({

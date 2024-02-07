@@ -3,6 +3,7 @@ import { TrackingInfo } from '../lib/tracking';
 import { generateImage } from '../services/imageGeneration';
 import { prisma } from '../lib/providers/prisma';
 import { AppError, HttpCode } from '../lib/errors/AppError';
+import { MythWeaverLogger } from '../lib/logger';
 
 interface PostImageRequest {
   prompt: string;
@@ -25,6 +26,7 @@ export default class ImageController {
   public async postImage(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Body() request: PostImageRequest,
   ): Promise<void> {
     const count = 3;

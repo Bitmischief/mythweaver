@@ -3,6 +3,7 @@ import express, { Request, Response } from 'express';
 import { useValidateRequest } from '../lib/validationMiddleware';
 import { z } from 'zod';
 import rateLimit from 'express-rate-limit';
+import { useLogger } from '../lib/loggingMiddleware';
 const router = express.Router();
 
 const postTokenSchema = z.object({
@@ -27,6 +28,7 @@ router.post('/token', [
     const response = await controller.postToken(
       req.body,
       res.locals.trackingInfo,
+      useLogger(res),
     );
     return res.send(response);
   },
@@ -52,6 +54,7 @@ router.post('/refresh', [
     const response = await controller.postRefresh(
       req.body,
       res.locals.trackingInfo,
+      useLogger(res),
     );
     return res.send(response);
   },
@@ -78,6 +81,7 @@ router.post('/magic-link', [
     const response = await controller.postMagicLink(
       res.locals.trackingInfo,
       req.body,
+      useLogger(res),
     );
     return res.send(response);
   },

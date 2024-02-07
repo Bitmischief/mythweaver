@@ -1,7 +1,6 @@
 import { ZodObject } from 'zod';
 import { NextFunction, Request, Response } from 'express';
-import { parentLogger } from './logger';
-const logger = parentLogger.getSubLogger();
+import logger from './logger';
 
 export enum ValidationTypes {
   Body,

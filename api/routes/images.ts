@@ -3,7 +3,7 @@ import { useAuthenticateRequest } from '../lib/authMiddleware';
 import { z } from 'zod';
 import { useValidateRequest } from '../lib/validationMiddleware';
 import ImageController from '../controllers/images';
-import { useInjectLoggingInfo } from '../lib/loggingMiddleware';
+import { useInjectLoggingInfo, useLogger } from '../lib/loggingMiddleware';
 
 const router = express.Router();
 
@@ -23,6 +23,7 @@ router.post('/', [
     const response = await controller.postImage(
       res.locals.auth.userId,
       res.locals.trackingInfo,
+      useLogger(res),
       req.body,
     );
 

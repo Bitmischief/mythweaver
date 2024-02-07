@@ -12,6 +12,7 @@ import { prisma } from '../lib/providers/prisma';
 import { User } from '@prisma/client';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
+import { MythWeaverLogger } from '../lib/logger';
 
 interface PatchUserRequest {
   campaignId: number;
@@ -31,6 +32,7 @@ export default class UserController {
   public async getUser(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
   ): Promise<User> {
     const user = await prisma.user.findUnique({
       where: {
@@ -56,6 +58,7 @@ export default class UserController {
   public async patchUser(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Body() request: PatchUserRequest,
   ): Promise<User> {
     track(AppEvent.UpdateUser, userId, trackingInfo);

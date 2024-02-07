@@ -1,8 +1,7 @@
+import logger from '../lib/logger';
 import { getClient } from '../lib/providers/openai';
-import { parentLogger } from '../lib/logger';
 
 const openai = getClient();
-const logger = parentLogger.getSubLogger();
 
 export const rephraseImagePrompt = async (promptHistory: string[]) => {
   logger.info('Rephrasing image prompt', promptHistory);

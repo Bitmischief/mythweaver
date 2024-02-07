@@ -12,7 +12,6 @@ import { OAuth2Client } from 'google-auth-library';
 import { prisma } from '../lib/providers/prisma';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import jwt from 'jsonwebtoken';
-import { parentLogger } from '../lib/logger';
 import { AppEvent, identify, track, TrackingInfo } from '../lib/tracking';
 import CampaignController from './campaigns';
 import mailchimpClient from '../lib/mailchimpMarketing';
@@ -23,7 +22,7 @@ import EmailType = lists.EmailType;
 import { urlPrefix } from '../lib/utils';
 import { sendTransactionalEmail } from '../lib/transactionalEmail';
 import { createCustomer } from '../services/billing';
-const logger = parentLogger.getSubLogger();
+import { MythWeaverLogger } from '../lib/logger';
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -58,6 +57,7 @@ export default class AuthController {
   public async postToken(
     @Body() request: TokenRequest,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
   ): Promise<TokenResponse> {
     let email: string | undefined;
 
@@ -105,9 +105,11 @@ export default class AuthController {
         await campaignController.acceptInvite(
           magicLink.user.id,
           trackingInfo,
+          logger,
           magicLink.inviteCode,
         );
       }
+      7;
 
       email = magicLink.user.email;
     }
@@ -194,6 +196,7 @@ export default class AuthController {
       await campaignController.acceptInvite(
         user.id,
         trackingInfo,
+        logger,
         request.inviteCode,
       );
     }
@@ -201,7 +204,7 @@ export default class AuthController {
     track(AppEvent.LoggedIn, user.id, trackingInfo, { email });
     identify(user.id, { $email: email, $name: email.split('@')[0] });
 
-    return await this.issueTokens(user.id);
+    return await this.issueTokens(user.id, logger);
   }
 
   @Post('/refresh')
@@ -209,6 +212,7 @@ export default class AuthController {
   public async postRefresh(
     @Body() request: RefreshRequest,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
   ): Promise<TokenResponse> {
     let userId;
 
@@ -274,7 +278,7 @@ export default class AuthController {
 
     track(AppEvent.SessionRefreshed, userId, trackingInfo);
 
-    return await this.issueTokens(userId);
+    return await this.issueTokens(userId, logger);
   }
 
   @Security('jwt')
@@ -283,6 +287,7 @@ export default class AuthController {
   public async postMagicLink(
     @Inject() trackingInfo: TrackingInfo,
     @Body() request: MagicLinkRequest,
+    @Inject() logger: MythWeaverLogger,
   ): Promise<any> {
     let user = await prisma.user.findUnique({
       where: {
@@ -358,7 +363,7 @@ export default class AuthController {
     );
   }
 
-  private async issueTokens(userId: number) {
+  private async issueTokens(userId: number, logger: MythWeaverLogger) {
     const token = jwt.sign({ userId }, process.env.JWT_SECRET_KEY || '', {
       algorithm: 'HS256',
       expiresIn: jwtExpirySeconds,
@@ -376,7 +381,7 @@ export default class AuthController {
       },
     );
 
-    logger.info('Saving refresh token', refreshToken, userId);
+    logger.info('Saving refresh token', { refreshToken, userId });
     await prisma.refreshToken.create({
       data: {
         refreshToken,

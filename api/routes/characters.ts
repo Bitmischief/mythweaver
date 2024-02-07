@@ -6,6 +6,7 @@ import {
   ValidationTypes,
 } from '../lib/validationMiddleware';
 import CharacterController from '../controllers/characters';
+import { useLogger } from '../lib/loggingMiddleware';
 
 const router = express.Router();
 
@@ -30,6 +31,7 @@ router.post('/', [
     const response = await controller.postCharacter(
       res.locals.auth.userId,
       res.locals.trackingInfo,
+      useLogger(res),
       req.body,
     );
     return res.status(201).send(response);
@@ -63,6 +65,7 @@ router.patch('/:characterId', [
     const response = await controller.patchCharacter(
       res.locals.auth.userId,
       res.locals.trackingInfo,
+      useLogger(res),
       req.params.characterId as unknown as number,
       req.body,
     );

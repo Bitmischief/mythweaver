@@ -1,6 +1,5 @@
 import { prisma } from '../../lib/providers/prisma';
-import { parentLogger } from '../../lib/logger';
-const logger = parentLogger.getSubLogger();
+import logger from '../../lib/logger';
 
 export const processTags = async (conjurationIds: number[]) => {
   for (const conjurationId of conjurationIds) {

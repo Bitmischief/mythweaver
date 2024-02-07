@@ -17,6 +17,7 @@ import { AppError, HttpCode } from '../lib/errors/AppError';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { processTagsQueue } from '../worker';
 import { ImageStylePreset } from './images';
+import { MythWeaverLogger } from '../lib/logger';
 
 interface GetConjurationsResponse {
   data: (Conjuration & { saved: boolean })[];
@@ -48,6 +49,7 @@ export default class ConjurationController {
   public async getConjurations(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Query() campaignId?: number,
     @Query() saved?: boolean,
     @Query() conjurerCodeString?: string,
@@ -129,6 +131,7 @@ export default class ConjurationController {
   public async getConjuration(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Route() conjurationId = 0,
   ): Promise<Conjuration & { saves: undefined; saved: boolean }> {
     const conjuration = await prisma.conjuration.findUnique({
@@ -166,6 +169,7 @@ export default class ConjurationController {
   public async postSaveConjuration(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Route() conjurationId: number,
   ): Promise<void> {
     const existingConjuration = await prisma.conjuration.findUnique({
@@ -226,12 +230,14 @@ export default class ConjurationController {
   public async patchConjuration(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Route() conjurationId: number,
     @Body() request: PatchConjurationRequest,
   ): Promise<Conjuration> {
     const conjuration = await this.getConjuration(
       userId,
       trackingInfo,
+      logger,
       conjurationId,
     );
 
@@ -267,11 +273,13 @@ export default class ConjurationController {
   public async deleteConjuration(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Route() conjurationId: number,
   ): Promise<boolean> {
     const conjuration = await this.getConjuration(
       userId,
       trackingInfo,
+      logger,
       conjurationId,
     );
 
@@ -299,6 +307,7 @@ export default class ConjurationController {
   public async getConjurationTags(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Query() term?: string,
     @Query() offset?: number,
     @Query() limit?: number,
@@ -334,6 +343,7 @@ export default class ConjurationController {
   public async postRemoveConjuration(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Route() conjurationId: number,
   ): Promise<void> {
     const existingConjurationSave = await prisma.conjurationSave.findUnique({
@@ -367,6 +377,7 @@ export default class ConjurationController {
   public async postCopyConjuration(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Route() conjurationId: number,
   ): Promise<any> {
     const existingConjuration = await prisma.conjuration.findUnique({

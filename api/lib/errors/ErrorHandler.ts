@@ -1,8 +1,7 @@
 import { Response } from 'express';
 import { AppError, HttpCode } from './AppError';
-import { parentLogger } from '../logger';
 import { AxiosError } from 'axios';
-const logger = parentLogger.getSubLogger();
+import logger from '../logger';
 
 class ErrorHandler {
   private isTrustedError(error: Error): boolean {
@@ -29,12 +28,11 @@ class ErrorHandler {
     error: Error | AppError,
     response?: Response,
   ): void {
-    logger.fatal(
-      'Critical uncaught error',
-      error?.message,
-      (error as AppError)?.description,
-      (error as AxiosError)?.response?.data,
-    );
+    logger.fatal('Critical uncaught error', {
+      message: error?.message,
+      description: (error as AppError)?.description,
+      responseData: (error as AxiosError)?.response?.data,
+    });
 
     if (response && response.status) {
       response

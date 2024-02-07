@@ -7,9 +7,7 @@ import mailchimpClient from '../lib/mailchimpMarketing';
 import { lists, Status } from '@mailchimp/mailchimp_marketing';
 import EmailType = lists.EmailType;
 import { format } from 'date-fns';
-import { parentLogger } from '../lib/logger';
-import { useInjectLoggingInfo } from '../lib/loggingMiddleware';
-const logger = parentLogger.getSubLogger();
+import { useInjectLoggingInfo, useLogger } from '../lib/loggingMiddleware';
 
 const router = express.Router();
 
@@ -22,6 +20,7 @@ router.get('/me', [
     const response = await controller.getUser(
       res.locals.auth.userId,
       res.locals.trackingInfo,
+      useLogger(res),
     );
     return res.status(200).send(response);
   },
@@ -45,6 +44,7 @@ router.patch('/me', [
     const response = await controller.patchUser(
       res.locals.auth.userId,
       res.locals.trackingInfo,
+      useLogger(res),
       req.body,
     );
     return res.status(200).send(response);
@@ -59,6 +59,7 @@ const postPrereleaseSchema = z.object({
 router.post('/prerelease', [
   useValidateRequest(postPrereleaseSchema),
   async (req: Request, res: Response) => {
+    const logger = useLogger(res);
     const payload = req.body as z.infer<typeof postPrereleaseSchema>;
 
     const newMember = {

@@ -1,6 +1,5 @@
 import { CompleteSessionEvent } from '../index';
 import { getClient } from '../../lib/providers/openai';
-import { parentLogger } from '../../lib/logger';
 import { prisma } from '../../lib/providers/prisma';
 import { sanitizeJson } from '../../lib/utils';
 import { generateImage } from '../../services/imageGeneration';
@@ -8,8 +7,8 @@ import {
   sendWebsocketMessage,
   WebSocketEvent,
 } from '../../services/websockets';
+import logger from '../../lib/logger';
 
-const logger = parentLogger.getSubLogger();
 const openai = getClient();
 
 export const completeSession = async (request: CompleteSessionEvent) => {

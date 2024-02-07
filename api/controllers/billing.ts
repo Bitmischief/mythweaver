@@ -1,7 +1,6 @@
 import { Body, Get, Inject, Post, Route, SuccessResponse, Tags } from 'tsoa';
 import { prisma } from '../lib/providers/prisma';
 import { AppError, HttpCode } from '../lib/errors/AppError';
-import { parentLogger } from '../lib/logger';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import {
   getBillingPortalUrl,
@@ -10,7 +9,7 @@ import {
 } from '../services/billing';
 import Stripe from 'stripe';
 import { BillingPlan } from '@prisma/client';
-const logger = parentLogger.getSubLogger();
+import { MythWeaverLogger } from '../lib/logger';
 
 const PRO_PLAN_IMAGE_CREDITS = 300;
 const BASIC_PLAN_IMAGE_CREDITS = 100;
@@ -23,6 +22,7 @@ export default class BillingController {
   public async getCheckoutUrl(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Body() body: { planId: string },
   ): Promise<string> {
     const user = await prisma.user.findUnique({
@@ -45,7 +45,10 @@ export default class BillingController {
 
   @Get('/portal-url')
   @SuccessResponse('200', 'Success')
-  public async getPortalUrl(@Inject() userId: number): Promise<string> {
+  public async getPortalUrl(
+    @Inject() userId: number,
+    @Inject() logger: MythWeaverLogger,
+  ): Promise<string> {
     const user = await prisma.user.findUnique({
       where: {
         id: userId,
@@ -64,9 +67,9 @@ export default class BillingController {
     return await getBillingPortalUrl(user.billingCustomerId || '');
   }
 
-  public async processWebhook(event: Stripe.Event) {
+  public async processWebhook(event: Stripe.Event, logger: MythWeaverLogger) {
     if (event.type === 'checkout.session.completed') {
-      await this.processCheckoutSessionCompletedEvent(event);
+      await this.processCheckoutSessionCompletedEvent(event, logger);
     } else if (
       event.type === 'customer.subscription.deleted' ||
       event.type === 'customer.subscription.resumed'
@@ -83,6 +86,7 @@ export default class BillingController {
 
   private async processCheckoutSessionCompletedEvent(
     event: Stripe.CheckoutSessionCompletedEvent,
+    logger: MythWeaverLogger,
   ) {
     logger.info('Checkout session completed', event);
 

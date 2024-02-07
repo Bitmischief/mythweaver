@@ -1,12 +1,10 @@
 // Set your secret key. Remember to switch to your live secret key in production.
 // See your keys here: https://dashboard.stripe.com/apikeys
 import { urlPrefix } from '../lib/utils';
-import { parentLogger } from '../lib/logger';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import Stripe from 'stripe';
 import { BillingPlan } from '@prisma/client';
-
-const logger = parentLogger.getSubLogger();
+import logger from '../lib/logger';
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY as string);
 

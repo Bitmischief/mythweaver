@@ -6,7 +6,7 @@ import {
   ValidationTypes,
 } from '../lib/validationMiddleware';
 import { GeneratorController } from '../controllers/generators';
-import { useInjectLoggingInfo } from '../lib/loggingMiddleware';
+import { useInjectLoggingInfo, useLogger } from '../lib/loggingMiddleware';
 
 const router = express.Router();
 
@@ -30,6 +30,7 @@ router.get('/', [
     const response = await controller.getGenerators(
       res.locals.auth.userId,
       res.locals.trackingInfo,
+      useLogger(res),
       offset as number,
       limit as number,
     );
@@ -56,6 +57,7 @@ router.get('/:generatorCode', [
     const response = await controller.getGenerator(
       res.locals.auth.userId,
       res.locals.trackingInfo,
+      useLogger(res),
       generatorCode as string,
     );
 
@@ -77,6 +79,7 @@ router.post('/:generatorCode/generate/quick', [
     const response = await controller.postGeneratorGenerateQuick(
       res.locals.auth.userId,
       res.locals.trackingInfo,
+      useLogger(res),
       generatorCode as string,
     );
 
@@ -109,6 +112,7 @@ router.post('/:generatorCode/generate', [
     const response = await controller.postGeneratorGenerate(
       res.locals.auth.userId,
       res.locals.trackingInfo,
+      useLogger(res),
       generatorCode as string,
       req.body,
     );
@@ -135,6 +139,7 @@ router.get('/requests/:conjurationRequestId', [
     const response = await controller.getConjurationRequest(
       res.locals.auth.userId,
       res.locals.trackingInfo,
+      useLogger(res),
       conjurationRequestId as number,
     );
 
@@ -159,6 +164,7 @@ router.post('/arbitrary', [
     const response = await controller.postGenerateArbitrary(
       res.locals.auth.userId,
       res.locals.trackingInfo,
+      useLogger(res),
       req.body,
     );
 

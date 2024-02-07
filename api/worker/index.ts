@@ -1,12 +1,10 @@
 import Queue from 'bull';
-import { parentLogger } from '../lib/logger';
 import { processTags } from './jobs/processTags';
 import { conjure } from './jobs/conjure';
 import { completeSession } from './jobs/completeSession';
-import { tagUsersAsEarlyAccess } from './jobs/tagUsersAsEarlyAccess';
 import { ImageStylePreset } from '../controllers/images';
 import { sendWebsocketMessage, WebSocketEvent } from '../services/websockets';
-const logger = parentLogger.getSubLogger();
+import logger from '../lib/logger';
 
 const config = process.env.REDIS_ENDPOINT || '';
 
@@ -95,23 +93,5 @@ completeSessionQueue.process(async (job, done) => {
   } catch (err) {
     logger.error('Error processing conjure job!', err);
     done(new Error('Error processing conjure job!'));
-  }
-});
-
-export const tagUsersAsEarlyAccessQueue = new Queue(
-  'tag-users-early-access',
-  config,
-);
-
-tagUsersAsEarlyAccessQueue.process(async (job, done) => {
-  logger.info('Processing tag users as early access job', job.data);
-
-  try {
-    await tagUsersAsEarlyAccess();
-    logger.info('Completed processing tag users as early access job', job.data);
-    done();
-  } catch (err) {
-    logger.error('Error processing tag users as early access job!', err);
-    done(new Error('Error processing tag users as early access job!'));
   }
 });

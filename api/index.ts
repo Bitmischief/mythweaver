@@ -8,23 +8,16 @@ import express, {
   Request,
   Response,
 } from 'express';
-import morgan from 'morgan';
 import swaggerUi from 'swagger-ui-express';
 import Router from './routes';
-import {
-  requestIdAsyncLocalStorage,
-  useInjectRequestId,
-} from './lib/requestIdMiddleware';
 import { errorHandler } from './lib/errors/ErrorHandler';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import './worker/index';
-import { ILogObj, Logger } from 'tslog';
-import { useInjectTrackingInfo } from './lib/trackingMiddleware';
-import { loggingInfoAsyncLocalStorage } from './lib/loggingMiddleware';
 import * as http from 'http';
-
-const logger = new Logger<ILogObj>();
+import logger from './lib/logger';
+import { useLogger } from './lib/loggingMiddleware';
+import pinoHTTP from 'pino-http';
 
 const PORT = process.env.PORT || 8000;
 
@@ -41,23 +34,12 @@ app.use(
   }),
 );
 
-morgan.token('requestId', () => {
-  return requestIdAsyncLocalStorage.getStore()?.requestId;
-});
-
-morgan.token('userEmail', () => {
-  return loggingInfoAsyncLocalStorage.getStore()?.userEmail;
-});
-
-morgan.token('userId', () => {
-  return loggingInfoAsyncLocalStorage.getStore()?.userId?.toString() || '';
-});
-
 app.use(
-  morgan(
-    '{ "method": ":method", "url": ":url", "status": ":status", "contentLength": ":res[content-length]", "responseTime": ":response-time", "requestId": ":requestId", "userEmail": ":userEmail", "userId": ":userId" }',
-  ),
+  pinoHTTP({
+    logger: logger.internalLogger,
+  }),
 );
+
 app.use(express.static('public'));
 
 // Create the rate limit rule
@@ -73,8 +55,6 @@ const apiRequestLimiter = rateLimit({
 
 app.use(apiRequestLimiter);
 app.set('trust proxy', 1); // trust first proxy
-app.use(useInjectRequestId);
-app.use(useInjectTrackingInfo);
 
 app.use(Router);
 
@@ -95,6 +75,7 @@ const errorHandlerMiddleware: ErrorRequestHandler = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   next: NextFunction,
 ) => {
+  const logger = useLogger(res);
   logger.info('Error handler middleware', err?.message);
   errorHandler.handleError(err, res);
 };

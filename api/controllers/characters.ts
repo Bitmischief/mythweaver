@@ -11,6 +11,7 @@ import {
 import { prisma } from '../lib/providers/prisma';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
+import { MythWeaverLogger } from '../lib/logger';
 
 interface PostCharactersRequest {
   campaignId: number;
@@ -44,6 +45,7 @@ export default class CharacterController {
   public async postCharacter(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Body() request: PostCharactersRequest,
   ): Promise<any> {
     const campaignMember = await prisma.campaignMember.findUnique({
@@ -82,6 +84,7 @@ export default class CharacterController {
   public async patchCharacter(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Route() characterId: number,
     @Body() request: PatchCharactersRequest,
   ): Promise<any> {

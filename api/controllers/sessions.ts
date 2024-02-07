@@ -19,9 +19,8 @@ import { CampaignRole } from './campaigns';
 import { completeSessionQueue } from '../worker';
 import { sendTransactionalEmail } from '../lib/transactionalEmail';
 import { urlPrefix } from '../lib/utils';
-import { parentLogger } from '../lib/logger';
 import { WebSocketEvent, sendWebsocketMessage } from '../services/websockets';
-const logger = parentLogger.getSubLogger();
+import { MythWeaverLogger } from '../lib/logger';
 
 interface GetSessionsResponse {
   data: Session[];
@@ -72,6 +71,7 @@ export default class SessionController {
   public async getSessions(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Query() campaignId: number,
     @Query() offset?: number,
     @Query() limit?: number,
@@ -105,6 +105,7 @@ export default class SessionController {
   public async getSession(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Route() sessionId = 0,
   ): Promise<Session> {
     const session = await prisma.session.findUnique({
@@ -138,6 +139,7 @@ export default class SessionController {
   public async postSession(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Body() request: PostSessionRequest,
   ): Promise<Session> {
     const session = await prisma.session.create({
@@ -158,10 +160,11 @@ export default class SessionController {
   public async patchSession(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Route() sessionId: number,
     @Body() request: PatchSessionRequest,
   ): Promise<Session> {
-    await this.getSession(userId, trackingInfo, sessionId);
+    await this.getSession(userId, trackingInfo, logger, sessionId);
 
     const session = await prisma.session.update({
       where: {
@@ -185,9 +188,15 @@ export default class SessionController {
   public async deleteSession(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Route() sessionId: number,
   ): Promise<boolean> {
-    const session = await this.getSession(userId, trackingInfo, sessionId);
+    const session = await this.getSession(
+      userId,
+      trackingInfo,
+      logger,
+      sessionId,
+    );
 
     if (!session.archived) {
       await prisma.session.update({
@@ -217,10 +226,16 @@ export default class SessionController {
   public async postGenerateSummary(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Route() sessionId: number,
     @Body() request: PostCompleteSessionRequest,
   ): Promise<boolean> {
-    const session = await this.getSession(userId, trackingInfo, sessionId);
+    const session = await this.getSession(
+      userId,
+      trackingInfo,
+      logger,
+      sessionId,
+    );
     const campaignMember = await prisma.campaignMember.findUnique({
       where: {
         userId_campaignId: {
@@ -259,6 +274,7 @@ export default class SessionController {
   public async postCompleteSession(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Route() sessionId: number,
   ) {
     const session = await prisma.session.findUnique({
@@ -349,10 +365,16 @@ export default class SessionController {
   public async postSessionAudio(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Route() sessionId: number,
     @Body() request: PostSessionAudioRequest,
   ): Promise<PostSessionAudioResponse> {
-    const session = await this.getSession(userId, trackingInfo, sessionId);
+    const session = await this.getSession(
+      userId,
+      trackingInfo,
+      logger,
+      sessionId,
+    );
     const campaignMember = await prisma.campaignMember.findUnique({
       where: {
         userId_campaignId: {

@@ -1,27 +1,27 @@
 import { NextFunction, Request, Response } from 'express';
-import { AsyncLocalStorage } from 'async_hooks';
-import { parentLogger } from './logger';
-
-export const loggingInfoAsyncLocalStorage: AsyncLocalStorage<{
-  userId: number | undefined;
-  userEmail: string | undefined;
-  url: string;
-  method: string;
-}> = new AsyncLocalStorage();
+import logger, { MythWeaverLogger } from './logger';
+import { v4 as uuidv4 } from 'uuid';
 
 export const useInjectLoggingInfo = () => {
   return async (req: Request, res: Response, next: NextFunction) => {
-    const loggingInfo = {
+    const requestId: string =
+      req.headers['x-request-id']?.toString() || uuidv4();
+
+    logger.info('Injecting logging info');
+
+    res.locals.logger = logger.child({
       userId: res.locals.auth?.userId,
       userEmail: res.locals.auth?.email,
       url: req.url,
       method: req.method,
-    };
-
-    parentLogger.info('Injecting logging info', loggingInfo);
-
-    await loggingInfoAsyncLocalStorage.run(loggingInfo, async () => {
-      return next();
+      requestId,
+      trackingInfo: res.locals.trackingInfo,
     });
+
+    return next();
   };
+};
+
+export const useLogger = (res: Response): MythWeaverLogger => {
+  return res.locals.logger || logger;
 };

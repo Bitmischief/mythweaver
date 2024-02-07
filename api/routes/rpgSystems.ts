@@ -6,7 +6,7 @@ import {
   ValidationTypes,
 } from '../lib/validationMiddleware';
 import { RpgSystemController } from '../controllers/rpgSystems';
-import { useInjectLoggingInfo } from '../lib/loggingMiddleware';
+import { useInjectLoggingInfo, useLogger } from '../lib/loggingMiddleware';
 
 const router = express.Router();
 
@@ -30,6 +30,7 @@ router.get('/', [
     const response = await controller.getRpgSystems(
       res.locals.auth.userId,
       res.locals.trackingInfo,
+      useLogger(res),
       term as string,
       offset as number,
       limit as number,

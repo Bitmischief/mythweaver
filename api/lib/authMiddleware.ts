@@ -1,8 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
-import { parentLogger } from './logger';
 import { prisma } from './providers/prisma';
-const logger = parentLogger.getSubLogger();
+import logger from './logger';
 
 export const useAuthenticateRequest = (securityType = 'jwt') => {
   return async (req: Request, res: Response, next: NextFunction) => {

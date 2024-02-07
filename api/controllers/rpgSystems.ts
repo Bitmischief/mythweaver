@@ -1,6 +1,7 @@
 import { Get, Inject, OperationId, Query, Route, Security, Tags } from 'tsoa';
 import rpgSystems, { RpgSystem } from '../data/rpgSystems';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
+import { MythWeaverLogger } from '../lib/logger';
 
 interface GetRpgSystemsResponse {
   data: RpgSystem[];
@@ -17,6 +18,7 @@ export class RpgSystemController {
   public async getRpgSystems(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
     @Query() term?: string,
     @Query() offset?: number,
     @Query() limit?: number,
