@@ -1,10 +1,13 @@
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 import { prisma } from './providers/prisma';
-import logger from './logger';
+import { MythWeaverLogger } from './logger';
+import { injectRequestId } from './loggingMiddleware';
 
 export const useAuthenticateRequest = (securityType = 'jwt') => {
   return async (req: Request, res: Response, next: NextFunction) => {
+    const logger = injectRequestId(req, res);
+
     try {
       const result = await expressAuthentication(req, res, securityType);
 
@@ -26,13 +29,15 @@ export async function expressAuthentication(
   res: Response,
   securityName: string,
 ): Promise<boolean> {
+  const logger = injectRequestId(req, res);
+
   if (securityName === 'jwt') {
     const token =
       req.body.token || req.query.token || req.headers['authorization'];
 
     logger.info('Authenticating provided jwt', token);
 
-    const { userId } = verifyJwt(token);
+    const { userId } = verifyJwt(token, logger);
 
     const user = await prisma.user.findUnique({
       where: {
@@ -55,7 +60,7 @@ export async function expressAuthentication(
   return false;
 }
 
-export const verifyJwt = (token: string) => {
+export const verifyJwt = (token: string, logger: MythWeaverLogger) => {
   const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY || '');
   const { userId } = decoded as any;
 

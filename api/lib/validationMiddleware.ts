@@ -1,6 +1,6 @@
 import { ZodObject } from 'zod';
 import { NextFunction, Request, Response } from 'express';
-import logger from './logger';
+import { injectRequestId } from './loggingMiddleware';
 
 export enum ValidationTypes {
   Body,
@@ -22,6 +22,8 @@ export const useValidateRequest = (
   },
 ) => {
   return async (req: Request, res: Response, next: NextFunction) => {
+    const logger = injectRequestId(req, res);
+
     if (!options) {
       options = {
         validationType: ValidationTypes.Body,
@@ -39,7 +41,7 @@ export const useValidateRequest = (
       throw new Error('Invalid validation type provided!');
     }
 
-    logger.info('Validating request...', validationObj);
+    logger.info(validationObj, 'Validating request...');
 
     const result = schema.safeParse(validationObj);
 

@@ -18,6 +18,8 @@ import * as http from 'http';
 import logger from './lib/logger';
 import { useLogger } from './lib/loggingMiddleware';
 import pinoHTTP from 'pino-http';
+import { v4 as uuidv4 } from 'uuid';
+import { isLocalDevelopment } from './lib/utils';
 
 const PORT = process.env.PORT || 8000;
 
@@ -34,11 +36,20 @@ app.use(
   }),
 );
 
-app.use(
-  pinoHTTP({
-    logger: logger.internalLogger,
-  }),
-);
+if (!isLocalDevelopment) {
+  app.use(
+    pinoHTTP({
+      logger: logger.internalLogger,
+      genReqId: function (req, res) {
+        const existingID = req.id ?? req.headers['x-request-id'];
+        if (existingID) return existingID;
+        const id = uuidv4();
+        res.setHeader('X-Request-Id', id);
+        return id;
+      },
+    }),
+  );
+}
 
 app.use(express.static('public'));
 
