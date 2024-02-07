@@ -388,7 +388,7 @@ async function handleRemoveMember() {
         </div>
         <div>
           <button
-            v-if="currentUserRole === CampaignRole.DM || true"
+            v-if="currentUserRole === CampaignRole.DM"
             class="button-primary flex"
             @click="showInviteModal = true"
           >
