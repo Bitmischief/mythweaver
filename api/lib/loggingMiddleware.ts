@@ -24,7 +24,7 @@ export const useInjectLoggingInfo = () => {
     res.locals.logger = logger.child({
       userId: res.locals.auth?.userId,
       userEmail: res.locals.auth?.email,
-      url: req.url,
+      url: req.originalUrl,
       method: req.method,
       trackingInfo: res.locals.trackingInfo,
     });
