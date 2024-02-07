@@ -411,7 +411,10 @@ async function handleRemoveMember() {
                 'text-neutral-400': !member.user,
               }"
             >
-              {{ splitEmail(member.user ? member.user.email : member.email) }}
+              {{
+                member.user.username ??
+                splitEmail(member.user ? member.user.email : member.email)
+              }}
             </div>
             <div class="text-neutral-400 px-4 self-center col-span-1">
               {{ member.role === 1 ? 'Game Master' : 'Player' }}
@@ -439,7 +442,7 @@ async function handleRemoveMember() {
         </div>
       </div>
     </div>
-    <div v-if="characters?.length" class="mb-8 mt-4">
+    <div v-if="characters?.length" class="mb-8 mt-4 col-span-5">
       <div class="flex mb-4">
         <div class="mr-1">Characters</div>
         <div
@@ -452,7 +455,7 @@ async function handleRemoveMember() {
         <div
           v-for="(char, i) in characters"
           :key="`char_${i}`"
-          class="bg-surface-3 rounded-[25px] p-1 cursor-pointer"
+          class="bg-surface-3 rounded-[25px] p-1 cursor-pointer max-w-[15em] mr-6"
           @click="
             viewingCharacter = char;
             viewCharacter = true;
