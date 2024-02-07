@@ -17,6 +17,7 @@ import { MythWeaverLogger } from '../lib/logger';
 interface PatchUserRequest {
   campaignId: number;
   name: string;
+  username: string;
   imageUri?: string;
   data: any;
   tags?: string[];

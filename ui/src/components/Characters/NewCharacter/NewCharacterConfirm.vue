@@ -11,7 +11,16 @@ const emit = defineEmits(['back', 'complete']);
 </script>
 
 <template>
-  <div class="mt-8 p-8 w-full overflow-x-hidden">
+  <div class="mt-8 max-w-[50em]">
+    <div class="mb-4 flex justify-between">
+      <button class="button-primary flex" @click="emit('back')">
+        <ArrowLeftIcon class="h-4 mr-1 self-center" />
+        Back
+      </button>
+      <button class="button-gradient" @click="emit('complete')">
+        Save Character
+      </button>
+    </div>
     <div class="md:flex">
       <LightboxImage
         :src="character.imageUri"
@@ -70,15 +79,5 @@ const emit = defineEmits(['back', 'complete']);
         </div>
       </div>
     </div>
-  </div>
-
-  <div class="mt-8 flex justify-between">
-    <button class="button-primary flex" @click="emit('back')">
-      <ArrowLeftIcon class="h-4 mr-1 self-center" />
-      Back
-    </button>
-    <button class="button-gradient" @click="emit('complete')">
-      Save Character
-    </button>
   </div>
 </template>

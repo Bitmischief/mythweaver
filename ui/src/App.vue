@@ -3,32 +3,17 @@ import Navbar from '@/components/Navigation/NavBar.vue';
 import { useAuthStore } from '@/store';
 import NotificationHandler from '@/components/Notifications/NotificationHandler.vue';
 import { useEventBus } from '@/lib/events.ts';
-import { computed, onMounted, onUpdated, ref } from 'vue';
+import { onMounted, onUpdated, ref } from 'vue';
 import NavBarHeader from '@/components/Navigation/NavBarHeader.vue';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import LightboxRoot from '@/components/LightboxRoot.vue';
-import { useEarlyAccessStore } from '@/store/earlyAccess.store.ts';
-import { storeToRefs } from 'pinia';
-import { SparklesIcon } from '@heroicons/vue/20/solid';
 import CustomizeConjurationImage from '@/components/Conjuration/ViewConjuration/CustomizeConjurationImage.vue';
 import { useIntercom } from '@homebaseai/vue3-intercom';
-import { patchCurrentUser } from '@/api/users.ts';
-import { showError } from '@/lib/notifications.ts';
-import { useEarlyAccessExempt } from '@/lib/hooks.ts';
 import Loader from './components/Core/Loader.vue';
-import Accordion from './components/Core/Accordion.vue';
 
 const authStore = useAuthStore();
 const eventBus = useEventBus();
-const earlyAccessStore = useEarlyAccessStore();
 const intercom = useIntercom();
-const earlyAccessExempt = useEarlyAccessExempt();
-
-const { confirmed: confirmedEarlyAccess } = storeToRefs(earlyAccessStore);
-
-const showConfirmEarlyAccess = computed(() => {
-  return !earlyAccessExempt.value && !confirmedEarlyAccess.value;
-});
 
 onMounted(async () => {
   if (authStore.tokens) {
@@ -81,15 +66,6 @@ eventBus.$on('toggle-customize-image-modal', (args: CustomizeImageRequest) => {
     customizeImageArgs.value = args;
   }
 });
-
-async function confirmEarlyAccessTerms() {
-  try {
-    await patchCurrentUser({ confirmEarlyAccessStart: true });
-    earlyAccessStore.confirm();
-  } catch (err) {
-    showError({ message: 'Failed to start early access!' });
-  }
-}
 </script>
 
 <template>
@@ -132,95 +108,6 @@ async function confirmEarlyAccessTerms() {
       </div>
     </div>
   </div>
-
-  <ModalAlternate
-    :show="
-      !authStore.isLoading &&
-      !showLoading &&
-      !!authStore.tokens &&
-      showConfirmEarlyAccess
-    "
-  >
-    <div
-      class="bg-gradient-to-r from-fuchsia-500 to-violet-500 p-px rounded-[20px]"
-    >
-      <div
-        class="md:w-[1000px] max-h-[90vh] bg-surface p-6 rounded-[20px] overflow-y-auto text-white text-center"
-      >
-        <span
-          class="text-4xl bg-clip-text font-bold text-transparent bg-gradient-to-r from-purple-500 via-fuchsia-500 to-blue-400 via-violet-500"
-        >
-          Welcome to MythWeaver!
-        </span>
-
-        <div class="text-xl mt-8 mb-2">You have 48-Hours of Access</div>
-        <div class="text-lg text-neutral-400">
-          Yup, you read it right. You've got 48 hours of unrestricted journeying
-          within MythWeaver. Consider this your mini-adventure before the main
-          campaign.
-        </div>
-
-        <div class="grid grid-cols-2 gap-8 my-8">
-          <div class="rounded-[20px] border border-white">
-            <Accordion title="What happens after my 48-hour trial?">
-              <div class="text-neutral-400 p-6">
-                After your 48-hour access ends, you'll need to back our
-                Kickstarter at Adept tier or higher to continue your adventure,
-                until our public launch.
-
-                <div class="my-6 mb-10">
-                  <a
-                    href="https://mythweaver.backerkit.com/hosted_preorders"
-                    target="_blank"
-                    class="button-gradient text-white"
-                    >Pre-Order Now</a
-                  >
-                </div>
-              </div>
-            </Accordion>
-          </div>
-          <div class="rounded-[20px] border border-white">
-            <Accordion title="FAQs">
-              <div class="text-lg text-neutral-400 p-6">
-                <ul class="text-left">
-                  <li>
-                    <div class="font-bold text-neutral-300">
-                      1. What happens to my data if my trial access expires?
-                    </div>
-                    <div class="text-neutral-500">
-                      Your data will be saved, but you won't be able to access
-                      it until either you pre-order MythWeaver or we launch
-                      MythWeaver to the public (planned for January 2024).
-                    </div>
-                  </li>
-                  <li class="mt-4">
-                    <div class="font-bold text-neutral-300">
-                      2. Does early access consume any of my purchased
-                      subscription period?
-                    </div>
-                    <div class="text-neutral-500">
-                      No! Early access is a free bonus perk to for pre-order
-                      purchasers.
-                    </div>
-                  </li>
-                </ul>
-              </div>
-            </Accordion>
-          </div>
-        </div>
-
-        <button
-          class="flex button-gradient w-full justify-around"
-          @click="confirmEarlyAccessTerms"
-        >
-          <div class="flex">
-            <SparklesIcon class="mr-2 h-5 w-5 self-center" />
-            <span class="self-center">Start 48-hour trial!</span>
-          </div>
-        </button>
-      </div>
-    </div>
-  </ModalAlternate>
 
   <ModalAlternate :show="showCustomizeImageModal" extra-dark>
     <div

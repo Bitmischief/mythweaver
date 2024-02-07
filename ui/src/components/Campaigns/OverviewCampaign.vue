@@ -141,6 +141,10 @@ const gm = computed(() => {
     return 'N/A';
   }
 
+  if (gm[0].user.username) {
+    return gm[0].user.username;
+  }
+
   return splitEmail(gm[0].user.email);
 });
 
@@ -194,6 +198,11 @@ function campaignMemberName(campaignMemberId: number | undefined) {
   if (!member) {
     return 'n/a';
   }
+
+  if (member.user?.username) {
+    return member.user?.username;
+  }
+
   const email = member.user?.email ? member.user.email : member.email;
   return splitEmail(email);
 }
@@ -379,7 +388,7 @@ async function handleRemoveMember() {
         </div>
         <div>
           <button
-            v-if="currentUserRole === CampaignRole.DM || true"
+            v-if="currentUserRole === CampaignRole.DM"
             class="button-primary flex"
             @click="showInviteModal = true"
           >

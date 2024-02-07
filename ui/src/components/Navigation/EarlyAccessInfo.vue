@@ -3,9 +3,12 @@ import { useEarlyAccessCutoff, useEarlyAccessExempt } from '@/lib/hooks.ts';
 import { computed, ref } from 'vue';
 import { formatDistance } from 'date-fns';
 import { BoltIcon } from '@heroicons/vue/20/solid';
+import { XCircleIcon } from '@heroicons/vue/24/solid';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import PricingTable from '@/components/Core/PricingTable.vue';
+import { useAuthStore } from '@/store';
 
+const authStore = useAuthStore();
 const earlyAccessCutoff = useEarlyAccessCutoff();
 const earlyAccessExempt = useEarlyAccessExempt();
 
@@ -18,7 +21,7 @@ const earlyAccessDistance = computed(() =>
 </script>
 
 <template>
-  <div v-if="!earlyAccessExempt" class="flex justify-center">
+  <div v-if="!earlyAccessExempt && authStore.user" class="flex justify-center">
     <div class="self-center flex md:mr-6 text-sm text-neutral-400">
       <div class="self-center">
         Trial ends in
@@ -41,9 +44,15 @@ const earlyAccessDistance = computed(() =>
       extra-dark
       @close="showUpgradeModal = false"
     >
-      <div class="md:w-[800px] p-6 bg-neutral-900 rounded-md">
-        <div class="text-4xl text-neutral-300 text-center mb-6">
-          Upgrade Now
+      <div
+        class="md:w-[800px] p-6 bg-surface-2 rounded-[20px] border border-surface-3"
+      >
+        <div class="flex justify-between text-neutral-300">
+          <div class="text-xl mb-6">Upgrade Subscription</div>
+          <XCircleIcon
+            class="h-6 w-6 cursor-pointer"
+            @click="showUpgradeModal = false"
+          />
         </div>
         <PricingTable />
       </div>
