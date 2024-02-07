@@ -40,7 +40,6 @@ async function saveChanges() {
       ...store.user,
       username: username.value,
     };
-    console.log(req);
 
     await patchCurrentUser(req);
     await store.loadCurrentUser();
