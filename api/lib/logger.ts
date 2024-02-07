@@ -21,15 +21,33 @@ export class MythWeaverLogger {
   }
 
   public info(message: string, context?: any) {
-    this.internalLogger.info(context, message);
+    this.internalLogger.info(
+      {
+        message,
+        ...context,
+      },
+      message,
+    );
   }
 
   public warn(message: string, context?: any) {
-    this.internalLogger.warn(context, message);
+    this.internalLogger.warn(
+      {
+        message,
+        ...context,
+      },
+      message,
+    );
   }
 
   public fatal(message: string, context?: any) {
-    this.internalLogger.fatal(context, message);
+    this.internalLogger.fatal(
+      {
+        message,
+        ...context,
+      },
+      message,
+    );
   }
 
   public error(message: string, context?: any, error?: Error | any) {
@@ -41,6 +59,7 @@ export class MythWeaverLogger {
               stack: error.stack,
             }
           : undefined,
+        message,
         context,
       },
       message,
