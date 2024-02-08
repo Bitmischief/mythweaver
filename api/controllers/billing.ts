@@ -3,12 +3,15 @@ import { prisma } from '../lib/providers/prisma';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import {
+  createCustomer,
   getBillingPortalUrl,
   getCheckoutUrl,
+  getImageCreditCountForProductId,
   getPlanForProductId,
+  getSessionLineItems,
 } from '../services/billing';
 import Stripe from 'stripe';
-import { BillingPlan } from '@prisma/client';
+import { BillingPlan, BillingInterval, User } from '@prisma/client';
 import { MythWeaverLogger } from '../lib/logger';
 
 const PRO_PLAN_IMAGE_CREDITS = 300;
@@ -23,7 +26,7 @@ export default class BillingController {
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
     @Inject() logger: MythWeaverLogger,
-    @Body() body: { planId: string },
+    @Body() body: { priceId: string; subscription: boolean },
   ): Promise<string> {
     const user = await prisma.user.findUnique({
       where: {
@@ -40,7 +43,23 @@ export default class BillingController {
       });
     }
 
-    return await getCheckoutUrl(user.billingCustomerId || '', body.planId);
+    if (!user.billingCustomerId) {
+      user.billingCustomerId = await createCustomer(user.email);
+      await prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          billingCustomerId: user.billingCustomerId,
+        },
+      });
+    }
+
+    return await getCheckoutUrl(
+      user.billingCustomerId,
+      body.priceId,
+      body.subscription,
+    );
   }
 
   @Get('/portal-url')
@@ -80,7 +99,7 @@ export default class BillingController {
     } else if (event.type === 'customer.subscription.updated') {
       await this.processSubscriptionUpdatedEvent(event);
     } else if (event.type === 'invoice.paid') {
-      await this.processInvoicePaidEvent(event);
+      await this.processInvoicePaidEvent(event, logger);
     }
   }
 
@@ -90,27 +109,24 @@ export default class BillingController {
   ) {
     logger.info('Checkout session completed', event);
 
-    const user = await prisma.user.findUnique({
-      where: {
-        email: event.data.object.customer_details?.email || '',
-      },
-    });
+    const session = event.data.object;
 
-    if (!user) {
-      throw new AppError({
-        description: 'User not found',
-        httpCode: HttpCode.BAD_REQUEST,
-      });
+    // Note that you'll need to add an async prefix to this route handler
+    const lineItems = await getSessionLineItems(session.id);
+
+    const imageCreditPack100 = lineItems.data.find(
+      (d: any) =>
+        d.price?.product === process.env.STRIPE_IMAGE_PACK_100_PRODUCT_ID,
+    );
+
+    if (imageCreditPack100) {
+      await processItemPaid(
+        event.data.object.customer as string,
+        imageCreditPack100.price.product,
+        event.data.object.amount_total || 0 / 100,
+        logger,
+      );
     }
-
-    await prisma.user.update({
-      where: {
-        id: user.id,
-      },
-      data: {
-        billingCustomerId: event.data.object.customer as string,
-      },
-    });
   }
 
   private async processSubscriptionDeletedOrResumedEvent(
@@ -205,50 +221,139 @@ export default class BillingController {
     // @TODO: email user
   }
 
-  private async processInvoicePaidEvent(event: Stripe.InvoicePaidEvent) {
-    const user = await prisma.user.findFirst({
-      where: {
-        billingCustomerId: event.data.object.customer as string,
-      },
-    });
-
-    if (!user) {
-      throw new AppError({
-        description: 'User not found',
-        httpCode: HttpCode.BAD_REQUEST,
-      });
-    }
-
+  private async processInvoicePaidEvent(
+    event: Stripe.InvoicePaidEvent,
+    logger: MythWeaverLogger,
+  ) {
     if (event.data.object.status === 'paid') {
-      const productId = event.data.object.lines.data[0].plan?.product as string;
+      const lines = event.data.object.lines.data;
 
-      if (!productId) {
-        throw new AppError({
-          description: 'Product not found',
-          httpCode: HttpCode.BAD_REQUEST,
-        });
+      for (const line of lines) {
+        const subscriptionProductId = line.plan?.product as string;
+        const itemProductId = line.price?.product as string;
+
+        if (subscriptionProductId) {
+          logger.info('Processing invoice paid event for subscription', {
+            customerId: event.data.object.customer as string,
+            subscriptionProductId,
+          });
+
+          await processSubscriptionPaid(
+            event.data.object.customer as string,
+            subscriptionProductId,
+            line.plan as Stripe.Plan,
+            event.data.object.amount_paid / 100,
+            logger,
+          );
+        } else {
+          logger.info(
+            'Ignoring invoice paid event for item, this is handled in session.checkout.completed',
+            {
+              customerId: event.data.object.customer as string,
+              itemProductId,
+            },
+          );
+        }
       }
-
-      const plan = getPlanForProductId(productId);
-
-      await prisma.user.update({
-        where: {
-          id: user.id,
-        },
-        data: {
-          imageCredits:
-            user.imageCredits +
-            (plan === BillingPlan.PRO
-              ? PRO_PLAN_IMAGE_CREDITS
-              : BASIC_PLAN_IMAGE_CREDITS),
-        },
-      });
-
-      track(AppEvent.PaidSubscription, user.id, undefined, {
-        amount: event.data.object.amount_paid,
-      });
     }
-
-    // @TODO: email user
   }
 }
+
+const processItemPaid = async (
+  billingCustomerId: string,
+  productId: string,
+  amountPaid: number,
+  logger: MythWeaverLogger,
+) => {
+  const user = await getUser(billingCustomerId);
+  const creditCount = getImageCreditCountForProductId(productId);
+
+  logger.info('Incrementing image credits for user', { creditCount });
+
+  await prisma.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      imageCredits: {
+        increment: creditCount,
+      },
+    },
+  });
+
+  track(AppEvent.PaidImageCreditPack, user.id, undefined, {
+    amount: amountPaid,
+    quantity: creditCount,
+  });
+
+  track(AppEvent.RevenueReceived, user.id, undefined, {
+    amount: amountPaid,
+  });
+};
+
+const processSubscriptionPaid = async (
+  billingCustomerId: string,
+  productId: string,
+  stripePlan: Stripe.Plan,
+  amountPaid: number,
+  logger: MythWeaverLogger,
+) => {
+  const user = await getUser(billingCustomerId);
+  const plan = getPlanForProductId(productId);
+  const interval = getBillingIntervalForStripePlan(stripePlan);
+
+  let creditCount =
+    plan === BillingPlan.PRO
+      ? PRO_PLAN_IMAGE_CREDITS
+      : BASIC_PLAN_IMAGE_CREDITS;
+
+  if (interval === BillingInterval.YEARLY) {
+    creditCount = creditCount * 12;
+  }
+
+  logger.info('Incrementing image credits for user', { creditCount });
+
+  await prisma.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      imageCredits: {
+        increment: creditCount,
+      },
+    },
+  });
+
+  track(AppEvent.PaidSubscription, user.id, undefined, {
+    amount: amountPaid,
+  });
+
+  track(AppEvent.RevenueReceived, user.id, undefined, {
+    amount: amountPaid,
+  });
+};
+
+const getUser = async (billingCustomerId: string): Promise<User> => {
+  const user = await prisma.user.findFirst({
+    where: {
+      billingCustomerId,
+    },
+  });
+
+  if (!user) {
+    throw new AppError({
+      description: 'User not found',
+      httpCode: HttpCode.BAD_REQUEST,
+    });
+  }
+
+  return user;
+};
+
+const getBillingIntervalForStripePlan = (
+  plan: Stripe.Plan,
+): BillingInterval => {
+  return plan.interval === 'month'
+    ? BillingInterval.MONTHLY
+    : BillingInterval.YEARLY;
+};

@@ -1,8 +1,9 @@
 import axios from 'axios';
 
-export const getCheckoutUrl = (planId: string) => {
+export const getCheckoutUrl = (priceId: string, subscription: boolean) => {
   return axios.post('/billing/checkout-url', {
-    planId,
+    priceId,
+    subscription,
   });
 };
 

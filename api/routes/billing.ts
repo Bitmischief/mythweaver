@@ -10,7 +10,8 @@ import { useValidateRequest } from '../lib/validationMiddleware';
 const router = express.Router();
 
 const postCheckoutUrlSchema = z.object({
-  planId: z.string(),
+  priceId: z.string(),
+  subscription: z.boolean(),
 });
 
 router.post('/checkout-url', [

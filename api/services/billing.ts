@@ -17,20 +17,32 @@ export const createCustomer = async (email: string): Promise<string> => {
   return customer.id;
 };
 
-export const getCheckoutUrl = async (customerId: string, planId: string) => {
+export const getCheckoutUrl = async (
+  customerId: string,
+  priceId: string,
+  subscription: boolean,
+) => {
   const session = await stripe.checkout.sessions.create({
     customer: customerId,
     success_url: `${urlPrefix}/account-settings`,
     line_items: [
       {
-        price: planId,
+        price: priceId,
         quantity: 1,
       },
     ],
-    mode: 'subscription',
+    mode: subscription ? 'subscription' : 'payment',
   });
 
   return session.url;
+};
+
+export const getSessionLineItems = async (sessionId: string) => {
+  const { line_items } = await stripe.checkout.sessions.retrieve(sessionId, {
+    expand: ['line_items'],
+  });
+
+  return line_items;
 };
 
 export const getBillingPortalUrl = async (
@@ -60,6 +72,17 @@ export const validateEvent = async (payload: any, signature: string) => {
   }
 
   return event;
+};
+
+export const getImageCreditCountForProductId = (productId: string) => {
+  if (productId === process.env.STRIPE_IMAGE_PACK_100_PRODUCT_ID) {
+    return 100;
+  }
+
+  throw new AppError({
+    description: 'Unknown product id',
+    httpCode: HttpCode.BAD_REQUEST,
+  });
 };
 
 export const getPlanForProductId = (productId: string) => {

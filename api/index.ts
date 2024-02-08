@@ -92,7 +92,7 @@ const errorHandlerMiddleware: ErrorRequestHandler = (
   next: NextFunction,
 ) => {
   const logger = useLogger(res);
-  logger.info('Error handler middleware', err?.message);
+  logger.error(`Error handler middleware: ${err?.message}`);
   errorHandler.handleError(err, res);
 };
 
@@ -103,13 +103,13 @@ app.listen(PORT, async () => {
 });
 
 process.on('unhandledRejection', (reason: Error | any) => {
-  logger.info(`Unhandled Rejection: ${reason.message || reason}`);
+  logger.error(`Unhandled Rejection: ${reason.message || reason}`);
 
   throw new Error(reason.message || reason);
 });
 
 process.on('uncaughtException', (error: Error) => {
-  console.log(`Uncaught Exception: ${error.message}`);
+  logger.error(`Uncaught Exception: ${error.message}`);
 
   errorHandler.handleError(error);
 });

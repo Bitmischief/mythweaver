@@ -5,16 +5,20 @@ import { computed } from 'vue';
 
 const props = defineProps<{
   name: string;
-  yearlyPrice: number;
-  monthlyPrice: number;
+  price?: number;
+  yearlyPrice?: number;
+  monthlyPrice?: number;
   highlighted?: boolean;
   features: string[];
-  planId: string;
+  priceId: string;
   current?: boolean;
 }>();
 
 async function upgrade() {
-  const response = await getCheckoutUrl(props.planId);
+  const response = await getCheckoutUrl(
+    props.priceId,
+    !!props.monthlyPrice && !!props.yearlyPrice,
+  );
   location.href = response.data;
 }
 
@@ -41,11 +45,14 @@ const proPlanId = computed(() => {
         <div
           class="rounded-[12px] bg-surface-2 p-4"
           :class="{
-            'bg-gradient': props.planId === proPlanId,
+            'bg-gradient': props.priceId === proPlanId,
           }"
         >
           <div class="text-sm text-neutral-300">{{ name }}</div>
-          <div class="text-xl text-white font-bold">
+          <div
+            v-if="monthlyPrice && yearlyPrice"
+            class="text-xl text-white font-bold"
+          >
             <div v-if="monthlyPrice > 0">
               <div>${{ monthlyPrice.toFixed(2) }}/mo</div>
               <div v-if="yearlyPrice" class="text-xs text-neutral-300">
@@ -63,6 +70,9 @@ const proPlanId = computed(() => {
               </div>
             </div>
           </div>
+          <div v-else-if="price" class="text-xl text-white font-bold">
+            <div>${{ price.toFixed(2) }}</div>
+          </div>
         </div>
 
         <ul class="mt-4 text-neutral-400 list-none text-xs">
@@ -71,21 +81,29 @@ const proPlanId = computed(() => {
           </li>
         </ul>
       </div>
-
       <div class="mt-8">
-        <button
-          v-if="current"
-          class="button-secondary w-full rounded-full flex text-neutral-500 hover:cursor-not-allowed"
-        >
-          <CheckIcon class="h-4 mr-1" />
-          Current Subscription
-        </button>
+        <div v-if="monthlyPrice || yearlyPrice">
+          <button
+            v-if="current"
+            class="button-secondary w-full rounded-full flex text-neutral-500 hover:cursor-not-allowed"
+          >
+            <CheckIcon class="h-4 mr-1" />
+            Current Subscription
+          </button>
+          <button
+            v-else
+            class="button-white rounded-full w-full"
+            @click="upgrade"
+          >
+            Upgrade Now
+          </button>
+        </div>
         <button
           v-else
-          class="button-white rounded-full w-full"
+          class="button-gradient rounded-full w-full"
           @click="upgrade"
         >
-          Upgrade Now
+          Buy Now
         </button>
       </div>
     </div>

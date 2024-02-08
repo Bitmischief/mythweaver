@@ -31,7 +31,7 @@ const proPlanId = computed(() => import.meta.env.VITE_STRIPE_PRO_PLAN_ID);
           'Take Notes',
           'Manage Inventory',
         ]"
-        :plan-id="basicPlanId"
+        :price-id="basicPlanId"
         :current="!currentPlan || currentPlan === 'FREE'"
       />
       <PricingPlan
@@ -44,7 +44,7 @@ const proPlanId = computed(() => import.meta.env.VITE_STRIPE_PRO_PLAN_ID);
           'Advanced Character Attribute Generation',
           'Image Generation (75 images/mo)',
         ]"
-        :plan-id="basicPlanId"
+        :price-id="basicPlanId"
         :current="currentPlan === 'BASIC'"
       />
       <PricingPlan
@@ -58,7 +58,7 @@ const proPlanId = computed(() => import.meta.env.VITE_STRIPE_PRO_PLAN_ID);
           'AI Generated Dungeon Maps',
           'Priority Support',
         ]"
-        :plan-id="proPlanId"
+        :price-id="proPlanId"
         :current="currentPlan === 'PRO'"
       />
     </div>

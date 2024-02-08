@@ -45,6 +45,8 @@ export enum AppEvent {
   UpdateCharacter = 'Update Character',
   SessionAudioUploaded = 'Session Audio Uploaded',
   PaidSubscription = 'Paid Subscription',
+  PaidImageCreditPack = 'Paid Image Credit Pack',
+  RevenueReceived = 'Revenue Received',
 }
 
 export interface TrackingInfo {
