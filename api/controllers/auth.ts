@@ -271,25 +271,28 @@ export default class AuthController {
     @Body() request: MagicLinkRequest,
     @Inject() logger: MythWeaverLogger,
   ): Promise<any> {
+    const email = request.email.toLowerCase();
+    logger.info('Received magic link request for email', email);
+
     let user = await prisma.user.findUnique({
       where: {
-        email: request.email.toLowerCase(),
+        email,
       },
     });
 
     const isNewUser = !user;
 
     if (!user) {
+      logger.info('Creating new user for email', email);
+
       const earlyAccessEnd = new Date();
       earlyAccessEnd.setHours(new Date().getHours() + 24 * 7);
 
-      const stripeCustomerId = await createCustomer(
-        request.email.toLowerCase(),
-      );
+      const stripeCustomerId = await createCustomer(email);
 
       user = await prisma.user.create({
         data: {
-          email: request.email.toLowerCase(),
+          email: email,
           earlyAccessCutoffAt: earlyAccessEnd,
           billingCustomerId: stripeCustomerId,
         },
@@ -300,7 +303,7 @@ export default class AuthController {
         {
           members: [
             {
-              email_address: request.email.toLowerCase(),
+              email_address: email,
               email_type: 'html' as EmailType,
               status: 'subscribed' as Status,
               ip_opt: trackingInfo.ip,
@@ -317,7 +320,7 @@ export default class AuthController {
       }
 
       track(AppEvent.Registered, user.id, trackingInfo, {
-        email: request.email,
+        email,
       });
     }
 
@@ -337,19 +340,16 @@ export default class AuthController {
       },
     });
 
+    logger.info('Created magic link', { token, expiresAt, userId: user.id });
+
     const link = `${urlPrefix}/auth/magic-link?t=${token}`;
 
-    await sendTransactionalEmail(
-      'magic-link',
-      `Log into MythWeaver`,
-      request.email,
-      [
-        {
-          name: 'LINK',
-          content: link,
-        },
-      ],
-    );
+    await sendTransactionalEmail('magic-link', `Log into MythWeaver`, email, [
+      {
+        name: 'LINK',
+        content: link,
+      },
+    ]);
   }
 
   private async issueTokens(userId: number, logger: MythWeaverLogger) {
