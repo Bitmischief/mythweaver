@@ -35,6 +35,8 @@ export default class UserController {
     @Inject() trackingInfo: TrackingInfo,
     @Inject() logger: MythWeaverLogger,
   ): Promise<User> {
+    logger.info('Getting user', { userId, trackingInfo });
+
     const user = await prisma.user.findUnique({
       where: {
         id: userId,
