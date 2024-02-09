@@ -417,11 +417,10 @@ export default class SessionController {
   @OperationId('postSessionTranscription')
   @Post('/:sessionId/transcription')
   public async postSessionTranscription(
-      @Inject() logger: MythWeaverLogger,
-      @Route() sessionId: number,
-      @Body() request: PostSessionTranscriptionRequest,
+    @Inject() logger: MythWeaverLogger,
+    @Route() sessionId: number,
+    @Body() request: PostSessionTranscriptionRequest,
   ) {
-
     logger.info('Transcription upload request for sessionId: ', sessionId);
 
     const session = await prisma.session.findUnique({

@@ -254,9 +254,9 @@ router.post('/:sessionId/transcription', [
     const { sessionId = 0 } = req.params;
 
     await controller.postSessionTranscription(
-        useLogger(res),
-        sessionId as number,
-        req.body,
+      useLogger(res),
+      sessionId as number,
+      req.body,
     );
 
     return res.status(200).send();
