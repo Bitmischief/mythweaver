@@ -20,37 +20,37 @@ export class MythWeaverLogger {
     );
   }
 
-  public info(message: string, context?: any) {
+  public info(message: string, extra?: any) {
     this.internalLogger.info(
       {
         message,
-        ...context,
+        ...extra,
       },
       message,
     );
   }
 
-  public warn(message: string, context?: any) {
+  public warn(message: string, extra?: any) {
     this.internalLogger.warn(
       {
         message,
-        ...context,
+        ...extra,
       },
       message,
     );
   }
 
-  public fatal(message: string, context?: any) {
+  public fatal(message: string, extra?: any) {
     this.internalLogger.fatal(
       {
         message,
-        ...context,
+        ...extra,
       },
       message,
     );
   }
 
-  public error(message: string, context?: any, error?: Error | any) {
+  public error(message: string, extra?: any, error?: Error | any) {
     this.internalLogger.error(
       {
         error: error
@@ -60,7 +60,7 @@ export class MythWeaverLogger {
             }
           : undefined,
         message,
-        context,
+        extra,
       },
       message,
     );

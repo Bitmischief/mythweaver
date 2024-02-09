@@ -9,7 +9,7 @@ import logger from '../lib/logger';
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY as string);
 
 export const createCustomer = async (email: string): Promise<string> => {
-  logger.info('Creating stripe customer for', email);
+  logger.info('Creating stripe customer for', { email });
   const customer = await stripe.customers.create({
     email,
   });
