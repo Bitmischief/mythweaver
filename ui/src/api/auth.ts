@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export const postToken = (
-  type: 'GOOGLE' | 'MAGIC_LINK',
+  type: 'MAGIC_LINK',
   credential: string,
   inviteCode: string | undefined,
 ) => {

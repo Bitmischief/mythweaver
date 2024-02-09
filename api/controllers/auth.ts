@@ -8,7 +8,6 @@ import {
   SuccessResponse,
   Tags,
 } from 'tsoa';
-import { OAuth2Client } from 'google-auth-library';
 import { prisma } from '../lib/providers/prisma';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import jwt from 'jsonwebtoken';
@@ -24,14 +23,13 @@ import { sendTransactionalEmail } from '../lib/transactionalEmail';
 import { createCustomer } from '../services/billing';
 import { MythWeaverLogger } from '../lib/logger';
 
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-
 const jwtExpirySeconds = 30 * 60; // 30 minutes
 const jwtRefreshExpirySeconds = 14 * 24 * 60 * 60; // 14 days
 
 interface TokenResponse {
   access_token: string;
   refresh_token: string;
+  signupConjurationPrompt?: string | null | undefined;
 }
 
 interface TokenRequest {
@@ -46,7 +44,8 @@ interface RefreshRequest {
 
 interface MagicLinkRequest {
   email: string;
-  inviteCode: string | undefined;
+  inviteCode?: string | undefined;
+  conjurationPrompt?: string | undefined;
 }
 
 @Route('auth')
@@ -59,60 +58,40 @@ export default class AuthController {
     @Inject() trackingInfo: TrackingInfo,
     @Inject() logger: MythWeaverLogger,
   ): Promise<TokenResponse> {
-    let email: string | undefined;
+    const magicLink = await prisma.magicLink.findUnique({
+      where: {
+        token: request.credential,
+      },
+      include: {
+        user: true,
+      },
+    });
 
-    if (request.type === 'GOOGLE') {
-      const ticket = await client.verifyIdToken({
-        idToken: request.credential,
+    if (!magicLink) {
+      throw new AppError({
+        httpCode: HttpCode.BAD_REQUEST,
+        description: 'Unable to properly verify provided credentials',
       });
-
-      const payload = ticket.getPayload();
-
-      if (!payload) {
-        throw new AppError({
-          httpCode: HttpCode.BAD_REQUEST,
-          description: 'Unable to properly verify provided credentials',
-        });
-      }
-
-      email = payload.email;
-    } else {
-      const magicLink = await prisma.magicLink.findUnique({
-        where: {
-          token: request.credential,
-        },
-        include: {
-          user: true,
-        },
-      });
-
-      if (!magicLink) {
-        throw new AppError({
-          httpCode: HttpCode.BAD_REQUEST,
-          description: 'Unable to properly verify provided credentials',
-        });
-      }
-
-      if (new Date() > new Date(magicLink.expiresAt)) {
-        throw new AppError({
-          httpCode: HttpCode.UNAUTHORIZED,
-          description: 'Magic link has expired',
-        });
-      }
-
-      if (magicLink.inviteCode) {
-        const campaignController = new CampaignController();
-        await campaignController.acceptInvite(
-          magicLink.user.id,
-          trackingInfo,
-          logger,
-          magicLink.inviteCode,
-        );
-      }
-      7;
-
-      email = magicLink.user.email;
     }
+
+    if (new Date() > new Date(magicLink.expiresAt)) {
+      throw new AppError({
+        httpCode: HttpCode.UNAUTHORIZED,
+        description: 'Magic link has expired',
+      });
+    }
+
+    if (magicLink.inviteCode) {
+      const campaignController = new CampaignController();
+      await campaignController.acceptInvite(
+        magicLink.user.id,
+        trackingInfo,
+        logger,
+        magicLink.inviteCode,
+      );
+    }
+
+    const email = magicLink.user.email;
 
     if (!email) {
       throw new AppError({
@@ -204,7 +183,10 @@ export default class AuthController {
     track(AppEvent.LoggedIn, user.id, trackingInfo, { email });
     identify(user.id, { $email: email, $name: email.split('@')[0] });
 
-    return await this.issueTokens(user.id, logger);
+    return {
+      ...(await this.issueTokens(user.id, logger)),
+      signupConjurationPrompt: magicLink.signupConjurationPrompt,
+    };
   }
 
   @Post('/refresh')
@@ -295,9 +277,11 @@ export default class AuthController {
       },
     });
 
+    const isNewUser = !user;
+
     if (!user) {
       const earlyAccessEnd = new Date();
-      earlyAccessEnd.setHours(new Date().getHours() + 48);
+      earlyAccessEnd.setHours(new Date().getHours() + 24 * 7);
 
       const stripeCustomerId = await createCustomer(request.email);
 
@@ -345,6 +329,9 @@ export default class AuthController {
         token,
         expiresAt,
         inviteCode: request.inviteCode,
+        signupConjurationPrompt: isNewUser
+          ? request.conjurationPrompt
+          : undefined,
       },
     });
 
