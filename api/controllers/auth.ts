@@ -283,7 +283,9 @@ export default class AuthController {
       const earlyAccessEnd = new Date();
       earlyAccessEnd.setHours(new Date().getHours() + 24 * 7);
 
-      const stripeCustomerId = await createCustomer(request.email);
+      const stripeCustomerId = await createCustomer(
+        request.email.toLowerCase(),
+      );
 
       user = await prisma.user.create({
         data: {
