@@ -57,6 +57,24 @@ export async function expressAuthentication(
     return true;
   }
 
+  if (securityName === 'transcription_token') {
+    const req_token = req.headers['x-mw-token'];
+
+    logger.info('Authenticating provided transcription token.');
+
+    const transcription_token = process.env.X_TRANSCRIPTION_TOKEN;
+    if (!transcription_token) {
+      logger.error('No X_TRANSCRIPTION_TOKEN env variable found.');
+      return false;
+    }
+
+    if (transcription_token !== req_token) {
+      return false;
+    }
+
+    return true;
+  }
+
   return false;
 }
 

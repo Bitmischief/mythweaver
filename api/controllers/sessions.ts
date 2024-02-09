@@ -57,6 +57,10 @@ interface PostSessionAudioResponse {
   audioUri: string;
 }
 
+interface PostSessionTranscriptionRequest {
+  text: string;
+}
+
 export enum SessionStatus {
   UPCOMING = 1,
   COMPLETED = 2,
@@ -407,5 +411,40 @@ export default class SessionController {
       audioName: request.audioName,
       audioUri: request.audioUri,
     };
+  }
+
+  @Security('transcription_token')
+  @OperationId('postSessionTranscription')
+  @Post('/:sessionId/transcription')
+  public async postSessionTranscription(
+    @Inject() logger: MythWeaverLogger,
+    @Route() sessionId: number,
+    @Body() request: PostSessionTranscriptionRequest,
+  ) {
+    logger.info('Transcription upload request for sessionId: ', sessionId);
+
+    const session = await prisma.session.findUnique({
+      where: {
+        id: sessionId,
+      },
+    });
+
+    if (!session) {
+      throw new AppError({
+        description: 'Session not found.',
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    await prisma.session.update({
+      where: {
+        id: sessionId,
+      },
+      data: {
+        transcript: request.text,
+      },
+    });
+
+    return;
   }
 }
