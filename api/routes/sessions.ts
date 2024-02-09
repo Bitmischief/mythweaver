@@ -50,6 +50,10 @@ const getSessionSchema = z.object({
   sessionId: z.coerce.number().default(0),
 });
 
+const postSessionTranscripionSchema = z.object({
+  text: z.string(),
+});
+
 router.get('/:sessionId', [
   useAuthenticateRequest(),
   useInjectLoggingInfo(),
@@ -232,6 +236,30 @@ router.post('/:sessionId/audio', [
     );
 
     return res.status(200).send(response);
+  },
+]);
+
+router.post('/:sessionId/transcription', [
+  useAuthenticateRequest('transcription_token'),
+  useInjectLoggingInfo(),
+  useValidateRequest(getSessionSchema, {
+    validationType: ValidationTypes.Route,
+  }),
+  useValidateRequest(postSessionTranscripionSchema, {
+    validationType: ValidationTypes.Body,
+  }),
+  async (req: Request, res: Response) => {
+    const controller = new SessionController();
+
+    const { sessionId = 0 } = req.params;
+
+    await controller.postSessionTranscription(
+        useLogger(res),
+        sessionId as number,
+        req.body,
+    );
+
+    return res.status(200).send();
   },
 ]);
 

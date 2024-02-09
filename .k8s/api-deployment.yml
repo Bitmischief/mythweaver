@@ -102,6 +102,8 @@ spec:
               value: <STRIPE_PRO_PLAN_ID>
             - name: BETTERSTACK_LOGGER_SOURCE_TOKEN
               value: <BETTERSTACK_LOGGER_SOURCE_TOKEN>
+            - name: X_TRANSCRIPTION_TOKEN
+              value: <X_TRANSCRIPTION_TOKEN>
           readinessProbe:
             httpGet:
               path: /docs

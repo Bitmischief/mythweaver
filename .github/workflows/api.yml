@@ -76,6 +76,7 @@ jobs:
           sed -i 's|<BETTERSTACK_LOGGER_SOURCE_TOKEN>|${{ secrets.BETTERSTACK_LOGGER_SOURCE_TOKEN }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           sed -i 's|<MIN_REPLICAS>|${{ vars.MIN_REPLICAS }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           sed -i 's|<MAX_REPLICAS>|${{ vars.MAX_REPLICAS }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<X_TRANSCRIPTION_TOKEN>|${{ secrets.X_TRANSCRIPTION_TOKEN }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           cat $GITHUB_WORKSPACE/.k8s/api-deployment.yml
 
       - name: Save DigitalOcean kubeconfig with short-lived credentials
@@ -153,6 +154,7 @@ jobs:
           sed -i 's|<BETTERSTACK_LOGGER_SOURCE_TOKEN>|${{ secrets.BETTERSTACK_LOGGER_SOURCE_TOKEN }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           sed -i 's|<MIN_REPLICAS>|${{ vars.MIN_REPLICAS }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           sed -i 's|<MAX_REPLICAS>|${{ vars.MAX_REPLICAS }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<X_TRANSCRIPTION_TOKEN>|${{ secrets.X_TRANSCRIPTION_TOKEN }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           cat $GITHUB_WORKSPACE/.k8s/api-deployment.yml
 
       - name: Save DigitalOcean kubeconfig with short-lived credentials
