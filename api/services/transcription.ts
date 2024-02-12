@@ -1,7 +1,4 @@
 import axios, { AxiosResponse } from 'axios';
-import fs from 'node:fs';
-import { isLocalDevelopment } from '../lib/utils';
-import { AppEvent, track } from '../lib/tracking';
 import { prisma } from '../lib/providers/prisma';
 import { sendWebsocketMessage, WebSocketEvent } from './websockets';
 
