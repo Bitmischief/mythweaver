@@ -43,7 +43,7 @@ export const useAuthStore = defineStore({
       }
     },
     async login(
-      type: 'GOOGLE' | 'MAGIC_LINK',
+      type: 'MAGIC_LINK',
       credential: string,
       inviteCode: string | undefined = undefined,
     ): Promise<boolean> {
@@ -57,8 +57,13 @@ export const useAuthStore = defineStore({
 
         await this.loadCurrentUser();
 
-        // redirect to previous url or default to home page
-        await router.push(this.returnUrl || '/');
+        if (response.data.signupConjurationPrompt) {
+          // @TODO: @Jacob - intercept here and start conjuration with the prompt from the response
+          await router.push(this.returnUrl || '/');
+        } else {
+          // redirect to previous url or default to home page
+          await router.push(this.returnUrl || '/');
+        }
         return true;
       } catch (err: any) {
         if (err.response.status === 403) {

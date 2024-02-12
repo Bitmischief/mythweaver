@@ -63,6 +63,7 @@ router.post('/refresh', [
 const postMagicLinkSchema = z.object({
   email: z.string().email(),
   inviteCode: z.string().optional(),
+  conjurationPrompt: z.string().optional(),
 });
 
 router.post('/magic-link', [
