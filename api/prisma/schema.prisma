@@ -57,7 +57,7 @@ model User {
   ConjurationSave       ConjurationSave[]
   magicLinks            MagicLink[]
   images                Image[]
-  transcriptionRequests TranscriptionRequest[]
+  sessionTranscriptions SessionTranscription[]
 
   @@map("users")
 }
@@ -168,7 +168,6 @@ model Session {
   name                   String?
   audioName              String?
   audioUri               String?
-  transcriptionRequestId Int?
 
   suggestedName        String?
   suggestedSummary     String?
@@ -178,7 +177,7 @@ model Session {
 
   user                 User                  @relation(fields: [userId], references: [id])
   campaign             Campaign              @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  transcriptionRequest TranscriptionRequest? @relation(fields: [transcriptionRequestId], references: [id], onDelete: Cascade)
+  sessionTranscription SessionTranscription?
   images               Image[]
 
   @@map("sessions")
@@ -293,18 +292,18 @@ model MagicLink {
   @@map("magic_links")
 }
 
-model TranscriptionRequest {
-  id        Int       @id @default(autoincrement())
+model SessionTranscription {
   createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
   updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
 
+  sessionId     Int   @id @unique
   userId        Int
-  sessionId     Int
-  generatorCode String
-  status        String
+  callId        String?
+  status        String?
+  transcription Json?
 
-  user     User?     @relation(fields: [userId], references: [id])
-  sessions Session[]
+  user     User?      @relation(fields: [userId], references: [id])
+  session Session     @relation(fields: [sessionId], references: [id])
 
-  @@map("transcription_requests")
+  @@map("session_transcriptions")
 }
