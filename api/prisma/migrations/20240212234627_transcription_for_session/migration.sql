@@ -9,16 +9,16 @@
 -- DropForeignKey
 ALTER TABLE "sessions" DROP CONSTRAINT "sessions_sessionTranscriptionId_fkey";
 
--- DropIndex
-DROP INDEX "session_transcriptions_sessionId_key";
-
 -- AlterTable
 ALTER TABLE "session_transcriptions" DROP CONSTRAINT "session_transcriptions_pkey",
 DROP COLUMN "id",
+ALTER COLUMN "callId" DROP NOT NULL,
+ALTER COLUMN "status" DROP NOT NULL,
+ALTER COLUMN "transcription" DROP NOT NULL,
 ADD CONSTRAINT "session_transcriptions_pkey" PRIMARY KEY ("sessionId");
 
 -- AlterTable
 ALTER TABLE "sessions" DROP COLUMN "sessionTranscriptionId";
 
 -- AddForeignKey
-ALTER TABLE "sessions" ADD CONSTRAINT "sessions_id_fkey" FOREIGN KEY ("id") REFERENCES "session_transcriptions"("sessionId") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "session_transcriptions" ADD CONSTRAINT "session_transcriptions_sessionId_fkey" FOREIGN KEY ("sessionId") REFERENCES "sessions"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
