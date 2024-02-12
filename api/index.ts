@@ -33,6 +33,7 @@ app.use(
     verify(req: http.IncomingMessage, res: http.ServerResponse, buf: Buffer) {
       (req as any).rawBody = buf;
     },
+    limit: '5mb',
   }),
 );
 

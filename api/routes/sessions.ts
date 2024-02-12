@@ -6,7 +6,11 @@ import {
   ValidationTypes,
 } from '../lib/validationMiddleware';
 import SessionController from '../controllers/sessions';
-import { useInjectLoggingInfo, useLogger } from '../lib/loggingMiddleware';
+import {
+  getRequestId,
+  useInjectLoggingInfo,
+  useLogger,
+} from '../lib/loggingMiddleware';
 import {
   useAudioFileUploader,
   useAudioUploadAuthorizer,
@@ -52,6 +56,8 @@ const getSessionSchema = z.object({
 
 const postSessionTranscripionSchema = z.object({
   text: z.string(),
+  segments: z.any().array(),
+  language: z.string(),
 });
 
 router.get('/:sessionId', [
@@ -240,6 +246,30 @@ router.post('/:sessionId/audio', [
 ]);
 
 router.post('/:sessionId/transcription', [
+  useAuthenticateRequest(),
+  useInjectLoggingInfo(),
+  useValidateRequest(getSessionSchema, {
+    validationType: ValidationTypes.Route,
+  }),
+  async (req: Request, res: Response) => {
+    const controller = new SessionController();
+
+    const { sessionId = 0 } = req.params;
+    const requestId = getRequestId(req, res);
+
+    await controller.postSessionTranscription(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      useLogger(res),
+      requestId as string,
+      sessionId as number,
+    );
+
+    return res.status(200).send();
+  },
+]);
+
+router.patch('/:sessionId/transcription', [
   useAuthenticateRequest('transcription_token'),
   useInjectLoggingInfo(),
   useValidateRequest(getSessionSchema, {
@@ -247,16 +277,17 @@ router.post('/:sessionId/transcription', [
   }),
   useValidateRequest(postSessionTranscripionSchema, {
     validationType: ValidationTypes.Body,
+    logRequest: false,
   }),
   async (req: Request, res: Response) => {
     const controller = new SessionController();
 
     const { sessionId = 0 } = req.params;
 
-    await controller.postSessionTranscription(
-        useLogger(res),
-        sessionId as number,
-        req.body,
+    await controller.patchSessionTranscription(
+      useLogger(res),
+      sessionId as number,
+      req.body,
     );
 
     return res.status(200).send();

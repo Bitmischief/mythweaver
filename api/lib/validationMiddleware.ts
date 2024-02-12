@@ -13,12 +13,14 @@ export interface ValidationOptions {
     | ValidationTypes.Body
     | ValidationTypes.Query
     | ValidationTypes.Route;
+  logRequest?: boolean;
 }
 
 export const useValidateRequest = (
   schema: ZodObject<any>,
   options: ValidationOptions = {
     validationType: ValidationTypes.Body,
+    logRequest: true,
   },
 ) => {
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -27,7 +29,11 @@ export const useValidateRequest = (
     if (!options) {
       options = {
         validationType: ValidationTypes.Body,
+        logRequest: true,
       };
+    }
+    if (options.logRequest === undefined) {
+      options.logRequest = true;
     }
 
     let validationObj;
@@ -41,7 +47,13 @@ export const useValidateRequest = (
       throw new Error('Invalid validation type provided!');
     }
 
-    logger.info(validationObj, 'Validating request...');
+    if (options.logRequest) {
+      logger.info(validationObj, 'Validating request...');
+    } else {
+      logger.info(
+        'Skipped validation request logging due to validations options logRequest flag being set to false...',
+      );
+    }
 
     const result = schema.safeParse(validationObj);
 

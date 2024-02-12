@@ -13,7 +13,7 @@ import {
 } from 'tsoa';
 import { prisma } from '../lib/providers/prisma';
 import { AppError, HttpCode } from '../lib/errors/AppError';
-import { Session } from '@prisma/client';
+import { Session, Prisma } from '@prisma/client';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { CampaignRole } from './campaigns';
 import { completeSessionQueue } from '../worker';
@@ -21,6 +21,7 @@ import { sendTransactionalEmail } from '../lib/transactionalEmail';
 import { urlPrefix } from '../lib/utils';
 import { WebSocketEvent, sendWebsocketMessage } from '../services/websockets';
 import { MythWeaverLogger } from '../lib/logger';
+import { transcribeSessionAudio } from '../services/transcription';
 
 interface GetSessionsResponse {
   data: Session[];
@@ -57,13 +58,14 @@ interface PostSessionAudioResponse {
   audioUri: string;
 }
 
-interface PostSessionTranscriptionRequest {
-  text: string;
-}
-
 export enum SessionStatus {
   UPCOMING = 1,
   COMPLETED = 2,
+}
+
+export enum TranscriptionStatus {
+  PROCESSING = 'PROCESSING',
+  COMPLETED = 'COMPLETED',
 }
 
 @Route('sessions')
@@ -115,6 +117,9 @@ export default class SessionController {
     const session = await prisma.session.findUnique({
       where: {
         id: sessionId,
+      },
+      include: {
+        sessionTranscription: true,
       },
     });
 
@@ -413,36 +418,114 @@ export default class SessionController {
     };
   }
 
-  @Security('transcription_token')
+  @Security('jwt')
   @OperationId('postSessionTranscription')
   @Post('/:sessionId/transcription')
   public async postSessionTranscription(
-      @Inject() logger: MythWeaverLogger,
-      @Route() sessionId: number,
-      @Body() request: PostSessionTranscriptionRequest,
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
+    @Inject() requestId: string,
+    @Route() sessionId: number,
   ) {
-
-    logger.info('Transcription upload request for sessionId: ', sessionId);
-
-    const session = await prisma.session.findUnique({
+    const session = await this.getSession(
+      userId,
+      trackingInfo,
+      logger,
+      sessionId,
+    );
+    const campaignMember = await prisma.campaignMember.findUnique({
       where: {
-        id: sessionId,
+        userId_campaignId: {
+          userId,
+          campaignId: session.campaignId,
+        },
       },
     });
 
-    if (!session) {
+    if (!campaignMember || campaignMember.role !== CampaignRole.DM) {
       throw new AppError({
-        description: 'Session not found.',
+        description:
+          'You do not have permission to perform a transcription for this session.',
+        httpCode: HttpCode.FORBIDDEN,
+      });
+    }
+
+    if (!session.audioUri) {
+      throw new AppError({
+        description:
+          'You must upload session audio before you can perform a transcription for this session.',
+        httpCode: HttpCode.BAD_REQUEST,
+      });
+    }
+
+    // make call to transcription service here
+    const response = await transcribeSessionAudio({
+      userId: userId,
+      sessionId: session.id,
+      audioUri: session.audioUri,
+      requestId: requestId,
+    });
+
+    const sessionTranscription = await prisma.sessionTranscription.findUnique({
+      where: {
+        sessionId: sessionId,
+      },
+    });
+
+    const data = {
+      userId: userId,
+      sessionId: sessionId,
+      callId: response?.data.call_id,
+      status: TranscriptionStatus.PROCESSING,
+    };
+
+    if (!sessionTranscription) {
+      await prisma.sessionTranscription.create({
+        data: data,
+      });
+    } else {
+      await prisma.sessionTranscription.update({
+        where: {
+          sessionId: sessionId,
+        },
+        data: data,
+      });
+    }
+
+    return;
+  }
+
+  @Security('transcription_token')
+  @OperationId('patchSessionTranscription')
+  @Patch('/:sessionId/transcription')
+  public async patchSessionTranscription(
+    @Inject() logger: MythWeaverLogger,
+    @Route() sessionId: number,
+    @Body() request: Prisma.JsonObject,
+  ) {
+    logger.info('Transcription upload request for sessionId: ', sessionId);
+
+    const sessionTranscription = await prisma.sessionTranscription.findFirst({
+      where: {
+        sessionId: sessionId,
+      },
+    });
+
+    if (!sessionTranscription) {
+      throw new AppError({
+        description: 'Session transcription not found.',
         httpCode: HttpCode.NOT_FOUND,
       });
     }
 
-    await prisma.session.update({
+    await prisma.sessionTranscription.update({
       where: {
-        id: sessionId,
+        sessionId: sessionId,
       },
       data: {
-        transcript: request.text,
+        status: TranscriptionStatus.COMPLETED,
+        transcription: request,
       },
     });
 
