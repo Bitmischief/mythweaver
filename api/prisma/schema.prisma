@@ -303,7 +303,7 @@ model SessionTranscription {
   transcription Json?
 
   user     User?      @relation(fields: [userId], references: [id])
-  session Session     @relation(fields: [sessionId], references: [id])
+  session Session?    @relation(fields: [sessionId], references: [id])
 
   @@map("session_transcriptions")
 }
