@@ -322,8 +322,7 @@ const sessionType = computed(() => {
             to="planning"
             class="col-span-1 border border-surface-3 md:border-none rounded-[10px] text-center py-2 px-4 hover:bg-purple-800/20"
             :class="{
-              'text-white bg-surface-3':
-                route.path.endsWith('planning'),
+              'text-white bg-surface-3': route.path.endsWith('planning'),
             }"
           >
             Planning

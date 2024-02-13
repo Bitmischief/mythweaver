@@ -6,7 +6,7 @@ import {
 } from '@/api/sessions.ts';
 import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import {useUnsavedChangesWarning, useWebsocketChannel} from '@/lib/hooks.ts';
+import { useUnsavedChangesWarning, useWebsocketChannel } from '@/lib/hooks.ts';
 import AudioPlayback from '@/components/Core/General/AudioPlayback.vue';
 import { showError, showSuccess } from '@/lib/notifications.ts';
 import { MicrophoneIcon } from '@heroicons/vue/20/solid';
@@ -15,7 +15,7 @@ import AudioUpload from '@/components/Core/Forms/AudioUpload.vue';
 import { CampaignRole } from '@/api/campaigns';
 import { useCampaignStore } from '@/store/campaign.store';
 import Spinner from '@/components/Core/Spinner.vue';
-import {ServerEvent} from "@/lib/serverEvents.ts";
+import { ServerEvent } from '@/lib/serverEvents.ts';
 
 const route = useRoute();
 
@@ -62,7 +62,7 @@ async function init() {
     );
     session.value = {
       ...session.value,
-      sessionTranscription: response.data.sessionTranscription
+      sessionTranscription: response.data.sessionTranscription,
     };
     loadingTranscribeSession.value = false;
   });
@@ -70,7 +70,8 @@ async function init() {
   channel.bind(ServerEvent.TranscriptionError, async function () {
     showError({
       message: 'Session transcription was not successful',
-      context: 'Please try again, if the problem persists please contact our support team'
+      context:
+        'Please try again, if the problem persists please contact our support team',
     });
     loadingTranscribeSession.value = false;
   });
@@ -158,7 +159,9 @@ const setCurrentAudioTime = (time: number) => {
         class="text-neutral-300 group hover:cursor-pointer flex mb-4"
         @click="startSeconds = s.start"
       >
-        <div class="text-xs mt-1 text-neutral-500 group-hover:text-violet-500 mr-4">
+        <div
+          class="text-xs mt-1 text-neutral-500 group-hover:text-violet-500 mr-4"
+        >
           {{ getTimestamp(s.start) }}
         </div>
         <div
