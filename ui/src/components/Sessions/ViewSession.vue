@@ -11,15 +11,12 @@ import {
 import { useRoute, useRouter } from 'vue-router';
 import { showError, showSuccess } from '@/lib/notifications.ts';
 import Menu from '@/components/Core/General/Menu.vue';
-import { MicrophoneIcon } from '@heroicons/vue/20/solid';
 import { MenuButton, MenuItem } from '@headlessui/vue';
 import { ServerEvent } from '@/lib/serverEvents.ts';
 import { useCurrentUserRole, useWebsocketChannel } from '@/lib/hooks.ts';
 import CustomizableImage from '@/components/Images/CustomizableImage.vue';
 import { useEventBus } from '@/lib/events.ts';
 import RegeneratableTextEdit from '@/components/Core/Forms/RegeneratableTextEdit.vue';
-import AudioUpload from '@/components/Core/Forms/AudioUpload.vue';
-import ModalAlternate from '@/components/ModalAlternate.vue';
 import { CampaignRole } from '@/api/campaigns.ts';
 import { debounce } from 'lodash';
 
@@ -323,7 +320,7 @@ const sessionType = computed(() => {
         >
           <router-link
             to="planning"
-            class="w-[33%] md:w-[12em] text-center py-2 px-4"
+            class="w-[25%] md:w-[12em] text-center py-2 px-4"
             :class="{
               'text-white rounded-[10px] bg-surface-3':
                 route.path.endsWith('planning'),
@@ -333,7 +330,7 @@ const sessionType = computed(() => {
           </router-link>
           <router-link
             to="recap"
-            class="w-[33%] md:w-[12em] text-center py-2 px-4"
+            class="w-[25%] md:w-[12em] text-center py-2 px-4"
             :class="{
               'text-white rounded-[10px] bg-surface-3':
                 route.path.endsWith('recap'),
@@ -343,7 +340,7 @@ const sessionType = computed(() => {
           </router-link>
           <router-link
             to="summary"
-            class="w-[33%] md:w-[12em] text-center py-2 px-4"
+            class="w-[25%] md:w-[12em] text-center py-2 px-4"
             :class="{
               'text-white rounded-[10px] bg-surface-3':
                 route.path.endsWith('summary'),
@@ -353,13 +350,13 @@ const sessionType = computed(() => {
           </router-link>
           <router-link
             to="transcription"
-            class="w-[33%] md:w-[12em] text-center py-2 px-4"
+            class="w-[25%] md:w-[14em] text-center py-2 px-4"
             :class="{
               'text-white rounded-[10px] bg-surface-3':
                 route.path.endsWith('transcription'),
             }"
           >
-            Transcription
+            Audio & Transcription
           </router-link>
         </div>
       </div>
