@@ -58,6 +58,11 @@ interface PostSessionAudioResponse {
   audioUri: string;
 }
 
+interface PatchSessionTranscriptionRequest {
+  status: TranscriptionStatus,
+  transcription?: Prisma.JsonObject,
+}
+
 export enum SessionStatus {
   UPCOMING = 1,
   COMPLETED = 2,
@@ -66,6 +71,7 @@ export enum SessionStatus {
 export enum TranscriptionStatus {
   PROCESSING = 'PROCESSING',
   COMPLETED = 'COMPLETED',
+  FAILED = 'FAILED',
 }
 
 @Route('sessions')
@@ -502,7 +508,7 @@ export default class SessionController {
   public async patchSessionTranscription(
     @Inject() logger: MythWeaverLogger,
     @Route() sessionId: number,
-    @Body() request: Prisma.JsonObject,
+    @Body() request: PatchSessionTranscriptionRequest,
   ) {
     logger.info('Transcription upload request for sessionId: ', sessionId);
 
@@ -524,8 +530,8 @@ export default class SessionController {
         sessionId: sessionId,
       },
       data: {
-        status: TranscriptionStatus.COMPLETED,
-        transcription: request,
+        status: request.status,
+        transcription: request.transcription,
       },
     });
 
