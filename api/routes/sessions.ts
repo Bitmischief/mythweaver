@@ -290,6 +290,7 @@ router.patch('/:sessionId/transcription', [
     const { sessionId = 0 } = req.params;
 
     await controller.patchSessionTranscription(
+      res.locals.trackingInfo,
       useLogger(res),
       sessionId as number,
       req.body,

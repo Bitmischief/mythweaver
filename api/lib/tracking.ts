@@ -47,6 +47,9 @@ export enum AppEvent {
   PaidSubscription = 'Paid Subscription',
   PaidImageCreditPack = 'Paid Image Credit Pack',
   RevenueReceived = 'Revenue Received',
+  SessionTranscriptionCompleted = 'Session Transcription Completed',
+  SessionTranscriptionFailed = 'Session Transcription Failed',
+  SessionTranscriptionStarted = 'Session Transcription Started',
 }
 
 export interface TrackingInfo {

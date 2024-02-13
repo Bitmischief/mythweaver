@@ -6,7 +6,7 @@ import {
 } from '@/api/sessions.ts';
 import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { useUnsavedChangesWarning } from '@/lib/hooks.ts';
+import {useUnsavedChangesWarning, useWebsocketChannel} from '@/lib/hooks.ts';
 import AudioPlayback from '@/components/Core/General/AudioPlayback.vue';
 import { showError, showSuccess } from '@/lib/notifications.ts';
 import { MicrophoneIcon } from '@heroicons/vue/20/solid';
@@ -15,6 +15,7 @@ import AudioUpload from '@/components/Core/Forms/AudioUpload.vue';
 import { CampaignRole } from '@/api/campaigns';
 import { useCampaignStore } from '@/store/campaign.store';
 import Spinner from '@/components/Core/Spinner.vue';
+import {ServerEvent} from "@/lib/serverEvents.ts";
 
 const route = useRoute();
 
@@ -23,6 +24,7 @@ const currentUserRole = computed(() => campaignStore.selectedCampaignRole);
 const originalSession = ref<SessionBase>({} as SessionBase);
 const session = ref<SessionBase>({} as SessionBase);
 const showUploadAudioModal = ref(false);
+const channel = useWebsocketChannel();
 
 useUnsavedChangesWarning(originalSession, session);
 
@@ -42,6 +44,36 @@ async function init() {
   ) {
     loadingTranscribeSession.value = true;
   }
+
+  channel.bind(ServerEvent.TranscriptionStarted, async function () {
+    showSuccess({
+      message: 'Session transcription is in progress!',
+      context:
+        'This process can take 10-20 minutes depending on the length of your session.',
+    });
+    loadingTranscribeSession.value = true;
+
+    await init();
+  });
+
+  channel.bind(ServerEvent.TranscriptionComplete, async function () {
+    const response = await getSession(
+      parseInt(route.params.sessionId.toString()),
+    );
+    session.value = {
+      ...session.value,
+      sessionTranscription: response.data.sessionTranscription
+    };
+    loadingTranscribeSession.value = false;
+  });
+
+  channel.bind(ServerEvent.TranscriptionError, async function () {
+    showError({
+      message: 'Session transcription was not successful',
+      context: 'Please try again, if the problem persists please contact our support team'
+    });
+    loadingTranscribeSession.value = false;
+  });
 }
 
 function handleAudioUpload(payload: { audioUri: string; audioName: string }) {
@@ -60,14 +92,6 @@ async function requestTranscription() {
   if (response.status !== 200) {
     showError({ message: 'Failed to request transcription' });
     loadingTranscribeSession.value = false;
-  } else {
-    showSuccess({
-      message: 'Session transcription is in progress!',
-      context:
-        'This process can take 10-20 minutes depending on the length of your session.',
-    });
-
-    await init();
   }
 }
 
