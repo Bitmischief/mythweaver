@@ -193,6 +193,9 @@ const setCurrentAudioTime = (time: number) => {
         Your transcription is loading, please note this procress can take 10-20
         minutes for a 2-4 hour long session.
       </div>
+      <div v-if="session.sessionTranscription.status === 'FAILED'" class="text-xs text-red-800 mt-2">
+        Something went wrong processing your transcription, please try again or contact support if the problem persists.
+      </div>
     </div>
     <div v-else class="p-4">
       No transcription has been created for this session.
