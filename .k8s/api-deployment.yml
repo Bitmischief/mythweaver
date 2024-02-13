@@ -104,6 +104,8 @@ spec:
               value: <BETTERSTACK_LOGGER_SOURCE_TOKEN>
             - name: X_TRANSCRIPTION_TOKEN
               value: <X_TRANSCRIPTION_TOKEN>
+            - name: TRANSCRIPTION_SERVICE_DOMAIN
+              value: <TRANSCRIPTION_SERVICE_DOMAIN>
           readinessProbe:
             httpGet:
               path: /docs
