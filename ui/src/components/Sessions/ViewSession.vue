@@ -316,13 +316,13 @@ const sessionType = computed(() => {
       </div>
       <div class="flex">
         <div
-          class="flex w-full md:w-auto gap-1 text-neutral-500 rounded-[10px] bg-surface-2 p-1 border border-surface-3 text-sm"
+          class="grid grid-cols-2 md:grid-cols-4 gap-1 w-full text-neutral-500 rounded-[10px] bg-surface-2 p-1 border border-surface-3 text-sm"
         >
           <router-link
             to="planning"
-            class="w-[25%] md:w-[12em] text-center py-2 px-4"
+            class="col-span-1 border border-surface-3 md:border-none rounded-[10px] text-center py-2 px-4 hover:bg-purple-800/20"
             :class="{
-              'text-white rounded-[10px] bg-surface-3':
+              'text-white bg-surface-3':
                 route.path.endsWith('planning'),
             }"
           >
@@ -330,7 +330,7 @@ const sessionType = computed(() => {
           </router-link>
           <router-link
             to="recap"
-            class="w-[25%] md:w-[12em] text-center py-2 px-4"
+            class="col-span-1 grow border border-surface-3 md:border-none rounded-[10px] text-center py-2 px-4 hover:bg-purple-800/20"
             :class="{
               'text-white rounded-[10px] bg-surface-3':
                 route.path.endsWith('recap'),
@@ -340,7 +340,7 @@ const sessionType = computed(() => {
           </router-link>
           <router-link
             to="summary"
-            class="w-[25%] md:w-[12em] text-center py-2 px-4"
+            class="col-span-1 grow border border-surface-3 md:border-none rounded-[10px] text-center py-2 px-4 hover:bg-purple-800/20"
             :class="{
               'text-white rounded-[10px] bg-surface-3':
                 route.path.endsWith('summary'),
@@ -350,7 +350,7 @@ const sessionType = computed(() => {
           </router-link>
           <router-link
             to="transcription"
-            class="w-[25%] md:w-[14em] text-center py-2 px-4"
+            class="col-span-1 grow border border-surface-3 md:border-none rounded-[10px] text-center py-2 px-4 hover:bg-purple-800/20"
             :class="{
               'text-white rounded-[10px] bg-surface-3':
                 route.path.endsWith('transcription'),

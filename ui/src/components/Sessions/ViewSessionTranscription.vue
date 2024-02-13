@@ -131,14 +131,14 @@ const setCurrentAudioTime = (time: number) => {
       <div
         v-for="(s, i) in session.sessionTranscription.transcription.segments"
         :key="`seg_${i}`"
-        class="text-neutral-300 group hover:cursor-pointer grid grid-cols-10"
+        class="text-neutral-300 group hover:cursor-pointer flex mb-4"
         @click="startSeconds = s.start"
       >
-        <div class="col-span-1 text-neutral-500 group-hover:text-violet-500">
+        <div class="text-xs mt-1 text-neutral-500 group-hover:text-violet-500 mr-4">
           {{ getTimestamp(s.start) }}
         </div>
         <div
-          class="col-span-9 group-hover:text-violet-500"
+          class="group-hover:text-violet-500"
           :class="{
             'text-fuchsia-500': s.start <= currentAudioTime,
           }"
