@@ -58,7 +58,7 @@ const transcriptionObjectSchema = z.object({
   text: z.string(),
   segments: z.any().array(),
   language: z.string(),
-})
+});
 
 const postSessionTranscriptionSchema = z.object({
   status: z.string(),

@@ -1,15 +1,27 @@
-import {Body, Delete, Get, Inject, OperationId, Patch, Post, Query, Route, Security, Tags,} from 'tsoa';
-import {prisma} from '../lib/providers/prisma';
-import {AppError, HttpCode} from '../lib/errors/AppError';
-import {Prisma, Session} from '@prisma/client';
-import {AppEvent, track, TrackingInfo} from '../lib/tracking';
-import {CampaignRole} from './campaigns';
-import {completeSessionQueue} from '../worker';
-import {sendTransactionalEmail} from '../lib/transactionalEmail';
-import {urlPrefix} from '../lib/utils';
-import {sendWebsocketMessage, WebSocketEvent} from '../services/websockets';
-import {MythWeaverLogger} from '../lib/logger';
-import {transcribeSessionAudio} from '../services/transcription';
+import {
+  Body,
+  Delete,
+  Get,
+  Inject,
+  OperationId,
+  Patch,
+  Post,
+  Query,
+  Route,
+  Security,
+  Tags,
+} from 'tsoa';
+import { prisma } from '../lib/providers/prisma';
+import { AppError, HttpCode } from '../lib/errors/AppError';
+import { Prisma, Session } from '@prisma/client';
+import { AppEvent, track, TrackingInfo } from '../lib/tracking';
+import { CampaignRole } from './campaigns';
+import { completeSessionQueue } from '../worker';
+import { sendTransactionalEmail } from '../lib/transactionalEmail';
+import { urlPrefix } from '../lib/utils';
+import { sendWebsocketMessage, WebSocketEvent } from '../services/websockets';
+import { MythWeaverLogger } from '../lib/logger';
+import { transcribeSessionAudio } from '../services/transcription';
 
 interface GetSessionsResponse {
   data: Session[];
@@ -47,8 +59,8 @@ interface PostSessionAudioResponse {
 }
 
 interface PatchSessionTranscriptionRequest {
-  status: TranscriptionStatus,
-  transcription?: Prisma.JsonObject,
+  status: TranscriptionStatus;
+  transcription?: Prisma.JsonObject;
 }
 
 export enum SessionStatus {
@@ -525,11 +537,27 @@ export default class SessionController {
     });
 
     if (request.status === TranscriptionStatus.COMPLETED) {
-      track(AppEvent.SessionTranscriptionCompleted, sessionTranscription.userId, trackingInfo);
-      await sendWebsocketMessage(sessionTranscription.userId, WebSocketEvent.TranscriptionComplete, {});
+      track(
+        AppEvent.SessionTranscriptionCompleted,
+        sessionTranscription.userId,
+        trackingInfo,
+      );
+      await sendWebsocketMessage(
+        sessionTranscription.userId,
+        WebSocketEvent.TranscriptionComplete,
+        {},
+      );
     } else if (request.status === TranscriptionStatus.FAILED) {
-      track(AppEvent.SessionTranscriptionFailed, sessionTranscription.userId, trackingInfo);
-      await sendWebsocketMessage(sessionTranscription.userId, WebSocketEvent.TranscriptionError, {});
+      track(
+        AppEvent.SessionTranscriptionFailed,
+        sessionTranscription.userId,
+        trackingInfo,
+      );
+      await sendWebsocketMessage(
+        sessionTranscription.userId,
+        WebSocketEvent.TranscriptionError,
+        {},
+      );
     }
 
     return;
