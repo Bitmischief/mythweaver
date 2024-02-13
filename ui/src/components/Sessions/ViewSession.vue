@@ -20,7 +20,6 @@ import { useEventBus } from '@/lib/events.ts';
 import RegeneratableTextEdit from '@/components/Core/Forms/RegeneratableTextEdit.vue';
 import AudioUpload from '@/components/Core/Forms/AudioUpload.vue';
 import ModalAlternate from '@/components/ModalAlternate.vue';
-import AudioPlayback from '@/components/Core/General/AudioPlayback.vue';
 import { CampaignRole } from '@/api/campaigns.ts';
 import { debounce } from 'lodash';
 
@@ -32,7 +31,6 @@ const currentUserRole = useCurrentUserRole();
 
 const session = ref<SessionBase>({} as SessionBase);
 const loadingCompleteSession = ref(false);
-const showUploadAudioModal = ref(false);
 
 const sessionName = ref('');
 const sessionImageUri = ref('');
@@ -179,14 +177,6 @@ async function completeSession() {
   loadingCompleteSession.value = false;
 }
 
-function handleAudioUpload(payload: { audioUri: string; audioName: string }) {
-  session.value = {
-    ...session.value,
-    ...payload,
-  };
-  showUploadAudioModal.value = false;
-}
-
 const sessionType = computed(() => {
   if (session.value.completed) {
     return 'Completed';
@@ -225,20 +215,6 @@ const sessionType = computed(() => {
           <span v-if="loadingCompleteSession">Loading...</span>
           <span v-else>Mark Complete</span>
         </button>
-
-        <AudioPlayback
-          v-if="session.audioUri"
-          class="self-center mt-3 md:mt-0 mx-auto mr-2"
-          :audio-uri="session.audioUri"
-        />
-        <div
-          v-else
-          class="button-ghost flex mr-2"
-          @click="showUploadAudioModal = true"
-        >
-          <MicrophoneIcon class="w-4 h-4 mr-1 self-center" />
-          <span class="self-center">Upload Session Audio</span>
-        </div>
 
         <Menu class="self-center w-[calc(100%-1.5rem)] ml-3 md:w-auto">
           <MenuButton class="button-primary">
@@ -375,6 +351,16 @@ const sessionType = computed(() => {
           >
             Summary
           </router-link>
+          <router-link
+            to="transcription"
+            class="w-[33%] md:w-[12em] text-center py-2 px-4"
+            :class="{
+              'text-white rounded-[10px] bg-surface-3':
+                route.path.endsWith('transcription'),
+            }"
+          >
+            Transcription
+          </router-link>
         </div>
       </div>
     </div>
@@ -382,32 +368,5 @@ const sessionType = computed(() => {
     <div class="mt-8 overflow-y-auto pb-6">
       <router-view />
     </div>
-
-    <ModalAlternate
-      :show="showUploadAudioModal"
-      @close="showUploadAudioModal = false"
-    >
-      <div class="md:w-[499px] p-6 bg-neutral-900 rounded-[20px]">
-        <AudioUpload :session="session" @audio-uploaded="handleAudioUpload" />
-      </div>
-    </ModalAlternate>
   </div>
 </template>
-
-<style scoped>
-audio {
-  width: 100%;
-  margin-bottom: 2rem;
-}
-audio::-webkit-media-controls-panel {
-  background: linear-gradient(
-    to right,
-    rgb(135, 27, 164, 0.75),
-    rgba(217, 117, 244, 0.75),
-    rgba(64, 170, 241, 0.75)
-  );
-}
-input[type='file'] {
-  display: none;
-}
-</style>

@@ -21,6 +21,7 @@ import CharactersView from '@/views/CharactersView.vue';
 import ViewSessionPlanning from '@/components/Sessions/ViewSessionPlanning.vue';
 import ViewSessionSummary from '@/components/Sessions/ViewSessionSummary.vue';
 import ViewSessionRecap from '@/components/Sessions/ViewSessionRecap.vue';
+import ViewSessionTranscription from "@/components/Sessions/ViewSessionTranscription.vue";
 import AuthenticatedView from '@/views/AuthenticatedView.vue';
 import AccountView from '@/views/AccountView.vue';
 import OverviewCampaign from '@/components/Campaigns/OverviewCampaign.vue';
@@ -189,6 +190,10 @@ const router = createRouter({
                 {
                   path: 'summary',
                   component: ViewSessionSummary,
+                },
+                {
+                  path: 'transcription',
+                  component: ViewSessionTranscription,
                 },
               ],
             },
