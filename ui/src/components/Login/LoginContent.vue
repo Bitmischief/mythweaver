@@ -72,16 +72,10 @@ async function login() {
 
     <div class="mt-1 text-xs text-neutral-500 text-center px-1">
       By continuing you are agreeing to the
-      <a
-        href="https://mythweaver.co/docs/terms.pdf"
-        class="underline"
-        target="_blank"
+      <a href="https://mythweaver.co/terms" class="underline" target="_blank"
         >Terms</a
       >,
-      <a
-        href="https://mythweaver.co/docs/privacy.pdf"
-        class="underline"
-        target="_blank"
+      <a href="https://mythweaver.co/privacy" class="underline" target="_blank"
         >Privacy Policy</a
       >, and to sign up for our mailing list.
     </div>
