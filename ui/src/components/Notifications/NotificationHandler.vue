@@ -5,14 +5,17 @@ import {
   CheckCircleIcon,
   InformationCircleIcon,
 } from '@heroicons/vue/20/solid';
+import { useRouter } from 'vue-router';
 
 const eventBus = useEventBus();
+const router = useRouter();
 
 const showNotification = ref(false);
 const typeRef = ref('');
 const timeoutRef = ref(0);
 const messageRef = ref('');
 const contextRef = ref();
+const routeRef = ref();
 
 onMounted(() => {
   eventBus.$on('showNotification', (options: any) => {
@@ -21,12 +24,14 @@ onMounted(() => {
       timeout = 5000,
       message,
       context,
+      route,
     } = options || {};
 
     typeRef.value = type;
     timeoutRef.value = timeout;
     messageRef.value = message;
     contextRef.value = context;
+    routeRef.value = route;
 
     showNotification.value = true;
 
@@ -42,6 +47,12 @@ function initTimeout() {
     timeoutRef.value,
     showNotification,
   );
+}
+
+function clickNotification() {
+  if (routeRef.value) {
+    router.push(routeRef.value);
+  }
 }
 </script>
 
@@ -62,6 +73,8 @@ function initTimeout() {
         <div
           v-if="showNotification"
           class="pointer-events-auto bg-surface-3/95 w-full max-w-sm overflow-hidden rounded-lg shadow-lg ring-1 ring-black ring-opacity-5"
+          :class="{ 'cursor-pointer': !!routeRef }"
+          @click="clickNotification"
         >
           <div class="p-4">
             <div class="flex items-start">

@@ -545,7 +545,7 @@ export default class SessionController {
       await sendWebsocketMessage(
         sessionTranscription.userId,
         WebSocketEvent.TranscriptionComplete,
-        {},
+        sessionId,
       );
     } else if (request.status === TranscriptionStatus.FAILED) {
       track(
