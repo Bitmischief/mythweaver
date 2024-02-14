@@ -4,18 +4,20 @@ import {
   postTranscriptionRequest,
   SessionBase,
 } from '@/api/sessions.ts';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { useUnsavedChangesWarning, useWebsocketChannel } from '@/lib/hooks.ts';
 import AudioPlayback from '@/components/Core/General/AudioPlayback.vue';
 import { showError, showSuccess } from '@/lib/notifications.ts';
 import { MicrophoneIcon } from '@heroicons/vue/20/solid';
+import { ArrowUpIcon } from '@heroicons/vue/24/outline';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import AudioUpload from '@/components/Core/Forms/AudioUpload.vue';
 import { CampaignRole } from '@/api/campaigns';
 import { useCampaignStore } from '@/store/campaign.store';
 import Spinner from '@/components/Core/Spinner.vue';
 import { ServerEvent } from '@/lib/serverEvents.ts';
+import Loader from '@/components/Core/Loader.vue';
 
 const route = useRoute();
 
@@ -29,10 +31,14 @@ const channel = useWebsocketChannel();
 useUnsavedChangesWarning(originalSession, session);
 
 onMounted(async () => {
+  window.addEventListener('scroll', setScroll, true);
   await init();
 });
 
+const sessionLoading = ref(true);
+
 async function init() {
+  sessionLoading.value = true;
   const response = await getSession(
     parseInt(route.params.sessionId.toString()),
   );
@@ -75,7 +81,21 @@ async function init() {
     });
     loadingTranscribeSession.value = false;
   });
+
+  sessionLoading.value = false;
 }
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', setScroll, true);
+  channel.unbind(ServerEvent.TranscriptionComplete);
+  channel.unbind(ServerEvent.TranscriptionStarted);
+  channel.unbind(ServerEvent.TranscriptionError);
+});
+
+const setScroll = () => {
+  const el = document.getElementById('transcription-title');
+  transcriptionTitlePos.value = el?.getBoundingClientRect().y ?? 0;
+};
 
 function handleAudioUpload(payload: { audioUri: string; audioName: string }) {
   session.value = {
@@ -124,11 +144,30 @@ const currentAudioTime = ref(-1);
 const setCurrentAudioTime = (time: number) => {
   currentAudioTime.value = time;
 };
+
+const jumpToCurrent = () => {
+  const el = document.querySelectorAll('.audio-read');
+  if (el.length) {
+    el[el.length - 1].scrollIntoView({ behavior: 'smooth' });
+  }
+};
+
+const transcriptionTitlePos = ref(0);
+const showScrollToTop = computed(() => {
+  return transcriptionTitlePos.value < 0;
+});
+
+const scrollToTop = () => {
+  document
+    .getElementById('audio-player')
+    ?.scrollIntoView({ behavior: 'smooth' });
+};
 </script>
 
 <template>
   <div
-    v-if="session"
+    v-if="session && !sessionLoading"
+    id="audio-player"
     class="bg-surface-2 rounded-[18px] min-h-[10em] py-6 px-2"
   >
     <div class="bg-surface rounded-[18px] flex justify-start p-4">
@@ -138,7 +177,11 @@ const setCurrentAudioTime = (time: number) => {
         :audio-name="session.audioName"
         :audio-uri="session.audioUri"
         :start="startSeconds"
+        :has-transcription="
+          !!session.sessionTranscription?.transcription ?? false
+        "
         @seek="setCurrentAudioTime"
+        @jump="jumpToCurrent"
       />
       <div
         v-else-if="currentUserRole === CampaignRole.DM"
@@ -151,7 +194,9 @@ const setCurrentAudioTime = (time: number) => {
       <div v-else>No audio has been uploaded for this session.</div>
     </div>
 
-    <div class="underline text-lg p-4 pb-0">Transcription</div>
+    <div id="transcription-title" class="underline text-lg p-4 pb-0">
+      Transcription
+    </div>
     <div v-if="session.sessionTranscription?.transcription" class="p-4">
       <div
         v-for="(s, i) in session.sessionTranscription.transcription.segments"
@@ -167,7 +212,7 @@ const setCurrentAudioTime = (time: number) => {
         <div
           class="group-hover:text-violet-500"
           :class="{
-            'text-fuchsia-500': s.start <= currentAudioTime,
+            'text-fuchsia-500 audio-read': s.start <= currentAudioTime,
           }"
         >
           {{ s.text }}
@@ -194,7 +239,7 @@ const setCurrentAudioTime = (time: number) => {
         minutes for a 2-4 hour long session.
       </div>
       <div
-        v-if="session.sessionTranscription.status === 'FAILED'"
+        v-if="session.sessionTranscription?.status === 'FAILED'"
         class="text-xs text-red-800 mt-2"
       >
         Something went wrong processing your transcription, please try again or
@@ -205,6 +250,9 @@ const setCurrentAudioTime = (time: number) => {
       No transcription has been created for this session.
     </div>
   </div>
+  <div v-else class="w-full flex justify-center mt-4">
+    <Loader />
+  </div>
   <ModalAlternate
     :show="showUploadAudioModal"
     @close="showUploadAudioModal = false"
@@ -213,6 +261,20 @@ const setCurrentAudioTime = (time: number) => {
       <AudioUpload :session="session" @audio-uploaded="handleAudioUpload" />
     </div>
   </ModalAlternate>
+
+  <div
+    class="absolute bottom-10 left-0 right-0 flex justify-center pointer-events-none"
+  >
+    <button
+      v-show="showScrollToTop"
+      class="button-gradient text-xs flex pointer-events-auto"
+      @click="scrollToTop"
+    >
+      <ArrowUpIcon class="h-4 w-4" />
+      Scroll To Top
+      <ArrowUpIcon class="h-4 w-4" />
+    </button>
+  </div>
 </template>
 
 <style>
