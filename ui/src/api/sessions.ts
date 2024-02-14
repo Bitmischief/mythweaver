@@ -14,6 +14,7 @@ export interface SessionBase {
   campaignId: number;
   imageUri?: string | undefined;
   suggestions?: string | undefined;
+  sessionTranscription?: any | undefined;
 
   suggestedName?: string | undefined;
   suggestedSummary?: string | undefined;
@@ -102,4 +103,8 @@ export const postCompleteSession = (sessionId: number) => {
 
 export const postSessionAudio = (sessionId: number, request: FormData) => {
   return axios.post(`/sessions/${sessionId}/audio`, request);
+};
+
+export const postTranscriptionRequest = (sessionId: number) => {
+  return axios.post(`/sessions/${sessionId}/transcription`);
 };

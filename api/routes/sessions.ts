@@ -54,10 +54,15 @@ const getSessionSchema = z.object({
   sessionId: z.coerce.number().default(0),
 });
 
-const postSessionTranscripionSchema = z.object({
+const transcriptionObjectSchema = z.object({
   text: z.string(),
   segments: z.any().array(),
   language: z.string(),
+});
+
+const postSessionTranscriptionSchema = z.object({
+  status: z.string(),
+  transcription: transcriptionObjectSchema.optional(),
 });
 
 router.get('/:sessionId', [
@@ -275,7 +280,7 @@ router.patch('/:sessionId/transcription', [
   useValidateRequest(getSessionSchema, {
     validationType: ValidationTypes.Route,
   }),
-  useValidateRequest(postSessionTranscripionSchema, {
+  useValidateRequest(postSessionTranscriptionSchema, {
     validationType: ValidationTypes.Body,
     logRequest: false,
   }),
@@ -285,6 +290,7 @@ router.patch('/:sessionId/transcription', [
     const { sessionId = 0 } = req.params;
 
     await controller.patchSessionTranscription(
+      res.locals.trackingInfo,
       useLogger(res),
       sessionId as number,
       req.body,

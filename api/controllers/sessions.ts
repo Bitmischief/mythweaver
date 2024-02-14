@@ -13,13 +13,13 @@ import {
 } from 'tsoa';
 import { prisma } from '../lib/providers/prisma';
 import { AppError, HttpCode } from '../lib/errors/AppError';
-import { Session, Prisma } from '@prisma/client';
+import { Prisma, Session } from '@prisma/client';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { CampaignRole } from './campaigns';
 import { completeSessionQueue } from '../worker';
 import { sendTransactionalEmail } from '../lib/transactionalEmail';
 import { urlPrefix } from '../lib/utils';
-import { WebSocketEvent, sendWebsocketMessage } from '../services/websockets';
+import { sendWebsocketMessage, WebSocketEvent } from '../services/websockets';
 import { MythWeaverLogger } from '../lib/logger';
 import { transcribeSessionAudio } from '../services/transcription';
 
@@ -58,6 +58,11 @@ interface PostSessionAudioResponse {
   audioUri: string;
 }
 
+interface PatchSessionTranscriptionRequest {
+  status: TranscriptionStatus;
+  transcription?: Prisma.JsonObject;
+}
+
 export enum SessionStatus {
   UPCOMING = 1,
   COMPLETED = 2,
@@ -66,6 +71,7 @@ export enum SessionStatus {
 export enum TranscriptionStatus {
   PROCESSING = 'PROCESSING',
   COMPLETED = 'COMPLETED',
+  FAILED = 'FAILED',
 }
 
 @Route('sessions')
@@ -500,10 +506,11 @@ export default class SessionController {
   @OperationId('patchSessionTranscription')
   @Patch('/:sessionId/transcription')
   public async patchSessionTranscription(
+    @Inject() trackingInfo: TrackingInfo,
     @Inject() logger: MythWeaverLogger,
     @Route() sessionId: number,
-    @Body() request: Prisma.JsonObject,
-  ) {
+    @Body() request: PatchSessionTranscriptionRequest,
+  ): Promise<void> {
     logger.info('Transcription upload request for sessionId: ', sessionId);
 
     const sessionTranscription = await prisma.sessionTranscription.findFirst({
@@ -524,10 +531,34 @@ export default class SessionController {
         sessionId: sessionId,
       },
       data: {
-        status: TranscriptionStatus.COMPLETED,
-        transcription: request,
+        status: request.status,
+        transcription: request.transcription,
       },
     });
+
+    if (request.status === TranscriptionStatus.COMPLETED) {
+      track(
+        AppEvent.SessionTranscriptionCompleted,
+        sessionTranscription.userId,
+        trackingInfo,
+      );
+      await sendWebsocketMessage(
+        sessionTranscription.userId,
+        WebSocketEvent.TranscriptionComplete,
+        {},
+      );
+    } else if (request.status === TranscriptionStatus.FAILED) {
+      track(
+        AppEvent.SessionTranscriptionFailed,
+        sessionTranscription.userId,
+        trackingInfo,
+      );
+      await sendWebsocketMessage(
+        sessionTranscription.userId,
+        WebSocketEvent.TranscriptionError,
+        {},
+      );
+    }
 
     return;
   }
