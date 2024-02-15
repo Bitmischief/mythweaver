@@ -60,13 +60,15 @@ export const generateImage = async (request: ImageRequest) => {
     return undefined;
   }
 
-  if (user.imageCredits < request.count) {
-    await sendWebsocketMessage(request.userId, WebSocketEvent.ImageError, {
-      message:
-        'You do not have enough image credits to generate this many images. Please try with fewer images, or buy more credits.',
-    });
+  if (!user.earlyAccessExempt) {
+    if (user.imageCredits < request.count) {
+      await sendWebsocketMessage(request.userId, WebSocketEvent.ImageError, {
+        message:
+          'You do not have enough image credits to generate this many images. Please try with fewer images, or buy more credits.',
+      });
 
-    return undefined;
+      return undefined;
+    }
   }
 
   const preset = request.stylePreset || 'fantasy-art';
