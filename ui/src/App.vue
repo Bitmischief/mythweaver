@@ -3,29 +3,30 @@ import Navbar from '@/components/Navigation/NavBar.vue';
 import { useAuthStore } from '@/store';
 import NotificationHandler from '@/components/Notifications/NotificationHandler.vue';
 import { useEventBus } from '@/lib/events.ts';
-import { onMounted, onUpdated, ref, watch } from 'vue';
+import { onMounted, onUpdated, ref } from 'vue';
 import NavBarHeader from '@/components/Navigation/NavBarHeader.vue';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import LightboxRoot from '@/components/LightboxRoot.vue';
 import CustomizeConjurationImage from '@/components/Conjuration/ViewConjuration/CustomizeConjurationImage.vue';
 import { useIntercom } from '@homebaseai/vue3-intercom';
 import Loader from './components/Core/Loader.vue';
-import { useWebsocketChannel } from '@/lib/hooks.ts';
 import { ServerEvent } from '@/lib/serverEvents.ts';
 import { showSuccess } from '@/lib/notifications.ts';
+import { useWebsocketChannel } from '@/lib/hooks.ts';
 
 const authStore = useAuthStore();
 const eventBus = useEventBus();
 const intercom = useIntercom();
 
 onMounted(async () => {
+  eventBus.$on('user-loaded', async () => {
+    await initIntercom();
+    await initNotifications();
+  });
+
   if (authStore.tokens) {
     await authStore.loadCurrentUser();
   }
-
-  eventBus.$on('user-loaded', async () => {
-    await initIntercom();
-  });
 
   await initIntercom();
 });
@@ -33,13 +34,6 @@ onMounted(async () => {
 onUpdated(async () => {
   await initIntercom();
 });
-
-watch(
-  () => authStore.user,
-  async () => {
-    await initNotifications();
-  },
-);
 
 async function initNotifications() {
   const channel = useWebsocketChannel();
