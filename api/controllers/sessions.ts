@@ -465,7 +465,6 @@ export default class SessionController {
       });
     }
 
-    // make call to transcription service here
     const response = await transcribeSessionAudio({
       userId: userId,
       sessionId: session.id,

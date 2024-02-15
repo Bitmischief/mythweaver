@@ -73,7 +73,7 @@ function clickNotification() {
         <div
           v-if="showNotification"
           class="pointer-events-auto bg-surface-3/95 w-full max-w-sm overflow-hidden rounded-lg shadow-lg ring-1 ring-black ring-opacity-5"
-          :class="{ 'cursor-pointer': !!routeRef }"
+          :class="{ 'cursor-pointer hover:bg-surface-3/100': !!routeRef }"
           @click="clickNotification"
         >
           <div class="p-4">
