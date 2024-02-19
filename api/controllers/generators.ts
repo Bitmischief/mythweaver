@@ -299,7 +299,7 @@ export class GeneratorController {
 
   @Security('jwt')
   @OperationId('postMagicLinkGeneration')
-  @Post('/magic-link/:magicLink')
+  @Post('/magic-link/:token')
   public async postMagicLinkGeneration(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
@@ -334,7 +334,29 @@ export class GeneratorController {
       };
     }
 
-    // TODO: check if magic link already has conjurationRequestId and return it if so
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user) {
+      throw new AppError({
+        description: 'User not found.',
+        httpCode: HttpCode.BAD_REQUEST,
+      });
+    }
+
+    if (user.imageCredits < 1) {
+      await prisma.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          imageCredits: 1,
+        },
+      });
+    }
 
     let campaign = await prisma.campaign.findFirst({
       where: {
@@ -361,18 +383,32 @@ export class GeneratorController {
       });
     }
 
-    const response = await this.postGeneratorGenerate(
-      userId,
-      trackingInfo,
-      logger,
-      'characters',
-      {
+    track(AppEvent.Conjure, userId, trackingInfo);
+
+    const conjurationRequest = await prisma.conjurationRequest.create({
+      data: {
+        userId,
         campaignId: campaign.id,
+        generatorCode: 'characters',
         count: 1,
-        prompt: magicLink.signupConjurationPrompt,
+        args: [magicLink.signupConjurationPrompt],
         imageStylePreset: ImageStylePreset.FANTASY_ART,
+        imagePrompt: '',
+        imageNegativePrompt: '',
       },
-    );
+    });
+
+    await conjureQueue.add({
+      count: 1,
+      campaignId: campaign.id,
+      generatorCode: 'characters',
+      arg: magicLink.signupConjurationPrompt,
+      conjurationRequestId: conjurationRequest.id,
+      userId,
+      imageStylePreset: ImageStylePreset.FANTASY_ART,
+      imagePrompt: '',
+      imageNegativePrompt: '',
+    });
 
     await prisma.magicLink.update({
       where: {
@@ -380,10 +416,12 @@ export class GeneratorController {
         userId: userId,
       },
       data: {
-        conjurationRequestId: response.conjurationRequestId,
+        conjurationRequestId: conjurationRequest.id,
       },
     });
 
-    return response;
+    return {
+      conjurationRequestId: conjurationRequest.id,
+    };
   }
 }
