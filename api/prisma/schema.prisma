@@ -285,6 +285,7 @@ model MagicLink {
   expiresAt               DateTime
   inviteCode              String?
   signupConjurationPrompt String?
+  conjurationRequestId    Int?
 
   user User @relation(fields: [userId], references: [id])
 

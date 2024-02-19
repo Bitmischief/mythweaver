@@ -409,4 +409,32 @@ export default class ConjurationController {
       },
     });
   }
+
+  @Security('jwt')
+  @OperationId('getConjurationRequest')
+  @Get('/request/:requestId')
+  public async getConjurationRequest(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
+    @Route() requestId: number,
+  ): Promise<any> {
+    const conjuration = await prisma.conjuration.findFirst({
+      where: {
+        userId: userId,
+        conjurationRequestId: requestId,
+      },
+    });
+
+    console.log('CONJURATION:::::', conjuration);
+
+    if (!conjuration) {
+      throw new AppError({
+        description: `Conjuration with requestId ${requestId} not found.`,
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    return conjuration;
+  }
 }

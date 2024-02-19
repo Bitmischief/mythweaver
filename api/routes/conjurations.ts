@@ -21,6 +21,10 @@ const getConjurationsSchema = z.object({
   limit: z.coerce.number().min(1).default(25).optional(),
 });
 
+const getConjurationRequestSchema = z.object({
+  requestId: z.coerce.number().default(0),
+});
+
 router.get('/', [
   useAuthenticateRequest(),
   useInjectLoggingInfo(),
@@ -230,6 +234,27 @@ router.post('/:conjurationId/copy', [
       res.locals.trackingInfo,
       useLogger(res),
       req.params.conjurationId as unknown as number,
+    );
+    return res.status(200).send(response);
+  },
+]);
+
+router.get('/request/:requestId', [
+  useAuthenticateRequest(),
+  useInjectLoggingInfo(),
+  useValidateRequest(getConjurationRequestSchema, {
+    validationType: ValidationTypes.Route,
+  }),
+  async (req: Request, res: Response) => {
+    const controller = new ConjurationController();
+
+    const { requestId = 0 } = req.params;
+
+    const response = await controller.getConjurationRequest(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      useLogger(res),
+      requestId as number,
     );
     return res.status(200).send(response);
   },

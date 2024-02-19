@@ -58,8 +58,7 @@ export const useAuthStore = defineStore({
         await this.loadCurrentUser();
 
         if (response.data.signupConjurationPrompt) {
-          // @TODO: @Jacob - intercept here and start conjuration with the prompt from the response
-          await router.push(this.returnUrl || '/');
+          await router.push(`/magic-link/conjure?t=${credential}`);
         } else {
           // redirect to previous url or default to home page
           await router.push(this.returnUrl || '/');

@@ -88,3 +88,7 @@ export const removeConjuration = (conjurationId: number) => {
 export const copyConjuration = (conjurationId: number) => {
   return axios.post(`/conjurations/${conjurationId}/copy`);
 };
+
+export const getConjurationRequest = (requestId: number) => {
+  return axios.get(`/conjurations/request/${requestId}`);
+};

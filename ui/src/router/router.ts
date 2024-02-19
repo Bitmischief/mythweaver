@@ -25,6 +25,7 @@ import ViewSessionTranscription from '@/components/Sessions/ViewSessionTranscrip
 import AuthenticatedView from '@/views/AuthenticatedView.vue';
 import AccountView from '@/views/AccountView.vue';
 import OverviewCampaign from '@/components/Campaigns/OverviewCampaign.vue';
+import MagicLinkConjuration from '@/components/Conjuration/MagicLinkConjuration.vue';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -44,6 +45,13 @@ const router = createRouter({
     {
       path: '/magic-link',
       redirect: '/auth/magic-link',
+      children: [
+        {
+          name: 'CONJURE',
+          path: 'conjure',
+          component: MagicLinkConjuration,
+        },
+      ],
     },
     {
       path: '/invite',
