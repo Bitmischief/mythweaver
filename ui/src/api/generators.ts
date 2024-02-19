@@ -52,3 +52,7 @@ export interface PostGenerateArbitraryRequest {
 export const postGenerateArbitrary = (request: PostGenerateArbitraryRequest) => {
   return axios.post(`/generators/arbitrary`, request);
 };
+
+export const postMagicLinkGeneration = (magicLink: string) => {
+  return axios.post(`/generators/magic-link/${magicLink}`);
+};

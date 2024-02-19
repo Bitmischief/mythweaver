@@ -20,6 +20,7 @@ import { sanitizeJson } from '../lib/utils';
 import { getClient } from '../lib/providers/openai';
 import { ImageStylePreset } from './images';
 import { MythWeaverLogger } from '../lib/logger';
+import { CampaignRole } from './campaigns';
 
 export interface GetGeneratorsResponse {
   data: any[];
@@ -294,5 +295,95 @@ export class GeneratorController {
     logger.info('Received sanitized json', gptJson);
 
     return gptJson;
+  }
+
+  @Security('jwt')
+  @OperationId('postMagicLinkGeneration')
+  @Post('/magic-link/:magicLink')
+  public async postMagicLinkGeneration(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
+    @Route() token: string,
+  ): Promise<any> {
+    const magicLink = await prisma.magicLink.findUnique({
+      where: {
+        token: token,
+        userId: userId,
+      },
+    });
+
+    if (!magicLink) {
+      throw new AppError({
+        httpCode: HttpCode.BAD_REQUEST,
+        description: 'Unable to properly verify provided credentials',
+      });
+    }
+
+    if (!magicLink.signupConjurationPrompt) {
+      throw new AppError({
+        httpCode: HttpCode.BAD_REQUEST,
+        description:
+          'The provided magic link does not have any associated conjuration prompt',
+      });
+    }
+
+    if (magicLink.conjurationRequestId) {
+      return {
+        conjurationRequestId: magicLink.conjurationRequestId,
+      };
+    }
+
+    // TODO: check if magic link already has conjurationRequestId and return it if so
+
+    let campaign = await prisma.campaign.findFirst({
+      where: {
+        userId: userId,
+      },
+    });
+
+    if (!campaign) {
+      campaign = await prisma.campaign.create({
+        data: {
+          name: 'My First Campaign',
+          description: '',
+          rpgSystemCode: 'dnd',
+          publicAdventureCode: 'other',
+          userId,
+          members: {
+            create: {
+              userId,
+              role: CampaignRole.DM,
+              joinedAt: new Date(),
+            },
+          },
+        },
+      });
+    }
+
+    const response = await this.postGeneratorGenerate(
+      userId,
+      trackingInfo,
+      logger,
+      'characters',
+      {
+        campaignId: campaign.id,
+        count: 1,
+        prompt: magicLink.signupConjurationPrompt,
+        imageStylePreset: ImageStylePreset.FANTASY_ART,
+      },
+    );
+
+    await prisma.magicLink.update({
+      where: {
+        token: token,
+        userId: userId,
+      },
+      data: {
+        conjurationRequestId: response.conjurationRequestId,
+      },
+    });
+
+    return response;
   }
 }

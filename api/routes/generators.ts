@@ -7,6 +7,7 @@ import {
 } from '../lib/validationMiddleware';
 import { GeneratorController } from '../controllers/generators';
 import { useInjectLoggingInfo, useLogger } from '../lib/loggingMiddleware';
+import { randomUUID } from 'node:crypto';
 
 const router = express.Router();
 
@@ -14,6 +15,10 @@ const getGeneratorsSchema = z.object({
   parentId: z.coerce.number().optional(),
   offset: z.coerce.number().default(0).optional(),
   limit: z.coerce.number().min(1).default(10).optional(),
+});
+
+const postGenerateMagicLinkSchema = z.object({
+  magicLink: z.string().uuid(),
 });
 
 router.get('/', [
@@ -166,6 +171,28 @@ router.post('/arbitrary', [
       res.locals.trackingInfo,
       useLogger(res),
       req.body,
+    );
+
+    return res.status(200).send(response);
+  },
+]);
+
+router.post('/magic-link/:magicLink', [
+  useAuthenticateRequest(),
+  useInjectLoggingInfo(),
+  useValidateRequest(postGenerateMagicLinkSchema, {
+    validationType: ValidationTypes.Route,
+  }),
+  async (req: Request, res: Response) => {
+    const controller = new GeneratorController();
+
+    const { magicLink = randomUUID() } = req.params;
+
+    const response = await controller.postMagicLinkGeneration(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      useLogger(res),
+      magicLink,
     );
 
     return res.status(200).send(response);
