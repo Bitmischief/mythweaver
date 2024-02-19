@@ -2054,10 +2054,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/mailchimp__mailchimp_marketing@^3.0.17":
-  version "3.0.17"
-  resolved "https://registry.npmjs.org/@types/mailchimp__mailchimp_marketing/-/mailchimp__mailchimp_marketing-3.0.17.tgz"
-  integrity sha512-j0rZvpHMhIBzzvvnc4aPeqffgN1enw7gSthEX6Bc9I+GLhuSiU07TCuftbL4FhMqRvSxFSWn9OhHGDtV5z6UCg==
+"@types/mailchimp__mailchimp_marketing@^3.0.18":
+  version "3.0.18"
+  resolved "https://registry.yarnpkg.com/@types/mailchimp__mailchimp_marketing/-/mailchimp__mailchimp_marketing-3.0.18.tgz#84248221bcfae08082690874f8d291e81011e549"
+  integrity sha512-YtdvNe6SzDpLC0fvMNPvnhwDlhBnMc1gcbSjV+yBsjGKMvkOZ8Ixq2aH2FWJ82Z6AMnaVt0xnpzwNv0+JEe0wA==
 
 "@types/mailchimp__mailchimp_transactional@^1.0.9":
   version "1.0.9"
