@@ -143,6 +143,15 @@ export const conjure = async (request: ConjureEvent) => {
   });
 
   if (!uris) {
+    await prisma.conjuration.update({
+      where: {
+        id: createdConjuration.id,
+      },
+      data: {
+        imageGenerationFailed: true,
+      },
+    });
+
     throw new AppError({
       description: 'Error generating image.',
       httpCode: HttpCode.INTERNAL_SERVER_ERROR,
