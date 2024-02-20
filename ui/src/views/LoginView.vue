@@ -44,12 +44,12 @@
         </div>
         <div class="md:w-[250px] p-6">
           <div class="flex mb-8">
-            <span class="self-center">48 hours free trial</span>
+            <span class="self-center">7 day free trial</span>
             <SparklesIcon class="self-center ml-2 h-5 w-5 text-yellow-500" />
           </div>
           <div class="text-sm mb-8 text-neutral-500">
             Fantastic news, adventurers! Immerse yourself in the enchanting
-            world of MythWeaver for 48 hours, absolutely free.
+            world of MythWeaver for 7 days, absolutely free.
           </div>
         </div>
       </div>
