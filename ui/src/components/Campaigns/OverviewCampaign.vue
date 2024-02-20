@@ -412,7 +412,7 @@ async function handleRemoveMember() {
               }"
             >
               {{
-                member.user.username ??
+                member.user?.username ??
                 splitEmail(member.user ? member.user.email : member.email)
               }}
             </div>
