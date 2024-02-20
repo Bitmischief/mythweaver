@@ -118,6 +118,7 @@ export default class AuthController {
           email: email.toLowerCase(),
           earlyAccessCutoffAt: earlyAccessEnd,
           billingCustomerId: stripeCustomerId,
+          imageCredits: 25,
         },
       });
 
@@ -295,6 +296,7 @@ export default class AuthController {
           email: email,
           earlyAccessCutoffAt: earlyAccessEnd,
           billingCustomerId: stripeCustomerId,
+          imageCredits: 25,
         },
       });
 
