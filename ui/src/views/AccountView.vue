@@ -137,7 +137,11 @@ async function saveChanges() {
                     }"
                   >
                     {{
-                      user.earlyAccessExempt ? 'EA' : !user.plan ? 'FREE' : user.plan
+                      user.earlyAccessExempt
+                        ? 'EA'
+                        : !user.plan
+                          ? 'FREE'
+                          : user.plan
                     }}
                   </div>
                 </div>
@@ -165,13 +169,22 @@ async function saveChanges() {
               >
                 <div class="text-sm text-neutral-400">Image Credit Count</div>
                 <div class="text-3xl my-2 flex">
-                  <span v-if="user.earlyAccessExempt" class="text-bold self-center mr-2">
-                    <img src="@/assets/icons/infinity-lg.png" alt="infinity" class="h-14" />
+                  <span
+                    v-if="user.earlyAccessExempt"
+                    class="text-bold self-center mr-2"
+                  >
+                    <img
+                      src="@/assets/icons/infinity-lg.png"
+                      alt="infinity"
+                      class="h-14"
+                    />
                   </span>
                   <span v-else class="text-bold text-4xl">
                     {{ user.imageCredits }}
                   </span>
-                  <span class="text-lg text-neutral-400 pt-1 px-1 self-center">images</span>
+                  <span class="text-lg text-neutral-400 pt-1 px-1 self-center"
+                    >images</span
+                  >
                 </div>
               </div>
             </div>
@@ -181,10 +194,16 @@ async function saveChanges() {
             class="p-4 rounded-[12px] bg-surface-2 border border-surface-3 mt-6"
           >
             <div class="text-lg">Billing Information</div>
-            <div v-if="user.earlyAccessExempt" class="text-sm text-neutral-500 my-2">
+            <div
+              v-if="user.earlyAccessExempt"
+              class="text-sm text-neutral-500 my-2"
+            >
               You are currently in early access
             </div>
-            <div v-else-if="user.subscriptionPaidThrough" class="flex justify-between">
+            <div
+              v-else-if="user.subscriptionPaidThrough"
+              class="flex justify-between"
+            >
               <div class="text-sm text-neutral-500 my-2">
                 Your
                 <span class="text-neutral-200">
