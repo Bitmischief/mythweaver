@@ -47,17 +47,17 @@
                 v-model="request.prompt"
                 :placeholder="`Enter ${generator?.name} Description`"
                 inner-class="border-none"
-                input-class="$reset input-secondary border-none rounded-[8px] focus:ring-fuchsia-500 resize-none pr-[8em]"
+                input-class="$reset input-secondary border-none focus:ring-fuchsia-500 resize-none pr-[8em]"
                 help-class="px-1"
                 name="prompt"
                 type="textarea"
                 validation="length:0,1000"
                 auto-height
               />
-              <div class="absolute top-[calc(50%-2rem)] right-1">
+              <div class="absolute top-1 right-1">
                 <button
                   v-if="!request.prompt"
-                  class="button-gradient py-3 px-4 flex"
+                  class="button-gradient py-1 px-2 flex"
                   :disabled="!generator"
                   @click="quickConjure(generator?.code || 'characters')"
                 >
@@ -71,7 +71,7 @@
                 <!-- prettier-ignore -->
                 <button
                   v-else
-                  class="flex button-gradient py-3 px-4"
+                  class="button-gradient py-1 px-2 flex"
                   :disabled="(disabled as boolean)"
                   type="submit"
                 >
