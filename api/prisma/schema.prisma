@@ -84,6 +84,7 @@ model Conjuration {
   data          Json
   tags          String[]
   published     Boolean               @default(false)
+  imageGenerationFailed Boolean @default(false)
 
   user               User?               @relation(fields: [userId], references: [id])
   campaign           Campaign?           @relation(fields: [campaignId], references: [id], onDelete: Cascade)
