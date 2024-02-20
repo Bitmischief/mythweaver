@@ -14,7 +14,7 @@
       <div class="text-neutral-600 mb-12 text-center">
         Generate captivating visuals & conjurations
       </div>
-      <div class="flex mb-12 justify-center">
+      <div class="flex mb-6 justify-center">
         <div
           class="flex gap-1 text-neutral-500 rounded-[10px] bg-surface-2 p-1 border border-surface-3 text-sm"
         >
@@ -54,10 +54,10 @@
                 validation="length:0,1000"
                 auto-height
               />
-              <div class="absolute top-1 right-1">
+              <div class="absolute top-[calc(50%-2rem)] right-1">
                 <button
                   v-if="!request.prompt"
-                  class="button-gradient py-1 px-2 flex"
+                  class="button-gradient py-3 px-4 flex"
                   :disabled="!generator"
                   @click="quickConjure(generator?.code || 'characters')"
                 >
@@ -71,7 +71,7 @@
                 <!-- prettier-ignore -->
                 <button
                   v-else
-                  class="flex button-gradient py-1 px-2"
+                  class="flex button-gradient py-3 px-4"
                   :disabled="(disabled as boolean)"
                   type="submit"
                 >
