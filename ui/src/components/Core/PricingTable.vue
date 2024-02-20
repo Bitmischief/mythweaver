@@ -19,21 +19,7 @@ const proPlanId = computed(() => import.meta.env.VITE_STRIPE_PRO_PLAN_ID);
 
 <template>
   <div class="p-2">
-    <div class="grid grid-cols-3 gap-4">
-      <PricingPlan
-        name="Free"
-        :monthly-price="0"
-        :yearly-price="0"
-        :features="[
-          'Save Conjurations',
-          'Create New Campaigns',
-          'Join Existing Campaigns',
-          'Take Notes',
-          'Manage Inventory',
-        ]"
-        :price-id="basicPlanId"
-        :current="!currentPlan || currentPlan === 'FREE'"
-      />
+    <div class="grid grid-cols-2 gap-4">
       <PricingPlan
         name="Basic"
         :monthly-price="5.0"
