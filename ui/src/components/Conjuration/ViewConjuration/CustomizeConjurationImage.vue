@@ -51,8 +51,9 @@ const imageFiltered = ref(false);
 const imagePromptRephrased = ref(false);
 const rephrasedPrompt = ref('');
 const loading = ref(false);
+const count = ref(1);
 
-const promptOptions = ref(['Image Style', 'Negative Prompt']);
+const promptOptions = ref(['Image Count', 'Image Style', 'Negative Prompt']);
 const promptOptionsTab = ref(promptOptions.value[0]);
 
 onMounted(async () => {
@@ -111,6 +112,7 @@ async function conjure() {
       editablePrompt.value || '',
       editableNegativePrompt.value || '',
       stylePreset.value || 'fantasy-art',
+      count.value || 1,
     );
 
     eventBus.$emit('conjure-image-done', {});
@@ -182,7 +184,7 @@ function setImage() {
             />
             <div class="absolute top-1 right-1">
               <button
-                class="flex button-gradient py-1 px-2 disabled:opacity-75"
+                class="flex button-gradient py-2 px-3 disabled:opacity-75"
                 type="submit"
               >
                 <img
@@ -217,6 +219,28 @@ function setImage() {
             </div>
           </div>
 
+          <div v-if="promptOptionsTab === 'Image Count'">
+            <Select
+              v-model="count"
+              :options="[
+                {
+                  code: 1,
+                  name: '1 image',
+                },
+                {
+                  code: 2,
+                  name: '2 image',
+                },
+                {
+                  code: 3,
+                  name: '3 image',
+                },
+              ]"
+              value-prop="code"
+              display-prop="name"
+              secondary
+            />
+          </div>
           <div v-if="promptOptionsTab === 'Image Style'">
             <Select
               v-model="stylePreset"
@@ -291,7 +315,7 @@ function setImage() {
           }"
           @click="setImage"
         >
-          <span class="self-center text-center w-full"> Continue </span>
+          <span class="self-center text-center w-full"> Save Image </span>
         </button>
       </div>
     </div>

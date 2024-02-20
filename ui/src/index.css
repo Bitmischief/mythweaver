@@ -112,10 +112,10 @@ input[type='number'] {
     @apply bg-white text-black rounded-[12px] text-sm px-4 py-2 hover:cursor-pointer;
   }
   .input-primary {
-    @apply text-sm py-2 w-full border border-surface-3 bg-surface-2 px-4 text-white rounded-[12px] focus:border-fuchsia-500 focus:ring-0;
+    @apply text-sm py-3 w-full border border-surface-3 bg-surface-2 px-4 text-white rounded-[12px] focus:border-fuchsia-500 focus:ring-0;
   }
   .input-secondary {
-    @apply text-sm py-2 w-full border border-surface-3 bg-surface px-4 text-white rounded-[12px] focus:border-fuchsia-500 focus:ring-0;
+    @apply text-sm py-3 w-full border border-surface-3 bg-surface px-4 text-white rounded-[12px] focus:border-fuchsia-500 focus:ring-0;
   }
   .input-ghost {
     @apply text-sm py-3 bg-surface-2 w-full rounded-[12px] border-surface-3 focus:border-fuchsia-500 focus:ring-0;

@@ -57,7 +57,7 @@
               <div class="absolute top-1 right-1">
                 <button
                   v-if="!request.prompt"
-                  class="button-gradient py-1 px-2 flex"
+                  class="button-gradient py-2 px-3 flex"
                   :disabled="!generator"
                   @click="quickConjure(generator?.code || 'characters')"
                 >
@@ -71,7 +71,7 @@
                 <!-- prettier-ignore -->
                 <button
                   v-else
-                  class="button-gradient py-1 px-2 flex"
+                  class="button-gradient py-2 px-3 flex"
                   :disabled="(disabled as boolean)"
                   type="submit"
                 >

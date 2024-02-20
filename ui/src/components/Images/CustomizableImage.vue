@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import LightboxImage from '@/components/LightboxImage.vue';
 import { ArrowsPointingOutIcon } from '@heroicons/vue/20/solid';
-import { PencilSquareIcon } from '@heroicons/vue/24/outline';
+import { PencilSquareIcon, ArrowPathIcon } from '@heroicons/vue/24/outline';
 import { useEventBus } from '@/lib/events.ts';
 import { onMounted } from 'vue';
 
@@ -86,10 +86,19 @@ function showImage() {
         Conjuring image...
       </div>
       <div v-else class="flex">
-        <div class="self-center text-red-300">
+        <div class="self-center">
           <div class="text-center text-[2rem]">Conjuration failed</div>
           <div class="text-center text-[1rem]">
             {{ imageConjurationFailureReason }}
+          </div>
+          <div>
+            <button
+              class="button-white flex mx-auto"
+              @click="showCustomizeImageModal"
+            >
+              Retry
+              <ArrowPathIcon class="w-5 ml-2" />
+            </button>
           </div>
         </div>
       </div>

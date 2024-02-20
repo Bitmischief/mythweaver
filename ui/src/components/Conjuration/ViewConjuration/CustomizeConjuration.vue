@@ -62,9 +62,10 @@ onMounted(() => {
     async (payload: { imageUri: string; prompt: string }) => {
       showCustomizeImageModal.value = false;
 
-      setTimeout(() => {
+      setTimeout(async () => {
         editableConjuration.value.imageUri = payload.imageUri;
         editableConjuration.value.imageAIPrompt = payload.prompt;
+        await saveConjuration();
       }, 50);
     },
   );

@@ -57,6 +57,7 @@ export default class ConjurationController {
     @Query() tags?: string,
     @Query() offset?: number,
     @Query() limit?: number,
+    @Query() history?: boolean,
   ): Promise<GetConjurationsResponse> {
     const conjurerCodes = conjurerCodeString
       ?.split(',')
@@ -65,20 +66,23 @@ export default class ConjurationController {
 
     const conjurations = await prisma.conjuration.findMany({
       where: {
-        saves: saved
-          ? {
-              some: {
-                userId,
-              },
-            }
-          : undefined,
+        saves: history
+          ? undefined
+          : saved
+            ? {
+                some: {
+                  userId,
+                },
+              }
+            : undefined,
         conjurerCode: conjurerCodes?.length
           ? {
               in: conjurerCodes,
             }
           : undefined,
-        published: true,
-        visibility: saved ? undefined : ConjurationVisibility.PUBLIC,
+        published: history ? undefined : true,
+        userId: history ? userId : undefined,
+        visibility: saved || history ? undefined : ConjurationVisibility.PUBLIC,
         images: stylePreset
           ? {
               some: {
