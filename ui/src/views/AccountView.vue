@@ -107,16 +107,6 @@ async function saveChanges() {
                     disabled
                   />
                 </div>
-                <div>
-                  <FormKit
-                    v-model="username"
-                    label="Username"
-                    inner-class="$reset border-none w-full"
-                    input-class="$reset input-secondary border-none focus:ring-fuchsia-500 pr-[9em]"
-                    type="text"
-                    validation="required|length:0,100"
-                  />
-                </div>
               </div>
             </div>
             <div class="flex justify-end mt-4">
