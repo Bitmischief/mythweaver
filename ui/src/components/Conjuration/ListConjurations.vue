@@ -169,7 +169,7 @@ async function handleConjurationChange(change: {
         <div v-else class="text-xl self-center mr-6">Gallery</div>
       </div>
 
-      <div class="self-center flex justify-between">
+      <div class="mt-2 self-center flex justify-between">
         <button
           v-if="
             JSON.stringify(conjurationsFilterQuery) !==
