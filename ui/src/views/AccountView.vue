@@ -4,14 +4,13 @@ import { patchCurrentUser } from '@/api/users.ts';
 import { UserCircleIcon, CreditCardIcon } from '@heroicons/vue/24/outline';
 import { ref, onMounted, computed } from 'vue';
 import { showSuccess, showError } from '@/lib/notifications';
-import Dots from '@/components/Core/Dots.vue';
 import { getBillingPortalUrl } from '@/api/billing.ts';
 import Loader from '@/components/Core/Loader.vue';
 import { format } from 'date-fns';
 
 const store = useAuthStore();
 const user = computed(() => store.user);
-const tab = ref('profile');
+const tab = ref('billing');
 
 const username = ref('');
 const billingLoading = ref(false);
@@ -65,18 +64,6 @@ async function saveChanges() {
           <div
             class="text-sm flex mb-2 py-1 px-2 rounded-[8px]"
             :class="{
-              'bg-surface-3 text-neutral-300': tab === 'profile',
-              'hover:bg-purple-800/20 text-neutral-500 cursor-pointer':
-                tab !== 'profile',
-            }"
-            @click="tab = 'profile'"
-          >
-            <UserCircleIcon class="h-6 mr-1" />
-            <div class="self-center text-sm">Profile Settings</div>
-          </div>
-          <div
-            class="text-sm flex mb-2 py-1 px-2 rounded-[8px]"
-            :class="{
               'bg-surface-3 text-neutral-300': tab === 'billing',
               'hover:bg-purple-800/20 text-neutral-500 cursor-pointer':
                 tab !== 'billing',
@@ -85,6 +72,18 @@ async function saveChanges() {
           >
             <CreditCardIcon class="h-6 mr-1" />
             <div class="self-center text-sm">Billing & Subscription</div>
+          </div>
+          <div
+            class="text-sm flex mb-2 py-1 px-2 rounded-[8px]"
+            :class="{
+              'bg-surface-3 text-neutral-300': tab === 'profile',
+              'hover:bg-purple-800/20 text-neutral-500 cursor-pointer':
+                tab !== 'profile',
+            }"
+            @click="tab = 'profile'"
+          >
+            <UserCircleIcon class="h-6 mr-1" />
+            <div class="self-center text-sm">Profile Settings</div>
           </div>
         </div>
       </div>
@@ -107,23 +106,6 @@ async function saveChanges() {
                     disabled
                   />
                 </div>
-              </div>
-            </div>
-            <div class="flex justify-end mt-4">
-              <div>
-                <FormKit
-                  type="submit"
-                  input-class="$reset button-ghost flex"
-                  :disabled="saveChangesLoading"
-                >
-                  <div
-                    v-if="saveChangesLoading"
-                    class="h-5 w-5 flex justify-center"
-                  >
-                    <Dots class="my-1" style="font-size: 2px" />
-                  </div>
-                  <span v-else>Save changes</span>
-                </FormKit>
               </div>
             </div>
           </FormKit>
@@ -155,7 +137,7 @@ async function saveChanges() {
                     }"
                   >
                     {{
-                      !user.plan && user.earlyAccessExempt ? 'EA' : user.plan
+                      user.earlyAccessExempt ? 'EA' : !user.plan ? 'FREE' : user.plan
                     }}
                   </div>
                 </div>
@@ -183,18 +165,26 @@ async function saveChanges() {
               >
                 <div class="text-sm text-neutral-400">Image Credit Count</div>
                 <div class="text-3xl my-2 flex">
-                  <span class="text-bold">{{ user.imageCredits }}</span>
-                  <span class="text-lg text-neutral-400 pt-1 px-1">images</span>
+                  <span v-if="user.earlyAccessExempt" class="text-bold self-center mr-2">
+                    <img src="@/assets/icons/infinity-lg.png" alt="infinity" class="h-14" />
+                  </span>
+                  <span v-else class="text-bold text-4xl">
+                    {{ user.imageCredits }}
+                  </span>
+                  <span class="text-lg text-neutral-400 pt-1 px-1 self-center">images</span>
                 </div>
               </div>
             </div>
           </div>
           <div
-            v-if="user.subscriptionPaidThrough"
+            v-if="user.subscriptionPaidThrough || user.earlyAccessExempt"
             class="p-4 rounded-[12px] bg-surface-2 border border-surface-3 mt-6"
           >
             <div class="text-lg">Billing Information</div>
-            <div class="flex justify-between">
+            <div v-if="user.earlyAccessExempt" class="text-sm text-neutral-500 my-2">
+              You are currently in early access
+            </div>
+            <div v-else-if="user.subscriptionPaidThrough" class="flex justify-between">
               <div class="text-sm text-neutral-500 my-2">
                 Your
                 <span class="text-neutral-200">
