@@ -2,7 +2,7 @@
   <MeteorShower />
   <div
     v-if="generators.length && !generating"
-    class="flex justify-center my-auto z-10"
+    class="flex justify-center my-auto"
   >
     <div class="w-full md:w-[80%] xl:w-[70%] 2xl:w-[60%] 3xl:w-[50%]">
       <img
