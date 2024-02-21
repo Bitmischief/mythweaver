@@ -80,27 +80,35 @@ async function handleCopyConjuration() {
   showSuccess({ message: 'Successfully copied conjuration!' });
   await router.push(`/conjurations/view/${response.data.id}`);
 }
+
+async function routeBack() {
+  router.go(-1);
+  await router.push('/conjurations#saved');
+}
 </script>
 
 <template>
   <template v-if="conjuration">
     <div class="flex justify-between mb-6">
-      <div class="flex">
-        <router-link
-          :to="
-            conjuration.saved ? `/conjurations#saved` : `/conjurations#gallery`
-          "
-          class="button-primary flex"
-        >
+      <div class="flex grow">
+        <button class="button-primary flex" @click="routeBack">
           <ArrowLeftIcon class="mr-2 h-4 w-4 self-center" />
-          <div class="self-center">Back</div>
-        </router-link>
+          <span class="self-center">Back</span>
+        </button>
 
         <div v-if="conjuration.saved && !editable" class="input-primary ml-4">
-          <span class="self-center"
-            >You must make a copy of this conjuration to make changes to
-            it.</span
-          >
+          <span class="self-center">
+            You must make a copy of this conjuration to make changes to it.
+          </span>
+        </div>
+
+        <div
+          v-if="!conjuration.saved && !editable"
+          class="mx-auto text-fuchsia-500"
+        >
+          <span class="self-center">
+            This conjuration has not been saved yet.
+          </span>
         </div>
       </div>
 
@@ -152,6 +160,9 @@ async function handleCopyConjuration() {
       </div>
     </div>
 
-    <CustomizeConjuration :conjuration="conjuration" />
+    <CustomizeConjuration
+      :conjuration="conjuration"
+      :image-conjuration-failed="conjuration.imageGenerationFailed"
+    />
   </template>
 </template>

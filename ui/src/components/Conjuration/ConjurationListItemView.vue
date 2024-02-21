@@ -41,10 +41,10 @@ function conjurationType(conjuration: Conjuration) {
 <template>
   <div v-if="conjuration">
     <div
-      class="relative flex cursor-pointer flex-col justify-end rounded-[20px] shadow-xl bg-surface-2"
+      class="relative h-full flex cursor-pointer flex-col justify-end rounded-[20px] shadow-xl bg-surface-2"
       @click="navigateToViewConjuration(conjuration.id)"
     >
-      <div class="m-2">
+      <div class="m-2 grow">
         <img
           v-if="conjuration.imageUri"
           :src="conjuration.imageUri"

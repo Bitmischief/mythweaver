@@ -9,6 +9,7 @@ interface PostImageRequest {
   prompt: string;
   negativePrompt?: string;
   stylePreset?: ImageStylePreset;
+  count?: number;
 }
 
 export enum ImageStylePreset {
@@ -29,7 +30,10 @@ export default class ImageController {
     @Inject() logger: MythWeaverLogger,
     @Body() request: PostImageRequest,
   ): Promise<void> {
-    const count = 3;
+    let count = 3;
+    if (request.count) {
+      count = request.count;
+    }
 
     const user = await prisma.user.findUnique({
       where: {

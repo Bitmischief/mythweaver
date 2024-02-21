@@ -10,7 +10,7 @@ import { PhotoIcon } from '@heroicons/vue/24/outline';
 import ConjurationQuickView from '@/components/Conjuration/ConjurationListItemView.vue';
 import { debounce } from 'lodash';
 import ConjurationsListFiltering from '@/components/Conjuration/ConjurationsListFiltering.vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 const pagingDone = ref(false);
 const conjurations = ref<Conjuration[]>([]);
@@ -18,6 +18,7 @@ const showFilters = ref(false);
 const loading = ref(false);
 
 const route = useRoute();
+const router = useRouter();
 
 const defaultPaging = {
   offset: 0,
@@ -36,14 +37,31 @@ const conjurationsMineQuery = ref({
   saved: true,
 });
 
+const conjurationsHistoryQuery = ref({
+  history: false,
+});
+
 const conjurationsQuery = computed(() => ({
   ...conjurationsFilterQuery.value,
   ...conjurationsPagingQuery.value,
   ...conjurationsMineQuery.value,
+  history: conjurationsHistoryQuery.value.history
+    ? conjurationsHistoryQuery.value.history
+    : undefined,
 }));
 
 onMounted(async () => {
   loading.value = true;
+
+  if (route.hash === '#gallery') {
+    conjurationsMineQuery.value.saved = false;
+  } else if (route.hash === '#history') {
+    conjurationsMineQuery.value.saved = true;
+    conjurationsHistoryQuery.value.history = true;
+  } else {
+    conjurationsMineQuery.value.saved = true;
+  }
+
   await loadConjurations();
 
   const viewParent = document.querySelector('#view-parent');
@@ -58,12 +76,6 @@ onMounted(async () => {
     }
   });
 
-  if (route.hash === '#gallery') {
-    conjurationsMineQuery.value.saved = false;
-  } else {
-    conjurationsMineQuery.value.saved = true;
-  }
-
   loading.value = false;
 });
 
@@ -72,6 +84,9 @@ watch(
   () => {
     if (route.hash === '#gallery') {
       conjurationsMineQuery.value.saved = false;
+    } else if (route.hash === '#history') {
+      conjurationsMineQuery.value.saved = true;
+      conjurationsHistoryQuery.value.history = true;
     } else {
       conjurationsMineQuery.value.saved = true;
     }
@@ -102,6 +117,14 @@ watch(
     deep: true,
   },
 );
+
+const toggleHistory = async () => {
+  if (route.hash === '#history') {
+    await router.push('/conjurations#saved');
+  } else {
+    await router.push('/conjurations#history');
+  }
+};
 
 const pageConjurations = debounce(() => {
   conjurationsPagingQuery.value.offset += conjurationsPagingQuery.value.limit;
@@ -170,6 +193,27 @@ async function handleConjurationChange(change: {
       </div>
 
       <div class="mt-2 self-center flex justify-between">
+        <button
+          v-if="
+            conjurationsMineQuery.saved && !conjurationsHistoryQuery.history
+          "
+          class="button-ghost mr-2"
+          @click="toggleHistory"
+        >
+          <span class="text-white text-sm font-normal">
+            Show Conjuration History
+          </span>
+        </button>
+        <button
+          v-if="conjurationsMineQuery.saved && conjurationsHistoryQuery.history"
+          class="button-ghost mr-2"
+          @click="toggleHistory"
+        >
+          <span class="text-white text-sm font-normal">
+            Show Saved Conjurations
+          </span>
+        </button>
+
         <button
           v-if="
             JSON.stringify(conjurationsFilterQuery) !==

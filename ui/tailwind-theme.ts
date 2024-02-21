@@ -34,7 +34,7 @@ export default {
   },
   textarea: {
     inner: 'h-full',
-    input: 'w-full h-full resize-none min-h-[6rem]',
+    input: 'w-full h-full resize-none',
   },
   select: {
     inner:
@@ -47,7 +47,7 @@ export default {
   },
   file: {
     fileItem: 'flex items-center mb-1 last:mb-0',
-    fileItemIcon: 'w-4 mr-2 shrink-0',
+    fileItemIecon: 'w-4 mr-2 shrink-0',
     fileList: 'shrink grow peer px-3 py-2 formkit-multiple:data-[has-multiple="true"]:mb-6',
     fileName: 'break-all grow text-ellipsis',
     fileRemove:

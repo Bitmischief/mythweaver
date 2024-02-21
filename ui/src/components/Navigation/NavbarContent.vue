@@ -123,7 +123,7 @@ async function navigateToCreateCampaign() {
               <div
                 :class="[
                   active ? 'bg-purple-800/20 text-purple-200' : 'text-white',
-                  'relative cursor-default select-none py-2 rl-10 pl-4',
+                  'relative cursor-default select-none py-2 rl-10 pl-4 pr-8',
                 ]"
                 @click="selectedCampaignId = campaign.id"
               >

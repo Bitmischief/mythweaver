@@ -18,6 +18,7 @@ export interface Conjuration {
   originalId?: number;
   imageAIPrompt: string;
   saved: boolean;
+  imageGenerationFailed: boolean;
 }
 
 export interface GetConjurationsRequest {

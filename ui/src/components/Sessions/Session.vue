@@ -69,7 +69,7 @@ const sessionType = computed(() => {
             </div>
             <div class="flex">
               <CalendarDaysIcon class="h-5 mr-1" />
-              {{ format(new Date(session.updatedAt), 'MMMM d, yyyy') }}
+              {{ format(new Date(session.updatedAt), 'MMM d, yyyy') }}
             </div>
           </div>
           <div class="text-sm text-neutral-500 truncate-2-line">
