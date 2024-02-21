@@ -76,7 +76,7 @@ watch(
     }
 
     await saveSession('name');
-  }, 250),
+  }, 500),
 );
 
 watch(
@@ -196,7 +196,7 @@ const sessionType = computed(() => {
 
       <div v-if="session.processing">
         <div
-          class="animate-pulse mt-3 bg-amber-700 rounded-md px-3 text-white text-lg"
+          class="animate-pulse mt-3 bg-fuchsia-500/75 rounded-md px-3 text-white text-lg"
         >
           Processing...
         </div>

@@ -274,8 +274,10 @@ async function handleRemoveMember() {
       </router-link>
     </div>
   </div>
-  <div class="grid grid-cols-1 lg:grid-cols-5 grid-rows-1 lg:gap-4 mb-10">
-    <div class="rounded-[18px] bg-surface-3 p-4 lg:h-[16em] col-span-3 mt-4">
+  <div
+    class="grid grid-cols-1 lg:grid-cols-5 grid-rows-1 gap-y-4 lg:gap-4 mb-4"
+  >
+    <div class="rounded-[18px] bg-surface-3 p-4 col-span-3 h-full mt-4">
       <div class="text-lg mb-2">
         {{ campaign.name }}
       </div>
@@ -298,42 +300,46 @@ async function handleRemoveMember() {
         </div>
       </div>
     </div>
-    <div class="rounded-[18px] bg-surface-3 p-4 min-h-[10em] col-span-2 mt-4">
+    <div class="flex rounded-[18px] bg-surface-3 p-4 col-span-2 h-full mt-4">
       <div v-if="latestSession">
-        <div class="grid grid-cols-4 relative">
-          <img
-            :src="latestSession?.imageUri"
-            class="rounded-[12px] col-span-4 lg:col-span-1"
-            alt="session img"
-          />
-          <div class="col-span-4 lg:col-span-3 lg:pl-4">
+        <div class="grid grid-cols-4 relative h-full">
+          <div class="col-span-4 2xl:col-span-1 relative">
+            <img
+              :src="latestSession?.imageUri"
+              class="rounded-[12px]"
+              alt="session img"
+            />
             <span
-              class="px-2 py-1 bg-zinc-700 rounded-[12px] text-sm absolute top-2 left-2 lg:static"
+              class="px-2 py-1 bg-white/75 rounded-[12px] text-black text-sm absolute top-2 left-2 whitespace-nowrap"
             >
               Last session
             </span>
-            <div class="mt-2 truncate">
-              <router-link :to="`/sessions/${latestSession.id}/planning`">
-                {{ latestSession.name }}
-              </router-link>
+          </div>
+          <div class="col-span-4 2xl:col-span-3 lg:pl-4 flex flex-col">
+            <div>
+              <div class="mt-2 truncate">
+                <router-link :to="`/sessions/${latestSession.id}/planning`">
+                  {{ latestSession.name }}
+                </router-link>
+              </div>
+            </div>
+            <div class="text-neutral-400 text-sm flex">
+              <div v-if="latestSession.audioUri" class="flex mr-4">
+                <ClockIcon class="h-5 mr-1" />
+                {{ latestSessionDuration }}
+              </div>
+              <div class="flex">
+                <CalendarDaysIcon class="h-5 mr-1" />
+                {{ format(new Date(latestSession.updatedAt), 'MMM d, yyyy') }}
+              </div>
+            </div>
+            <div class="text-neutral-500 grow max-h-[12em] overflow-y-auto">
+              {{ latestSession.summary }}
             </div>
           </div>
         </div>
-        <div class="py-4 text-neutral-400 text-sm flex">
-          <div v-if="latestSession.audioUri" class="flex mr-4">
-            <ClockIcon class="h-5 mr-1" />
-            {{ latestSessionDuration }}
-          </div>
-          <div class="flex">
-            <CalendarDaysIcon class="h-5 mr-1" />
-            {{ format(new Date(latestSession.updatedAt), 'MMMM d, yyyy') }}
-          </div>
-        </div>
-        <div class="text-neutral-500 h-[8em] lg:h-[6em] overflow-y-auto">
-          {{ latestSession.summary }}
-        </div>
       </div>
-      <div v-else class="text-neutral-500 text-center py-[5em]">
+      <div v-else class="text-neutral-500 text-center w-full my-auto">
         This campaign has no completed sessions
         <div
           v-if="currentUserRole === CampaignRole.DM"
@@ -347,36 +353,52 @@ async function handleRemoveMember() {
       </div>
     </div>
   </div>
-  <div class="grid grid-cols-1 lg:grid-cols-5 grid-rows-1 lg:gap-4">
-    <div class="col-span-2 mt-4">
-      <div class="my-3">Campaign info</div>
+  <div class="grid grid-cols-1 lg:grid-cols-5 grid-rows-1 lg:gap-4 mb-10">
+    <div class="col-span-2 mt-4 flex flex-col">
+      <div class="flex justify-between mb-4">
+        <div class="flex">
+          <div class="mr-1 self-center leading-9">Campaign Info</div>
+        </div>
+      </div>
       <div
-        class="rounded-[18px] bg-surface-3 p-4 min-h-[10em] text-neutral-500"
+        class="rounded-[18px] bg-surface-3 p-4 min-h-[10em] text-neutral-500 grow"
       >
-        <div class="my-2">Game manager: {{ gm }}</div>
-        <div class="my-2">Game system: {{ campaign.rpgSystemCode }}</div>
         <div class="my-2">
-          Date started:
-          {{
-            campaign.createdAt
-              ? format(new Date(campaign.createdAt), 'MMMM d, yyyy')
-              : 'N/A'
-          }}
+          Game manager: <span class="text-neutral-300">{{ gm }}</span>
         </div>
         <div class="my-2">
-          Players count: {{ campaign.members?.length || 'N/A' }}
+          Game system:
+          <span class="text-neutral-300">{{ campaign.rpgSystemCode }}</span>
+        </div>
+        <div class="my-2">
+          Date started:
+          <span class="text-neutral-300">
+            {{
+              campaign.createdAt
+                ? format(new Date(campaign.createdAt), 'MMM d, yyyy')
+                : 'N/A'
+            }}
+          </span>
+        </div>
+        <div class="my-2">
+          Players count:
+          <span class="text-neutral-300">{{
+            campaign.members?.length || 'N/A'
+          }}</span>
         </div>
         <div class="my-2">
           Last session:
-          {{
-            latestSession
-              ? format(new Date(latestSession.updatedAt), 'MMMM d, yyyy')
-              : 'N/A'
-          }}
+          <span class="text-neutral-300">
+            {{
+              latestSession
+                ? format(new Date(latestSession.updatedAt), 'MMM d, yyyy')
+                : 'N/A'
+            }}
+          </span>
         </div>
       </div>
     </div>
-    <div class="col-span-3 mt-4">
+    <div class="col-span-3 mt-4 flex flex-col">
       <div class="flex justify-between mb-4">
         <div class="flex">
           <div class="mr-1 self-center">Party members</div>
@@ -397,7 +419,7 @@ async function handleRemoveMember() {
           </button>
         </div>
       </div>
-      <div class="rounded-[18px] bg-surface-3 p-4 col-span-2">
+      <div class="rounded-[18px] bg-surface-3 p-4 col-span-2 grow">
         <div
           v-for="member in campaign.members"
           :key="`${member.id}_member`"
