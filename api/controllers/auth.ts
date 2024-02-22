@@ -146,18 +146,6 @@ export default class AuthController {
       track(AppEvent.Registered, user.id, trackingInfo, { email });
     }
 
-    if (new Date() > user.earlyAccessCutoffAt && !user.earlyAccessExempt) {
-      logger.info(
-        `User ${user.id} - ${user.email} early access has expired`,
-        user,
-      );
-
-      throw new AppError({
-        httpCode: HttpCode.FORBIDDEN,
-        description: "User's early access has expired",
-      });
-    }
-
     if (request.inviteCode) {
       const invite = await prisma.campaignMember.findUnique({
         where: {

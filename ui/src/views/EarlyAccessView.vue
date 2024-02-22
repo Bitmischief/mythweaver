@@ -18,13 +18,13 @@
         <PricingTable />
 
         <div class="flex mt-8">
-          <router-link
-            to="/login"
+          <button
             class="button-primary whitespace-nowrap text-center bg-neutral-800 rounded-md self-center flex"
+            @click="backToLogin"
           >
             <ArrowLeftIcon class="w-5 h-5 mr-1" />
             Back to login
-          </router-link>
+          </button>
         </div>
       </div>
     </div>
@@ -35,4 +35,11 @@
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import { ArrowLeftIcon } from '@heroicons/vue/24/solid';
 import PricingTable from '@/components/Core/PricingTable.vue';
+import { useAuthStore } from '@/store';
+
+const authStore = useAuthStore();
+
+const backToLogin = () => {
+  authStore.logout();
+};
 </script>
