@@ -25,6 +25,7 @@ export const getCheckoutUrl = async (
   const session = await stripe.checkout.sessions.create({
     customer: customerId,
     success_url: `${urlPrefix}/account-settings`,
+    cancel_url: `${urlPrefix}/account-settings`,
     line_items: [
       {
         price: priceId,
