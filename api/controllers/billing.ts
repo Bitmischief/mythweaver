@@ -11,7 +11,7 @@ import {
   getSessionLineItems,
 } from '../services/billing';
 import Stripe from 'stripe';
-import { BillingPlan, BillingInterval, User } from '@prisma/client';
+import { BillingInterval, BillingPlan, User } from '@prisma/client';
 import { MythWeaverLogger } from '../lib/logger';
 
 const PRO_PLAN_IMAGE_CREDITS = 300;
@@ -232,7 +232,7 @@ export default class BillingController {
         const subscriptionProductId = line.plan?.product as string;
         const itemProductId = line.price?.product as string;
 
-        if (subscriptionProductId) {
+        if (subscriptionProductId && line.amount > 0) {
           logger.info('Processing invoice paid event for subscription', {
             customerId: event.data.object.customer as string,
             subscriptionProductId,
@@ -319,8 +319,9 @@ const processSubscriptionPaid = async (
     },
     data: {
       imageCredits: {
-        increment: creditCount,
+        increment: amountPaid > 0 ? creditCount : 0,
       },
+      planInterval: interval,
     },
   });
 

@@ -323,7 +323,7 @@ async function handleRemoveMember() {
                 </router-link>
               </div>
             </div>
-            <div class="text-neutral-400 text-sm flex">
+            <div class="text-neutral-400 text-sm flex py-2">
               <div v-if="latestSession.audioUri" class="flex mr-4">
                 <ClockIcon class="h-5 mr-1" />
                 {{ latestSessionDuration }}
