@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express';
-import { useAuthenticateRequest } from '../lib/authMiddleware';
+import { SecurityType, useAuthenticateRequest } from '../lib/authMiddleware';
 import { z } from 'zod';
 import {
   useValidateRequest,
@@ -275,7 +275,7 @@ router.post('/:sessionId/transcription', [
 ]);
 
 router.patch('/:sessionId/transcription', [
-  useAuthenticateRequest('transcription_token'),
+  useAuthenticateRequest(SecurityType.ServiceToken),
   useInjectLoggingInfo(),
   useValidateRequest(getSessionSchema, {
     validationType: ValidationTypes.Route,

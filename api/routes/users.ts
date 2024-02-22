@@ -1,13 +1,17 @@
 import express, { Request, Response } from 'express';
-import { useAuthenticateRequest } from '../lib/authMiddleware';
+import { SecurityType, useAuthenticateRequest } from '../lib/authMiddleware';
 import { z } from 'zod';
-import { useValidateRequest } from '../lib/validationMiddleware';
+import {
+  useValidateRequest,
+  ValidationTypes,
+} from '../lib/validationMiddleware';
 import UserController from '../controllers/users';
 import mailchimpClient from '../lib/mailchimpMarketing';
 import { lists, Status } from '@mailchimp/mailchimp_marketing';
 import EmailType = lists.EmailType;
 import { format } from 'date-fns';
 import { useInjectLoggingInfo, useLogger } from '../lib/loggingMiddleware';
+import SessionController from '../controllers/sessions';
 
 const router = express.Router();
 
@@ -86,6 +90,28 @@ router.post('/prerelease', [
     }
 
     return res.status(200).send();
+  },
+]);
+
+const postAddCreditsSchema = z.object({
+  email: z.string(),
+  amount: z.number(),
+});
+
+router.patch('/add-credits', [
+  useAuthenticateRequest(SecurityType.ServiceToken),
+  useInjectLoggingInfo(),
+  useValidateRequest(postAddCreditsSchema),
+  async (req: Request, res: Response) => {
+    const controller = new UserController();
+
+    const response = await controller.addUserCredits(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      useLogger(res),
+      req.body,
+    );
+    return res.status(200).send(response);
   },
 ]);
 
