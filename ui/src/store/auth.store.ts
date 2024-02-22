@@ -34,6 +34,15 @@ export const useAuthStore = defineStore({
         const userResponse = await getCurrentUser();
         this.user = userResponse.data;
 
+        if (
+          this.user &&
+          !this.user.plan &&
+          this.user.earlyAccessCutoffAt &&
+          Date.parse(this.user?.earlyAccessCutoffAt) < Date.now()
+        ) {
+          await router.push('/auth/earlyaccess');
+        }
+
         const eventBus = useEventBus();
         eventBus.$emit('user-loaded', this.user);
       } catch (err) {

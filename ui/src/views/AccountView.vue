@@ -7,6 +7,9 @@ import { showSuccess, showError } from '@/lib/notifications';
 import { getBillingPortalUrl } from '@/api/billing.ts';
 import Loader from '@/components/Core/Loader.vue';
 import { format } from 'date-fns';
+import PricingPlan from '@/components/Core/PricingPlan.vue';
+import ModalAlternate from '@/components/ModalAlternate.vue';
+import { XCircleIcon } from '@heroicons/vue/24/solid';
 
 const store = useAuthStore();
 const user = computed(() => store.user);
@@ -14,6 +17,10 @@ const tab = ref('billing');
 
 const username = ref('');
 const billingLoading = ref(false);
+const showBuyImageCreditsModal = ref(false);
+const imageCredit100PackPriceId = computed(
+  () => import.meta.env.VITE_STRIPE_100_IMAGE_CREDITS_ID,
+);
 
 async function clickBilling() {
   billingLoading.value = true;
@@ -129,7 +136,8 @@ async function saveChanges() {
                   <div
                     class="self-center mx-2 px-2 skew-x-[-20deg] rounded-tl-[5px] rounded-br-[5px]"
                     :class="{
-                      'bg-amber-500': user.earlyAccessExempt,
+                      'bg-gradient-to-r from-orange-500 to-orange-600 ':
+                        user.earlyAccessExempt,
                       'bg-slate-500': user.plan === 'FREE',
                       'bg-fuchsia-500': user.plan === 'BASIC',
                       'bg-gradient-to-r from-fuchsia-500 to-violet-500':
@@ -145,7 +153,7 @@ async function saveChanges() {
                     }}
                   </div>
                 </div>
-                <div class="mt-6 w-full">
+                <div v-if="!user.earlyAccessExempt" class="mt-6 w-full">
                   <button
                     v-if="user.plan && user.plan !== 'FREE'"
                     class="button-ghost-white mr-2"
@@ -155,7 +163,7 @@ async function saveChanges() {
                     Manage Subscription
                   </button>
                   <button
-                    v-if="user.plan"
+                    v-if="user.plan && user.plan !== 'PRO'"
                     class="button-gradient"
                     :disabled="billingLoading"
                     @click="clickBilling"
@@ -168,7 +176,7 @@ async function saveChanges() {
                 class="bg-surface border border-surface-3 rounded-[12px] grow m-2 p-4 w-full md:w-[50%]"
               >
                 <div class="text-sm text-neutral-400">Image Credit Count</div>
-                <div class="text-3xl my-2 flex">
+                <div class="text-3xl flex">
                   <span
                     v-if="user.earlyAccessExempt"
                     class="text-bold self-center mr-2"
@@ -182,9 +190,19 @@ async function saveChanges() {
                   <span v-else class="text-bold text-4xl">
                     {{ user.imageCredits }}
                   </span>
-                  <span class="text-lg text-neutral-400 pt-1 px-1 self-center"
-                    >images</span
+                  <span class="text-lg text-neutral-400 pt-1 px-1 self-center">
+                    images
+                  </span>
+                </div>
+
+                <div v-if="!user.earlyAccessExempt" class="mt-6 w-full">
+                  <button
+                    v-if="user.plan"
+                    class="button-ghost-white mr-2"
+                    @click="showBuyImageCreditsModal = true"
                   >
+                    Add more image credits
+                  </button>
                 </div>
               </div>
             </div>
@@ -235,4 +253,28 @@ async function saveChanges() {
       <div class="mt-4">Loading user settings...</div>
     </div>
   </div>
+  <ModalAlternate
+    :show="showBuyImageCreditsModal"
+    extra-dark
+    @close="showBuyImageCreditsModal = false"
+  >
+    <div
+      class="md:w-[800px] p-6 bg-surface-2 rounded-[20px] border border-surface-3"
+    >
+      <div class="flex justify-between text-neutral-300">
+        <div class="text-xl mb-6">Buy More Image Credits</div>
+        <XCircleIcon
+          class="h-6 w-6 cursor-pointer"
+          @click="showBuyImageCreditsModal = false"
+        />
+      </div>
+
+      <PricingPlan
+        name="100 Image Credit Pack"
+        :price="5"
+        :features="['Generate 100 more images', 'No subscription required']"
+        :price-id="imageCredit100PackPriceId"
+      />
+    </div>
+  </ModalAlternate>
 </template>

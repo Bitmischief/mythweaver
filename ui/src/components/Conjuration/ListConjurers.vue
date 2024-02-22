@@ -42,7 +42,7 @@
           @submit="generate"
         >
           <div class="p-3 rounded-[20px] bg-surface-2 min-h-[12em]">
-            <div class="relative pb-1">
+            <div class="relative pb-1 grow">
               <FormKit
                 v-model="request.prompt"
                 :placeholder="`Enter ${generator?.name} Description`"

@@ -38,7 +38,7 @@ const sessionType = computed(() => {
 </script>
 
 <template>
-  <div class="transition-all ease-in-out hover:scale-[105%]">
+  <div>
     <div
       class="relative flex cursor-pointer flex-col justify-end rounded-[20px] shadow-xl bg-surface-2"
     >

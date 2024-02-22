@@ -96,19 +96,22 @@ async function routeBack() {
           <span class="self-center">Back</span>
         </button>
 
-        <div v-if="conjuration.saved && !editable" class="input-primary ml-4">
-          <span class="self-center">
-            You must make a copy of this conjuration to make changes to it.
-          </span>
+        <div
+          v-if="conjuration.saved && !editable"
+          class="bg-amber-300/10 rounded-[12px] flex px-4 mx-4"
+        >
+          <div class="self-center text-amber-300/75 my-auto">
+            This conjuration has not been saved yet.
+          </div>
         </div>
 
         <div
           v-if="!conjuration.saved && !editable"
-          class="mx-auto text-fuchsia-500"
+          class="bg-amber-300/10 rounded-[12px] flex px-4 mx-4"
         >
-          <span class="self-center">
+          <div class="self-center text-amber-300/75 my-auto">
             This conjuration has not been saved yet.
-          </span>
+          </div>
         </div>
       </div>
 

@@ -46,12 +46,18 @@ function creditCountChanged(newImageCreditCount: number) {
 const credits = computed(() => {
   return authStore.user?.imageCredits || '0';
 });
+
+const clickCreditCount = () => {
+  if (authStore.user && !authStore.user.earlyAccessExempt) {
+    showBuyImageCreditsModal.value = true;
+  }
+};
 </script>
 
 <template>
   <div
     class="flex items-center border border-zinc-800 bg-surface-3 rounded-[25px] p-1 cursor-pointer"
-    @click="showBuyImageCreditsModal = true"
+    @click="clickCreditCount"
   >
     <div class="relative min-w-[3em] min-h-[2em]">
       <div
