@@ -124,6 +124,7 @@ export default class BillingController {
         event.data.object.customer as string,
         imageCreditPack100.price.product,
         event.data.object.amount_total || 0 / 100,
+        imageCreditPack100.quantity,
         logger,
       );
     }
@@ -227,12 +228,16 @@ export default class BillingController {
   ) {
     if (event.data.object.status === 'paid') {
       const lines = event.data.object.lines.data;
+      const subscriptionLines = lines.filter((l) => l.subscription !== null);
 
-      for (const line of lines) {
-        const subscriptionProductId = line.plan?.product as string;
-        const itemProductId = line.price?.product as string;
+      if (subscriptionLines.length) {
+        const prevSubscription = subscriptionLines.find((sl) => sl.amount < 0);
+        const curSubscription = subscriptionLines.find((sl) => sl.amount > 0);
 
-        if (subscriptionProductId && line.amount > 0) {
+        const subscriptionProductId = curSubscription?.plan?.product as string;
+        const itemProductId = curSubscription?.price?.product as string;
+
+        if (subscriptionProductId) {
           logger.info('Processing invoice paid event for subscription', {
             customerId: event.data.object.customer as string,
             subscriptionProductId,
@@ -241,9 +246,11 @@ export default class BillingController {
           await processSubscriptionPaid(
             event.data.object.customer as string,
             subscriptionProductId,
-            line.plan as Stripe.Plan,
+            curSubscription?.plan as Stripe.Plan,
             event.data.object.amount_paid / 100,
             logger,
+            (prevSubscription?.plan?.product as string) ?? null,
+            (prevSubscription?.plan as Stripe.Plan) ?? null,
           );
         } else {
           logger.info(
@@ -263,6 +270,7 @@ const processItemPaid = async (
   billingCustomerId: string,
   productId: string,
   amountPaid: number,
+  qty: number,
   logger: MythWeaverLogger,
 ) => {
   const user = await getUser(billingCustomerId);
@@ -276,7 +284,7 @@ const processItemPaid = async (
     },
     data: {
       imageCredits: {
-        increment: creditCount,
+        increment: creditCount * qty,
       },
     },
   });
@@ -297,21 +305,41 @@ const processSubscriptionPaid = async (
   stripePlan: Stripe.Plan,
   amountPaid: number,
   logger: MythWeaverLogger,
+  prevProductId: string,
+  prevStripePlan: Stripe.Plan,
 ) => {
   const user = await getUser(billingCustomerId);
   const plan = getPlanForProductId(productId);
+  let prevPlan = null;
+  if (prevProductId) {
+    prevPlan = getPlanForProductId(prevProductId);
+  }
   const interval = getBillingIntervalForStripePlan(stripePlan);
+  const prevInterval = prevStripePlan
+    ? getBillingIntervalForStripePlan(prevStripePlan)
+    : null;
 
-  let creditCount =
+  let curCreditCount =
     plan === BillingPlan.PRO
       ? PRO_PLAN_IMAGE_CREDITS
       : BASIC_PLAN_IMAGE_CREDITS;
 
-  if (interval === BillingInterval.YEARLY) {
-    creditCount = creditCount * 12;
+  let prevCreditCount = 0;
+  if (prevPlan && amountPaid > 0) {
+    prevCreditCount =
+      prevPlan === BillingPlan.PRO
+        ? PRO_PLAN_IMAGE_CREDITS
+        : BASIC_PLAN_IMAGE_CREDITS;
   }
 
-  logger.info('Incrementing image credits for user', { creditCount });
+  if (interval === BillingInterval.YEARLY) {
+    curCreditCount = curCreditCount * 12;
+  }
+  if (prevInterval && prevInterval === BillingInterval.YEARLY) {
+    prevCreditCount = prevCreditCount * 12;
+  }
+
+  logger.info('Incrementing image credits for user', { curCreditCount });
 
   await prisma.user.update({
     where: {
@@ -319,7 +347,7 @@ const processSubscriptionPaid = async (
     },
     data: {
       imageCredits: {
-        increment: amountPaid > 0 ? creditCount : 0,
+        increment: amountPaid > 0 ? curCreditCount - prevCreditCount : 0,
       },
       planInterval: interval,
     },
