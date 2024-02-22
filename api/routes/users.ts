@@ -106,7 +106,6 @@ router.post('/add-credits', [
     const controller = new UserController();
 
     const response = await controller.addUserCredits(
-      res.locals.auth.userId,
       res.locals.trackingInfo,
       useLogger(res),
       req.body,

@@ -98,13 +98,11 @@ export default class UserController {
     });
   }
   public async addUserCredits(
-    userId: number,
     trackingInfo: TrackingInfo,
     logger: MythWeaverLogger,
     request: AddUserCreditsRequest,
   ) {
     logger.info('Getting request to add user credits', {
-      userId,
       trackingInfo,
     });
 
@@ -115,7 +113,7 @@ export default class UserController {
     });
 
     if (!user) {
-      logger.warn('User not found', { userId, trackingInfo });
+      logger.warn('User not found', { trackingInfo });
 
       throw new AppError({
         description: 'User not found.',
@@ -124,7 +122,6 @@ export default class UserController {
     }
 
     logger.info(`Adding ${request.amount} credits to user`, {
-      userId,
       trackingInfo,
     });
 
