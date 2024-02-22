@@ -98,7 +98,7 @@ const postAddCreditsSchema = z.object({
   amount: z.number(),
 });
 
-router.patch('/add-credits', [
+router.post('/add-credits', [
   useAuthenticateRequest(SecurityType.ServiceToken),
   useInjectLoggingInfo(),
   useValidateRequest(postAddCreditsSchema),
