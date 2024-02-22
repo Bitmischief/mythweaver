@@ -163,7 +163,7 @@ async function saveChanges() {
                     Manage Subscription
                   </button>
                   <button
-                    v-if="user.plan"
+                    v-if="user.plan && user.plan !== 'PRO'"
                     class="button-gradient"
                     :disabled="billingLoading"
                     @click="clickBilling"
