@@ -51,13 +51,12 @@ const proPlanId = computed(() => {
           <div class="text-sm text-neutral-300">{{ name }}</div>
           <div
             v-if="monthlyPrice && yearlyPrice"
-            class="text-xl text-white font-bold"
+            class="text-3xl text-white font-bold"
           >
             <div v-if="monthlyPrice > 0">
               <div>${{ monthlyPrice.toFixed(2) }}/mo</div>
-              <div v-if="yearlyPrice" class="text-xs text-neutral-300">
-                or
-                <span class="line-through text-neutral-400">
+              <div v-if="yearlyPrice" class="text-sm text-neutral-200">
+                <span class="line-through text-neutral-300">
                   ${{ (monthlyPrice * 12).toFixed(2) }}
                 </span>
                 ${{ yearlyPrice.toFixed(2) }}/yearly
@@ -65,7 +64,7 @@ const proPlanId = computed(() => {
             </div>
             <div v-else>
               Free Forever
-              <div class="text-xs opacity-0">
+              <div class="text-sm opacity-0">
                 ${{ (monthlyPrice * 12).toFixed(2) }}
               </div>
             </div>
@@ -75,7 +74,7 @@ const proPlanId = computed(() => {
           </div>
         </div>
 
-        <ul class="mt-4 text-neutral-400 list-none text-xs">
+        <ul class="mt-4 text-neutral-400 list-none text-md">
           <li v-for="feature of features" :key="feature" class="flex">
             <CheckIcon class="h-4 mr-1" /> {{ feature }}
           </li>
