@@ -1,6 +1,10 @@
 <script lang="ts" setup>
-import { useEarlyAccessCutoff, useEarlyAccessExempt } from '@/lib/hooks.ts';
-import { ref } from 'vue';
+import {
+  useEarlyAccessCutoff,
+  useEarlyAccessExempt,
+  useSubscriptionPaidThrough,
+} from '@/lib/hooks.ts';
+import { ref, watch } from 'vue';
 import { formatDistance } from 'date-fns';
 import { BoltIcon } from '@heroicons/vue/20/solid';
 import { XCircleIcon } from '@heroicons/vue/24/solid';
@@ -13,8 +17,19 @@ const router = useRouter();
 const authStore = useAuthStore();
 const earlyAccessCutoff = useEarlyAccessCutoff();
 const earlyAccessExempt = useEarlyAccessExempt();
+const subscriptionPaidThrough = useSubscriptionPaidThrough();
 
 const showUpgradeModal = ref(false);
+
+watch(subscriptionPaidThrough, () => {
+  if (
+    subscriptionPaidThrough.value &&
+    new Date(subscriptionPaidThrough.value) < new Date()
+  ) {
+    router.push('/auth/earlyaccess');
+  }
+});
+
 const earlyAccessEnds = () => {
   if (earlyAccessCutoff.value) {
     const cutoff = new Date(earlyAccessCutoff.value);

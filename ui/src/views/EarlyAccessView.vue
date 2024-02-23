@@ -4,11 +4,12 @@
       <div class="w-full">
         <img
           src="/images/logo-horizontal-2.svg"
-          class="mx-auto h-20 w-auto mb-8"
+          class="mx-auto h-14 w-auto mb-2"
         />
 
         <div class="text-neutral-300 text-2xl mb-1 text-center">
-          Your Trial has Expired
+          <span v-if="subscriptionExpired">Your Subscription has Ended</span>
+          <span v-else>Your Trial has Expired</span>
         </div>
 
         <div class="text-neutral-500 mb-4 text-center">
@@ -35,9 +36,20 @@
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import { ArrowLeftIcon } from '@heroicons/vue/24/solid';
 import PricingTable from '@/components/Core/PricingTable.vue';
+import { computed } from 'vue';
 import { useAuthStore } from '@/store';
+import { useSubscriptionPaidThrough } from '@/lib/hooks.ts';
 
 const authStore = useAuthStore();
+const subscriptionPaidThrough = useSubscriptionPaidThrough();
+
+const subscriptionExpired = computed(() => {
+  if (subscriptionPaidThrough.value) {
+    const now = new Date();
+    return new Date(subscriptionPaidThrough.value) < now;
+  }
+  return false;
+});
 
 const backToLogin = () => {
   authStore.logout();

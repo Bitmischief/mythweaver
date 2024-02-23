@@ -29,6 +29,11 @@ export function useEarlyAccessCutoff() {
   return computed(() => store.user?.earlyAccessCutoffAt);
 }
 
+export function useSubscriptionPaidThrough() {
+  const store = useAuthStore();
+  return computed(() => store.user?.subscriptionPaidThrough);
+}
+
 export function useEarlyAccessExempt() {
   const store = useAuthStore();
   return computed(() => store.user?.earlyAccessExempt || store.user?.plan || false);
