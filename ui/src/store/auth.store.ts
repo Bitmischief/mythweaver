@@ -57,6 +57,8 @@ export const useAuthStore = defineStore({
       inviteCode: string | undefined = undefined,
     ): Promise<boolean> {
       try {
+        await this.clearCache();
+
         const response = await postToken(type, credential, inviteCode);
 
         this.tokens = response.data;
@@ -109,8 +111,13 @@ export const useAuthStore = defineStore({
     },
     async logout() {
       this.tokens = null;
-      localStorage.removeItem(TOKENS_KEY_NAME);
+      await this.clearCache();
       await router.push('/login');
+    },
+    async clearCache() {
+      localStorage.clear();
+      this.tokens = null;
+      this.user = null;
     },
   },
 });

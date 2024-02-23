@@ -225,7 +225,9 @@ router.beforeEach(async (to) => {
   const authRequired = to?.meta?.authRequired || false;
   const auth = useAuthStore();
 
+  console.log('to:', to);
   if (authRequired && !auth.tokens) {
+    console.log('redirecting to login');
     auth.returnUrl = to.fullPath;
     return '/login';
   }

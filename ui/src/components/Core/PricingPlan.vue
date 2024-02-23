@@ -31,7 +31,7 @@ const proPlanId = computed(() => {
   <div
     class="flex flex-col rounded-[12px]"
     :class="{
-      'bg-fuchsia-500 p-px': highlighted,
+      'bg-gradient-to-r from-fuchsia-500 to-violet-500 p-px': highlighted,
       'mt-[1.5em]': !highlighted,
     }"
   >

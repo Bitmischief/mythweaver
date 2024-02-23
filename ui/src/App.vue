@@ -19,6 +19,10 @@ const eventBus = useEventBus();
 const intercom = useIntercom();
 
 onMounted(async () => {
+  if (location.pathname.startsWith('/auth/magic-link')) {
+    await authStore.clearCache();
+  }
+
   eventBus.$on('user-loaded', async () => {
     await initIntercom();
     await initNotifications();
