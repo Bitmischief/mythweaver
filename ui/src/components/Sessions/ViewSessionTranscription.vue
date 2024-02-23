@@ -66,10 +66,13 @@ async function init() {
     const response = await getSession(
       parseInt(route.params.sessionId.toString()),
     );
+
     session.value = {
       ...session.value,
       sessionTranscription: response.data.sessionTranscription,
     };
+    originalSession.value = { ...session.value };
+
     loadingTranscribeSession.value = false;
   });
 
@@ -235,7 +238,7 @@ const scrollToTop = () => {
         v-if="loadingTranscribeSession"
         class="text-xs text-neutral-400 mt-2"
       >
-        Your transcription is loading, please note this procress can take 10-20
+        Your transcription is loading, please note this process can take 10-20
         minutes for a 2-4 hour long session.
       </div>
       <div

@@ -63,7 +63,7 @@ const sessions = ref<SessionBase[]>([]);
 
 onMounted(async () => {
   if (!selectedCampaignId.value) {
-    router.push('/campaigns/new');
+    await router.push('/campaigns/new');
   }
 
   await init();
@@ -457,7 +457,13 @@ async function handleRemoveMember() {
             v-if="member.role != CampaignRole.DM"
             class="hidden group-hover:block pl-4"
           >
-            <button class="button-ghost py-1" @click="showDeleteModal = true">
+            <button
+              class="button-ghost py-1"
+              @click="
+                requestedRemovedMemberId = member.id;
+                showDeleteModal = true;
+              "
+            >
               Kick Player
             </button>
           </div>
