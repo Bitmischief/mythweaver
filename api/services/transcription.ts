@@ -3,7 +3,7 @@ import { prisma } from '../lib/providers/prisma';
 import { sendWebsocketMessage, WebSocketEvent } from './websockets';
 
 const transcriptionServiceDomain = process.env.TRANSCRIPTION_SERVICE_DOMAIN;
-const transcriptionToken = process.env.X_TRANSCRIPTION_TOKEN;
+const serviceToken = process.env.X_SERVICE_TOKEN;
 
 interface TranscriptionResponse {
   call_id: string;
@@ -17,7 +17,7 @@ export interface TranscriptionRequest {
 }
 
 export const transcribeSessionAudio = async (request: TranscriptionRequest) => {
-  if (!transcriptionToken)
+  if (!serviceToken)
     throw new Error('Missing transcription service api token.');
 
   const user = await prisma.user.findUnique({
@@ -50,7 +50,7 @@ export const transcribeSessionAudio = async (request: TranscriptionRequest) => {
       },
       {
         headers: {
-          'x-mw-token': transcriptionToken,
+          'x-mw-token': serviceToken,
           'x-request-id': request.requestId,
         },
       },

@@ -19,16 +19,19 @@ const proPlanId = computed(() => import.meta.env.VITE_STRIPE_PRO_PLAN_ID);
 
 <template>
   <div class="p-2">
-    <div class="grid grid-cols-2 gap-4">
+    <div class="grid md:grid-cols-2 gap-4">
       <PricingPlan
         name="Basic"
         :monthly-price="5.0"
         :yearly-price="50"
         :features="[
-          'All Free features PLUS',
-          'Create Conjurations',
-          'Advanced Character Attribute Generation',
-          'Image Generation (75 images/mo)',
+          '100 images/mo',
+          '(soon) Image Upscaling',
+          '(soon) Image Modifications',
+          'Private Conjurations',
+          'Campaign Management',
+          'Session AI summaries',
+          'Player character creation and management',
         ]"
         :price-id="basicPlanId"
         :current="currentPlan === 'BASIC'"
@@ -39,9 +42,13 @@ const proPlanId = computed(() => import.meta.env.VITE_STRIPE_PRO_PLAN_ID);
         :monthly-price="15.0"
         :yearly-price="150"
         :features="[
+          '300 images/mo',
           'All Basic features PLUS',
-          'Session Recording & Transcripts',
-          'AI Generated Dungeon Maps',
+          'Session Audio Recordings',
+          'Session Audio Transcripts',
+          'Commercial Usage Rights',
+          '(soon) Advanced Conjuration Types',
+          '(soon) World Management',
           'Priority Support',
         ]"
         :price-id="proPlanId"
