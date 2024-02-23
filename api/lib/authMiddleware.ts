@@ -4,7 +4,12 @@ import { prisma } from './providers/prisma';
 import { MythWeaverLogger } from './logger';
 import { injectRequestId } from './loggingMiddleware';
 
-export const useAuthenticateRequest = (securityType = 'jwt') => {
+export enum SecurityType {
+  JWT = 'jwt',
+  ServiceToken = 'service-token',
+}
+
+export const useAuthenticateRequest = (securityType = SecurityType.JWT) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     const logger = injectRequestId(req, res);
 
@@ -27,7 +32,7 @@ export const useAuthenticateRequest = (securityType = 'jwt') => {
 export async function expressAuthentication(
   req: Request,
   res: Response,
-  securityName: string,
+  securityName: SecurityType,
 ): Promise<boolean> {
   const logger = injectRequestId(req, res);
 
@@ -57,22 +62,18 @@ export async function expressAuthentication(
     return true;
   }
 
-  if (securityName === 'transcription_token') {
+  if (securityName === SecurityType.ServiceToken) {
     const req_token = req.headers['x-mw-token'];
 
-    logger.info('Authenticating provided transcription token.');
+    logger.info('Authenticating provided service token.');
 
-    const transcription_token = process.env.X_TRANSCRIPTION_TOKEN;
-    if (!transcription_token) {
-      logger.error('No X_TRANSCRIPTION_TOKEN env variable found.');
+    const serviceToken = process.env.X_SERVICE_TOKEN;
+    if (!serviceToken) {
+      logger.error('No "x-mw-token" env variable found.');
       return false;
     }
 
-    if (transcription_token !== req_token) {
-      return false;
-    }
-
-    return true;
+    return serviceToken === req_token;
   }
 
   return false;

@@ -24,6 +24,11 @@ interface PatchUserRequest {
   confirmEarlyAccessStart?: boolean;
 }
 
+interface AddUserCreditsRequest {
+  email: string;
+  amount: number;
+}
+
 @Route('users')
 @Tags('Users')
 export default class UserController {
@@ -90,6 +95,45 @@ export default class UserController {
         id: userId,
       },
       data: payload,
+    });
+  }
+  public async addUserCredits(
+    trackingInfo: TrackingInfo,
+    logger: MythWeaverLogger,
+    request: AddUserCreditsRequest,
+  ) {
+    logger.info('Getting request to add user credits', {
+      trackingInfo,
+    });
+
+    const user = await prisma.user.findUnique({
+      where: {
+        email: request.email,
+      },
+    });
+
+    if (!user) {
+      logger.warn('User not found', { trackingInfo });
+
+      throw new AppError({
+        description: 'User not found.',
+        httpCode: HttpCode.BAD_REQUEST,
+      });
+    }
+
+    logger.info(`Adding ${request.amount} credits to user`, {
+      trackingInfo,
+    });
+
+    return prisma.user.update({
+      where: {
+        email: request.email,
+      },
+      data: {
+        imageCredits: {
+          increment: request.amount,
+        },
+      },
     });
   }
 }

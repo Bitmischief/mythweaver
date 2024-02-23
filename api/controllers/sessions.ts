@@ -501,7 +501,7 @@ export default class SessionController {
     return;
   }
 
-  @Security('transcription_token')
+  @Security('service_token')
   @OperationId('patchSessionTranscription')
   @Patch('/:sessionId/transcription')
   public async patchSessionTranscription(
