@@ -59,6 +59,10 @@ export default class UserController {
 
     track(AppEvent.GetLoggedInUser, userId, trackingInfo);
 
+    await setIntercomCustomAttributes(user.id, {
+      'Trial End Date': user.earlyAccessCutoffAt,
+    });
+
     return user;
   }
 
@@ -73,24 +77,6 @@ export default class UserController {
   ): Promise<User> {
     track(AppEvent.UpdateUser, userId, trackingInfo);
 
-    if (request.confirmEarlyAccessStart) {
-      const earlyAccessEnd = new Date();
-      earlyAccessEnd.setHours(new Date().getHours() + 24 * 7);
-
-      await prisma.user.update({
-        where: {
-          id: userId,
-        },
-        data: {
-          earlyAccessCutoffAt: earlyAccessEnd,
-        },
-      });
-
-      await setIntercomCustomAttributes(userId, {
-        'Trial End Date': earlyAccessEnd,
-      });
-    }
-
     const payload = {
       ...request,
       confirmEarlyAccessStart: undefined,
@@ -103,6 +89,7 @@ export default class UserController {
       data: payload,
     });
   }
+
   public async addUserCredits(
     trackingInfo: TrackingInfo,
     logger: MythWeaverLogger,
