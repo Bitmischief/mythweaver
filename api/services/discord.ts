@@ -8,6 +8,7 @@ export const postToDiscordBillingChannel = async (message: string) => {
   }
 
   // if (!isProduction) return;
+  logger.info('Posting message to Discord billing channel');
 
   await axios.post(process.env.DISCORD_BILLING_WEBHOOK || '', {
     content: message,

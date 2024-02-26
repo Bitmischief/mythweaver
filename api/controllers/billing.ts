@@ -99,6 +99,7 @@ export default class BillingController {
   }
 
   public async processWebhook(event: Stripe.Event, logger: MythWeaverLogger) {
+    logger.info('Processing Stripe webhook event', { event });
     if (event.type === 'checkout.session.completed') {
       await this.processCheckoutSessionCompletedEvent(event, logger);
     } else if (
@@ -123,7 +124,6 @@ export default class BillingController {
 
     const session = event.data.object;
 
-    // Note that you'll need to add an async prefix to this route handler
     const lineItems = await getSessionLineItems(session.id);
 
     const imageCreditPack100 = lineItems.data.find(
