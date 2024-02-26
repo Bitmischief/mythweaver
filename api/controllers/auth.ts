@@ -12,7 +12,7 @@ import { prisma } from '../lib/providers/prisma';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import jwt from 'jsonwebtoken';
 import { AppEvent, identify, track, TrackingInfo } from '../lib/tracking';
-import CampaignController from './campaigns';
+import CampaignController, { CampaignRole } from './campaigns';
 import mailchimpClient from '../lib/mailchimpMarketing';
 import { lists, Status } from '@mailchimp/mailchimp_marketing';
 import { format } from 'date-fns';
@@ -290,6 +290,23 @@ export default class AuthController {
           earlyAccessCutoffAt: earlyAccessEnd,
           billingCustomerId: stripeCustomerId,
           imageCredits: 25,
+        },
+      });
+
+      await prisma.campaign.create({
+        data: {
+          name: 'My Campaign',
+          description: '',
+          rpgSystemCode: 'dnd',
+          publicAdventureCode: 'other',
+          userId: user.id,
+          members: {
+            create: {
+              userId: user.id,
+              role: CampaignRole.DM,
+              joinedAt: new Date(),
+            },
+          },
         },
       });
 
