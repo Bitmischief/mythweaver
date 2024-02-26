@@ -21,7 +21,7 @@ const intercom = useIntercom();
 onBeforeMount(async () => {
   if (
     location.pathname.startsWith('/auth/magic-link') ||
-    location.pathname.startsWith('/auth/invite')
+    location.pathname.startsWith('/invite')
   ) {
     await authStore.clearCache();
   }
