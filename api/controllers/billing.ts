@@ -20,6 +20,7 @@ import {
 import { MythWeaverLogger } from '../lib/logger';
 import { setIntercomCustomAttributes } from '../lib/intercom';
 import { modifyImageCreditCount } from '../services/credits';
+import { postToDiscordBillingChannel } from '../services/discord';
 
 const PRO_PLAN_IMAGE_CREDITS = 300;
 const BASIC_PLAN_IMAGE_CREDITS = 100;
@@ -353,6 +354,25 @@ const processSubscriptionPaid = async (
   }
   if (prevInterval && prevInterval === BillingInterval.YEARLY) {
     prevCreditCount = prevCreditCount * 12;
+  }
+
+  const existingUser = await prisma.user.findUnique({
+    where: {
+      id: user.id,
+    },
+  });
+
+  if (
+    existingUser?.plan === undefined ||
+    existingUser?.plan === BillingPlan.FREE
+  ) {
+    track(AppEvent.NewSubscription, user.id, undefined, {
+      amount: amountPaid,
+    });
+
+    await postToDiscordBillingChannel(
+      `New subscription: ${user.email} (${user.id})! Amount: ${amountPaid}`,
+    );
   }
 
   await prisma.user.update({
