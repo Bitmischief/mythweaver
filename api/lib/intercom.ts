@@ -1,7 +1,8 @@
-import { Client } from 'intercom-client';
+import { Client, Operators } from 'intercom-client';
 import { isLocalDevelopment } from './utils';
 import { prisma } from './providers/prisma';
 import { AppError, HttpCode } from './errors/AppError';
+
 const intercomClient = new Client({
   tokenAuth: { token: process.env.INTERCOM_ACCESS_TOKEN || '' },
 });
@@ -14,14 +15,17 @@ export const setIntercomCustomAttributes = async (
     return;
   }
 
-  let userFound = true;
-  try {
-    await intercomClient.contacts.find({ id: userId.toString() });
-  } catch (error) {
-    userFound = false;
-  }
+  const existingContact = await intercomClient.contacts.search({
+    data: {
+      query: {
+        field: 'external_id',
+        operator: Operators.EQUALS,
+        value: userId.toString(),
+      },
+    },
+  });
 
-  if (!userFound) {
+  if (!existingContact) {
     const user = await prisma.user.findUnique({
       where: {
         id: userId,
