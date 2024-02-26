@@ -73,6 +73,7 @@ jobs:
           sed -i 's|<STRIPE_ENDPOINT_SECRET>|${{ secrets.STRIPE_ENDPOINT_SECRET }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           sed -i 's|<STRIPE_BASIC_PLAN_ID>|${{ secrets.STRIPE_BASIC_PLAN_ID }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           sed -i 's|<STRIPE_PRO_PLAN_ID>|${{ secrets.STRIPE_PRO_PLAN_ID }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<STRIPE_IMAGE_PACK_100_PRODUCT_ID>|${{ secrets.STRIPE_IMAGE_PACK_100_PRODUCT_ID }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           sed -i 's|<BETTERSTACK_LOGGER_SOURCE_TOKEN>|${{ secrets.BETTERSTACK_LOGGER_SOURCE_TOKEN }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           sed -i 's|<MIN_REPLICAS>|${{ vars.MIN_REPLICAS }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           sed -i 's|<MAX_REPLICAS>|${{ vars.MAX_REPLICAS }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
