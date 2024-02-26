@@ -81,7 +81,7 @@ async function login() {
     </div>
 
     <button
-      class="mt-6 w-full flex text-center justify-center self-center rounded-md bg-gradient-to-r from-fuchsia-500 to-violet-500 px-4 py-3 transition-all hover:scale-110"
+      class="mt-6 w-full flex text-center justify-center self-center rounded-md bg-gradient-to-r from-fuchsia-500 to-violet-500 px-4 py-3 transition-all hover:scale-105"
       @click="login"
     >
       <template v-if="!isLoading">

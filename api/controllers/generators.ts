@@ -20,7 +20,6 @@ import { sanitizeJson } from '../lib/utils';
 import { getClient } from '../lib/providers/openai';
 import { ImageStylePreset } from './images';
 import { MythWeaverLogger } from '../lib/logger';
-import { CampaignRole } from './campaigns';
 
 export interface GetGeneratorsResponse {
   data: any[];
@@ -358,28 +357,16 @@ export class GeneratorController {
       });
     }
 
-    let campaign = await prisma.campaign.findFirst({
+    const campaign = await prisma.campaign.findFirst({
       where: {
         userId: userId,
       },
     });
 
     if (!campaign) {
-      campaign = await prisma.campaign.create({
-        data: {
-          name: 'My First Campaign',
-          description: '',
-          rpgSystemCode: 'dnd',
-          publicAdventureCode: 'other',
-          userId,
-          members: {
-            create: {
-              userId,
-              role: CampaignRole.DM,
-              joinedAt: new Date(),
-            },
-          },
-        },
+      throw new AppError({
+        description: 'Campaign not found.',
+        httpCode: HttpCode.BAD_REQUEST,
       });
     }
 
