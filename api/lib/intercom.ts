@@ -14,9 +14,14 @@ export const setIntercomCustomAttributes = async (
     return;
   }
 
-  const contact = await intercomClient.contacts.find({ id: userId.toString() });
+  let userFound = true;
+  try {
+    await intercomClient.contacts.find({ id: userId.toString() });
+  } catch (error) {
+    userFound = false;
+  }
 
-  if (!contact) {
+  if (!userFound) {
     const user = await prisma.user.findUnique({
       where: {
         id: userId,

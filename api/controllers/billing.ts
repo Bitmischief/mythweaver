@@ -355,8 +355,6 @@ const processSubscriptionPaid = async (
     prevCreditCount = prevCreditCount * 12;
   }
 
-  logger.info('Incrementing image credits for user', { curCreditCount });
-
   await prisma.user.update({
     where: {
       id: user.id,
@@ -366,6 +364,7 @@ const processSubscriptionPaid = async (
     },
   });
 
+  logger.info('Incrementing image credits for user', { curCreditCount });
   await modifyImageCreditCount(
     user.id,
     amountPaid > 0 ? curCreditCount - prevCreditCount : 0,
