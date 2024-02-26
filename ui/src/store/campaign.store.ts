@@ -54,10 +54,8 @@ export const useCampaignStore = defineStore({
 
       this.campaigns = campaignsResponse.data.data;
 
-      if (this.selectedCampaignId === undefined && this.campaigns.length) {
+      if (this.campaigns.length) {
         await this.selectCampaign(this.campaigns[0].id);
-      } else if (this.selectedCampaignId !== undefined && !this.campaigns.length) {
-        await this.selectCampaign(undefined);
       }
     },
     setCampaignRole() {

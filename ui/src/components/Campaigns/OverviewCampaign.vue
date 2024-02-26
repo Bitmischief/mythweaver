@@ -24,13 +24,12 @@ import { useSelectedCampaignId } from '@/lib/hooks.ts';
 import { useRouter } from 'vue-router';
 import { format } from 'date-fns';
 import { showSuccess, showError } from '@/lib/notifications';
-import { useCampaignStore } from '@/store/campaign.store.ts';
 import { Character } from '@/api/characters';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import CharacterOverview from '../Characters/CharacterOverview.vue';
 import { AxiosError } from 'axios';
+import { useCurrentUserRole } from '@/lib/hooks.ts';
 
-const campaignStore = useCampaignStore();
 const selectedCampaignId = useSelectedCampaignId();
 const eventBus = useEventBus();
 const router = useRouter();
@@ -48,7 +47,7 @@ const showDeleteModal = ref(false);
 const inviteLoading = ref(false);
 const inviteEmail = ref('');
 
-const currentUserRole = computed(() => campaignStore.selectedCampaignRole);
+const currentUserRole = useCurrentUserRole();
 
 const sessionsSearch = ref<{
   offset: number;
