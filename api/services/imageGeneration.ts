@@ -7,6 +7,8 @@ import { prisma } from '../lib/providers/prisma';
 import { ImageStylePreset } from '../controllers/images';
 import { sendWebsocketMessage, WebSocketEvent } from './websockets';
 import { AppEvent, track } from '../lib/tracking';
+import { modifyImageCreditCount } from './credits';
+import { ImageCreditChangeType } from '@prisma/client';
 
 const s3 = new S3Client({
   endpoint: 'https://sfo3.digitaloceanspaces.com',
@@ -171,6 +173,13 @@ export const generateImage = async (request: ImageRequest) => {
         },
       },
     });
+
+    await modifyImageCreditCount(
+      user.id,
+      validImageCount * -1,
+      ImageCreditChangeType.USER_INITIATED,
+      `Image generation: ${urls.join(', ')}`,
+    );
 
     await sendWebsocketMessage(
       request.userId,

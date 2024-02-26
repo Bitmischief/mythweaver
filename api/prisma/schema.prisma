@@ -58,6 +58,7 @@ model User {
   magicLinks            MagicLink[]
   images                Image[]
   sessionTranscriptions SessionTranscription[]
+  ImageCreditAuditLog   ImageCreditAuditLog[]
 
   @@map("users")
 }
@@ -76,15 +77,15 @@ model Conjuration {
   campaignId           Int?
   conjurationRequestId Int?
 
-  name          String
-  visibility    ConjurationVisibility @default(PUBLIC)
-  conjurerCode  String
-  imageUri      String?
-  imageAIPrompt String?
-  data          Json
-  tags          String[]
-  published     Boolean               @default(false)
-  imageGenerationFailed Boolean @default(false)
+  name                  String
+  visibility            ConjurationVisibility @default(PUBLIC)
+  conjurerCode          String
+  imageUri              String?
+  imageAIPrompt         String?
+  data                  Json
+  tags                  String[]
+  published             Boolean               @default(false)
+  imageGenerationFailed Boolean               @default(false)
 
   user               User?               @relation(fields: [userId], references: [id])
   campaign           Campaign?           @relation(fields: [campaignId], references: [id], onDelete: Cascade)
@@ -160,15 +161,15 @@ model Session {
   completed  Boolean   @default(false)
   archived   Boolean   @default(false)
 
-  summary                String?
-  transcript             String?
-  planning               String?
-  recap                  String?
-  imageUri               String?
-  suggestions            String?
-  name                   String?
-  audioName              String?
-  audioUri               String?
+  summary     String?
+  transcript  String?
+  planning    String?
+  recap       String?
+  imageUri    String?
+  suggestions String?
+  name        String?
+  audioName   String?
+  audioUri    String?
 
   suggestedName        String?
   suggestedSummary     String?
@@ -298,14 +299,35 @@ model SessionTranscription {
   createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
   updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
 
-  sessionId     Int   @id @unique
+  sessionId     Int     @id @unique
   userId        Int
   callId        String?
   status        String?
   transcription Json?
 
-  user     User?      @relation(fields: [userId], references: [id])
-  session Session?    @relation(fields: [sessionId], references: [id])
+  user    User?    @relation(fields: [userId], references: [id])
+  session Session? @relation(fields: [sessionId], references: [id])
 
   @@map("session_transcriptions")
+}
+
+enum ImageCreditChangeType {
+  PURCHASE
+  SUBSCRIPTION
+  SUPPORT
+  USER_INITIATED
+}
+
+model ImageCreditAuditLog {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+
+  userId   Int
+  quantity Int
+  type     ImageCreditChangeType
+  comment  String?
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@map("image_credit_audit_log")
 }

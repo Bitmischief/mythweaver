@@ -9,11 +9,12 @@ import {
   Tags,
 } from 'tsoa';
 import { prisma } from '../lib/providers/prisma';
-import { User } from '@prisma/client';
+import { ImageCreditChangeType, User } from '@prisma/client';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { MythWeaverLogger } from '../lib/logger';
 import { setIntercomCustomAttributes } from '../lib/intercom';
+import { modifyImageCreditCount } from '../services/credits';
 
 interface PatchUserRequest {
   campaignId: number;
@@ -86,7 +87,7 @@ export default class UserController {
       });
 
       await setIntercomCustomAttributes(userId, {
-        trialEndDate: earlyAccessEnd,
+        'Trial End Date': earlyAccessEnd,
       });
     }
 
@@ -130,15 +131,11 @@ export default class UserController {
       trackingInfo,
     });
 
-    return prisma.user.update({
-      where: {
-        email: request.email,
-      },
-      data: {
-        imageCredits: {
-          increment: request.amount,
-        },
-      },
-    });
+    await modifyImageCreditCount(
+      user.id,
+      request.amount,
+      ImageCreditChangeType.SUPPORT,
+      `Requested by support`,
+    );
   }
 }

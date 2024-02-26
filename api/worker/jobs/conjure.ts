@@ -82,10 +82,10 @@ export const conjure = async (request: ConjureEvent) => {
     let generatedJson;
     try {
       generatedJson = response.choices[0]?.message?.content || '';
-      logger.info('Received json from openai', generatedJson);
+      logger.info('Received json from openai', { generatedJson });
 
       const conjurationString = sanitizeJson(generatedJson);
-      logger.info('Sanitized json from openai...', conjurationString);
+      logger.info('Sanitized json from openai...', { conjurationString });
 
       conjuration = JSON.parse(conjurationString || '');
     } catch (e) {
@@ -234,7 +234,7 @@ const buildPrompt = (
 
   prompt += ` Please return me only JSON and no other text.`;
 
-  logger.info('Built prompt', prompt);
+  logger.info('Built prompt', { prompt });
 
   return prompt;
 };
