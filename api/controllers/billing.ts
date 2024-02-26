@@ -120,7 +120,7 @@ export default class BillingController {
     event: Stripe.CheckoutSessionCompletedEvent,
     logger: MythWeaverLogger,
   ) {
-    logger.info('Checkout session completed', event);
+    logger.info('Checkout session completed', { event });
 
     const session = event.data.object;
 
