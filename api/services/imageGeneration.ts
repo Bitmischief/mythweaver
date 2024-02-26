@@ -163,18 +163,7 @@ export const generateImage = async (request: ImageRequest) => {
       {},
     );
 
-    const { imageCredits } = await prisma.user.update({
-      where: {
-        id: request.userId,
-      },
-      data: {
-        imageCredits: {
-          decrement: validImageCount,
-        },
-      },
-    });
-
-    await modifyImageCreditCount(
+    const imageCredits = await modifyImageCreditCount(
       user.id,
       validImageCount * -1,
       ImageCreditChangeType.USER_INITIATED,

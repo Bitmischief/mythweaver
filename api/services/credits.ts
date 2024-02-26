@@ -31,4 +31,6 @@ export const modifyImageCreditCount = async (
   await setIntercomCustomAttributes(userId, {
     'Credit Count': updatedUser.imageCredits,
   });
+
+  return updatedUser.imageCredits;
 };
