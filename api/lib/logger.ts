@@ -24,7 +24,7 @@ export class MythWeaverLogger {
     this.internalLogger.info(
       {
         message,
-        ...extra,
+        context: extra,
       },
       message,
     );
@@ -34,7 +34,7 @@ export class MythWeaverLogger {
     this.internalLogger.warn(
       {
         message,
-        ...extra,
+        context: extra,
       },
       message,
     );
@@ -44,7 +44,7 @@ export class MythWeaverLogger {
     this.internalLogger.fatal(
       {
         message,
-        ...extra,
+        context: extra,
       },
       message,
     );
