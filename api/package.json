@@ -46,7 +46,7 @@
     "typescript": "^5.3.2"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.515.0",
+    "@aws-sdk/client-s3": "^3.521.0",
     "@logtail/pino": "^0.4.19",
     "@mailchimp/mailchimp_marketing": "^3.0.80",
     "@mailchimp/mailchimp_transactional": "^1.0.59",
