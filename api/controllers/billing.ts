@@ -11,9 +11,15 @@ import {
   getSessionLineItems,
 } from '../services/billing';
 import Stripe from 'stripe';
-import { BillingInterval, BillingPlan, User } from '@prisma/client';
+import {
+  BillingInterval,
+  BillingPlan,
+  ImageCreditChangeType,
+  User,
+} from '@prisma/client';
 import { MythWeaverLogger } from '../lib/logger';
 import { setIntercomCustomAttributes } from '../lib/intercom';
+import { modifyImageCreditCount } from '../services/credits';
 
 const PRO_PLAN_IMAGE_CREDITS = 300;
 const BASIC_PLAN_IMAGE_CREDITS = 100;
@@ -27,7 +33,11 @@ export default class BillingController {
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
     @Inject() logger: MythWeaverLogger,
-    @Body() body: { priceId: string; subscription: boolean },
+    @Body()
+    body: {
+      priceId: string;
+      subscription: boolean;
+    },
   ): Promise<string> {
     const user = await prisma.user.findUnique({
       where: {
@@ -288,17 +298,12 @@ const processItemPaid = async (
   const creditCount = getImageCreditCountForProductId(productId);
 
   logger.info('Incrementing image credits for user', { creditCount });
-
-  await prisma.user.update({
-    where: {
-      id: user.id,
-    },
-    data: {
-      imageCredits: {
-        increment: creditCount * qty,
-      },
-    },
-  });
+  await modifyImageCreditCount(
+    user.id,
+    creditCount * qty,
+    ImageCreditChangeType.PURCHASE,
+    `Purchased ${qty} of ${creditCount} image credit packs`,
+  );
 
   track(AppEvent.PaidImageCreditPack, user.id, undefined, {
     amount: amountPaid,
@@ -357,12 +362,16 @@ const processSubscriptionPaid = async (
       id: user.id,
     },
     data: {
-      imageCredits: {
-        increment: amountPaid > 0 ? curCreditCount - prevCreditCount : 0,
-      },
       planInterval: interval,
     },
   });
+
+  await modifyImageCreditCount(
+    user.id,
+    amountPaid > 0 ? curCreditCount - prevCreditCount : 0,
+    ImageCreditChangeType.SUBSCRIPTION,
+    `${plan} plan`,
+  );
 
   await setIntercomCustomAttributes(user.id, {
     planInterval: interval,
