@@ -110,6 +110,8 @@ spec:
               value: <INTERCOM_ACCESS_TOKEN>
             - name: STRIPE_IMAGE_PACK_100_PRODUCT_ID
               value: <STRIPE_IMAGE_PACK_100_PRODUCT_ID>
+            - name: DISCORD_BILLING_WEBHOOK
+              value: <DISCORD_BILLING_WEBHOOK>
           readinessProbe:
             httpGet:
               path: /docs
