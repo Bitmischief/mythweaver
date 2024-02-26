@@ -7,6 +7,7 @@ import NavbarContent from '@/components/Navigation/NavbarContent.vue';
 import EarlyAccessInfo from '@/components/Navigation/EarlyAccessInfo.vue';
 import { useIntercom } from '@homebaseai/vue3-intercom';
 import ImageCreditCount from '../Core/ImageCreditCount.vue';
+import PlanBadge from '@/components/Core/PlanBadge.vue';
 
 const authStore = useAuthStore();
 const showPanel = ref(false);
@@ -52,21 +53,7 @@ const intercom = useIntercom();
               src="/images/logo-horizontal-2.svg"
               class="h-8 w-auto mr-auto mt-1 mb-1 self-center"
             />
-            <div
-              v-if="authStore.user?.plan"
-              class="self-center text-[12px] mx-2 px-2 skew-x-[-20deg] rounded-tl-[5px] rounded-br-[5px]"
-              :class="{
-                'bg-amber-500 text-xs': authStore.user.earlyAccessExempt,
-                'bg-slate-500': authStore.user.plan === 'FREE',
-                'bg-fuchsia-500': authStore.user.plan === 'BASIC',
-                'bg-gradient-to-r from-fuchsia-500 to-violet-500':
-                  authStore.user.plan === 'PRO',
-              }"
-            >
-              {{
-                authStore.user.earlyAccessExempt ? 'EA' : authStore.user.plan
-              }}
-            </div>
+            <PlanBadge />
           </div>
           <img v-else src="/favicon.png" class="h-12 w-auto" />
 
