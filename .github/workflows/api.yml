@@ -78,6 +78,7 @@ jobs:
           sed -i 's|<MAX_REPLICAS>|${{ vars.MAX_REPLICAS }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           sed -i 's|<X_SERVICE_TOKEN>|${{ secrets.X_SERVICE_TOKEN }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           sed -i 's|<TRANSCRIPTION_SERVICE_DOMAIN>|${{ secrets.TRANSCRIPTION_SERVICE_DOMAIN }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<INTERCOM_ACCESS_TOKEN>|${{ secrets.INTERCOM_ACCESS_TOKEN }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           cat $GITHUB_WORKSPACE/.k8s/api-deployment.yml
 
       - name: Save DigitalOcean kubeconfig with short-lived credentials
