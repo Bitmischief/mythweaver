@@ -87,7 +87,7 @@ export default class UserController {
       });
 
       await setIntercomCustomAttributes(userId, {
-        trialEndDate: earlyAccessEnd,
+        'Trial End Date': earlyAccessEnd,
       });
     }
 

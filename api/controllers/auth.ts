@@ -124,7 +124,7 @@ export default class AuthController {
       });
 
       await setIntercomCustomAttributes(user.id, {
-        trialEndDate: earlyAccessEnd,
+        'Trial End Date': earlyAccessEnd,
       });
 
       const response = (await mailchimpClient.lists.batchListMembers(
@@ -294,7 +294,7 @@ export default class AuthController {
       });
 
       await setIntercomCustomAttributes(user.id, {
-        trialEndDate: earlyAccessEnd,
+        'Trial End Date': earlyAccessEnd,
       });
 
       const response = (await mailchimpClient.lists.batchListMembers(

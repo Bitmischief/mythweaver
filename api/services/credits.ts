@@ -29,6 +29,6 @@ export const modifyImageCreditCount = async (
   });
 
   await setIntercomCustomAttributes(userId, {
-    imageCredits: updatedUser.imageCredits,
+    'Credit Count': updatedUser.imageCredits,
   });
 };

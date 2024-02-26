@@ -171,7 +171,7 @@ export default class BillingController {
     });
 
     await setIntercomCustomAttributes(user.id, {
-      planRenewalDate,
+      'Plan Renewal Date': planRenewalDate,
     });
   }
 
@@ -201,7 +201,7 @@ export default class BillingController {
     });
 
     await setIntercomCustomAttributes(user.id, {
-      planRenewalDate: new Date(),
+      'Plan Renewal Date': new Date(),
     });
   }
 
@@ -238,8 +238,8 @@ export default class BillingController {
     });
 
     await setIntercomCustomAttributes(user.id, {
-      planRenewalDate: subscriptionEnd,
-      plan,
+      'Plan Renewal Date': subscriptionEnd,
+      Plan: plan,
     });
   }
 
@@ -374,8 +374,8 @@ const processSubscriptionPaid = async (
   );
 
   await setIntercomCustomAttributes(user.id, {
-    planInterval: interval,
-    plan,
+    'Plan Interval': interval,
+    Plan: plan,
   });
 
   track(AppEvent.PaidSubscription, user.id, undefined, {
