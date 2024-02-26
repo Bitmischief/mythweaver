@@ -2,6 +2,7 @@ import { Client, Operators } from 'intercom-client';
 import { isLocalDevelopment } from './utils';
 import { prisma } from './providers/prisma';
 import { AppError, HttpCode } from './errors/AppError';
+import logger from './logger';
 
 const intercomClient = new Client({
   tokenAuth: { token: process.env.INTERCOM_ACCESS_TOKEN || '' },
@@ -25,6 +26,10 @@ export const setIntercomCustomAttributes = async (
     },
   });
 
+  logger.info('Queried intercom for contacts', {
+    existingContactSearchResponse,
+  });
+
   if (!existingContactSearchResponse.data.length) {
     const user = await prisma.user.findUnique({
       where: {
@@ -39,6 +44,7 @@ export const setIntercomCustomAttributes = async (
       });
     }
 
+    logger.info('Creating new intercom contact');
     await intercomClient.contacts.createUser({
       externalId: userId.toString(),
       email: user.email,
@@ -46,7 +52,8 @@ export const setIntercomCustomAttributes = async (
     });
   } else {
     await intercomClient.contacts.update({
-      id: userId.toString(),
+      id: existingContactSearchResponse.data[0].id,
+      externalId: userId.toString(),
       customAttributes: attributes,
     });
   }
