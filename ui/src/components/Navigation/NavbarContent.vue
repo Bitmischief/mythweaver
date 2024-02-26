@@ -82,10 +82,12 @@ async function navigateToCreateCampaign() {
       <span class="self-center">Conjure</span>
       <img src="@/assets/icons/wand.svg" alt="wand" class="w-6 p-1 ml-1" />
     </router-link>
-    <Menu v-model="selectedCampaignId" class="my-6 mt-4">
+
+    <div class="text-xs text-gray-500 font-bold mb-3 mt-6">CAMPAIGN</div>
+    <Menu v-model="selectedCampaignId" class="my-0.5">
       <div class="relative mt-1">
         <MenuButton
-          class="relative h-10 w-full cursor-pointer rounded-xl default-border-no-opacity border border-zinc-900 pl-4 pr-8 text-left text-white flex items-center text-sm"
+          class="relative h-10 w-full cursor-pointer rounded-xl pl-4 pr-8 text-left text-white flex items-center text-sm border border-surface-3 hover:bg-purple-800/20"
         >
           <BookmarkIcon v-show="collapsed" class="w-6 h-6 overflow-visible" />
           <span class="block truncate">{{
@@ -166,8 +168,6 @@ async function navigateToCreateCampaign() {
         </transition>
       </div>
     </Menu>
-
-    <div class="text-xs text-gray-500 font-bold mb-3">CAMPAIGN</div>
     <router-link
       class="nav-item"
       :class="[

@@ -264,13 +264,9 @@ async function handleRemoveMember() {
   <div class="flex justify-between mb-6">
     <div>Overview</div>
     <div v-if="currentUserRole === CampaignRole.DM" class="flex">
-      <router-link to="/campaign/edit" class="button-primary flex mr-2">
+      <router-link to="/campaign/edit" class="button-ghost flex mr-2">
         <PencilSquareIcon class="h-5 w-5 mr-1" />
         Edit campaign
-      </router-link>
-      <router-link to="/campaigns/new" class="button-ghost flex">
-        <PlusIcon class="h-5 w-5 mr-1" />
-        Create new campaign
       </router-link>
     </div>
   </div>
