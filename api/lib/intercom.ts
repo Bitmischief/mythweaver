@@ -15,7 +15,7 @@ export const setIntercomCustomAttributes = async (
     return;
   }
 
-  const existingContact = await intercomClient.contacts.search({
+  const existingContactSearchResponse = await intercomClient.contacts.search({
     data: {
       query: {
         field: 'external_id',
@@ -25,7 +25,7 @@ export const setIntercomCustomAttributes = async (
     },
   });
 
-  if (!existingContact) {
+  if (!existingContactSearchResponse.data.length) {
     const user = await prisma.user.findUnique({
       where: {
         id: userId,
