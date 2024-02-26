@@ -22,6 +22,7 @@ import { urlPrefix } from '../lib/utils';
 import { sendTransactionalEmail } from '../lib/transactionalEmail';
 import { createCustomer } from '../services/billing';
 import { MythWeaverLogger } from '../lib/logger';
+import { setIntercomCustomAttributes } from '../lib/intercom';
 
 const jwtExpirySeconds = 30 * 60; // 30 minutes
 const jwtRefreshExpirySeconds = 14 * 24 * 60 * 60; // 14 days
@@ -120,6 +121,10 @@ export default class AuthController {
           billingCustomerId: stripeCustomerId,
           imageCredits: 25,
         },
+      });
+
+      await setIntercomCustomAttributes(user.id, {
+        trialEndDate: earlyAccessEnd,
       });
 
       const response = (await mailchimpClient.lists.batchListMembers(
@@ -286,6 +291,10 @@ export default class AuthController {
           billingCustomerId: stripeCustomerId,
           imageCredits: 25,
         },
+      });
+
+      await setIntercomCustomAttributes(user.id, {
+        trialEndDate: earlyAccessEnd,
       });
 
       const response = (await mailchimpClient.lists.batchListMembers(

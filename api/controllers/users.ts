@@ -13,6 +13,7 @@ import { User } from '@prisma/client';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { MythWeaverLogger } from '../lib/logger';
+import { setIntercomCustomAttributes } from '../lib/intercom';
 
 interface PatchUserRequest {
   campaignId: number;
@@ -82,6 +83,10 @@ export default class UserController {
         data: {
           earlyAccessCutoffAt: earlyAccessEnd,
         },
+      });
+
+      await setIntercomCustomAttributes(userId, {
+        trialEndDate: earlyAccessEnd,
       });
     }
 

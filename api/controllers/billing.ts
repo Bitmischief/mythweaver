@@ -13,6 +13,7 @@ import {
 import Stripe from 'stripe';
 import { BillingInterval, BillingPlan, User } from '@prisma/client';
 import { MythWeaverLogger } from '../lib/logger';
+import { setIntercomCustomAttributes } from '../lib/intercom';
 
 const PRO_PLAN_IMAGE_CREDITS = 300;
 const BASIC_PLAN_IMAGE_CREDITS = 100;
@@ -148,16 +149,20 @@ export default class BillingController {
       });
     }
 
+    const planRenewalDate = new Date(event.data.object.current_period_end);
+
     await prisma.user.update({
       where: {
         id: user.id,
       },
       data: {
-        subscriptionPaidThrough: new Date(event.data.object.current_period_end),
+        subscriptionPaidThrough: planRenewalDate,
       },
     });
 
-    // @TODO: Send email to user
+    await setIntercomCustomAttributes(user.id, {
+      planRenewalDate,
+    });
   }
 
   private async processSubscriptionPausedEvent(
@@ -185,7 +190,9 @@ export default class BillingController {
       },
     });
 
-    // @TODO: email user
+    await setIntercomCustomAttributes(user.id, {
+      planRenewalDate: new Date(),
+    });
   }
 
   private async processSubscriptionUpdatedEvent(
@@ -206,6 +213,9 @@ export default class BillingController {
 
     const subscriptionEnd = new Date(0);
     subscriptionEnd.setUTCSeconds(event.data.object.current_period_end);
+    const plan = getPlanForProductId(
+      event.data.object.items.data[0].price.product as string,
+    );
 
     await prisma.user.update({
       where: {
@@ -213,13 +223,14 @@ export default class BillingController {
       },
       data: {
         subscriptionPaidThrough: subscriptionEnd,
-        plan: getPlanForProductId(
-          event.data.object.items.data[0].price.product as string,
-        ),
+        plan,
       },
     });
 
-    // @TODO: email user
+    await setIntercomCustomAttributes(user.id, {
+      planRenewalDate: subscriptionEnd,
+      plan,
+    });
   }
 
   private async processInvoicePaidEvent(
@@ -351,6 +362,11 @@ const processSubscriptionPaid = async (
       },
       planInterval: interval,
     },
+  });
+
+  await setIntercomCustomAttributes(user.id, {
+    planInterval: interval,
+    plan,
   });
 
   track(AppEvent.PaidSubscription, user.id, undefined, {
