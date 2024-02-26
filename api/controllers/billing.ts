@@ -228,6 +228,16 @@ export default class BillingController {
       event.data.object.items.data[0].price.product as string,
     );
 
+    if (!user.plan || user.plan === BillingPlan.FREE) {
+      track(AppEvent.NewSubscription, user.id, undefined, {
+        amount: event.data.object.items.data[0].price.unit_amount,
+      });
+
+      await postToDiscordBillingChannel(
+        `New subscription: ${user.email} (${user.id})! Amount: ${event.data.object.items.data[0].price.unit_amount}`,
+      );
+    }
+
     await prisma.user.update({
       where: {
         id: user.id,
@@ -354,25 +364,6 @@ const processSubscriptionPaid = async (
   }
   if (prevInterval && prevInterval === BillingInterval.YEARLY) {
     prevCreditCount = prevCreditCount * 12;
-  }
-
-  const existingUser = await prisma.user.findUnique({
-    where: {
-      id: user.id,
-    },
-  });
-
-  if (
-    existingUser?.plan === undefined ||
-    existingUser?.plan === BillingPlan.FREE
-  ) {
-    track(AppEvent.NewSubscription, user.id, undefined, {
-      amount: amountPaid,
-    });
-
-    await postToDiscordBillingChannel(
-      `New subscription: ${user.email} (${user.id})! Amount: ${amountPaid}`,
-    );
   }
 
   await prisma.user.update({
