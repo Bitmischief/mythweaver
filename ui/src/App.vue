@@ -3,7 +3,7 @@ import Navbar from '@/components/Navigation/NavBar.vue';
 import { useAuthStore } from '@/store';
 import NotificationHandler from '@/components/Notifications/NotificationHandler.vue';
 import { useEventBus } from '@/lib/events.ts';
-import { onMounted, onUpdated, ref } from 'vue';
+import { onMounted, onBeforeMount, onUpdated, ref } from 'vue';
 import NavBarHeader from '@/components/Navigation/NavBarHeader.vue';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import LightboxRoot from '@/components/LightboxRoot.vue';
@@ -18,11 +18,13 @@ const authStore = useAuthStore();
 const eventBus = useEventBus();
 const intercom = useIntercom();
 
-onMounted(async () => {
+onBeforeMount(async () => {
   if (location.pathname.startsWith('/auth/magic-link')) {
     await authStore.clearCache();
   }
+});
 
+onMounted(async () => {
   eventBus.$on('user-loaded', async () => {
     await initIntercom();
     await initNotifications();
@@ -89,10 +91,10 @@ eventBus.$on('toggle-customize-image-modal', (args: CustomizeImageRequest) => {
 
 <template>
   <div class="block h-screen bg-surface-2 text-white md:flex">
-    <Navbar v-if="!!authStore.tokens" class="w-full md:max-w-[256px]" />
+    <Navbar v-if="!!authStore.user" class="w-full md:max-w-[256px]" />
     <div class="block w-full">
       <div
-        v-if="!!authStore.tokens"
+        v-if="!!authStore.user"
         class="hidden md:flex border-b border-zinc-900"
       >
         <div class="w-full bg-surface-2 z-10 h-[4rem] flex justify-end">
@@ -104,10 +106,10 @@ eventBus.$on('toggle-customize-image-modal', (args: CustomizeImageRequest) => {
         id="view-parent"
         class="flex w-full flex-col overflow-y-auto md:rounded-tr-none"
         :class="{
-          'pb-6 mb-6 bg-surface p-5 px-8': !!authStore.tokens,
+          'pb-6 mb-6 bg-surface p-5 px-8': !!authStore.user,
         }"
         :style="{
-          height: `${!!authStore.tokens ? 'calc(100vh - 4.1rem)' : 'auto'}`,
+          height: `${!!authStore.user ? 'calc(100vh - 4.1rem)' : 'auto'}`,
         }"
       >
         <router-view />
