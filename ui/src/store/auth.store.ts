@@ -37,6 +37,7 @@ export const useAuthStore = defineStore({
         if (
           this.user &&
           !this.user.plan &&
+          !this.user.earlyAccessExempt &&
           this.user.earlyAccessCutoffAt &&
           Date.parse(this.user?.earlyAccessCutoffAt) < Date.now()
         ) {
