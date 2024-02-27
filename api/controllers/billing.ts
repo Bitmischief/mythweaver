@@ -236,7 +236,7 @@ export default class BillingController {
       const subscriptionAmount =
         (event.data.object.items.data[0].price.unit_amount || 0) / 100;
       await postToDiscordBillingChannel(
-        `New subscription: ${user.email} (${user.id})! Amount: $${subscriptionAmount}.`,
+        `New subscription: ${user.email}! Amount: $${subscriptionAmount}.`,
       );
     }
 
