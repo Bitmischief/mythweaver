@@ -1,8 +1,9 @@
 import axios from 'axios';
 import logger from '../lib/logger';
+import { isProduction } from '../lib/utils';
 
 export const postToDiscordBillingChannel = async (message: string) => {
-  // if (!isProduction) return;
+  if (!isProduction) return;
 
   if (!process.env.DISCORD_BILLING_WEBHOOK) {
     logger.info('No Discord billing webhook configured. Skipping.');
