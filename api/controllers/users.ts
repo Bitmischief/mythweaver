@@ -13,7 +13,6 @@ import { ImageCreditChangeType, User } from '@prisma/client';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { MythWeaverLogger } from '../lib/logger';
-import { setIntercomCustomAttributes } from '../lib/intercom';
 import { modifyImageCreditCount } from '../services/credits';
 
 interface PatchUserRequest {
