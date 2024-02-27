@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Conjuration, patchConjuration } from '@/api/conjurations.ts';
-import { computed, onMounted, onUpdated, ref } from 'vue';
+import { computed, onMounted, onUpdated, onUnmounted, ref } from 'vue';
 import { CheckIcon, XMarkIcon, PlusIcon } from '@heroicons/vue/20/solid';
 import { remove } from 'lodash';
 import { useEventBus } from '@/lib/events.ts';
@@ -89,6 +89,14 @@ onMounted(() => {
       message: data.message,
     });
   });
+});
+
+onUnmounted(() => {
+  eventBus.$off('save-conjuration');
+  eventBus.$off('updated-conjuration-image');
+  channel.unbind(ServerEvent.ImageCreated);
+  channel.unbind(ServerEvent.ImageFiltered);
+  channel.unbind(ServerEvent.ImageError);
 });
 
 onUpdated(() => {

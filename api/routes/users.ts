@@ -1,17 +1,13 @@
 import express, { Request, Response } from 'express';
 import { SecurityType, useAuthenticateRequest } from '../lib/authMiddleware';
 import { z } from 'zod';
-import {
-  useValidateRequest,
-  ValidationTypes,
-} from '../lib/validationMiddleware';
+import { useValidateRequest } from '../lib/validationMiddleware';
 import UserController from '../controllers/users';
 import mailchimpClient from '../lib/mailchimpMarketing';
 import { lists, Status } from '@mailchimp/mailchimp_marketing';
 import EmailType = lists.EmailType;
 import { format } from 'date-fns';
 import { useInjectLoggingInfo, useLogger } from '../lib/loggingMiddleware';
-import SessionController from '../controllers/sessions';
 
 const router = express.Router();
 

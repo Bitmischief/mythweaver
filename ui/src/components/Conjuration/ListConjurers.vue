@@ -190,7 +190,7 @@ import { useQuickConjure, useSelectedCampaignId } from '@/lib/hooks.ts';
 import Select from '../Core/Forms/Select.vue';
 import { useWebsocketChannel } from '@/lib/hooks.ts';
 import { ServerEvent } from '@/lib/serverEvents.ts';
-import { showError } from '@/lib/notifications.ts';
+import { showError, showInfo } from '@/lib/notifications.ts';
 import Loader from '../Core/Loader.vue';
 import MeteorShower from '../Core/MeteorShower.vue';
 import { AxiosError } from 'axios';
@@ -261,6 +261,7 @@ async function generate() {
   }
 
   if (!selectedCampaignId.value) {
+    showInfo({ message: 'Please select a campaign first.' });
     return;
   }
 
