@@ -28,9 +28,7 @@ onMounted(async () => {
   eventBus.$on(
     'updated-conjuration-image',
     async (payload: { imageUri: string; prompt: string }) => {
-      console.log('updated-conjuration-image', payload, character.value);
       if (!character.value) return;
-
       character.value.imageUri = payload.imageUri;
     },
   );

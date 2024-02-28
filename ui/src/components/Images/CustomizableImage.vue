@@ -3,7 +3,7 @@ import LightboxImage from '@/components/LightboxImage.vue';
 import { ArrowsPointingOutIcon } from '@heroicons/vue/20/solid';
 import { PencilSquareIcon, ArrowPathIcon } from '@heroicons/vue/24/outline';
 import { useEventBus } from '@/lib/events.ts';
-import { onMounted } from 'vue';
+import { onMounted, onUnmounted } from 'vue';
 
 const props = defineProps<{
   imageUri: string | undefined;
@@ -23,10 +23,13 @@ onMounted(() => {
   eventBus.$on(
     'updated-conjuration-image',
     (payload: { imageUri: string; prompt: string }) => {
-      console.log('updated-conjuration-image', payload);
       emit('set-image', payload);
     },
   );
+});
+
+onUnmounted(() => {
+  eventBus.$off('updated-conjuration-image');
 });
 
 function showCustomizeImageModal() {
