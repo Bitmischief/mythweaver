@@ -84,8 +84,12 @@ function clickNotification() {
                   class="w-6 text-green-500 green-glow"
                 />
                 <InformationCircleIcon
-                  v-else
+                  v-else-if="typeRef === 'error'"
                   class="w-6 text-red-500 red-glow"
+                />
+                <InformationCircleIcon
+                  v-else
+                  class="w-6 text-blue-500 blue-glow"
                 />
               </div>
               <div class="ml-3 w-0 flex-1 pt-0.5">

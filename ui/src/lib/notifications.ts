@@ -22,3 +22,12 @@ export const showError = (options: NotificationOptions) => {
     type: 'error',
   });
 };
+
+export const showInfo = (options: NotificationOptions) => {
+  const eventBus = useEventBus();
+  eventBus.$emit('showNotification', {
+    timeout: 10000,
+    ...options,
+    type: 'info',
+  });
+};

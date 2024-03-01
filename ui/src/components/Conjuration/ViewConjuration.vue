@@ -164,6 +164,7 @@ async function routeBack() {
     </div>
 
     <CustomizeConjuration
+      :key="`${conjuration.saved}`"
       :conjuration="conjuration"
       :image-conjuration-failed="conjuration.imageGenerationFailed"
     />
