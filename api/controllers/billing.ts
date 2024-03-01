@@ -100,19 +100,45 @@ export default class BillingController {
 
   public async processWebhook(event: Stripe.Event, logger: MythWeaverLogger) {
     logger.info('Processing Stripe webhook event', { event });
-    if (event.type === 'checkout.session.completed') {
-      await this.processCheckoutSessionCompletedEvent(event, logger);
-    } else if (
-      event.type === 'customer.subscription.deleted' ||
-      event.type === 'customer.subscription.resumed'
-    ) {
-      await this.processSubscriptionDeletedOrResumedEvent(event);
-    } else if (event.type === 'customer.subscription.paused') {
-      await this.processSubscriptionPausedEvent(event);
-    } else if (event.type === 'customer.subscription.updated') {
-      await this.processSubscriptionUpdatedEvent(event);
-    } else if (event.type === 'invoice.paid') {
-      await this.processInvoicePaidEvent(event, logger);
+
+    const existingStripeEvent = await prisma.processedStripeEvents.findUnique({
+      where: {
+        eventId: event.id,
+      },
+    });
+
+    if (existingStripeEvent) {
+      logger.info(`Already processed stripe event ${event.id}, ignoring.`);
+      return;
+    }
+
+    const stripeEventLog = await prisma.processedStripeEvents.create({
+      data: {
+        eventId: event.id,
+        data: event as any,
+      },
+    });
+
+    try {
+      if (event.type === 'checkout.session.completed') {
+        await this.processCheckoutSessionCompletedEvent(event, logger);
+      } else if (
+        event.type === 'customer.subscription.deleted' ||
+        event.type === 'customer.subscription.resumed'
+      ) {
+        await this.processSubscriptionDeletedOrResumedEvent(event);
+      } else if (event.type === 'customer.subscription.paused') {
+        await this.processSubscriptionPausedEvent(event);
+      } else if (event.type === 'customer.subscription.updated') {
+        await this.processSubscriptionUpdatedEvent(event);
+      } else if (event.type === 'invoice.paid') {
+        await this.processInvoicePaidEvent(event, logger);
+      }
+    } catch (err) {
+      logger.error('Error processing stripe event', { error: err });
+      await prisma.processedStripeEvents.delete({
+        where: { id: stripeEventLog.id },
+      });
     }
   }
 

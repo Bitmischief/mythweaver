@@ -331,3 +331,13 @@ model ImageCreditAuditLog {
 
   @@map("image_credit_audit_log")
 }
+
+model ProcessedStripeEvents {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  eventId   String    @unique
+  data      Json
+
+  @@map("processed_stripe_events")
+}

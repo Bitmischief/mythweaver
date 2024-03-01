@@ -44,7 +44,7 @@ export enum AppEvent {
   CreateCharacter = 'Create Character',
   UpdateCharacter = 'Update Character',
   SessionAudioUploaded = 'Session Audio Uploaded',
-  NewSubscription = 'Paid Subscription',
+  NewSubscription = 'New Subscription',
   PaidSubscription = 'Paid Subscription',
   PaidImageCreditPack = 'Paid Image Credit Pack',
   RevenueReceived = 'Revenue Received',
