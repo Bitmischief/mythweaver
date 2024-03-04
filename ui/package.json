@@ -29,7 +29,7 @@
     "pusher-js": "^8.3.0",
     "serve": "^14.2.1",
     "vue": "^3.4.15",
-    "vue-router": "^4.2.5"
+    "vue-router": "^4.3.0"
   },
   "devDependencies": {
     "@headlessui/vue": "^1.7.18",
