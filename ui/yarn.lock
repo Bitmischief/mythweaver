@@ -829,12 +829,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^20.10.5":
-  version: 20.10.5
-  resolution: "@types/node@npm:20.10.5"
+"@types/node@npm:^20.11.24":
+  version: 20.11.24
+  resolution: "@types/node@npm:20.11.24"
   dependencies:
-    undici-types: "npm:~5.26.4"
-  checksum: be30609aae0bfe492097815f166ccc07f465220cb604647fa4e5ec05a1d16c012a41b82b5f11ecfe2485cbb479d4d20384b95b809ca0bcff6d94d5bbafa645bb
+    undici-types: ~5.26.4
+  checksum: 8/b11a650e09e254f4725c94f226752b69949a9ac4a5e004e98f109437ac50b02df3ab4d12b2086722fedf2cb62e68b9e723abd3f358a7d7d90d741a0d3bee90c2
   languageName: node
   linkType: hard
 
@@ -2056,7 +2056,7 @@ __metadata:
     xml-name-validator: ^4.0.0
   peerDependencies:
     eslint: ^6.2.0 || ^7.0.0 || ^8.0.0
-  checksum: 8/5f1e94b412567b8d0bb99c89ea1032d7801d1aa34344e61d82b71c926d3ced049861b484c31c641606923246d482972a45e690236e5479f46b9736d432545ecd
+  checksum: 475e3ac855f5356f3d43eff788615803f7f13a278465b9629694d9dc8e97db9f2c1b13b572b01598b47342903d47f28c267b00fbfdc60b8ecbe37af62a179d79
   languageName: node
   linkType: hard
 
@@ -4856,7 +4856,7 @@ __metadata:
     "@tailwindcss/forms": ^0.5.7
     "@types/lodash": ^4.14.202
     "@types/md5": ^2.3.5
-    "@types/node": ^20.10.5
+    "@types/node": ^20.11.24
     "@typescript-eslint/eslint-plugin": ^5.62.0
     "@typescript-eslint/parser": ^5.62.0
     "@vitejs/plugin-vue": ^4.6.2
@@ -4866,7 +4866,7 @@ __metadata:
     date-fns: ^3.3.1
     eslint: ^8.56.0
     eslint-config-prettier: ^9.1.0
-    eslint-plugin-vue: ^9.22.0
+    eslint-plugin-vue: ^9.21.1
     gsap: ^3.12.5
     husky: ^8.0.3
     lint-staged: ^15.2.2
