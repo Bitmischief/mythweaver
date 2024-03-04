@@ -29,9 +29,7 @@ const showCustomizeImageModal = ref(false);
 const tagInput = ref<HTMLElement | null>(null);
 
 const editable = computed(
-  () =>
-    props.conjuration?.saved &&
-    props.conjuration?.userId === currentUserId.value,
+  () => props.conjuration?.userId === currentUserId.value,
 );
 
 const dataArray = computed(() => {

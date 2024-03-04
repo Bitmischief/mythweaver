@@ -111,6 +111,9 @@ input[type='number'] {
   .button-ghost-white {
     @apply disabled:border-neutral-500 disabled:text-neutral-500 disabled:cursor-not-allowed bg-transparent text-white text-sm border border-white rounded-[12px] px-4 py-2 hover:cursor-pointer;
   }
+  .button-ghost-primary {
+    @apply disabled:border-neutral-500/75 disabled:text-neutral-500/75 disabled:cursor-not-allowed bg-transparent text-neutral-300 text-sm border border-neutral-500 rounded-[12px] px-4 py-2 hover:cursor-pointer;
+  }
   .button-gradient {
     @apply disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-fuchsia-500 to-violet-500 rounded-[12px] text-sm px-4 py-2 hover:cursor-pointer;
   }
