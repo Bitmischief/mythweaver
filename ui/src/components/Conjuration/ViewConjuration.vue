@@ -15,7 +15,7 @@ import {
   ArrowPathIcon,
   DocumentDuplicateIcon,
 } from '@heroicons/vue/24/solid';
-import { HeartIcon } from '@heroicons/vue/20/solid';
+import { BookmarkSquareIcon } from '@heroicons/vue/24/outline';
 import { useCurrentUserId, useQuickConjure } from '@/lib/hooks.ts';
 import { showSuccess } from '@/lib/notifications.ts';
 
@@ -32,9 +32,7 @@ const conjurationId = computed(() =>
 );
 
 const editable = computed(
-  () =>
-    conjuration.value?.saved &&
-    conjuration.value?.userId === currentUserId.value,
+  () => conjuration.value?.userId === currentUserId.value,
 );
 
 const isQuickConjure = computed(() => {
@@ -106,11 +104,11 @@ async function routeBack() {
         </div>
 
         <div
-          v-if="!conjuration.saved && !editable"
+          v-if="!conjuration.saved"
           class="bg-amber-300/10 rounded-[12px] flex px-4 mx-4"
         >
           <div class="self-center text-amber-300/75 my-auto">
-            This conjuration has not been saved yet.
+            This conjuration has not been added to your conjurations yet.
           </div>
         </div>
       </div>
@@ -146,11 +144,11 @@ async function routeBack() {
         </button>
         <button
           v-if="!conjuration.saved"
-          class="button-ghost flex"
+          class="button-ghost flex ml-2"
           @click="handleSaveConjuration"
         >
-          <HeartIcon class="mr-2 h-5 w-5 self-center" />
-          <span class="self-center">Save Conjuration</span>
+          <BookmarkSquareIcon class="mr-2 h-5 w-5 self-center" />
+          <span class="self-center">Add to My Conjurations</span>
         </button>
 
         <button

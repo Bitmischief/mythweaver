@@ -187,7 +187,7 @@ async function handleConjurationChange(change: {
           v-if="conjurationsMineQuery.saved"
           class="text-xl self-center mr-6"
         >
-          My Conjurations
+          My Conjurations <span v-if="conjurationsHistoryQuery.history" class="text-neutral-500">| History</span>
         </div>
         <div v-else class="text-xl self-center mr-6">Gallery</div>
       </div>
@@ -197,10 +197,10 @@ async function handleConjurationChange(change: {
           v-if="
             conjurationsMineQuery.saved && !conjurationsHistoryQuery.history
           "
-          class="button-ghost mr-2"
+          class="button-ghost-primary mr-2"
           @click="toggleHistory"
         >
-          <span class="text-white text-sm font-normal">
+          <span class="text-sm">
             Show Conjuration History
           </span>
         </button>
@@ -209,8 +209,8 @@ async function handleConjurationChange(change: {
           class="button-ghost mr-2"
           @click="toggleHistory"
         >
-          <span class="text-white text-sm font-normal">
-            Show Saved Conjurations
+          <span class="text-neutral-300 text-sm">
+            Show My Conjurations
           </span>
         </button>
 
