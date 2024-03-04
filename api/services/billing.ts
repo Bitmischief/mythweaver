@@ -38,6 +38,9 @@ export const getCheckoutUrl = async (
       },
     ],
     mode: subscription ? 'subscription' : 'payment',
+    automatic_tax: {
+      enabled: true,
+    },
   });
 
   return session.url;
