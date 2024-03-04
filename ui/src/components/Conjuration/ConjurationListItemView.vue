@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { Conjuration } from '@/api/conjurations.ts';
 import { useRouter, useRoute } from 'vue-router';
-import { BookmarkIcon as BookmarkIconSolid } from "@heroicons/vue/20/solid";
-import { BookmarkIcon as BookmarkIconOutline } from "@heroicons/vue/24/outline";
-import { computed } from "vue";
+import { BookmarkIcon as BookmarkIconSolid } from '@heroicons/vue/20/solid';
+import { BookmarkIcon as BookmarkIconOutline } from '@heroicons/vue/24/outline';
+import { computed } from 'vue';
 
 defineProps<{
   conjuration: Conjuration | undefined;
@@ -43,7 +43,7 @@ function conjurationType(conjuration: Conjuration) {
 
 const showBookmarkIcon = computed(() => {
   return route.hash === '#history';
-})
+});
 </script>
 
 <template>
@@ -78,9 +78,11 @@ const showBookmarkIcon = computed(() => {
         class="absolute right-4 top-4 text-white/75 group"
       >
         <div class="relative">
-          <BookmarkIconSolid v-if="conjuration.saved" class="w-5 h-5"/>
-          <BookmarkIconOutline v-else class="w-5 h-5"/>
-          <div class="absolute bottom-[105%] right-0 whitespace-nowrap invisible group-hover:visible text-neutral-300 bg-surface-2 rounded-full px-2 py-1">
+          <BookmarkIconSolid v-if="conjuration.saved" class="w-5 h-5" />
+          <BookmarkIconOutline v-else class="w-5 h-5" />
+          <div
+            class="absolute bottom-[105%] right-0 whitespace-nowrap invisible group-hover:visible text-neutral-300 bg-surface-2 rounded-full px-2 py-1"
+          >
             <span v-if="conjuration.saved">In My Conjurations</span>
             <span v-else>Not in My Conjurations</span>
           </div>
