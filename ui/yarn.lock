@@ -833,8 +833,8 @@ __metadata:
   version: 20.11.24
   resolution: "@types/node@npm:20.11.24"
   dependencies:
-    undici-types: ~5.26.4
-  checksum: 8/b11a650e09e254f4725c94f226752b69949a9ac4a5e004e98f109437ac50b02df3ab4d12b2086722fedf2cb62e68b9e723abd3f358a7d7d90d741a0d3bee90c2
+    undici-types: "npm:~5.26.4"
+  checksum: be30609aae0bfe492097815f166ccc07f465220cb604647fa4e5ec05a1d16c012a41b82b5f11ecfe2485cbb479d4d20384b95b809ca0bcff6d94d5bbafa645bb
   languageName: node
   linkType: hard
 
@@ -1072,6 +1072,13 @@ __metadata:
   version: 6.5.0
   resolution: "@vue/devtools-api@npm:6.5.0"
   checksum: 6dab27d6ed880de0cd94549ba16ba4e85eb273f12ea2ba5cf66ed87e3f616242339d787e52360bf54bb7b360eb481c9b814f13ec08120e630e90adf5da2d7ff9
+  languageName: node
+  linkType: hard
+
+"@vue/devtools-api@npm:^6.5.1":
+  version: 6.6.1
+  resolution: "@vue/devtools-api@npm:6.6.1"
+  checksum: 8/cf12b5ebcc7729725087072289410107b55bb82e0b86b8442e4e85516977110a8a3f4e1dec763be8b567a59173703b4e9c0ac1b0489bb2bb81363af7ea258a27
   languageName: node
   linkType: hard
 
@@ -4805,14 +4812,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vue-router@npm:^4.2.5":
-  version: 4.2.5
-  resolution: "vue-router@npm:4.2.5"
+"vue-router@npm:^4.3.0":
+  version: 4.3.0
+  resolution: "vue-router@npm:4.3.0"
   dependencies:
-    "@vue/devtools-api": "npm:^6.5.0"
+    "@vue/devtools-api": ^6.5.1
   peerDependencies:
     vue: ^3.2.0
-  checksum: 63e51f437a1f10a97fce97c04cde3f87958049c5e20f8b238b66b9a9080c99db0124e680ed0e9921af1f6d81c00bf181e280e36e2370cafea581539334d895ef
+  checksum: 8/0059261d39c8a6f61d3cdf4b74cfcd6a109062e0562f2db5a387cdf4d1b186dfdd2dddcacbf83ce2842d7c3ec9a63d8a6d427c4cec1db61372f4a06048496354
   languageName: node
   linkType: hard
 
@@ -4856,7 +4863,7 @@ __metadata:
     "@tailwindcss/forms": ^0.5.7
     "@types/lodash": ^4.14.202
     "@types/md5": ^2.3.5
-    "@types/node": ^20.11.24
+    "@types/node": ^20.10.5
     "@typescript-eslint/eslint-plugin": ^5.62.0
     "@typescript-eslint/parser": ^5.62.0
     "@vitejs/plugin-vue": ^4.6.2
@@ -4886,7 +4893,7 @@ __metadata:
     vite: ^4.5.2
     vue: ^3.4.15
     vue-eslint-parser: ^9.4.2
-    vue-router: ^4.2.5
+    vue-router: ^4.3.0
     vue-tsc: ^1.8.27
   languageName: unknown
   linkType: soft
