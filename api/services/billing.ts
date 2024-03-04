@@ -32,6 +32,11 @@ export const getCheckoutUrl = async (
         quantity: 1,
       },
     ],
+    discounts: [
+      {
+        coupon: '8LDJPjrk',
+      },
+    ],
     mode: subscription ? 'subscription' : 'payment',
   });
 
