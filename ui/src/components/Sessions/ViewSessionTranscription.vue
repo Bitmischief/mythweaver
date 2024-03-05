@@ -180,9 +180,7 @@ const scrollToTop = () => {
         :audio-name="session.audioName"
         :audio-uri="session.audioUri"
         :start="startSeconds"
-        :has-transcription="
-          !!session.sessionTranscription?.transcription
-        "
+        :has-transcription="!!session.sessionTranscription?.transcription"
         @seek="setCurrentAudioTime"
         @jump="jumpToCurrent"
       />

@@ -183,7 +183,7 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted, onUnmounted, ref} from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import { Conjurer, getConjurers, postConjure } from '@/api/generators.ts';
 import { useRouter } from 'vue-router';
 import { useQuickConjure, useSelectedCampaignId } from '@/lib/hooks.ts';
@@ -355,7 +355,7 @@ onUnmounted(() => {
   channel.unbind(ServerEvent.ImageCreated);
   channel.unbind(ServerEvent.ImageFiltered);
   channel.unbind(ServerEvent.ImageError);
-})
+});
 </script>
 
 <style lang="scss">

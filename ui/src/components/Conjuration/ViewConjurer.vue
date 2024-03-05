@@ -95,7 +95,7 @@ onUnmounted(() => {
   channel.unbind(ServerEvent.ImageCreated);
   channel.unbind(ServerEvent.ImageFiltered);
   channel.unbind(ServerEvent.ImageError);
-})
+});
 </script>
 
 <template>
