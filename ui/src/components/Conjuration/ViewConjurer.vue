@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue';
+import { onMounted, onUnmounted, ref, computed } from 'vue';
 import { getConjurer, Conjurer } from '@/api/generators.ts';
 import { useRoute } from 'vue-router';
 import SummoningLoader from '@/components/Conjuration/ConjuringLoader.vue';
@@ -88,6 +88,14 @@ function handleBeginConjuring(data: { conjurationRequestId: number }) {
     imageGenerationFailureReason.value = data.message;
   });
 }
+
+onUnmounted(() => {
+  channel.unbind(ServerEvent.ConjurationCreated);
+  channel.unbind(ServerEvent.ConjurationError);
+  channel.unbind(ServerEvent.ImageCreated);
+  channel.unbind(ServerEvent.ImageFiltered);
+  channel.unbind(ServerEvent.ImageError);
+})
 </script>
 
 <template>

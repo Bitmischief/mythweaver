@@ -59,7 +59,7 @@
                   v-if="!request.prompt"
                   class="button-gradient py-2 px-3 flex"
                   :disabled="!generator"
-                  @click="quickConjure(generator?.code || 'characters')"
+                  @click.prevent="quickConjure(generator?.code || 'characters')"
                 >
                   <img
                     src="@/assets/icons/wand.svg"
@@ -183,7 +183,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import {onMounted, onUnmounted, ref} from 'vue';
 import { Conjurer, getConjurers, postConjure } from '@/api/generators.ts';
 import { useRouter } from 'vue-router';
 import { useQuickConjure, useSelectedCampaignId } from '@/lib/hooks.ts';
@@ -348,6 +348,14 @@ function handleBeginConjuring(data: { conjurationRequestId: number }) {
     imageGenerationFailureReason.value = data.message;
   });
 }
+
+onUnmounted(() => {
+  channel.unbind(ServerEvent.ConjurationCreated);
+  channel.unbind(ServerEvent.ConjurationError);
+  channel.unbind(ServerEvent.ImageCreated);
+  channel.unbind(ServerEvent.ImageFiltered);
+  channel.unbind(ServerEvent.ImageError);
+})
 </script>
 
 <style lang="scss">
