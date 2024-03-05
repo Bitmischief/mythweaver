@@ -181,7 +181,7 @@ const scrollToTop = () => {
         :audio-uri="session.audioUri"
         :start="startSeconds"
         :has-transcription="
-          !!session.sessionTranscription?.transcription ?? false
+          !!session.sessionTranscription?.transcription
         "
         @seek="setCurrentAudioTime"
         @jump="jumpToCurrent"
