@@ -17,7 +17,7 @@ import {
   ImageCreditChangeType,
   User,
 } from '@prisma/client';
-import { MythWeaverLogger } from '../lib/logger';
+import logger, { MythWeaverLogger } from '../lib/logger';
 import { setIntercomCustomAttributes } from '../lib/intercom';
 import { modifyImageCreditCount } from '../services/credits';
 import { postToDiscordBillingChannel } from '../services/discord';
@@ -248,8 +248,16 @@ export default class BillingController {
       });
     }
 
+    if (event.data.object.status !== 'active') {
+      logger.info('Subscription status is not active, ignoring this webhook.', {
+        status: event.data.object.status,
+      });
+      return;
+    }
+
     const subscriptionEnd = new Date(0);
     subscriptionEnd.setUTCSeconds(event.data.object.current_period_end);
+
     const plan = getPlanForProductId(
       event.data.object.items.data[0].price.product as string,
     );

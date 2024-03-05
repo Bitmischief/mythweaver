@@ -32,14 +32,21 @@ export const getCheckoutUrl = async (
         quantity: 1,
       },
     ],
-    discounts: [
-      {
-        coupon: '8LDJPjrk',
-      },
-    ],
+    discounts: process.env.STRIPE_PROMOTION_COUPON_ID
+      ? [
+          {
+            coupon: process.env.STRIPE_PROMOTION_COUPON_ID,
+          },
+        ]
+      : undefined,
     mode: subscription ? 'subscription' : 'payment',
     automatic_tax: {
       enabled: true,
+    },
+    billing_address_collection: 'auto',
+    customer_update: {
+      address: 'auto',
+      name: 'auto',
     },
   });
 
