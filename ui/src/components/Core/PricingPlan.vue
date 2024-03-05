@@ -1,13 +1,14 @@
 <script lang="ts" setup>
 import { getCheckoutUrl } from '@/api/billing.ts';
 import { CheckIcon } from '@heroicons/vue/24/solid';
-import { computed } from 'vue';
 
 const props = defineProps<{
   name: string;
   price?: number;
   yearlyPrice?: number;
   monthlyPrice?: number;
+  promoYearlyPrice?: number;
+  promoMonthlyPrice?: number;
   highlighted?: boolean;
   features: string[];
   priceId: string;
@@ -21,10 +22,6 @@ async function upgrade() {
   );
   location.href = response.data;
 }
-
-const proPlanId = computed(() => {
-  return import.meta.env.VITE_STRIPE_PRO_PLAN_ID;
-});
 </script>
 
 <template>
@@ -45,17 +42,26 @@ const proPlanId = computed(() => {
         <div
           class="rounded-[12px] bg-surface-2 p-4"
           :class="{
-            'bg-gradient': props.priceId === proPlanId,
+            'bg-gradient': highlighted,
           }"
         >
           <div class="text-sm text-neutral-300">{{ name }}</div>
-          <div
-            v-if="monthlyPrice && yearlyPrice"
-            class="text-3xl text-white font-bold"
-          >
+          <div v-if="monthlyPrice && yearlyPrice" class="text-white font-bold">
             <div v-if="monthlyPrice > 0">
-              <div>${{ monthlyPrice.toFixed(2) }}/mo</div>
-              <div v-if="yearlyPrice" class="text-sm text-neutral-200">
+              <template v-if="promoMonthlyPrice">
+                <div class="text-green-300 text-4xl">
+                  ${{ promoMonthlyPrice.toFixed(2) }}/mo
+                </div>
+              </template>
+
+              <div :class="[promoMonthlyPrice ? 'line-through' : '']">
+                ${{ monthlyPrice.toFixed(2) }}/mo
+              </div>
+
+              <div
+                v-if="!promoMonthlyPrice && yearlyPrice"
+                class="text-sm text-neutral-200"
+              >
                 <span class="line-through text-neutral-300">
                   ${{ (monthlyPrice * 12).toFixed(2) }}
                 </span>
