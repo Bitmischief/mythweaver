@@ -178,7 +178,7 @@ function setImage() {
               help-class="px-1"
               name="prompt"
               type="textarea"
-              validation="required|length:0,500"
+              validation="required|length:0,1000"
               auto-height
               validation-visibility="live"
             />
@@ -196,7 +196,7 @@ function setImage() {
               </button>
             </div>
             <div class="absolute text-neutral-500 text-xs right-2 bottom-0">
-              {{ editablePrompt?.length }} / 500
+              {{ editablePrompt?.length }} / 1000
             </div>
           </div>
 
