@@ -108,11 +108,7 @@ export default class ConjurationController {
         createdAt: 'desc',
       },
       include: {
-        saves: {
-          where: {
-            userId,
-          },
-        },
+        saves: true,
       },
     });
 
@@ -121,8 +117,8 @@ export default class ConjurationController {
     return {
       data: conjurations.map((c) => ({
         ...c,
-        saves: undefined,
-        saved: c.saves.length > 0,
+        saves: c.saves.length,
+        saved: c.saves.some((s) => s.userId === userId),
       })),
       offset: offset,
       limit: limit,
