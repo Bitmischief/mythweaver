@@ -48,10 +48,8 @@ onUnmounted(() => {
       />
 
       <div class="mt-8 flex">
-        <button
-          class="bg-neutral-800 mr-2 mb-4 rounded-md py-2 px-4"
-          @click="emit('back')"
-        >
+        <button class="button-ghost-primary mb-4 flex" @click="emit('back')">
+          <ArrowLeftIcon class="w-4 mr-1 self-center" />
           Back
         </button>
         <button
@@ -69,7 +67,7 @@ onUnmounted(() => {
       @cancel="emit('back')"
     />
     <div class="flex justify-between mt-8">
-      <button class="button-primary mb-4 flex" @click="emit('back')">
+      <button class="button-ghost-primary mb-4 flex" @click="emit('back')">
         <ArrowLeftIcon class="w-4 mr-1 self-center" />
         Back
       </button>

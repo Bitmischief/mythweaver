@@ -17,7 +17,9 @@ import InviteView from '@/views/InviteView.vue';
 import MagicLink from '@/components/Auth/MagicLink.vue';
 import PreAuthView from '@/views/PreAuthView.vue';
 import EarlyAccessView from '@/views/EarlyAccessView.vue';
+import CharactersList from '@/views/CharactersList.vue';
 import CharactersView from '@/views/CharactersView.vue';
+import CharactersNew from '@/components/Characters/NewCharacter.vue';
 import ViewSessionPlanning from '@/components/Sessions/ViewSessionPlanning.vue';
 import ViewSessionSummary from '@/components/Sessions/ViewSessionSummary.vue';
 import ViewSessionRecap from '@/components/Sessions/ViewSessionRecap.vue';
@@ -99,7 +101,22 @@ const router = createRouter({
       children: [
         {
           name: 'CHARACTERS',
-          path: '/character',
+          path: '/characters',
+          component: CharactersList,
+          meta: {
+            authRequired: true,
+          },
+        },
+        {
+          path: '/character/new',
+          component: CharactersNew,
+          meta: {
+            authRequired: true,
+          },
+        },
+        {
+          name: 'CHARACTER',
+          path: '/character/:characterId',
           component: CharactersView,
           meta: {
             authRequired: true,

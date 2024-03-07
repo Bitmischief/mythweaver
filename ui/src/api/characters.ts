@@ -12,11 +12,22 @@ export interface Character {
   personality?: string;
   looks?: string;
   campaignMemberId?: number;
+  userId: number;
 }
 
 export const getCurrentCampaignCharacter = () => {
   const selectedCampaignId = useSelectedCampaignId();
   return axios.get(`/campaigns/${selectedCampaignId.value}/character`);
+};
+
+export const getCampaignCharacter = (characterId: number) => {
+  const selectedCampaignId = useSelectedCampaignId();
+  return axios.get(`/campaigns/${selectedCampaignId.value}/character/${characterId}`);
+};
+
+export const getCurrentCampaignCharacters = () => {
+  const selectedCampaignId = useSelectedCampaignId();
+  return axios.get(`/campaigns/${selectedCampaignId.value}/characters`);
 };
 
 export interface PostCharactersRequest {
