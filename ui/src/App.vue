@@ -79,7 +79,8 @@ const customizeImageArgs = ref<CustomizeImageRequest | undefined>(undefined);
 export interface CustomizeImageRequest {
   imageUri: string;
   prompt: string;
-  looks: string;
+  negativePrompt: string;
+  stylePreset: string;
 }
 eventBus.$on('toggle-customize-image-modal', (args: CustomizeImageRequest) => {
   showCustomizeImageModal.value = !showCustomizeImageModal.value;
@@ -139,8 +140,9 @@ eventBus.$on('toggle-customize-image-modal', (args: CustomizeImageRequest) => {
     >
       <CustomizeConjurationImage
         :prompt="customizeImageArgs?.prompt"
+        :negative-prompt="customizeImageArgs?.negativePrompt"
         :image-uri="customizeImageArgs?.imageUri"
-        :looks="customizeImageArgs?.looks"
+        :looks="customizeImageArgs?.stylePreset"
         in-modal
         @cancel="showCustomizeImageModal = false"
       />

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import {
   Conjuration,
   copyConjuration,
@@ -41,6 +41,13 @@ const isQuickConjure = computed(() => {
 
 onMounted(async () => {
   await loadConjuration();
+  eventBus.$on('set-image', (image: any) => {
+    conjuration?.value?.images?.push(image);
+  });
+});
+
+onUnmounted(() => {
+  eventBus.$off('set-image');
 });
 
 watch(conjurationId, async () => {
@@ -83,6 +90,37 @@ async function routeBack() {
   router.go(-1);
   await router.push('/conjurations#saved');
 }
+
+async function conjureUsingPrompt() {
+  let imagePrompt = '';
+  let negativePrompt = '';
+  let stylePreset = '';
+
+  if (
+    conjuration.value?.images &&
+    conjuration.value?.images.some(
+      (i) => conjuration?.value?.imageUri === i.uri,
+    )
+  ) {
+    const image = conjuration.value?.images.find(
+      (i) => conjuration?.value?.imageUri === i.uri,
+    );
+    imagePrompt = image.prompt;
+    negativePrompt = image.negativePrompt;
+    stylePreset = image.stylePreset;
+  }
+
+  await router.push({
+    path: '/conjurations/new',
+    query: {
+      prompt: conjuration.value?.prompt,
+      code: conjuration.value?.conjurerCode,
+      imagePrompt: imagePrompt,
+      imageNegativePrompt: negativePrompt,
+      stylePreset: stylePreset,
+    },
+  });
+}
 </script>
 
 <template>
@@ -115,8 +153,15 @@ async function routeBack() {
 
       <div class="flex mt-2 mt-0">
         <button
+          v-if="conjuration.prompt"
+          class="button-ghost flex"
+          @click="conjureUsingPrompt"
+        >
+          Conjure With Same Prompt
+        </button>
+        <button
           v-if="isQuickConjure"
-          class="button-gradient flex"
+          class="button-gradient flex ml-2"
           @click="quickConjure(conjuration.conjurerCode)"
         >
           <ArrowPathIcon class="mr-2 h-5 w-5 self-center" /> Retry Quick Conjure
@@ -124,7 +169,7 @@ async function routeBack() {
 
         <button
           v-if="editable"
-          class="button-ghost flex"
+          class="button-ghost flex ml-2"
           @click="
             eventBus.$emit('save-conjuration', {
               conjurationId: conjuration.id,
@@ -162,7 +207,7 @@ async function routeBack() {
     </div>
 
     <CustomizeConjuration
-      :key="`${conjuration.saved}`"
+      :key="conjuration.updatedAt"
       :conjuration="conjuration"
       :image-conjuration-failed="conjuration.imageGenerationFailed"
     />

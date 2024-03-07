@@ -68,7 +68,6 @@ const postCampaignSchema = z.object({
   name: z.string(),
   description: z.string().optional(),
   rpgSystemCode: z.string(),
-  publicAdventureId: z.string().optional(),
 });
 
 router.post('/', [

@@ -148,6 +148,7 @@ export default class ConjurationController {
             userId,
           },
         },
+        images: true,
       },
     });
 
