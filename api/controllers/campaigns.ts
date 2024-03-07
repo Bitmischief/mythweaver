@@ -30,7 +30,6 @@ export interface PostCampaignRequest {
   name: string;
   description?: string;
   rpgSystemCode: string;
-  publicAdventureCode?: string;
 }
 
 export interface PutCampaignRequest {

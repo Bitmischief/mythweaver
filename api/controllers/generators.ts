@@ -206,6 +206,7 @@ export class GeneratorController {
         imageStylePreset: request.imageStylePreset,
         imagePrompt: request.imagePrompt,
         imageNegativePrompt: request.imageNegativePrompt,
+        prompt: request.prompt,
       },
     });
 
@@ -382,6 +383,7 @@ export class GeneratorController {
         imageStylePreset: ImageStylePreset.FANTASY_ART,
         imagePrompt: '',
         imageNegativePrompt: '',
+        prompt: magicLink.signupConjurationPrompt,
       },
     });
 

@@ -1,14 +1,7 @@
 <script lang="ts" setup>
-import { computed, onMounted, ref, watch } from 'vue';
-import {
-  Campaign,
-  CampaignRole,
-  getCampaign,
-  PublicAdventure,
-} from '@/api/campaigns.ts';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { Campaign, CampaignRole, getCampaign } from '@/api/campaigns.ts';
 import { useCampaignStore } from '@/store/campaign.store.ts';
-import { getRpgSystems, RpgSystem } from '@/api/rpgSystems.ts';
-import Select from '@/components/Core/Forms/Select.vue';
 import { useSelectedCampaignId } from '@/lib/hooks.ts';
 import { useEventBus } from '@/lib/events.ts';
 import { format } from 'date-fns';
@@ -23,9 +16,6 @@ const eventBus = useEventBus();
 const router = useRouter();
 
 const campaign = ref<Campaign>({} as Campaign);
-const rpgSystems = ref<RpgSystem[]>([]);
-const adventures = ref<PublicAdventure[]>([]);
-const systemsLimit = ref(999);
 
 const currentUserRole = computed(() => campaignStore.selectedCampaignRole);
 
@@ -41,39 +31,13 @@ onMounted(async () => {
   });
 });
 
+onUnmounted(() => {
+  eventBus.$off('campaign-selected');
+});
+
 async function init() {
   const getCampaignResponse = await getCampaign(selectedCampaignId.value || 0);
   campaign.value = getCampaignResponse.data;
-
-  await loadRpgSystems();
-}
-
-watch(
-  campaign,
-  () => {
-    loadAdventures();
-  },
-  { deep: true },
-);
-
-function loadAdventures() {
-  const rpgSystem = rpgSystems.value.find(
-    (s) => s.code === campaign.value?.rpgSystemCode,
-  );
-
-  if (rpgSystem) {
-    adventures.value = rpgSystem.publicAdventures ?? [];
-  }
-}
-
-async function loadRpgSystems() {
-  const rpgSystemsResponse = await getRpgSystems({
-    offset: 0,
-    limit: systemsLimit.value,
-  });
-  rpgSystems.value = rpgSystemsResponse.data.data;
-
-  loadAdventures();
 }
 
 async function handleSaveCampaign() {
@@ -88,7 +52,6 @@ async function handleSaveCampaign() {
       description: campaign.value.description,
       imageUri: campaign.value.imageUri,
       rpgSystemCode: campaign.value.rpgSystemCode,
-      publicAdventureCode: campaign.value.publicAdventureCode,
     });
 
     showSuccess({ message: 'Campaign saved!' });
@@ -161,43 +124,11 @@ async function handleDeleteCampaign() {
 
     <div class="mt-8 text-gray-400 text-sm ml-1 mb-1">Roleplaying System</div>
 
-    <Select
+    <input
       v-model="campaign.rpgSystemCode"
       :readonly="currentUserRole !== CampaignRole.DM"
-      :options="rpgSystems"
-      value-prop="code"
-      display-prop="name"
-    />
-
-    <template v-if="campaign.rpgSystemCode === 'other'">
-      <div class="mt-6 text-gray-400 text-sm ml-1 mb-1">
-        Please describe your campaign's universe and atmosphere in a few words?
-      </div>
-
-      <div class="text-xs mt-2 p-2 text-gray-400">
-        We use this information to help generating contextually appropriate
-        content for your campaign.
-
-        <div class="mt-1 text-xs text-gray-400">
-          For example, a sci-fi campaign might have the keywords
-          <div class="mt-1 flex">
-            <div class="mr-1 rounded bg-gray-600/20 p-1 px-2">sci-fi</div>
-            <div class="mr-1 rounded bg-gray-600/20 p-1 px-2">space</div>
-            <div class="mr-1 rounded bg-gray-600/20 p-1 px-2">futuristic</div>
-          </div>
-        </div>
-      </div>
-    </template>
-
-    <div class="mt-6 text-gray-400 text-sm ml-1 mb-1">Campaign Source</div>
-
-    <Select
-      v-model="campaign.publicAdventureCode"
-      :readonly="currentUserRole !== CampaignRole.DM"
-      :options="adventures"
-      value-prop="code"
-      display-prop="name"
-      allow-none
+      class="input-primary"
+      placeholder="Bogs & Bullywugs"
     />
 
     <div class="mt-6 text-gray-400 text-sm ml-1 mb-1">Campaign Description</div>

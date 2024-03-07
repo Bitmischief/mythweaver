@@ -292,8 +292,7 @@ export default class AuthController {
         data: {
           name: 'My Campaign',
           description: '',
-          rpgSystemCode: 'dnd',
-          publicAdventureCode: 'other',
+          rpgSystemCode: 'Dungeons & Dragons',
           userId: user.id,
           members: {
             create: {

@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { RpgSystem } from '@/api/rpgSystems.ts';
 
 export const enum CampaignRole {
   DM = 1,
@@ -14,9 +13,6 @@ export interface Campaign {
   description?: string;
   imageUri?: string;
   rpgSystemCode: string;
-  rpgSystem?: RpgSystem;
-  publicAdventureCode: string | null | undefined;
-  publicAdventure?: PublicAdventure;
   atmosphere?: string[];
   members?: CampaignMember[];
 }
@@ -35,17 +31,6 @@ export interface CampaignMember {
   };
 }
 
-export interface PublicAdventure {
-  code: string;
-  name: string;
-  description: string;
-  imageUri: string;
-  tags: string[];
-  releaseDate: Date;
-  rpgSystemId: number;
-  relevance: number;
-}
-
 export interface GetCampaignRequest {
   term?: string;
   offset?: number;
@@ -57,7 +42,6 @@ export interface PostCampaignRequest {
   description?: string;
   imageUri?: string;
   rpgSystemCode: string;
-  publicAdventureCode: string | null | undefined;
 }
 
 export interface PutCampaignRequest {
@@ -66,7 +50,6 @@ export interface PutCampaignRequest {
   description?: string;
   imageUri?: string;
   rpgSystemCode: string;
-  publicAdventureCode: string | null | undefined;
 }
 
 export interface CampaignInvite {

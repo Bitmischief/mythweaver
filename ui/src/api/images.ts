@@ -13,3 +13,9 @@ export const conjureImage = async (
     count,
   });
 };
+
+export const patchImageConjurationId = async (imageId: number, conjurationId: number) => {
+  return axios.patch(`/images/${imageId}/conjurationId`, {
+    conjurationId: conjurationId,
+  });
+};
