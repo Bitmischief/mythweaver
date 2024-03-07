@@ -58,7 +58,7 @@ function submit(payload: any) {
     />
 
     <div class="flex justify-between mt-8">
-      <button class="button-primary mb-4 flex" @click="emit('back')">
+      <button class="button-ghost-primary mb-4 flex" @click="emit('back')">
         <ArrowLeftIcon class="w-4 mr-1 self-center" />
         Back
       </button>

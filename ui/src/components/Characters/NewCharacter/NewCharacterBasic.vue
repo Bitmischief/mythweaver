@@ -2,13 +2,19 @@
 import { computed } from 'vue';
 import { Character } from '@/api/characters.ts';
 import NewCharacterField from '@/components/Characters/NewCharacter/NewCharacterField.vue';
-import { ArrowRightIcon } from '@heroicons/vue/24/solid';
+import { ArrowLeftIcon, ArrowRightIcon } from '@heroicons/vue/24/solid';
 
-const props = defineProps<{
+export interface _props {
   modelValue: Character;
-}>();
+  showBack?: boolean;
+  backText?: string;
+}
+const props = withDefaults(defineProps<_props>(), {
+  showBack: false,
+  backText: 'Back',
+});
 
-const emit = defineEmits(['update:modelValue', 'complete']);
+const emit = defineEmits(['update:modelValue', 'complete', 'back']);
 
 const value = computed({
   get: () => props.modelValue,
@@ -28,7 +34,7 @@ function submit(payload: any) {
 
 <template>
   <FormKit v-slot="{ disabled }" :actions="false" type="form" @submit="submit">
-    <div class="mt-8">
+    <div class="mt-8 mb-6">
       <NewCharacterField
         required
         :character="value"
@@ -73,7 +79,15 @@ function submit(payload: any) {
         placeholder="Enter your character's class"
       />
     </div>
-    <div class="flex justify-end">
+    <div class="flex justify-between">
+      <button
+        v-if="showBack"
+        class="button-ghost-primary mb-4 flex"
+        @click="emit('back')"
+      >
+        <ArrowLeftIcon class="w-4 mr-1 self-center" />
+        {{ backText }}
+      </button>
       <div>
         <FormKit
           type="submit"

@@ -165,7 +165,7 @@ function setImage() {
     </div>
 
     <div
-      class="bg-gradient-to-r from-fuchsia-500 to-violet-500 p-px rounded-[20px] purple-shadow min-w-[90vw] md:min-w-[60vw] lg:max-w-[40vw] max-h-[80vh]"
+      class="bg-gradient-to-r from-fuchsia-500 to-violet-500 p-px rounded-[20px] purple-shadow min-w-[90vw] md:min-w-[60vw] max-h-[80vh]"
     >
       <div class="p-3 rounded-[20px] bg-surface-2 min-h-[12em]">
         <FormKit :actions="false" type="form" @submit="conjure">
@@ -337,7 +337,7 @@ function setImage() {
       </div>
     </div>
 
-    <div class="grid gap-8 grid-cols-2">
+    <div class="flex gap-8">
       <div v-if="imageUri" class="relative">
         <div
           class="absolute flex bottom-2 right-2 cursor-pointer bg-white/50 rounded-[8px]"
@@ -349,6 +349,7 @@ function setImage() {
         </div>
         <img
           :src="imageUri"
+          alt="conjurationImg"
           class="rounded-[25px] cursor-pointer"
           :class="{
             'border-2 border-fuchsia-500': selectedImgUri === imageUri,

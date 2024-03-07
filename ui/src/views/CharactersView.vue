@@ -1,25 +1,22 @@
 <script lang="ts" setup>
-import { onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import {
   Character,
-  getCurrentCampaignCharacter,
+  getCampaignCharacter,
   patchCharacters,
 } from '@/api/characters.ts';
 import { AxiosError } from 'axios';
 import { showError, showSuccess } from '@/lib/notifications.ts';
-import ModalAlternate from '@/components/ModalAlternate.vue';
-import NewCharacter from '@/components/Characters/NewCharacter.vue';
 import CustomizableImage from '@/components/Images/CustomizableImage.vue';
 import { useEventBus } from '@/lib/events.ts';
-import { UserIcon, PlusIcon } from '@heroicons/vue/24/outline';
-import { XCircleIcon } from '@heroicons/vue/20/solid';
+import Loader from '@/App.vue';
+import { useRoute, useRouter } from 'vue-router';
+import { ArrowLeftIcon } from '@heroicons/vue/24/outline';
 
 const eventBus = useEventBus();
-
+const route = useRoute();
+const router = useRouter();
 const character = ref<Character | undefined>(undefined);
-const createNewCharacter = ref(false);
-const showCharacterCreate = ref(false);
-const confirmClose = ref(false);
 const loading = ref(false);
 
 onMounted(async () => {
@@ -38,26 +35,25 @@ onUnmounted(() => {
   eventBus.$off('updated-conjuration-image');
 });
 
+const characterId = computed(() =>
+  parseInt(route.params.characterId?.toString()),
+);
+
 async function init() {
   loading.value = true;
   try {
-    const response = await getCurrentCampaignCharacter();
+    const response = await getCampaignCharacter(characterId.value);
     character.value = response.data;
-    createNewCharacter.value = false;
   } catch (err) {
     const e = err as AxiosError;
     if (e.response?.status === 404) {
-      createNewCharacter.value = true;
+      await router.push('/characters');
     } else {
       showError({ message: 'Failed to load character' });
     }
   } finally {
     loading.value = false;
   }
-}
-
-function reload() {
-  location.reload();
 }
 
 async function updateCharacter() {
@@ -80,7 +76,15 @@ async function updateCharacter() {
       type="form"
       @submit="updateCharacter"
     >
-      <div class="flex justify-end">
+      <div class="flex w-full justify-between">
+        <!-- prettier-ignore -->
+        <router-link
+          class="button-primary flex mb-4"
+          to="/characters"
+        >
+          <ArrowLeftIcon class="h-5 w-5 mr-2" />
+          Back
+        </router-link>
         <div>
           <!-- prettier-ignore -->
           <FormKit
@@ -214,61 +218,8 @@ async function updateCharacter() {
       </div>
     </FormKit>
   </div>
-  <div v-else class="flex justify-center h-full items-center">
-    <div class="text-center">
-      <div>
-        <UserIcon class="h-14 text-neutral-500 mx-auto" />
-      </div>
-      <div class="self-center text-2xl my-4">
-        No characters created for this campaign yet.
-      </div>
-      <div class="text-neutral-500 mb-8 max-w-[40em]">
-        Characters you create for the selected campaign will appear on this
-        screen. Try creating your first character using the button below.
-      </div>
-      <button
-        class="flex justify-center self-center button-gradient mx-auto"
-        @click="showCharacterCreate = true"
-      >
-        <PlusIcon class="mr-2 h-5 w-5 self-center" />
-        <span class="self-center">Add character</span>
-      </button>
-    </div>
+  <div v-else>
+    <Loader />
+    Loading Character...
   </div>
-
-  <ModalAlternate :show="showCharacterCreate">
-    <div class="mt-8">
-      <div class="relative p-6 pt-1 bg-surface-2 rounded-[20px] min-w-[50vw]">
-        <button class="absolute top-4 right-4" @click="confirmClose = true">
-          <XCircleIcon class="h-6" />
-        </button>
-        <NewCharacter @close="showCharacterCreate = false" @created="reload" />
-      </div>
-    </div>
-  </ModalAlternate>
-  <ModalAlternate :show="confirmClose">
-    <div class="p-6 pt-1 bg-surface-2 rounded-[20px] text-center">
-      <div class="text-xl mt-4">Exit Character Creator?</div>
-      <div class="py-2">
-        <div class="font-bold text-fuchsia-500 my-4 max-w-[20em]">
-          If you exit the character creator now you will lose all progress
-          you've made up to this point.
-        </div>
-      </div>
-      <div class="flex justify-around">
-        <button class="button-primary" @click="confirmClose = false">
-          Cancel
-        </button>
-        <button
-          class="button-gradient"
-          @click="
-            confirmClose = false;
-            showCharacterCreate = false;
-          "
-        >
-          Confirm Exit
-        </button>
-      </div>
-    </div>
-  </ModalAlternate>
 </template>
