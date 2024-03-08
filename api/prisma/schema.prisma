@@ -96,6 +96,30 @@ model Conjuration {
   @@map("conjurations")
 }
 
+enum ConjurationRelationshipType {
+  CAMPAIGN
+  SESSION
+  CHARACTER
+  CONJURATION
+}
+
+model ConjurationRelationships {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+
+  previousNodeId Int
+  previousType   ConjurationRelationshipType
+  nextNodeId     Int
+  nextType       ConjurationRelationshipType
+  comment        String?
+  data           Json?
+
+  @@index([previousNodeId], name: "conjuration_relationships_previous_node_id")
+  @@index([nextNodeId], name: "conjuration_relationships_next_node_id")
+  @@map("conjuration_relationships")
+}
+
 model ConjurationSave {
   id        Int       @id @default(autoincrement())
   createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
