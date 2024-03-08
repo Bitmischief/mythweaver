@@ -1,8 +1,10 @@
 import {
   Body,
+  Delete,
   Get,
   Inject,
   OperationId,
+  Patch,
   Post,
   Query,
   Route,
@@ -35,6 +37,11 @@ export interface RelationshipResponse {
 export interface PostRelationshipRequest {
   relatedNodeId: number;
   relatedNodeType: ConjurationRelationshipType;
+  comment?: string;
+  data?: any;
+}
+
+export interface PatchRelationshipRequest {
   comment?: string;
   data?: any;
 }
@@ -137,6 +144,51 @@ export default class RelationshipController {
         nextType: body.relatedNodeType,
         comment: body.comment,
         data: body.data,
+      },
+    });
+  }
+
+  @Security('jwt')
+  @OperationId('deleteRelationship')
+  @Delete('/:relationshipId')
+  public async deleteRelationship(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
+    @Route() relationshipId: number,
+  ) {
+    logger.info('Deleting relationship', {
+      userId,
+    });
+
+    await prisma.conjurationRelationships.delete({
+      where: {
+        id: relationshipId,
+      },
+    });
+  }
+
+  @Security('jwt')
+  @OperationId('patchRelationship')
+  @Patch('/:relationshipId')
+  public async patchRelationship(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
+    @Route() relationshipId: number,
+    @Body() request: PatchRelationshipRequest,
+  ) {
+    logger.info('Deleting relationship', {
+      relationshipId,
+      userId,
+    });
+
+    await prisma.conjurationRelationships.update({
+      where: {
+        id: relationshipId,
+      },
+      data: {
+        ...request,
       },
     });
   }

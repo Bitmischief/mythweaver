@@ -100,4 +100,55 @@ router.post('/:type/:nodeId', [
   },
 ]);
 
+const relationshipIdRouteSchema = z.object({
+  relationshipId: z.coerce.number(),
+});
+
+router.delete('/:relationshipId', [
+  useAuthenticateRequest(),
+  useInjectLoggingInfo(),
+  useValidateRequest(relationshipIdRouteSchema, {
+    validationType: ValidationTypes.Route,
+  }),
+  async (req: Request, res: Response) => {
+    const controller = new RelationshipController();
+
+    const response = await controller.deleteRelationship(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      useLogger(res),
+      req.params.relationshipId as unknown as number,
+    );
+
+    return res.status(200).send(response);
+  },
+]);
+
+const patchRelationshipSchema = z.object({
+  comment: z.string().optional().nullable(),
+  data: z.any().optional().nullable(),
+});
+
+router.patch('/:relationshipId', [
+  useAuthenticateRequest(),
+  useInjectLoggingInfo(),
+  useValidateRequest(relationshipIdRouteSchema, {
+    validationType: ValidationTypes.Route,
+  }),
+  useValidateRequest(patchRelationshipSchema),
+  async (req: Request, res: Response) => {
+    const controller = new RelationshipController();
+
+    const response = await controller.patchRelationship(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      useLogger(res),
+      req.params.relationshipId as unknown as number,
+      req.body,
+    );
+
+    return res.status(200).send(response);
+  },
+]);
+
 export default router;
