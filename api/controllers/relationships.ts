@@ -71,7 +71,6 @@ export default class RelationshipController {
       depthLimit,
     });
 
-    // return prisma.$queryRaw`SELECT 'hello ' || ${type} || ${nodeId}`;
     return prisma.$queryRawUnsafe(`
         WITH RECURSIVE entity_chain AS (
           SELECT
