@@ -30,7 +30,6 @@ export interface PostCampaignRequest {
   name: string;
   description?: string;
   rpgSystemCode: string;
-  publicAdventureCode?: string;
 }
 
 export interface PutCampaignRequest {
@@ -489,13 +488,14 @@ export default class CampaignController {
   }
 
   @Security('jwt')
-  @OperationId('getMyCampaignCharacter')
-  @Put('/:campaignId/character')
-  public async getMyCampaignCharacter(
+  @OperationId('getCampaignCharacter')
+  @Put('/:campaignId/character/:characterId')
+  public async getCampaignCharacter(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
     @Inject() logger: MythWeaverLogger,
     @Route() campaignId: number,
+    @Route() characterId: number,
   ) {
     const actingUserCampaignMember = await prisma.campaignMember.findUnique({
       where: {
@@ -515,10 +515,8 @@ export default class CampaignController {
 
     const character = await prisma.character.findUnique({
       where: {
-        userId_campaignId: {
-          campaignId,
-          userId,
-        },
+        id: characterId,
+        campaignId: campaignId,
       },
     });
 

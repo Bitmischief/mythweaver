@@ -7,11 +7,12 @@ import NewCharacterDetailed from '@/components/Characters/NewCharacter/NewCharac
 import NewCharacterLooks from '@/components/Characters/NewCharacter/NewCharacterLooks.vue';
 import NewCharacterConfirm from '@/components/Characters/NewCharacter/NewCharacterConfirm.vue';
 import { useEventBus } from '@/lib/events.ts';
+import { useRouter } from 'vue-router';
 
-const emit = defineEmits(['close', 'created']);
+defineEmits(['close', 'created']);
 
 const eventBus = useEventBus();
-
+const router = useRouter();
 const character = ref<Character>({} as Character);
 const step = ref(1);
 const conjureImageDone = ref(false);
@@ -41,19 +42,21 @@ async function createCharacter() {
   const response = await postCharacters(character.value);
   if (response.status === 201) {
     showSuccess({ message: 'Character created' });
-    emit('created');
+    await router.push(`/character/${response.data.id}`);
   } else {
     showError({
       message: 'Failed to create character. Please try again in a moment.',
     });
   }
 }
+
+async function returnToCharacters() {
+  await router.push('/characters');
+}
 </script>
 
 <template>
-  <div
-    class="flex h-full p-2 overflow-y-auto pr-6 pb-1 flex-col justify-between"
-  >
+  <div class="flex p-6 rounded-[12px] pb-1 flex-col bg-surface-2">
     <div class="text-3xl">
       Bring your character
       <span
@@ -66,7 +69,10 @@ async function createCharacter() {
     <NewCharacterBasic
       v-if="step === 1"
       v-model="character"
+      back-text="Return to Characters"
+      show-back
       @complete="step++"
+      @back="returnToCharacters"
     />
 
     <NewCharacterDetailed

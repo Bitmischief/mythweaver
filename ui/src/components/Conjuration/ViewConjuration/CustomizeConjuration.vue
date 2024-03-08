@@ -11,6 +11,7 @@ import CustomizableImage from '@/components/Images/CustomizableImage.vue';
 import { useWebsocketChannel } from '@/lib/hooks.ts';
 import { ServerEvent } from '@/lib/serverEvents.ts';
 import Select from '@/components/Core/Forms/Select.vue';
+import { patchImageConjurationId } from '@/api/images.ts';
 
 const props = defineProps<{
   conjuration: Conjuration;
@@ -27,6 +28,8 @@ const addingTag = ref(false);
 const tagText = ref('');
 const showCustomizeImageModal = ref(false);
 const tagInput = ref<HTMLElement | null>(null);
+const negativePrompt = ref('');
+const stylePreset = ref('');
 
 const editable = computed(
   () => props.conjuration?.userId === currentUserId.value,
@@ -46,6 +49,8 @@ const dataArray = computed(() => {
 });
 
 onMounted(() => {
+  setPromptSettings();
+
   eventBus.$on(
     'save-conjuration',
     async (payload: { conjurationId: number }) => {
@@ -57,12 +62,25 @@ onMounted(() => {
 
   eventBus.$on(
     'updated-conjuration-image',
-    async (payload: { imageUri: string; prompt: string }) => {
+    async (payload: {
+      imageId: number;
+      imageUri: string;
+      prompt: string;
+      negativePrompt: string;
+      stylePreset: string;
+    }) => {
       showCustomizeImageModal.value = false;
 
       setTimeout(async () => {
         editableConjuration.value.imageUri = payload.imageUri;
         editableConjuration.value.imageAIPrompt = payload.prompt;
+        negativePrompt.value = payload.negativePrompt;
+        stylePreset.value = payload.stylePreset;
+
+        await patchImageConjurationId(
+          payload.imageId,
+          editableConjuration.value.id,
+        );
         await saveConjuration();
       }, 50);
     },
@@ -71,6 +89,7 @@ onMounted(() => {
   channel.bind(ServerEvent.ImageCreated, function (data: any) {
     if (!editableConjuration.value.imageUri) {
       editableConjuration.value.imageUri = data.uri;
+      eventBus.$emit('set-image', data);
     }
   });
 
@@ -164,6 +183,21 @@ const conjurationType = computed(() => {
     return '';
   }
 });
+
+const setPromptSettings = () => {
+  if (
+    editableConjuration.value.images?.length &&
+    editableConjuration.value.images.some(
+      (i) => editableConjuration.value.imageUri === i.uri,
+    )
+  ) {
+    const image = editableConjuration.value.images.find(
+      (i) => editableConjuration.value.imageUri === i.uri,
+    );
+    negativePrompt.value = image.negativePrompt;
+    stylePreset.value = image.stylePreset;
+  }
+};
 </script>
 
 <template>
@@ -173,6 +207,7 @@ const conjurationType = computed(() => {
         <CustomizableImage
           :image-uri="editableConjuration.imageUri"
           :prompt="editableConjuration.imageAIPrompt"
+          :negative-prompt="negativePrompt"
           :editable="editable"
           :alt="editableConjuration.name"
           :image-conjuration-failed="imageConjurationFailed"

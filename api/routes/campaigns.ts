@@ -68,7 +68,6 @@ const postCampaignSchema = z.object({
   name: z.string(),
   description: z.string().optional(),
   rpgSystemCode: z.string(),
-  publicAdventureId: z.string().optional(),
 });
 
 router.post('/', [
@@ -298,9 +297,10 @@ router.post('/invites/:inviteCode', [
 
 const getCampaignCharacterRouteSchema = z.object({
   campaignId: z.coerce.number().default(0),
+  characterId: z.coerce.number().default(0),
 });
 
-router.get('/:campaignId/character', [
+router.get('/:campaignId/character/:characterId', [
   useAuthenticateRequest(),
   useValidateRequest(getCampaignCharacterRouteSchema, {
     validationType: ValidationTypes.Route,
@@ -308,11 +308,12 @@ router.get('/:campaignId/character', [
   async (req: Request, res: Response) => {
     const controller = new CampaignController();
 
-    const response = await controller.getMyCampaignCharacter(
+    const response = await controller.getCampaignCharacter(
       res.locals.auth.userId,
       res.locals.trackingInfo,
       useLogger(res),
       req.params.campaignId as unknown as number,
+      req.params.characterId as unknown as number,
     );
 
     return res.status(200).send(response);

@@ -1,4 +1,13 @@
-import { Body, Inject, OperationId, Post, Route, Security, Tags } from 'tsoa';
+import {
+  Body,
+  Inject,
+  OperationId,
+  Patch,
+  Post,
+  Route,
+  Security,
+  Tags,
+} from 'tsoa';
 import { TrackingInfo } from '../lib/tracking';
 import { generateImage } from '../services/imageGeneration';
 import { prisma } from '../lib/providers/prisma';
@@ -10,6 +19,10 @@ interface PostImageRequest {
   negativePrompt?: string;
   stylePreset?: ImageStylePreset;
   count?: number;
+}
+
+interface PatchImageConjurationIdRequest {
+  conjurationId: number;
 }
 
 export enum ImageStylePreset {
@@ -64,6 +77,53 @@ export default class ImageController {
       count,
       negativePrompt: request.negativePrompt,
       stylePreset: request.stylePreset,
+    });
+  }
+
+  @Security('jwt')
+  @OperationId('setConjurationId')
+  @Patch('/:imageId/conjurationId')
+  public async patchImageConjurationId(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
+    @Route() imageId: number,
+    @Body() request: PatchImageConjurationIdRequest,
+  ): Promise<void> {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user) {
+      throw new AppError({
+        description: 'User not found.',
+        httpCode: HttpCode.BAD_REQUEST,
+      });
+    }
+
+    const image = await prisma.image.findUnique({
+      where: {
+        id: imageId,
+        userId: userId,
+      },
+    });
+
+    if (!image) {
+      throw new AppError({
+        description: 'Image not found.',
+        httpCode: HttpCode.BAD_REQUEST,
+      });
+    }
+
+    await prisma.image.update({
+      where: {
+        id: imageId,
+      },
+      data: {
+        conjurationId: request.conjurationId,
+      },
     });
   }
 }

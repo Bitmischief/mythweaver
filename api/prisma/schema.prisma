@@ -86,6 +86,7 @@ model Conjuration {
   tags                  String[]
   published             Boolean               @default(false)
   imageGenerationFailed Boolean               @default(false)
+  prompt                String?
 
   user               User?               @relation(fields: [userId], references: [id])
   campaign           Campaign?           @relation(fields: [campaignId], references: [id], onDelete: Cascade)
@@ -145,6 +146,7 @@ model ConjurationRequest {
   generatorCode       String
   count               Int
   args                Json
+  prompt              String?
   imagePrompt         String?
   imageNegativePrompt String?
   imageStylePreset    String?
@@ -235,7 +237,7 @@ model CampaignMember {
 
   user      User?      @relation(fields: [userId], references: [id])
   campaign  Campaign   @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  character Character?
+  character Character[]
 
   @@unique([userId, campaignId])
   @@unique([inviteCode])
@@ -270,9 +272,6 @@ model Character {
   campaignMember CampaignMember? @relation(fields: [campaignMemberId], references: [id], onDelete: SetNull)
   images         Image[]
 
-  @@unique([campaignMemberId])
-  @@unique([userId, campaignId])
-  @@index([userId, campaignId], name: "characters_user_id_campaign_id")
   @@index([campaignMemberId], name: "characters_campaign_member_id")
   @@map("characters")
 }
@@ -287,6 +286,7 @@ model Image {
   prompt         String
   negativePrompt String?
   stylePreset    String?
+  seed           String?
 
   conjurationId Int?
   sessionId     Int?

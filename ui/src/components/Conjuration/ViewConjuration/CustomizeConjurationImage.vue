@@ -15,15 +15,24 @@ import Select from '@/components/Core/Forms/Select.vue';
 import Loader from '@/components/Core/Loader.vue';
 import { AxiosError } from 'axios';
 
-const props = defineProps<{
-  prompt?: string;
-  negativePrompt?: string;
-  imageUri?: string;
-  looks?: string;
-  noActions?: boolean;
-  cancelButtonTextOverride?: string;
-  inModal?: boolean;
-}>();
+const props = withDefaults(
+  defineProps<{
+    prompt?: string;
+    negativePrompt?: string;
+    imageUri?: string;
+    stylePreset?: string;
+    noActions?: boolean;
+    cancelButtonTextOverride?: string;
+    inModal?: boolean;
+  }>(),
+  {
+    prompt: '',
+    negativePrompt: '',
+    imageUri: undefined,
+    stylePreset: 'fantasy-art',
+    cancelButtonTextOverride: undefined,
+  },
+);
 
 const emit = defineEmits(['cancel']);
 
@@ -32,20 +41,18 @@ const channel = useWebsocketChannel();
 
 const editablePrompt = ref(props.prompt);
 const editableNegativePrompt = ref(props.negativePrompt);
+const editableStylePreset = ref(props.stylePreset);
 const imagePresetStyles = ref([
   { code: 'fantasy-art', name: 'Fantasy Art' },
   { code: 'digital-art', name: 'Digital Art' },
   { code: 'comic-book', name: 'Comic Book' },
 ]);
-const stylePreset = ref<
-  'fantasy-art' | 'digital-art' | 'comic-book' | undefined
->('fantasy-art');
 const conjuring = ref(false);
 const done = computed(() => {
-  return imageUris.value.length > 0;
+  return images.value.length > 0;
 });
-const imageUris = ref<string[]>([]);
-const selectedImgUri = ref('');
+const images = ref<any[]>([]);
+const selectedImg = ref<any>(null);
 const imageError = ref(false);
 const imageFiltered = ref(false);
 const imagePromptRephrased = ref(false);
@@ -66,7 +73,7 @@ onMounted(async () => {
   });
 
   channel.bind(ServerEvent.ImageCreated, function (data: any) {
-    imageUris.value.push(data.uri);
+    images.value.push(data);
     conjuring.value = false;
   });
 
@@ -111,7 +118,7 @@ async function conjure() {
     await conjureImage(
       editablePrompt.value || '',
       editableNegativePrompt.value || '',
-      stylePreset.value || 'fantasy-art',
+      editableStylePreset.value || 'fantasy-art',
       count.value || 1,
     );
 
@@ -135,11 +142,14 @@ async function conjure() {
 }
 
 function setImage() {
-  if (!selectedImgUri.value.length) return;
+  if (!selectedImg?.value) return;
 
   eventBus.$emit('updated-conjuration-image', {
-    imageUri: selectedImgUri.value,
+    imageId: selectedImg.value.id,
+    imageUri: selectedImg.value.uri,
     prompt: editablePrompt.value,
+    negativePrompt: editableNegativePrompt.value,
+    stylePreset: editableStylePreset.value,
   });
 
   if (props.inModal) {
@@ -165,7 +175,7 @@ function setImage() {
     </div>
 
     <div
-      class="bg-gradient-to-r from-fuchsia-500 to-violet-500 p-px rounded-[20px] purple-shadow min-w-[90vw] md:min-w-[60vw] lg:max-w-[40vw] max-h-[80vh]"
+      class="bg-gradient-to-r from-fuchsia-500 to-violet-500 p-px rounded-[20px] purple-shadow min-w-[90vw] md:min-w-[60vw] max-h-[80vh]"
     >
       <div class="p-3 rounded-[20px] bg-surface-2 min-h-[12em]">
         <FormKit :actions="false" type="form" @submit="conjure">
@@ -243,7 +253,7 @@ function setImage() {
           </div>
           <div v-if="promptOptionsTab === 'Image Style'">
             <Select
-              v-model="stylePreset"
+              v-model="editableStylePreset"
               :options="imagePresetStyles"
               value-prop="code"
               display-prop="name"
@@ -288,7 +298,7 @@ function setImage() {
       </div>
     </div>
   </template>
-  <template v-else-if="done && !conjuring && imageUris.length">
+  <template v-else-if="done && !conjuring && images.length">
     <button
       class="px-4 rounded-full absolute right-0 top-0 p-4"
       @click="emit('cancel')"
@@ -300,7 +310,7 @@ function setImage() {
         <button
           class="button-primary mr-2 flex"
           @click="
-            imageUris = [];
+            images = [];
             conjuring = false;
           "
         >
@@ -310,8 +320,8 @@ function setImage() {
         <button
           class="button-ghost"
           :class="{
-            'opacity-50 cursor-default': !selectedImgUri.length,
-            'transition-all hover:scale-110': selectedImgUri.length,
+            'opacity-50 cursor-default': !selectedImg,
+            'transition-all hover:scale-110': selectedImg,
           }"
           @click="setImage"
         >
@@ -337,7 +347,7 @@ function setImage() {
       </div>
     </div>
 
-    <div class="grid gap-8 grid-cols-2">
+    <div class="flex gap-8">
       <div v-if="imageUri" class="relative">
         <div
           class="absolute flex bottom-2 right-2 cursor-pointer bg-white/50 rounded-[8px]"
@@ -349,28 +359,25 @@ function setImage() {
         </div>
         <img
           :src="imageUri"
+          alt="conjurationImg"
           class="rounded-[25px] cursor-pointer"
           :class="{
-            'border-2 border-fuchsia-500': selectedImgUri === imageUri,
+            'border-2 border-fuchsia-500': selectedImg === null,
           }"
           width="400px"
-          @click="
-            selectedImgUri === imageUri
-              ? (selectedImgUri = '')
-              : (selectedImgUri = imageUri)
-          "
+          @click="selectedImg = null"
         />
         <div class="image-badge">Original</div>
       </div>
 
       <div
-        v-for="imgUri of imageUris"
-        :key="imgUri"
+        v-for="image of images"
+        :key="image.uri"
         class="relative cursor-pointer"
       >
         <div
           class="absolute flex bottom-2 right-2 cursor-pointer bg-white/50 rounded-[8px]"
-          @click="eventBus.$emit('open-lightbox', imgUri)"
+          @click="eventBus.$emit('open-lightbox', image.uri)"
         >
           <ArrowsPointingOutIcon
             class="p-1 w-8 h-8 self-center transition-all hover:scale-125 text-black"
@@ -378,14 +385,16 @@ function setImage() {
         </div>
 
         <img
-          :src="imgUri"
+          :src="image.uri"
           class="rounded-[25px]"
-          :class="{ 'border-2 border-fuchsia-500': selectedImgUri === imgUri }"
+          :class="{
+            'border-2 border-fuchsia-500': selectedImg?.id === image.id,
+          }"
           width="400px"
           @click="
-            selectedImgUri === imgUri
-              ? (selectedImgUri = '')
-              : (selectedImgUri = imgUri)
+            selectedImg?.id === image.id
+              ? (selectedImg = null)
+              : (selectedImg = image)
           "
         />
       </div>

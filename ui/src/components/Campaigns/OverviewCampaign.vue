@@ -6,20 +6,18 @@ import {
   UserGroupIcon,
 } from '@heroicons/vue/24/outline';
 import { PlusIcon } from '@heroicons/vue/20/solid';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import {
   Campaign,
   CampaignMember,
   deleteCampaignMember,
   getCampaign,
   invitePlayerToCampaign,
-  PublicAdventure,
   getCampaignCharacters,
 } from '@/api/campaigns.ts';
 import { CampaignRole } from '@/api/campaigns.ts';
 import { getSessions, SessionBase, postSession } from '@/api/sessions.ts';
 import { useEventBus } from '@/lib/events.ts';
-import { getRpgSystems, RpgSystem } from '@/api/rpgSystems.ts';
 import { useSelectedCampaignId } from '@/lib/hooks.ts';
 import { useRouter } from 'vue-router';
 import { format } from 'date-fns';
@@ -35,9 +33,6 @@ const eventBus = useEventBus();
 const router = useRouter();
 
 const campaign = ref<Campaign>({} as Campaign);
-const rpgSystems = ref<RpgSystem[]>([]);
-const adventures = ref<PublicAdventure[]>([]);
-const systemsLimit = ref(999);
 const characters = ref<Character[]>([]);
 
 const viewingCharacter = ref<Character>();
@@ -78,19 +73,8 @@ async function init() {
   sessions.value = [];
 
   await loadSessions();
-
-  await loadRpgSystems();
-
   await loadCharacters();
 }
-
-watch(
-  campaign,
-  () => {
-    loadAdventures();
-  },
-  { deep: true },
-);
 
 async function loadSessions() {
   const getSessionsResponse = await getSessions({
@@ -98,26 +82,6 @@ async function loadSessions() {
   });
 
   sessions.value = getSessionsResponse.data.data;
-}
-
-function loadAdventures() {
-  const rpgSystem = rpgSystems.value.find(
-    (s) => s.code === campaign.value?.rpgSystemCode,
-  );
-
-  if (rpgSystem) {
-    adventures.value = rpgSystem.publicAdventures ?? [];
-  }
-}
-
-async function loadRpgSystems() {
-  const rpgSystemsResponse = await getRpgSystems({
-    offset: 0,
-    limit: systemsLimit.value,
-  });
-  rpgSystems.value = rpgSystemsResponse.data.data;
-
-  loadAdventures();
 }
 
 async function loadCharacters() {
@@ -370,15 +334,15 @@ async function handleRemoveMember() {
           <span class="text-neutral-300">
             {{
               campaign.createdAt
-                ? format(new Date(campaign.createdAt), 'MMM d, yyyy')
-                : 'N/A'
+                ? format(new Date(campaign.createdAt.toString()), 'MMM d, yyyy')
+                : 'No Start Date'
             }}
           </span>
         </div>
         <div class="my-2">
           Players count:
           <span class="text-neutral-300">{{
-            campaign.members?.length || 'N/A'
+            campaign.members?.length || 'No Members'
           }}</span>
         </div>
         <div class="my-2">
@@ -387,7 +351,7 @@ async function handleRemoveMember() {
             {{
               latestSession
                 ? format(new Date(latestSession.updatedAt), 'MMM d, yyyy')
-                : 'N/A'
+                : 'No Sessions'
             }}
           </span>
         </div>

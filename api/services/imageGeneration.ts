@@ -137,6 +137,7 @@ export const generateImage = async (request: ImageRequest) => {
           prompt: request.prompt,
           negativePrompt: request.negativePrompt,
           stylePreset: preset,
+          seed: image.seed.toString(),
           ...request.linking,
         },
       });
@@ -223,7 +224,7 @@ const postToStableDiffusion = async (
   } catch (err) {
     await sendWebsocketMessage(request.userId, WebSocketEvent.ImageError, {
       message:
-        'There was an error generating your image. Your prompt was rejected by the content filtering system. Please try again.',
+        'There was an error generating your image. This could be due to our content filtering system rejecting your prompt, or an unexpected outage with one of our providers. Please try again.',
     });
 
     return undefined;

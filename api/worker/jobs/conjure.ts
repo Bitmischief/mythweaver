@@ -5,7 +5,6 @@ import { sanitizeJson, trimPlural } from '../../lib/utils';
 import { generateImage } from '../../services/imageGeneration';
 import { prisma } from '../../lib/providers/prisma';
 import { ConjureEvent, processTagsQueue } from '../index';
-import { getRpgSystem } from '../../data/rpgSystems';
 import { getClient } from '../../lib/providers/openai';
 import {
   sendWebsocketMessage,
@@ -118,6 +117,7 @@ export const conjure = async (request: ConjureEvent) => {
           : []),
       ],
       conjurationRequestId: request.conjurationRequestId,
+      prompt: request.arg,
     },
   });
 
@@ -185,27 +185,13 @@ const buildPrompt = (
   )}`;
 
   if (campaign) {
-    const rpgSystem = getRpgSystem(campaign.rpgSystemCode);
-    const publicAdventure = rpgSystem?.publicAdventures?.find(
-      (a) => a.code === campaign.publicAdventureCode,
-    );
-
+    let rpgSystem = campaign.rpgSystemCode;
     if (!rpgSystem) {
-      throw new AppError({
-        description: 'RPG System not found.',
-        httpCode: HttpCode.BAD_REQUEST,
-      });
+      rpgSystem = 'a role-playing game like dungeons and dragons.';
     }
-
-    prompt += ` to be used in ${rpgSystem.name}`;
-
-    if (publicAdventure) {
-      prompt += `for the campaign ${publicAdventure?.name}. `;
-    } else {
-      prompt += '. ';
-    }
+    prompt += ` to be used in a role-playing game like ${rpgSystem}`;
   } else {
-    prompt += ' to be used in a roleplaying game like dungeons and dragons. ';
+    prompt += ' to be used in a role-playing game like dungeons and dragons. ';
   }
 
   if (customArg && customArg.length > 0) {

@@ -67,7 +67,7 @@ async function generate(propertyName: string) {
         :placeholder="placeholder"
       />
       <button
-        class="button-gradient absolute top-0 right-0 py-2 m-px"
+        class="button-gradient absolute top-0 right-0 py-2 m-px rounded-[7px]"
         type="button"
         @click="generate(propertyOverride || title.toLowerCase())"
       >

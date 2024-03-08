@@ -5,7 +5,7 @@ import { useRouter } from 'vue-router';
 import { useCampaignStore } from '@/store/campaign.store.ts';
 import { storeToRefs } from 'pinia';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
-import { Campaign, CampaignRole } from '@/api/campaigns.ts';
+import { Campaign } from '@/api/campaigns.ts';
 import {
   BookmarkIcon,
   CheckIcon,
@@ -27,12 +27,8 @@ const campaignStore = useCampaignStore();
 
 const emit = defineEmits(['nav-item-selected']);
 
-const {
-  selectedCampaign,
-  selectedCampaignRole,
-  selectedCampaignId,
-  campaigns,
-} = storeToRefs(campaignStore);
+const { selectedCampaign, selectedCampaignId, campaigns } =
+  storeToRefs(campaignStore);
 
 const filteredCampaigns = ref<Campaign[]>([]);
 const query = ref('');
@@ -182,17 +178,20 @@ async function navigateToCreateCampaign() {
       <div v-if="!collapsed" class="whitespace-nowrap">Overview</div>
     </router-link>
     <router-link
-      v-if="selectedCampaignRole === CampaignRole.Player"
       class="nav-item"
       :class="[
-        router.currentRoute.value.path.startsWith('/character')
+        router.currentRoute.value.path.startsWith('/characters')
           ? 'default-border-no-opacity'
           : '',
       ]"
-      to="/character"
+      to="/characters"
       @click="emit('nav-item-selected')"
     >
-      <img src="@/assets/icons/characters.svg" class="h-5 mr-2" />
+      <img
+        src="@/assets/icons/characters.svg"
+        alt="characters"
+        class="h-5 mr-2"
+      />
       <div v-if="!collapsed" class="whitespace-nowrap">Characters</div>
     </router-link>
     <router-link
@@ -205,7 +204,7 @@ async function navigateToCreateCampaign() {
       to="/sessions"
       @click="emit('nav-item-selected')"
     >
-      <img src="@/assets/icons/sessions.svg" class="h-5 mr-2" />
+      <img src="@/assets/icons/sessions.svg" alt="sessions" class="h-5 mr-2" />
       <div v-if="!collapsed" class="whitespace-nowrap">Sessions</div>
     </router-link>
 

@@ -8,6 +8,8 @@ import { onMounted, onUnmounted } from 'vue';
 const props = defineProps<{
   imageUri: string | undefined;
   prompt?: string;
+  negativePrompt?: string;
+  stylePreset?: string;
   editable?: boolean;
   alt?: string;
   imageConjurationFailed?: boolean;
@@ -35,6 +37,8 @@ onUnmounted(() => {
 function showCustomizeImageModal() {
   eventBus.$emit('toggle-customize-image-modal', {
     prompt: props.prompt,
+    negativePrompt: props.negativePrompt,
+    stylePreset: props.stylePreset,
     imageUri: props.imageUri,
     alt: props.alt,
   });
@@ -54,7 +58,7 @@ function showImage() {
     <div v-if="editable" class="absolute flex top-2 right-2">
       <button
         class="flex button-white bg-white/50"
-        :disabled="!props.imageUri"
+        :disabled="!editable"
         @click="showCustomizeImageModal"
       >
         <PencilSquareIcon class="h-4 mr-1" />

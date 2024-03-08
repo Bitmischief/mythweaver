@@ -11,9 +11,9 @@ const emit = defineEmits(['back', 'complete']);
 </script>
 
 <template>
-  <div class="mt-8 max-w-[50em]">
+  <div class="mt-8">
     <div class="mb-4 flex justify-between">
-      <button class="button-primary flex" @click="emit('back')">
+      <button class="button-ghost-primary flex" @click="emit('back')">
         <ArrowLeftIcon class="h-4 mr-1 self-center" />
         Back
       </button>
@@ -55,7 +55,7 @@ const emit = defineEmits(['back', 'complete']);
         </div>
       </div>
     </div>
-    <div class="w-full">
+    <div class="w-full py-4">
       <div class="mt-6 grid md:grid-cols-2 gap-8">
         <div>
           <div class="text-md text-neutral-500">Backstory</div>
