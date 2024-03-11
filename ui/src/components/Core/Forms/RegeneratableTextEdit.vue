@@ -11,7 +11,7 @@ const props = defineProps<{
   context?: string;
   background?: any;
   help?: string;
-  type?: string;
+  type?: 'text' | 'textarea';
   autoHeight?: boolean;
   disabled?: boolean;
   inputClass?: string;
