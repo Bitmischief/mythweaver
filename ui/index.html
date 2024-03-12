@@ -35,31 +35,6 @@
       fbq('track', 'PageView');
     </script>
     <!-- End Meta Pixel Code -->
-
-    <!-- ViralSweep -->
-    <script type="text/javascript" src="https://app.viralsweep.com/assets/js/action.js"></script>
-
-    <script>
-      function vs_get_cookie(cname) {
-        var name = cname + '=';
-        var ca = document.cookie.split(';');
-        for (var i = 0; i < ca.length; i++) {
-          var c = ca[i].trim();
-          if (c.indexOf(name) == 0) return c.substring(name.length, c.length);
-        }
-        return '';
-      }
-      var vs_eidhash = vs_get_cookie('vseid');
-    </script>
-    <script>
-      vs_tag_url = 'https://app.viralsweep.com/promo/ca/145899-84528_1697734417?h=' + vs_eidhash;
-      var head = document.getElementsByTagName('head')[0];
-      var script = document.createElement('script');
-      script.type = 'text/javascript';
-      script.onload = function () {};
-      script.src = vs_tag_url;
-      head.appendChild(script);
-    </script>
   </head>
   <body class="h-full">
     <noscript
