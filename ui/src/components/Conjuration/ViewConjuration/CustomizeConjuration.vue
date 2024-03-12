@@ -89,6 +89,9 @@ onMounted(() => {
   channel.bind(ServerEvent.ImageCreated, function (data: any) {
     if (!editableConjuration.value.imageUri) {
       editableConjuration.value.imageUri = data.uri;
+      editableConjuration.value.imageAIPrompt = data.prompt;
+      negativePrompt.value = data.negativePrompt;
+      stylePreset.value = data.stylePreset;
       eventBus.$emit('set-image', data);
     }
   });
