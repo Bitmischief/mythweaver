@@ -412,6 +412,8 @@ export default class ConjurationController {
             userId,
           },
         },
+        createdAt: undefined,
+        updatedAt: undefined,
       },
     });
   }
