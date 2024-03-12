@@ -32,13 +32,14 @@ export const getCheckoutUrl = async (
         quantity: 1,
       },
     ],
-    discounts: process.env.STRIPE_PROMOTION_COUPON_ID
-      ? [
-          {
-            coupon: process.env.STRIPE_PROMOTION_COUPON_ID,
-          },
-        ]
-      : undefined,
+    discounts:
+      process.env.STRIPE_PROMOTION_COUPON_ID && subscription
+        ? [
+            {
+              coupon: process.env.STRIPE_PROMOTION_COUPON_ID,
+            },
+          ]
+        : undefined,
     mode: subscription ? 'subscription' : 'payment',
     automatic_tax: {
       enabled: true,
