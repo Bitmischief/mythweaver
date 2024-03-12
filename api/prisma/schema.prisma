@@ -44,7 +44,7 @@ model User {
   subscriptionPaidThrough DateTime?
   plan                    BillingPlan?
   planInterval            BillingInterval @default(MONTHLY)
-  username                String?
+  username                String
   imageCredits            Int             @default(0)
 
   refreshTokens         RefreshToken[]

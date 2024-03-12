@@ -4,6 +4,7 @@ const users = [
   {
     id: 1,
     email: process.env.LOCAL_DEV_USER_EMAIL || 'austin@mythweaver.co',
+    username: 'bitmischief',
   },
 ];
 
