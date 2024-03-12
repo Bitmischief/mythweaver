@@ -114,7 +114,23 @@ async function saveChanges() {
                     disabled
                   />
                 </div>
+
+                <div>
+                  <FormKit
+                    v-model="username"
+                    label="Username"
+                    type="text"
+                    inner-class="$reset border-none w-full"
+                    input-class="$reset input-secondary"
+                  />
+                </div>
               </div>
+              <FormKit
+                v-if="username !== user?.username"
+                label="Save"
+                type="submit"
+                input-class="$reset button-ghost"
+              />
             </div>
           </FormKit>
         </div>

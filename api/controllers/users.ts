@@ -81,6 +81,21 @@ export default class UserController {
       confirmEarlyAccessStart: undefined,
     };
 
+    if (request.username) {
+      const usernameExists = await prisma.user.findFirst({
+        where: {
+          username: request.username,
+        },
+      });
+
+      if (usernameExists) {
+        throw new AppError({
+          description: 'Username already exists.',
+          httpCode: HttpCode.BAD_REQUEST,
+        });
+      }
+    }
+
     return prisma.user.update({
       where: {
         id: userId,

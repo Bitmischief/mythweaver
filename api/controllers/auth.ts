@@ -119,6 +119,7 @@ export default class AuthController {
           earlyAccessCutoffAt: earlyAccessEnd,
           billingCustomerId: stripeCustomerId,
           imageCredits: 25,
+          username: await buildUniqueUsername(email.toLowerCase()),
         },
       });
 
@@ -285,6 +286,7 @@ export default class AuthController {
           earlyAccessCutoffAt: earlyAccessEnd,
           billingCustomerId: stripeCustomerId,
           imageCredits: 25,
+          username: await buildUniqueUsername(email.toLowerCase()),
         },
       });
 
@@ -391,3 +393,16 @@ export default class AuthController {
     };
   }
 }
+
+const buildUniqueUsername = async (email: string) => {
+  const username = email.split('@')[0];
+  const usernameExists = await prisma.user.findFirst({
+    where: {
+      username,
+    },
+  });
+
+  return usernameExists
+    ? username + Math.floor(Math.random() * 1000)
+    : username;
+};

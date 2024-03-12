@@ -235,8 +235,8 @@ model CampaignMember {
   inviteCode String?
   joinedAt   DateTime? @db.Timestamptz(6)
 
-  user      User?      @relation(fields: [userId], references: [id])
-  campaign  Campaign   @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  user      User?       @relation(fields: [userId], references: [id])
+  campaign  Campaign    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   character Character[]
 
   @@unique([userId, campaignId])
