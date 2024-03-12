@@ -8,6 +8,7 @@ import { computed } from 'vue';
 defineProps<{
   conjuration: Conjuration | undefined;
   skeleton?: boolean;
+  showSaves?: boolean;
 }>();
 
 const router = useRouter();
@@ -72,6 +73,31 @@ const showBookmarkIcon = computed(() => {
         class="absolute left-4 top-4 flex h-6 justify-center items-center rounded-full bg-white/50 group text-black text-xs font-bold px-4"
       >
         {{ conjurationType(conjuration) }}
+      </div>
+      <div v-if="showSaves" class="group">
+        <div
+          class="absolute right-4 top-4 flex h-6 justify-center items-center text-black text-xs font-bold"
+        >
+          <div class="relative">
+            <BookmarkIconSolid class="h-8 w-8 text-neutral-300/75" />
+            <div
+              class="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2"
+            >
+              {{ conjuration.saves > 99 ? '99+' : conjuration.saves }}
+            </div>
+          </div>
+        </div>
+        <div
+          class="absolute right-0 bottom-[98%] left-0 text-sm font-bold text-center invisible group-hover:visible text-neutral-300 bg-surface-3 rounded-[12px] px-2 py-1 z-20"
+        >
+          <span
+            >{{ conjuration.saves }}
+            {{
+              conjuration.saves === 1 ? 'adventurer has' : 'adventurers have'
+            }}
+            added this to their conjurations</span
+          >
+        </div>
       </div>
       <div
         v-if="showBookmarkIcon"

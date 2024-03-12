@@ -14,7 +14,7 @@ import {
 } from '@heroicons/vue/20/solid';
 import {
   Squares2X2Icon,
-  SparklesIcon,
+  BookmarkSquareIcon,
   PhotoIcon,
 } from '@heroicons/vue/24/outline';
 
@@ -220,7 +220,7 @@ async function navigateToCreateCampaign() {
       to="/conjurations#saved"
       @click="emit('nav-item-selected')"
     >
-      <SparklesIcon class="h-5 mr-2" />
+      <BookmarkSquareIcon class="h-5 mr-2" />
       <div v-if="!collapsed" class="whitespace-nowrap">My Conjurations</div>
     </router-link>
 

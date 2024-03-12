@@ -18,6 +18,7 @@ export interface Conjuration {
   originalId?: number;
   imageAIPrompt: string;
   saved: boolean;
+  saves: number;
   imageGenerationFailed: boolean;
   prompt?: string;
   images?: any[];
