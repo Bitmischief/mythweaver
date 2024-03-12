@@ -148,7 +148,11 @@ export default class ConjurationController {
       },
     });
 
-    if (!conjuration || (conjuration.visibility === ConjurationVisibility.PRIVATE && conjuration.userId !== userId)) {
+    if (
+      !conjuration ||
+      (conjuration.visibility === ConjurationVisibility.PRIVATE &&
+        conjuration.userId !== userId)
+    ) {
       throw new AppError({
         description: 'Conjuration not found.',
         httpCode: HttpCode.NOT_FOUND,

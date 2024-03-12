@@ -61,7 +61,9 @@ async function loadConjuration() {
       conjuration.value = response.data;
 
       if (conjuration.value?.copies?.length) {
-        await router.push(`/conjurations/view/${conjuration.value.copies[0].id}`);
+        await router.push(
+          `/conjurations/view/${conjuration.value.copies[0].id}`,
+        );
         await loadConjuration();
       }
     }
@@ -70,7 +72,9 @@ async function loadConjuration() {
       showInfo({ message: 'Conjuration not found.' });
       await router.push('/conjurations');
     } else {
-      showError({ message: 'We were unable to fetch this conjuration. Please try again.' });
+      showError({
+        message: 'We were unable to fetch this conjuration. Please try again.',
+      });
     }
   }
 }
