@@ -17,7 +17,7 @@ import {
 } from '@heroicons/vue/24/solid';
 import { BookmarkSquareIcon } from '@heroicons/vue/24/outline';
 import { useCurrentUserId, useQuickConjure } from '@/lib/hooks.ts';
-import { showSuccess } from '@/lib/notifications.ts';
+import { showSuccess, showError, showInfo } from '@/lib/notifications.ts';
 
 const route = useRoute();
 const router = useRouter();
@@ -55,13 +55,26 @@ watch(conjurationId, async () => {
 });
 
 async function loadConjuration() {
-  if (conjurationId.value) {
-    const response = await getConjuration(conjurationId.value);
-    conjuration.value = response.data;
+  try {
+    if (conjurationId.value) {
+      const response = await getConjuration(conjurationId.value);
+      conjuration.value = response.data;
 
-    if (conjuration.value?.copies?.length) {
-      await router.push(`/conjurations/view/${conjuration.value.copies[0].id}`);
-      await loadConjuration();
+      if (conjuration.value?.copies?.length) {
+        await router.push(
+          `/conjurations/view/${conjuration.value.copies[0].id}`,
+        );
+        await loadConjuration();
+      }
+    }
+  } catch (e: any) {
+    if (e.response.status === 404) {
+      showInfo({ message: 'Conjuration not found.' });
+      await router.push('/conjurations');
+    } else {
+      showError({
+        message: 'We were unable to fetch this conjuration. Please try again.',
+      });
     }
   }
 }
