@@ -72,11 +72,11 @@ async function addSessionAudio() {
         <input
           id="audio_file_input"
           type="file"
-          accept=".mp3,.wav"
+          accept=".mp3"
           @change="audioFileChanged"
         />
         <p id="file_input_help" class="mt-1 text-xs text-neutral-400 px-1">
-          .mp3, or .wav only (MAX. 500MB).
+          .mp3 only (MAX. 500MB)
         </p>
       </div>
       <div class="mt-4">

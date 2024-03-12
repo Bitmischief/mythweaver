@@ -9,7 +9,7 @@ const multer = require('multer');
 const multerS3 = require('multer-s3');
 
 const MAX_AUDIO_FILE_SIZE = 600000000;
-const ACCEPTED_AUDIO_TYPES = ['audio/mpeg', 'audio/wav'];
+const ACCEPTED_AUDIO_TYPES = ['audio/mpeg'];
 
 const s3 = new S3Client({
   endpoint: 'https://sfo3.digitaloceanspaces.com',
@@ -35,7 +35,7 @@ const upload = multer({
   },
   fileFilter: function (req: Request, file: any, cb: any) {
     if (!ACCEPTED_AUDIO_TYPES.includes(file.mimetype)) {
-      return cb(new Error('Only .mp3 or .wav format allowed!'));
+      return cb(new Error('Only .mp3 format allowed!'));
     }
     cb(null, true);
   },
