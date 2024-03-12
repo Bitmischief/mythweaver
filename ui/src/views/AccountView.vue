@@ -11,6 +11,7 @@ import PricingPlan from '@/components/Core/PricingPlan.vue';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import { XCircleIcon } from '@heroicons/vue/24/solid';
 import PlanBadge from '@/components/Core/PlanBadge.vue';
+import { AxiosError } from 'axios';
 
 const store = useAuthStore();
 const user = computed(() => store.user);
@@ -53,9 +54,9 @@ async function saveChanges() {
 
     showSuccess({ message: 'Your username has been updated!' });
   } catch (e) {
+    const err = e as AxiosError;
     showError({
-      message: 'Something went wrong',
-      context: 'Try again, or contact support if the problem persists.',
+      message: (err?.response?.data as any)?.message?.toString() || '',
     });
   } finally {
     saveChangesLoading.value = false;
