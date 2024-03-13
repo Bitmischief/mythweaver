@@ -74,8 +74,9 @@ export function useCurrentUserPlan() {
 }
 
 export interface UpgradeRequest {
-  feature?: string;
+  feature: string;
   requiredPlan: BillingPlan;
+  redirectUri?: string;
 }
 
 export function showUpgradeModal(request: UpgradeRequest) {

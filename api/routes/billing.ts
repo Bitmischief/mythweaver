@@ -5,7 +5,10 @@ import { useInjectLoggingInfo, useLogger } from '../lib/loggingMiddleware';
 import BillingController from '../controllers/billing';
 import { validateEvent } from '../services/billing';
 import { z } from 'zod';
-import { useValidateRequest } from '../lib/validationMiddleware';
+import {
+  useValidateRequest,
+  ValidationTypes,
+} from '../lib/validationMiddleware';
 
 const router = express.Router();
 
@@ -31,15 +34,25 @@ router.post('/checkout-url', [
   },
 ]);
 
+const getPortalUrlSchema = z.object({
+  upgrade: z.coerce.boolean().optional(),
+  newPlanPriceId: z.string().optional(),
+  redirectUri: z.string().url().optional(),
+});
+
 router.get('/portal-url', [
   useAuthenticateRequest(),
   useInjectLoggingInfo(),
+  useValidateRequest(getPortalUrlSchema, {
+    validationType: ValidationTypes.Query,
+  }),
   async (req: Request, res: Response) => {
     const controller = new BillingController();
 
     const response = await controller.getPortalUrl(
       res.locals.auth.userId,
       useLogger(res),
+      req.query,
     );
     return res.status(200).send(response);
   },

@@ -178,6 +178,7 @@ const clickUploadAudio = () => {
     showUpgradeModal({
       feature: 'Upload Session Audio',
       requiredPlan: BillingPlan.Pro,
+      redirectUri: location.href,
     });
   } else {
     showUploadAudioModal.value = true;

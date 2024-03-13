@@ -3,9 +3,12 @@ import { useEventBus } from '@/lib/events.ts';
 import { onMounted, onUnmounted, ref } from 'vue';
 import { XCircleIcon } from '@heroicons/vue/24/solid';
 import ModalAlternate from '@/components/ModalAlternate.vue';
-import { UpgradeRequest } from '@/lib/hooks.ts';
+import { UpgradeRequest, useCurrentUserPlan } from '@/lib/hooks.ts';
+import { getBillingPortalUrl, getCheckoutUrl } from '@/api/billing.ts';
+import { BillingPlan } from '@/api/users.ts';
 
 const eventBus = useEventBus();
+const currentUserPlan = useCurrentUserPlan();
 const showUpgradeModal = ref(false);
 const upgradeRequest = ref<UpgradeRequest | null>(null);
 
@@ -19,6 +22,27 @@ onMounted(() => {
 onUnmounted(() => {
   eventBus.$off('user-loaded');
 });
+
+async function clickUpgradeNow() {
+  const requiredPriceId =
+    upgradeRequest.value?.requiredPlan === BillingPlan.Pro
+      ? import.meta.env.VITE_STRIPE_PRO_PLAN_ID
+      : import.meta.env.VITE_STRIPE_BASIC_PLAN_ID;
+
+  if (currentUserPlan.value === BillingPlan.Free) {
+    const response = await getCheckoutUrl(requiredPriceId, true);
+
+    location.href = response.data;
+  } else {
+    const response = await getBillingPortalUrl({
+      upgrade: true,
+      newPlanPriceId: requiredPriceId,
+      redirectUri: upgradeRequest.value?.redirectUri,
+    });
+
+    location.href = response.data;
+  }
+}
 </script>
 
 <template>
@@ -41,14 +65,17 @@ onUnmounted(() => {
 
       <div class="text-2xl text-neutral-300 mb-6">
         You need to upgrade your subscription to
-        {{ upgradeRequest.requiredPlan }} to
+        <span class="text-green-400">{{ upgradeRequest.requiredPlan }}</span> to
         <span class="text-fuchsia-500">{{ upgradeRequest.feature }}</span
         >.
       </div>
 
-      <div class="button-gradient font-bold text-white text-center">
+      <button
+        class="button-gradient font-bold text-white text-center"
+        @click="clickUpgradeNow"
+      >
         Upgrade Now
-      </div>
+      </button>
     </div>
   </ModalAlternate>
 </template>
