@@ -26,7 +26,7 @@ const upload = multer({
     bucket: 'mythweaver-assets',
     key: function (req: Request, file: any, cb: any) {
       const audioId = uuidv4();
-      cb(null, `${audioId}.${file.type}`);
+      cb(null, `${audioId}.${file.originalname.split('.').pop()}`);
     },
     acl: 'public-read',
   }),
