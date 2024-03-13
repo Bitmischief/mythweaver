@@ -1,5 +1,11 @@
 import axios from 'axios';
 
+export enum BillingPlan {
+  Free = 'FREE',
+  Basic = 'BASIC',
+  Pro = 'PRO',
+}
+
 export interface User {
   id: number;
   email: string;
@@ -7,7 +13,7 @@ export interface User {
   createdAt: string;
   earlyAccessCutoffAt: string;
   earlyAccessExempt: boolean;
-  plan: string;
+  plan: BillingPlan;
   subscriptionPaidThrough: string;
   imageCredits: number;
 }

@@ -42,7 +42,7 @@ model User {
   earlyAccessExempt       Boolean         @default(false)
   billingCustomerId       String?
   subscriptionPaidThrough DateTime?
-  plan                    BillingPlan?
+  plan                    BillingPlan     @default(FREE)
   planInterval            BillingInterval @default(MONTHLY)
   username                String
   imageCredits            Int             @default(0)

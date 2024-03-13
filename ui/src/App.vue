@@ -13,6 +13,7 @@ import Loader from './components/Core/Loader.vue';
 import { ServerEvent } from '@/lib/serverEvents.ts';
 import { showSuccess } from '@/lib/notifications.ts';
 import { useWebsocketChannel } from '@/lib/hooks.ts';
+import UpgradeContainer from '@/components/Core/Billing/UpgradeContainer.vue';
 
 const authStore = useAuthStore();
 const eventBus = useEventBus();
@@ -148,6 +149,8 @@ eventBus.$on('toggle-customize-image-modal', (args: CustomizeImageRequest) => {
       />
     </div>
   </ModalAlternate>
+
+  <UpgradeContainer />
 
   <LightboxRoot />
 </template>
