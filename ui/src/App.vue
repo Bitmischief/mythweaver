@@ -15,7 +15,9 @@ import { showSuccess } from '@/lib/notifications.ts';
 import { useWebsocketChannel } from '@/lib/hooks.ts';
 import { ConjurationRelationshipType } from '@/lib/enums.ts';
 import CreateRelationship from '@/components/Relationships/CreateRelationship.vue';
+import { useLDReady } from 'launchdarkly-vue-client-sdk';
 
+const ldReady = useLDReady();
 const authStore = useAuthStore();
 const eventBus = useEventBus();
 const intercom = useIntercom();
@@ -142,7 +144,7 @@ eventBus.$on('create-relationship', (args: CreateRelationshipRequest) => {
     <NotificationHandler />
 
     <div
-      v-if="authStore.isLoading || showLoading"
+      v-if="authStore.isLoading || showLoading || !ldReady"
       class="absolute w-full h-full bg-surface opacity-95"
     >
       <div class="flex justify-center items-center w-full h-full">

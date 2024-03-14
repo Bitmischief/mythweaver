@@ -20,10 +20,8 @@ import RegeneratableTextEdit from '@/components/Core/Forms/RegeneratableTextEdit
 import { CampaignRole } from '@/api/campaigns.ts';
 import { debounce } from 'lodash';
 import { ConjurationRelationshipType } from '@/lib/enums.ts';
-import { useLDReady } from 'launchdarkly-vue-client-sdk';
 import { useLDFlag } from 'launchdarkly-vue-client-sdk';
 
-const ldReady = useLDReady();
 const showRelationships = useLDFlag('relationships', false);
 
 const route = useRoute();
@@ -41,11 +39,7 @@ const sessionSuggestedImagePrompt = ref('');
 const sessionId = computed(() => parseInt(route.params.sessionId.toString()));
 
 const checkRelationshipsFlag = async () => {
-  if (
-    ldReady.value &&
-    !showRelationships.value &&
-    route.path.endsWith('relationships')
-  ) {
+  if (!showRelationships.value && route.path.endsWith('relationships')) {
     console.log('made it here');
     await router.push(`/sessions/${sessionId.value}/planning`);
   }
@@ -87,7 +81,6 @@ onUnmounted(() => {
   channel.unbind(ServerEvent.SessionImageUpdated);
 });
 
-watch(ldReady, checkRelationshipsFlag);
 watch(showRelationships, checkRelationshipsFlag);
 
 watch(
@@ -248,11 +241,7 @@ async function handleCreateRelationship(type: ConjurationRelationshipType) {
           <template #content>
             <div class="relative z-60 bg-surface-3 p-2 rounded-[20px]">
               <MenuItem
-                v-if="
-                  ldReady &&
-                  showRelationships &&
-                  currentUserRole === CampaignRole.DM
-                "
+                v-if="showRelationships && currentUserRole === CampaignRole.DM"
               >
                 <button
                   class="w-full rounded-[14px] px-3 py-1 hover:bg-purple-800/20 hover:text-purple-200"
@@ -365,7 +354,7 @@ async function handleCreateRelationship(type: ConjurationRelationshipType) {
           class="flex flex-wrap gap-1 w-full text-neutral-500 rounded-[10px] bg-surface-2 p-1 border border-surface-3 text-sm"
         >
           <router-link
-            v-if="ldReady && showRelationships"
+            v-if="showRelationships"
             to="relationships"
             class="whitespace-nowrap grow col-auto border border-surface-3 md:border-none rounded-[10px] text-center py-2 px-4 hover:bg-purple-800/20"
             :class="{

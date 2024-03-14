@@ -30,10 +30,8 @@ import Menu from '@/components/Core/General/Menu.vue';
 import { ConjurationRelationshipType } from '@/lib/enums.ts';
 import { CampaignRole } from '@/api/campaigns.ts';
 import ViewRelationships from '@/components/Relationships/ViewRelationships.vue';
-import { useLDReady } from 'launchdarkly-vue-client-sdk';
 import { useLDFlag } from 'launchdarkly-vue-client-sdk';
 
-const ldReady = useLDReady();
 const showRelationships = useLDFlag('relationships', false);
 
 const route = useRoute();
@@ -242,7 +240,7 @@ async function handleCreateRelationship(type: ConjurationRelationshipType) {
 
           <template #content>
             <div class="relative z-60 bg-surface-3 p-2 rounded-[12px]">
-              <MenuItem v-if="ldReady && showRelationships" class="menu-item">
+              <MenuItem v-if="showRelationships" class="menu-item">
                 <button
                   v-if="currentUserRole === CampaignRole.DM"
                   class="button-primary flex"
@@ -255,7 +253,7 @@ async function handleCreateRelationship(type: ConjurationRelationshipType) {
                   Link Conjuration
                 </button>
               </MenuItem>
-              <MenuItem v-if="ldReady && showRelationships" class="menu-item">
+              <MenuItem v-if="showRelationships" class="menu-item">
                 <button
                   v-if="currentUserRole === CampaignRole.DM"
                   class="button-primary flex"
@@ -287,7 +285,7 @@ async function handleCreateRelationship(type: ConjurationRelationshipType) {
       :conjuration="conjuration"
       :image-conjuration-failed="conjuration.imageGenerationFailed"
     />
-    <div v-if="ldReady && showRelationships" class="mt-4">
+    <div v-if="showRelationships" class="mt-4">
       <div class="text-xl my-2">Related Conjurations</div>
       <ViewRelationships
         :start-node-id="conjuration.id"
