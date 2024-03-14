@@ -2,11 +2,11 @@
 import { ArrowLeftIcon, EllipsisVerticalIcon } from '@heroicons/vue/24/solid';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import {
-  SessionBase,
   deleteSession,
   getSession,
   patchSession,
   postCompleteSession,
+  SessionBase,
 } from '@/api/sessions.ts';
 import { useRoute, useRouter } from 'vue-router';
 import { showError, showSuccess } from '@/lib/notifications.ts';
@@ -19,6 +19,12 @@ import { useEventBus } from '@/lib/events.ts';
 import RegeneratableTextEdit from '@/components/Core/Forms/RegeneratableTextEdit.vue';
 import { CampaignRole } from '@/api/campaigns.ts';
 import { debounce } from 'lodash';
+import { ConjurationRelationshipType } from '@/lib/enums.ts';
+import { useLDReady } from 'launchdarkly-vue-client-sdk';
+import { useLDFlag } from 'launchdarkly-vue-client-sdk';
+
+const ldReady = useLDReady();
+const showRelationships = useLDFlag('relationships', false);
 
 const route = useRoute();
 const router = useRouter();
@@ -32,8 +38,21 @@ const loadingCompleteSession = ref(false);
 const sessionName = ref('');
 const sessionImageUri = ref('');
 const sessionSuggestedImagePrompt = ref('');
+const sessionId = computed(() => parseInt(route.params.sessionId.toString()));
+
+const checkRelationshipsFlag = async () => {
+  if (
+    ldReady.value &&
+    !showRelationships.value &&
+    route.path.endsWith('relationships')
+  ) {
+    console.log('made it here');
+    await router.push(`/sessions/${sessionId.value}/planning`);
+  }
+};
 
 onMounted(async () => {
+  await checkRelationshipsFlag();
   await init();
 
   eventBus.$on('session-processing', (payload: { recap: string }) => {
@@ -68,6 +87,9 @@ onUnmounted(() => {
   channel.unbind(ServerEvent.SessionImageUpdated);
 });
 
+watch(ldReady, checkRelationshipsFlag);
+watch(showRelationships, checkRelationshipsFlag);
+
 watch(
   sessionName,
   debounce(async () => {
@@ -91,9 +113,7 @@ watch(
 );
 
 async function init() {
-  const response = await getSession(
-    parseInt(route.params.sessionId.toString()),
-  );
+  const response = await getSession(sessionId.value);
 
   session.value = response.data as SessionBase;
   sessionName.value = session.value.name || '';
@@ -185,6 +205,14 @@ const sessionType = computed(() => {
     return 'Upcoming';
   }
 });
+
+async function handleCreateRelationship(type: ConjurationRelationshipType) {
+  eventBus.$emit('create-relationship', {
+    relationshipType: type,
+    nodeId: session.value.id,
+    nodeType: ConjurationRelationshipType.SESSION,
+  });
+}
 </script>
 
 <template>
@@ -219,6 +247,24 @@ const sessionType = computed(() => {
           </MenuButton>
           <template #content>
             <div class="relative z-60 bg-surface-3 p-2 rounded-[20px]">
+              <MenuItem
+                v-if="
+                  ldReady &&
+                  showRelationships &&
+                  currentUserRole === CampaignRole.DM
+                "
+              >
+                <button
+                  class="w-full rounded-[14px] px-3 py-1 hover:bg-purple-800/20 hover:text-purple-200"
+                  @click="
+                    handleCreateRelationship(
+                      ConjurationRelationshipType.CONJURATION,
+                    )
+                  "
+                >
+                  Link Conjurations
+                </button>
+              </MenuItem>
               <MenuItem v-if="!session.archived">
                 <button
                   class="w-full rounded-[14px] px-3 py-1 hover:bg-purple-800/20 hover:text-purple-200"
@@ -316,11 +362,21 @@ const sessionType = computed(() => {
       </div>
       <div class="flex">
         <div
-          class="grid grid-cols-2 md:grid-cols-4 gap-1 w-full text-neutral-500 rounded-[10px] bg-surface-2 p-1 border border-surface-3 text-sm"
+          class="flex flex-wrap gap-1 w-full text-neutral-500 rounded-[10px] bg-surface-2 p-1 border border-surface-3 text-sm"
         >
           <router-link
+            v-if="ldReady && showRelationships"
+            to="relationships"
+            class="whitespace-nowrap grow col-auto border border-surface-3 md:border-none rounded-[10px] text-center py-2 px-4 hover:bg-purple-800/20"
+            :class="{
+              'text-white bg-surface-3': route.path.endsWith('relationships'),
+            }"
+          >
+            Relationships
+          </router-link>
+          <router-link
             to="planning"
-            class="col-span-1 border border-surface-3 md:border-none rounded-[10px] text-center py-2 px-4 hover:bg-purple-800/20"
+            class="whitespace-nowrap grow col-auto border border-surface-3 md:border-none rounded-[10px] text-center py-2 px-4 hover:bg-purple-800/20"
             :class="{
               'text-white bg-surface-3': route.path.endsWith('planning'),
             }"
@@ -329,7 +385,7 @@ const sessionType = computed(() => {
           </router-link>
           <router-link
             to="recap"
-            class="col-span-1 grow border border-surface-3 md:border-none rounded-[10px] text-center py-2 px-4 hover:bg-purple-800/20"
+            class="whitespace-nowrap grow border border-surface-3 md:border-none rounded-[10px] text-center py-2 px-4 hover:bg-purple-800/20"
             :class="{
               'text-white rounded-[10px] bg-surface-3':
                 route.path.endsWith('recap'),
@@ -339,7 +395,7 @@ const sessionType = computed(() => {
           </router-link>
           <router-link
             to="summary"
-            class="col-span-1 grow border border-surface-3 md:border-none rounded-[10px] text-center py-2 px-4 hover:bg-purple-800/20"
+            class="whitespace-nowrap grow border border-surface-3 md:border-none rounded-[10px] text-center py-2 px-4 hover:bg-purple-800/20"
             :class="{
               'text-white rounded-[10px] bg-surface-3':
                 route.path.endsWith('summary'),
@@ -349,7 +405,7 @@ const sessionType = computed(() => {
           </router-link>
           <router-link
             to="transcription"
-            class="col-span-1 grow border border-surface-3 md:border-none rounded-[10px] text-center py-2 px-4 hover:bg-purple-800/20"
+            class="whitespace-nowrap grow border border-surface-3 md:border-none rounded-[10px] text-center py-2 px-4 hover:bg-purple-800/20"
             :class="{
               'text-white rounded-[10px] bg-surface-3':
                 route.path.endsWith('transcription'),

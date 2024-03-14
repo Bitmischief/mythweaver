@@ -31,6 +31,7 @@ export interface SessionBase {
 export interface GetSessionsRequest {
   offset?: number;
   limit?: number;
+  search?: string;
 }
 
 export interface PostSessionRequest {

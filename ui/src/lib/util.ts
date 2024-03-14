@@ -44,4 +44,14 @@ export function waitUntil(condition: () => boolean, timeout = 10000): Promise<vo
   });
 }
 
+export function toPascalCase(text: string): string {
+  const words = text.split(/\s+/);
+
+  const pascalCaseWords = words.map((word) => {
+    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+  });
+
+  return pascalCaseWords.join('');
+}
+
 export const isProduction = window.location.origin === 'https://app.mythweaver.co';

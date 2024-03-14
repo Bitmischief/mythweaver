@@ -150,4 +150,7 @@ input[type='number'] {
   .image-badge {
     @apply absolute left-2 top-2 flex h-6 justify-center items-center rounded-full bg-white/50 text-black text-xs font-bold px-4;
   }
+  .menu-item {
+    @apply hover:bg-purple-800/20 hover:cursor-pointer w-full;
+  }
 }

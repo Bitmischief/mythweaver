@@ -87,6 +87,7 @@ export default class SessionController {
     @Query() campaignId: number,
     @Query() offset?: number,
     @Query() limit?: number,
+    @Query() search?: string,
     @Query() archived = false,
   ): Promise<GetSessionsResponse> {
     const sessions = await prisma.session.findMany({
@@ -94,6 +95,9 @@ export default class SessionController {
         userId,
         campaignId,
         archived,
+        name: {
+          search: search,
+        },
       },
       skip: offset,
       take: limit,
