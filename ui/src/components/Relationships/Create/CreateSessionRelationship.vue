@@ -8,6 +8,7 @@ import { LinkIcon } from '@heroicons/vue/24/outline';
 import { debounce } from 'lodash';
 import Spinner from '@/components/Core/Spinner.vue';
 import { useEventBus } from '@/lib/events.ts';
+import { CheckCircleIcon } from '@heroicons/vue/20/solid';
 
 defineEmits(['relationship-created']);
 
@@ -60,6 +61,8 @@ async function fetchSessions(concat = true) {
       offset: page.value * pageSize,
       limit: pageSize,
       search: search,
+      nodeId: props.nodeId,
+      nodeType: props.nodeType,
     });
     const results = response.data.data.filter((c: any) =>
       props.nodeType === ConjurationRelationshipType.SESSION
@@ -97,6 +100,7 @@ async function linkSession(session: SessionBase) {
       },
     );
     showSuccess({ message: 'Conjuration relationship created!' });
+    session.linked = true;
     eventBus.$emit('relationship-created', {
       nodeId: props.nodeId,
       nodeType: props.nodeType,
@@ -144,21 +148,23 @@ async function linkSession(session: SessionBase) {
             <div
               class="relative self-center"
               :class="{ 'group hover:text-fuchsia-500': linking === -1 }"
-              @click="linkSession(session)"
             >
               <LinkIcon
-                v-if="linking !== session.id"
+                v-if="linking !== session.id && !session.linked"
                 class="h-8 w-8"
                 :class="{
                   'cursor-not-allowed text-neutral-500': linking !== -1,
                   'cursor-pointer': linking === -1,
                 }"
+                @click="linkSession(session)"
               />
+              <CheckCircleIcon v-else-if="session.linked" class="h-8 w-8" />
               <Spinner v-else class="h-8 w-8" />
               <div
-                class="group-hover:block absolute -bottom-8 right-2 bg-surface-2 px-2 rounded-full hidden text-neutral-300 whitespace-nowrap"
+                class="group-hover:block absolute -top-6 right-0 bg-surface-2 px-2 rounded-full hidden text-neutral-300 whitespace-nowrap"
               >
-                Create Relationship
+                <span v-if="!session.linked">Create Relationship</span>
+                <span v-else>Relationship Exists</span>
               </div>
             </div>
           </div>

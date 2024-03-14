@@ -8,6 +8,7 @@ import {
 import ConjurationController from '../controllers/conjurations';
 import { useInjectLoggingInfo, useLogger } from '../lib/loggingMiddleware';
 import { ImageStylePreset } from '../controllers/images';
+import { ConjurationRelationshipType } from '@prisma/client';
 
 const router = express.Router();
 
@@ -21,6 +22,16 @@ const getConjurationsSchema = z.object({
   limit: z.coerce.number().min(1).default(25).optional(),
   history: z.coerce.boolean().optional(),
   search: z.coerce.string().optional(),
+  nodeId: z.coerce.number().optional(),
+  nodeType: z
+    .enum([
+      ConjurationRelationshipType.CAMPAIGN,
+      ConjurationRelationshipType.SESSION,
+      ConjurationRelationshipType.CHARACTER,
+      ConjurationRelationshipType.CONJURATION,
+    ])
+    .default(ConjurationRelationshipType.CONJURATION)
+    .optional(),
 });
 
 const getConjurationRequestSchema = z.object({
@@ -46,6 +57,8 @@ router.get('/', [
       limit = 25,
       history = false,
       search = undefined,
+      nodeId = undefined,
+      nodeType = undefined,
     } = req.query;
 
     const response = await controller.getConjurations(
@@ -61,6 +74,8 @@ router.get('/', [
       limit as number,
       history as boolean,
       search as string,
+      nodeId as unknown as number,
+      nodeType as ConjurationRelationshipType,
     );
 
     return res.status(200).send(response);

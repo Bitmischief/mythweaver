@@ -4,7 +4,7 @@ import { showError, showSuccess } from '@/lib/notifications.ts';
 import { Conjuration, getConjurations } from '@/api/conjurations.ts';
 import { postConjurationRelationship } from '@/api/relationships.ts';
 import { ConjurationRelationshipType } from '@/lib/enums.ts';
-import { LinkIcon } from '@heroicons/vue/20/solid';
+import { LinkIcon, CheckCircleIcon } from '@heroicons/vue/20/solid';
 import { debounce } from 'lodash';
 import Spinner from '@/components/Core/Spinner.vue';
 import { useEventBus } from '@/lib/events.ts';
@@ -61,6 +61,8 @@ async function fetchConjurations(concat = true) {
       limit: pageSize,
       saved: true,
       search: search,
+      nodeId: props.nodeId,
+      nodeType: props.nodeType,
     });
     const results = response.data.data.filter((c: any) =>
       props.nodeType === ConjurationRelationshipType.CONJURATION
@@ -98,6 +100,7 @@ async function linkConjuration(conjuration: Conjuration) {
       },
     );
     showSuccess({ message: 'Conjuration relationship created!' });
+    conjuration.linked = true;
     eventBus.$emit('relationship-created', {
       nodeId: props.nodeId,
       nodeType: props.nodeType,
@@ -145,21 +148,23 @@ async function linkConjuration(conjuration: Conjuration) {
             <div
               class="relative self-center"
               :class="{ 'group hover:text-fuchsia-500': linking === -1 }"
-              @click="linkConjuration(conjuration)"
             >
               <LinkIcon
-                v-if="linking !== conjuration.id"
+                v-if="linking !== conjuration.id && !conjuration.linked"
                 class="h-8 w-8"
                 :class="{
                   'cursor-not-allowed text-neutral-500': linking !== -1,
                   'cursor-pointer': linking === -1,
                 }"
+                @click="linkConjuration(conjuration)"
               />
+              <CheckCircleIcon v-else-if="conjuration.linked" class="h-8 w-8" />
               <Spinner v-else class="h-8 w-8" />
               <div
-                class="group-hover:block absolute -bottom-8 right-2 bg-surface-2 px-2 rounded-full hidden text-neutral-300 whitespace-nowrap"
+                class="group-hover:block absolute -top-6 right-0 bg-surface-2 px-2 rounded-full hidden text-neutral-300 whitespace-nowrap"
               >
-                Create Relationship
+                <span v-if="!conjuration.linked">Create Relationship</span>
+                <span v-else>Relationship Exists</span>
               </div>
             </div>
           </div>

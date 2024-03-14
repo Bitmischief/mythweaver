@@ -88,7 +88,7 @@ export default class RelationshipController {
           JOIN
             entity_chain ec ON ec."nextNodeId" = ecr."previousNodeId" AND ec."nextType" = ecr."previousType"
           WHERE
-            NOT ecr.id = ANY(ec.visitedRelationships) AND depth < 3
+            NOT ecr.id = ANY(ec.visitedRelationships) AND depth < ${depthLimit}
         ), enriched_entities AS (
           SELECT DISTINCT ON (ec.id)
             ec.*,

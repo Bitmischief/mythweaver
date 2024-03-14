@@ -116,9 +116,9 @@ eventBus.$on('create-relationship', (args: CreateRelationshipRequest) => {
 </script>
 
 <template>
-  <div class="block h-screen bg-surface-2 text-white md:flex">
+  <div class="block h-screen bg-surface-2 text-white md:flex overflow-hidden">
     <Navbar v-if="!!authStore.user" class="w-full md:max-w-[256px]" />
-    <div class="block w-full">
+    <div class="block w-full overflow-hidden">
       <div
         v-if="!!authStore.user"
         class="hidden md:flex border-b border-zinc-900"
