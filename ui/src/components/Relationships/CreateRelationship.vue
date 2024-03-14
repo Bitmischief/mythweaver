@@ -66,7 +66,9 @@ async function fetchSession() {
         <button class="button-primary" @click="$emit('close')">Close</button>
       </div>
     </div>
-    <div class="flex flex-col md:flex-row justify-around h-[calc(90vh-6em)]">
+    <div
+      class="md:flex md:flex-row justify-around h-[calc(90vh-6em)] overflow-y-auto md:overflow-y-visible"
+    >
       <div v-if="!loading" class="flex justify-center max-h-full">
         <div
           v-if="
@@ -75,13 +77,13 @@ async function fetchSession() {
           "
           class="flex"
         >
-          <div class="bg-surface-3 rounded-[20px] p-2 my-auto">
+          <div class="bg-surface-3 rounded-[20px] p-2 my-auto text-center">
             <img
               :src="conjuration.imageUri"
               alt="conjuration"
               class="max-w-[300px] rounded-[18px]"
             />
-            <div>{{ conjuration.name }}</div>
+            <div class="mt-2 text-lg">{{ conjuration.name }}</div>
           </div>
         </div>
         <div
