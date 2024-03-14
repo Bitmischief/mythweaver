@@ -61,7 +61,7 @@ async function handleCreateSession() {
   const createSessionResponse = await postSession({});
 
   showSuccess({ message: 'Session created!' });
-  await router.push(`/sessions/${createSessionResponse.data.id}/planning`);
+  await router.push(`/sessions/${createSessionResponse.data.id}/relationships`);
 }
 </script>
 
@@ -103,7 +103,7 @@ async function handleCreateSession() {
     <router-link
       v-for="(session, i) of sessions"
       :key="i"
-      :to="`/sessions/${session.id}/planning`"
+      :to="`/sessions/${session.id}/relationships`"
       class="mr-6"
     >
       <Session :session="session" :full="false" />

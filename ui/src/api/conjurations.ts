@@ -34,6 +34,7 @@ export interface GetConjurationsRequest {
   tags?: string[];
   offset: number;
   limit: number;
+  search?: string;
 }
 
 export const getConjurations = (request: GetConjurationsRequest) => {

@@ -10,6 +10,7 @@ import '@/api/api.ts';
 import { initLogging } from '@/lib/logs.ts';
 import { initSessionTracking } from '@/lib/sessionTracking.ts';
 import VueIntercom from '@homebaseai/vue3-intercom';
+import { LDPlugin } from 'launchdarkly-vue-client-sdk';
 
 const app = createApp(App);
 
@@ -22,4 +23,6 @@ initSessionTracking();
 
 app.use(createPinia());
 app.use(router);
+app.use(LDPlugin, { clientSideID: import.meta.env.VITE_LAUNCH_DARKLY_CLIENT_ID });
+
 app.mount('#app');

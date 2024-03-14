@@ -23,6 +23,7 @@ const getSessionsSchema = z.object({
   offset: z.coerce.number().default(0).optional(),
   limit: z.coerce.number().min(1).default(10).optional(),
   archived: z.coerce.boolean().default(false).optional(),
+  search: z.coerce.string().optional(),
 });
 
 router.get('/', [
@@ -43,6 +44,7 @@ router.get('/', [
       campaignId as number,
       offset as number,
       limit as number,
+      req.query.search as string,
       req.query.archived as unknown as boolean,
     );
 

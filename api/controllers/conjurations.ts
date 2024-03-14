@@ -58,6 +58,7 @@ export default class ConjurationController {
     @Query() offset?: number,
     @Query() limit?: number,
     @Query() history?: boolean,
+    @Query() search?: string,
   ): Promise<GetConjurationsResponse> {
     const conjurerCodes = conjurerCodeString
       ?.split(',')
@@ -101,6 +102,12 @@ export default class ConjurationController {
               },
             ]
           : undefined,
+        name:
+          search !== undefined
+            ? {
+                search: search,
+              }
+            : undefined,
       },
       skip: offset,
       take: limit,

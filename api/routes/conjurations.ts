@@ -20,6 +20,7 @@ const getConjurationsSchema = z.object({
   offset: z.coerce.number().default(0).optional(),
   limit: z.coerce.number().min(1).default(25).optional(),
   history: z.coerce.boolean().optional(),
+  search: z.coerce.string().optional(),
 });
 
 const getConjurationRequestSchema = z.object({
@@ -44,6 +45,7 @@ router.get('/', [
       offset = 0,
       limit = 25,
       history = false,
+      search = undefined,
     } = req.query;
 
     const response = await controller.getConjurations(
@@ -58,6 +60,7 @@ router.get('/', [
       offset as number,
       limit as number,
       history as boolean,
+      search as string,
     );
 
     return res.status(200).send(response);

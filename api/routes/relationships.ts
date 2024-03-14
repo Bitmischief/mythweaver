@@ -57,8 +57,6 @@ router.get('/:type/:nodeId', [
       req.params.nodeId as unknown as number,
       req.query.types as ConjurationRelationshipType[],
       req.query.depthLimit as unknown as number,
-      req.query.offset as unknown as number,
-      req.query.limit as unknown as number,
     );
 
     return res.status(200).send(response);
