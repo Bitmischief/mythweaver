@@ -16,8 +16,16 @@ export const postConjurationRelationship = (
   return axios.post(`/relationships/${type}/${conjurationId}`, request);
 };
 
-export const getConjurationRelationships = (nodeId: number, type: ConjurationRelationshipType) => {
-  return axios.get(`/relationships/${type}/${nodeId}`);
+export const getConjurationRelationships = (
+  nodeId: number,
+  type: ConjurationRelationshipType,
+  depthLimit = 1,
+) => {
+  return axios.get(`/relationships/${type}/${nodeId}`, {
+    params: {
+      depthLimit,
+    },
+  });
 };
 
 export const deleteConjurationRelationship = (relationshipId: number) => {

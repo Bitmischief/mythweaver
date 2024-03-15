@@ -128,7 +128,7 @@ function getBadge(relationship: any) {
 <template>
   <div
     v-if="relationshipHistory.length"
-    class="flex shrink py-1 px-2 bg-surface-2 rounded-full mb-2 text-neutral-400 overflow-x-auto whitespace-nowrap"
+    class="flex shrink py-1 px-2 bg-surface-2 rounded-full mb-2 text-neutral-400 whitespace-nowrap overflow-x-auto"
   >
     <div class="flex px-2 hover:underline hover:cursor-pointer">
       <HomeIcon
@@ -143,7 +143,9 @@ function getBadge(relationship: any) {
       class="flex px-2 hover:underline hover:cursor-pointer"
       @click="clickHistory(history)"
     >
-      {{ history.entitydata.name }}
+      <div class="max-w-[10em] overflow-hidden text-ellipsis">
+        {{ history.entitydata.name }}
+      </div>
       <ArrowRightIcon class="h-5 w-5 ml-4 self-center" />
     </div>
   </div>
@@ -206,7 +208,9 @@ function getBadge(relationship: any) {
         </div>
       </div>
       <div class="text-center">
-        <div class="mt-1 text-lg">
+        <div
+          class="mt-1 text-lg whitespace-nowrap overflow-hidden text-ellipsis"
+        >
           {{ relationship.entitydata.name }}
         </div>
       </div>

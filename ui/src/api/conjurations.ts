@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { ConjurationRelationshipType } from '@/lib/enums.ts';
 
 export enum ConjurationVisibility {
   Public = 'PUBLIC',
@@ -23,6 +24,7 @@ export interface Conjuration {
   prompt?: string;
   images?: any[];
   updatedAt?: string;
+  linked?: boolean;
 }
 
 export interface GetConjurationsRequest {
@@ -35,6 +37,8 @@ export interface GetConjurationsRequest {
   offset: number;
   limit: number;
   search?: string;
+  nodeId?: number;
+  nodeType?: ConjurationRelationshipType;
 }
 
 export const getConjurations = (request: GetConjurationsRequest) => {
@@ -46,6 +50,8 @@ export const getConjurations = (request: GetConjurationsRequest) => {
       conjurerCodes: request.conjurerCodes?.join(','),
       tags: request.tags?.join(','),
       stylePreset: request.imageStylePreset,
+      nodeId: request.nodeId,
+      nodeType: request.nodeType,
     },
   });
 };

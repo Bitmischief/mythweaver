@@ -12,7 +12,11 @@ import {
   Tags,
 } from 'tsoa';
 import { prisma } from '../lib/providers/prisma';
-import { Conjuration, ConjurationVisibility } from '@prisma/client';
+import {
+  Conjuration,
+  ConjurationRelationshipType,
+  ConjurationVisibility,
+} from '@prisma/client';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { processTagsQueue } from '../worker';
@@ -59,6 +63,8 @@ export default class ConjurationController {
     @Query() limit?: number,
     @Query() history?: boolean,
     @Query() search?: string,
+    @Query() nodeId?: number,
+    @Query() nodeType?: ConjurationRelationshipType,
   ): Promise<GetConjurationsResponse> {
     const conjurerCodes = conjurerCodeString
       ?.split(',')
@@ -121,11 +127,33 @@ export default class ConjurationController {
 
     track(AppEvent.GetConjurations, userId, trackingInfo);
 
+    let relationships = [] as any[];
+    if (nodeId) {
+      relationships = await prisma.conjurationRelationships.findMany({
+        where: {
+          previousNodeId: nodeId,
+          previousType: nodeType,
+          userId: userId,
+          nextNodeId: {
+            in: conjurations.map((c: Conjuration) => c.id),
+          },
+          nextType: ConjurationRelationshipType.CONJURATION,
+        },
+      });
+    }
+
     return {
       data: conjurations.map((c) => ({
         ...c,
         saves: c.saves.length,
         saved: c.saves.some((s) => s.userId === userId),
+        linked: relationships.length
+          ? relationships.some(
+              (r) =>
+                r.nextNodeId === c.id &&
+                r.nextType === ConjurationRelationshipType.CONJURATION,
+            )
+          : false,
       })),
       offset: offset,
       limit: limit,
