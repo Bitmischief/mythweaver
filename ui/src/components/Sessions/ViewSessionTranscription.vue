@@ -116,7 +116,17 @@ function handleAudioUpload(payload: { audioUri: string; audioName: string }) {
 }
 
 const loadingTranscribeSession = ref(false);
+
 async function requestTranscription() {
+  if (currentUserPlan.value !== BillingPlan.Pro) {
+    showUpgradeModal({
+      feature: 'Transcribe Session Audio',
+      requiredPlan: BillingPlan.Pro,
+      redirectUri: location.href,
+    });
+    return;
+  }
+
   loadingTranscribeSession.value = true;
   const response = await postTranscriptionRequest(session.value.id);
 

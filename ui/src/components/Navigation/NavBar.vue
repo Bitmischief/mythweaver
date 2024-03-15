@@ -4,7 +4,7 @@ import { onMounted, onUnmounted, ref } from 'vue';
 import { Dialog, DialogPanel } from '@headlessui/vue';
 import { useAuthStore } from '@/store';
 import NavbarContent from '@/components/Navigation/NavbarContent.vue';
-import EarlyAccessInfo from '@/components/Navigation/EarlyAccessInfo.vue';
+import TrialInfo from '@/components/Navigation/TrialInfo.vue';
 import { useIntercom } from '@homebaseai/vue3-intercom';
 import ImageCreditCount from '../Core/ImageCreditCount.vue';
 import PlanBadge from '@/components/Core/PlanBadge.vue';
@@ -68,7 +68,7 @@ const intercom = useIntercom();
           </div>
         </div>
 
-        <EarlyAccessInfo class="self-center md:hidden mt-2" />
+        <TrialInfo class="self-center md:hidden mt-2" />
 
         <div class="hidden w-full h-full md:flex md:flex-col justify-between">
           <NavbarContent :collapsed="collapsed" />

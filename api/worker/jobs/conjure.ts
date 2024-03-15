@@ -1,5 +1,5 @@
 import { Generator, getGenerator } from '../../data/conjurers';
-import { Campaign, ConjurationVisibility } from '@prisma/client';
+import { BillingPlan, Campaign, ConjurationVisibility } from '@prisma/client';
 import { AppError, HttpCode } from '../../lib/errors/AppError';
 import { sanitizeJson, trimPlural } from '../../lib/utils';
 import { generateImage } from '../../services/imageGeneration';
@@ -95,11 +95,27 @@ export const conjure = async (request: ConjureEvent) => {
     }
   } while (!conjuration || !conjuration?.imageAIPrompt);
 
+  const user = await prisma.user.findUnique({
+    where: {
+      id: request.userId,
+    },
+  });
+
+  if (!user) {
+    throw new AppError({
+      description: 'User not found.',
+      httpCode: HttpCode.BAD_REQUEST,
+    });
+  }
+
   const createdConjuration = await prisma.conjuration.create({
     data: {
       name: conjuration.name,
       userId: request.userId,
-      visibility: ConjurationVisibility.PRIVATE,
+      visibility:
+        user.plan === BillingPlan.FREE
+          ? ConjurationVisibility.PUBLIC
+          : ConjurationVisibility.PRIVATE,
       data: {
         ...conjuration,
         name: undefined,

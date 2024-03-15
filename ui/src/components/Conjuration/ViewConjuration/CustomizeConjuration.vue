@@ -237,7 +237,8 @@ const setPromptSettings = () => {
               },
               {
                 code: 'PRIVATE',
-                name: 'Private',
+                name: 'Private (available with Basic or Pro subscription)',
+                disabled: true,
               },
             ]"
             value-prop="code"

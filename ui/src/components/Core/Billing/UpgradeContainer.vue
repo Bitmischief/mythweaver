@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 import { useEventBus } from '@/lib/events.ts';
 import { onMounted, onUnmounted, ref } from 'vue';
-import { XCircleIcon } from '@heroicons/vue/24/solid';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import { UpgradeRequest, useCurrentUserPlan } from '@/lib/hooks.ts';
 import { getBillingPortalUrl, getCheckoutUrl } from '@/api/billing.ts';
 import { BillingPlan } from '@/api/users.ts';
+import PlanBadge from '@/components/Core/PlanBadge.vue';
 
 const eventBus = useEventBus();
 const currentUserPlan = useCurrentUserPlan();
@@ -53,29 +53,56 @@ async function clickUpgradeNow() {
   >
     <div
       v-if="upgradeRequest"
-      class="md:w-[800px] p-6 bg-surface-2 rounded-[20px] border border-surface-3"
+      class="md:w-[800px] bg-surface-2 rounded-[20px] border border-surface-3"
     >
-      <div class="flex justify-between text-neutral-300">
-        <div class="text-lg mb-6">Upgrade Required</div>
-        <XCircleIcon
-          class="h-6 w-6 cursor-pointer"
-          @click="showUpgradeModal = false"
-        />
-      </div>
-
-      <div class="text-2xl text-neutral-300 mb-6">
-        You need to upgrade your subscription to
-        <span class="text-green-400">{{ upgradeRequest.requiredPlan }}</span> to
-        <span class="text-fuchsia-500">{{ upgradeRequest.feature }}</span
-        >.
-      </div>
-
-      <button
-        class="button-gradient font-bold text-white text-center"
-        @click="clickUpgradeNow"
+      <div
+        class="bg-[url('/images/upgrade-container-illustration.svg')] bg-center bg-cover rounded-t-2xl h-52"
       >
-        Upgrade Now
-      </button>
+        <div class="flex justify-center items-center h-full">
+          <div>
+            <img src="/images/upgrade-icon.svg" alt="Upgrade" class="mx-auto" />
+
+            <div class="flex mt-4">
+              <img
+                src="/images/logo-horizontal-2.svg"
+                class="h-14 w-auto mr-auto mt-1 mb-1 self-center"
+              />
+              <PlanBadge :plan-override="upgradeRequest.requiredPlan" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-6">
+        <div class="flex justify-center text-neutral-300">
+          <div class="text-3xl font-bold text-white mb-6">Upgrade Required</div>
+        </div>
+
+        <div class="text-2xl text-center mx-12 text-neutral-400 mb-6">
+          You need to upgrade your subscription to
+          {{ upgradeRequest.requiredPlan }} to
+          <span
+            class="font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#E5AD59] to-[#E95252]"
+            >{{ upgradeRequest.feature }}</span
+          >.
+        </div>
+
+        <div class="mt-16 w-full grid md:grid-cols-2 gap-4">
+          <button
+            class="button-primary h-16 text-xl text-white text-center"
+            @click="showUpgradeModal = false"
+          >
+            Cancel
+          </button>
+
+          <button
+            class="button-gradient h-16 text-xl text-white text-center"
+            @click="clickUpgradeNow"
+          >
+            Upgrade Now
+          </button>
+        </div>
+      </div>
     </div>
   </ModalAlternate>
 </template>

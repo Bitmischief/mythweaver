@@ -13,7 +13,12 @@ import {
 } from 'tsoa';
 import { prisma } from '../lib/providers/prisma';
 import { AppError, HttpCode } from '../lib/errors/AppError';
-import { Prisma, Session } from '@prisma/client';
+import {
+  BillingPlan,
+  ConjurationVisibility,
+  Prisma,
+  Session,
+} from '@prisma/client';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { CampaignRole } from './campaigns';
 import { completeSessionQueue } from '../worker';
@@ -251,6 +256,7 @@ export default class SessionController {
       logger,
       sessionId,
     );
+
     const campaignMember = await prisma.campaignMember.findUnique({
       where: {
         userId_campaignId: {
@@ -263,6 +269,27 @@ export default class SessionController {
     if (!campaignMember || campaignMember.role !== CampaignRole.DM) {
       throw new AppError({
         description: 'You do not have permission to complete this session.',
+        httpCode: HttpCode.FORBIDDEN,
+      });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user) {
+      throw new AppError({
+        description: 'User not found.',
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    if (user.plan === BillingPlan.FREE) {
+      throw new AppError({
+        description:
+          'You cannot generate session summaries. You must subscribe to our basic or pro plan!',
         httpCode: HttpCode.FORBIDDEN,
       });
     }
@@ -390,6 +417,7 @@ export default class SessionController {
       logger,
       sessionId,
     );
+
     const campaignMember = await prisma.campaignMember.findUnique({
       where: {
         userId_campaignId: {
@@ -403,6 +431,27 @@ export default class SessionController {
       throw new AppError({
         description: 'You do not have permission to add audio to this session.',
         httpCode: HttpCode.FORBIDDEN,
+      });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user) {
+      throw new AppError({
+        description: 'User not found.',
+        httpCode: HttpCode.BAD_REQUEST,
+      });
+    }
+
+    if (user.plan === BillingPlan.FREE) {
+      throw new AppError({
+        description:
+          'You must have a Basic or Pro subscription to upload audio for this session.',
+        httpCode: HttpCode.BAD_REQUEST,
       });
     }
 
@@ -440,6 +489,7 @@ export default class SessionController {
       logger,
       sessionId,
     );
+
     const campaignMember = await prisma.campaignMember.findUnique({
       where: {
         userId_campaignId: {
@@ -454,6 +504,27 @@ export default class SessionController {
         description:
           'You do not have permission to perform a transcription for this session.',
         httpCode: HttpCode.FORBIDDEN,
+      });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user) {
+      throw new AppError({
+        description: 'User not found.',
+        httpCode: HttpCode.BAD_REQUEST,
+      });
+    }
+
+    if (user.plan !== BillingPlan.PRO) {
+      throw new AppError({
+        description:
+          'You must have a Pro subscription to perform a transcription for this session.',
+        httpCode: HttpCode.BAD_REQUEST,
       });
     }
 

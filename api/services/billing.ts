@@ -7,6 +7,14 @@ import logger from '../lib/logger';
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY as string);
 
 export const createCustomer = async (email: string): Promise<string> => {
+  const existingCustomerSearch = await stripe.customers.search({
+    query: `email:'${email}'`,
+  });
+
+  if (existingCustomerSearch.data.length > 0) {
+    return existingCustomerSearch.data[0].id;
+  }
+
   logger.info('Creating stripe customer for', { email });
   const customer = await stripe.customers.create({
     email,
