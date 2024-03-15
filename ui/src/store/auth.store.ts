@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { postToken, postRefresh } from '@/api/auth.ts';
 import router from '@/router/router.ts';
 import { showError } from '@/lib/notifications.ts';
-import { getCurrentUser, User } from '@/api/users.ts';
+import { BillingPlan, getCurrentUser, User } from '@/api/users.ts';
 import { datadogLogs } from '@datadog/browser-logs';
 import { useEventBus } from '@/lib/events.ts';
 
@@ -34,13 +34,16 @@ export const useAuthStore = defineStore({
         const userResponse = await getCurrentUser();
         this.user = userResponse.data;
 
+        console.log(this.user?.plan);
+
         if (
           this.user &&
-          !this.user.plan &&
+          this.user.plan === BillingPlan.Free &&
           !this.user.earlyAccessExempt &&
           this.user.earlyAccessCutoffAt &&
           Date.parse(this.user?.earlyAccessCutoffAt) < Date.now()
         ) {
+          console.log('push to early access');
           await router.push('/auth/earlyaccess');
         }
 
