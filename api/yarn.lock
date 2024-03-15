@@ -92,7 +92,7 @@
     "@aws-sdk/util-utf8-browser" "^3.0.0"
     tslib "^1.11.1"
 
-"@aws-sdk/client-s3@^3.525.0":
+"@aws-sdk/client-s3@^3.529.1":
   version "3.529.1"
   resolved "https://registry.yarnpkg.com/@aws-sdk/client-s3/-/client-s3-3.529.1.tgz#12be8ac86cd4676790957745b20bef9eb2c14247"
   integrity sha512-ZpvyO4w3XWo/OjXLd3fm7CLcKUUYcyady9qzTnKKSnp8a2NqO7UvU/1zhYdm+yyy8TR/9t7sDy+q6AYd4Nsr8g==
