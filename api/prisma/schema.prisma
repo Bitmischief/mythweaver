@@ -47,18 +47,19 @@ model User {
   username                String
   imageCredits            Int             @default(0)
 
-  refreshTokens         RefreshToken[]
-  campaigns             Campaign[]
-  sessions              Session[]
-  conjurations          Conjuration[]
-  conjurationRequests   ConjurationRequest[]
-  campaignMemberships   CampaignMember[]
-  characters            Character[]
-  ConjurationSave       ConjurationSave[]
-  magicLinks            MagicLink[]
-  images                Image[]
-  sessionTranscriptions SessionTranscription[]
-  ImageCreditAuditLog   ImageCreditAuditLog[]
+  refreshTokens            RefreshToken[]
+  campaigns                Campaign[]
+  sessions                 Session[]
+  conjurations             Conjuration[]
+  conjurationRequests      ConjurationRequest[]
+  campaignMemberships      CampaignMember[]
+  characters               Character[]
+  ConjurationSave          ConjurationSave[]
+  magicLinks               MagicLink[]
+  images                   Image[]
+  sessionTranscriptions    SessionTranscription[]
+  ImageCreditAuditLog      ImageCreditAuditLog[]
+  ConjurationRelationships ConjurationRelationships[]
 
   @@map("users")
 }
@@ -115,6 +116,9 @@ model ConjurationRelationships {
   nextType       ConjurationRelationshipType
   comment        String?
   data           Json?
+  userId         Int
+
+  user        User        @relation(fields: [userId], references: [id])
 
   @@index([previousNodeId], name: "conjuration_relationships_previous_node_id")
   @@index([nextNodeId], name: "conjuration_relationships_next_node_id")

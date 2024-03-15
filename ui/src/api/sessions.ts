@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useSelectedCampaignId } from '@/lib/hooks.ts';
+import { ConjurationRelationshipType } from '@/lib/enums.ts';
 
 export interface SessionBase {
   id: number;
@@ -15,6 +16,7 @@ export interface SessionBase {
   imageUri?: string | undefined;
   suggestions?: string | undefined;
   sessionTranscription?: any | undefined;
+  linked?: boolean | undefined;
 
   suggestedName?: string | undefined;
   suggestedSummary?: string | undefined;
@@ -31,6 +33,9 @@ export interface SessionBase {
 export interface GetSessionsRequest {
   offset?: number;
   limit?: number;
+  search?: string;
+  nodeId?: number;
+  nodeType?: ConjurationRelationshipType;
 }
 
 export interface PostSessionRequest {

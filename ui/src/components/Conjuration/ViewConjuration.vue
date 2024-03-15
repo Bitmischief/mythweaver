@@ -15,15 +15,31 @@ import {
   ArrowPathIcon,
   DocumentDuplicateIcon,
 } from '@heroicons/vue/24/solid';
-import { BookmarkSquareIcon } from '@heroicons/vue/24/outline';
-import { useCurrentUserId, useQuickConjure } from '@/lib/hooks.ts';
-import { showSuccess, showError, showInfo } from '@/lib/notifications.ts';
+import {
+  BookmarkSquareIcon,
+  EllipsisHorizontalIcon,
+} from '@heroicons/vue/24/outline';
+import {
+  useCurrentUserId,
+  useCurrentUserRole,
+  useQuickConjure,
+} from '@/lib/hooks.ts';
+import { showError, showInfo, showSuccess } from '@/lib/notifications.ts';
+import { MenuButton, MenuItem } from '@headlessui/vue';
+import Menu from '@/components/Core/General/Menu.vue';
+import { ConjurationRelationshipType } from '@/lib/enums.ts';
+import { CampaignRole } from '@/api/campaigns.ts';
+import ViewRelationships from '@/components/Relationships/ViewRelationships.vue';
+import { useLDFlag } from 'launchdarkly-vue-client-sdk';
+
+const showRelationships = useLDFlag('relationships', false);
 
 const route = useRoute();
 const router = useRouter();
 const eventBus = useEventBus();
 const quickConjure = useQuickConjure();
 const currentUserId = useCurrentUserId();
+const currentUserRole = useCurrentUserRole();
 
 const conjuration = ref<Conjuration | null>(null);
 
@@ -134,6 +150,14 @@ async function conjureUsingPrompt() {
     },
   });
 }
+
+async function handleCreateRelationship(type: ConjurationRelationshipType) {
+  eventBus.$emit('create-relationship', {
+    relationshipType: type,
+    nodeId: conjurationId,
+    nodeType: ConjurationRelationshipType.CONJURATION,
+  });
+}
 </script>
 
 <template>
@@ -209,13 +233,50 @@ async function conjureUsingPrompt() {
           <span class="self-center">Add to My Conjurations</span>
         </button>
 
-        <button
-          v-if="conjuration.saved"
-          class="button-primary flex ml-2"
-          @click="handleRemoveConjuration"
-        >
-          Delete
-        </button>
+        <Menu v-if="conjuration.saved" class="self-center">
+          <MenuButton class="button-ghost-primary ml-2">
+            <EllipsisHorizontalIcon class="h-6 w-6 text-neutral-300" />
+          </MenuButton>
+
+          <template #content>
+            <div class="relative z-60 bg-surface-3 p-2 rounded-[12px]">
+              <MenuItem v-if="showRelationships" class="menu-item">
+                <button
+                  v-if="currentUserRole === CampaignRole.DM"
+                  class="button-primary flex"
+                  @click="
+                    handleCreateRelationship(
+                      ConjurationRelationshipType.CONJURATION,
+                    )
+                  "
+                >
+                  Link Conjuration
+                </button>
+              </MenuItem>
+              <MenuItem v-if="showRelationships" class="menu-item">
+                <button
+                  v-if="currentUserRole === CampaignRole.DM"
+                  class="button-primary flex"
+                  @click="
+                    handleCreateRelationship(
+                      ConjurationRelationshipType.SESSION,
+                    )
+                  "
+                >
+                  Link Sessions
+                </button>
+              </MenuItem>
+              <MenuItem class="menu-item">
+                <button
+                  class="button-primary flex"
+                  @click="handleRemoveConjuration"
+                >
+                  Delete Conjuration
+                </button>
+              </MenuItem>
+            </div>
+          </template>
+        </Menu>
       </div>
     </div>
 
@@ -224,5 +285,12 @@ async function conjureUsingPrompt() {
       :conjuration="conjuration"
       :image-conjuration-failed="conjuration.imageGenerationFailed"
     />
+    <div v-if="showRelationships" class="mt-4">
+      <div class="text-xl my-2">Related Conjurations</div>
+      <ViewRelationships
+        :start-node-id="conjuration.id"
+        :start-node-type="ConjurationRelationshipType.CONJURATION"
+      />
+    </div>
   </template>
 </template>

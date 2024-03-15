@@ -21,7 +21,6 @@ import {
   Session,
 } from '@prisma/client';
 import { prisma } from '../lib/providers/prisma';
-import { z } from 'zod';
 
 export interface RelationshipResponse {
   id: number;
@@ -60,8 +59,6 @@ export default class RelationshipController {
     @Route() nodeId: number,
     @Query() filterTypes?: ConjurationRelationshipType[],
     @Query() depthLimit?: number,
-    @Query() offset?: number,
-    @Query() limit?: number,
   ): Promise<RelationshipResponse[]> {
     logger.info('Fetching relationships for node', {
       userId,
@@ -80,7 +77,7 @@ export default class RelationshipController {
           FROM
             conjuration_relationships cr
           WHERE
-            cr."previousNodeId" = ${nodeId} AND cr."previousType" = '${type}'
+            cr."previousNodeId" = ${nodeId} AND cr."previousType" = '${type}' AND cr."userId" = '${userId}'
           UNION ALL
           SELECT
             ecr.*,
@@ -91,7 +88,7 @@ export default class RelationshipController {
           JOIN
             entity_chain ec ON ec."nextNodeId" = ecr."previousNodeId" AND ec."nextType" = ecr."previousType"
           WHERE
-            NOT ecr.id = ANY(ec.visitedRelationships) AND depth < 3
+            NOT ecr.id = ANY(ec.visitedRelationships) AND depth < ${depthLimit}
         ), enriched_entities AS (
           SELECT DISTINCT ON (ec.id)
             ec.*,
@@ -135,16 +132,51 @@ export default class RelationshipController {
       body,
     });
 
-    await prisma.conjurationRelationships.create({
-      data: {
+    const existingCount = await prisma.conjurationRelationships.count({
+      where: {
         previousNodeId: nodeId,
         previousType: type,
         nextNodeId: body.relatedNodeId,
         nextType: body.relatedNodeType,
-        comment: body.comment,
-        data: body.data,
+        userId: userId,
       },
     });
+    if (existingCount === 0) {
+      await prisma.conjurationRelationships.create({
+        data: {
+          previousNodeId: nodeId,
+          previousType: type,
+          nextNodeId: body.relatedNodeId,
+          nextType: body.relatedNodeType,
+          comment: body.comment,
+          data: body.data,
+          userId: userId,
+        },
+      });
+    }
+
+    const reverseCount = await prisma.conjurationRelationships.count({
+      where: {
+        previousNodeId: body.relatedNodeId,
+        previousType: body.relatedNodeType,
+        nextNodeId: nodeId,
+        nextType: type,
+        userId: userId,
+      },
+    });
+    if (reverseCount === 0) {
+      await prisma.conjurationRelationships.create({
+        data: {
+          previousNodeId: body.relatedNodeId,
+          previousType: body.relatedNodeType,
+          nextNodeId: nodeId,
+          nextType: type,
+          comment: body.comment,
+          data: body.data,
+          userId: userId,
+        },
+      });
+    }
   }
 
   @Security('jwt')

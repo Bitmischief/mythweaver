@@ -15,9 +15,9 @@ import { prisma } from '../lib/providers/prisma';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import {
   BillingPlan,
-  ConjurationVisibility,
   Prisma,
   Session,
+  ConjurationRelationshipType,
 } from '@prisma/client';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { CampaignRole } from './campaigns';
@@ -92,6 +92,9 @@ export default class SessionController {
     @Query() campaignId: number,
     @Query() offset?: number,
     @Query() limit?: number,
+    @Query() search?: string,
+    @Query() nodeId?: number,
+    @Query() nodeType?: ConjurationRelationshipType,
     @Query() archived = false,
   ): Promise<GetSessionsResponse> {
     const sessions = await prisma.session.findMany({
@@ -99,6 +102,9 @@ export default class SessionController {
         userId,
         campaignId,
         archived,
+        name: {
+          search: search,
+        },
       },
       skip: offset,
       take: limit,
@@ -109,8 +115,32 @@ export default class SessionController {
 
     track(AppEvent.GetSessions, userId, trackingInfo);
 
+    let relationships = [] as any[];
+    if (nodeId) {
+      relationships = await prisma.conjurationRelationships.findMany({
+        where: {
+          previousNodeId: nodeId,
+          previousType: nodeType,
+          userId: userId,
+          nextNodeId: {
+            in: sessions.map((c: Session) => c.id),
+          },
+          nextType: ConjurationRelationshipType.SESSION,
+        },
+      });
+    }
+
     return {
-      data: sessions,
+      data: sessions.map((s) => ({
+        ...s,
+        linked: relationships.length
+          ? relationships.some(
+              (r) =>
+                r.nextNodeId === s.id &&
+                r.nextType === ConjurationRelationshipType.SESSION,
+            )
+          : false,
+      })),
       offset: offset,
       limit: limit,
     };

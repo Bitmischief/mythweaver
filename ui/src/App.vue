@@ -13,8 +13,12 @@ import Loader from './components/Core/Loader.vue';
 import { ServerEvent } from '@/lib/serverEvents.ts';
 import { showSuccess } from '@/lib/notifications.ts';
 import { useWebsocketChannel } from '@/lib/hooks.ts';
+import { ConjurationRelationshipType } from '@/lib/enums.ts';
+import CreateRelationship from '@/components/Relationships/CreateRelationship.vue';
+import { useLDReady } from 'launchdarkly-vue-client-sdk';
 import UpgradeContainer from '@/components/Core/Billing/UpgradeContainer.vue';
 
+const ldReady = useLDReady();
 const authStore = useAuthStore();
 const eventBus = useEventBus();
 const intercom = useIntercom();
@@ -92,12 +96,30 @@ eventBus.$on('toggle-customize-image-modal', (args: CustomizeImageRequest) => {
     customizeImageArgs.value = args;
   }
 });
+
+const showCreateRelationshipModal = ref(false);
+const createRelationshipArgs = ref<CreateRelationshipRequest | undefined>(
+  undefined,
+);
+export interface CreateRelationshipRequest {
+  relationshipType: ConjurationRelationshipType;
+  nodeId: number;
+  nodeType: ConjurationRelationshipType;
+}
+eventBus.$on('create-relationship', (args: CreateRelationshipRequest) => {
+  showCreateRelationshipModal.value = !showCreateRelationshipModal.value;
+  if (!args) {
+    createRelationshipArgs.value = undefined;
+  } else {
+    createRelationshipArgs.value = args;
+  }
+});
 </script>
 
 <template>
-  <div class="block h-screen bg-surface-2 text-white md:flex">
+  <div class="block h-screen bg-surface-2 text-white md:flex overflow-hidden">
     <Navbar v-if="!!authStore.user" class="w-full md:max-w-[256px]" />
-    <div class="block w-full">
+    <div class="block w-full overflow-hidden">
       <div
         v-if="!!authStore.user"
         class="hidden md:flex border-b border-zinc-900"
@@ -123,7 +145,7 @@ eventBus.$on('toggle-customize-image-modal', (args: CustomizeImageRequest) => {
     <NotificationHandler />
 
     <div
-      v-if="authStore.isLoading || showLoading"
+      v-if="authStore.isLoading || showLoading || !ldReady"
       class="absolute w-full h-full bg-surface opacity-95"
     >
       <div class="flex justify-center items-center w-full h-full">
@@ -146,6 +168,24 @@ eventBus.$on('toggle-customize-image-modal', (args: CustomizeImageRequest) => {
         :looks="customizeImageArgs?.stylePreset"
         in-modal
         @cancel="showCustomizeImageModal = false"
+      />
+    </div>
+  </ModalAlternate>
+
+  <ModalAlternate
+    :show="showCreateRelationshipModal"
+    extra-dark
+    @close="showCreateRelationshipModal = false"
+  >
+    <div
+      class="min-w-[40vw] max-w-[90vw] h-[90vh] p-6 bg-surface-2 rounded-[20px] text-neutral-300"
+    >
+      <CreateRelationship
+        v-if="!!createRelationshipArgs"
+        :relationship-type="createRelationshipArgs.relationshipType"
+        :node-id="createRelationshipArgs?.nodeId"
+        :node-type="createRelationshipArgs?.nodeType"
+        @close="showCreateRelationshipModal = false"
       />
     </div>
   </ModalAlternate>
