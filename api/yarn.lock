@@ -2053,7 +2053,7 @@
   dependencies:
     "@types/node" "*"
 
-"@types/mailchimp__mailchimp_marketing@^3.0.18":
+"@types/mailchimp__mailchimp_marketing@^3.0.19":
   version "3.0.19"
   resolved "https://registry.yarnpkg.com/@types/mailchimp__mailchimp_marketing/-/mailchimp__mailchimp_marketing-3.0.19.tgz#1ec64bcef39fc2ac5ca44ec7ad44163eb7776c15"
   integrity sha512-J7Ef7GCV/bcKCna6emidb0cp0miVY64jRknwqIjAUlHY8H6rgE4XDIWISHVJhJ5ve9xQJ+/ZFOgmE8b2tmwKGg==
