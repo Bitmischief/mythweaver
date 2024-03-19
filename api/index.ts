@@ -19,7 +19,7 @@ import logger from './lib/logger';
 import { getRequestId, useLogger } from './lib/loggingMiddleware';
 import pinoHTTP from 'pino-http';
 import { v4 as uuidv4 } from 'uuid';
-import { isLocalDevelopment, isProduction } from './lib/utils';
+import { isDevelopment, isLocalDevelopment, isProduction } from './lib/utils';
 import * as Sentry from '@sentry/node';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
 
@@ -28,7 +28,7 @@ const PORT = process.env.PORT || 8000;
 const app: Application = express();
 
 Sentry.init({
-  dsn: 'https://2e572c0e8b1029c3b07604cdf2673613@o4506917421318144.ingest.us.sentry.io/4506917528993792',
+  dsn: process.env.SENTRY_DSN,
   integrations: [
     // enable HTTP calls tracing
     new Sentry.Integrations.Http({ tracing: true }),
@@ -45,6 +45,13 @@ Sentry.init({
   tracesSampleRate: isProduction ? 0.1 : 1.0, //  Capture 100% of the transactions
   // Set sampling rate for profiling - this is relative to tracesSampleRate
   profilesSampleRate: 1.0,
+  beforeSend(event) {
+    if (isLocalDevelopment) {
+      return null;
+    }
+
+    return event;
+  },
 });
 
 // The request handler must be the first middleware on the app

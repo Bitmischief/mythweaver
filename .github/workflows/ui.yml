@@ -36,6 +36,7 @@ jobs:
           echo VITE_STRIPE_PRO_PLAN_ID=${{ secrets.STRIPE_PRO_MO_PRICE_ID }} >> .env
           echo VITE_STRIPE_100_IMAGE_CREDITS_ID=${{ secrets.STRIPE_100_IMAGE_CREDITS_PRICE_ID }} >> .env
           echo VITE_LAUNCH_DARKLY_CLIENT_ID=${{ secrets.LAUNCH_DARKLY_CLIENT_ID }} >> .env
+          echo VITE_SENTRY_DSN=${{ secrets.UI_SENTRY_DSN }} >> .env
 
       - name: Build container image
         run: docker build -t ${{ secrets.REGISTRY_NAME }}/mythweaver-ui:$(echo $GITHUB_SHA | head -c7) -f .docker/Dockerfile.ui .
