@@ -1,16 +1,19 @@
 <script setup lang="ts">
-import { Conjuration } from '@/api/conjurations.ts';
+import { Conjuration, saveConjuration } from '@/api/conjurations.ts';
 import { useRouter, useRoute } from 'vue-router';
 import { BookmarkIcon as BookmarkIconSolid } from '@heroicons/vue/20/solid';
 import { BookmarkIcon as BookmarkIconOutline } from '@heroicons/vue/24/outline';
-import { computed } from 'vue';
+import { PlusIcon } from '@heroicons/vue/24/solid';
+import { computed, ref } from 'vue';
+import { showError, showSuccess } from '@/lib/notifications.ts';
 
-defineProps<{
-  conjuration: Conjuration | undefined;
+const props = defineProps<{
+  data: Conjuration | undefined;
   skeleton?: boolean;
   showSaves?: boolean;
 }>();
 
+const conjuration = ref(props.data);
 const router = useRouter();
 const route = useRoute();
 
@@ -45,6 +48,21 @@ function conjurationType(conjuration: Conjuration) {
 const showBookmarkIcon = computed(() => {
   return route.hash === '#history';
 });
+
+async function addConjuration() {
+  if (conjuration.value && !conjuration.value.saved) {
+    try {
+      await saveConjuration(conjuration.value.id);
+      showSuccess({ message: 'Successfully saved conjuration!' });
+      conjuration.value.saves += 1;
+      conjuration.value.saved = true;
+    } catch (e) {
+      showError({
+        message: 'Something went wrong saving conjuration. Please try again.',
+      });
+    }
+  }
+}
 </script>
 
 <template>
@@ -74,16 +92,43 @@ const showBookmarkIcon = computed(() => {
       >
         {{ conjurationType(conjuration) }}
       </div>
-      <div v-if="showSaves" class="group">
+      <div
+        v-if="showSaves"
+        class="group"
+        :class="{ 'cursor-default': conjuration.saved }"
+        @click.stop="addConjuration"
+      >
         <div
-          class="absolute right-4 top-4 flex h-6 justify-center items-center text-black text-xs font-bold"
+          class="absolute right-3 top-4 flex h-6 justify-center items-center text-xs font-bold"
         >
           <div class="relative">
-            <BookmarkIconSolid class="h-8 w-8 text-neutral-300/75" />
+            <BookmarkIconSolid
+              v-if="conjuration.saved"
+              class="h-8 w-8 text-fuchsia-500"
+            />
+            <BookmarkIconSolid
+              v-else
+              class="h-8 w-8 text-white/50 group-hover:text-white/75"
+            />
             <div
               class="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2"
+              :class="{
+                'text-black group-hover:rotate-180 transition-transform':
+                  !conjuration.saved,
+              }"
             >
-              {{ conjuration.saves > 99 ? '99+' : conjuration.saves }}
+              <div
+                class="block"
+                :class="{ 'group-hover:hidden': !conjuration.saved }"
+              >
+                {{ conjuration.saves > 99 ? '99+' : conjuration.saves }}
+              </div>
+              <div
+                class="hidden"
+                :class="{ 'group-hover:block': !conjuration.saved }"
+              >
+                <PlusIcon class="h-4 w-4 stroke-black" />
+              </div>
             </div>
           </div>
         </div>
@@ -97,6 +142,9 @@ const showBookmarkIcon = computed(() => {
             }}
             added this to their conjurations</span
           >
+          <span v-if="!conjuration.saved" class="text-sm text-neutral-500">
+            (click to add)
+          </span>
         </div>
       </div>
       <div
