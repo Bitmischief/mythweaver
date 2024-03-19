@@ -273,7 +273,7 @@ async function handleConjurationChange(change: {
     <ConjurationQuickView
       v-for="conjuration of conjurations"
       :key="conjuration.name"
-      :conjuration="conjuration"
+      :data="conjuration"
       :show-saves="!conjurationsMineQuery.saved"
       @add-conjuration="handleConjurationChange"
       @remove-conjuration="handleConjurationChange"

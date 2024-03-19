@@ -55,3 +55,5 @@ export function toPascalCase(text: string): string {
 }
 
 export const isProduction = window.location.origin === 'https://app.mythweaver.co';
+export const isDevelopment = window.location.origin === 'https://dev-app.mythweaver.co';
+export const isLocalDevelopment = window.location.origin === 'http://localhost:3000';
