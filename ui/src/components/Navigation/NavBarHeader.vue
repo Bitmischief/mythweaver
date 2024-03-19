@@ -24,7 +24,6 @@ const username = computed(() => {
 
 <template>
   <div class="flex pr-6 bg-surface-2">
-    <button @click="throw new Error('ahhh');">Error</button>
     <EarlyAccessInfo class="self-center" />
     <div class="self-center mr-5">
       <ImageCreditCount v-if="authStore.user" />
