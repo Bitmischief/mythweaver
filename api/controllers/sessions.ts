@@ -92,8 +92,6 @@ export default class SessionController {
     @Query() nodeType?: ConjurationRelationshipType,
     @Query() archived = false,
   ): Promise<GetSessionsResponse> {
-    throw new Error('sessions test error');
-
     const sessions = await prisma.session.findMany({
       where: {
         userId,
