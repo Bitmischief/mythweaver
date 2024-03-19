@@ -114,6 +114,9 @@ spec:
               value: <STRIPE_IMAGE_PACK_100_PRODUCT_ID>
             - name: DISCORD_BILLING_WEBHOOK
               value: <DISCORD_BILLING_WEBHOOK>
+            - name: VERSION
+              value: <VERSION>
+
           readinessProbe:
             httpGet:
               path: /docs

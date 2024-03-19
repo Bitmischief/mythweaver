@@ -31,7 +31,7 @@ app.use(LDPlugin, { clientSideID: import.meta.env.VITE_LAUNCH_DARKLY_CLIENT_ID }
 Sentry.init({
   dsn: import.meta.env.VITE_SENTRY_DSN,
   environment: isProduction ? 'production' : isDevelopment ? 'development' : 'local',
-  release: '',
+  release: import.meta.env.VERSION,
   integrations: [
     Sentry.browserTracingIntegration(),
     Sentry.replayIntegration({
