@@ -85,7 +85,6 @@ model Conjuration {
   imageAIPrompt         String?
   data                  Json
   tags                  String[]
-  published             Boolean               @default(false)
   imageGenerationFailed Boolean               @default(false)
   prompt                String?
 
@@ -118,7 +117,7 @@ model ConjurationRelationships {
   data           Json?
   userId         Int
 
-  user        User        @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 
   @@index([previousNodeId], name: "conjuration_relationships_previous_node_id")
   @@index([nextNodeId], name: "conjuration_relationships_next_node_id")
