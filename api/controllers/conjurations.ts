@@ -22,6 +22,7 @@ import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { processTagsQueue } from '../worker';
 import { ImageStylePreset } from './images';
 import { MythWeaverLogger } from '../lib/logger';
+import Conjurations from '../routes/conjurations';
 
 interface GetConjurationsResponse {
   data: (Conjuration & { saved: boolean })[];
@@ -87,7 +88,6 @@ export default class ConjurationController {
               in: conjurerCodes,
             }
           : undefined,
-        published: history ? undefined : true,
         userId: history ? userId : undefined,
         visibility: saved || history ? undefined : ConjurationVisibility.PUBLIC,
         images: stylePreset
@@ -226,7 +226,7 @@ export default class ConjurationController {
     }
 
     if (
-      !existingConjuration.published &&
+      existingConjuration.visibility === ConjurationVisibility.PUBLIC &&
       existingConjuration.userId !== userId
     ) {
       throw new AppError({
@@ -236,15 +236,6 @@ export default class ConjurationController {
     }
 
     track(AppEvent.SaveConjuration, userId, trackingInfo);
-
-    await prisma.conjuration.update({
-      where: {
-        id: conjurationId,
-      },
-      data: {
-        published: true,
-      },
-    });
 
     await prisma.conjurationSave.upsert({
       where: {
