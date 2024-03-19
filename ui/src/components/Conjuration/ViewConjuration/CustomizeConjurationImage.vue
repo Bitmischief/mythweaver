@@ -24,6 +24,7 @@ const props = withDefaults(
     noActions?: boolean;
     cancelButtonTextOverride?: string;
     inModal?: boolean;
+    seed?: string;
   }>(),
   {
     prompt: '',
@@ -31,6 +32,7 @@ const props = withDefaults(
     imageUri: undefined,
     stylePreset: 'fantasy-art',
     cancelButtonTextOverride: undefined,
+    seed: undefined,
   },
 );
 
@@ -59,6 +61,7 @@ const imagePromptRephrased = ref(false);
 const rephrasedPrompt = ref('');
 const loading = ref(false);
 const count = ref(1);
+const useSeed = ref(false);
 
 const promptOptions = ref(['Image Count', 'Image Style', 'Negative Prompt']);
 const promptOptionsTab = ref(promptOptions.value[0]);
@@ -120,6 +123,7 @@ async function conjure() {
       editableNegativePrompt.value || '',
       editableStylePreset.value || 'fantasy-art',
       count.value || 1,
+      useSeed.value ? props.seed : undefined,
     );
 
     eventBus.$emit('conjure-image-done', {});
@@ -150,6 +154,7 @@ function setImage() {
     prompt: editablePrompt.value,
     negativePrompt: editableNegativePrompt.value,
     stylePreset: editableStylePreset.value,
+    seed: selectedImg.value.seed,
   });
 
   if (props.inModal) {
@@ -209,8 +214,17 @@ function setImage() {
               {{ editablePrompt?.length }} / 1000
             </div>
           </div>
-
-          <div class="flex mt-4 mb-2 justify-center">
+          <div class="flex px-2">
+            <div>
+              <FormKit
+                v-if="seed"
+                v-model="useSeed"
+                type="checkbox"
+                label="use same image seed"
+              />
+            </div>
+          </div>
+          <div class="flex mb-2 justify-center">
             <div
               class="flex gap-1 text-neutral-500 rounded-[10px] bg-surface-2 p-1 border border-surface-3 text-sm grow"
             >

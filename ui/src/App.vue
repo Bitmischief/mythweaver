@@ -85,6 +85,7 @@ export interface CustomizeImageRequest {
   prompt: string;
   negativePrompt: string;
   stylePreset: string;
+  seed: string;
 }
 eventBus.$on('toggle-customize-image-modal', (args: CustomizeImageRequest) => {
   showCustomizeImageModal.value = !showCustomizeImageModal.value;
@@ -165,6 +166,7 @@ eventBus.$on('create-relationship', (args: CreateRelationshipRequest) => {
         :negative-prompt="customizeImageArgs?.negativePrompt"
         :image-uri="customizeImageArgs?.imageUri"
         :looks="customizeImageArgs?.stylePreset"
+        :seed="customizeImageArgs?.seed"
         in-modal
         @cancel="showCustomizeImageModal = false"
       />

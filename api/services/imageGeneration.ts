@@ -43,6 +43,7 @@ export interface ImageRequest {
     conjurationId?: number;
     characterId?: number;
   };
+  seed?: string;
 }
 
 export const generateImage = async (request: ImageRequest) => {
@@ -212,6 +213,7 @@ const postToStableDiffusion = async (
         steps: 30,
         samples: request.count,
         style_preset: preset,
+        seed: request.seed ? parseInt(request.seed) : null,
       },
       {
         headers: {
@@ -221,7 +223,7 @@ const postToStableDiffusion = async (
         },
       },
     );
-  } catch (err) {
+  } catch (err: any) {
     await sendWebsocketMessage(request.userId, WebSocketEvent.ImageError, {
       message:
         'There was an error generating your image. This could be due to our content filtering system rejecting your prompt, or an unexpected outage with one of our providers. Please try again.',
