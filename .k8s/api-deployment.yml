@@ -114,6 +114,8 @@ spec:
               value: <STRIPE_IMAGE_PACK_100_PRODUCT_ID>
             - name: DISCORD_BILLING_WEBHOOK
               value: <DISCORD_BILLING_WEBHOOK>
+            - name: SENTRY_DSN
+              value: <SENTRY_DSN>
             - name: VERSION
               value: <VERSION>
 

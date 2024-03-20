@@ -1,4 +1,4 @@
-name: Reusable workflow example
+name: Reusable API deployment
 
 on:
   workflow_call:
@@ -82,6 +82,7 @@ jobs:
           sed -i 's|<TRANSCRIPTION_SERVICE_DOMAIN>|${{ secrets.TRANSCRIPTION_SERVICE_DOMAIN }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           sed -i 's|<INTERCOM_ACCESS_TOKEN>|${{ secrets.INTERCOM_ACCESS_TOKEN }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           sed -i 's|<DISCORD_BILLING_WEBHOOK>|${{ secrets.DISCORD_BILLING_WEBHOOK }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<SENTRY_DSN>|${{ secrets.API_SENTRY_DSN }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           sed -i 's|<VERSION>|${{ github.ref_name }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           cat $GITHUB_WORKSPACE/.k8s/api-deployment.yml
 

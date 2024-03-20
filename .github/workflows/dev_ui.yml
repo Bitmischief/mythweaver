@@ -1,0 +1,19 @@
+name: Deploy Production UI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "ui/**"
+      - ".github/workflows/ui_deployment.yml"
+      - ".docker/**"
+      - ".k8s/**"
+
+jobs:
+  production:
+    uses: ./.github/workflows/ui_deployment.yml
+    with:
+      environmentName: production
+      environmentUrl: "https://dev-app.mythweaver.co"
+    secrets: inherit
