@@ -1,0 +1,34 @@
+name: Build and Deploy API
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+*'
+    paths:
+      - "api/**"
+      - ".github/workflows/api.yml"
+      - ".docker/**"
+      - ".k8s/**"
+
+jobs:
+  production:
+    needs: [development]
+    uses: ./.github/workflows/api_deployment.yml
+    with:
+      environmentName: production
+      environmentUrl: "https://api.mythweaver.co"
+    secrets: inherit
+
+  sentry-release:
+    needs: [production]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Sentry release
+        uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: "mythweaver-api"
+        with:
+          environment: production
+          version: ${{ github.ref_name }}

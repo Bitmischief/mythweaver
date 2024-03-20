@@ -1,0 +1,19 @@
+name: Build and Deploy API
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "api/**"
+      - ".github/workflows/api.yml"
+      - ".docker/**"
+      - ".k8s/**"
+
+jobs:
+  development:
+    uses: ./.github/workflows/api_deployment.yml
+    with:
+      environmentName: development
+      environmentUrl: "https://dev-api.mythweaver.co"
+    secrets: inherit
