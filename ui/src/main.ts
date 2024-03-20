@@ -7,8 +7,6 @@ import App from './App.vue';
 import router from '@/router/router.ts';
 import { createPinia } from 'pinia';
 import '@/api/api.ts';
-import { initLogging } from '@/lib/logs.ts';
-import { initSessionTracking } from '@/lib/sessionTracking.ts';
 import VueIntercom from '@homebaseai/vue3-intercom';
 import { LDPlugin } from 'launchdarkly-vue-client-sdk';
 import * as Sentry from '@sentry/vue';
@@ -20,9 +18,6 @@ const app = createApp(App);
 app.use(VueIntercom);
 
 app.use(plugin, defaultConfig(config()));
-
-initLogging();
-initSessionTracking();
 
 app.use(createPinia());
 app.use(router);
