@@ -208,10 +208,10 @@ async function handleCreateRelationship(type: ConjurationRelationshipType) {
         </div>
       </div>
 
-      <div class="flex mt-2 mt-0">
+      <div class="flex mt-0">
         <button
           v-if="conjuration.prompt"
-          class="button-ghost flex"
+          class="button-ghost flex ml-2"
           @click="conjureUsingPrompt"
         >
           Conjure With Same Prompt

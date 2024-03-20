@@ -6,7 +6,9 @@ import { showError } from '@/lib/notifications.ts';
 import { useCurrentUserId } from '@/lib/hooks.ts';
 import { useRouter } from 'vue-router';
 import { PlusIcon, UserIcon } from '@heroicons/vue/24/outline';
+import { useEventBus } from '@/lib/events.ts';
 
+const eventBus = useEventBus();
 const router = useRouter();
 const characters = ref<Character[] | []>([]);
 const createNewCharacter = ref(false);
@@ -15,6 +17,10 @@ const currentUserId = useCurrentUserId();
 
 onMounted(async () => {
   await init();
+
+  eventBus.$on('campaign-selected', async () => {
+    await init();
+  });
 });
 
 async function init() {
