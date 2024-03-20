@@ -5,12 +5,14 @@ export const conjureImage = async (
   negativePrompt?: string,
   stylePreset?: string,
   count?: number,
+  seed?: string,
 ) => {
   return axios.post('/images', {
     prompt,
     negativePrompt,
     stylePreset,
     count,
+    seed,
   });
 };
 
