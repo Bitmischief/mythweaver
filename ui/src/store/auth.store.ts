@@ -4,7 +4,6 @@ import router from '@/router/router.ts';
 import { showError } from '@/lib/notifications.ts';
 import { getCurrentUser, User } from '@/api/users.ts';
 import { useEventBus } from '@/lib/events.ts';
-import { useLDClient } from 'launchdarkly-vue-client-sdk';
 
 interface AuthStoreState {
   tokens: any;
@@ -42,18 +41,6 @@ export const useAuthStore = defineStore({
           Date.parse(this.user?.earlyAccessCutoffAt) < Date.now()
         ) {
           await router.push('/auth/earlyaccess');
-        }
-
-        if (this.user) {
-          const ldClient = useLDClient();
-          await ldClient.identify({
-            key: this.user.id.toString(),
-            email: this.user.email,
-            name: this.user.username,
-            custom: {
-              plan: this.user.plan,
-            },
-          });
         }
 
         const eventBus = useEventBus();

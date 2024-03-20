@@ -15,12 +15,13 @@ import { showSuccess } from '@/lib/notifications.ts';
 import { useWebsocketChannel } from '@/lib/hooks.ts';
 import { ConjurationRelationshipType } from '@/lib/enums.ts';
 import CreateRelationship from '@/components/Relationships/CreateRelationship.vue';
-import { useLDReady } from 'launchdarkly-vue-client-sdk';
+import { useLDClient, useLDReady } from 'launchdarkly-vue-client-sdk';
 
 const ldReady = useLDReady();
 const authStore = useAuthStore();
 const eventBus = useEventBus();
 const intercom = useIntercom();
+const ldClient = useLDClient();
 
 onBeforeMount(async () => {
   if (
@@ -35,6 +36,20 @@ onMounted(async () => {
   eventBus.$on('user-loaded', async () => {
     await initIntercom();
     await initNotifications();
+
+    const user = useAuthStore().user;
+
+    if (user) {
+      await ldClient.identify({
+        kind: 'user',
+        key: user.id.toString(),
+        email: user.email,
+        name: user.username,
+        custom: {
+          plan: user.plan,
+        },
+      });
+    }
   });
 
   if (authStore.tokens) {
