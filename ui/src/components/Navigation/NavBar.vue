@@ -154,6 +154,8 @@ const intercom = useIntercom();
                 >
                   Logged in as <span>{{ authStore.user.email }}</span>
                 </div>
+                i
+
                 <button
                   class="button-ghost-primary mt-4 mb-4 w-full"
                   @click="logout"
