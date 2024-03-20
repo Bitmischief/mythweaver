@@ -14,6 +14,9 @@ import { ServerEvent } from '@/lib/serverEvents.ts';
 import Select from '@/components/Core/Forms/Select.vue';
 import Loader from '@/components/Core/Loader.vue';
 import { AxiosError } from 'axios';
+import { useLDFlag } from 'launchdarkly-vue-client-sdk';
+
+const showSeed = useLDFlag('image-seed', false);
 
 const props = withDefaults(
   defineProps<{
@@ -214,14 +217,27 @@ function setImage() {
               {{ editablePrompt?.length }} / 1000
             </div>
           </div>
-          <div class="flex px-2">
-            <div>
+          <div class="flex px-2 relative">
+            <div class="group">
               <FormKit
-                v-if="seed"
+                v-if="showSeed && seed"
                 v-model="useSeed"
                 type="checkbox"
-                label="use same image seed"
+                label="Use same image seed"
+                wrapper-class="cursor-pointer"
               />
+              <div
+                class="absolute text-left px-2 py-2 bottom-[calc(100%+10px)] left-0 bg-surface-3 rounded-[12px] z-30 invisible group-hover:visible"
+              >
+                <div>
+                  Checking this will allow you to make alterations to your
+                  prompt while keeping the overall image the same.
+                </div>
+                <div>
+                  Leave this unchecked if you want to create a new image not
+                  inspired by the original.
+                </div>
+              </div>
             </div>
           </div>
           <div class="flex mb-2 justify-center">

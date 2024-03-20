@@ -213,7 +213,7 @@ const postToStableDiffusion = async (
         steps: 30,
         samples: request.count,
         style_preset: preset,
-        seed: request.seed ? parseInt(request.seed) : null,
+        seed: request.seed ? parseInt(request.seed) : 0,
       },
       {
         headers: {
