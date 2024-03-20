@@ -3,6 +3,7 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import {
   Conjuration,
   copyConjuration,
+  deleteConjuration,
   getConjuration,
   removeConjuration,
   saveConjuration,
@@ -31,6 +32,7 @@ import { ConjurationRelationshipType } from '@/lib/enums.ts';
 import { CampaignRole } from '@/api/campaigns.ts';
 import ViewRelationships from '@/components/Relationships/ViewRelationships.vue';
 import { useLDFlag } from 'launchdarkly-vue-client-sdk';
+import { AxiosError } from 'axios';
 
 const showRelationships = useLDFlag('relationships', false);
 
@@ -47,7 +49,7 @@ const conjurationId = computed(() =>
   parseInt(route.params.conjurationId?.toString()),
 );
 
-const editable = computed(
+const isMyConjuration = computed(
   () => conjuration.value?.userId === currentUserId.value,
 );
 
@@ -102,10 +104,28 @@ async function handleSaveConjuration() {
 }
 
 async function handleRemoveConjuration() {
-  if (confirm('Are you sure you want to delete this conjuration?')) {
+  if (confirm('Are you sure you want to remove this conjuration?')) {
     await removeConjuration(conjurationId.value);
     showSuccess({ message: 'Successfully removed conjuration!' });
-    await router.push('/conjurations');
+    location.reload();
+  }
+}
+
+async function handleDeleteConjuration() {
+  if (
+    confirm('Are you sure you want to permanently delete this conjuration?')
+  ) {
+    try {
+      await deleteConjuration(conjurationId.value);
+      showSuccess({ message: 'Successfully deleted conjuration!' });
+      await router.push('/conjurations');
+    } catch (e) {
+      const err = e as AxiosError;
+      showError({
+        message: (err?.response?.data as any)?.message?.toString() || '',
+      });
+      return;
+    }
   }
 }
 
@@ -170,7 +190,7 @@ async function handleCreateRelationship(type: ConjurationRelationshipType) {
         </button>
 
         <div
-          v-if="conjuration.saved && !editable"
+          v-if="conjuration.saved && !isMyConjuration"
           class="bg-amber-300/10 rounded-[12px] flex px-4 mx-4"
         >
           <div class="self-center text-amber-300/75 my-auto">
@@ -205,7 +225,7 @@ async function handleCreateRelationship(type: ConjurationRelationshipType) {
         </button>
 
         <button
-          v-if="editable"
+          v-if="isMyConjuration"
           class="button-ghost flex ml-2"
           @click="
             eventBus.$emit('save-conjuration', {
@@ -217,7 +237,7 @@ async function handleCreateRelationship(type: ConjurationRelationshipType) {
         </button>
 
         <button
-          v-if="conjuration.saved && !editable"
+          v-if="conjuration.saved && !isMyConjuration"
           class="button-ghost flex"
           @click="handleCopyConjuration"
         >
@@ -270,6 +290,14 @@ async function handleCreateRelationship(type: ConjurationRelationshipType) {
                 <button
                   class="button-primary flex"
                   @click="handleRemoveConjuration"
+                >
+                  Remove From My Conjurations
+                </button>
+              </MenuItem>
+              <MenuItem v-if="isMyConjuration" class="menu-item">
+                <button
+                  class="button-primary flex"
+                  @click="handleDeleteConjuration"
                 >
                   Delete Conjuration
                 </button>

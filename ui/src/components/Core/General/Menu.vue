@@ -17,7 +17,7 @@ import { Menu, MenuItems } from '@headlessui/vue';
       leave-to-class="transform scale-95 opacity-0"
     >
       <MenuItems
-        class="absolute right-0 mt-2 z-50 w-56 origin-top-right rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+        class="absolute right-0 mt-2 z-50 min-w-72 origin-top-right rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
       >
         <slot name="content"></slot>
       </MenuItems>
