@@ -11,7 +11,7 @@ on:
       - ".k8s/**"
 
 jobs:
-  production:
+  development:
     uses: ./.github/workflows/ui_deployment.yml
     with:
       environmentName: production
