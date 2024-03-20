@@ -17,14 +17,14 @@ metadata:
   labels:
     app: mythweaver-api
 spec:
-  replicas: 1
+  replicas: <MIN_REPLICAS>
   selector:
     matchLabels:
       app: mythweaver-api
   strategy:
     rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 1
+      maxSurge: 2
+      maxUnavailable: 0
   minReadySeconds: 10
   template:
     metadata:
@@ -118,6 +118,10 @@ spec:
               value: <VERSION>
 
           readinessProbe:
+            periodSeconds: 15
+            timeoutSeconds: 2
+            successThreshold: 2
+            failureThreshold: 2
             httpGet:
               path: /docs
               port: 8000
