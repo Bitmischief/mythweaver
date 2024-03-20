@@ -12,7 +12,6 @@ on:
 
 jobs:
   production:
-    needs: [development]
     uses: ./.github/workflows/api_deployment.yml
     with:
       environmentName: production
