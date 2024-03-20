@@ -3,12 +3,12 @@ name: Reusable workflow example
 on:
   workflow_call:
     inputs:
-      config-path:
+      environmentName:
         required: true
         type: string
-    secrets:
-      token:
+      environmentUrl:
         required: true
+        type: string
 
 jobs:
   deploy:
