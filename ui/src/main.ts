@@ -24,6 +24,7 @@ app.use(router);
 app.use(LDPlugin, { clientSideID: import.meta.env.VITE_LAUNCH_DARKLY_CLIENT_ID });
 
 Sentry.init({
+  app,
   dsn: import.meta.env.VITE_SENTRY_DSN,
   environment: isProduction ? 'production' : isDevelopment ? 'development' : 'local',
   release: import.meta.env.VERSION,
