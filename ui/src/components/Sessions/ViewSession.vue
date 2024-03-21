@@ -286,8 +286,8 @@ async function handleCreateRelationship(type: ConjurationRelationshipType) {
     </div>
 
     <div class="mt-6">
-      <div class="flex flex-wrap lg:flex-nowrap mb-12 justify-center">
-        <div class="mb-4 mr-4">
+      <div class="flex gap-4 flex-wrap lg:flex-nowrap mb-12 justify-center">
+        <div class="mb-4">
           <CustomizableImage
             :editable="currentUserRole === CampaignRole.DM"
             :image-uri="sessionImageUri || '/images/session_bg_square.png'"

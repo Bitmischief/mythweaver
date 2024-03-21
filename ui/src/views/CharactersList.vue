@@ -80,7 +80,7 @@ async function viewCharacter(id: number) {
         <div
           v-for="(char, i) in myCharacters"
           :key="`char_${i}`"
-          class="bg-surface-3 rounded-[25px] p-1 cursor-pointer max-w-[15em] mr-6"
+          class="bg-surface-3 rounded-[25px] p-1 cursor-pointer max-w-[15em] mr-6 overflow-hidden"
           @click="viewCharacter(char.id)"
         >
           <div class="relative">
@@ -90,7 +90,7 @@ async function viewCharacter(id: number) {
               class="rounded-[20px]"
             />
           </div>
-          <div class="py-1 px-2 text-center">
+          <div class="py-1 px-2 text-center truncate">
             {{ char.name }}
           </div>
         </div>
@@ -109,7 +109,7 @@ async function viewCharacter(id: number) {
         <div
           v-for="(char, i) in campaignCharacters"
           :key="`char_${i}`"
-          class="bg-surface-3 rounded-[25px] p-1 cursor-pointer max-w-[15em] mr-6"
+          class="bg-surface-3 rounded-[25px] p-1 cursor-pointer min-w-[10em] max-w-[15em] mr-6 overflow-hidden"
           @click="viewCharacter(char.id)"
         >
           <div class="relative">
@@ -119,7 +119,7 @@ async function viewCharacter(id: number) {
               class="rounded-[20px]"
             />
           </div>
-          <div class="py-1 px-2 text-center">
+          <div class="py-1 px-2 text-center truncate">
             {{ char.name }}
           </div>
         </div>

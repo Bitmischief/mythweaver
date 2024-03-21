@@ -90,13 +90,15 @@ async function fetchSession() {
           v-if="nodeType === ConjurationRelationshipType.SESSION && !!session"
           class="flex"
         >
-          <div class="bg-surface-3 rounded-[20px] p-2 my-auto">
+          <div
+            class="bg-surface-3 rounded-[20px] p-2 overflow-x-hidden my-auto"
+          >
             <img
-              :src="session.imageUri"
-              alt="conjuration"
-              class="max-w-[300px] rounded-[18px]"
+              :src="session.imageUri || '/images/session_bg_square.png'"
+              alt="session"
+              class="max-w-[300px] w-full rounded-[18px]"
             />
-            <div>{{ session.name }}</div>
+            <div class="text-center truncate">{{ session.name }}</div>
           </div>
         </div>
       </div>
