@@ -72,7 +72,7 @@ async function navigateToCreateCampaign() {
 <template>
   <div class="flex w-full flex-col mt-4">
     <router-link
-      class="button-gradient flex justify-center"
+      class="button-gradient flex justify-center text-white"
       to="/conjurations/new"
     >
       <span class="self-center">Conjure</span>

@@ -1,0 +1,19 @@
+name: Deploy Development UI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "ui/**"
+      - ".github/workflows/ui_deployment.yml"
+      - ".docker/**"
+      - ".k8s/**"
+
+jobs:
+  development:
+    uses: ./.github/workflows/ui_deployment.yml
+    with:
+      environmentName: development
+      environmentUrl: "https://dev-app.mythweaver.co"
+    secrets: inherit

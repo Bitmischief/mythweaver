@@ -40,7 +40,6 @@ const sessionId = computed(() => parseInt(route.params.sessionId.toString()));
 
 const checkRelationshipsFlag = async () => {
   if (!showRelationships.value && route.path.endsWith('relationships')) {
-    console.log('made it here');
     await router.push(`/sessions/${sessionId.value}/planning`);
   }
 };

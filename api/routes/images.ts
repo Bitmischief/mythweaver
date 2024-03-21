@@ -15,6 +15,7 @@ const postImageSchema = z.object({
   negativePrompt: z.string().max(1000).optional(),
   stylePreset: z.string().max(250).optional(),
   count: z.number().default(1).optional(),
+  seed: z.string().optional(),
 });
 
 router.post('/', [

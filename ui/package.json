@@ -12,8 +12,6 @@
     "prepare": "cd ../ && husky install ./ui/.husky"
   },
   "dependencies": {
-    "@datadog/browser-logs": "^5.8.0",
-    "@datadog/browser-rum": "^5.5.0",
     "@formkit/addons": "^1.5.9",
     "@formkit/themes": "^1.5.9",
     "@formkit/vue": "^1.5.9",

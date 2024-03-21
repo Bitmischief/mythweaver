@@ -23,6 +23,7 @@ import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { processTagsQueue } from '../worker';
 import { ImageStylePreset } from './images';
 import { MythWeaverLogger } from '../lib/logger';
+import Conjurations from '../routes/conjurations';
 
 interface GetConjurationsResponse {
   data: (Conjuration & { saved: boolean })[];
@@ -226,7 +227,7 @@ export default class ConjurationController {
     }
 
     if (
-      !existingConjuration.published &&
+      existingConjuration.visibility === ConjurationVisibility.PUBLIC &&
       existingConjuration.userId !== userId
     ) {
       throw new AppError({
@@ -236,15 +237,6 @@ export default class ConjurationController {
     }
 
     track(AppEvent.SaveConjuration, userId, trackingInfo);
-
-    await prisma.conjuration.update({
-      where: {
-        id: conjurationId,
-      },
-      data: {
-        published: true,
-      },
-    });
 
     await prisma.conjurationSave.upsert({
       where: {
@@ -354,13 +346,51 @@ export default class ConjurationController {
       });
     }
 
-    track(AppEvent.DeleteConjuration, userId, trackingInfo);
+    const saves = await prisma.conjurationSave.findMany({
+      where: {
+        conjurationId,
+      },
+    });
+
+    const userSave = saves.find((s) => s.userId === userId);
+    const otherSaves = saves.filter((s) => s.userId !== userId);
+
+    if (otherSaves.length > 0) {
+      throw new AppError({
+        description:
+          'You cannot delete this conjuration! It has been saved by other users.',
+        httpCode: HttpCode.FORBIDDEN,
+      });
+    }
+
+    if (userSave) {
+      await prisma.conjurationSave.delete({
+        where: {
+          id: userSave.id,
+        },
+      });
+    }
+
+    await prisma.conjurationRelationships.deleteMany({
+      where: {
+        OR: [
+          {
+            nextNodeId: conjurationId,
+          },
+          {
+            previousNodeId: conjurationId,
+          },
+        ],
+      },
+    });
 
     await prisma.conjuration.delete({
       where: {
         id: conjurationId,
       },
     });
+
+    track(AppEvent.DeleteConjuration, userId, trackingInfo);
 
     return true;
   }

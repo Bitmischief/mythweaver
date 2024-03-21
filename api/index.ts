@@ -19,7 +19,7 @@ import logger from './lib/logger';
 import { getRequestId, useLogger } from './lib/loggingMiddleware';
 import pinoHTTP from 'pino-http';
 import { v4 as uuidv4 } from 'uuid';
-import { isDevelopment, isLocalDevelopment, isProduction } from './lib/utils';
+import { isLocalDevelopment, isProduction } from './lib/utils';
 import * as Sentry from '@sentry/node';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
 
