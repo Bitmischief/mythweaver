@@ -8,10 +8,12 @@
       <img
         src="@/assets/icons/gradient-wand.svg"
         alt="wand"
-        class="w-12 mx-auto"
+        class="w-8 md:w-12 mx-auto"
       />
-      <div class="text-[48px] font-bold text-center">Mythweaver AI</div>
-      <div class="text-neutral-600 mb-12 text-center">
+      <div class="text-[24px] md:text-[48px] font-bold text-center">
+        Mythweaver AI
+      </div>
+      <div class="text-neutral-600 mb-4 md:mb-12 text-center">
         Generate captivating visuals & conjurations
       </div>
       <div class="flex mb-6 justify-center">
@@ -47,14 +49,14 @@
                 v-model="request.prompt"
                 :placeholder="`Enter ${generator?.name} Description`"
                 inner-class="border-none"
-                input-class="$reset input-secondary border-none focus:ring-fuchsia-500 resize-none pr-[8em]"
+                input-class="$reset input-secondary border-none focus:ring-fuchsia-500 resize-none md:pr-[8em]"
                 help-class="px-1"
                 name="prompt"
                 type="textarea"
                 validation="length:0,1000"
                 auto-height
               />
-              <div class="absolute top-1 right-1">
+              <div class="hidden md:block absolute top-1 right-1">
                 <button
                   v-if="!request.prompt"
                   class="button-gradient py-2 px-3 flex"
@@ -154,6 +156,32 @@
                 {{ request.imageNegativePrompt.length }} / 1000
               </div>
             </div>
+          </div>
+
+          <div class="md:hidden">
+            <button
+              v-if="!request.prompt"
+              class="button-gradient py-4 px-3 flex w-full justify-center rounded-[20px]"
+              :disabled="!generator"
+              @click.prevent="quickConjure(generator?.code || 'characters')"
+            >
+              <img src="@/assets/icons/wand.svg" alt="wand" class="h-4 mr-1" />
+              Surprise Me
+            </button>
+            <!-- prettier-ignore -->
+            <button
+              v-else
+              class="button-gradient py-2 px-3 flex w-full justify-center rounded-[20px]"
+              :disabled="(disabled as boolean)"
+              type="submit"
+            >
+              <img
+                src="@/assets/icons/wand.svg"
+                alt="wand"
+                class="h-4 mr-1"
+              />
+              Conjure
+            </button>
           </div>
         </FormKit>
       </div>

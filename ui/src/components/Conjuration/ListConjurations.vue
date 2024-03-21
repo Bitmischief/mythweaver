@@ -6,11 +6,13 @@ import {
   getConjurations,
 } from '@/api/conjurations.ts';
 import { AdjustmentsVerticalIcon, SparklesIcon } from '@heroicons/vue/20/solid';
+import { Squares2X2Icon, QueueListIcon } from '@heroicons/vue/24/outline';
 import { PhotoIcon } from '@heroicons/vue/24/outline';
 import ConjurationQuickView from '@/components/Conjuration/ConjurationListItemView.vue';
 import { debounce } from 'lodash';
 import ConjurationsListFiltering from '@/components/Conjuration/ConjurationsListFiltering.vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useConjurationsStore } from '@/store/conjurations.store.ts';
 
 const pagingDone = ref(false);
 const conjurations = ref<Conjuration[]>([]);
@@ -171,6 +173,14 @@ async function handleConjurationChange(change: {
     conjurations.value.splice(conjurationIndex, 1);
   }
 }
+
+const conjurationsStore = useConjurationsStore();
+const viewType = computed(() => {
+  return conjurationsStore.viewType;
+});
+function changeView(type: string) {
+  conjurationsStore.setType(type);
+}
 </script>
 
 <template>
@@ -182,11 +192,8 @@ async function handleConjurationChange(change: {
 
   <div class="flex w-full justify-between rounded-xl pb-8">
     <div class="w-full md:flex md:justify-between">
-      <div class="flex">
-        <div
-          v-if="conjurationsMineQuery.saved"
-          class="text-xl self-center mr-6"
-        >
+      <div class="flex justify-center md:justify-start grow">
+        <div v-if="conjurationsMineQuery.saved" class="text-xl self-center">
           My Conjurations
           <span v-if="conjurationsHistoryQuery.history" class="text-neutral-500"
             >| History</span
@@ -195,22 +202,28 @@ async function handleConjurationChange(change: {
         <div v-else class="text-xl self-center mr-6">Gallery</div>
       </div>
 
-      <div class="mt-2 self-center flex justify-between">
+      <div
+        class="mt-2 self-center flex justify-center md:justify-end gap-2 grow flex-wrap md:flex-nowrap"
+      >
         <button
           v-if="
             conjurationsMineQuery.saved && !conjurationsHistoryQuery.history
           "
-          class="button-ghost-primary mr-2"
+          class="button-ghost-primary self-center whitespace-nowrap flex flex-nowrap"
           @click="toggleHistory"
         >
-          <span class="text-sm"> Show Conjuration History </span>
+          <span class="text-sm flex">
+            Show <span class="hidden md:block mx-1">Conjuration</span> History
+          </span>
         </button>
         <button
           v-if="conjurationsMineQuery.saved && conjurationsHistoryQuery.history"
-          class="button-ghost mr-2"
+          class="button-ghost self-center whitespace-nowrap flex flex-nowrap"
           @click="toggleHistory"
         >
-          <span class="text-neutral-300 text-sm"> Show My Conjurations </span>
+          <span class="text-neutral-300 text-sm flex">
+            <span class="hidden md:block mr-1">Show</span>My Conjurations
+          </span>
         </button>
 
         <button
@@ -218,25 +231,38 @@ async function handleConjurationChange(change: {
             JSON.stringify(conjurationsFilterQuery) !==
             JSON.stringify(defaultFilters)
           "
-          class="mr-2 px-3 py-1.5 rounded-md justify-start items-center gap-[5px] inline-flex transition-all hover:scale-110 text-sm"
+          class="button-ghost-white"
           @click="conjurationsFilterQuery = defaultFilters"
         >
-          <span class="text-white text-sm font-normal underline">
-            Clear Filters
-          </span>
+          <span class="text-white text-sm font-normal"> Clear Filters </span>
         </button>
 
-        <button class="button-primary flex mr-2" @click="showFilters = true">
+        <button
+          class="button-primary flex self-center"
+          @click="showFilters = true"
+        >
           <AdjustmentsVerticalIcon class="w-5 h-5 mr-2" />
           <span class="text-white text-sm font-normal">Filters</span>
         </button>
 
         <router-link to="/conjurations/new" class="flex">
-          <button class="button-gradient flex">
+          <button class="button-gradient flex self-center">
             <SparklesIcon class="mr-2 h-5 w-5 self-center" />
             <span class="self-center">Create</span>
           </button>
         </router-link>
+        <div class="self-center cursor-pointer">
+          <Squares2X2Icon
+            v-if="viewType !== 'grid'"
+            class="h-6 w-6 self-center"
+            @click="changeView('grid')"
+          />
+          <QueueListIcon
+            v-else
+            class="h-6 w-6 self-center"
+            @click="changeView('list')"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -268,13 +294,18 @@ async function handleConjurationChange(change: {
 
   <div
     v-if="conjurations.length && !loading"
-    class="grid grid-cols-1 place-items-stretch sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5"
+    class="grid place-items-stretch gap-2 md:gap-5"
+    :class="{
+      'grid-cols-1 md:grid-cols-2 xl:grid-cols-3': viewType === 'list',
+      'grid-cols-2 md:grid-cols-3 lg:grid-cols-4': viewType === 'grid',
+    }"
   >
     <ConjurationQuickView
       v-for="conjuration of conjurations"
       :key="conjuration.name"
       :data="conjuration"
       :show-saves="!conjurationsMineQuery.saved"
+      :condensed-view="viewType === 'list'"
       @add-conjuration="handleConjurationChange"
       @remove-conjuration="handleConjurationChange"
     />

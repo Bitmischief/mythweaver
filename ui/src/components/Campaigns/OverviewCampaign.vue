@@ -312,119 +312,129 @@ async function handleRemoveMember() {
       </div>
     </div>
   </div>
-  <div class="grid grid-cols-1 lg:grid-cols-5 grid-rows-1 lg:gap-4 mb-10">
-    <div class="col-span-2 mt-4 flex flex-col">
-      <div class="flex justify-between mb-4">
-        <div class="flex">
-          <div class="mr-1 self-center leading-9">Campaign Info</div>
+  <div class="lg:grid lg:grid-cols-5 grid-rows-1 lg:gap-4 mb-10">
+    <div class="lg:col-span-2 mt-4">
+      <div class="flex flex-col">
+        <div class="flex justify-between mb-4">
+          <div class="flex">
+            <div class="mr-1 self-center leading-9">Campaign Info</div>
+          </div>
         </div>
-      </div>
-      <div
-        class="rounded-[18px] bg-surface-3 p-4 min-h-[10em] text-neutral-500 grow"
-      >
-        <div class="my-2">
-          Game manager: <span class="text-neutral-300">{{ gm }}</span>
-        </div>
-        <div class="my-2">
-          Game system:
-          <span class="text-neutral-300">{{ campaign.rpgSystemCode }}</span>
-        </div>
-        <div class="my-2">
-          Date started:
-          <span class="text-neutral-300">
-            {{
-              campaign.createdAt
-                ? format(new Date(campaign.createdAt.toString()), 'MMM d, yyyy')
-                : 'No Start Date'
-            }}
-          </span>
-        </div>
-        <div class="my-2">
-          Players count:
-          <span class="text-neutral-300">{{
-            campaign.members?.length || 'No Members'
-          }}</span>
-        </div>
-        <div class="my-2">
-          Last session:
-          <span class="text-neutral-300">
-            {{
-              latestSession
-                ? format(new Date(latestSession.updatedAt), 'MMM d, yyyy')
-                : 'No Sessions'
-            }}
-          </span>
+        <div
+          class="rounded-[18px] bg-surface-3 p-4 min-h-[10em] text-neutral-500 grow"
+        >
+          <div class="my-2">
+            Game manager: <span class="text-neutral-300">{{ gm }}</span>
+          </div>
+          <div class="my-2">
+            Game system:
+            <span class="text-neutral-300">{{ campaign.rpgSystemCode }}</span>
+          </div>
+          <div class="my-2">
+            Date started:
+            <span class="text-neutral-300">
+              {{
+                campaign.createdAt
+                  ? format(
+                      new Date(campaign.createdAt.toString()),
+                      'MMM d, yyyy',
+                    )
+                  : 'No Start Date'
+              }}
+            </span>
+          </div>
+          <div class="my-2">
+            Players count:
+            <span class="text-neutral-300">{{
+              campaign.members?.length || 'No Members'
+            }}</span>
+          </div>
+          <div class="my-2">
+            Last session:
+            <span class="text-neutral-300">
+              {{
+                latestSession
+                  ? format(new Date(latestSession.updatedAt), 'MMM d, yyyy')
+                  : 'No Sessions'
+              }}
+            </span>
+          </div>
         </div>
       </div>
     </div>
-    <div class="col-span-3 mt-4 flex flex-col">
-      <div class="flex justify-between mb-4">
-        <div class="flex">
-          <div class="mr-1 self-center">Party members</div>
-          <div
-            class="text-xs bg-gradient-to-r from-fuchsia-500 to-violet-500 rounded-full px-2 py-1 h-6 self-center"
-          >
-            {{ campaign.members?.length }}
-          </div>
-        </div>
-        <div>
-          <button
-            v-if="currentUserRole === CampaignRole.DM"
-            class="button-primary flex"
-            @click="showInviteModal = true"
-          >
-            <UserGroupIcon class="h-5 mr-1" />
-            Add Players
-          </button>
-        </div>
-      </div>
-      <div class="rounded-[18px] bg-surface-3 p-4 col-span-2 grow">
-        <div
-          v-for="member in campaign.members"
-          :key="`${member.id}_member`"
-          class="flex text-sm p-2 group justify-between min-h-[3.5em] whitespace-nowrap"
-        >
-          <div class="grid grid-cols-3 grow">
+    <div class="lg:col-span-3 mt-4">
+      <div class="flex flex-col">
+        <div class="flex justify-between mb-4">
+          <div class="flex">
+            <div class="mr-1 self-center">Party members</div>
             <div
-              class="self-center col-span-1"
-              :class="{
-                'text-white': member.user,
-                'text-neutral-400': !member.user,
-              }"
+              class="text-xs bg-gradient-to-r from-fuchsia-500 to-violet-500 rounded-full px-2 py-1 h-6 self-center"
             >
-              {{
-                member.user?.username ??
-                splitEmail(member.user ? member.user.email : member.email)
-              }}
-            </div>
-            <div class="text-neutral-400 px-4 self-center col-span-1">
-              {{ member.role === 1 ? 'Game Master' : 'Player' }}
-            </div>
-            <div
-              class="text-neutral-400 text-right self-center col-span-1 overflow-hidden"
-            >
-              {{ member.user ? 'Joined' : 'Invited' }} on
-              {{
-                format(
-                  new Date(member.user ? member.joinedAt : member.createdAt),
-                  'MMMM d, yyyy',
-                )
-              }}
+              {{ campaign.members?.length }}
             </div>
           </div>
-          <div
-            v-if="member.role != CampaignRole.DM"
-            class="hidden group-hover:block pl-4"
-          >
+          <div>
             <button
-              class="button-ghost py-1"
-              @click="
-                requestedRemovedMemberId = member.id;
-                showDeleteModal = true;
-              "
+              v-if="currentUserRole === CampaignRole.DM"
+              class="button-primary flex"
+              @click="showInviteModal = true"
             >
-              Kick Player
+              <UserGroupIcon class="h-5 mr-1" />
+              Add Players
             </button>
+          </div>
+        </div>
+        <div class="rounded-[18px] bg-surface-3 p-4 col-span-2 grow">
+          <div
+            v-for="member in campaign.members"
+            :key="`${member.id}_member`"
+            class="md:flex text-sm p-2 group justify-between min-h-[3.5em] whitespace-nowrap border-b border-neutral-700"
+          >
+            <div class="grid md:grid-cols-3 grow">
+              <div
+                class="self-center col-span-1 truncate"
+                :class="{
+                  'text-white': member.user,
+                  'text-neutral-400': !member.user,
+                }"
+              >
+                {{
+                  member.user?.username ??
+                  splitEmail(member.user ? member.user.email : member.email)
+                }}
+              </div>
+              <div class="text-neutral-400 md:px-4 self-center col-span-1">
+                <span class="text-white md:hidden">Role: </span>
+                {{ member.role === 1 ? 'GM' : 'Player' }}
+              </div>
+              <div
+                class="text-neutral-400 text-left md:text-right self-center col-span-1 truncate"
+              >
+                <span class="text-white">{{
+                  member.user ? 'Joined ' : 'Invited '
+                }}</span>
+                {{
+                  format(
+                    new Date(member.user ? member.joinedAt : member.createdAt),
+                    'MMMM dd, yyyy',
+                  )
+                }}
+              </div>
+            </div>
+            <div
+              v-if="member.role != CampaignRole.DM"
+              class="md:hidden md:pl-4 mt-4 md:mt-0 group-hover:block"
+            >
+              <button
+                class="button-ghost py-1"
+                @click="
+                  requestedRemovedMemberId = member.id;
+                  showDeleteModal = true;
+                "
+              >
+                Kick Player
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -442,7 +452,7 @@ async function handleRemoveMember() {
         <div
           v-for="(char, i) in characters"
           :key="`char_${i}`"
-          class="bg-surface-3 rounded-[25px] p-1 cursor-pointer max-w-[15em] mr-6"
+          class="bg-surface-3 rounded-[25px] p-1 cursor-pointer min-w-[10em] max-w-[15em] mr-6 overflow-hidden"
           @click="
             viewingCharacter = char;
             viewCharacter = true;
@@ -455,19 +465,19 @@ async function handleRemoveMember() {
               class="rounded-[20px]"
             />
             <div
-              class="absolute top-1 left-1 rounded-full bg-white/50 text-black px-2"
+              class="absolute top-1 left-1 max-w-[95%] rounded-full bg-white/50 text-black px-2 truncate"
             >
               {{ campaignMemberName(char.campaignMemberId) }}
             </div>
           </div>
-          <div class="py-1 px-2 text-center">
+          <div class="py-1 px-2 text-center truncate">
             {{ char.name }}
           </div>
         </div>
       </div>
     </div>
     <ModalAlternate :show="viewCharacter" @close="viewCharacter = false">
-      <div class="bg-surface-2 rounded-[20px] max-w-[75vw] p-6">
+      <div class="bg-surface-2 rounded-[20px] md:max-w-[75vw]">
         <CharacterOverview
           v-if="viewingCharacter"
           :character="viewingCharacter"

@@ -70,9 +70,9 @@ async function handleCreateSession() {
     <div class="w-full md:flex md:justify-between">
       <div class="text-xl self-center font-bold">Sessions</div>
 
-      <div class="mt-2 self-center md:mt-0 flex justify-between">
+      <div class="mt-2 self-center md:mt-0 flex gap-2 justify-between">
         <button
-          class="self-center button-primary mr-2"
+          class="self-center button-primary"
           @click="
             sessionsSearch.archived =
               sessionsSearch.archived === undefined ? true : undefined;
@@ -98,13 +98,12 @@ async function handleCreateSession() {
 
   <div
     v-if="sessions.length"
-    class="grid grid-cols-1 place-items-stretch sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-5"
+    class="grid grid-cols-1 place-items-stretch sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
   >
     <router-link
       v-for="(session, i) of sessions"
       :key="i"
       :to="`/sessions/${session.id}/relationships`"
-      class="mr-6"
     >
       <Session :session="session" :full="false" />
     </router-link>
