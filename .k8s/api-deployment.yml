@@ -120,10 +120,6 @@ spec:
               value: <VERSION>
 
           readinessProbe:
-            periodSeconds: 15
-            timeoutSeconds: 2
-            successThreshold: 2
-            failureThreshold: 2
             httpGet:
               path: /docs
               port: 8000
