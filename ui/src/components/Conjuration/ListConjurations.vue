@@ -294,10 +294,10 @@ function changeView(type: string) {
 
   <div
     v-if="conjurations.length && !loading"
-    class="grid place-items-stretch gap-2 md:gap-5 md:grid-cols-3"
+    class="grid place-items-stretch gap-2 md:gap-5"
     :class="{
-      'grid-cols-1': viewType === 'list',
-      'grid-cols-2 lg:grid-cols-4': viewType === 'grid',
+      'grid-cols-1 md:grid-cols-2 xl:grid-cols-3': viewType === 'list',
+      'grid-cols-2 md:grid-cols-3 lg:grid-cols-4': viewType === 'grid',
     }"
   >
     <ConjurationQuickView
