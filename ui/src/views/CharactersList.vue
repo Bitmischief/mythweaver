@@ -1,13 +1,14 @@
 <script lang="ts" setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { Character, getCurrentCampaignCharacters } from '@/api/characters.ts';
 import { AxiosError } from 'axios';
 import { showError } from '@/lib/notifications.ts';
-import { useCurrentUserId } from '@/lib/hooks.ts';
+import { useCurrentUserId, useSelectedCampaignId } from '@/lib/hooks.ts';
 import { useRouter } from 'vue-router';
 import { PlusIcon, UserIcon } from '@heroicons/vue/24/outline';
 import { useEventBus } from '@/lib/events.ts';
 
+const selectedCampaignId = useSelectedCampaignId();
 const eventBus = useEventBus();
 const router = useRouter();
 const characters = ref<Character[] | []>([]);
@@ -16,6 +17,10 @@ const loading = ref(false);
 const currentUserId = useCurrentUserId();
 
 onMounted(async () => {
+  if (!selectedCampaignId.value) {
+    await router.push('/campaigns/new');
+  }
+
   await init();
 
   eventBus.$on('campaign-selected', async () => {
@@ -23,7 +28,13 @@ onMounted(async () => {
   });
 });
 
+onUnmounted(() => {
+  eventBus.$off('campaign-selected');
+});
+
 async function init() {
+  if (!selectedCampaignId.value) return;
+
   loading.value = true;
   try {
     const response = await getCurrentCampaignCharacters();
