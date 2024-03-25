@@ -41,8 +41,8 @@ async function handleCreateCampaign() {
       ...campaign.value,
       name: campaign.value.name.length ? campaign.value.name : 'New Campaign',
     });
-    await campaignStore.loadCampaigns();
     await campaignStore.selectCampaign(createCampaignResponse.data.id);
+    await campaignStore.getCampaigns();
 
     eventBus.$emit(CAMPAIGN_CREATED_EVENT, undefined);
 

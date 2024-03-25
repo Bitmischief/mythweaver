@@ -9,7 +9,9 @@ import { PlusIcon } from '@heroicons/vue/20/solid';
 import { UserGroupIcon } from '@heroicons/vue/24/outline';
 import { showSuccess } from '@/lib/notifications.ts';
 import { useRouter } from 'vue-router';
+import { useSelectedCampaignId } from '@/lib/hooks.ts';
 
+const selectedCampaignId = useSelectedCampaignId();
 const eventBus = useEventBus();
 const campaignStore = useCampaignStore();
 const router = useRouter();
@@ -29,6 +31,10 @@ const loadMore = ref(false);
 const currentUserRole = computed(() => campaignStore.selectedCampaignRole);
 
 onMounted(async () => {
+  if (!selectedCampaignId.value) {
+    await router.push('/campaigns/new');
+  }
+
   await init();
 
   eventBus.$on('campaign-selected', async () => {

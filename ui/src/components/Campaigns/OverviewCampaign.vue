@@ -68,12 +68,14 @@ onMounted(async () => {
 });
 
 async function init() {
-  const getCampaignResponse = await getCampaign(selectedCampaignId.value || 0);
-  campaign.value = getCampaignResponse.data;
-  sessions.value = [];
+  if (selectedCampaignId.value) {
+    const getCampaignResponse = await getCampaign(selectedCampaignId.value);
+    campaign.value = getCampaignResponse.data;
+    sessions.value = [];
 
-  await loadSessions();
-  await loadCharacters();
+    await loadSessions();
+    await loadCharacters();
+  }
 }
 
 async function loadSessions() {
