@@ -22,9 +22,10 @@ const plan = computed(() => props.planOverride || user.value?.plan);
       'bg-slate-500': plan === BillingPlan.Free,
       'bg-gradient-to-r from-fuchsia-500 to-violet-500':
         plan === BillingPlan.Basic,
-      'bg-gradient-to-r from-[#E95252] to-[#E5AD59]': plan === BillingPlan.Pro,
+      'bg-gradient-to-r from-[#E95252] to-[#E5AD59]':
+        plan === BillingPlan.Pro || plan === BillingPlan.Trial,
     }"
   >
-    {{ user.earlyAccessExempt ? 'EA' : !plan ? 'FREE' : plan }}
+    {{ user.earlyAccessExempt ? 'EA' : plan }}
   </div>
 </template>

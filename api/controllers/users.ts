@@ -59,7 +59,7 @@ export default class UserController {
     track(AppEvent.GetLoggedInUser, userId, trackingInfo);
 
     // await setIntercomCustomAttributes(user.id, {
-    //   'Trial End Date': user.earlyAccessCutoffAt,
+    //   'Trial End Date': user.trialEndsAt,
     // });
 
     return user;

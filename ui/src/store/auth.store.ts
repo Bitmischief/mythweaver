@@ -33,14 +33,21 @@ export const useAuthStore = defineStore({
         const userResponse = await getCurrentUser();
         this.user = userResponse.data;
 
-        console.log(this.user?.plan);
+        if (!this.user) {
+          showError({ message: 'Unable to load user, please try again soon.' });
+          return;
+        }
+
+        if (!this.user.plan) {
+          this.user.plan = BillingPlan.Free;
+        }
 
         if (
           this.user &&
           this.user.plan === BillingPlan.Free &&
           !this.user.earlyAccessExempt &&
-          this.user.earlyAccessCutoffAt &&
-          Date.parse(this.user?.earlyAccessCutoffAt) < Date.now()
+          this.user.trialEndsAt &&
+          Date.parse(this.user?.trialEndsAt) < Date.now()
         ) {
           console.log('push to early access');
           await router.push('/auth/earlyaccess');

@@ -550,7 +550,7 @@ export default class SessionController {
       });
     }
 
-    if (user.plan !== BillingPlan.PRO) {
+    if (user.plan !== BillingPlan.PRO && user.plan !== BillingPlan.TRIAL) {
       throw new AppError({
         description:
           'You must have a Pro subscription to perform a transcription for this session.',

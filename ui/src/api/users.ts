@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 export enum BillingPlan {
+  Trial = 'TRIAL',
   Free = 'FREE',
   Basic = 'BASIC',
   Pro = 'PRO',
@@ -11,7 +12,7 @@ export interface User {
   email: string;
   username: string;
   createdAt: string;
-  earlyAccessCutoffAt: string;
+  trialEndsAt: string;
   earlyAccessExempt: boolean;
   plan: BillingPlan;
   subscriptionPaidThrough: string;

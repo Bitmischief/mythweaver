@@ -5,6 +5,7 @@ import { completeSession } from './jobs/completeSession';
 import { ImageStylePreset } from '../controllers/images';
 import { sendWebsocketMessage, WebSocketEvent } from '../services/websockets';
 import logger from '../lib/logger';
+import { endTrials } from './jobs/endTrials';
 
 const config = process.env.REDIS_ENDPOINT || '';
 
@@ -93,5 +94,22 @@ completeSessionQueue.process(async (job, done) => {
   } catch (err) {
     logger.error('Error processing conjure job!', err);
     done(new Error('Error processing conjure job!'));
+  }
+});
+
+export interface EndTrialEvent {}
+
+export const endTrialQueue = new Queue<EndTrialEvent>('end-trial', config);
+
+endTrialQueue.process(async (job, done) => {
+  logger.info('Processing end trial job');
+
+  try {
+    await endTrials();
+    logger.info('Completed processing end trials job');
+    done();
+  } catch (err) {
+    logger.error('Error processing end trials job!', err);
+    done(new Error('Error processing end trials job!'));
   }
 });

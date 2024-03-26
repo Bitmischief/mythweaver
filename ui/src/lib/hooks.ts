@@ -28,7 +28,7 @@ export function useQuickConjure() {
 
 export function useEarlyAccessCutoff() {
   const store = useAuthStore();
-  return computed(() => store.user?.earlyAccessCutoffAt);
+  return computed(() => store.user?.trialEndsAt);
 }
 
 export function useSubscriptionPaidThrough() {
