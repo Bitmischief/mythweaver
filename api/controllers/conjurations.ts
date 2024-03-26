@@ -294,6 +294,7 @@ export default class ConjurationController {
 
     if (
       user.plan === BillingPlan.FREE &&
+      conjuration.visibility === ConjurationVisibility.PUBLIC &&
       request.visibility === ConjurationVisibility.PRIVATE
     ) {
       throw new AppError({
