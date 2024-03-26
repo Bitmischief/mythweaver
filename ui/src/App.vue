@@ -17,6 +17,7 @@ import { ConjurationRelationshipType } from '@/lib/enums.ts';
 import CreateRelationship from '@/components/Relationships/CreateRelationship.vue';
 import { useLDClient, useLDReady } from 'launchdarkly-vue-client-sdk';
 import UpgradeContainer from '@/components/Core/Billing/UpgradeContainer.vue';
+import mixpanel from 'mixpanel-browser';
 
 const ldReady = useLDReady();
 const authStore = useAuthStore();
@@ -50,6 +51,9 @@ onMounted(async () => {
           plan: user.plan,
         },
       });
+
+      mixpanel.init(import.meta.env.VITE_MIXPANEL_TOKEN as string);
+      mixpanel.identify(user.id.toString());
     }
   });
 
