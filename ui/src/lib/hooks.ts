@@ -83,3 +83,27 @@ export function showUpgradeModal(request: UpgradeRequest) {
   const eventBus = useEventBus();
   eventBus.$emit('request-upgrade', request);
 }
+
+export function useHasValidPlan() {
+  return (requiredPlan: BillingPlan) => {
+    const userPlan = useCurrentUserPlan();
+
+    if (requiredPlan === BillingPlan.Free) {
+      return true;
+    }
+
+    if (requiredPlan === BillingPlan.Basic) {
+      return (
+        userPlan.value === BillingPlan.Basic ||
+        userPlan.value === BillingPlan.Pro ||
+        userPlan.value === BillingPlan.Trial
+      );
+    }
+
+    if (requiredPlan === BillingPlan.Pro) {
+      return userPlan.value === BillingPlan.Pro || userPlan.value === BillingPlan.Trial;
+    }
+
+    return true;
+  };
+}
