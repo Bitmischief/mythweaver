@@ -1,0 +1,36 @@
+name: Deploy Production UI
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+*'
+    paths:
+      - "ui/**"
+      - ".github/workflows/ui_deployment.yml"
+      - ".docker/**"
+      - ".k8s/**"
+
+jobs:
+  production:
+    uses: ./.github/workflows/ui_deployment.yml
+    with:
+      environmentName: production
+      environmentUrl: "https://app.mythweaver.co"
+    secrets: inherit
+
+  sentry-release:
+    needs: [production]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@main
+
+      - name: Create Sentry release
+        uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: "mythweaver-ui"
+        with:
+          environment: production
+          version: ${{ github.ref_name }}

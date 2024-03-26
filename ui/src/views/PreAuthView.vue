@@ -29,7 +29,8 @@
         </div>
 
         <div class="text-neutral-400 mt-4 px-2 text-sm text-center">
-          This link will expire in one hour. Ensure to check promotions/spam.
+          This link will expire in one hour. Make sure you check
+          promotions/spam.
         </div>
 
         <div class="flex justify-center">

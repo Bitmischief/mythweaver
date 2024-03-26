@@ -67,8 +67,8 @@ async function saveChanges() {
 <template>
   <div v-if="user" class="flex flex-col">
     <div class="text-lg text-neutral-200">Settings</div>
-    <div class="py-4 flex">
-      <div class="min-w-[14em]">
+    <div class="py-4 flex flex-wrap md:flex-nowrap">
+      <div class="min-w-[14em] grow mb-4 md:mb-0">
         <div class="rounded-[12px] bg-surface-2 border-surface-3 border p-2">
           <div
             class="text-sm flex mb-2 py-1 px-2 rounded-[8px]"
@@ -96,7 +96,7 @@ async function saveChanges() {
           </div>
         </div>
       </div>
-      <div class="mx-8 text-neutral-200 grow">
+      <div class="md:mx-8 text-neutral-200 grow">
         <div v-if="tab === 'profile'">
           <div class="text-lg mb-2">Profile Settings</div>
           <FormKit :actions="false" type="form" @submit="saveChanges">
@@ -144,7 +144,7 @@ async function saveChanges() {
               billed according to your billing cycle. You have the flexibility
               to modify or update any subscription at your convenience.
             </div>
-            <div class="flex">
+            <div class="flex flex-wrap lg:flex-nowrap">
               <div
                 class="bg-surface border border-surface-3 rounded-[12px] grow m-2 p-4 w-full md:w-[50%]"
               >

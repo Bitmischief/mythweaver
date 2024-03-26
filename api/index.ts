@@ -22,13 +22,14 @@ import { v4 as uuidv4 } from 'uuid';
 import { isLocalDevelopment, isProduction } from './lib/utils';
 import * as Sentry from '@sentry/node';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
+import { endTrialQueue } from './worker';
 
 const PORT = process.env.PORT || 8000;
 
 const app: Application = express();
 
 Sentry.init({
-  dsn: 'https://2e572c0e8b1029c3b07604cdf2673613@o4506917421318144.ingest.us.sentry.io/4506917528993792',
+  dsn: process.env.SENTRY_DSN,
   integrations: [
     // enable HTTP calls tracing
     new Sentry.Integrations.Http({ tracing: true }),
@@ -41,10 +42,18 @@ Sentry.init({
     : isLocalDevelopment
       ? 'local'
       : 'development',
+  release: process.env.VERSION,
   // Performance Monitoring
   tracesSampleRate: isProduction ? 0.1 : 1.0, //  Capture 100% of the transactions
   // Set sampling rate for profiling - this is relative to tracesSampleRate
   profilesSampleRate: 1.0,
+  beforeSend(event) {
+    if (isLocalDevelopment) {
+      return null;
+    }
+
+    return event;
+  },
 });
 
 // The request handler must be the first middleware on the app
@@ -132,6 +141,9 @@ app.use(errorHandlerMiddleware);
 
 app.listen(PORT, async () => {
   logger.info(`Server is running on port ${PORT}`);
+
+  await endTrialQueue.add({}, { repeat: { cron: '* * * * *' } });
+  logger.info('End trial job scheduled');
 });
 
 process.on('unhandledRejection', (reason: Error | any) => {

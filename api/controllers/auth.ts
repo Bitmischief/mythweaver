@@ -76,7 +76,7 @@ export default class AuthController {
 
     if (new Date() > new Date(magicLink.expiresAt)) {
       throw new AppError({
-        httpCode: HttpCode.UNAUTHORIZED,
+        httpCode: HttpCode.BAD_REQUEST,
         description: 'Magic link has expired',
       });
     }
@@ -108,15 +108,15 @@ export default class AuthController {
     });
 
     if (!user) {
-      const earlyAccessEnd = new Date();
-      earlyAccessEnd.setHours(new Date().getHours() + 24 * 7);
+      const trialEnd = new Date();
+      trialEnd.setHours(new Date().getHours() + 24 * 7);
 
       const stripeCustomerId = await createCustomer(email);
 
       user = await prisma.user.create({
         data: {
           email: email.toLowerCase(),
-          earlyAccessCutoffAt: earlyAccessEnd,
+          trialEndsAt: trialEnd,
           billingCustomerId: stripeCustomerId,
           imageCredits: 25,
           username: await buildUniqueUsername(email.toLowerCase()),
@@ -217,11 +217,11 @@ export default class AuthController {
       },
     });
 
-    if (
-      !user ||
-      (new Date() > user.earlyAccessCutoffAt && !user.earlyAccessExempt)
-    ) {
-      logger.info(`User ${userId} early access has expired`, user);
+    if (!user) {
+      throw new AppError({
+        httpCode: HttpCode.UNAUTHORIZED,
+        description: 'User not found',
+      });
     }
 
     const dbToken = await prisma.refreshToken.findUnique({
@@ -283,7 +283,7 @@ export default class AuthController {
       user = await prisma.user.create({
         data: {
           email: email,
-          earlyAccessCutoffAt: earlyAccessEnd,
+          trialEndsAt: earlyAccessEnd,
           billingCustomerId: stripeCustomerId,
           imageCredits: 25,
           username: await buildUniqueUsername(email.toLowerCase()),

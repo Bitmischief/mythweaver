@@ -19,6 +19,7 @@ interface PostImageRequest {
   negativePrompt?: string;
   stylePreset?: ImageStylePreset;
   count?: number;
+  seed?: string;
 }
 
 interface PatchImageConjurationIdRequest {
@@ -77,6 +78,7 @@ export default class ImageController {
       count,
       negativePrompt: request.negativePrompt,
       stylePreset: request.stylePreset,
+      seed: request.seed,
     });
   }
 

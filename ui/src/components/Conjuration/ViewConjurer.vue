@@ -29,7 +29,6 @@ const conjuration = computed(() => {
   return {
     ...createdConjuration.value,
     saved: true,
-    published: true,
   };
 });
 const conjurationId = computed(() => conjuration.value?.id);

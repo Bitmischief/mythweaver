@@ -3,6 +3,7 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import {
   Conjuration,
   copyConjuration,
+  deleteConjuration,
   getConjuration,
   removeConjuration,
   saveConjuration,
@@ -31,6 +32,7 @@ import { ConjurationRelationshipType } from '@/lib/enums.ts';
 import { CampaignRole } from '@/api/campaigns.ts';
 import ViewRelationships from '@/components/Relationships/ViewRelationships.vue';
 import { useLDFlag } from 'launchdarkly-vue-client-sdk';
+import { AxiosError } from 'axios';
 
 const showRelationships = useLDFlag('relationships', false);
 
@@ -47,7 +49,7 @@ const conjurationId = computed(() =>
   parseInt(route.params.conjurationId?.toString()),
 );
 
-const editable = computed(
+const isMyConjuration = computed(
   () => conjuration.value?.userId === currentUserId.value,
 );
 
@@ -102,10 +104,28 @@ async function handleSaveConjuration() {
 }
 
 async function handleRemoveConjuration() {
-  if (confirm('Are you sure you want to delete this conjuration?')) {
+  if (confirm('Are you sure you want to remove this conjuration?')) {
     await removeConjuration(conjurationId.value);
     showSuccess({ message: 'Successfully removed conjuration!' });
-    await router.push('/conjurations');
+    location.reload();
+  }
+}
+
+async function handleDeleteConjuration() {
+  if (
+    confirm('Are you sure you want to permanently delete this conjuration?')
+  ) {
+    try {
+      await deleteConjuration(conjurationId.value);
+      showSuccess({ message: 'Successfully deleted conjuration!' });
+      await router.push('/conjurations');
+    } catch (e) {
+      const err = e as AxiosError;
+      showError({
+        message: (err?.response?.data as any)?.message?.toString() || '',
+      });
+      return;
+    }
   }
 }
 
@@ -162,16 +182,16 @@ async function handleCreateRelationship(type: ConjurationRelationshipType) {
 
 <template>
   <template v-if="conjuration">
-    <div class="flex justify-between mb-6">
-      <div class="flex grow">
-        <button class="button-primary flex" @click="routeBack">
+    <div class="flex flex-wrap lg:flex-nowrap gap-4 justify-between mb-6">
+      <div class="flex flex-wrap gap-4 lg:flex-nowrap grow">
+        <button class="button-primary flex self-center" @click="routeBack">
           <ArrowLeftIcon class="mr-2 h-4 w-4 self-center" />
           <span class="self-center">Back</span>
         </button>
 
         <div
-          v-if="conjuration.saved && !editable"
-          class="bg-amber-300/10 rounded-[12px] flex px-4 mx-4"
+          v-if="conjuration.saved && !isMyConjuration"
+          class="bg-amber-300/10 rounded-[12px] flex py-2 px-4"
         >
           <div class="self-center text-amber-300/75 my-auto">
             This conjuration has not been saved yet.
@@ -180,7 +200,7 @@ async function handleCreateRelationship(type: ConjurationRelationshipType) {
 
         <div
           v-if="!conjuration.saved"
-          class="bg-amber-300/10 rounded-[12px] flex px-4 mx-4"
+          class="bg-amber-300/10 rounded-[12px] flex py-2 px-4"
         >
           <div class="self-center text-amber-300/75 my-auto">
             This conjuration has not been added to your conjurations yet.
@@ -188,25 +208,27 @@ async function handleCreateRelationship(type: ConjurationRelationshipType) {
         </div>
       </div>
 
-      <div class="flex mt-2 mt-0">
+      <div
+        class="flex flex-wrap xl:flex-nowrap whitespace-nowrap gap-2 mt-0 justify-end grow"
+      >
         <button
           v-if="conjuration.prompt"
-          class="button-ghost flex"
+          class="button-ghost flex self-center"
           @click="conjureUsingPrompt"
         >
           Conjure With Same Prompt
         </button>
         <button
           v-if="isQuickConjure"
-          class="button-gradient flex ml-2"
+          class="button-gradient flex self-center"
           @click="quickConjure(conjuration.conjurerCode)"
         >
           <ArrowPathIcon class="mr-2 h-5 w-5 self-center" /> Retry Quick Conjure
         </button>
 
         <button
-          v-if="editable"
-          class="button-ghost flex ml-2"
+          v-if="isMyConjuration"
+          class="button-ghost flex self-center"
           @click="
             eventBus.$emit('save-conjuration', {
               conjurationId: conjuration.id,
@@ -217,8 +239,8 @@ async function handleCreateRelationship(type: ConjurationRelationshipType) {
         </button>
 
         <button
-          v-if="conjuration.saved && !editable"
-          class="button-ghost flex"
+          v-if="conjuration.saved && !isMyConjuration"
+          class="button-ghost flex self-center"
           @click="handleCopyConjuration"
         >
           <DocumentDuplicateIcon class="h-5 w-5 mr-2" />
@@ -226,7 +248,7 @@ async function handleCreateRelationship(type: ConjurationRelationshipType) {
         </button>
         <button
           v-if="!conjuration.saved"
-          class="button-ghost flex ml-2"
+          class="button-ghost flex self-center"
           @click="handleSaveConjuration"
         >
           <BookmarkSquareIcon class="mr-2 h-5 w-5 self-center" />
@@ -234,7 +256,7 @@ async function handleCreateRelationship(type: ConjurationRelationshipType) {
         </button>
 
         <Menu v-if="conjuration.saved" class="self-center">
-          <MenuButton class="button-ghost-primary ml-2">
+          <MenuButton class="button-ghost-primary">
             <EllipsisHorizontalIcon class="h-6 w-6 text-neutral-300" />
           </MenuButton>
 
@@ -270,6 +292,14 @@ async function handleCreateRelationship(type: ConjurationRelationshipType) {
                 <button
                   class="button-primary flex"
                   @click="handleRemoveConjuration"
+                >
+                  Remove From My Conjurations
+                </button>
+              </MenuItem>
+              <MenuItem v-if="isMyConjuration" class="menu-item">
+                <button
+                  class="button-primary flex"
+                  @click="handleDeleteConjuration"
                 >
                   Delete Conjuration
                 </button>

@@ -17,6 +17,7 @@ import ModalAlternate from '@/components/ModalAlternate.vue';
 import QuickViewConjuration from '@/components/Conjuration/QuickViewConjuration.vue';
 import { toPascalCase } from '@/lib/util.ts';
 import { useEventBus } from '@/lib/events.ts';
+import QuickViewSession from '@/components/Sessions/QuickViewSession.vue';
 
 const eventBus = useEventBus();
 const props = defineProps<{
@@ -151,7 +152,7 @@ function getBadge(relationship: any) {
   </div>
   <div
     v-if="relationships.length"
-    class="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5"
+    class="grid gap-4 grid-cols-2 md:grid-cols-4 lg:grid-cols-5"
   >
     <div
       v-for="relationship in relationships"
@@ -169,9 +170,9 @@ function getBadge(relationship: any) {
         >
           {{ getBadge(relationship) }}
         </div>
-        <div class="absolute bottom-2 right-2 left-2">
+        <div class="absolute bottom-2 right-0 left-0">
           <div class="flex justify-between">
-            <div class="relative flex group cursor-pointer mx-2">
+            <div class="relative flex group cursor-pointer sm:mx-2">
               <TrashIcon
                 class="h-8 w-8"
                 @click="removeRelationship(relationship)"
@@ -182,7 +183,7 @@ function getBadge(relationship: any) {
                 Remove Relationship
               </div>
             </div>
-            <div class="relative flex group cursor-pointer mx-2">
+            <div class="relative flex group cursor-pointer sm:mx-2">
               <ArrowTopRightOnSquareIcon
                 class="h-8 w-8"
                 @click="viewNode(relationship)"
@@ -193,7 +194,7 @@ function getBadge(relationship: any) {
                 Open for viewing
               </div>
             </div>
-            <div class="relative flex group cursor-pointer mx-2">
+            <div class="relative flex group cursor-pointer sm:mx-2">
               <ArrowDownOnSquareStackIcon
                 class="h-8 w-8"
                 @click="clickNode(relationship)"
@@ -231,6 +232,14 @@ function getBadge(relationship: any) {
           ConjurationRelationshipType.CONJURATION
         "
         :conjuration="currentlyViewingRelationship.entitydata"
+        @close="showViewModal = false"
+      />
+      <QuickViewSession
+        v-if="
+          currentlyViewingRelationship.nextType ===
+          ConjurationRelationshipType.SESSION
+        "
+        :session="currentlyViewingRelationship.entitydata"
         @close="showViewModal = false"
       />
     </div>

@@ -17,14 +17,14 @@ metadata:
   labels:
     app: mythweaver-api
 spec:
-  replicas: 1
+  replicas: <MIN_REPLICAS>
   selector:
     matchLabels:
       app: mythweaver-api
   strategy:
     rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 1
+      maxSurge: 2
+      maxUnavailable: 0
   minReadySeconds: 10
   template:
     metadata:
@@ -114,6 +114,10 @@ spec:
               value: <STRIPE_IMAGE_PACK_100_PRODUCT_ID>
             - name: DISCORD_BILLING_WEBHOOK
               value: <DISCORD_BILLING_WEBHOOK>
+            - name: SENTRY_DSN
+              value: <SENTRY_DSN>
+            - name: VERSION
+              value: <VERSION>
           readinessProbe:
             httpGet:
               path: /docs

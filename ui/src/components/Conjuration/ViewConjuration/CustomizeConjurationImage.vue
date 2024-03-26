@@ -14,6 +14,9 @@ import { ServerEvent } from '@/lib/serverEvents.ts';
 import Select from '@/components/Core/Forms/Select.vue';
 import Loader from '@/components/Core/Loader.vue';
 import { AxiosError } from 'axios';
+import { useLDFlag } from 'launchdarkly-vue-client-sdk';
+
+const showSeed = useLDFlag('image-seed', false);
 
 const props = withDefaults(
   defineProps<{
@@ -24,6 +27,7 @@ const props = withDefaults(
     noActions?: boolean;
     cancelButtonTextOverride?: string;
     inModal?: boolean;
+    seed?: string;
   }>(),
   {
     prompt: '',
@@ -31,6 +35,7 @@ const props = withDefaults(
     imageUri: undefined,
     stylePreset: 'fantasy-art',
     cancelButtonTextOverride: undefined,
+    seed: undefined,
   },
 );
 
@@ -59,6 +64,7 @@ const imagePromptRephrased = ref(false);
 const rephrasedPrompt = ref('');
 const loading = ref(false);
 const count = ref(1);
+const useSeed = ref(false);
 
 const promptOptions = ref(['Image Count', 'Image Style', 'Negative Prompt']);
 const promptOptionsTab = ref(promptOptions.value[0]);
@@ -120,6 +126,7 @@ async function conjure() {
       editableNegativePrompt.value || '',
       editableStylePreset.value || 'fantasy-art',
       count.value || 1,
+      useSeed.value ? props.seed : undefined,
     );
 
     eventBus.$emit('conjure-image-done', {});
@@ -150,6 +157,7 @@ function setImage() {
     prompt: editablePrompt.value,
     negativePrompt: editableNegativePrompt.value,
     stylePreset: editableStylePreset.value,
+    seed: selectedImg.value.seed,
   });
 
   if (props.inModal) {
@@ -174,17 +182,17 @@ function setImage() {
       portrait
     </div>
 
-    <div
-      class="bg-gradient-to-r from-fuchsia-500 to-violet-500 p-px rounded-[20px] purple-shadow min-w-[90vw] md:min-w-[60vw] max-h-[80vh]"
-    >
-      <div class="p-3 rounded-[20px] bg-surface-2 min-h-[12em]">
-        <FormKit :actions="false" type="form" @submit="conjure">
+    <FormKit :actions="false" type="form" @submit="conjure">
+      <div
+        class="bg-gradient-to-r from-fuchsia-500 to-violet-500 p-px rounded-[20px] purple-shadow min-w-[90vw] md:min-w-[60vw] max-h-[80vh]"
+      >
+        <div class="p-3 rounded-[20px] bg-surface-2 min-h-[12em]">
           <div class="relative pb-1">
             <FormKit
               v-model="editablePrompt"
               :placeholder="`Enter Description`"
               inner-class="border-none"
-              input-class="$reset input-secondary border-none focus:ring-fuchsia-500 pr-[8em]"
+              input-class="$reset input-secondary border-none focus:ring-fuchsia-500 md:pr-[8em]"
               help-class="px-1"
               name="prompt"
               type="textarea"
@@ -192,7 +200,7 @@ function setImage() {
               auto-height
               validation-visibility="live"
             />
-            <div class="absolute top-1 right-1">
+            <div class="hidden md:block absolute top-1 right-1">
               <button
                 class="flex button-gradient py-2 px-3 disabled:opacity-75"
                 type="submit"
@@ -209,8 +217,30 @@ function setImage() {
               {{ editablePrompt?.length }} / 1000
             </div>
           </div>
-
-          <div class="flex mt-4 mb-2 justify-center">
+          <div class="flex px-2 relative">
+            <div class="group">
+              <FormKit
+                v-if="showSeed && seed"
+                v-model="useSeed"
+                type="checkbox"
+                label="Use same image seed"
+                wrapper-class="cursor-pointer"
+              />
+              <div
+                class="absolute text-left px-2 py-2 bottom-[calc(100%+10px)] left-0 bg-surface-3 rounded-[12px] z-30 invisible group-hover:visible"
+              >
+                <div>
+                  Checking this will allow you to make alterations to your
+                  prompt while keeping the overall image the same.
+                </div>
+                <div>
+                  Leave this unchecked if you want to create a new image not
+                  inspired by the original.
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="flex mb-2 justify-center">
             <div
               class="flex gap-1 text-neutral-500 rounded-[10px] bg-surface-2 p-1 border border-surface-3 text-sm grow"
             >
@@ -279,9 +309,16 @@ function setImage() {
               {{ editableNegativePrompt?.length }} / 500
             </div>
           </div>
-        </FormKit>
+        </div>
+        <button
+          class="md:hidden flex button-gradient py-4 px-3 disabled:opacity-75 w-full justify-center rounded-[20px]"
+          type="submit"
+        >
+          <img src="@/assets/icons/wand.svg" alt="wand" class="h-4 mr-1" />
+          Conjure
+        </button>
       </div>
-    </div>
+    </FormKit>
     <button
       class="px-4 rounded-full absolute right-0 top-0 p-4"
       @click="emit('cancel')"
@@ -305,7 +342,7 @@ function setImage() {
     >
       <XCircleIcon class="w-6 self-center" />
     </button>
-    <div class="">
+    <div class="mx-4 md:mx-0">
       <div v-if="!noActions" class="mt-6 flex justify-end py-2">
         <button
           class="button-primary mr-2 flex"
@@ -347,7 +384,7 @@ function setImage() {
       </div>
     </div>
 
-    <div class="flex gap-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 p-2 gap-4 md:gap-8">
       <div v-if="imageUri" class="relative">
         <div
           class="absolute flex bottom-2 right-2 cursor-pointer bg-white/50 rounded-[8px]"

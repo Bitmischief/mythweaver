@@ -5,17 +5,30 @@ import { PencilSquareIcon, ArrowPathIcon } from '@heroicons/vue/24/outline';
 import { useEventBus } from '@/lib/events.ts';
 import { onMounted, onUnmounted } from 'vue';
 
-const props = defineProps<{
-  imageUri: string | undefined;
-  prompt?: string;
-  negativePrompt?: string;
-  stylePreset?: string;
-  editable?: boolean;
-  alt?: string;
-  imageConjurationFailed?: boolean;
-  imageConjurationFailureReason?: string;
-  type: string;
-}>();
+const props = withDefaults(
+  defineProps<{
+    imageUri: string | undefined;
+    prompt?: string;
+    negativePrompt?: string;
+    stylePreset?: string;
+    editable?: boolean;
+    alt?: string;
+    imageConjurationFailed?: boolean;
+    imageConjurationFailureReason?: string;
+    type: string;
+    seed: string;
+  }>(),
+  {
+    imageUri: undefined,
+    prompt: undefined,
+    negativePrompt: undefined,
+    stylePreset: 'fantasy-art',
+    alt: undefined,
+    imageConjurationFailureReason: undefined,
+    type: undefined,
+    seed: undefined,
+  },
+);
 
 const emit = defineEmits(['set-image']);
 
@@ -24,7 +37,13 @@ const eventBus = useEventBus();
 onMounted(() => {
   eventBus.$on(
     'updated-conjuration-image',
-    (payload: { imageUri: string; prompt: string }) => {
+    (payload: {
+      imageUri: string;
+      prompt: string;
+      negativePrompt: string;
+      stylePreset: string;
+      seed: string;
+    }) => {
       emit('set-image', payload);
     },
   );
@@ -41,6 +60,7 @@ function showCustomizeImageModal() {
     stylePreset: props.stylePreset,
     imageUri: props.imageUri,
     alt: props.alt,
+    seed: props.seed,
   });
 }
 

@@ -16,6 +16,7 @@ import {
   Conjuration,
   ConjurationRelationshipType,
   ConjurationVisibility,
+  BillingPlan,
 } from '@prisma/client';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
@@ -87,7 +88,6 @@ export default class ConjurationController {
               in: conjurerCodes,
             }
           : undefined,
-        published: history ? undefined : true,
         userId: history ? userId : undefined,
         visibility: saved || history ? undefined : ConjurationVisibility.PUBLIC,
         images: stylePreset
@@ -226,7 +226,7 @@ export default class ConjurationController {
     }
 
     if (
-      !existingConjuration.published &&
+      existingConjuration.visibility === ConjurationVisibility.PRIVATE &&
       existingConjuration.userId !== userId
     ) {
       throw new AppError({
@@ -236,15 +236,6 @@ export default class ConjurationController {
     }
 
     track(AppEvent.SaveConjuration, userId, trackingInfo);
-
-    await prisma.conjuration.update({
-      where: {
-        id: conjurationId,
-      },
-      data: {
-        published: true,
-      },
-    });
 
     await prisma.conjurationSave.upsert({
       where: {
@@ -284,6 +275,30 @@ export default class ConjurationController {
     if (conjuration.userId === null || conjuration.userId !== userId) {
       throw new AppError({
         description: 'You do not have access to modify this conjuration.',
+        httpCode: HttpCode.FORBIDDEN,
+      });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user) {
+      throw new AppError({
+        description: 'User not found.',
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    if (
+      user.plan === BillingPlan.FREE &&
+      request.visibility === ConjurationVisibility.PRIVATE
+    ) {
+      throw new AppError({
+        description:
+          'You cannot make this conjuration private. You must subscribe to our basic or pro plan!',
         httpCode: HttpCode.FORBIDDEN,
       });
     }
@@ -330,13 +345,51 @@ export default class ConjurationController {
       });
     }
 
-    track(AppEvent.DeleteConjuration, userId, trackingInfo);
+    const saves = await prisma.conjurationSave.findMany({
+      where: {
+        conjurationId,
+      },
+    });
+
+    const userSave = saves.find((s) => s.userId === userId);
+    const otherSaves = saves.filter((s) => s.userId !== userId);
+
+    if (otherSaves.length > 0) {
+      throw new AppError({
+        description:
+          'You cannot delete this conjuration! It has been saved by other users.',
+        httpCode: HttpCode.FORBIDDEN,
+      });
+    }
+
+    if (userSave) {
+      await prisma.conjurationSave.delete({
+        where: {
+          id: userSave.id,
+        },
+      });
+    }
+
+    await prisma.conjurationRelationships.deleteMany({
+      where: {
+        OR: [
+          {
+            nextNodeId: conjurationId,
+          },
+          {
+            previousNodeId: conjurationId,
+          },
+        ],
+      },
+    });
 
     await prisma.conjuration.delete({
       where: {
         id: conjurationId,
       },
     });
+
+    track(AppEvent.DeleteConjuration, userId, trackingInfo);
 
     return true;
   }

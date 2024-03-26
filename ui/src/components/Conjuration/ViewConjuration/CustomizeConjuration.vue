@@ -30,6 +30,7 @@ const showCustomizeImageModal = ref(false);
 const tagInput = ref<HTMLElement | null>(null);
 const negativePrompt = ref('');
 const stylePreset = ref('');
+const seed = ref('');
 
 const editable = computed(
   () => props.conjuration?.userId === currentUserId.value,
@@ -68,6 +69,7 @@ onMounted(() => {
       prompt: string;
       negativePrompt: string;
       stylePreset: string;
+      seed: string;
     }) => {
       showCustomizeImageModal.value = false;
 
@@ -76,6 +78,7 @@ onMounted(() => {
         editableConjuration.value.imageAIPrompt = payload.prompt;
         negativePrompt.value = payload.negativePrompt;
         stylePreset.value = payload.stylePreset;
+        seed.value = payload.seed;
 
         await patchImageConjurationId(
           payload.imageId,
@@ -92,6 +95,7 @@ onMounted(() => {
       editableConjuration.value.imageAIPrompt = data.prompt;
       negativePrompt.value = data.negativePrompt;
       stylePreset.value = data.stylePreset;
+      seed.value = data.seed;
       eventBus.$emit('set-image', data);
     }
   });
@@ -199,6 +203,7 @@ const setPromptSettings = () => {
     );
     negativePrompt.value = image.negativePrompt;
     stylePreset.value = image.stylePreset;
+    seed.value = image.seed;
   }
 };
 </script>
@@ -216,6 +221,7 @@ const setPromptSettings = () => {
           :image-conjuration-failed="imageConjurationFailed"
           :image-conjuration-failure-reason="imageConjurationFailureReason"
           :type="conjurationType"
+          :seed="seed"
         />
 
         <div class="mt-4 font-bold text-center">
@@ -237,7 +243,8 @@ const setPromptSettings = () => {
               },
               {
                 code: 'PRIVATE',
-                name: 'Private',
+                name: 'Private (available with Basic or Pro subscription)',
+                disabled: true,
               },
             ]"
             value-prop="code"

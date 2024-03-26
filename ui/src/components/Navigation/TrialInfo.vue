@@ -35,11 +35,6 @@ const earlyAccessEnds = () => {
     const cutoff = new Date(earlyAccessCutoff.value);
     const now = new Date();
 
-    if (cutoff < now) {
-      router.push('/auth/earlyaccess');
-      return 'Trial has ended';
-    }
-
     return earlyAccessCutoff.value
       ? `Trial ends in ${formatDistance(now, cutoff)}`
       : '';

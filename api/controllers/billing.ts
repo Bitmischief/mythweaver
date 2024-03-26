@@ -1,10 +1,20 @@
-import { Body, Get, Inject, Post, Route, SuccessResponse, Tags } from 'tsoa';
+import {
+  Body,
+  Get,
+  Inject,
+  Post,
+  Queries,
+  Route,
+  SuccessResponse,
+  Tags,
+} from 'tsoa';
 import { prisma } from '../lib/providers/prisma';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import {
   createCustomer,
   getBillingPortalUrl,
+  GetBillingPortalUrlRequest,
   getCheckoutUrl,
   getImageCreditCountForProductId,
   getPlanForProductId,
@@ -79,6 +89,7 @@ export default class BillingController {
   public async getPortalUrl(
     @Inject() userId: number,
     @Inject() logger: MythWeaverLogger,
+    @Queries() request: GetBillingPortalUrlRequest,
   ): Promise<string> {
     const user = await prisma.user.findUnique({
       where: {
@@ -95,7 +106,14 @@ export default class BillingController {
       });
     }
 
-    return await getBillingPortalUrl(user.billingCustomerId || '');
+    if (!user.billingCustomerId) {
+      throw new AppError({
+        description: 'User does not have a billing customer id',
+        httpCode: HttpCode.BAD_REQUEST,
+      });
+    }
+
+    return await getBillingPortalUrl(user.billingCustomerId, request);
   }
 
   public async processWebhook(event: Stripe.Event, logger: MythWeaverLogger) {

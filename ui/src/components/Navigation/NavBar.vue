@@ -4,10 +4,11 @@ import { onMounted, onUnmounted, ref } from 'vue';
 import { Dialog, DialogPanel } from '@headlessui/vue';
 import { useAuthStore } from '@/store';
 import NavbarContent from '@/components/Navigation/NavbarContent.vue';
-import EarlyAccessInfo from '@/components/Navigation/EarlyAccessInfo.vue';
+import TrialInfo from '@/components/Navigation/TrialInfo.vue';
 import { useIntercom } from '@homebaseai/vue3-intercom';
 import ImageCreditCount from '../Core/ImageCreditCount.vue';
 import PlanBadge from '@/components/Core/PlanBadge.vue';
+import { Cog6ToothIcon } from '@heroicons/vue/24/outline';
 
 const authStore = useAuthStore();
 const showPanel = ref(false);
@@ -68,7 +69,7 @@ const intercom = useIntercom();
           </div>
         </div>
 
-        <EarlyAccessInfo class="self-center md:hidden mt-2" />
+        <TrialInfo class="self-center md:hidden mt-2" />
 
         <div class="hidden w-full h-full md:flex md:flex-col justify-between">
           <NavbarContent :collapsed="collapsed" />
@@ -103,12 +104,12 @@ const intercom = useIntercom();
       <Dialog
         ref="dialog"
         :open="showPanel"
-        class="fixed inset-0 z-50 flex items-start overflow-y-auto bg-black/50 backdrop-blur md:hidden lg:hidden"
+        class="fixed inset-0 z-50 bg-black/50 backdrop-blur md:hidden lg:hidden"
         @close="showPanel = false"
       >
         <DialogPanel
           ref="dialogPanel"
-          class="bg-surface-2 h-screen w-[250px] overflow-x-hidden"
+          class="bg-surface-2 h-full overflow-y-auto w-[250px] overflow-x-hidden"
         >
           <div class="z-10 flex h-full w-full flex-col p-4">
             <img src="/images/logo-horizontal-2.svg" class="h-20 w-auto" />
@@ -117,8 +118,20 @@ const intercom = useIntercom();
               <div>
                 <NavbarContent @nav-item-selected="showPanel = false" />
               </div>
-
-              <div class="">
+              <div class="mb-4">
+                <div class="text-xs text-gray-500 font-bold mb-3 mt-6">
+                  ACCOUNT
+                </div>
+                <router-link
+                  class="nav-item"
+                  to="/account-settings"
+                  @click="showPanel = false"
+                >
+                  <Cog6ToothIcon class="h-5 mr-2" />
+                  <div class="whitespace-nowrap">Account Settings</div>
+                </router-link>
+              </div>
+              <div>
                 <hr class="py-2 border-neutral-800 -mx-4" />
                 <div
                   class="flex px-1 py-3 text-sm text-gray-300 cursor-pointer hover:bg-rounded-purple"
@@ -138,8 +151,15 @@ const intercom = useIntercom();
                   frameborder="0"
                   scrolling="no"
                 ></iframe>
+                <hr class="py-2 border-neutral-800 -mx-4 mt-5" />
+                <div
+                  v-if="authStore.user"
+                  class="text-center text-neutral-400 text-xs"
+                >
+                  Logged in as <span>{{ authStore.user.email }}</span>
+                </div>
                 <button
-                  class="mt-4 w-full border-2 border-white/5 text-gray-300"
+                  class="button-ghost-primary mt-4 mb-4 w-full"
                   @click="logout"
                 >
                   Logout

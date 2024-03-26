@@ -15,12 +15,15 @@ import { showSuccess } from '@/lib/notifications.ts';
 import { useWebsocketChannel } from '@/lib/hooks.ts';
 import { ConjurationRelationshipType } from '@/lib/enums.ts';
 import CreateRelationship from '@/components/Relationships/CreateRelationship.vue';
-import { useLDReady } from 'launchdarkly-vue-client-sdk';
+import { useLDClient, useLDReady } from 'launchdarkly-vue-client-sdk';
+import UpgradeContainer from '@/components/Core/Billing/UpgradeContainer.vue';
+import mixpanel from 'mixpanel-browser';
 
 const ldReady = useLDReady();
 const authStore = useAuthStore();
 const eventBus = useEventBus();
 const intercom = useIntercom();
+const ldClient = useLDClient();
 
 onBeforeMount(async () => {
   if (
@@ -35,6 +38,23 @@ onMounted(async () => {
   eventBus.$on('user-loaded', async () => {
     await initIntercom();
     await initNotifications();
+
+    const user = useAuthStore().user;
+
+    if (user) {
+      await ldClient.identify({
+        kind: 'user',
+        key: user.id.toString(),
+        email: user.email,
+        name: user.username,
+        custom: {
+          plan: user.plan,
+        },
+      });
+
+      mixpanel.init(import.meta.env.VITE_MIXPANEL_TOKEN as string);
+      mixpanel.identify(user.id.toString());
+    }
   });
 
   if (authStore.tokens) {
@@ -85,6 +105,7 @@ export interface CustomizeImageRequest {
   prompt: string;
   negativePrompt: string;
   stylePreset: string;
+  seed: string;
 }
 eventBus.$on('toggle-customize-image-modal', (args: CustomizeImageRequest) => {
   showCustomizeImageModal.value = !showCustomizeImageModal.value;
@@ -132,7 +153,7 @@ eventBus.$on('create-relationship', (args: CreateRelationshipRequest) => {
         id="view-parent"
         class="flex w-full flex-col overflow-y-auto md:rounded-tr-none"
         :class="{
-          'pb-6 mb-6 bg-surface p-5 px-8': !!authStore.user,
+          'pb-6 mb-6 bg-surface p-5 md:px-8': !!authStore.user,
         }"
         :style="{
           height: `${!!authStore.user ? 'calc(100vh - 4.1rem)' : 'auto'}`,
@@ -158,13 +179,14 @@ eventBus.$on('create-relationship', (args: CreateRelationshipRequest) => {
 
   <ModalAlternate :show="showCustomizeImageModal" extra-dark>
     <div
-      class="p-2 md:p-6 md:px-12 pb-6 bg-surface-2 rounded-[20px] text-white text-center"
+      class="pt-8 md:p-6 md:px-12 bg-surface-2 rounded-[20px] text-white text-center mb-12"
     >
       <CustomizeConjurationImage
         :prompt="customizeImageArgs?.prompt"
         :negative-prompt="customizeImageArgs?.negativePrompt"
         :image-uri="customizeImageArgs?.imageUri"
         :looks="customizeImageArgs?.stylePreset"
+        :seed="customizeImageArgs?.seed"
         in-modal
         @cancel="showCustomizeImageModal = false"
       />
@@ -188,6 +210,8 @@ eventBus.$on('create-relationship', (args: CreateRelationshipRequest) => {
       />
     </div>
   </ModalAlternate>
+
+  <UpgradeContainer />
 
   <LightboxRoot />
 </template>

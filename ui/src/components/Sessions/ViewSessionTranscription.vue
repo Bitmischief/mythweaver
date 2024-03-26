@@ -6,7 +6,12 @@ import {
 } from '@/api/sessions.ts';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { useUnsavedChangesWarning, useWebsocketChannel } from '@/lib/hooks.ts';
+import {
+  showUpgradeModal,
+  useHasValidPlan,
+  useUnsavedChangesWarning,
+  useWebsocketChannel,
+} from '@/lib/hooks.ts';
 import AudioPlayback from '@/components/Core/General/AudioPlayback.vue';
 import { showError, showSuccess } from '@/lib/notifications.ts';
 import { MicrophoneIcon } from '@heroicons/vue/20/solid';
@@ -18,6 +23,7 @@ import { useCampaignStore } from '@/store/campaign.store';
 import Spinner from '@/components/Core/Spinner.vue';
 import { ServerEvent } from '@/lib/serverEvents.ts';
 import Loader from '@/components/Core/Loader.vue';
+import { BillingPlan } from '@/api/users.ts';
 
 const route = useRoute();
 
@@ -27,6 +33,7 @@ const originalSession = ref<SessionBase>({} as SessionBase);
 const session = ref<SessionBase>({} as SessionBase);
 const showUploadAudioModal = ref(false);
 const channel = useWebsocketChannel();
+const hasValidPlan = useHasValidPlan();
 
 useUnsavedChangesWarning(originalSession, session);
 
@@ -109,7 +116,17 @@ function handleAudioUpload(payload: { audioUri: string; audioName: string }) {
 }
 
 const loadingTranscribeSession = ref(false);
+
 async function requestTranscription() {
+  if (!hasValidPlan(BillingPlan.Pro)) {
+    showUpgradeModal({
+      feature: 'Transcribe Session Audio',
+      requiredPlan: BillingPlan.Pro,
+      redirectUri: location.href,
+    });
+    return;
+  }
+
   loadingTranscribeSession.value = true;
   const response = await postTranscriptionRequest(session.value.id);
 
@@ -165,6 +182,18 @@ const scrollToTop = () => {
     .getElementById('audio-player')
     ?.scrollIntoView({ behavior: 'smooth' });
 };
+
+const clickUploadAudio = () => {
+  if (!hasValidPlan(BillingPlan.Basic)) {
+    showUpgradeModal({
+      feature: 'Upload Session Audio',
+      requiredPlan: BillingPlan.Basic,
+      redirectUri: location.href,
+    });
+  } else {
+    showUploadAudioModal.value = true;
+  }
+};
 </script>
 
 <template>
@@ -187,7 +216,7 @@ const scrollToTop = () => {
       <div
         v-else-if="currentUserRole === CampaignRole.DM"
         class="button-ghost flex mr-2"
-        @click="showUploadAudioModal = true"
+        @click="clickUploadAudio"
       >
         <MicrophoneIcon class="w-4 h-4 mr-1 self-center" />
         <span class="self-center">Upload Session Audio</span>

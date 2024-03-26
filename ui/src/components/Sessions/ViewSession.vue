@@ -40,7 +40,6 @@ const sessionId = computed(() => parseInt(route.params.sessionId.toString()));
 
 const checkRelationshipsFlag = async () => {
   if (!showRelationships.value && route.path.endsWith('relationships')) {
-    console.log('made it here');
     await router.push(`/sessions/${sessionId.value}/planning`);
   }
 };
@@ -287,8 +286,8 @@ async function handleCreateRelationship(type: ConjurationRelationshipType) {
     </div>
 
     <div class="mt-6">
-      <div class="flex flex-wrap lg:flex-nowrap mb-12 justify-center">
-        <div class="mb-4 mr-4">
+      <div class="flex gap-4 flex-wrap lg:flex-nowrap mb-12 justify-center">
+        <div class="mb-4">
           <CustomizableImage
             :editable="currentUserRole === CampaignRole.DM"
             :image-uri="sessionImageUri || '/images/session_bg_square.png'"

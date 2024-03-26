@@ -1,0 +1,96 @@
+name: Reusable API deployment
+
+on:
+  workflow_call:
+    inputs:
+      environmentName:
+        required: true
+        type: string
+      environmentUrl:
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.environmentName }}
+      url: ${{ inputs.environmentUrl }}
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@main
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+
+      - name: Migrate database
+        run: >
+          cd api &&
+          export DATABASE_URL="${{secrets.DATABASE_URL}}" &&
+          yarn install &&
+          yarn prisma migrate deploy &&
+          yarn prisma db seed
+
+      - name: Build container image
+        run: docker build -t ${{ secrets.REGISTRY_NAME }}/mythweaver-api:$(echo $GITHUB_SHA | head -c7) -f .docker/Dockerfile.api .
+
+      - name: Log in to DockerHub and Push Container
+        run: |
+          docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_TOKEN }}
+          docker push ${{ secrets.REGISTRY_NAME }}/mythweaver-api:$(echo $GITHUB_SHA | head -c7)
+
+      - name: Update deployment file
+        run: |
+          TAG=$(echo $GITHUB_SHA | head -c7) 
+          sed -i 's|<IMAGE>|${{ secrets.REGISTRY_NAME }}/mythweaver-api:'${TAG}'|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<API_URL>|${{ vars.API_URL }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<APP_URL>|${{ vars.APP_URL }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<DATABASE_URL>|${{ secrets.DATABASE_URL }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<JWT_SECRET_KEY>|${{ secrets.JWT_SECRET_KEY }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<JWT_REFRESH_SECRET_KEY>|${{ secrets.JWT_REFRESH_SECRET_KEY }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<GOOGLE_CLIENT_ID>|${{ secrets.GOOGLE_CLIENT_ID }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<GOOGLE_CLIENT_SECRET>|${{ secrets.GOOGLE_CLIENT_SECRET }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<OPENAI_API_KEY>|${{ secrets.OPENAI_API_KEY }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<REDIS_ENDPOINT>|${{ secrets.REDIS_ENDPOINT }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<STABILITY_API_KEY>|${{ secrets.STABILITY_API_KEY }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<MIXPANEL_TOKEN>|${{ secrets.MIXPANEL_TOKEN }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<MAILCHIMP_AUDIENCE_ID>|${{ secrets.MAILCHIMP_AUDIENCE_ID }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<MAILCHIMP_SERVER_PREFIX>|${{ secrets.MAILCHIMP_SERVER_PREFIX }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<MAILCHIMP_API_KEY>|${{ secrets.MAILCHIMP_API_KEY }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<MAILCHIMP_TRANSACTIONAL_API_KEY>|${{ secrets.MAILCHIMP_TRANSACTIONAL_API_KEY }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<SPACES_KEY>|${{ secrets.SPACES_KEY }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<SPACES_SECRET>|${{ secrets.SPACES_SECRET }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<PUSHER_APP_ID>|${{ secrets.PUSHER_APP_ID }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<PUSHER_CLUSTER>|${{ secrets.PUSHER_CLUSTER }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<PUSHER_KEY>|${{ secrets.PUSHER_KEY }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<PUSHER_SECRET>|${{ secrets.PUSHER_SECRET }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<STRIPE_SECRET_KEY>|${{ secrets.STRIPE_SECRET_KEY }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<STRIPE_ENDPOINT_SECRET>|${{ secrets.STRIPE_ENDPOINT_SECRET }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<STRIPE_BASIC_PLAN_ID>|${{ secrets.STRIPE_BASIC_PLAN_ID }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<STRIPE_PRO_PLAN_ID>|${{ secrets.STRIPE_PRO_PLAN_ID }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<STRIPE_IMAGE_PACK_100_PRODUCT_ID>|${{ secrets.STRIPE_IMAGE_PACK_100_PRODUCT_ID }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<STRIPE_PROMOTION_COUPON_ID>|${{ secrets.STRIPE_PROMOTION_COUPON_ID }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<BETTERSTACK_LOGGER_SOURCE_TOKEN>|${{ secrets.BETTERSTACK_LOGGER_SOURCE_TOKEN }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<MIN_REPLICAS>|${{ vars.MIN_REPLICAS }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<MAX_REPLICAS>|${{ vars.MAX_REPLICAS }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<X_SERVICE_TOKEN>|${{ secrets.X_SERVICE_TOKEN }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<TRANSCRIPTION_SERVICE_DOMAIN>|${{ secrets.TRANSCRIPTION_SERVICE_DOMAIN }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<INTERCOM_ACCESS_TOKEN>|${{ secrets.INTERCOM_ACCESS_TOKEN }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<DISCORD_BILLING_WEBHOOK>|${{ secrets.DISCORD_BILLING_WEBHOOK }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<SENTRY_DSN>|${{ secrets.API_SENTRY_DSN }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<VERSION>|${{ github.ref_name }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          cat $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+
+      - name: Save DigitalOcean kubeconfig with short-lived credentials
+        run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 ${{ secrets.CLUSTER_NAME }}
+
+      - name: Deploy to DigitalOcean Kubernetes
+        run: kubectl apply -f $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+
+      - name: Verify deployment
+        run: kubectl rollout status deployment/mythweaver-api

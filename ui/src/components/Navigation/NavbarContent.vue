@@ -72,8 +72,9 @@ async function navigateToCreateCampaign() {
 <template>
   <div class="flex w-full flex-col mt-4">
     <router-link
-      class="button-gradient flex justify-center"
+      class="button-gradient flex justify-center text-white"
       to="/conjurations/new"
+      @click="emit('nav-item-selected')"
     >
       <span class="self-center">Conjure</span>
       <img src="@/assets/icons/wand.svg" alt="wand" class="w-6 p-1 ml-1" />
