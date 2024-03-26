@@ -23,7 +23,6 @@ import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { processTagsQueue } from '../worker';
 import { ImageStylePreset } from './images';
 import { MythWeaverLogger } from '../lib/logger';
-import Conjurations from '../routes/conjurations';
 
 interface GetConjurationsResponse {
   data: (Conjuration & { saved: boolean })[];

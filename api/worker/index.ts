@@ -97,9 +97,7 @@ completeSessionQueue.process(async (job, done) => {
   }
 });
 
-export interface EndTrialEvent {}
-
-export const endTrialQueue = new Queue<EndTrialEvent>('end-trial', config);
+export const endTrialQueue = new Queue('end-trial', config);
 
 endTrialQueue.process(async (job, done) => {
   logger.info('Processing end trial job');
