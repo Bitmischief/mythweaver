@@ -1,13 +1,14 @@
 <script lang="ts" setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { Character, getCurrentCampaignCharacters } from '@/api/characters.ts';
 import { AxiosError } from 'axios';
 import { showError } from '@/lib/notifications.ts';
-import { useCurrentUserId } from '@/lib/hooks.ts';
+import { useCurrentUserId, useSelectedCampaignId } from '@/lib/hooks.ts';
 import { useRouter } from 'vue-router';
 import { PlusIcon, UserIcon } from '@heroicons/vue/24/outline';
 import { useEventBus } from '@/lib/events.ts';
 
+const selectedCampaignId = useSelectedCampaignId();
 const eventBus = useEventBus();
 const router = useRouter();
 const characters = ref<Character[] | []>([]);
@@ -16,6 +17,10 @@ const loading = ref(false);
 const currentUserId = useCurrentUserId();
 
 onMounted(async () => {
+  if (!selectedCampaignId.value) {
+    await router.push('/campaigns/new');
+  }
+
   await init();
 
   eventBus.$on('campaign-selected', async () => {
@@ -23,7 +28,13 @@ onMounted(async () => {
   });
 });
 
+onUnmounted(() => {
+  eventBus.$off('campaign-selected');
+});
+
 async function init() {
+  if (!selectedCampaignId.value) return;
+
   loading.value = true;
   try {
     const response = await getCurrentCampaignCharacters();
@@ -80,7 +91,7 @@ async function viewCharacter(id: number) {
         <div
           v-for="(char, i) in myCharacters"
           :key="`char_${i}`"
-          class="bg-surface-3 rounded-[25px] p-1 cursor-pointer max-w-[15em] mr-6"
+          class="bg-surface-3 rounded-[25px] p-1 cursor-pointer max-w-[15em] mr-6 overflow-hidden"
           @click="viewCharacter(char.id)"
         >
           <div class="relative">
@@ -90,7 +101,7 @@ async function viewCharacter(id: number) {
               class="rounded-[20px]"
             />
           </div>
-          <div class="py-1 px-2 text-center">
+          <div class="py-1 px-2 text-center truncate">
             {{ char.name }}
           </div>
         </div>
@@ -109,7 +120,7 @@ async function viewCharacter(id: number) {
         <div
           v-for="(char, i) in campaignCharacters"
           :key="`char_${i}`"
-          class="bg-surface-3 rounded-[25px] p-1 cursor-pointer max-w-[15em] mr-6"
+          class="bg-surface-3 rounded-[25px] p-1 cursor-pointer min-w-[10em] max-w-[15em] mr-6 overflow-hidden"
           @click="viewCharacter(char.id)"
         >
           <div class="relative">
@@ -119,7 +130,7 @@ async function viewCharacter(id: number) {
               class="rounded-[20px]"
             />
           </div>
-          <div class="py-1 px-2 text-center">
+          <div class="py-1 px-2 text-center truncate">
             {{ char.name }}
           </div>
         </div>

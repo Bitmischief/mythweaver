@@ -104,12 +104,12 @@ const intercom = useIntercom();
       <Dialog
         ref="dialog"
         :open="showPanel"
-        class="fixed inset-0 z-50 flex items-start overflow-y-auto bg-black/50 backdrop-blur md:hidden lg:hidden"
+        class="fixed inset-0 z-50 bg-black/50 backdrop-blur md:hidden lg:hidden"
         @close="showPanel = false"
       >
         <DialogPanel
           ref="dialogPanel"
-          class="bg-surface-2 h-screen w-[250px] overflow-x-hidden"
+          class="bg-surface-2 h-full overflow-y-auto w-[250px] overflow-x-hidden"
         >
           <div class="z-10 flex h-full w-full flex-col p-4">
             <img src="/images/logo-horizontal-2.svg" class="h-20 w-auto" />
@@ -122,7 +122,11 @@ const intercom = useIntercom();
                 <div class="text-xs text-gray-500 font-bold mb-3 mt-6">
                   ACCOUNT
                 </div>
-                <router-link class="nav-item" to="/account-settings">
+                <router-link
+                  class="nav-item"
+                  to="/account-settings"
+                  @click="showPanel = false"
+                >
                   <Cog6ToothIcon class="h-5 mr-2" />
                   <div class="whitespace-nowrap">Account Settings</div>
                 </router-link>

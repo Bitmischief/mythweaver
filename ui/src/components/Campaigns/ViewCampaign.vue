@@ -21,7 +21,7 @@ const currentUserRole = computed(() => campaignStore.selectedCampaignRole);
 
 onMounted(async () => {
   if (!selectedCampaignId.value) {
-    router.push('/campaigns/new');
+    await router.push('/campaigns/new');
   }
 
   await init();
@@ -36,8 +36,10 @@ onUnmounted(() => {
 });
 
 async function init() {
-  const getCampaignResponse = await getCampaign(selectedCampaignId.value || 0);
-  campaign.value = getCampaignResponse.data;
+  if (selectedCampaignId.value) {
+    const getCampaignResponse = await getCampaign(selectedCampaignId.value);
+    campaign.value = getCampaignResponse.data;
+  }
 }
 
 async function handleSaveCampaign() {
@@ -65,14 +67,14 @@ async function handleSaveCampaign() {
 }
 
 async function handleDeleteCampaign() {
-  if (!campaign.value) {
-    return;
-  }
-
   try {
-    await campaignStore.deleteCampaign(selectedCampaignId.value || 0);
-    showSuccess({ message: 'Campaign deleted!' });
+    if (selectedCampaignId.value) {
+      await campaignStore.deleteCampaign(selectedCampaignId.value);
+      showSuccess({ message: 'Campaign deleted!' });
+      await router.push('/campaign/overview');
+    }
   } catch (e) {
+    await campaignStore.getCampaigns();
     const err = e as AxiosError;
     showError({
       message: (err?.response?.data as any)?.message?.toString() || '',

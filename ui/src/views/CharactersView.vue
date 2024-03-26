@@ -97,7 +97,7 @@ async function updateCharacter() {
         </div>
       </div>
       <div class="md:flex justify-between">
-        <div class="grid grid-cols-1 sm:grid-cols-3">
+        <div class="grid gap-4 grid-cols-1 sm:grid-cols-3">
           <div class="col-span-1">
             <div
               class="group-hover:block hidden absolute w-full h-full bg-black/50"
@@ -180,7 +180,7 @@ async function updateCharacter() {
               </div>
             </div>
           </div>
-          <div class="col-span-2 px-4">
+          <div class="col-span-2">
             <div class="bg-surface-2 rounded-[20px]">
               <div class="mb-1 text-lg text-white pt-3 px-3">Backstory</div>
               <FormKit

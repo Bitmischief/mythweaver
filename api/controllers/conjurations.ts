@@ -227,7 +227,7 @@ export default class ConjurationController {
     }
 
     if (
-      existingConjuration.visibility === ConjurationVisibility.PUBLIC &&
+      existingConjuration.visibility === ConjurationVisibility.PRIVATE &&
       existingConjuration.userId !== userId
     ) {
       throw new AppError({

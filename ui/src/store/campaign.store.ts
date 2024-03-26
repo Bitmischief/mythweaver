@@ -8,7 +8,7 @@ import {
   PutCampaignRequest,
   saveCampaign,
 } from '@/api/campaigns.ts';
-import { NO_CAMPAIGNS_EVENT, useEventBus } from '@/lib/events.ts';
+import { useEventBus } from '@/lib/events.ts';
 import { useCurrentUserId } from '@/lib/hooks.ts';
 
 const eventBus = useEventBus();
@@ -34,13 +34,20 @@ export const useCampaignStore = defineStore({
   }),
   actions: {
     async selectCampaign(campaignId: number | undefined) {
-      if (campaignId === undefined) return;
+      if (campaignId === undefined) {
+        this.selectedCampaignId = undefined;
+        this.selectedCampaign = undefined;
+        localStorage.removeItem(SELECTED_CAMPAIGN_ID_KEY_NAME);
+        return;
+      }
 
       this.selectedCampaignId = campaignId;
       localStorage.setItem(SELECTED_CAMPAIGN_ID_KEY_NAME, campaignId.toString());
 
-      const getCampaignResponse = await getCampaign(campaignId);
-      this.selectedCampaign = getCampaignResponse.data;
+      if (!this.selectedCampaign || this.selectedCampaign.id !== campaignId) {
+        const getCampaignResponse = await getCampaign(campaignId);
+        this.selectedCampaign = getCampaignResponse.data;
+      }
 
       this.setCampaignRole();
 
@@ -64,6 +71,8 @@ export const useCampaignStore = defineStore({
         } catch (err) {
           await this.selectCampaign(this.campaigns[0].id);
         }
+      } else {
+        await this.selectCampaign(undefined);
       }
     },
     setCampaignRole() {
@@ -74,32 +83,17 @@ export const useCampaignStore = defineStore({
     },
     async loadCampaigns() {
       await this.getCampaigns();
-
-      if (!this.campaigns.length) {
-        eventBus.$emit(NO_CAMPAIGNS_EVENT, undefined);
-        return;
-      }
-
-      if (this.selectedCampaignId) {
-        try {
-          const getCampaignResponse = await getCampaign(this.selectedCampaignId);
-          this.selectedCampaign = getCampaignResponse.data;
-        } catch (err) {
-          await this.selectCampaign(this.campaigns[0].id);
-        }
-      }
-
       this.setCampaignRole();
     },
     async saveCampaign(campaign: PutCampaignRequest) {
-      const response = await saveCampaign(campaign);
-      await this.loadCampaigns();
-
-      return response;
+      await saveCampaign(campaign);
     },
     async deleteCampaign(campaignId: number) {
       await deleteCampaign(campaignId);
-      await this.loadCampaigns();
+      if (this.selectedCampaignId === campaignId) {
+        await this.selectCampaign(undefined);
+      }
+      await this.getCampaigns();
     },
   },
 });

@@ -182,17 +182,17 @@ function setImage() {
       portrait
     </div>
 
-    <div
-      class="bg-gradient-to-r from-fuchsia-500 to-violet-500 p-px rounded-[20px] purple-shadow min-w-[90vw] md:min-w-[60vw] max-h-[80vh]"
-    >
-      <div class="p-3 rounded-[20px] bg-surface-2 min-h-[12em]">
-        <FormKit :actions="false" type="form" @submit="conjure">
+    <FormKit :actions="false" type="form" @submit="conjure">
+      <div
+        class="bg-gradient-to-r from-fuchsia-500 to-violet-500 p-px rounded-[20px] purple-shadow min-w-[90vw] md:min-w-[60vw] max-h-[80vh]"
+      >
+        <div class="p-3 rounded-[20px] bg-surface-2 min-h-[12em]">
           <div class="relative pb-1">
             <FormKit
               v-model="editablePrompt"
               :placeholder="`Enter Description`"
               inner-class="border-none"
-              input-class="$reset input-secondary border-none focus:ring-fuchsia-500 pr-[8em]"
+              input-class="$reset input-secondary border-none focus:ring-fuchsia-500 md:pr-[8em]"
               help-class="px-1"
               name="prompt"
               type="textarea"
@@ -200,7 +200,7 @@ function setImage() {
               auto-height
               validation-visibility="live"
             />
-            <div class="absolute top-1 right-1">
+            <div class="hidden md:block absolute top-1 right-1">
               <button
                 class="flex button-gradient py-2 px-3 disabled:opacity-75"
                 type="submit"
@@ -309,9 +309,16 @@ function setImage() {
               {{ editableNegativePrompt?.length }} / 500
             </div>
           </div>
-        </FormKit>
+        </div>
+        <button
+          class="md:hidden flex button-gradient py-4 px-3 disabled:opacity-75 w-full justify-center rounded-[20px]"
+          type="submit"
+        >
+          <img src="@/assets/icons/wand.svg" alt="wand" class="h-4 mr-1" />
+          Conjure
+        </button>
       </div>
-    </div>
+    </FormKit>
     <button
       class="px-4 rounded-full absolute right-0 top-0 p-4"
       @click="emit('cancel')"
@@ -335,7 +342,7 @@ function setImage() {
     >
       <XCircleIcon class="w-6 self-center" />
     </button>
-    <div class="">
+    <div class="mx-4 md:mx-0">
       <div v-if="!noActions" class="mt-6 flex justify-end py-2">
         <button
           class="button-primary mr-2 flex"
@@ -377,7 +384,7 @@ function setImage() {
       </div>
     </div>
 
-    <div class="flex gap-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 p-2 gap-4 md:gap-8">
       <div v-if="imageUri" class="relative">
         <div
           class="absolute flex bottom-2 right-2 cursor-pointer bg-white/50 rounded-[8px]"

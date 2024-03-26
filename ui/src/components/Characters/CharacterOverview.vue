@@ -1,11 +1,11 @@
 <template>
   <div>
     <div class="flex justify-end cursor-pointer" @click="emit('close')">
-      <XCircleIcon class="h-5" />
+      <XCircleIcon class="h-5 m-4" />
     </div>
-    <div class="md:flex justify-between">
+    <div class="sm:flex justify-between">
       <div class="grid grid-cols-1 sm:grid-cols-3">
-        <div class="col-span-1">
+        <div class="col-span-1 px-4">
           <div
             class="group-hover:block hidden absolute w-full h-full bg-black/50"
           >
@@ -90,7 +90,7 @@
             </div>
           </div>
         </div>
-        <div class="col-span-2 px-4">
+        <div class="col-span-1 sm:col-span-2 px-4">
           <div class="bg-surface-2 rounded-[20px]">
             <div class="mb-1 text-lg text-white pt-3 px-3">Backstory</div>
             <FormKit

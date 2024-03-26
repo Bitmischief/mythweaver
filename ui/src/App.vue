@@ -149,7 +149,7 @@ eventBus.$on('create-relationship', (args: CreateRelationshipRequest) => {
         id="view-parent"
         class="flex w-full flex-col overflow-y-auto md:rounded-tr-none"
         :class="{
-          'pb-6 mb-6 bg-surface p-5 px-8': !!authStore.user,
+          'pb-6 mb-6 bg-surface p-5 md:px-8': !!authStore.user,
         }"
         :style="{
           height: `${!!authStore.user ? 'calc(100vh - 4.1rem)' : 'auto'}`,
@@ -175,7 +175,7 @@ eventBus.$on('create-relationship', (args: CreateRelationshipRequest) => {
 
   <ModalAlternate :show="showCustomizeImageModal" extra-dark>
     <div
-      class="p-2 md:p-6 md:px-12 pb-6 bg-surface-2 rounded-[20px] text-white text-center"
+      class="pt-8 md:p-6 md:px-12 bg-surface-2 rounded-[20px] text-white text-center mb-12"
     >
       <CustomizeConjurationImage
         :prompt="customizeImageArgs?.prompt"
