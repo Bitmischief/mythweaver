@@ -113,7 +113,7 @@ export const conjure = async (request: ConjureEvent) => {
       name: conjuration.name,
       userId: request.userId,
       visibility:
-        user.plan === BillingPlan.FREE
+        user.plan === BillingPlan.FREE || user.plan === BillingPlan.TRIAL
           ? ConjurationVisibility.PUBLIC
           : ConjurationVisibility.PRIVATE,
       data: {
