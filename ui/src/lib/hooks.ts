@@ -87,6 +87,11 @@ export function showUpgradeModal(request: UpgradeRequest) {
 export function useHasValidPlan() {
   return (requiredPlan: BillingPlan) => {
     const userPlan = useCurrentUserPlan();
+    const user = useAuthStore().user;
+
+    if (user && user.earlyAccessExempt) {
+      return true;
+    }
 
     if (requiredPlan === BillingPlan.Free) {
       return true;

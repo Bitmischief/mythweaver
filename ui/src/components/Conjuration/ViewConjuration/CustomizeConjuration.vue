@@ -6,12 +6,13 @@ import { remove } from 'lodash';
 import { useEventBus } from '@/lib/events.ts';
 import { showError, showSuccess } from '@/lib/notifications.ts';
 import { AxiosError } from 'axios';
-import { useCurrentUserId } from '@/lib/hooks.ts';
+import { useCurrentUserId, useHasValidPlan } from '@/lib/hooks.ts';
 import CustomizableImage from '@/components/Images/CustomizableImage.vue';
 import { useWebsocketChannel } from '@/lib/hooks.ts';
 import { ServerEvent } from '@/lib/serverEvents.ts';
 import Select from '@/components/Core/Forms/Select.vue';
 import { patchImageConjurationId } from '@/api/images.ts';
+import { BillingPlan } from '@/api/users.ts';
 
 const props = defineProps<{
   conjuration: Conjuration;
@@ -22,6 +23,7 @@ const props = defineProps<{
 const eventBus = useEventBus();
 const currentUserId = useCurrentUserId();
 const channel = useWebsocketChannel();
+const hasValidPlan = useHasValidPlan();
 
 const editableConjuration = ref(props.conjuration);
 const addingTag = ref(false);
@@ -244,7 +246,7 @@ const setPromptSettings = () => {
               {
                 code: 'PRIVATE',
                 name: 'Private (available with Basic or Pro subscription)',
-                disabled: true,
+                disabled: !hasValidPlan(BillingPlan.Basic),
               },
             ]"
             value-prop="code"
