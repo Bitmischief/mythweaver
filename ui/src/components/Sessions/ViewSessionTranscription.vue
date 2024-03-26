@@ -184,10 +184,10 @@ const scrollToTop = () => {
 };
 
 const clickUploadAudio = () => {
-  if (currentUserPlan.value !== BillingPlan.Pro) {
+  if (currentUserPlan.value === BillingPlan.Free) {
     showUpgradeModal({
       feature: 'Upload Session Audio',
-      requiredPlan: BillingPlan.Pro,
+      requiredPlan: BillingPlan.Basic,
       redirectUri: location.href,
     });
   } else {
