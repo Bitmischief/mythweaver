@@ -8,7 +8,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import {
   showUpgradeModal,
-  useCurrentUserPlan,
+  useHasValidPlan,
   useUnsavedChangesWarning,
   useWebsocketChannel,
 } from '@/lib/hooks.ts';
@@ -33,7 +33,7 @@ const originalSession = ref<SessionBase>({} as SessionBase);
 const session = ref<SessionBase>({} as SessionBase);
 const showUploadAudioModal = ref(false);
 const channel = useWebsocketChannel();
-const currentUserPlan = useCurrentUserPlan();
+const hasValidPlan = useHasValidPlan();
 
 useUnsavedChangesWarning(originalSession, session);
 
@@ -118,7 +118,7 @@ function handleAudioUpload(payload: { audioUri: string; audioName: string }) {
 const loadingTranscribeSession = ref(false);
 
 async function requestTranscription() {
-  if (currentUserPlan.value !== BillingPlan.Pro) {
+  if (!hasValidPlan(BillingPlan.Pro)) {
     showUpgradeModal({
       feature: 'Transcribe Session Audio',
       requiredPlan: BillingPlan.Pro,
@@ -184,10 +184,10 @@ const scrollToTop = () => {
 };
 
 const clickUploadAudio = () => {
-  if (currentUserPlan.value !== BillingPlan.Pro) {
+  if (!hasValidPlan(BillingPlan.Basic)) {
     showUpgradeModal({
       feature: 'Upload Session Audio',
-      requiredPlan: BillingPlan.Pro,
+      requiredPlan: BillingPlan.Basic,
       redirectUri: location.href,
     });
   } else {
