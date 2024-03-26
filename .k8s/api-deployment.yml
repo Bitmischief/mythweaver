@@ -118,7 +118,6 @@ spec:
               value: <SENTRY_DSN>
             - name: VERSION
               value: <VERSION>
-
           readinessProbe:
             httpGet:
               path: /docs

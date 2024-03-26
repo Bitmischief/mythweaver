@@ -1,5 +1,3 @@
-// Set your secret key. Remember to switch to your live secret key in production.
-// See your keys here: https://dashboard.stripe.com/apikeys
 import { urlPrefix } from '../lib/utils';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import Stripe from 'stripe';
@@ -9,6 +7,14 @@ import logger from '../lib/logger';
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY as string);
 
 export const createCustomer = async (email: string): Promise<string> => {
+  const existingCustomerSearch = await stripe.customers.search({
+    query: `email:'${email}'`,
+  });
+
+  if (existingCustomerSearch.data.length > 0) {
+    return existingCustomerSearch.data[0].id;
+  }
+
   logger.info('Creating stripe customer for', { email });
   const customer = await stripe.customers.create({
     email,
@@ -62,13 +68,64 @@ export const getSessionLineItems = async (sessionId: string) => {
   return line_items;
 };
 
+export interface GetBillingPortalUrlRequest {
+  upgrade?: boolean;
+  newPlanPriceId?: string;
+  redirectUri?: string;
+}
+
 export const getBillingPortalUrl = async (
   customerId: string,
+  request: GetBillingPortalUrlRequest,
 ): Promise<string> => {
   logger.info('Getting billing portal url for stripe customer id', customerId);
+
+  let subscription: Stripe.Subscription | undefined = undefined;
+
+  if (request.upgrade) {
+    const subscriptions = await stripe.subscriptions.list({
+      customer: customerId,
+      status: 'active',
+      limit: 1,
+    });
+
+    subscription = subscriptions?.data[0];
+
+    if (!subscription) {
+      throw new AppError({
+        description: 'No subscriptions found for customer',
+        httpCode: HttpCode.BAD_REQUEST,
+      });
+    }
+  }
+
   const session = await stripe.billingPortal.sessions.create({
     customer: customerId,
     return_url: `${urlPrefix}/account-settings`,
+    flow_data:
+      request.upgrade && subscription
+        ? {
+            type: 'subscription_update_confirm',
+            subscription_update_confirm: {
+              items: [
+                {
+                  id: subscription.items.data[0].id,
+                  price: request.newPlanPriceId,
+                  quantity: 1,
+                },
+              ],
+              subscription: subscription.id,
+            },
+            after_completion: request.redirectUri
+              ? {
+                  type: 'redirect',
+                  redirect: {
+                    return_url: request.redirectUri,
+                  },
+                }
+              : undefined,
+          }
+        : undefined,
   });
 
   logger.info('Received billing portal url', session.url);

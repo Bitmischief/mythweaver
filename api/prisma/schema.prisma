@@ -22,6 +22,7 @@ model RefreshToken {
 }
 
 enum BillingPlan {
+  TRIAL
   FREE
   BASIC
   PRO
@@ -39,10 +40,11 @@ model User {
   email     String    @unique
 
   earlyAccessCutoffAt     DateTime        @default("2023-10-17T08:00:00.000Z")
+  trialEndsAt             DateTime?
   earlyAccessExempt       Boolean         @default(false)
   billingCustomerId       String?
   subscriptionPaidThrough DateTime?
-  plan                    BillingPlan?
+  plan                    BillingPlan     @default(TRIAL)
   planInterval            BillingInterval @default(MONTHLY)
   username                String
   imageCredits            Int             @default(0)

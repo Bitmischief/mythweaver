@@ -4,6 +4,8 @@ import { useAuthStore } from '@/store';
 import { postQuickConjure } from '@/api/generators.ts';
 import { onBeforeRouteLeave, useRouter } from 'vue-router';
 import { pusher } from '@/lib/serverEvents.ts';
+import { BillingPlan } from '@/api/users.ts';
+import { useEventBus } from '@/lib/events.ts';
 
 export function useSelectedCampaignId() {
   const store = useCampaignStore();
@@ -26,7 +28,7 @@ export function useQuickConjure() {
 
 export function useEarlyAccessCutoff() {
   const store = useAuthStore();
-  return computed(() => store.user?.earlyAccessCutoffAt);
+  return computed(() => store.user?.trialEndsAt);
 }
 
 export function useSubscriptionPaidThrough() {
@@ -36,7 +38,7 @@ export function useSubscriptionPaidThrough() {
 
 export function useEarlyAccessExempt() {
   const store = useAuthStore();
-  return computed(() => store.user?.earlyAccessExempt || store.user?.plan || false);
+  return computed(() => store.user?.earlyAccessExempt || false);
 }
 
 export function useWebsocketChannel() {
@@ -52,8 +54,6 @@ export function useWebsocketChannel() {
 export function useUnsavedChangesWarning(originalValue: Ref<any>, currentValue: Ref<any>) {
   onMounted(() => {
     onBeforeRouteLeave(() => {
-      console.log('originalValue', originalValue.value);
-      console.log('currentValue', currentValue.value);
       if (JSON.stringify(originalValue.value) === JSON.stringify(currentValue.value)) {
         return true;
       }
@@ -66,4 +66,20 @@ export function useUnsavedChangesWarning(originalValue: Ref<any>, currentValue: 
 export function useCurrentUserRole() {
   const campaignStore = useCampaignStore();
   return computed(() => campaignStore.selectedCampaignRole);
+}
+
+export function useCurrentUserPlan() {
+  const authStore = useAuthStore();
+  return computed(() => authStore.user?.plan || BillingPlan.Free);
+}
+
+export interface UpgradeRequest {
+  feature: string;
+  requiredPlan: BillingPlan;
+  redirectUri?: string;
+}
+
+export function showUpgradeModal(request: UpgradeRequest) {
+  const eventBus = useEventBus();
+  eventBus.$emit('request-upgrade', request);
 }

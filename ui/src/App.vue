@@ -16,6 +16,7 @@ import { useWebsocketChannel } from '@/lib/hooks.ts';
 import { ConjurationRelationshipType } from '@/lib/enums.ts';
 import CreateRelationship from '@/components/Relationships/CreateRelationship.vue';
 import { useLDClient, useLDReady } from 'launchdarkly-vue-client-sdk';
+import UpgradeContainer from '@/components/Core/Billing/UpgradeContainer.vue';
 
 const ldReady = useLDReady();
 const authStore = useAuthStore();
@@ -205,6 +206,8 @@ eventBus.$on('create-relationship', (args: CreateRelationshipRequest) => {
       />
     </div>
   </ModalAlternate>
+
+  <UpgradeContainer />
 
   <LightboxRoot />
 </template>

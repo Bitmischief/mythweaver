@@ -7,6 +7,14 @@ export const getCheckoutUrl = (priceId: string, subscription: boolean) => {
   });
 };
 
-export const getBillingPortalUrl = () => {
-  return axios.get('/billing/portal-url');
+export interface BillingPortalUrlRequest {
+  upgrade?: boolean;
+  newPlanPriceId?: string;
+  redirectUri?: string;
+}
+
+export const getBillingPortalUrl = (request?: BillingPortalUrlRequest) => {
+  return axios.get('/billing/portal-url', {
+    params: request,
+  });
 };

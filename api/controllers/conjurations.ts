@@ -16,13 +16,13 @@ import {
   Conjuration,
   ConjurationRelationshipType,
   ConjurationVisibility,
+  BillingPlan,
 } from '@prisma/client';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { processTagsQueue } from '../worker';
 import { ImageStylePreset } from './images';
 import { MythWeaverLogger } from '../lib/logger';
-import Conjurations from '../routes/conjurations';
 
 interface GetConjurationsResponse {
   data: (Conjuration & { saved: boolean })[];
@@ -275,6 +275,30 @@ export default class ConjurationController {
     if (conjuration.userId === null || conjuration.userId !== userId) {
       throw new AppError({
         description: 'You do not have access to modify this conjuration.',
+        httpCode: HttpCode.FORBIDDEN,
+      });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user) {
+      throw new AppError({
+        description: 'User not found.',
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    if (
+      user.plan === BillingPlan.FREE &&
+      request.visibility === ConjurationVisibility.PRIVATE
+    ) {
+      throw new AppError({
+        description:
+          'You cannot make this conjuration private. You must subscribe to our basic or pro plan!',
         httpCode: HttpCode.FORBIDDEN,
       });
     }

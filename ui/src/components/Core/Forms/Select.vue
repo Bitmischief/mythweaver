@@ -131,7 +131,7 @@ const showCheckIcon = (option: any) => {
             v-slot="{ active }"
             :key="option[valueProp] || valueProp"
             :value="option[valueProp]"
-            :disabled="readonly"
+            :disabled="readonly || option.disabled"
             as="template"
           >
             <li

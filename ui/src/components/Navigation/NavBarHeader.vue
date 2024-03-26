@@ -2,7 +2,7 @@
 import Menu from '@/components/Core/General/Menu.vue';
 import { MenuButton, MenuItem } from '@headlessui/vue';
 import { useAuthStore } from '@/store';
-import EarlyAccessInfo from '@/components/Navigation/EarlyAccessInfo.vue';
+import TrialInfo from '@/components/Navigation/TrialInfo.vue';
 import { computed } from 'vue';
 import ImageCreditCount from '@/components/Core/ImageCreditCount.vue';
 
@@ -24,7 +24,7 @@ const username = computed(() => {
 
 <template>
   <div class="flex pr-6 bg-surface-2">
-    <EarlyAccessInfo class="self-center" />
+    <TrialInfo class="self-center" />
     <div class="self-center mr-5">
       <ImageCreditCount v-if="authStore.user" />
     </div>
