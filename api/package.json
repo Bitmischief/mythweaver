@@ -21,7 +21,7 @@
     "@types/express": "^4.17.21",
     "@types/jest": "^29.5.12",
     "@types/jsonwebtoken": "^9.0.6",
-    "@types/mailchimp__mailchimp_marketing": "^3.0.18",
+    "@types/mailchimp__mailchimp_marketing": "^3.0.19",
     "@types/mailchimp__mailchimp_transactional": "^1.0.9",
     "@types/md5": "^2.3.5",
     "@types/morgan": "^1.9.9",
