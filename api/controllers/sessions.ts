@@ -303,27 +303,6 @@ export default class SessionController {
       });
     }
 
-    const user = await prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
-    });
-
-    if (!user) {
-      throw new AppError({
-        description: 'User not found.',
-        httpCode: HttpCode.NOT_FOUND,
-      });
-    }
-
-    if (user.plan === BillingPlan.FREE) {
-      throw new AppError({
-        description:
-          'You cannot generate session summaries. You must subscribe to our basic or pro plan!',
-        httpCode: HttpCode.FORBIDDEN,
-      });
-    }
-
     await prisma.session.update({
       where: {
         id: sessionId,
