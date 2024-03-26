@@ -1240,21 +1240,21 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
-"@logtail/core@^0.4.20":
-  version "0.4.20"
-  resolved "https://registry.yarnpkg.com/@logtail/core/-/core-0.4.20.tgz#b3d6f52420de7857fd5d9cc1b8cc5b442db352ba"
-  integrity sha512-6Ij6InFtz5rF/cBjdr3UUCN3jSgCP08syJPYZV+tyVSpUyUtOPP1L5ln2B5ooIsBT3uJtjV5LbGUm1zeOkh3+A==
+"@logtail/core@^0.4.21":
+  version "0.4.21"
+  resolved "https://registry.yarnpkg.com/@logtail/core/-/core-0.4.21.tgz#00fc5fd15fa72270a6c55278441b29e8247a521b"
+  integrity sha512-QDq194+24bwi4e+a/pxyf4X67NewhTvBmh9iwM2NhbSVSQz4Fo8xQn1Ul8zuUrXETycu/Od2D8wT2tZFNFx/7A==
   dependencies:
-    "@logtail/tools" "^0.4.20"
+    "@logtail/tools" "^0.4.21"
     "@logtail/types" "^0.4.20"
     serialize-error "^8.1.0"
 
-"@logtail/node@^0.4.20":
-  version "0.4.20"
-  resolved "https://registry.yarnpkg.com/@logtail/node/-/node-0.4.20.tgz#43545ff45b9dc3bdebb4027b0eb40c5c69581bb7"
-  integrity sha512-KJegdSKIAk3e8XMEuj6Yb+jIpDKdWyzaRZAECo6++Nyl6zLB4p6xYRNB39lPhDI2YqyzEE4d4N8p6kWVfzJ2Tg==
+"@logtail/node@^0.4.21":
+  version "0.4.21"
+  resolved "https://registry.yarnpkg.com/@logtail/node/-/node-0.4.21.tgz#7c44bbb1676bb6267ca4ad7d6ee7897b6c8ff9c0"
+  integrity sha512-zpwkhJgcYaM+vsjotHRJthc0ot1vP0CAVy+fwrkL8XjfdC3NHiWb6f0agQpHlqdRX8RTsAbcYpWNXKPpFB5U9Q==
   dependencies:
-    "@logtail/core" "^0.4.20"
+    "@logtail/core" "^0.4.21"
     "@logtail/types" "^0.4.20"
     "@msgpack/msgpack" "^2.5.1"
     "@types/stack-trace" "^0.0.29"
@@ -1263,19 +1263,19 @@
     serialize-error "^8.1.0"
     stack-trace "^0.0.10"
 
-"@logtail/pino@^0.4.19":
-  version "0.4.20"
-  resolved "https://registry.yarnpkg.com/@logtail/pino/-/pino-0.4.20.tgz#21163780ed2135134bbc430686401ac3f926e81f"
-  integrity sha512-It+30r85kSV/K1/ooj0S4apLJpYAqOHP1a2AD10sKxoTyMok3W2EqFvkEXQUlVIohpHcX8SJcw1rsAt5LI9K5g==
+"@logtail/pino@^0.4.21":
+  version "0.4.21"
+  resolved "https://registry.yarnpkg.com/@logtail/pino/-/pino-0.4.21.tgz#2dd8cab1651b6e7064e191de81ffe3d462af51f5"
+  integrity sha512-0PtfrgsZedjxfe58QFa9icPVCqpoxHh0MJrP3Gk/rUa8k3csOfJmpx5LJHytfeNT9Y46qltg3HHMDphDcek15w==
   dependencies:
-    "@logtail/node" "^0.4.20"
+    "@logtail/node" "^0.4.21"
     "@logtail/types" "^0.4.20"
     pino-abstract-transport "^1.0.0"
 
-"@logtail/tools@^0.4.20":
-  version "0.4.20"
-  resolved "https://registry.yarnpkg.com/@logtail/tools/-/tools-0.4.20.tgz#a733d78c111801676da3f39d949208d18c281351"
-  integrity sha512-EBqet6u78Byekwo4tBbJ0ZkcYkCefFhxZCvz+l8WORGtcpDq/8bfMZoE4BSnr9Y/jerCxuCarJ6Feqyd5A2ioA==
+"@logtail/tools@^0.4.21":
+  version "0.4.21"
+  resolved "https://registry.yarnpkg.com/@logtail/tools/-/tools-0.4.21.tgz#f687c913bb41c3ace718e5fc7dff5b5f986f0c26"
+  integrity sha512-xIaolScUwJEikllopGphxBX0lVlN/rA8pLAZiNCMNJXpPbwitoFKLW3w4qRuYdKoFCCJZKwOdwEqU2Fv0i9Cuw==
   dependencies:
     "@logtail/types" "^0.4.20"
 
