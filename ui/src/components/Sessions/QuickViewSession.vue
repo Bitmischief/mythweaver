@@ -2,6 +2,7 @@
 import { SessionBase } from '@/api/sessions.ts';
 import { useRouter } from 'vue-router';
 
+defineEmits(['close']);
 const router = useRouter();
 
 const props = defineProps<{

@@ -1,22 +1,26 @@
 <script lang="ts" setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import LightboxImage from '@/components/LightboxImage.vue';
-import { conjureImage } from '@/api/images.ts';
+import { conjureImage, postImageUpscale } from '@/api/images.ts';
 import { useEventBus } from '@/lib/events.ts';
 import {
   ArrowsPointingOutIcon,
   XCircleIcon,
   ArrowPathIcon,
 } from '@heroicons/vue/20/solid';
-import { showError } from '@/lib/notifications.ts';
+import { showError, showSuccess } from '@/lib/notifications.ts';
 import { useWebsocketChannel } from '@/lib/hooks.ts';
 import { ServerEvent } from '@/lib/serverEvents.ts';
 import Select from '@/components/Core/Forms/Select.vue';
 import Loader from '@/components/Core/Loader.vue';
 import { AxiosError } from 'axios';
 import { useLDFlag } from 'launchdarkly-vue-client-sdk';
+import ImageCreditCount from '@/components/Core/ImageCreditCount.vue';
+import { useAuthStore } from '@/store';
 
+const authStore = useAuthStore();
 const showSeed = useLDFlag('image-seed', false);
+const showUpscale = useLDFlag('image-upscale', false);
 
 const props = withDefaults(
   defineProps<{
@@ -28,6 +32,7 @@ const props = withDefaults(
     cancelButtonTextOverride?: string;
     inModal?: boolean;
     seed?: string;
+    imageId?: number;
   }>(),
   {
     prompt: '',
@@ -36,6 +41,7 @@ const props = withDefaults(
     stylePreset: 'fantasy-art',
     cancelButtonTextOverride: undefined,
     seed: undefined,
+    imageId: undefined,
   },
 );
 
@@ -53,9 +59,12 @@ const imagePresetStyles = ref([
   { code: 'comic-book', name: 'Comic Book' },
 ]);
 const conjuring = ref(false);
+const upscaling = ref(false);
+
 const done = computed(() => {
   return images.value.length > 0;
 });
+
 const images = ref<any[]>([]);
 const selectedImg = ref<any>(null);
 const imageError = ref(false);
@@ -65,6 +74,7 @@ const rephrasedPrompt = ref('');
 const loading = ref(false);
 const count = ref(1);
 const useSeed = ref(false);
+const tab = ref('customize');
 
 const promptOptions = ref(['Image Count', 'Image Style', 'Negative Prompt']);
 const promptOptionsTab = ref(promptOptions.value[0]);
@@ -105,13 +115,21 @@ onMounted(async () => {
     conjuring.value = false;
   });
 
-  channel.bind(ServerEvent.ImageGenerationDone, function () {
-    loading.value = false;
+  channel.bind(ServerEvent.ImageUpscaled, function (data: any) {
+    selectedImg.value = data;
+    setImage();
+    upscaling.value = false;
+  });
+
+  channel.bind(ServerEvent.ImageUpscalingDone, function () {
+    console.log('hit this?');
+    showSuccess({ message: 'Image successfully upscaled!' });
   });
 });
 
 onUnmounted(() => {
   eventBus.$off('conjure-image');
+  channel.unbind_all();
 });
 
 async function conjure() {
@@ -164,11 +182,32 @@ function setImage() {
     eventBus.$emit('toggle-customize-image-modal');
   }
 }
+
+async function upscale() {
+  try {
+    if (props.imageId) {
+      upscaling.value = true;
+      await postImageUpscale(props.imageId);
+    }
+  } catch (e: any) {
+    showError({
+      message: 'Something went wrong upscaling the image, please try again.',
+    });
+    upscaling.value = false;
+  }
+}
+
+const alreadyUpscaled = computed(() => {
+  if (!props.imageUri) return false;
+  const img = new Image();
+  img.src = props.imageUri;
+  return img.width > 1024 || img.height > 1024;
+});
 </script>
 
 <template>
-  <template v-if="!conjuring && !done">
-    <div v-if="imageUri" class="md:flex mb-4 justify-center mt-4">
+  <template v-if="!conjuring && !upscaling && !done">
+    <div v-if="imageUri" class="md:flex mb-4 justify-center mt-10">
       <div class="relative">
         <LightboxImage
           :src="imageUri"
@@ -177,12 +216,38 @@ function setImage() {
         <div class="image-badge">Original</div>
       </div>
     </div>
-    <div v-else class="text-neutral-400 text-center mb-2">
+    <div v-else class="text-neutral-400 text-center mb-2 mt-10">
       Enter a description of you character below to generate a character
       portrait
     </div>
-
-    <FormKit :actions="false" type="form" @submit="conjure">
+    <div v-if="showUpscale && props.imageId" class="flex justify-center mb-2">
+      <div class="min-w-[50%]">
+        <div
+          class="flex flex-wrap gap-1 w-full text-neutral-500 rounded-[18px] bg-surface-2 p-1 border border-surface-3 text-sm"
+        >
+          <button
+            class="grow"
+            :class="{ 'button-primary': tab === 'customize' }"
+            @click="tab = 'customize'"
+          >
+            Customize Image
+          </button>
+          <button
+            class="grow"
+            :class="{ 'button-primary': tab === 'upscale' }"
+            @click="tab = 'upscale'"
+          >
+            Upscale Image
+          </button>
+        </div>
+      </div>
+    </div>
+    <FormKit
+      v-if="!showUpscale || tab === 'customize'"
+      :actions="false"
+      type="form"
+      @submit="conjure"
+    >
       <div
         class="bg-gradient-to-r from-fuchsia-500 to-violet-500 p-px rounded-[20px] purple-shadow min-w-[90vw] md:min-w-[60vw] max-h-[80vh]"
       >
@@ -319,12 +384,32 @@ function setImage() {
         </button>
       </div>
     </FormKit>
-    <button
-      class="px-4 rounded-full absolute right-0 top-0 p-4"
-      @click="emit('cancel')"
+    <div
+      v-if="showUpscale && tab === 'upscale'"
+      class="p-6 border border-neutral-800 rounded-[20px]"
     >
-      <XCircleIcon class="w-6 self-center" />
-    </button>
+      <div v-if="alreadyUpscaled">This image has already been upscaled.</div>
+      <div v-else>
+        <div class="text-center text-neutral-400 mt-4">
+          Upscale your image to a higher resolution (2048&#215;2048)
+        </div>
+        <div class="flex justify-center mt-4">
+          <button class="button-gradient" @click="upscale">
+            Upscale Image
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="absolute right-2 top-0 p-4">
+      <div class="flex justify-end">
+        <div class="self-center">
+          <ImageCreditCount v-if="authStore.user" />
+        </div>
+        <button class="px-4 rounded-full" @click="emit('cancel')">
+          <XCircleIcon class="w-6 self-center" />
+        </button>
+      </div>
+    </div>
   </template>
   <template v-else-if="conjuring && !done && !imageError">
     <div class="p-12 text-center">
@@ -335,14 +420,27 @@ function setImage() {
       </div>
     </div>
   </template>
+  <template v-else-if="upscaling && !done">
+    <div class="p-12 text-center">
+      <Loader />
+      <div class="text-3xl m-4">Upscaling</div>
+      <div class="text-lg text-neutral-500">
+        This can take a minute or two to fully load
+      </div>
+    </div>
+  </template>
   <template v-else-if="done && !conjuring && images.length">
-    <button
-      class="px-4 rounded-full absolute right-0 top-0 p-4"
-      @click="emit('cancel')"
-    >
-      <XCircleIcon class="w-6 self-center" />
-    </button>
-    <div class="mx-4 md:mx-0">
+    <div class="absolute right-2 top-0 p-4">
+      <div class="flex justify-end">
+        <div class="self-center">
+          <ImageCreditCount v-if="authStore.user" />
+        </div>
+        <button class="px-4 rounded-full" @click="emit('cancel')">
+          <XCircleIcon class="w-6 self-center" />
+        </button>
+      </div>
+    </div>
+    <div class="mx-4 md:mx-0 mt-10">
       <div v-if="!noActions" class="mt-6 flex justify-end py-2">
         <button
           class="button-primary mr-2 flex"
@@ -369,7 +467,7 @@ function setImage() {
 
     <div
       v-if="imagePromptRephrased"
-      class="bg-fuchsia-500/10 w-fit mx-auto mb-6 p-4 rounded-md"
+      class="bg-fuchsia-500/10 w-fit mx-auto mb-6 p-4 rounded-md mt-10"
     >
       <div class="text-xl text-neutral-400">
         We rephrased your prompt to make it more likely to generate an image.
@@ -385,7 +483,7 @@ function setImage() {
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 p-2 gap-4 md:gap-8">
-      <div v-if="imageUri" class="relative">
+      <div v-if="imageUri" class="relative max-w-[500px]">
         <div
           class="absolute flex bottom-2 right-2 cursor-pointer bg-white/50 rounded-[8px]"
           @click="eventBus.$emit('open-lightbox', imageUri)"
@@ -401,7 +499,6 @@ function setImage() {
           :class="{
             'border-2 border-fuchsia-500': selectedImg === null,
           }"
-          width="400px"
           @click="selectedImg = null"
         />
         <div class="image-badge">Original</div>
@@ -412,28 +509,29 @@ function setImage() {
         :key="image.uri"
         class="relative cursor-pointer"
       >
-        <div
-          class="absolute flex bottom-2 right-2 cursor-pointer bg-white/50 rounded-[8px]"
-          @click="eventBus.$emit('open-lightbox', image.uri)"
-        >
-          <ArrowsPointingOutIcon
-            class="p-1 w-8 h-8 self-center transition-all hover:scale-125 text-black"
+        <div class="relative max-w-[500px]">
+          <div
+            class="absolute flex bottom-2 right-2 cursor-pointer bg-white/50 rounded-[8px]"
+            @click="eventBus.$emit('open-lightbox', image.uri)"
+          >
+            <ArrowsPointingOutIcon
+              class="p-1 w-8 h-8 self-center transition-all hover:scale-125 text-black"
+            />
+          </div>
+
+          <img
+            :src="image.uri"
+            class="rounded-[25px] max-w-[500px]"
+            :class="{
+              'border-2 border-fuchsia-500': selectedImg?.id === image.id,
+            }"
+            @click="
+              selectedImg?.id === image.id
+                ? (selectedImg = null)
+                : (selectedImg = image)
+            "
           />
         </div>
-
-        <img
-          :src="image.uri"
-          class="rounded-[25px]"
-          :class="{
-            'border-2 border-fuchsia-500': selectedImg?.id === image.id,
-          }"
-          width="400px"
-          @click="
-            selectedImg?.id === image.id
-              ? (selectedImg = null)
-              : (selectedImg = image)
-          "
-        />
       </div>
 
       <div

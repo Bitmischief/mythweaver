@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import LightboxImage from '@/components/LightboxImage.vue';
 import { ArrowsPointingOutIcon } from '@heroicons/vue/20/solid';
-import { PencilSquareIcon, ArrowPathIcon } from '@heroicons/vue/24/outline';
+import {
+  PencilSquareIcon,
+  ArrowPathIcon,
+  ArrowDownTrayIcon,
+} from '@heroicons/vue/24/outline';
 import { useEventBus } from '@/lib/events.ts';
 import { onMounted, onUnmounted } from 'vue';
 
 const props = withDefaults(
   defineProps<{
+    imageId: string | null | undefined;
     imageUri: string | undefined;
     prompt?: string;
     negativePrompt?: string;
@@ -19,6 +24,7 @@ const props = withDefaults(
     seed: string;
   }>(),
   {
+    imageId: undefined,
     imageUri: undefined,
     prompt: undefined,
     negativePrompt: undefined,
@@ -61,6 +67,7 @@ function showCustomizeImageModal() {
     imageUri: props.imageUri,
     alt: props.alt,
     seed: props.seed,
+    imageId: props.imageId,
   });
 }
 
@@ -81,9 +88,24 @@ function showImage() {
         :disabled="!editable"
         @click="showCustomizeImageModal"
       >
-        <PencilSquareIcon class="h-4 mr-1" />
+        <PencilSquareIcon class="h-5 mr-1" />
         <span class="self-center">Customize</span>
       </button>
+      <div class="relative group ml-2">
+        <a
+          class="flex button-white bg-white/50 mr-1"
+          :href="imageUri"
+          target="_blank"
+          download
+        >
+          <ArrowDownTrayIcon class="h-5 w-5" />
+        </a>
+        <div
+          class="absolute mt-2 top-[100%] right-0 hidden group-hover:block whitespace-nowrap px-2 py-1 bg-surface-3 rounded-full"
+        >
+          Download Image
+        </div>
+      </div>
     </div>
 
     <div
