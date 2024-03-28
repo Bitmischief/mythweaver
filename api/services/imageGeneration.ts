@@ -14,7 +14,7 @@ import { AppEvent, track } from '../lib/tracking';
 import { modifyImageCreditCount } from './credits';
 import { ImageCreditChangeType } from '@prisma/client';
 import FormData from 'form-data';
-import {Readable} from "node:stream";
+import { Readable } from 'node:stream';
 
 const s3 = new S3Client({
   endpoint: 'https://sfo3.digitaloceanspaces.com',
