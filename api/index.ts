@@ -22,7 +22,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { isLocalDevelopment, isProduction } from './lib/utils';
 import * as Sentry from '@sentry/node';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
-import { endTrialQueue } from './worker';
+import { endTrialQueue, lifetimeSubscriptionCreditQueue } from './worker';
 
 const PORT = process.env.PORT || 8000;
 
@@ -144,6 +144,12 @@ app.listen(PORT, async () => {
 
   await endTrialQueue.add({}, { repeat: { cron: '* * * * *' } });
   logger.info('End trial job scheduled');
+
+  await lifetimeSubscriptionCreditQueue.add(
+    {},
+    { repeat: { cron: '0 * 1 * *' } },
+  );
+  logger.info('Lifetime subscription credits job scheduled');
 });
 
 process.on('unhandledRejection', (reason: Error | any) => {

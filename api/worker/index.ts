@@ -6,6 +6,7 @@ import { ImageStylePreset } from '../controllers/images';
 import { sendWebsocketMessage, WebSocketEvent } from '../services/websockets';
 import logger from '../lib/logger';
 import { endTrials } from './jobs/endTrials';
+import { processLifetimeSubscriptionCredits } from './jobs/processLifetimeSubscriptionCredits';
 
 const config = process.env.REDIS_ENDPOINT || '';
 
@@ -109,5 +110,23 @@ endTrialQueue.process(async (job, done) => {
   } catch (err) {
     logger.error('Error processing end trials job!', err);
     done(new Error('Error processing end trials job!'));
+  }
+});
+
+export const lifetimeSubscriptionCreditQueue = new Queue(
+  'lifetime-subscription-credits',
+  config,
+);
+
+lifetimeSubscriptionCreditQueue.process(async (job, done) => {
+  logger.info('Processing end lifetime subscription credits job');
+
+  try {
+    await processLifetimeSubscriptionCredits();
+    logger.info('Completed processing lifetime subscription credits job');
+    done();
+  } catch (err) {
+    logger.error('Error processing lifetime subscription credits job!', err);
+    done(new Error('Error processing lifetime subscription credits job!'));
   }
 });

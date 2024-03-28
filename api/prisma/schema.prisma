@@ -48,6 +48,7 @@ model User {
   planInterval            BillingInterval @default(MONTHLY)
   username                String
   imageCredits            Int             @default(0)
+  lifetimeAccess          Boolean         @default(false)
 
   refreshTokens            RefreshToken[]
   campaigns                Campaign[]
