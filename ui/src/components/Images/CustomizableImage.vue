@@ -74,6 +74,22 @@ function showCustomizeImageModal() {
 function showImage() {
   eventBus.$emit('open-lightbox', props.imageUri);
 }
+
+function downloadImage(url: string) {
+  fetch(url)
+    .then((resp) => resp.blob())
+    .then((blobobject) => {
+      const blob = window.URL.createObjectURL(blobobject);
+      const anchor = document.createElement('a');
+      anchor.style.display = 'none';
+      anchor.href = blob;
+      anchor.download = `${props.alt?.toLowerCase()}.png`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      window.URL.revokeObjectURL(blob);
+    })
+    .catch(() => console.log('An error in downloadin gthe file sorry'));
+}
 </script>
 
 <template>
@@ -92,14 +108,13 @@ function showImage() {
         <span class="self-center">Customize</span>
       </button>
       <div class="relative group ml-2">
-        <a
+        <button
+          v-if="imageUri"
           class="flex button-white bg-white/50 mr-1"
-          :href="imageUri"
-          target="_blank"
-          download
+          @click="downloadImage(imageUri)"
         >
           <ArrowDownTrayIcon class="h-5 w-5" />
-        </a>
+        </button>
         <div
           class="absolute mt-2 top-[100%] right-0 hidden group-hover:block whitespace-nowrap px-2 py-1 bg-surface-3 rounded-full"
         >

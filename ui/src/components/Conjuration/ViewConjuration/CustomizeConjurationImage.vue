@@ -91,6 +91,7 @@ onMounted(async () => {
   channel.bind(ServerEvent.ImageCreated, function (data: any) {
     images.value.push(data);
     conjuring.value = false;
+    loading.value = false;
   });
 
   channel.bind(ServerEvent.ImageFiltered, function () {
@@ -113,6 +114,7 @@ onMounted(async () => {
     });
     imageError.value = true;
     conjuring.value = false;
+    upscaling.value = false;
   });
 
   channel.bind(ServerEvent.ImageUpscaled, function (data: any) {
@@ -122,7 +124,7 @@ onMounted(async () => {
   });
 
   channel.bind(ServerEvent.ImageUpscalingDone, function () {
-    console.log('hit this?');
+    loading.value = true;
     showSuccess({ message: 'Image successfully upscaled!' });
   });
 });
@@ -138,6 +140,7 @@ async function conjure() {
     imageError.value = false;
     imageFiltered.value = false;
     loading.value = true;
+    selectedImg.value = null;
 
     await conjureImage(
       editablePrompt.value || '',
@@ -482,7 +485,9 @@ const alreadyUpscaled = computed(() => {
       </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 p-2 gap-4 md:gap-8">
+    <div
+      class="grid grid-cols-1 place-items-center md:grid-cols-2 p-2 gap-4 md:gap-8"
+    >
       <div v-if="imageUri" class="relative max-w-[500px]">
         <div
           class="absolute flex bottom-2 right-2 cursor-pointer bg-white/50 rounded-[8px]"

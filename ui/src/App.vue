@@ -57,9 +57,9 @@ onMounted(async () => {
       mixpanel.init(import.meta.env.VITE_MIXPANEL_TOKEN as string);
       mixpanel.identify(user.id.toString());
 
-      if (user.preorderRedemptionCoupon) {
-        showPreorderRedemptionModal.value = true;
-      }
+      // if (user.preorderRedemptionCoupon) {
+      //   showPreorderRedemptionModal.value = true;
+      // }
     }
   });
 

@@ -15,6 +15,7 @@ import { modifyImageCreditCount } from './credits';
 import { ImageCreditChangeType } from '@prisma/client';
 import FormData from 'form-data';
 import { Readable } from 'node:stream';
+import logger from '../lib/logger';
 
 const s3 = new S3Client({
   endpoint: 'https://sfo3.digitaloceanspaces.com',
@@ -415,6 +416,7 @@ const postUpscaleRequest = async (
       },
     );
   } catch (err: any) {
+    logger.error('There was an issue upscaling an image.', { err });
     await sendWebsocketMessage(request.userId, WebSocketEvent.ImageError, {
       message:
         'There was an error upscaling your image. This could be due to our content filtering system rejecting your prompt, or an unexpected outage with one of our providers. Please try again.',
