@@ -8,6 +8,7 @@ import {
 } from '@heroicons/vue/24/outline';
 import { useEventBus } from '@/lib/events.ts';
 import { onMounted, onUnmounted } from 'vue';
+import { showError } from '@/lib/notifications.ts';
 
 const props = withDefaults(
   defineProps<{
@@ -76,7 +77,7 @@ function showImage() {
 }
 
 function downloadImage(url: string) {
-  fetch(url)
+  fetch(url, { mode: 'no-cors' })
     .then((resp) => resp.blob())
     .then((blobobject) => {
       const blob = window.URL.createObjectURL(blobobject);
@@ -88,7 +89,7 @@ function downloadImage(url: string) {
       anchor.click();
       window.URL.revokeObjectURL(blob);
     })
-    .catch(() => console.log('An error in downloadin gthe file sorry'));
+    .catch(() => showError({ message: 'Failed to download image' }));
 }
 </script>
 
