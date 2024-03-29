@@ -77,7 +77,7 @@ function showImage() {
 }
 
 function downloadImage(url: string) {
-  fetch(url, { mode: 'no-cors' })
+  fetch(url)
     .then((resp) => resp.blob())
     .then((blobobject) => {
       const blob = window.URL.createObjectURL(blobobject);
