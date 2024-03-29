@@ -18,6 +18,7 @@ import {
   getCheckoutUrl,
   getImageCreditCountForProductId,
   getPlanForProductId,
+  getPreorderRedemptionSessionUrl,
   getSessionLineItems,
 } from '../services/billing';
 import Stripe from 'stripe';
@@ -81,6 +82,57 @@ export default class BillingController {
       user.billingCustomerId,
       body.priceId,
       body.subscription,
+    );
+  }
+
+  @Get('/redeem-preorder-url')
+  @SuccessResponse('200', 'Success')
+  public async getRedeemPreOrderUrl(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
+  ): Promise<string> {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user) {
+      logger.warn("Couldn't find user for id", userId);
+
+      throw new AppError({
+        description: 'User not found',
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    if (
+      !user.preorderRedemptionCoupon ||
+      !user.preorderRedemptionStripePriceId
+    ) {
+      throw new AppError({
+        description: 'User does not have a preorder redemption coupon',
+        httpCode: HttpCode.BAD_REQUEST,
+      });
+    }
+
+    if (!user.billingCustomerId) {
+      user.billingCustomerId = await createCustomer(user.email);
+      await prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          billingCustomerId: user.billingCustomerId,
+        },
+      });
+    }
+
+    return await getPreorderRedemptionSessionUrl(
+      user.billingCustomerId,
+      user.preorderRedemptionStripePriceId,
+      user.preorderRedemptionCoupon,
     );
   }
 

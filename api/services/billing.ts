@@ -166,3 +166,34 @@ export const getPlanForProductId = (productId: string) => {
     return BillingPlan.PRO;
   } else return BillingPlan.FREE;
 };
+
+export const getPreorderRedemptionSessionUrl = async (
+  customerId: string,
+  priceId: string,
+  coupon: string,
+) => {
+  const session = await stripe.checkout.sessions.create({
+    customer: customerId,
+    success_url: `${urlPrefix}/account-settings`,
+    cancel_url: `${urlPrefix}/account-settings`,
+    line_items: [
+      {
+        price: priceId,
+        quantity: 1,
+      },
+    ],
+    discounts: [
+      {
+        coupon,
+      },
+    ],
+    mode: 'subscription',
+    billing_address_collection: 'auto',
+    customer_update: {
+      address: 'auto',
+      name: 'auto',
+    },
+  });
+
+  return session.url;
+};

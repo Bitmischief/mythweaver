@@ -39,17 +39,18 @@ model User {
   updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
   email     String    @unique
 
-  earlyAccessCutoffAt      DateTime        @default("2023-10-17T08:00:00.000Z")
-  trialEndsAt              DateTime?
-  earlyAccessExempt        Boolean         @default(false)
-  billingCustomerId        String?
-  subscriptionPaidThrough  DateTime?
-  plan                     BillingPlan     @default(TRIAL)
-  planInterval             BillingInterval @default(MONTHLY)
-  username                 String
-  imageCredits             Int             @default(0)
-  lifetimeAccess           Boolean         @default(false)
-  preorderRedemptionCoupon String?
+  earlyAccessCutoffAt             DateTime        @default("2023-10-17T08:00:00.000Z")
+  trialEndsAt                     DateTime?
+  earlyAccessExempt               Boolean         @default(false)
+  billingCustomerId               String?
+  subscriptionPaidThrough         DateTime?
+  plan                            BillingPlan     @default(TRIAL)
+  planInterval                    BillingInterval @default(MONTHLY)
+  username                        String
+  imageCredits                    Int             @default(0)
+  lifetimeAccess                  Boolean         @default(false)
+  preorderRedemptionCoupon        String?
+  preorderRedemptionStripePriceId String?
 
   refreshTokens            RefreshToken[]
   campaigns                Campaign[]

@@ -34,6 +34,22 @@ router.post('/checkout-url', [
   },
 ]);
 
+router.get('/redeem-preorder-url', [
+  useAuthenticateRequest(),
+  useInjectLoggingInfo(),
+  async (req: Request, res: Response) => {
+    const controller = new BillingController();
+
+    const response = await controller.getRedeemPreOrderUrl(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      useLogger(res),
+    );
+
+    return res.status(200).send(response);
+  },
+]);
+
 const getPortalUrlSchema = z.object({
   upgrade: z.coerce.boolean().optional(),
   newPlanPriceId: z.string().optional(),
