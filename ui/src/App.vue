@@ -18,6 +18,7 @@ import CreateRelationship from '@/components/Relationships/CreateRelationship.vu
 import { useLDClient, useLDReady } from 'launchdarkly-vue-client-sdk';
 import UpgradeContainer from '@/components/Core/Billing/UpgradeContainer.vue';
 import mixpanel from 'mixpanel-browser';
+import { getRedeemPreOrderUrl } from '@/api/billing.ts';
 
 const ldReady = useLDReady();
 const authStore = useAuthStore();
@@ -57,9 +58,9 @@ onMounted(async () => {
       mixpanel.init(import.meta.env.VITE_MIXPANEL_TOKEN as string);
       mixpanel.identify(user.id.toString());
 
-      // if (user.preorderRedemptionCoupon) {
-      //   showPreorderRedemptionModal.value = true;
-      // }
+      if (user.preorderRedemptionCoupon) {
+        showPreorderRedemptionModal.value = true;
+      }
     }
   });
 
@@ -141,6 +142,11 @@ eventBus.$on('create-relationship', (args: CreateRelationshipRequest) => {
     createRelationshipArgs.value = args;
   }
 });
+
+async function navigateToPreOrderRedemptionUrl() {
+  const response = await getRedeemPreOrderUrl();
+  location.href = response.data;
+}
 </script>
 
 <template>
@@ -227,9 +233,74 @@ eventBus.$on('create-relationship', (args: CreateRelationshipRequest) => {
     @close="showPreorderRedemptionModal = false"
   >
     <div
-      class="min-w-[40vw] max-w-[90vw] h-[90vh] p-6 bg-surface-2 rounded-[20px] text-neutral-300"
+      class="min-w-[40vw] md:max-w-[50vw] max-w-[90vw] p-6 bg-surface-2 rounded-[20px]"
     >
-      <div class="text-4xl">Your MythWeaver Subscription Is Ready!</div>
+      <div
+        class="text-4xl font-medium text-center text-transparent bg-clip-text bg-gradient-to-r from-[#E5AD59] to-[#E95252]"
+      >
+        <div>Your MythWeaver Subscription Is Ready!</div>
+      </div>
+
+      <div class="mt-6 flex justify-center">
+        <button
+          class="button-gradient text-white text-lg md:text-2xl"
+          @click="navigateToPreOrderRedemptionUrl"
+        >
+          Activate Pre-Ordered Subscription
+        </button>
+      </div>
+
+      <div class="mt-6 flex justify-center text-white">
+        <div>
+          <div class="text-2xl text-neutral-400">What do I have to do?</div>
+          <div class="text-xl text-neutral-200">
+            Click the button above to activate your pre-ordered subscription.
+            You will be asked for your billing address, for tax purposes, and
+            payment information, to continue your subscription after your
+            pre-purchased subscription ends.
+          </div>
+
+          <div class="mt-6 text-2xl text-neutral-400">
+            Why do I have to do this?
+          </div>
+          <div class="text-xl text-neutral-200">
+            Now that MythWeaver has publicly launched, early access has ended.
+            To continue using your pre-ordered subscription, we need to register
+            your information in our subscription system.
+          </div>
+
+          <div class="mt-6 text-2xl text-neutral-400">
+            Why do I have to enter payment information?
+          </div>
+          <div class="text-xl text-neutral-200">
+            Even though you have pre-ordered, our subscription system requires
+            your payment information to continue your subscription after your
+            pre-purchased subscription ends.
+          </div>
+
+          <div class="mt-6 text-2xl text-neutral-400">
+            Can I cancel my subscription after activating?
+          </div>
+          <div class="text-xl text-neutral-200">
+            Yes, you can cancel your subscription at any time. You will still be
+            able to use your subscription until the end of the current billing
+            cycle.
+          </div>
+
+          <div class="mt-6 text-2xl text-neutral-400">
+            What if I have other questions?
+          </div>
+          <div class="text-xl text-neutral-200">
+            Feel free to reach out to us in the chat bubble in the lower right
+            of your screen in the MythWeaver app, or email us at
+            <a
+              href="mailto:support@mythweaver.co"
+              class="text-fuchsia-500 underline"
+              >support@mythweaver.co</a
+            >
+          </div>
+        </div>
+      </div>
     </div>
   </ModalAlternate>
 

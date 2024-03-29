@@ -18,3 +18,9 @@ export const getBillingPortalUrl = (request?: BillingPortalUrlRequest) => {
     params: request,
   });
 };
+
+export const getRedeemPreOrderUrl = (request?: BillingPortalUrlRequest) => {
+  return axios.get('/billing/redeem-preorder-url', {
+    params: request,
+  });
+};
