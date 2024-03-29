@@ -46,6 +46,7 @@ export enum AppEvent {
   SessionAudioUploaded = 'Session Audio Uploaded',
   NewSubscription = 'New Subscription',
   PaidSubscription = 'Paid Subscription',
+  PreorderSubscriptionRedemption = 'Preorder Subscription Redemption',
   PaidImageCreditPack = 'Paid Image Credit Pack',
   RevenueReceived = 'Revenue Received',
   SessionTranscriptionCompleted = 'Session Transcription Completed',

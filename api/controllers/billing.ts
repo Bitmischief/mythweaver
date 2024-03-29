@@ -332,16 +332,31 @@ export default class BillingController {
       event.data.object.items.data[0].price.product as string,
     );
 
-    if (!user.plan || user.plan === BillingPlan.FREE) {
-      track(AppEvent.NewSubscription, user.id, undefined, {
-        amount: event.data.object.items.data[0].price.unit_amount,
-      });
+    if (user.plan === BillingPlan.FREE) {
+      if (
+        event.data.object.discount?.coupon.id === user.preorderRedemptionCoupon
+      ) {
+        track(AppEvent.PreorderSubscriptionRedemption, user.id);
+        await prisma.user.update({
+          where: {
+            id: user.id,
+          },
+          data: {
+            preorderRedemptionCoupon: null,
+            preorderRedemptionStripePriceId: null,
+          },
+        });
+      } else {
+        track(AppEvent.NewSubscription, user.id, undefined, {
+          amount: event.data.object.items.data[0].price.unit_amount,
+        });
 
-      const subscriptionAmount =
-        (event.data.object.items.data[0].price.unit_amount || 0) / 100;
-      await postToDiscordBillingChannel(
-        `New subscription: ${user.email}! Amount: $${subscriptionAmount}.`,
-      );
+        const subscriptionAmount =
+          (event.data.object.items.data[0].price.unit_amount || 0) / 100;
+        await postToDiscordBillingChannel(
+          `New subscription: ${user.email}! Amount: $${subscriptionAmount}.`,
+        );
+      }
     }
 
     await prisma.user.update({

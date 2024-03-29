@@ -25,6 +25,8 @@ const eventBus = useEventBus();
 const intercom = useIntercom();
 const ldClient = useLDClient();
 
+const showPreorderRedemptionModal = ref(false);
+
 onBeforeMount(async () => {
   if (
     location.pathname.startsWith('/auth/magic-link') ||
@@ -55,8 +57,9 @@ onMounted(async () => {
       mixpanel.init(import.meta.env.VITE_MIXPANEL_TOKEN as string);
       mixpanel.identify(user.id.toString());
 
-      // if (user.redeemPreorderCoupon) {
-      // }
+      if (user.preorderRedemptionCoupon) {
+        showPreorderRedemptionModal.value = true;
+      }
     }
   });
 
@@ -215,6 +218,18 @@ eventBus.$on('create-relationship', (args: CreateRelationshipRequest) => {
   </ModalAlternate>
 
   <UpgradeContainer />
+
+  <ModalAlternate
+    :show="showPreorderRedemptionModal"
+    extra-dark
+    @close="showPreorderRedemptionModal = false"
+  >
+    <div
+      class="min-w-[40vw] max-w-[90vw] h-[90vh] p-6 bg-surface-2 rounded-[20px] text-neutral-300"
+    >
+      <div class="text-4xl">Your MythWeaver Subscription Is Ready!</div>
+    </div>
+  </ModalAlternate>
 
   <LightboxRoot />
 </template>

@@ -17,6 +17,7 @@ export interface User {
   plan: BillingPlan;
   subscriptionPaidThrough: string;
   imageCredits: number;
+  preorderRedemptionCoupon: string;
 }
 
 export const getCurrentUser = () => {
