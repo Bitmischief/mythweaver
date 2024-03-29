@@ -21,3 +21,7 @@ export const patchImageConjurationId = async (imageId: number, conjurationId: nu
     conjurationId: conjurationId,
   });
 };
+
+export const postImageUpscale = async (imageId: number) => {
+  return axios.post(`/images/${imageId}/upscale`);
+};

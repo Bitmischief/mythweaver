@@ -25,6 +25,7 @@ export enum AppEvent {
   GetConjurers = 'Get Conjurers',
   GetConjurer = 'Get Conjurer',
   ConjureImage = 'Conjure Image',
+  UpscaleImage = 'Upscale Image',
   QuickConjure = 'Quick Conjure',
   Conjure = 'Conjure',
   GetConjurationRequests = 'Get Conjuration Requests',

@@ -40,7 +40,7 @@ function toggleMenu() {
       enter-from="scale-0"
       enter-to="scale-100"
     >
-      <img :src="uri" class="mx-auto my-auto max-h-[80vh] rounded-xl" alt="" />
+      <img :src="uri" class="mx-auto my-auto max-h-[95vh] rounded-xl" alt="" />
     </TransitionRoot>
   </div>
 </template>

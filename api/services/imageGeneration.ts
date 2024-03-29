@@ -2,13 +2,19 @@ import axios, { AxiosResponse } from 'axios';
 import fs from 'node:fs';
 import { v4 as uuidv4 } from 'uuid';
 import { isLocalDevelopment } from '../lib/utils';
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import {
+  GetObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from '@aws-sdk/client-s3';
 import { prisma } from '../lib/providers/prisma';
 import { ImageStylePreset } from '../controllers/images';
 import { sendWebsocketMessage, WebSocketEvent } from './websockets';
 import { AppEvent, track } from '../lib/tracking';
 import { modifyImageCreditCount } from './credits';
 import { ImageCreditChangeType } from '@prisma/client';
+import FormData from 'form-data';
+import { Readable } from 'node:stream';
 
 const s3 = new S3Client({
   endpoint: 'https://sfo3.digitaloceanspaces.com',
@@ -22,6 +28,7 @@ const s3 = new S3Client({
 const engineId = 'stable-diffusion-v1-6';
 const apiHost = process.env.API_HOST ?? 'https://api.stability.ai';
 const apiKey = process.env.STABILITY_API_KEY;
+const upscaleEngine = 'esrgan-v1-x2plus';
 
 interface GenerationResponse {
   artifacts: Array<{
@@ -30,6 +37,14 @@ interface GenerationResponse {
     finishReason: 'SUCCESS' | 'CONTENT_FILTERED' | 'ERROR';
   }>;
   updatedPrompt?: string | undefined;
+}
+
+interface UpscaleResponse {
+  artifacts: Array<{
+    base64: string;
+    finishReason: string;
+    seed: number;
+  }>;
 }
 
 export interface ImageRequest {
@@ -44,6 +59,12 @@ export interface ImageRequest {
     characterId?: number;
   };
   seed?: string;
+}
+
+export interface UpscaleRequest {
+  imageId: number;
+  userId: number;
+  imageUri: string;
 }
 
 export const generateImage = async (request: ImageRequest) => {
@@ -182,6 +203,115 @@ export const generateImage = async (request: ImageRequest) => {
   return urls;
 };
 
+export const upscaleImage = async (request: UpscaleRequest) => {
+  if (!apiKey) throw new Error('Missing Stability API key.');
+
+  const user = await prisma.user.findUnique({
+    where: {
+      id: request.userId,
+    },
+  });
+
+  if (!user) {
+    await sendWebsocketMessage(request.userId, WebSocketEvent.ImageError, {
+      message: 'User not found.',
+    });
+
+    return undefined;
+  }
+
+  if (!user.earlyAccessExempt) {
+    if (user.imageCredits < 1) {
+      await sendWebsocketMessage(request.userId, WebSocketEvent.ImageError, {
+        message: 'You do not have enough image credits to upscale this image.',
+      });
+
+      return undefined;
+    }
+  }
+
+  const urls: string[] = [];
+  let validImageCount = 0;
+  let tries = 0;
+  const maxImageTries = 30;
+
+  do {
+    tries++;
+    const upscaleResponse = await postUpscaleRequest(request);
+
+    track(AppEvent.UpscaleImage, request.userId, undefined, {});
+
+    if (!upscaleResponse) {
+      return undefined;
+    }
+
+    const artifacts = upscaleResponse.artifacts.filter(
+      (a) => a.finishReason === 'SUCCESS',
+    );
+
+    for (const image of artifacts) {
+      if (validImageCount === 1) {
+        break;
+      }
+
+      const imageId = uuidv4();
+      let url = '';
+
+      if (!isLocalDevelopment) {
+        url = await uploadImage(imageId, image.base64);
+      } else {
+        url = saveImageLocally(imageId, image.base64);
+      }
+
+      urls.push(url);
+
+      const updatedImage = await prisma.image.update({
+        where: {
+          id: request.imageId,
+        },
+        data: {
+          userId: request.userId,
+          uri: url,
+        },
+      });
+
+      await sendWebsocketMessage(
+        request.userId,
+        WebSocketEvent.ImageUpscaled,
+        updatedImage,
+      );
+
+      validImageCount++;
+    }
+  } while (validImageCount < 1 && tries < maxImageTries);
+
+  if (validImageCount < 1) {
+    await sendWebsocketMessage(request.userId, WebSocketEvent.ImageFiltered, {
+      message:
+        'The image generation service was unable to upscale your image. Please try again.',
+    });
+  } else {
+    await sendWebsocketMessage(
+      request.userId,
+      WebSocketEvent.ImageUpscalingDone,
+      {},
+    );
+
+    const imageCredits = await modifyImageCreditCount(
+      user.id,
+      -1,
+      ImageCreditChangeType.USER_INITIATED,
+      `Image upscale: ${urls.join(', ')}`,
+    );
+
+    await sendWebsocketMessage(
+      request.userId,
+      WebSocketEvent.UserImageCreditCountUpdated,
+      imageCredits,
+    );
+  }
+};
+
 const postToStableDiffusion = async (
   request: ImageRequest,
   preset: string,
@@ -249,6 +379,51 @@ export const saveImageLocally = (imageId: string, imageBase64: string) => {
   );
 
   return `${process.env.API_URL}/images/${imageId}.png`;
+};
+
+const postUpscaleRequest = async (
+  request: UpscaleRequest,
+): Promise<UpscaleResponse | undefined> => {
+  let response: AxiosResponse<any, any>;
+
+  try {
+    const formData = new FormData();
+    const imageId = request.imageUri.split('/').pop();
+
+    if (!isLocalDevelopment) {
+      const command = new GetObjectCommand({
+        Bucket: 'mythweaver-assets',
+        Key: imageId,
+      });
+      const response = await s3.send(command);
+      formData.append('image', response.Body as Readable);
+    } else {
+      const imageDir = `${process.env.DATA_DIR ?? './public/images'}/${imageId}`;
+      const image = fs.readFileSync(imageDir);
+      formData.append('image', image);
+    }
+
+    response = await axios.post(
+      `${apiHost}/v1/generation/${upscaleEngine}/image-to-image/upscale`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Accept: 'application/json',
+          Authorization: `Bearer ${apiKey}`,
+        },
+      },
+    );
+  } catch (err: any) {
+    await sendWebsocketMessage(request.userId, WebSocketEvent.ImageError, {
+      message:
+        'There was an error upscaling your image. This could be due to our content filtering system rejecting your prompt, or an unexpected outage with one of our providers. Please try again.',
+    });
+
+    return undefined;
+  }
+
+  return response.data;
 };
 
 export const uploadImage = async (imageId: string, imageBase64: string) => {

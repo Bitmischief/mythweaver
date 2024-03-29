@@ -112,6 +112,7 @@ export interface CustomizeImageRequest {
   negativePrompt: string;
   stylePreset: string;
   seed: string;
+  imageId: number;
 }
 eventBus.$on('toggle-customize-image-modal', (args: CustomizeImageRequest) => {
   showCustomizeImageModal.value = !showCustomizeImageModal.value;
@@ -185,7 +186,7 @@ eventBus.$on('create-relationship', (args: CreateRelationshipRequest) => {
 
   <ModalAlternate :show="showCustomizeImageModal" extra-dark>
     <div
-      class="pt-8 md:p-6 md:px-12 bg-surface-2 rounded-[20px] text-white text-center mb-12"
+      class="pt-8 md:p-6 md:px-12 bg-surface-2 rounded-[20px] min-w-[70vw] text-white text-center mb-12"
     >
       <CustomizeConjurationImage
         :prompt="customizeImageArgs?.prompt"
@@ -193,6 +194,7 @@ eventBus.$on('create-relationship', (args: CreateRelationshipRequest) => {
         :image-uri="customizeImageArgs?.imageUri"
         :looks="customizeImageArgs?.stylePreset"
         :seed="customizeImageArgs?.seed"
+        :image-id="customizeImageArgs?.imageId"
         in-modal
         @cancel="showCustomizeImageModal = false"
       />

@@ -9,7 +9,7 @@ import {
   Tags,
 } from 'tsoa';
 import { TrackingInfo } from '../lib/tracking';
-import { generateImage } from '../services/imageGeneration';
+import { generateImage, upscaleImage } from '../services/imageGeneration';
 import { prisma } from '../lib/providers/prisma';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import { MythWeaverLogger } from '../lib/logger';
@@ -126,6 +126,59 @@ export default class ImageController {
       data: {
         conjurationId: request.conjurationId,
       },
+    });
+  }
+
+  @Security('jwt')
+  @OperationId('upscaleImage')
+  @Post('/:imageId/upscale')
+  public async postImageUpscale(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
+    @Route() imageId: number,
+  ): Promise<void> {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user) {
+      throw new AppError({
+        description: 'User not found.',
+        httpCode: HttpCode.BAD_REQUEST,
+      });
+    }
+
+    const image = await prisma.image.findUnique({
+      where: {
+        id: imageId,
+        userId: userId,
+      },
+    });
+
+    if (!image) {
+      throw new AppError({
+        description: 'Image not found.',
+        httpCode: HttpCode.BAD_REQUEST,
+      });
+    }
+
+    if (!user.earlyAccessExempt) {
+      if (user.imageCredits < 1) {
+        throw new AppError({
+          description:
+            'You do not have enough image credits to upscale this image.',
+          httpCode: HttpCode.BAD_REQUEST,
+        });
+      }
+    }
+
+    upscaleImage({
+      imageId,
+      userId,
+      imageUri: image.uri,
     });
   }
 }

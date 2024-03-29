@@ -67,4 +67,30 @@ router.patch('/:imageId/conjurationId', [
   },
 ]);
 
+const postUpscaleRouteSchema = z.object({
+  imageId: z.coerce.number(),
+});
+
+router.post('/:imageId/upscale', [
+  useAuthenticateRequest(),
+  useInjectLoggingInfo(),
+  useValidateRequest(postUpscaleRouteSchema, {
+    validationType: ValidationTypes.Route,
+  }),
+  async (req: Request, res: Response) => {
+    const controller = new ImageController();
+
+    const { imageId = 0 } = req.params;
+
+    const response = await controller.postImageUpscale(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      useLogger(res),
+      imageId as number,
+    );
+
+    return res.status(200).send(response);
+  },
+]);
+
 export default router;

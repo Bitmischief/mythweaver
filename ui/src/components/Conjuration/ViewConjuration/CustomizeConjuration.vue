@@ -33,6 +33,7 @@ const tagInput = ref<HTMLElement | null>(null);
 const negativePrompt = ref('');
 const stylePreset = ref('');
 const seed = ref('');
+const imageId = ref(null);
 
 const editable = computed(
   () => props.conjuration?.userId === currentUserId.value,
@@ -206,6 +207,7 @@ const setPromptSettings = () => {
     negativePrompt.value = image.negativePrompt;
     stylePreset.value = image.stylePreset;
     seed.value = image.seed;
+    imageId.value = image.id;
   }
 };
 </script>
@@ -215,6 +217,7 @@ const setPromptSettings = () => {
     <div class="md:flex">
       <div class="max-w-[35rem] overflow-hidden rounded-md md:mr-6">
         <CustomizableImage
+          :image-id="imageId"
           :image-uri="editableConjuration.imageUri"
           :prompt="editableConjuration.imageAIPrompt"
           :negative-prompt="negativePrompt"
