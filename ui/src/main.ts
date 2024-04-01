@@ -11,7 +11,6 @@ import VueIntercom from '@homebaseai/vue3-intercom';
 import { LDPlugin } from 'launchdarkly-vue-client-sdk';
 import * as Sentry from '@sentry/vue';
 import { isDevelopment, isLocalDevelopment, isProduction } from '@/lib/util.ts';
-import { useAuthStore } from '@/store';
 
 const app = createApp(App);
 
