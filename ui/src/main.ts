@@ -52,13 +52,13 @@ Sentry.init({
     }
 
     // Check if it is an exception, and if so, show the report dialog
-    if (event.exception && event.event_id) {
-      const currentUser = useAuthStore()?.user;
-      Sentry.showReportDialog({
-        eventId: event.event_id,
-        user: { email: currentUser?.email, name: currentUser?.username },
-      });
-    }
+    // if (event.exception && event.event_id) {
+    //   const currentUser = useAuthStore()?.user;
+    //   Sentry.showReportDialog({
+    //     eventId: event.event_id,
+    //     user: { email: currentUser?.email, name: currentUser?.username },
+    //   });
+    // }
     return event;
   },
 });
