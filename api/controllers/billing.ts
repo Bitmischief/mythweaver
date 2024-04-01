@@ -20,6 +20,7 @@ import {
   getPlanForProductId,
   getPreorderRedemptionSessionUrl,
   getSessionLineItems,
+  getSubscription,
 } from '../services/billing';
 import Stripe from 'stripe';
 import {
@@ -32,6 +33,7 @@ import logger, { MythWeaverLogger } from '../lib/logger';
 import { setIntercomCustomAttributes } from '../lib/intercom';
 import { modifyImageCreditCount } from '../services/credits';
 import { postToDiscordBillingChannel } from '../services/discord';
+import * as stripe from 'stripe';
 
 const PRO_PLAN_IMAGE_CREDITS = 300;
 const BASIC_PLAN_IMAGE_CREDITS = 100;
@@ -333,30 +335,15 @@ export default class BillingController {
     );
 
     if (user.plan === BillingPlan.FREE) {
-      if (
-        event.data.object.discount?.coupon.id === user.preorderRedemptionCoupon
-      ) {
-        track(AppEvent.PreorderSubscriptionRedemption, user.id);
-        await prisma.user.update({
-          where: {
-            id: user.id,
-          },
-          data: {
-            preorderRedemptionCoupon: null,
-            preorderRedemptionStripePriceId: null,
-          },
-        });
-      } else {
-        track(AppEvent.NewSubscription, user.id, undefined, {
-          amount: event.data.object.items.data[0].price.unit_amount,
-        });
+      track(AppEvent.NewSubscription, user.id, undefined, {
+        amount: event.data.object.items.data[0].price.unit_amount,
+      });
 
-        const subscriptionAmount =
-          (event.data.object.items.data[0].price.unit_amount || 0) / 100;
-        await postToDiscordBillingChannel(
-          `New subscription: ${user.email}! Amount: $${subscriptionAmount}.`,
-        );
-      }
+      const subscriptionAmount =
+        (event.data.object.items.data[0].price.unit_amount || 0) / 100;
+      await postToDiscordBillingChannel(
+        `New subscription: ${user.email}! Amount: $${subscriptionAmount}.`,
+      );
     }
 
     await prisma.user.update({
@@ -396,15 +383,48 @@ export default class BillingController {
             subscriptionProductId,
           });
 
-          await processSubscriptionPaid(
-            event.data.object.customer as string,
-            subscriptionProductId,
-            curSubscription?.plan as Stripe.Plan,
-            event.data.object.amount_paid / 100,
-            logger,
-            (prevSubscription?.plan?.product as string) ?? null,
-            (prevSubscription?.plan as Stripe.Plan) ?? null,
-          );
+          const user = await getUser(event.data.object.customer as string);
+          if (
+            event.data.object.discount?.coupon.id ===
+            user.preorderRedemptionCoupon
+          ) {
+            logger.info('Beginning to process preorder redemption...');
+
+            const subscription = await getSubscription(
+              event.data.object.subscription as string,
+            );
+            const subscriptionEnd = new Date(0);
+            subscriptionEnd.setUTCSeconds(subscription.current_period_end);
+
+            const plan = getPlanForProductId(
+              curSubscription?.plan?.product as string,
+            );
+
+            await prisma.user.update({
+              where: {
+                id: user.id,
+              },
+              data: {
+                preorderRedemptionCoupon: null,
+                preorderRedemptionStripePriceId: null,
+                plan,
+                subscriptionPaidThrough: subscriptionEnd,
+              },
+            });
+
+            track(AppEvent.PreorderSubscriptionRedemption, user.id);
+            logger.info('Preorder redemption completed');
+          } else {
+            await processSubscriptionPaid(
+              event.data.object.customer as string,
+              subscriptionProductId,
+              curSubscription?.plan as Stripe.Plan,
+              event.data.object.amount_paid / 100,
+              logger,
+              (prevSubscription?.plan?.product as string) ?? null,
+              (prevSubscription?.plan as Stripe.Plan) ?? null,
+            );
+          }
         } else {
           logger.info(
             'Ignoring invoice paid event for item, this is handled in session.checkout.completed',

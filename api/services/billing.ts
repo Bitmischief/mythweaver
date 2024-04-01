@@ -23,6 +23,10 @@ export const createCustomer = async (email: string): Promise<string> => {
   return customer.id;
 };
 
+export const getSubscription = async (subscriptionId: string) => {
+  return await stripe.subscriptions.retrieve(subscriptionId);
+};
+
 export const getCheckoutUrl = async (
   customerId: string,
   priceId: string,
