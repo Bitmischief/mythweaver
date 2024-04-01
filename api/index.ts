@@ -23,6 +23,7 @@ import { isLocalDevelopment, isProduction } from './lib/utils';
 import * as Sentry from '@sentry/node';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import { endTrialQueue, lifetimeSubscriptionCreditQueue } from './worker';
+import {AppError} from "./lib/errors/AppError";
 
 const PORT = process.env.PORT || 8000;
 
@@ -123,7 +124,14 @@ app.use(
 );
 
 // The error handler must be registered before any other error middleware and after all controllers
-app.use(Sentry.Handlers.errorHandler());
+app.use(Sentry.Handlers.errorHandler({
+  shouldHandleError(error: any) {
+    if (error instanceof AppError) {
+      return false;
+    }
+    return true;
+  },
+}));
 
 const errorHandlerMiddleware: ErrorRequestHandler = (
   err: any,
