@@ -161,9 +161,14 @@ export default class BillingController {
     }
 
     if (!user.billingCustomerId) {
-      throw new AppError({
-        description: 'User does not have a billing customer id',
-        httpCode: HttpCode.BAD_REQUEST,
+      user.billingCustomerId = await createCustomer(user.email);
+      await prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          billingCustomerId: user.billingCustomerId,
+        },
       });
     }
 
