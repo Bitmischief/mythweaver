@@ -61,10 +61,6 @@ const earlyAccessEnds = () => {
           <BoltIcon class="w-4 h-4 mr-1 self-center" />
           <span class="self-center">Upgrade</span>
         </button>
-
-        <div
-          class="h-4 w-4 bg-green-400 border border-green-200 group-hover:animate-bounce absolute -top-1 -right-1 rounded-full"
-        ></div>
       </div>
     </div>
 
@@ -82,11 +78,6 @@ const earlyAccessEnds = () => {
             class="h-6 w-6 cursor-pointer"
             @click="showUpgradeModal = false"
           />
-        </div>
-
-        <div class="mb-6 bg-slate-900 text-green-300 p-4 rounded-md">
-          <div class="text-4xl">Save 40% for the next 6 months</div>
-          <div class="text-xl font-bold text-neutral-500">This March only</div>
         </div>
 
         <PricingTable />
