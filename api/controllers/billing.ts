@@ -339,7 +339,7 @@ export default class BillingController {
       event.data.object.items.data[0].price.product as string,
     );
 
-    if (user.plan === BillingPlan.FREE) {
+    if (user.plan === BillingPlan.FREE || user.plan === BillingPlan.TRIAL) {
       track(AppEvent.NewSubscription, user.id, undefined, {
         amount: event.data.object.items.data[0].price.unit_amount,
       });
