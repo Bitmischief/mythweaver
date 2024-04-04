@@ -42,6 +42,7 @@ export const getCheckoutUrl = async (
         quantity: 1,
       },
     ],
+    allow_promotion_codes: true,
     discounts:
       process.env.STRIPE_PROMOTION_COUPON_ID && subscription
         ? [
