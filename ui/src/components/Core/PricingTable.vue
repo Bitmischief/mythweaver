@@ -23,8 +23,6 @@ const proPlanId = computed(() => import.meta.env.VITE_STRIPE_PRO_PLAN_ID);
       <PricingPlan
         name="Basic"
         highlighted
-        :promo-monthly-price="3.0"
-        :promo-yearly-price="30"
         :monthly-price="5.0"
         :yearly-price="50"
         :features="[
@@ -41,8 +39,6 @@ const proPlanId = computed(() => import.meta.env.VITE_STRIPE_PRO_PLAN_ID);
       />
       <PricingPlan
         name="Pro"
-        :promo-monthly-price="9.0"
-        :promo-yearly-price="90"
         :monthly-price="15.0"
         :yearly-price="150"
         :features="[
