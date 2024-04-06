@@ -412,6 +412,7 @@ export default class BillingController {
               data: {
                 preorderRedemptionCoupon: null,
                 preorderRedemptionStripePriceId: null,
+                trialEndsAt: null,
                 plan,
                 subscriptionPaidThrough: subscriptionEnd,
               },
@@ -518,6 +519,7 @@ const processSubscriptionPaid = async (
     },
     data: {
       planInterval: interval,
+      trialEndsAt: null,
     },
   });
 

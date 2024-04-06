@@ -1,41 +1,28 @@
 <script lang="ts" setup>
 import {
-  useEarlyAccessCutoff,
+  useCurrentUserPlan,
+  useTrialEndsAt,
   useEarlyAccessExempt,
-  useSubscriptionPaidThrough,
 } from '@/lib/hooks.ts';
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 import { formatDistance } from 'date-fns';
 import { BoltIcon } from '@heroicons/vue/20/solid';
 import { XCircleIcon } from '@heroicons/vue/24/solid';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import PricingTable from '@/components/Core/PricingTable.vue';
-import { useAuthStore } from '@/store';
-import { useRouter } from 'vue-router';
+import { BillingPlan } from '@/api/users.ts';
 
-const router = useRouter();
-const authStore = useAuthStore();
-const earlyAccessCutoff = useEarlyAccessCutoff();
-const earlyAccessExempt = useEarlyAccessExempt();
-const subscriptionPaidThrough = useSubscriptionPaidThrough();
+const trialEndsAt = useTrialEndsAt();
+const plan = useCurrentUserPlan();
 
 const showUpgradeModal = ref(false);
 
-watch(subscriptionPaidThrough, () => {
-  if (
-    subscriptionPaidThrough.value &&
-    new Date(subscriptionPaidThrough.value) < new Date()
-  ) {
-    router.push('/auth/earlyaccess');
-  }
-});
-
 const earlyAccessEnds = () => {
-  if (earlyAccessCutoff.value) {
-    const cutoff = new Date(earlyAccessCutoff.value);
+  if (trialEndsAt.value) {
+    const cutoff = new Date(trialEndsAt.value);
     const now = new Date();
 
-    return earlyAccessCutoff.value
+    return trialEndsAt.value
       ? `Trial ends in ${formatDistance(now, cutoff)}`
       : '';
   }
@@ -43,7 +30,7 @@ const earlyAccessEnds = () => {
 </script>
 
 <template>
-  <div v-if="!earlyAccessExempt && authStore.user" class="flex justify-center">
+  <div v-if="plan === BillingPlan.Trial" class="flex justify-center">
     <div class="self-center flex md:mr-6 text-sm text-neutral-400">
       <div class="self-center">
         <span class="text-neutral-300 font-bold italic">

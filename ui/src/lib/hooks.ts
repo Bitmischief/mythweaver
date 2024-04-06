@@ -26,7 +26,7 @@ export function useQuickConjure() {
   };
 }
 
-export function useEarlyAccessCutoff() {
+export function useTrialEndsAt() {
   const store = useAuthStore();
   return computed(() => store.user?.trialEndsAt);
 }
