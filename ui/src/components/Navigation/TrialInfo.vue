@@ -1,9 +1,5 @@
 <script lang="ts" setup>
-import {
-  useCurrentUserPlan,
-  useTrialEndsAt,
-  useEarlyAccessExempt,
-} from '@/lib/hooks.ts';
+import { useCurrentUserPlan, useTrialEndsAt } from '@/lib/hooks.ts';
 import { ref } from 'vue';
 import { formatDistance } from 'date-fns';
 import { BoltIcon } from '@heroicons/vue/20/solid';
