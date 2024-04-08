@@ -67,3 +67,7 @@ export const patchCharacters = (characterId: number, request: PatchCharactersReq
     ...request,
   });
 };
+
+export const deleteCharacters = (characterId: number) => {
+  return axios.delete(`/characters/${characterId}`);
+};

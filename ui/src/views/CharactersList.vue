@@ -96,10 +96,17 @@ async function viewCharacter(id: number) {
         >
           <div class="relative">
             <img
-              :src="char.imageUri"
+              :src="char.imageUri || 'images/character_bg_square.png'"
               alt="character portrait"
               class="rounded-[20px]"
+              :class="{ 'blur-sm': !char.imageUri }"
             />
+            <div
+              v-if="!char.imageUri"
+              class="absolute top-1/2 left-1/2 -translate-x-1/2 text-neutral-300 text-lg"
+            >
+              No Image
+            </div>
           </div>
           <div class="py-1 px-2 text-center truncate">
             {{ char.name }}

@@ -96,6 +96,9 @@ export const completeSession = async (request: CompleteSessionEvent) => {
       userId: request.userId,
       prompt: gptJsonParsed.prompt,
       count: 1,
+      linking: {
+        sessionId: request.sessionId,
+      },
     });
 
     if (!uris) {

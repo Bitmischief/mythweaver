@@ -518,6 +518,9 @@ export default class CampaignController {
         id: characterId,
         campaignId: campaignId,
       },
+      include: {
+        images: true,
+      },
     });
 
     if (!character) {
@@ -560,6 +563,9 @@ export default class CampaignController {
     const characters = await prisma.character.findMany({
       where: {
         campaignId: campaignId,
+      },
+      include: {
+        images: true,
       },
     });
 

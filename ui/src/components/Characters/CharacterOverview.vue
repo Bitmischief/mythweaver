@@ -21,6 +21,7 @@
             :image-uri="character.imageUri"
             :editable="false"
             :alt="character.name"
+            :linking="{ characterId: character.id }"
             type="Character"
           />
           <div class="mt-4">

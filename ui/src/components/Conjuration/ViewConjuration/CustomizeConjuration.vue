@@ -227,6 +227,7 @@ const setPromptSettings = () => {
           :image-conjuration-failure-reason="imageConjurationFailureReason"
           :type="conjurationType"
           :seed="seed"
+          :linking="{ conjurationId: editableConjuration.id }"
         />
 
         <div class="mt-4 font-bold text-center">
