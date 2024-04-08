@@ -101,7 +101,10 @@ async function viewCharacter(id: number) {
               class="rounded-[20px]"
               :class="{ 'blur-sm': !char.imageUri }"
             />
-            <div v-if="!char.imageUri" class="absolute top-1/2 left-1/2 -translate-x-1/2 text-neutral-300 text-lg">
+            <div
+              v-if="!char.imageUri"
+              class="absolute top-1/2 left-1/2 -translate-x-1/2 text-neutral-300 text-lg"
+            >
               No Image
             </div>
           </div>

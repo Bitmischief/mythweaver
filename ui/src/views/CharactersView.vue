@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import {
-  Character, deleteCharacters,
+  Character,
+  deleteCharacters,
   getCampaignCharacter,
   patchCharacters,
 } from '@/api/characters.ts';
@@ -12,8 +13,8 @@ import { useEventBus } from '@/lib/events.ts';
 import Loader from '@/App.vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ArrowLeftIcon } from '@heroicons/vue/24/outline';
-import ModalAlternate from "@/components/ModalAlternate.vue";
-import {useCurrentUserId} from "@/lib/hooks.ts";
+import ModalAlternate from '@/components/ModalAlternate.vue';
+import { useCurrentUserId } from '@/lib/hooks.ts';
 
 const currentUserId = useCurrentUserId();
 const eventBus = useEventBus();
@@ -105,7 +106,10 @@ function showConfirmDelete() {
           <ArrowLeftIcon class="h-5 w-5 mr-2" />
           Back
         </router-link>
-        <div v-if="character.userId === currentUserId" class="flex gap-2 grow justify-end">
+        <div
+          v-if="character.userId === currentUserId"
+          class="flex gap-2 grow justify-end"
+        >
           <div>
             <!-- prettier-ignore -->
             <FormKit
@@ -121,13 +125,12 @@ function showConfirmDelete() {
               label="Delete"
               type="button"
               input-class="$reset button-primary self-center"
-              :disabled="(disabled as boolean)"
+              :disabled="disabled as boolean"
               @click.stop="showConfirmDelete"
             />
           </div>
         </div>
-        <div>
-        </div>
+        <div></div>
       </div>
       <div class="md:flex justify-between">
         <div class="grid gap-4 grid-cols-1 sm:grid-cols-3">
@@ -262,9 +265,13 @@ function showConfirmDelete() {
   <ModalAlternate :show="confirmDelete">
     <div v-if="character" class="bg-surface-3 rounded-[12px] p-6">
       <div class="text-lg text-white">
-        Are you sure you want to permanently delete <span class="text-fuchsia-500">{{ character.name }}</span>?
+        Are you sure you want to permanently delete
+        <span class="text-fuchsia-500">{{ character.name }}</span
+        >?
       </div>
-      <div class="font-bold underline text-neutral-400 text-center my-6">Note: This action <b>cannot</b> be undone</div>
+      <div class="font-bold underline text-neutral-400 text-center my-6">
+        Note: This action <b>cannot</b> be undone
+      </div>
       <div class="flex gap-2 justify-center mt-4">
         <div>
           <FormKit

@@ -1,5 +1,9 @@
 <script lang="ts" setup>
-import { Character, postCharacters, patchCharacters } from '@/api/characters.ts';
+import {
+  Character,
+  postCharacters,
+  patchCharacters,
+} from '@/api/characters.ts';
 import { onMounted, onUnmounted, ref } from 'vue';
 import { showError, showSuccess } from '@/lib/notifications.ts';
 import NewCharacterBasic from '@/components/Characters/NewCharacter/NewCharacterBasic.vue';

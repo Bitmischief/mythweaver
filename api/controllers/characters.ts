@@ -1,5 +1,6 @@
 import {
-  Body, Delete,
+  Body,
+  Delete,
   Inject,
   OperationId,
   Patch,
@@ -131,7 +132,9 @@ export default class CharacterController {
       });
     }
 
-    track(AppEvent.DeleteCharacter, userId, trackingInfo, { characterId: characterId });
+    track(AppEvent.DeleteCharacter, userId, trackingInfo, {
+      characterId: characterId,
+    });
 
     await prisma.character.delete({
       where: {

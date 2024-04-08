@@ -155,7 +155,9 @@ function downloadImage(url: string) {
         v-if="!imageConjurationFailed"
         class="self-center text-center text-[2rem] text-white"
       >
-        <span v-if="type !== 'Character'" class="animate-pulse">Conjuring image...</span>
+        <span v-if="type !== 'Character'" class="animate-pulse"
+          >Conjuring image...</span
+        >
         <span v-else>No Image</span>
       </div>
       <div v-else class="flex">
