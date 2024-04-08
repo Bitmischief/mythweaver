@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { Character, postCharacters } from '@/api/characters.ts';
+import { Character, postCharacters, patchCharacters } from '@/api/characters.ts';
 import { onMounted, onUnmounted, ref } from 'vue';
 import { showError, showSuccess } from '@/lib/notifications.ts';
 import NewCharacterBasic from '@/components/Characters/NewCharacter/NewCharacterBasic.vue';
@@ -17,7 +17,7 @@ const character = ref<Character>({} as Character);
 const step = ref(1);
 const conjureImageDone = ref(false);
 
-onMounted(() => {
+onMounted(async () => {
   eventBus.$on('conjure-image-done', () => {
     conjureImageDone.value = true;
   });
@@ -31,6 +31,8 @@ onMounted(() => {
       }, 50);
     },
   );
+
+  await initCharacter();
 });
 
 onUnmounted(() => {
@@ -38,10 +40,16 @@ onUnmounted(() => {
   eventBus.$off('updated-conjuration-image');
 });
 
-async function createCharacter() {
+async function initCharacter() {
   const response = await postCharacters(character.value);
-  if (response.status === 201) {
-    showSuccess({ message: 'Character created' });
+  character.value.id = response.data.id;
+  step.value++;
+}
+
+async function finishCharacter() {
+  const response = await patchCharacters(character.value.id, character.value);
+  if (response.status === 200) {
+    showSuccess({ message: 'Character saved' });
     await router.push(`/character/${response.data.id}`);
   } else {
     showError({
@@ -52,6 +60,11 @@ async function createCharacter() {
 
 async function returnToCharacters() {
   await router.push('/characters');
+}
+
+async function next() {
+  await patchCharacters(character.value.id, character.value);
+  step.value++;
 }
 </script>
 
@@ -71,14 +84,14 @@ async function returnToCharacters() {
       v-model="character"
       back-text="Return to Characters"
       show-back
-      @complete="step++"
+      @complete="initCharacter"
       @back="returnToCharacters"
     />
 
     <NewCharacterDetailed
       v-if="step === 2"
       v-model="character"
-      @complete="step++"
+      @complete="next"
       @back="step--"
     />
 
@@ -86,14 +99,14 @@ async function returnToCharacters() {
       v-if="step === 3"
       v-model="character"
       @back="step--"
-      @complete="step++"
+      @complete="next"
     />
 
     <NewCharacterConfirm
       v-if="step === 4"
       :character="character"
       @back="step--"
-      @complete="createCharacter"
+      @complete="finishCharacter"
     />
   </div>
 </template>

@@ -294,6 +294,7 @@ async function handleCreateRelationship(type: ConjurationRelationshipType) {
             :prompt="sessionSuggestedImagePrompt"
             class="rounded-md w-[20em]"
             :type="sessionType"
+            :linking="{ sessionId: session.id }"
             @set-image="
               sessionImageUri = $event.imageUri;
               sessionSuggestedImagePrompt = $event.prompt;

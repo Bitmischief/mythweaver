@@ -23,6 +23,11 @@ const props = withDefaults(
     imageConjurationFailureReason?: string;
     type: string;
     seed: string;
+    linking?: {
+      sessionId?: number;
+      characterId?: number;
+      conjurationId?: number;
+    };
   }>(),
   {
     imageId: undefined,
@@ -34,6 +39,7 @@ const props = withDefaults(
     imageConjurationFailureReason: undefined,
     type: undefined,
     seed: undefined,
+    linking: undefined,
   },
 );
 
@@ -69,6 +75,7 @@ function showCustomizeImageModal() {
     alt: props.alt,
     seed: props.seed,
     imageId: props.imageId,
+    linking: props.linking,
   });
 }
 
@@ -146,9 +153,10 @@ function downloadImage(url: string) {
     >
       <div
         v-if="!imageConjurationFailed"
-        class="self-center text-center text-[2rem] text-white animate-pulse"
+        class="self-center text-center text-[2rem] text-white"
       >
-        Conjuring image...
+        <span v-if="type !== 'Character'" class="animate-pulse">Conjuring image...</span>
+        <span v-else>No Image</span>
       </div>
       <div v-else class="flex">
         <div class="self-center">

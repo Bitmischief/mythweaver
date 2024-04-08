@@ -111,6 +111,9 @@ export default class SessionController {
       orderBy: {
         createdAt: 'desc',
       },
+      include: {
+        images: true,
+      },
     });
 
     track(AppEvent.GetSessions, userId, trackingInfo);
@@ -161,6 +164,7 @@ export default class SessionController {
       },
       include: {
         sessionTranscription: true,
+        images: true,
       },
     });
 

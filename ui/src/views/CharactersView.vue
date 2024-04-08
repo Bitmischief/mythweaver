@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import {
-  Character,
+  Character, deleteCharacters,
   getCampaignCharacter,
   patchCharacters,
 } from '@/api/characters.ts';
@@ -12,7 +12,10 @@ import { useEventBus } from '@/lib/events.ts';
 import Loader from '@/App.vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ArrowLeftIcon } from '@heroicons/vue/24/outline';
+import ModalAlternate from "@/components/ModalAlternate.vue";
+import {useCurrentUserId} from "@/lib/hooks.ts";
 
+const currentUserId = useCurrentUserId();
 const eventBus = useEventBus();
 const route = useRoute();
 const router = useRouter();
@@ -66,6 +69,23 @@ async function updateCharacter() {
     showError({ message: 'Failed to update character' });
   }
 }
+
+async function deleteCharacter() {
+  if (!character.value) return;
+
+  try {
+    await deleteCharacters(character.value.id);
+    showSuccess({ message: 'Character deleted' });
+    await router.push('/characters');
+  } catch (err) {
+    showError({ message: 'Failed to delete character' });
+  }
+}
+
+const confirmDelete = ref(false);
+function showConfirmDelete() {
+  confirmDelete.value = true;
+}
 </script>
 
 <template>
@@ -79,21 +99,34 @@ async function updateCharacter() {
       <div class="flex w-full justify-between">
         <!-- prettier-ignore -->
         <router-link
-          class="button-primary flex mb-4"
+          class="button-primary flex mb-4 self-center"
           to="/characters"
         >
           <ArrowLeftIcon class="h-5 w-5 mr-2" />
           Back
         </router-link>
+        <div v-if="character.userId === currentUserId" class="flex gap-2 grow justify-end">
+          <div>
+            <!-- prettier-ignore -->
+            <FormKit
+              label="Save"
+              type="submit"
+              input-class="$reset button-ghost self-center"
+              :disabled="(disabled as boolean)"
+              @click="updateCharacter"
+            />
+          </div>
+          <div>
+            <FormKit
+              label="Delete"
+              type="button"
+              input-class="$reset button-primary self-center"
+              :disabled="(disabled as boolean)"
+              @click.stop="showConfirmDelete"
+            />
+          </div>
+        </div>
         <div>
-          <!-- prettier-ignore -->
-          <FormKit
-            label="Save"
-            type="submit"
-            input-class="$reset button-ghost"
-            :disabled="(disabled as boolean)"
-            @click="updateCharacter"
-          />
         </div>
       </div>
       <div class="md:flex justify-between">
@@ -114,6 +147,7 @@ async function updateCharacter() {
               :image-uri="character.imageUri"
               :editable="true"
               :alt="character.name"
+              :linking="{ characterId: character.id }"
               type="Character"
             />
             <div class="mt-4">
@@ -189,6 +223,7 @@ async function updateCharacter() {
                 inner-class="border-none"
                 input-class="$reset input-primary text-white border-none focus:ring-fuchsia-500"
                 auto-height
+                placeholder="No backstory has been added yet. Click here to add your character's backstory."
               />
             </div>
 
@@ -200,6 +235,7 @@ async function updateCharacter() {
                 inner-class="border-none"
                 input-class="$reset input-primary text-white border-none focus:ring-fuchsia-500"
                 auto-height
+                placeholder="No personality has been added yet. Click here to add your character's personality."
               />
             </div>
 
@@ -211,6 +247,7 @@ async function updateCharacter() {
                 inner-class="border-none"
                 input-class="$reset input-primary text-white border-none focus:ring-fuchsia-500"
                 auto-height
+                placeholder="No looks have been added yet. Click here to add your character's looks."
               />
             </div>
           </div>
@@ -222,4 +259,30 @@ async function updateCharacter() {
     <Loader />
     Loading Character...
   </div>
+  <ModalAlternate :show="confirmDelete">
+    <div v-if="character" class="bg-surface-3 rounded-[12px] p-6">
+      <div class="text-lg text-white">
+        Are you sure you want to permanently delete <span class="text-fuchsia-500">{{ character.name }}</span>?
+      </div>
+      <div class="font-bold underline text-neutral-400 text-center my-6">Note: This action <b>cannot</b> be undone</div>
+      <div class="flex gap-2 justify-center mt-4">
+        <div>
+          <FormKit
+            label="Cancel"
+            type="button"
+            input-class="$reset button-ghost self-center"
+            @click="confirmDelete = false"
+          />
+        </div>
+        <div>
+          <FormKit
+            label="Confirm Delete"
+            type="button"
+            input-class="$reset button-gradient self-center"
+            @click="deleteCharacter"
+          />
+        </div>
+      </div>
+    </div>
+  </ModalAlternate>
 </template>

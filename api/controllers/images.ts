@@ -20,6 +20,11 @@ interface PostImageRequest {
   stylePreset?: ImageStylePreset;
   count?: number;
   seed?: string;
+  linking?: {
+    sessionId?: number;
+    conjurationId?: number;
+    characterId?: number;
+  };
 }
 
 interface PatchImageConjurationIdRequest {
@@ -79,6 +84,7 @@ export default class ImageController {
       negativePrompt: request.negativePrompt,
       stylePreset: request.stylePreset,
       seed: request.seed,
+      linking: request.linking,
     });
   }
 
