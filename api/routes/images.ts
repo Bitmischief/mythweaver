@@ -16,6 +16,13 @@ const postImageSchema = z.object({
   stylePreset: z.string().max(250).optional(),
   count: z.number().default(1).optional(),
   seed: z.string().optional(),
+  linking: z
+    .object({
+      sessionId: z.number().optional(),
+      conjurationId: z.number().optional(),
+      characterId: z.number().optional(),
+    })
+    .optional(),
 });
 
 router.post('/', [

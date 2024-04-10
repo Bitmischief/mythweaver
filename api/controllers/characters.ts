@@ -1,5 +1,6 @@
 import {
   Body,
+  Delete,
   Inject,
   OperationId,
   Patch,
@@ -106,5 +107,39 @@ export default class CharacterController {
     track(AppEvent.UpdateCharacter, userId, trackingInfo);
 
     return character;
+  }
+
+  @Security('jwt')
+  @OperationId('deleteCharacter')
+  @Delete('/:characterId')
+  public async deleteCharacter(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
+    @Route() characterId: number,
+  ): Promise<any> {
+    const character = await prisma.character.findUnique({
+      where: {
+        id: characterId,
+        userId: userId,
+      },
+    });
+
+    if (!character) {
+      throw new AppError({
+        httpCode: HttpCode.NOT_FOUND,
+        description: 'Character not found.',
+      });
+    }
+
+    track(AppEvent.DeleteCharacter, userId, trackingInfo, {
+      characterId: characterId,
+    });
+
+    await prisma.character.delete({
+      where: {
+        id: characterId,
+      },
+    });
   }
 }

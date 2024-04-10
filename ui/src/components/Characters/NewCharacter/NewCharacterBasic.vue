@@ -91,7 +91,7 @@ function submit(payload: any) {
       <div>
         <FormKit
           type="submit"
-          label="Next"
+          label="Save And Continue"
           input-class="$reset button-ghost flex"
           :disabled="disabled as boolean"
         >
