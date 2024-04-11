@@ -43,14 +43,6 @@ export const getCheckoutUrl = async (
       },
     ],
     allow_promotion_codes: true,
-    discounts:
-      process.env.STRIPE_PROMOTION_COUPON_ID && subscription
-        ? [
-            {
-              coupon: process.env.STRIPE_PROMOTION_COUPON_ID,
-            },
-          ]
-        : undefined,
     mode: subscription ? 'subscription' : 'payment',
     automatic_tax: {
       enabled: true,
