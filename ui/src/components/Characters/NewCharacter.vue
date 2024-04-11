@@ -35,8 +35,6 @@ onMounted(async () => {
       }, 50);
     },
   );
-
-  await initCharacter();
 });
 
 onUnmounted(() => {
