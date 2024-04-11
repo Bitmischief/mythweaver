@@ -5,6 +5,7 @@ import { useAuthStore } from '@/store';
 import TrialInfo from '@/components/Navigation/TrialInfo.vue';
 import { computed } from 'vue';
 import ImageCreditCount from '@/components/Core/ImageCreditCount.vue';
+import ConjurationLimit from '@/components/Core/ConjurationLimit.vue';
 
 const authStore = useAuthStore();
 
@@ -25,6 +26,9 @@ const username = computed(() => {
 <template>
   <div class="flex pr-6 bg-surface-2">
     <TrialInfo class="self-center" />
+    <div class="self-center mr-5">
+      <ConjurationLimit v-if="authStore.user" />
+    </div>
     <div class="self-center mr-5">
       <ImageCreditCount v-if="authStore.user" />
     </div>

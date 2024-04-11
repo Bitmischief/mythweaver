@@ -94,7 +94,8 @@ function clickNotification() {
               </div>
               <div class="ml-3 w-0 flex-1 pt-0.5">
                 <div class="text-sm">{{ messageRef }}</div>
-                <div v-if="contextRef" class="text-xs text-neutral-500">
+                <div v-if="contextRef" class="text-xs text-neutral-400">
+                  <hr class="my-2 border-neutral-500" />
                   {{ contextRef }}
                 </div>
               </div>
@@ -124,8 +125,28 @@ function clickNotification() {
               </div>
             </div>
           </div>
+          <div class="w-full rounded-full h-1.5">
+            <div
+              class="bg-fuchsia-500/75 h-1.5 rounded-full notification-timer"
+              :style="`--duration: ${timeoutRef};`"
+            ></div>
+          </div>
         </div>
       </transition>
     </div>
   </div>
 </template>
+
+<style lang="scss">
+@keyframes notificationCountdown {
+  to {
+    transform: scaleX(0);
+  }
+}
+
+.notification-timer {
+  animation: notificationCountdown calc(var(--duration) * 1ms) steps(200)
+    forwards;
+  transform-origin: left center;
+}
+</style>

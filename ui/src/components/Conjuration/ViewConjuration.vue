@@ -98,9 +98,25 @@ async function loadConjuration() {
 }
 
 async function handleSaveConjuration() {
-  await saveConjuration(conjurationId.value);
-  showSuccess({ message: 'Successfully saved conjuration!' });
-  await loadConjuration();
+  try {
+    await saveConjuration(conjurationId.value);
+    showSuccess({ message: 'Successfully saved conjuration!' });
+    await loadConjuration();
+  } catch (e: any) {
+    if (e.response?.data?.name === 'CONJURATION_LIMIT_REACHED') {
+      showError({
+        message:
+          'You have reached the maximum number of conjurations for the FREE plan.',
+        context:
+          'You must upgrade your plan or delete conjurations to add more.',
+      });
+    } else {
+      showError({
+        message:
+          'Something went wrong copying this conjuration. Please try again.',
+      });
+    }
+  }
 }
 
 async function handleRemoveConjuration() {
@@ -130,9 +146,25 @@ async function handleDeleteConjuration() {
 }
 
 async function handleCopyConjuration() {
-  const response = await copyConjuration(conjurationId.value);
-  showSuccess({ message: 'Successfully copied conjuration!' });
-  await router.push(`/conjurations/view/${response.data.id}`);
+  try {
+    const response = await copyConjuration(conjurationId.value);
+    showSuccess({ message: 'Successfully copied conjuration!' });
+    await router.push(`/conjurations/view/${response.data.id}`);
+  } catch (e: any) {
+    if (e.response.data?.name === 'CONJURATION_LIMIT_REACHED') {
+      showError({
+        message:
+          'You have reached the maximum number of conjurations for the FREE plan.',
+        context:
+          'You must upgrade your plan or delete conjurations to add more.',
+      });
+    } else {
+      showError({
+        message:
+          'Something went wrong copying this conjuration. Please try again.',
+      });
+    }
+  }
 }
 
 async function routeBack() {
@@ -141,32 +173,11 @@ async function routeBack() {
 }
 
 async function conjureUsingPrompt() {
-  let imagePrompt = '';
-  let negativePrompt = '';
-  let stylePreset = '';
-
-  if (
-    conjuration.value?.images &&
-    conjuration.value?.images.some(
-      (i) => conjuration?.value?.imageUri === i.uri,
-    )
-  ) {
-    const image = conjuration.value?.images.find(
-      (i) => conjuration?.value?.imageUri === i.uri,
-    );
-    imagePrompt = image.prompt;
-    negativePrompt = image.negativePrompt;
-    stylePreset = image.stylePreset;
-  }
-
   await router.push({
     path: '/conjurations/new',
     query: {
       prompt: conjuration.value?.prompt,
       code: conjuration.value?.conjurerCode,
-      imagePrompt: imagePrompt,
-      imageNegativePrompt: negativePrompt,
-      stylePreset: stylePreset,
     },
   });
 }
