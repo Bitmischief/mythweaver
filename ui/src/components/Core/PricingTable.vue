@@ -26,6 +26,7 @@ const proPlanId = computed(() => import.meta.env.VITE_STRIPE_PRO_PLAN_ID);
         :monthly-price="5.0"
         :yearly-price="50"
         :features="[
+          'Unlimited saved conjurations',
           '100 images/mo',
           '(soon) Image Upscaling',
           '(soon) Image Modifications',

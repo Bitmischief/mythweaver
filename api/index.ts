@@ -24,6 +24,9 @@ import * as Sentry from '@sentry/node';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import { endTrialQueue, lifetimeSubscriptionCreditQueue } from './worker';
 import { AppError } from './lib/errors/AppError';
+import * as ld from '@launchdarkly/node-server-sdk';
+import { OpenFeature } from '@openfeature/server-sdk';
+import { LaunchDarklyProvider } from '@launchdarkly/openfeature-node-server';
 
 const PORT = process.env.PORT || 8000;
 
@@ -173,3 +176,15 @@ process.on('uncaughtException', (error: Error) => {
 
   errorHandler.handleError(error);
 });
+
+if (process.env.LAUNCH_DARKLY_SDK_KEY) {
+  const ldLogger = ld.basicLogger({
+    level: 'error',
+    destination: logger.error,
+  });
+  OpenFeature.setProvider(
+    new LaunchDarklyProvider(process.env.LAUNCH_DARKLY_SDK_KEY, {
+      logger: ldLogger,
+    }),
+  );
+}

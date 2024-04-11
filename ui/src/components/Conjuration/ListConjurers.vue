@@ -90,6 +90,14 @@
               </div>
             </div>
 
+            <div
+              v-if="showConjurationLimit && conjurationLimitReached"
+              class="text-xs text-amber-300 px-2"
+            >
+              You have reached your conjuration limit for the FREE plan. You
+              must upgrade your plan or delete conjurations to add more.
+            </div>
+
             <div class="flex mt-4 mb-2 justify-center">
               <div
                 class="flex gap-1 text-neutral-500 rounded-[10px] bg-surface-2 p-1 border border-surface-3 text-sm grow"
@@ -213,17 +221,24 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, computed } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { Conjurer, getConjurers, postConjure } from '@/api/generators.ts';
-import { useRouter, useRoute } from 'vue-router';
-import { useQuickConjure, useSelectedCampaignId } from '@/lib/hooks.ts';
+import { useRoute, useRouter } from 'vue-router';
+import {
+  useQuickConjure,
+  useSelectedCampaignId,
+  useWebsocketChannel,
+} from '@/lib/hooks.ts';
 import Select from '../Core/Forms/Select.vue';
-import { useWebsocketChannel } from '@/lib/hooks.ts';
 import { ServerEvent } from '@/lib/serverEvents.ts';
 import { showError, showInfo } from '@/lib/notifications.ts';
 import Loader from '../Core/Loader.vue';
 import MeteorShower from '../Core/MeteorShower.vue';
 import { AxiosError } from 'axios';
+import { useAuthStore } from '@/store';
+import { BillingPlan } from '@/api/users.ts';
+import { FreeTierConjurationLimit } from '@/lib/consts.ts';
+import { useLDFlag } from 'launchdarkly-vue-client-sdk';
 
 const route = useRoute();
 const router = useRouter();
@@ -233,6 +248,8 @@ const promptOptions = ref(['Image Style', 'Image Prompt', 'Negative Prompt']);
 const promptOptionsTab = ref(promptOptions.value[0]);
 const generator = ref<Conjurer>();
 const channel = useWebsocketChannel();
+const authStore = useAuthStore();
+const showConjurationLimit = useLDFlag('free-tier-conjuration-limit', false);
 
 onMounted(async () => {
   let { prompt, code, imagePrompt, imageNegativePrompt, stylePreset } =
@@ -338,8 +355,18 @@ async function generate() {
       campaignId: selectedCampaignId.value || 0,
       ...request.value,
     });
-  } catch (e) {
+  } catch (e: any) {
     const err = e as AxiosError;
+    if (e.response?.data?.name === 'CONJURATION_LIMIT_REACHED') {
+      showError({
+        message:
+          'You have reached the maximum number of conjurations for the FREE plan.',
+        context:
+          'You must upgrade your plan or delete conjurations to add more.',
+      });
+      return;
+    }
+
     if (err.response?.status === 400) {
       showError({
         message: (err.response?.data as any)?.message,
@@ -412,6 +439,14 @@ onUnmounted(() => {
   channel.unbind(ServerEvent.ImageCreated);
   channel.unbind(ServerEvent.ImageFiltered);
   channel.unbind(ServerEvent.ImageError);
+});
+
+const conjurationLimitReached = computed(() => {
+  return !!(
+    authStore.user &&
+    authStore.user.plan === BillingPlan.Free &&
+    authStore.user.conjurationCount >= FreeTierConjurationLimit
+  );
 });
 
 const characterDescription = computed(() => {

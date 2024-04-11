@@ -20,6 +20,7 @@ import { sanitizeJson } from '../lib/utils';
 import { getClient } from '../lib/providers/openai';
 import { ImageStylePreset } from './images';
 import { MythWeaverLogger } from '../lib/logger';
+import { CheckConjurationCountRestriction } from '../lib/planRestrictionHelpers';
 
 export interface GetGeneratorsResponse {
   data: any[];
@@ -192,6 +193,8 @@ export class GeneratorController {
         });
       }
     }
+
+    await CheckConjurationCountRestriction(userId);
 
     track(AppEvent.Conjure, userId, trackingInfo);
 

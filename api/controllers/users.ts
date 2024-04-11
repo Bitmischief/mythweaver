@@ -30,6 +30,28 @@ interface AddUserCreditsRequest {
   amount: number;
 }
 
+interface GetUserResponse {
+  id: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+  email: string;
+
+  earlyAccessCutoffAt: Date;
+  trialEndsAt?: Date;
+  earlyAccessExempt: boolean;
+  billingCustomerId?: string;
+  subscriptionPaidThrough?: Date;
+  plan: string;
+  planInterval: string;
+  username: string;
+  imageCredits: number;
+  lifetimeAccess: boolean;
+  preorderRedemptionCoupon: string;
+  preorderRedemptionStripePriceId: string;
+
+  conjurationCount: number;
+}
+
 @Route('users')
 @Tags('Users')
 export default class UserController {
@@ -40,7 +62,7 @@ export default class UserController {
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
     @Inject() logger: MythWeaverLogger,
-  ): Promise<User> {
+  ): Promise<GetUserResponse> {
     logger.info('Getting user', { userId, trackingInfo });
 
     const user = await prisma.user.findUnique({
@@ -62,7 +84,26 @@ export default class UserController {
     //   'Trial End Date': user.trialEndsAt,
     // });
 
-    return user;
+    const conjurationCount = await prisma.conjuration.count({
+      where: {
+        OR: [
+          {
+            userId: user.id,
+          },
+          {
+            saves: {
+              some: {
+                userId: user.id,
+              },
+            },
+          },
+        ],
+      },
+    });
+    return {
+      ...user,
+      conjurationCount: conjurationCount,
+    } as GetUserResponse;
   }
 
   @Security('jwt')

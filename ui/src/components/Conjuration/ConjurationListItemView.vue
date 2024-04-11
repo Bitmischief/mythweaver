@@ -71,7 +71,7 @@ async function addConjuration() {
     <div
       class="h-full flex cursor-pointer rounded-[20px] shadow-xl bg-surface-2"
       :class="{
-        'flex-row': condensedView,
+        'flex-row py-2': condensedView,
         'flex-col justify-end': !condensedView,
       }"
       @click="navigateToViewConjuration(conjuration.id)"
@@ -99,7 +99,7 @@ async function addConjuration() {
         <div
           class="absolute flex justify-center items-center rounded-full bg-white/50 group text-black text-xs font-bold"
           :class="{
-            'left-0 top-0 h-4 px-2': condensedView,
+            'left-1 top-1 h-4 px-2': condensedView,
             'left-2 top-2 h-6 px-4': !condensedView,
           }"
         >

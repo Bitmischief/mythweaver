@@ -18,6 +18,7 @@ export interface User {
   subscriptionPaidThrough: string;
   imageCredits: number;
   preorderRedemptionCoupon: string;
+  conjurationCount: number;
 }
 
 export const getCurrentUser = () => {

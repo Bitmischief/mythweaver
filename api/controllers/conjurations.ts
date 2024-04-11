@@ -23,6 +23,10 @@ import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { processTagsQueue } from '../worker';
 import { ImageStylePreset } from './images';
 import { MythWeaverLogger } from '../lib/logger';
+import {
+  CheckConjurationCountRestriction,
+  SendConjurationCountUpdatedEvent,
+} from '../lib/planRestrictionHelpers';
 
 interface GetConjurationsResponse {
   data: (Conjuration & { saved: boolean })[];
@@ -235,6 +239,10 @@ export default class ConjurationController {
       });
     }
 
+    if (existingConjuration.userId !== userId) {
+      await CheckConjurationCountRestriction(userId);
+    }
+
     track(AppEvent.SaveConjuration, userId, trackingInfo);
 
     await prisma.conjurationSave.upsert({
@@ -253,6 +261,8 @@ export default class ConjurationController {
         conjurationId,
       },
     });
+
+    await SendConjurationCountUpdatedEvent(userId);
   }
 
   @Security('jwt')
@@ -391,6 +401,7 @@ export default class ConjurationController {
     });
 
     track(AppEvent.DeleteConjuration, userId, trackingInfo);
+    await SendConjurationCountUpdatedEvent(userId);
 
     return true;
   }
@@ -463,6 +474,8 @@ export default class ConjurationController {
         id: existingConjurationSave.id,
       },
     });
+
+    await SendConjurationCountUpdatedEvent(userId);
   }
 
   @Security('jwt')
@@ -487,9 +500,11 @@ export default class ConjurationController {
       });
     }
 
+    await CheckConjurationCountRestriction(userId);
+
     track(AppEvent.CopyConjuration, userId, trackingInfo);
 
-    return prisma.conjuration.create({
+    const conjuration = await prisma.conjuration.create({
       data: {
         ...existingConjuration,
         id: undefined,
@@ -505,6 +520,10 @@ export default class ConjurationController {
         updatedAt: undefined,
       },
     });
+
+    await SendConjurationCountUpdatedEvent(userId);
+
+    return conjuration;
   }
 
   @Security('jwt')

@@ -11,6 +11,7 @@ import {
   WebSocketEvent,
 } from '../../services/websockets';
 import logger from '../../lib/logger';
+import { SendConjurationCountUpdatedEvent } from '../../lib/planRestrictionHelpers';
 
 const openai = getClient();
 
@@ -142,6 +143,8 @@ export const conjure = async (request: ConjureEvent) => {
     WebSocketEvent.ConjurationCreated,
     createdConjuration,
   );
+
+  await SendConjurationCountUpdatedEvent(request.userId);
 
   const imagePrompt = request.imagePrompt?.length
     ? request.imagePrompt
