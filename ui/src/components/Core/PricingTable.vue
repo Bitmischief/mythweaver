@@ -38,8 +38,8 @@ const proPlanId = computed(() => import.meta.env.VITE_STRIPE_PRO_PLAN_ID);
         :features="[
           'Unlimited saved conjurations',
           '100 images/mo',
-          '(soon) Image Upscaling',
-          '(soon) Image Modifications',
+          'Image Upscaling',
+          'Image Modifications',
           'Private Conjurations',
           'Campaign Management',
           'Session AI summaries',
