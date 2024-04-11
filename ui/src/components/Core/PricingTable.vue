@@ -26,7 +26,9 @@ const proPlanId = computed(() => import.meta.env.VITE_STRIPE_PRO_PLAN_ID);
         :monthly-price="0"
         :yearly-price="0"
         :features="['5 saved conjurations', 'Access to Public Gallery']"
-        :current="currentPlan === BillingPlan.Free"
+        :current="
+          currentPlan === BillingPlan.Free || currentPlan === BillingPlan.Trial
+        "
       />
       <PricingPlan
         name="Basic"

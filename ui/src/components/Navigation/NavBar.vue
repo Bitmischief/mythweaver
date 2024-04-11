@@ -52,9 +52,14 @@ const intercom = useIntercom();
         <div class="flex justify-between">
           <div class="flex">
             <img
+              src="/images/logo-horizontal-2.svg"
+              alt="mythweaver logo"
+              class="hidden md:block h-10 w-auto mr-auto mt-1 mb-1 self-center"
+            />
+            <img
               src="/favicon.png"
               alt="mythweaver icon"
-              class="h-10 w-auto mr-auto mt-1 mb-1 self-center"
+              class="md:hidden h-10 w-auto mr-auto mt-1 mb-1 self-center"
             />
             <PlanBadge />
           </div>
