@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import PricingPlan from '@/components/Core/PricingPlan.vue';
-import {computed} from 'vue';
-import {useAuthStore} from '@/store';
-import {BillingPlan} from "@/api/users.ts";
+import { computed } from 'vue';
+import { useAuthStore } from '@/store';
+import { BillingPlan } from '@/api/users.ts';
 
 const authStore = useAuthStore();
 
