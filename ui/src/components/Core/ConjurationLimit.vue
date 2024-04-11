@@ -8,6 +8,7 @@ import ModalAlternate from '@/components/ModalAlternate.vue';
 import PricingTable from '@/components/Core/PricingTable.vue';
 import { BillingPlan } from '@/api/users.ts';
 import { useLDFlag } from 'launchdarkly-vue-client-sdk';
+import { FreeTierConjurationLimit } from '@/lib/consts.ts';
 
 const channel = useWebsocketChannel();
 const authStore = useAuthStore();
@@ -42,12 +43,13 @@ function conjurationCountChanged(newConjurationCount: number) {
   }, 500);
 }
 
-const conjurationLimit = 10;
 const conjurationCount = computed(() => {
   return authStore.user?.conjurationCount || null;
 });
 const conjurationLimitMet = computed(() => {
-  return conjurationCount.value && conjurationCount.value >= conjurationLimit;
+  return (
+    conjurationCount.value && conjurationCount.value >= FreeTierConjurationLimit
+  );
 });
 const showConjurationCount = computed(() => {
   return authStore.user && authStore.user.plan === BillingPlan.Free;
@@ -82,8 +84,8 @@ const showConjurationCount = computed(() => {
             'text-amber-400': conjurationLimitMet,
           }"
         >
-          <div>{{ conjurationCount }}/{{ conjurationLimit }}</div>
-          <div>{{ conjurationCount }}/{{ conjurationLimit }}</div>
+          <div>{{ conjurationCount }}/{{ FreeTierConjurationLimit }}</div>
+          <div>{{ conjurationCount }}/{{ FreeTierConjurationLimit }}</div>
         </div>
       </div>
     </div>
@@ -97,11 +99,11 @@ const showConjurationCount = computed(() => {
     @close="showUpgradeModal = false"
   >
     <div
-      class="md:w-[800px] p-6 bg-surface-2 rounded-[20px] border border-surface-3"
+      class="w-[90vw] md:w-[70vw] xl:w-[60vw] p-6 bg-surface-2 rounded-[20px] border border-surface-3"
     >
-      <div class="flex justify-between text-neutral-300">
+      <div class="flex gap-4 justify-between text-neutral-300">
         <div class="text-xl mb-6">
-          Upgrade Subscription To Save More Conjurations
+          Upgrade Your Subscription To Add More Conjurations
         </div>
         <XCircleIcon
           class="h-6 w-6 cursor-pointer"

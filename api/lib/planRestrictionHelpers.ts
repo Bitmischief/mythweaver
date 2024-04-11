@@ -7,7 +7,7 @@ import { OpenFeature } from '@openfeature/server-sdk';
 
 const featureFlags = OpenFeature.getClient();
 
-export const SendConjurationCountUpdatedEvent = async (userId: number) => {
+export const sendConjurationCountUpdatedEvent = async (userId: number) => {
   const userConjurationCount = await prisma.conjuration.count({
     where: {
       OR: [
@@ -31,7 +31,7 @@ export const SendConjurationCountUpdatedEvent = async (userId: number) => {
   );
 };
 
-export const CheckConjurationCountRestriction = async (userId: number) => {
+export const validateConjurationCountRestriction = async (userId: number) => {
   const user = await prisma.user.findUnique({
     where: {
       id: userId,

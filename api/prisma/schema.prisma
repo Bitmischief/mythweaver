@@ -348,6 +348,7 @@ enum ImageCreditChangeType {
   SUBSCRIPTION
   SUPPORT
   USER_INITIATED
+  TRIAL
 }
 
 model ImageCreditAuditLog {

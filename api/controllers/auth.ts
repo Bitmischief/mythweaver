@@ -22,6 +22,8 @@ import { urlPrefix } from '../lib/utils';
 import { sendTransactionalEmail } from '../lib/transactionalEmail';
 import { createCustomer } from '../services/billing';
 import { MythWeaverLogger } from '../lib/logger';
+import { modifyImageCreditCount } from '../services/credits';
+import { ImageCreditChangeType } from '@prisma/client';
 
 const jwtExpirySeconds = 30 * 60; // 30 minutes
 const jwtRefreshExpirySeconds = 14 * 24 * 60 * 60; // 14 days
@@ -118,10 +120,17 @@ export default class AuthController {
           email: email.toLowerCase(),
           trialEndsAt: trialEnd,
           billingCustomerId: stripeCustomerId,
-          imageCredits: 25,
+          imageCredits: 0,
           username: await buildUniqueUsername(email.toLowerCase()),
         },
       });
+
+      await modifyImageCreditCount(
+        user.id,
+        10,
+        ImageCreditChangeType.TRIAL,
+        'Initial credits for signup',
+      );
 
       const response = (await mailchimpClient.lists.batchListMembers(
         process.env.MAILCHIMP_AUDIENCE_ID as string,
@@ -285,10 +294,17 @@ export default class AuthController {
           email: email,
           trialEndsAt: earlyAccessEnd,
           billingCustomerId: stripeCustomerId,
-          imageCredits: 25,
+          imageCredits: 0,
           username: await buildUniqueUsername(email.toLowerCase()),
         },
       });
+
+      await modifyImageCreditCount(
+        user.id,
+        10,
+        ImageCreditChangeType.TRIAL,
+        'Initial credits for signup',
+      );
 
       await prisma.campaign.create({
         data: {

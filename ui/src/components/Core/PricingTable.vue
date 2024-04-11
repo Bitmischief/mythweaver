@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import PricingPlan from '@/components/Core/PricingPlan.vue';
-import { computed } from 'vue';
-import { useAuthStore } from '@/store';
+import {computed} from 'vue';
+import {useAuthStore} from '@/store';
+import {BillingPlan} from "@/api/users.ts";
 
 const authStore = useAuthStore();
 
@@ -19,7 +20,14 @@ const proPlanId = computed(() => import.meta.env.VITE_STRIPE_PRO_PLAN_ID);
 
 <template>
   <div class="p-2">
-    <div class="grid md:grid-cols-2 gap-4">
+    <div class="grid md:grid-cols-3 gap-4">
+      <PricingPlan
+        name="Free"
+        :monthly-price="0"
+        :yearly-price="0"
+        :features="['5 saved conjurations', 'Access to Public Gallery']"
+        :current="currentPlan === BillingPlan.Free"
+      />
       <PricingPlan
         name="Basic"
         highlighted
@@ -36,7 +44,7 @@ const proPlanId = computed(() => import.meta.env.VITE_STRIPE_PRO_PLAN_ID);
           'Player character creation and management',
         ]"
         :price-id="basicPlanId"
-        :current="currentPlan === 'BASIC'"
+        :current="currentPlan === BillingPlan.Basic"
       />
       <PricingPlan
         name="Pro"
@@ -53,7 +61,7 @@ const proPlanId = computed(() => import.meta.env.VITE_STRIPE_PRO_PLAN_ID);
           'Priority Support',
         ]"
         :price-id="proPlanId"
-        :current="currentPlan === 'PRO'"
+        :current="currentPlan === BillingPlan.Pro"
       />
     </div>
     <div class="flex justify-end text-xs text-neutral-500 mt-4">

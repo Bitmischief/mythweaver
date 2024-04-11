@@ -1,1 +1,1 @@
-export const FreeTierConjurationLimit = 10;
+export const FreeTierConjurationLimit = 5;

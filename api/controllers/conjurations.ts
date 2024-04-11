@@ -24,8 +24,8 @@ import { processTagsQueue } from '../worker';
 import { ImageStylePreset } from './images';
 import { MythWeaverLogger } from '../lib/logger';
 import {
-  CheckConjurationCountRestriction,
-  SendConjurationCountUpdatedEvent,
+  validateConjurationCountRestriction,
+  sendConjurationCountUpdatedEvent,
 } from '../lib/planRestrictionHelpers';
 
 interface GetConjurationsResponse {
@@ -240,7 +240,7 @@ export default class ConjurationController {
     }
 
     if (existingConjuration.userId !== userId) {
-      await CheckConjurationCountRestriction(userId);
+      await validateConjurationCountRestriction(userId);
     }
 
     track(AppEvent.SaveConjuration, userId, trackingInfo);
@@ -262,7 +262,7 @@ export default class ConjurationController {
       },
     });
 
-    await SendConjurationCountUpdatedEvent(userId);
+    await sendConjurationCountUpdatedEvent(userId);
   }
 
   @Security('jwt')
@@ -401,7 +401,7 @@ export default class ConjurationController {
     });
 
     track(AppEvent.DeleteConjuration, userId, trackingInfo);
-    await SendConjurationCountUpdatedEvent(userId);
+    await sendConjurationCountUpdatedEvent(userId);
 
     return true;
   }
@@ -475,7 +475,7 @@ export default class ConjurationController {
       },
     });
 
-    await SendConjurationCountUpdatedEvent(userId);
+    await sendConjurationCountUpdatedEvent(userId);
   }
 
   @Security('jwt')
@@ -500,7 +500,7 @@ export default class ConjurationController {
       });
     }
 
-    await CheckConjurationCountRestriction(userId);
+    await validateConjurationCountRestriction(userId);
 
     track(AppEvent.CopyConjuration, userId, trackingInfo);
 
@@ -521,7 +521,7 @@ export default class ConjurationController {
       },
     });
 
-    await SendConjurationCountUpdatedEvent(userId);
+    await sendConjurationCountUpdatedEvent(userId);
 
     return conjuration;
   }

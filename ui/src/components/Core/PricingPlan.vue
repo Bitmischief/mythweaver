@@ -11,16 +11,18 @@ const props = defineProps<{
   promoMonthlyPrice?: number;
   highlighted?: boolean;
   features: string[];
-  priceId: string;
+  priceId?: string;
   current?: boolean;
 }>();
 
 async function upgrade() {
-  const response = await getCheckoutUrl(
-    props.priceId,
-    !!props.monthlyPrice && !!props.yearlyPrice,
-  );
-  location.href = response.data;
+  if (props.priceId) {
+    const response = await getCheckoutUrl(
+      props.priceId,
+      !!props.monthlyPrice && !!props.yearlyPrice,
+    );
+    location.href = response.data;
+  }
 }
 </script>
 
@@ -46,7 +48,10 @@ async function upgrade() {
           }"
         >
           <div class="text-sm text-neutral-300">{{ name }}</div>
-          <div v-if="monthlyPrice && yearlyPrice" class="text-white font-bold">
+          <div
+            v-if="monthlyPrice != null && yearlyPrice != null"
+            class="text-white font-bold"
+          >
             <div v-if="monthlyPrice > 0">
               <template v-if="promoMonthlyPrice">
                 <div class="text-green-300 text-4xl">
@@ -87,7 +92,7 @@ async function upgrade() {
         </ul>
       </div>
       <div class="mt-8">
-        <div v-if="monthlyPrice || yearlyPrice">
+        <div v-if="monthlyPrice != null || yearlyPrice != null">
           <button
             v-if="current"
             class="button-secondary w-full rounded-full flex text-neutral-500 hover:cursor-not-allowed"

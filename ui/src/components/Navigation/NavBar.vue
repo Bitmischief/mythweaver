@@ -9,6 +9,7 @@ import { useIntercom } from '@homebaseai/vue3-intercom';
 import ImageCreditCount from '../Core/ImageCreditCount.vue';
 import PlanBadge from '@/components/Core/PlanBadge.vue';
 import { Cog6ToothIcon } from '@heroicons/vue/24/outline';
+import ConjurationLimit from '@/components/Core/ConjurationLimit.vue';
 
 const authStore = useAuthStore();
 const showPanel = ref(false);
@@ -49,16 +50,17 @@ const intercom = useIntercom();
     >
       <div class="h-full">
         <div class="flex justify-between">
-          <div v-if="!collapsed" class="flex">
+          <div class="flex">
             <img
-              src="/images/logo-horizontal-2.svg"
-              class="h-8 w-auto mr-auto mt-1 mb-1 self-center"
+              src="/favicon.png"
+              alt="mythweaver icon"
+              class="h-10 w-auto mr-auto mt-1 mb-1 self-center"
             />
             <PlanBadge />
           </div>
-          <img v-else src="/favicon.png" class="h-12 w-auto" />
 
-          <div class="flex md:hidden">
+          <div class="flex md:hidden gap-2">
+            <ConjurationLimit v-if="authStore.user" collapsed />
             <ImageCreditCount v-if="authStore.user" collapsed />
             <div
               class="self-center text-purple-400 md:mb-6 ml-4"
