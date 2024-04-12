@@ -2145,11 +2145,11 @@
   integrity sha512-J7Ef7GCV/bcKCna6emidb0cp0miVY64jRknwqIjAUlHY8H6rgE4XDIWISHVJhJ5ve9xQJ+/ZFOgmE8b2tmwKGg==
 
 "@types/mailchimp__mailchimp_transactional@^1.0.9":
-  version "1.0.9"
-  resolved "https://registry.npmjs.org/@types/mailchimp__mailchimp_transactional/-/mailchimp__mailchimp_transactional-1.0.9.tgz"
-  integrity sha512-1X8pnyWDGo9FlBwM643XeAFeLSxTXxC4/Ejgjbo4tnqM1+OdBOH1rBRUlJ18EijrDiKTPEF3dZUCrt+ARaVXPg==
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/@types/mailchimp__mailchimp_transactional/-/mailchimp__mailchimp_transactional-1.0.10.tgz#94355f3a69fc645d52ea3d70b1a36fba664703b7"
+  integrity sha512-W8EcDqZspM4Mb6shET603kce4C11U29C3s0o8ZchWWcMyaz4MPa2nTyAVUSwnY0atuPii6Jpg3Gs6MuwupT3xw==
   dependencies:
-    axios "^0.21.1"
+    axios "^1.6.7"
 
 "@types/md5@^2.3.5":
   version "2.3.5"
@@ -2561,13 +2561,6 @@ available-typed-arrays@^1.0.7:
   integrity sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==
   dependencies:
     possible-typed-array-names "^1.0.0"
-
-axios@^0.21.1:
-  version "0.21.4"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.4.tgz#c67b90dc0568e5c1cf2b0b858c43ba28e2eda575"
-  integrity sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==
-  dependencies:
-    follow-redirects "^1.14.0"
 
 axios@^1.6.0, axios@^1.6.1, axios@^1.6.7:
   version "1.6.8"
@@ -3742,7 +3735,7 @@ flatted@^3.2.9:
   resolved "https://registry.npmjs.org/flatted/-/flatted-3.2.9.tgz"
   integrity sha512-36yxDn5H7OFZQla0/jFJmbIKTdZAQHngCedGxiMmpNfEZM0sdEeT+WczLQrjK6D7o2aiyLYDnkw0R3JK0Qv1RQ==
 
-follow-redirects@^1.14.0, follow-redirects@^1.15.6:
+follow-redirects@^1.15.6:
   version "1.15.6"
   resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.15.6.tgz#7f815c0cda4249c74ff09e95ef97c23b5fd0399b"
   integrity sha512-wWN62YITEaOpSK584EZXJafH1AGpO8RVgElfkuXbTOrPX4fIfOyEpW/CsiNd8JdYrAoOvafRTOEnvsO++qCqFA==
