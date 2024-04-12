@@ -56,13 +56,14 @@ onUnmounted(() => {
           class="bg-neutral-800 mr-2 mb-4 rounded-md py-2 px-4"
           @click="emit('complete')"
         >
-          Continue
+          Save And Continue
         </button>
       </div>
     </div>
     <CustomizeConjurationImage
       v-else
       :prompt="value.looks"
+      :linking="{ characterId: value.id }"
       cancel-button-text-override="Back"
       @cancel="emit('back')"
     />

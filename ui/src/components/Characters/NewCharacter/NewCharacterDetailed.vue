@@ -66,7 +66,7 @@ function submit(payload: any) {
         <!-- prettier-ignore -->
         <FormKit
           type="submit"
-          label="Next"
+          label="Save And Continue"
           input-class="$reset button-ghost flex"
           :disabled="(disabled as boolean)"
         >

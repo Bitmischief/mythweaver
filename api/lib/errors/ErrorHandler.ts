@@ -21,7 +21,9 @@ class ErrorHandler {
   }
 
   private handleTrustedError(error: AppError, response: Response): void {
-    response.status(error.httpCode).json({ message: error.message });
+    response
+      .status(error.httpCode)
+      .json({ name: error.name, message: error.message });
   }
 
   private handleCriticalError(

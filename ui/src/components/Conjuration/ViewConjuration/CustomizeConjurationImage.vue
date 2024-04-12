@@ -33,6 +33,11 @@ const props = withDefaults(
     inModal?: boolean;
     seed?: string;
     imageId?: number;
+    linking?: {
+      sessionId?: number;
+      characterId?: number;
+      conjurationId?: number;
+    };
   }>(),
   {
     prompt: '',
@@ -42,6 +47,7 @@ const props = withDefaults(
     cancelButtonTextOverride: undefined,
     seed: undefined,
     imageId: undefined,
+    linking: undefined,
   },
 );
 
@@ -148,6 +154,7 @@ async function conjure() {
       editableStylePreset.value || 'fantasy-art',
       count.value || 1,
       useSeed.value ? props.seed : undefined,
+      props.linking,
     );
 
     eventBus.$emit('conjure-image-done', {});

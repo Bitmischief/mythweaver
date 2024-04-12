@@ -114,6 +114,11 @@ export interface CustomizeImageRequest {
   stylePreset: string;
   seed: string;
   imageId: number;
+  linking?: {
+    sessionId?: number;
+    characterId?: number;
+    conjurationId?: number;
+  };
 }
 eventBus.$on('toggle-customize-image-modal', (args: CustomizeImageRequest) => {
   showCustomizeImageModal.value = !showCustomizeImageModal.value;
@@ -201,6 +206,7 @@ async function navigateToPreOrderRedemptionUrl() {
         :looks="customizeImageArgs?.stylePreset"
         :seed="customizeImageArgs?.seed"
         :image-id="customizeImageArgs?.imageId"
+        :linking="customizeImageArgs?.linking"
         in-modal
         @cancel="showCustomizeImageModal = false"
       />

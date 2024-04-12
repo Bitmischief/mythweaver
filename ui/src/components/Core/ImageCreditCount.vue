@@ -1,12 +1,13 @@
 <script lang="ts" setup>
 import { useWebsocketChannel } from '@/lib/hooks.ts';
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { ServerEvent } from '@/lib/serverEvents.ts';
 import { useAuthStore } from '@/store';
-import { ref } from 'vue';
 import { XCircleIcon } from '@heroicons/vue/24/solid';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import PricingPlan from '@/components/Core/PricingPlan.vue';
+import PricingTable from '@/components/Core/PricingTable.vue';
+import { BillingPlan } from '@/api/users.ts';
 
 const channel = useWebsocketChannel();
 const authStore = useAuthStore();
@@ -16,6 +17,13 @@ const imageCredit100PackPriceId = computed(
   () => import.meta.env.VITE_STRIPE_100_IMAGE_CREDITS_ID,
 );
 const showBuyImageCreditsModal = ref(false);
+const currentPlan = computed(() => {
+  if (!authStore.user) {
+    return;
+  }
+
+  return authStore.user.plan;
+});
 
 defineProps<{
   collapsed?: boolean;
@@ -95,15 +103,39 @@ const clickCreditCount = () => {
     @close="showBuyImageCreditsModal = false"
   >
     <div
-      class="md:w-[800px] p-6 bg-surface-2 rounded-[20px] border border-surface-3"
+      class="w-[90vw] md:w-[70vw] xl:w-[60vw] p-6 bg-surface-2 rounded-[20px] border border-surface-3 mt-4"
     >
-      <div class="flex justify-between text-neutral-300">
+      <div class="flex gap-4 justify-between text-neutral-300">
         <div class="text-xl mb-6">Buy More Image Credits</div>
         <XCircleIcon
           class="h-6 w-6 cursor-pointer"
           @click="showBuyImageCreditsModal = false"
         />
       </div>
+
+      <template
+        v-if="
+          currentPlan === BillingPlan.Trial || currentPlan === BillingPlan.Free
+        "
+      >
+        <div class="flex justify-between mb-2">
+          <div class="grow m-3"><hr class="border-1 border-neutral-500" /></div>
+          <div class="self-center">Subscribe</div>
+          <div class="grow m-3">
+            <hr class="border-1 border-neutral-500 self-center" />
+          </div>
+        </div>
+
+        <PricingTable />
+
+        <div class="flex justify-between">
+          <div class="grow m-3"><hr class="border-1 border-neutral-500" /></div>
+          <div class="self-center">or</div>
+          <div class="grow m-3">
+            <hr class="border-1 border-neutral-500 self-center" />
+          </div>
+        </div>
+      </template>
 
       <PricingPlan
         name="100 Image Credit Pack"
