@@ -12,9 +12,9 @@
     "prepare": "cd ../ && husky install ./ui/.husky"
   },
   "dependencies": {
-    "@formkit/addons": "^1.5.9",
-    "@formkit/themes": "^1.5.9",
-    "@formkit/vue": "^1.5.9",
+    "@formkit/addons": "^1.6.2",
+    "@formkit/themes": "^1.6.2",
+    "@formkit/vue": "^1.6.2",
     "@homebaseai/vue3-intercom": "^2.0.2",
     "@sentry/vue": "^7.107.0",
     "@tailwindcss/forms": "^0.5.7",
