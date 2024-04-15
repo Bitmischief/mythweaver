@@ -98,6 +98,9 @@ onMounted(async () => {
     images.value.push(data);
     conjuring.value = false;
     loading.value = false;
+    if (selectedImg.value === null) {
+      selectedImg.value = data;
+    }
   });
 
   channel.bind(ServerEvent.ImageFiltered, function () {
@@ -520,6 +523,7 @@ const alreadyUpscaled = computed(() => {
         v-for="image of images"
         :key="image.uri"
         class="relative cursor-pointer"
+        :class="{ 'md:col-span-2': !imageUri && images.length === 1 }"
       >
         <div class="relative max-w-[500px]">
           <div
