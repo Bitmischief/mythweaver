@@ -171,27 +171,20 @@
   resolved "https://registry.yarnpkg.com/@eslint/js/-/js-8.57.0.tgz#a5417ae8427873f1dd08b70b3574b453e67b5f7f"
   integrity sha512-Ys+3g2TaW7gADOJzPt83SJtCDhMjndcDMFVQ/Tj9iA1BfJzFKD9mAUXT3OenpuPHbI6P/myECxRJrofUsDx/5g==
 
-"@formkit/addons@^1.5.9":
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/@formkit/addons/-/addons-1.6.0.tgz#2ab06f1a740fe3b85c0e63af8969d95eeb2f49f7"
-  integrity sha512-Y1IxQfAPZLpWBrVpvld2ywL1NjSrRLBFj1ZpNbArQXtYGy9jthIFqJX3khAV8caauud4Vp4+U3xXftT7xnBYLA==
+"@formkit/addons@^1.6.2":
+  version "1.6.2"
+  resolved "https://registry.yarnpkg.com/@formkit/addons/-/addons-1.6.2.tgz#0bd5a13ccbc4bdd40b3afb8eafe7634406533e41"
+  integrity sha512-5VtRxdsLtbOtMxmrNPIQS9vKXN//zzF6sJ4Br1r2fU9CllXlGxkCUt/y5lMdSSFtQ5imvs/+DpMzdWkcJQZ/eA==
   dependencies:
     "@formkit/auto-animate" latest
-    "@formkit/core" "1.6.0"
-    "@formkit/inputs" "1.6.0"
-    "@formkit/utils" "1.6.0"
+    "@formkit/core" "1.6.2"
+    "@formkit/inputs" "1.6.2"
+    "@formkit/utils" "1.6.2"
 
 "@formkit/auto-animate@latest":
   version "0.8.1"
   resolved "https://registry.yarnpkg.com/@formkit/auto-animate/-/auto-animate-0.8.1.tgz#bcaba2969609ca3a7453eacd42b383a2739dfa35"
   integrity sha512-0/Z2cuNXWVVIG/l0SpcHAWFhGdvLJ8DRvEfRWvmojtmRWfEy+LWNwgDazbZqY0qQYtkHcoEK3jBLkhiZaB/4Ig==
-
-"@formkit/core@1.6.0":
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/@formkit/core/-/core-1.6.0.tgz#40314a243223f456cddd2e9d2679fd15fcdf5738"
-  integrity sha512-YsbVLJlY+4wbBCa4Ine3BHdX4Y0LOxbrOy0GWGnPv00iLFOFs3EwK0pV6vuQr/j8KB1Q8UsfdJ0f2fGk0ufLdQ==
-  dependencies:
-    "@formkit/utils" "1.6.0"
 
 "@formkit/core@1.6.2":
   version "1.6.2"
@@ -216,14 +209,6 @@
     "@formkit/core" "1.6.2"
     "@formkit/utils" "1.6.2"
     "@formkit/validation" "1.6.2"
-
-"@formkit/inputs@1.6.0":
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/@formkit/inputs/-/inputs-1.6.0.tgz#a44fc07f240a6d9f8e5abf15a9c406b5cf6abc85"
-  integrity sha512-Xo/TWcJOsSGYAGEpccsqtjZRmxdljoxfKceQojWekFtlhMZueowq8XULWnSVARzC+MZ+Qvugr206g5L0b3lETQ==
-  dependencies:
-    "@formkit/core" "1.6.0"
-    "@formkit/utils" "1.6.0"
 
 "@formkit/inputs@1.6.2":
   version "1.6.2"
@@ -250,17 +235,12 @@
     "@formkit/utils" "1.6.2"
     "@formkit/validation" "1.6.2"
 
-"@formkit/themes@1.6.2", "@formkit/themes@^1.5.9":
+"@formkit/themes@1.6.2", "@formkit/themes@^1.6.2":
   version "1.6.2"
   resolved "https://registry.yarnpkg.com/@formkit/themes/-/themes-1.6.2.tgz#2cb013787e48d0b2e1ebb9db9ad9903649d67e51"
   integrity sha512-NNJzMs0QIP1Mm1SH0teMKx4/KQl+SMQ9Go25T4HnLKv6z82dA6vBUx1Wdai+BpEBYLnux3G77A7FR4SRXJxQfA==
   dependencies:
     "@formkit/core" "1.6.2"
-
-"@formkit/utils@1.6.0":
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/@formkit/utils/-/utils-1.6.0.tgz#4d72da6009efeea5b3a4503d4d3948fed37900ca"
-  integrity sha512-g+3yxGKAOm2oPibWDc6381U0euU8TGcQZmOTa7i1i40vi+DZDZ53ATmFZ/oOvWjnz5icJ+IfV7Zdo0quMBtZbQ==
 
 "@formkit/utils@1.6.2":
   version "1.6.2"
