@@ -82,6 +82,7 @@ function submit(payload: any) {
     <div class="flex justify-between">
       <button
         v-if="showBack"
+        type="button"
         class="button-ghost-primary mb-4 flex"
         @click="emit('back')"
       >

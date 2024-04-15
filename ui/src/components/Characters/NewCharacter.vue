@@ -43,8 +43,12 @@ onUnmounted(() => {
 });
 
 async function initCharacter() {
-  const response = await postCharacters(character.value);
-  character.value.id = response.data.id;
+  if (!character.value.id) {
+    const response = await postCharacters(character.value);
+    character.value.id = response.data.id;
+  } else {
+    await patchCharacters(character.value.id, character.value);
+  }
   step.value++;
 }
 

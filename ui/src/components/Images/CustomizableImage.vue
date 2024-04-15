@@ -108,6 +108,7 @@ function downloadImage(url: string) {
 
     <div v-if="editable" class="absolute flex top-2 right-2">
       <button
+        type="button"
         class="flex button-white bg-white/50"
         :disabled="!editable"
         @click="showCustomizeImageModal"
@@ -118,6 +119,7 @@ function downloadImage(url: string) {
       <div class="relative group ml-2">
         <button
           v-if="imageUri"
+          type="button"
           class="flex button-white bg-white/50 mr-1"
           @click="downloadImage(imageUri)"
         >
