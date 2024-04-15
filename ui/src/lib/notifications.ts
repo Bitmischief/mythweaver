@@ -9,7 +9,7 @@ export interface NotificationOptions {
 export const showSuccess = (options: NotificationOptions) => {
   const eventBus = useEventBus();
   eventBus.$emit('showNotification', {
-    timeout: 1000,
+    timeout: 2000,
     ...options,
     type: 'success',
   });
