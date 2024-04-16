@@ -52,40 +52,19 @@ router.patch('/me', [
   },
 ]);
 
-const postPrereleaseSchema = z.object({
-  email: z.string(),
-  language: z.string(),
-});
-
-router.post('/prerelease', [
-  useValidateRequest(postPrereleaseSchema),
+router.get('/me/subscription', [
+  useAuthenticateRequest(),
+  useInjectLoggingInfo(),
   async (req: Request, res: Response) => {
-    const logger = useLogger(res);
-    const payload = req.body as z.infer<typeof postPrereleaseSchema>;
+    const controller = new UserController();
 
-    const newMember = {
-      email_address: payload.email,
-      email_type: 'html' as EmailType,
-      status: 'subscribed' as Status,
-      ip_opt: res.locals.trackingInfo?.ip,
-      ip_signup: res.locals.trackingInfo?.ip,
-      language: payload.language,
-      timestamp_signup: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
-      timestamp_opt: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
-    };
+    const response = await controller.getSubscription(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      useLogger(res),
+    );
 
-    const response = (await mailchimpClient.lists.batchListMembers(
-      process.env.MAILCHIMP_AUDIENCE_ID as string,
-      {
-        members: [newMember],
-      },
-    )) as any;
-
-    if (response?.errors?.length > 0) {
-      logger.warn('Received errors from Mailchimp', response.errors);
-    }
-
-    return res.status(200).send();
+    return res.status(200).send(response);
   },
 ]);
 

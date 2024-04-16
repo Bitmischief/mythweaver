@@ -1,6 +1,10 @@
 <script lang="ts" setup>
 import { useAuthStore } from '@/store/auth.store.ts';
-import { patchCurrentUser } from '@/api/users.ts';
+import {
+  getCurrentSubscription,
+  patchCurrentUser,
+  Subscription,
+} from '@/api/users.ts';
 import { UserCircleIcon, CreditCardIcon } from '@heroicons/vue/24/outline';
 import { ref, onMounted, computed } from 'vue';
 import { showSuccess, showError } from '@/lib/notifications';
@@ -24,14 +28,19 @@ const imageCredit100PackPriceId = computed(
   () => import.meta.env.VITE_STRIPE_100_IMAGE_CREDITS_ID,
 );
 
+const subscription = ref<Subscription | null>(null);
+
 async function clickBilling() {
   billingLoading.value = true;
   const portalUrlResponse = await getBillingPortalUrl();
   location.href = portalUrlResponse.data;
 }
 
-onMounted(() => {
+onMounted(async () => {
   username.value = user.value?.username ?? '';
+
+  const subscriptionResponse = await getCurrentSubscription();
+  subscription.value = subscriptionResponse.data;
 });
 
 const saveChangesLoading = ref(false);
@@ -207,32 +216,78 @@ async function saveChanges() {
               </div>
             </div>
           </div>
-          <div
-            v-if="user.subscriptionPaidThrough || user.earlyAccessExempt"
-            class="p-4 rounded-[12px] bg-surface-2 border border-surface-3 mt-6"
-          >
-            <div class="text-lg">Billing Information</div>
+
+          <template v-if="subscription">
             <div
-              v-if="user.earlyAccessExempt"
-              class="text-sm text-neutral-500 my-2"
+              v-if="!subscription.isPreOrder && user.subscriptionPaidThrough"
+              class="p-4 rounded-[12px] bg-surface-2 border border-surface-3 mt-6"
             >
-              You are currently in early access
-            </div>
-            <div
-              v-else-if="user.subscriptionPaidThrough"
-              class="flex justify-between"
-            >
-              <div class="text-sm text-neutral-500 my-2">
-                Your
-                <span class="text-neutral-200">
-                  {{ user.plan }}
-                </span>
-                subscription will automatically be renewed on
-                <span class="text-neutral-200">
-                  {{ format(user.subscriptionPaidThrough, 'MMM dd, yyyy') }}
-                </span>
+              <div class="text-lg">Billing Information</div>
+              <div
+                v-if="user.earlyAccessExempt"
+                class="text-sm text-neutral-500 my-2"
+              >
+                You are currently in early access
               </div>
+              <div
+                v-else-if="user.subscriptionPaidThrough"
+                class="flex justify-between"
+              >
+                <div class="text-sm text-neutral-500 my-2">
+                  Your
+                  <span class="text-neutral-200">
+                    {{ user.plan }}
+                  </span>
+                  subscription will automatically be renewed on
+                  <span class="text-neutral-200">
+                    {{ format(user.subscriptionPaidThrough, 'MMM dd, yyyy') }}
+                  </span>
+                </div>
+                <div>
+                  <button
+                    class="button-primary"
+                    :disabled="billingLoading"
+                    @click="clickBilling"
+                  >
+                    Manage Billing
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div
+              v-else-if="subscription.isPreOrder"
+              class="p-4 rounded-[12px] bg-surface-2 border border-surface-3 mt-6 flex justify-between"
+            >
               <div>
+                <div class="text-lg">Pre-Order Information</div>
+                <div
+                  v-if="!subscription.isLifetimePreOrder"
+                  class="text-sm text-neutral-500 my-2"
+                >
+                  Your
+                  <span class="text-neutral-200">
+                    {{ user.plan }}
+                  </span>
+                  plan pre-order coupon expires on
+                  <span class="text-neutral-200">
+                    {{
+                      format(subscription.preOrderValidUntil, 'MMM dd, yyyy')
+                    }}
+                  </span>
+                </div>
+                <div v-else class="text-sm text-neutral-500 my-2">
+                  You have a
+                  <span class="text-neutral-200"> lifetime </span> pre-order
+                  coupon for the
+                  <span class="text-neutral-200">
+                    {{ user.plan }}
+                  </span>
+                  plan
+                </div>
+              </div>
+
+              <div class="self-center">
                 <button
                   class="button-primary"
                   :disabled="billingLoading"
@@ -242,7 +297,7 @@ async function saveChanges() {
                 </button>
               </div>
             </div>
-          </div>
+          </template>
         </div>
       </div>
     </div>

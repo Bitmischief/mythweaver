@@ -14,6 +14,10 @@ import { AppError, HttpCode } from '../lib/errors/AppError';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { MythWeaverLogger } from '../lib/logger';
 import { modifyImageCreditCount } from '../services/credits';
+import {
+  getSubscription,
+  getSubscriptionForCustomer,
+} from '../services/billing';
 
 interface PatchUserRequest {
   campaignId: number;
@@ -143,6 +147,61 @@ export default class UserController {
       },
       data: payload,
     });
+  }
+
+  @Security('jwt')
+  @OperationId('getSubscription')
+  @Get('/me/subscription')
+  public async getSubscription(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
+  ) {
+    logger.info('Getting subscription', { userId, trackingInfo });
+
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user) {
+      throw new AppError({
+        description: 'User not found.',
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    const subscription = await getSubscriptionForCustomer(
+      user.billingCustomerId || '',
+    );
+
+    if (!subscription) {
+      throw new AppError({
+        description: 'Subscription not found.',
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    if (subscription.discount) {
+      logger.info('Subscription has discount', {
+        discount: subscription.discount,
+      });
+    }
+
+    const isPreOrder = subscription.discount?.coupon?.name === user.email;
+
+    return {
+      isPreOrder,
+      preOrderValidUntil:
+        isPreOrder && subscription.discount
+          ? new Date(subscription.discount?.end * 1000)
+          : undefined,
+      isLifetimePreOrder: subscription.discount && !subscription.discount.end,
+      subscriptionRenewalDate: subscription.current_period_end
+        ? new Date(subscription.current_period_end * 1000)
+        : undefined,
+    };
   }
 
   public async addUserCredits(

@@ -21,10 +21,21 @@ export interface User {
   conjurationCount: number;
 }
 
+export interface Subscription {
+  isPreOrder: boolean;
+  preOrderValidUntil: number;
+  isLifetimePreOrder: boolean;
+  subscriptionRenewalDate: number;
+}
+
 export const getCurrentUser = () => {
   return axios.get('/users/me');
 };
 
 export const patchCurrentUser = (payload: any) => {
   return axios.patch('/users/me', payload);
+};
+
+export const getCurrentSubscription = () => {
+  return axios.get('/users/me/subscription');
 };
