@@ -99,11 +99,17 @@ export default class SessionController {
   ): Promise<GetSessionsResponse> {
     const sessions = await prisma.session.findMany({
       where: {
-        userId,
         campaignId,
         archived,
         name: {
           search: search,
+        },
+        campaign: {
+          members: {
+            some: {
+              userId: userId,
+            },
+          },
         },
       },
       skip: offset,
