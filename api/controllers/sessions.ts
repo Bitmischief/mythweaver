@@ -167,6 +167,13 @@ export default class SessionController {
     const session = await prisma.session.findUnique({
       where: {
         id: sessionId,
+        campaign: {
+          members: {
+            some: {
+              userId: userId,
+            },
+          },
+        },
       },
       include: {
         sessionTranscription: true,
@@ -178,13 +185,6 @@ export default class SessionController {
       throw new AppError({
         description: 'Session not found.',
         httpCode: HttpCode.NOT_FOUND,
-      });
-    }
-
-    if (session.userId !== null && session.userId !== userId) {
-      throw new AppError({
-        description: 'You do not have access to this session.',
-        httpCode: HttpCode.FORBIDDEN,
       });
     }
 
