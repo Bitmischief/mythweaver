@@ -7,7 +7,7 @@ export const rephraseImagePrompt = async (promptHistory: string[]) => {
   logger.info('Rephrasing image prompt', promptHistory);
 
   const response = await openai.chat.completions.create({
-    model: 'gpt-4-1106-preview',
+    model: 'gpt-4-turbo',
     messages: [
       {
         role: 'system',

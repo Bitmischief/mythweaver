@@ -35,6 +35,15 @@ const showUploadAudioModal = ref(false);
 const channel = useWebsocketChannel();
 const hasValidPlan = useHasValidPlan();
 
+withDefaults(
+  defineProps<{
+    readOnly?: boolean;
+  }>(),
+  {
+    readOnly: false,
+  },
+);
+
 useUnsavedChangesWarning(originalSession, session);
 
 onMounted(async () => {
@@ -43,6 +52,7 @@ onMounted(async () => {
 });
 
 const sessionLoading = ref(true);
+const collapsed = ref(true);
 
 async function init() {
   sessionLoading.value = true;
@@ -194,14 +204,52 @@ const clickUploadAudio = () => {
     showUploadAudioModal.value = true;
   }
 };
+
+const previewSegmentCount = 10;
+
+const hiddenSegmentCount = computed(() => {
+  if (collapsed.value && session.value && session.value.sessionTranscription) {
+    return (
+      session.value.sessionTranscription.transcription.segments.length -
+      transcriptionSegments.value.length
+    );
+  }
+  return 0;
+});
+
+const transcriptionSegments = computed(() => {
+  if (session.value && session.value.sessionTranscription) {
+    if (collapsed.value) {
+      // return first 25 segments
+      const sliceTo = Math.min(
+        previewSegmentCount,
+        session.value.sessionTranscription.transcription.segments.length,
+      );
+      return session.value.sessionTranscription.transcription.segments.slice(
+        0,
+        sliceTo,
+      );
+    } else {
+      return session.value.sessionTranscription.transcription.segments;
+    }
+  }
+  return [];
+});
 </script>
 
 <template>
   <div
     v-if="session && !sessionLoading"
     id="audio-player"
-    class="bg-surface-2 rounded-[18px] min-h-[10em] py-6 px-2"
+    class="bg-surface-2 rounded-[18px] min-h-[10em] pb-6 px-2 pt-2"
   >
+    <div
+      v-if="!session.audioUri"
+      id="transcription-title"
+      class="underline text-lg p-4 pb-0 mb-2"
+    >
+      Upload Audio
+    </div>
     <div class="bg-surface rounded-[18px] flex justify-start p-4">
       <AudioPlayback
         v-if="session.audioUri"
@@ -214,7 +262,7 @@ const clickUploadAudio = () => {
         @jump="jumpToCurrent"
       />
       <div
-        v-else-if="currentUserRole === CampaignRole.DM"
+        v-else-if="currentUserRole === CampaignRole.DM && !readOnly"
         class="button-ghost flex mr-2"
         @click="clickUploadAudio"
       >
@@ -229,7 +277,7 @@ const clickUploadAudio = () => {
     </div>
     <div v-if="session.sessionTranscription?.transcription" class="p-4">
       <div
-        v-for="(s, i) in session.sessionTranscription.transcription.segments"
+        v-for="(s, i) in transcriptionSegments"
         :key="`seg_${i}`"
         class="text-neutral-300 group hover:cursor-pointer flex mb-4"
         @click="startSeconds = s.start"
@@ -248,9 +296,23 @@ const clickUploadAudio = () => {
           {{ s.text }}
         </div>
       </div>
+      <div
+        v-if="collapsed || hiddenSegmentCount > 0"
+        class="flex justify-center"
+      >
+        <div>
+          <button class="button-gradient" @click="collapsed = false">
+            Show {{ hiddenSegmentCount }} more lines
+          </button>
+        </div>
+      </div>
     </div>
-    <div v-else-if="currentUserRole === CampaignRole.DM" class="p-4">
+    <div
+      v-else-if="currentUserRole === CampaignRole.DM && !readOnly"
+      class="p-4"
+    >
       <button
+        v-if="session.audioUri"
         class="button-gradient mr-2"
         :disabled="!session.audioUri || loadingTranscribeSession"
         @click="requestTranscription"
@@ -261,6 +323,9 @@ const clickUploadAudio = () => {
         </div>
         <div v-else>Transcribe session</div>
       </button>
+      <div v-else class="text-center text-sm text-neutral-400">
+        Upload a recording of your session for MythWeaver to transcribe.
+      </div>
       <div
         v-if="loadingTranscribeSession"
         class="text-xs text-neutral-400 mt-2"
@@ -293,7 +358,7 @@ const clickUploadAudio = () => {
   </ModalAlternate>
 
   <div
-    class="absolute bottom-10 left-0 right-0 flex justify-center pointer-events-none"
+    class="fixed bottom-10 left-0 right-0 flex justify-center pointer-events-none"
   >
     <button
       v-show="showScrollToTop"

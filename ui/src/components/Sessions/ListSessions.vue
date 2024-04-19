@@ -6,10 +6,11 @@ import Session from '@/components/Sessions/Session.vue';
 import { useCampaignStore } from '@/store/campaign.store.ts';
 import { CampaignRole } from '@/api/campaigns.ts';
 import { PlusIcon } from '@heroicons/vue/20/solid';
-import { UserGroupIcon } from '@heroicons/vue/24/outline';
+import { CalendarDaysIcon, UserGroupIcon } from '@heroicons/vue/24/outline';
 import { showSuccess } from '@/lib/notifications.ts';
 import { useRouter } from 'vue-router';
 import { useSelectedCampaignId } from '@/lib/hooks.ts';
+import { format } from 'date-fns';
 
 const selectedCampaignId = useSelectedCampaignId();
 const eventBus = useEventBus();
@@ -67,12 +68,37 @@ async function handleCreateSession() {
   const createSessionResponse = await postSession({});
 
   showSuccess({ message: 'Session created!' });
-  await router.push(`/sessions/${createSessionResponse.data.id}/relationships`);
+  await router.push(`/sessions/${createSessionResponse.data.id}#plan`);
 }
+
+const planningSessions = computed(() => {
+  if (sessions.value.length) {
+    return sessions.value.filter(
+      (session) => session.isOver === false && !session.completed,
+    );
+  }
+  return [];
+});
+
+const needsRecapSessions = computed(() => {
+  if (sessions.value.length) {
+    return sessions.value.filter(
+      (session) => session.isOver && !session.completed,
+    );
+  }
+  return [];
+});
+
+const completedSessions = computed(() => {
+  if (sessions.value.length) {
+    return sessions.value.filter((session) => session.completed);
+  }
+  return [];
+});
 </script>
 
 <template>
-  <div class="mb-6 flex w-full justify-between rounded-xl py-4">
+  <div class="flex w-full justify-between rounded-xl py-4">
     <div class="w-full md:flex md:justify-between">
       <div class="text-xl self-center font-bold">Sessions</div>
 
@@ -102,17 +128,90 @@ async function handleCreateSession() {
     </div>
   </div>
 
-  <div
-    v-if="sessions.length"
-    class="grid grid-cols-1 place-items-stretch sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
-  >
-    <router-link
-      v-for="(session, i) of sessions"
-      :key="i"
-      :to="`/sessions/${session.id}/relationships`"
-    >
-      <Session :session="session" :full="false" />
-    </router-link>
+  <div v-if="sessions.length">
+    <div v-if="planningSessions.length" class="mb-6">
+      <div class="flex mb-2">
+        <div class="text-lg mx-2 text-neutral-300">
+          {{ currentUserRole === CampaignRole.DM ? 'Planning' : 'Upcoming' }}
+        </div>
+        <hr class="border border-neutral-800 grow self-center" />
+      </div>
+      <div
+        class="grid grid-cols-1 place-items-stretch sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
+      >
+        <router-link
+          v-for="(session, i) of planningSessions"
+          :key="i"
+          :to="`/sessions/${session.id}#plan`"
+        >
+          <div class="p-4 bg-surface-2 rounded-[12px]">
+            <div class="text-neutral-200 truncate text-lg underline">
+              {{ session.name }}
+            </div>
+            <div class="flex text-neutral-400">
+              <CalendarDaysIcon class="h-5 mr-1" />
+              <div>
+                {{
+                  session.date
+                    ? format(new Date(session.date), 'MMM d, yyyy @ hh:mm a')
+                    : 'TBD'
+                }}
+              </div>
+            </div>
+          </div>
+        </router-link>
+      </div>
+    </div>
+
+    <div v-if="needsRecapSessions.length" class="mb-6">
+      <div class="flex mb-2">
+        <div class="text-lg mx-2 text-neutral-300">
+          {{ currentUserRole === CampaignRole.DM ? 'Needs Recap' : 'Recent' }}
+        </div>
+        <hr class="border border-neutral-800 grow self-center" />
+      </div>
+      <div
+        class="grid grid-cols-1 place-items-stretch sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
+      >
+        <router-link
+          v-for="(session, i) of needsRecapSessions"
+          :key="i"
+          :to="`/sessions/${session.id}#recap`"
+        >
+          <div class="p-4 bg-surface-2 rounded-[12px]">
+            <div class="truncate">{{ session.name }}</div>
+            <div class="flex text-neutral-400">
+              <CalendarDaysIcon class="h-5 mr-1" />
+              <div>
+                {{
+                  session.date
+                    ? format(new Date(session.date), 'MMM d, yyyy @ hh:mm a')
+                    : 'TBD'
+                }}
+              </div>
+            </div>
+          </div>
+        </router-link>
+      </div>
+    </div>
+
+    <div v-if="completedSessions.length" class="mb-6">
+      <div class="flex mb-2">
+        <div class="text-lg mx-2 text-neutral-300">Completed</div>
+        <hr class="border border-neutral-800 grow self-center" />
+      </div>
+      <div
+        class="grid grid-cols-1 items-stretch sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-5"
+      >
+        <router-link
+          v-for="(session, i) of completedSessions"
+          :key="i"
+          :to="`/sessions/${session.id}#overview`"
+        >
+          <Session class="h-full" :session="session" dense />
+        </router-link>
+      </div>
+    </div>
   </div>
   <div v-else class="flex justify-center h-full">
     <div class="flex flex-col justify-center text-center">
