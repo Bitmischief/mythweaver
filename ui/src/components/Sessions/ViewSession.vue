@@ -275,7 +275,7 @@ async function changeTab(tabName: string) {
           <div class="self-center">Session summarization in progress...</div>
         </div>
         <div
-          class="flex p-2 gap-4 border border-neutral-800 rounded-[20px] overflow-y-auto"
+          class="flex flex-wrap md:flex-nowrap p-2 gap-4 border border-neutral-800 rounded-[20px]"
         >
           <button
             class="basis-1/4 md:min-w-[120px]"
@@ -311,7 +311,7 @@ async function changeTab(tabName: string) {
               class="tooltip-bottom my-2 group-hover/transcript:block"
             >
               You must have a paid plan to access this feature.
-              <div class="tooltip-arrow-top" data-popper-arrow></div>
+              <div class="tooltip-arrow" data-popper-arrow></div>
             </div>
           </div>
           <ArrowRightIcon class="min-w-5 w-5 self-center" />
