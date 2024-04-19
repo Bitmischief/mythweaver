@@ -340,10 +340,9 @@ async function changeTab(tabName: string) {
           </button>
         </div>
       </div>
-
       <div
         v-if="currentUserRole === CampaignRole.DM"
-        class="flex gap-4 justify-end absolute top-0 right-0 md:static"
+        class="flex gap-4 justify-end self-center"
       >
         <button
           v-if="!session.completed && session.isOver === false"
@@ -363,6 +362,11 @@ async function changeTab(tabName: string) {
             Mark Session As Complete
           </button>
         </div>
+      </div>
+      <div
+        v-if="currentUserRole === CampaignRole.DM"
+        class="flex gap-4 justify-end absolute top-0 right-0 md:static"
+      >
         <Menu class="self-center">
           <MenuButton class="button-primary">
             <EllipsisVerticalIcon class="h-5" />
@@ -481,7 +485,7 @@ async function changeTab(tabName: string) {
       </div>
     </div>
     <div v-if="tab === 'plan'">
-      <div>
+      <div class="mt-4">
         <ViewSessionPlanning />
       </div>
       <div class="mt-4 pb-6 mb-12 border border-neutral-800 rounded-[20px] p-4">
