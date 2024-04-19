@@ -81,7 +81,7 @@ async function initNotifications() {
     showSuccess({
       message: 'Transcription Complete',
       context: 'Click here to view transcription',
-      route: `/sessions/${sessionId}/transcription`,
+      route: `/sessions/${sessionId}`,
     });
   });
 }

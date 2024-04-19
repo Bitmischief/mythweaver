@@ -10,7 +10,7 @@ const props = defineProps<{
 }>();
 
 async function gotoSession() {
-  await router.push(`/sessions/${props.session.id}/relationships`);
+  await router.push(`/sessions/${props.session.id}`);
 }
 </script>
 

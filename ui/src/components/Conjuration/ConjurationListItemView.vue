@@ -3,7 +3,7 @@ import { Conjuration, saveConjuration } from '@/api/conjurations.ts';
 import { useRouter, useRoute } from 'vue-router';
 import { BookmarkIcon as BookmarkIconSolid } from '@heroicons/vue/20/solid';
 import { BookmarkIcon as BookmarkIconOutline } from '@heroicons/vue/24/outline';
-import { PlusIcon } from '@heroicons/vue/24/solid';
+import { PlusIcon, ArrowRightIcon } from '@heroicons/vue/24/solid';
 import { computed, ref } from 'vue';
 import { showError, showSuccess } from '@/lib/notifications.ts';
 
@@ -69,7 +69,7 @@ async function addConjuration() {
 <template>
   <div v-if="conjuration">
     <div
-      class="h-full flex cursor-pointer rounded-[20px] shadow-xl bg-surface-2"
+      class="h-full flex cursor-pointer rounded-[20px] shadow-xl bg-surface-2 group relative"
       :class="{
         'flex-row py-2': condensedView,
         'flex-col justify-end': !condensedView,
@@ -77,7 +77,7 @@ async function addConjuration() {
       @click="navigateToViewConjuration(conjuration.id)"
     >
       <div
-        class="relative m-2 grow"
+        class="relative m-2 grow group-hover:my-0 transition-all"
         :class="{
           'basis-1/3 my-auto': condensedView,
           'basis-1': !condensedView,
@@ -97,7 +97,7 @@ async function addConjuration() {
           </div>
         </div>
         <div
-          class="absolute flex justify-center items-center rounded-full bg-white/50 group text-black text-xs font-bold"
+          class="absolute flex justify-center items-center rounded-full bg-white/50 text-black text-xs font-bold"
           :class="{
             'left-1 top-1 h-4 px-2': condensedView,
             'left-2 top-2 h-6 px-4': !condensedView,
@@ -107,7 +107,7 @@ async function addConjuration() {
         </div>
         <div
           v-if="showBookmarkIcon"
-          class="absolute text-white/75 group"
+          class="absolute text-white/75 group/bookmark"
           :class="{
             'right-0 top-0 h-4': condensedView,
             'right-2 top-2 h-6': !condensedView,
@@ -117,7 +117,7 @@ async function addConjuration() {
             <BookmarkIconSolid v-if="conjuration.saved" class="w-5 h-5" />
             <BookmarkIconOutline v-else class="w-5 h-5" />
             <div
-              class="absolute bottom-[105%] right-0 whitespace-nowrap invisible group-hover:visible text-neutral-300 bg-surface-2 rounded-full px-2 py-1"
+              class="absolute bottom-[105%] right-0 whitespace-nowrap invisible group-hover/bookmark:visible text-neutral-300 bg-surface-2 rounded-full px-2 py-1"
             >
               <span v-if="conjuration.saved">In My Conjurations</span>
               <span v-else>Not in My Conjurations</span>
@@ -126,66 +126,38 @@ async function addConjuration() {
         </div>
         <div
           v-if="showSaves"
-          class="group absolute"
+          class="absolute m-2 bg-white/50 rounded-[4px]"
           :class="{
-            'cursor-default': conjuration.saved,
             'right-0 -top-1 w-5': condensedView,
             'right-0 top-0 h-6': !condensedView,
+            'bg-white/50': !conjuration.saved,
+            'bg-fuchsia-500/90': conjuration.saved,
           }"
           @click.stop="addConjuration"
         >
-          <div class="flex justify-center items-center text-xs font-bold">
-            <div class="relative">
-              <BookmarkIconSolid
-                v-if="conjuration.saved"
-                class="h-8 w-8 text-fuchsia-500"
-              />
-              <BookmarkIconSolid
-                v-else
-                class="h-8 w-8 text-white/50 group-hover:text-white/75"
-              />
-              <div
-                class="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2"
-                :class="{
-                  'text-black group-hover:rotate-180 transition-transform':
-                    !conjuration.saved,
-                }"
-              >
-                <div
-                  class="block"
-                  :class="{ 'group-hover:hidden': !conjuration.saved }"
-                >
-                  {{ conjuration.saves > 99 ? '99+' : conjuration.saves }}
-                </div>
-                <div
-                  class="hidden"
-                  :class="{ 'group-hover:block': !conjuration.saved }"
-                >
-                  <PlusIcon class="h-4 w-4 stroke-black" />
-                </div>
-              </div>
-            </div>
-          </div>
-          <div
-            class="absolute bottom-[98%] text-sm font-bold text-center invisible min-w-[200px] overflow-visible group-hover:visible text-neutral-300 bg-surface-3 rounded-[12px] px-2 py-1 z-20"
-            :class="{ 'right-0': !condensedView, 'left-0': condensedView }"
-          >
-            <span
-              >{{ conjuration.saves }}
-              {{
-                conjuration.saves === 1 ? 'adventurer has' : 'adventurers have'
-              }}
-              added this to their conjurations</span
+          <div class="flex h-full justify-center text-xs font-bold">
+            <BookmarkIconSolid
+              class="h-5 w-5 self-center"
+              :class="{
+                'text-neutral-600': !conjuration.saved,
+                'text-neutral-200': conjuration.saved,
+              }"
+            />
+            <div
+              class="pl-1 pr-2 self-center"
+              :class="{
+                'text-neutral-800': !conjuration.saved,
+                'text-neutral-200': conjuration.saved,
+              }"
             >
-            <span v-if="!conjuration.saved" class="text-sm text-neutral-500">
-              (click to add)
-            </span>
+              {{ conjuration.saves }}
+            </div>
           </div>
         </div>
       </div>
 
       <div
-        class="flex justify-between px-3 pb-2"
+        class="flex justify-between px-3 pb-2 rounded-[16px] bg-surface-2 z-10 group-hover:grow transition-all"
         :class="{
           'basis-1': !condensedView,
           'basis-2/3 pt-2 overflow-hidden': condensedView,
@@ -195,8 +167,95 @@ async function addConjuration() {
           <div class="relative text-md truncate">
             {{ conjuration.name }}
           </div>
-          <div class="text-sm text-neutral-500 truncate-2-line">
+          <div class="flex flex-wrap max-h-[3.5em] overflow-hidden">
+            <div
+              v-for="(tag, i) in conjuration.tags"
+              :key="`${i}_${conjuration.id}_tag`"
+              class="tag"
+            >
+              {{ tag }}
+            </div>
+          </div>
+        </div>
+        <div
+          class="bg-surface-2 rounded-[20px] opacity-0 p-3 flex-col absolute bottom-0 right-0 left-0 top-[100px] group-hover:opacity-100 group-hover:flex group-hover:top-0 transition-all"
+        >
+          <div>
+            <div class="truncate text-lg pb-5 mt-2 mr-12">
+              {{ conjuration.name }}
+            </div>
+            <div
+              v-if="showSaves"
+              class="absolute m-2 bg-white/50 rounded-[4px] group/bookmark"
+              :class="{
+                'right-0 -top-1 w-5': condensedView,
+                'right-2 top-2.5 h-6': !condensedView,
+                'bg-white/50 hover:bg-white/60': !conjuration.saved,
+                'bg-fuchsia-500/90': conjuration.saved,
+              }"
+              @click.stop="addConjuration"
+            >
+              <div class="flex h-full justify-center text-xs font-bold">
+                <div class="relative self-center">
+                  <BookmarkIconSolid
+                    class="h-5 w-5 self-center"
+                    :class="{
+                      'text-neutral-200': conjuration.saved,
+                      'text-neutral-600 group-hover/bookmark:text-neutral-800':
+                        !conjuration.saved,
+                    }"
+                  />
+                  <PlusIcon
+                    v-if="!conjuration.saved"
+                    class="invisible group-hover/bookmark:visible absolute text-neutral-100 h-2 w-2 bottom-1/2 right-1/2 translate-x-1/2 translate-y-1/2"
+                  />
+                </div>
+                <div
+                  class="pl-1 pr-2 self-center"
+                  :class="{
+                    'text-neutral-800': !conjuration.saved,
+                    'text-neutral-200': conjuration.saved,
+                  }"
+                >
+                  {{ conjuration.saves }}
+                </div>
+              </div>
+              <div
+                class="absolute bottom-[100%] text-sm font-bold text-center invisible min-w-[200px] overflow-visible group-hover/bookmark:visible text-neutral-300 bg-surface-3 rounded-[12px] px-2 py-1 mb-2 z-20"
+                :class="{ 'right-0': !condensedView, 'left-0': condensedView }"
+              >
+                <span
+                  >{{ conjuration.saves }}
+                  {{
+                    conjuration.saves === 1
+                      ? 'adventurer has'
+                      : 'adventurers have'
+                  }}
+                  added this to their conjurations</span
+                >
+                <span
+                  v-if="!conjuration.saved"
+                  class="text-sm text-neutral-500"
+                >
+                  (click to add)
+                </span>
+              </div>
+            </div>
+          </div>
+          <div
+            class="relative text-sm text-neutral-400 hidden group-hover:block overflow-hidden shrink overflow-ellipsis"
+          >
             {{ getConjurationDescription(conjuration) }}
+
+            <div
+              class="absolute inset-0 z-10 bg-gradient-to-b from-transparent via-transparent to-surface-2"
+            ></div>
+          </div>
+          <div class="mt-2">
+            <div class="flex text-fuchsia-500">
+              View conjuration
+              <ArrowRightIcon class="h-5 w-5 ml-2 self-center" />
+            </div>
           </div>
         </div>
       </div>

@@ -266,7 +266,7 @@ export class GeneratorController {
     track(AppEvent.GetConjurer, userId, trackingInfo);
     const openai = getClient();
     const response = await openai.chat.completions.create({
-      model: 'gpt-4-1106-preview',
+      model: 'gpt-4-turbo',
       messages: [
         {
           role: 'system',

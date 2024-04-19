@@ -9,6 +9,7 @@ export interface SessionBase {
   completed: boolean;
   name?: string | undefined;
   planning?: string | undefined;
+  planningJson?: any | undefined;
   recap?: string | undefined;
   summary?: string | undefined;
   transcript?: string | undefined;
@@ -17,6 +18,8 @@ export interface SessionBase {
   suggestions?: string | undefined;
   sessionTranscription?: any | undefined;
   linked?: boolean | undefined;
+  date?: Date | undefined;
+  isOver?: boolean | undefined;
 
   suggestedName?: string | undefined;
   suggestedSummary?: string | undefined;
@@ -24,10 +27,12 @@ export interface SessionBase {
   suggestedImageUri?: string | undefined;
   suggestedSuggestions?: string | undefined;
   suggestedImagePrompt?: string | undefined;
+  suggestedRecap?: string | undefined;
   audioName?: string | undefined;
   audioUri?: string | undefined;
   createdAt: string;
   updatedAt: string;
+  images?: any[] | [];
 }
 
 export interface GetSessionsRequest {
@@ -47,12 +52,16 @@ export interface PatchSessionRequest {
   name?: string | undefined;
   planning?: string | undefined;
   summary?: string | undefined;
+  recap?: string | undefined;
   transcript?: string | undefined;
   description?: string | undefined;
   campaignId?: number;
   archived?: boolean | undefined;
   imageUri?: string | undefined;
   suggestions?: string | undefined;
+  date?: Date | undefined;
+  isOver?: boolean | undefined;
+  completed?: boolean | undefined;
 
   suggestedName?: string | undefined;
   suggestedSummary?: string | undefined;
@@ -60,6 +69,7 @@ export interface PatchSessionRequest {
   suggestedImageUri?: string | undefined;
   suggestedSuggestions?: string | undefined;
   suggestedImagePrompt?: string | undefined;
+  suggestedRecap?: string | undefined;
 }
 
 export interface PostGenerateSummaryRequest {
@@ -100,6 +110,10 @@ export const deleteSession = (sessionId: number) => {
 
 export const postGenerateSummary = (sessionId: number, request: PostGenerateSummaryRequest) => {
   return axios.post(`/sessions/${sessionId}/generate-summary`, request);
+};
+
+export const postRecapTranscription = (sessionId: number) => {
+  return axios.post(`/sessions/${sessionId}/recap-transcription`);
 };
 
 export const postCompleteSession = (sessionId: number) => {

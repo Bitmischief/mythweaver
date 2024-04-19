@@ -153,4 +153,40 @@ input[type='number'] {
   .menu-item {
     @apply hover:bg-purple-800/20 hover:cursor-pointer w-full;
   }
+  .tooltip-base {
+    @apply absolute text-neutral-300 hidden w-full md:w-auto md:whitespace-nowrap px-4 md:px-2 py-1 bg-surface-3 rounded-[20px];
+  }
+  .tooltip-y {
+    @apply tooltip-base right-1/2 translate-x-1/2;
+  }
+  .tooltip-x {
+    @apply tooltip-base bottom-1/2 translate-y-1/2;
+  }
+  .tooltip-arrow-base {
+    @apply invisible absolute h-2 w-2 bg-inherit before:visible before:absolute before:h-2 before:w-2 before:rotate-45 before:bg-inherit before:content-[''];
+  }
+  .tooltip-bottom {
+    @apply tooltip-y mt-2 top-[100%];
+    .tooltip-arrow {
+      @apply tooltip-arrow-base bottom-full translate-y-1/2 translate-x-1/2 right-1/2;
+    }
+  }
+  .tooltip-top {
+    @apply tooltip-y mb-2 bottom-[100%];
+    .tooltip-arrow {
+      @apply tooltip-arrow-base top-full -translate-y-1/2 translate-x-1/2 right-1/2;
+    }
+  }
+  .tooltip-right {
+    @apply tooltip-x ml-2 left-[100%];
+    .tooltip-arrow {
+      @apply tooltip-arrow-base right-full translate-x-1/2 translate-y-1/2 bottom-1/2;
+    }
+  }
+  .tooltip-left {
+    @apply tooltip-x mr-2 right-[100%];
+    .tooltip-arrow {
+      @apply tooltip-arrow-base left-full -translate-x-1/2 translate-y-1/2 bottom-1/2;
+    }
+  }
 }

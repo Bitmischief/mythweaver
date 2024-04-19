@@ -21,6 +21,7 @@ export enum ServerEvent {
   ImageGenerationDone = 'image-generation-done',
   ImageUpscalingDone = 'image-upscaling-done',
   SessionUpdated = 'session-updated',
+  SessionCompleted = 'session-completed',
   SessionImageUpdated = 'session-image-updated',
   UserImageCreditCountUpdated = 'user-image-credit-count-updated',
   UserConjurationCountUpdated = 'user-conjuration-count-updated',

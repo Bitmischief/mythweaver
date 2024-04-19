@@ -54,6 +54,7 @@ export enum AppEvent {
   SessionTranscriptionCompleted = 'Session Transcription Completed',
   SessionTranscriptionFailed = 'Session Transcription Failed',
   SessionTranscriptionStarted = 'Session Transcription Started',
+  RecapSessionTranscription = 'Recap Session Transcription',
 }
 
 export interface TrackingInfo {

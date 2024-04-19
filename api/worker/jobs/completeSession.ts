@@ -28,7 +28,7 @@ export const completeSession = async (request: CompleteSessionEvent) => {
   });
 
   const response = await openai.chat.completions.create({
-    model: 'gpt-4-1106-preview',
+    model: 'gpt-4-turbo',
     messages: [
       {
         role: 'system',
@@ -130,8 +130,13 @@ export const completeSession = async (request: CompleteSessionEvent) => {
     },
     data: {
       processing: false,
+      completed: true,
     },
   });
 
-  await sendWebsocketMessage(request.userId, WebSocketEvent.SessionUpdated, {});
+  await sendWebsocketMessage(
+    request.userId,
+    WebSocketEvent.SessionCompleted,
+    {},
+  );
 };

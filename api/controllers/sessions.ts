@@ -26,7 +26,11 @@ import { sendTransactionalEmail } from '../lib/transactionalEmail';
 import { urlPrefix } from '../lib/utils';
 import { sendWebsocketMessage, WebSocketEvent } from '../services/websockets';
 import { MythWeaverLogger } from '../lib/logger';
-import { transcribeSessionAudio } from '../services/transcription';
+import {
+  recapTranscription,
+  transcribeSessionAudio,
+} from '../services/transcription';
+import { JsonObject } from '@prisma/client/runtime/library';
 
 interface GetSessionsResponse {
   data: Session[];
@@ -47,6 +51,9 @@ interface PatchSessionRequest {
   summary?: string;
   transcript?: string;
   suggestions?: string;
+  planningJson?: any;
+  date?: string;
+  completed?: boolean;
 }
 
 interface PostCompleteSessionRequest {
@@ -115,7 +122,7 @@ export default class SessionController {
       skip: offset,
       take: limit,
       orderBy: {
-        createdAt: 'desc',
+        date: 'desc',
       },
       include: {
         images: true,
@@ -327,6 +334,87 @@ export default class SessionController {
     track(AppEvent.CompleteSession, userId, trackingInfo);
 
     return true;
+  }
+
+  @Security('jwt')
+  @OperationId('recapTranscription')
+  @Post('/:sessionId/recap-transcription')
+  public async postRecapTranscription(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
+    @Route() sessionId: number,
+  ): Promise<Session> {
+    let session = await prisma.session.findUnique({
+      where: {
+        id: sessionId,
+      },
+      include: {
+        sessionTranscription: true,
+        images: true,
+      },
+    });
+
+    if (!session) {
+      throw new AppError({
+        description: 'Session not found.',
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    if (session.userId !== null && session.userId !== userId) {
+      throw new AppError({
+        description: 'You do not have access to this session.',
+        httpCode: HttpCode.FORBIDDEN,
+      });
+    }
+
+    const campaignMember = await prisma.campaignMember.findUnique({
+      where: {
+        userId_campaignId: {
+          userId,
+          campaignId: session.campaignId,
+        },
+      },
+    });
+
+    if (!campaignMember || campaignMember.role !== CampaignRole.DM) {
+      throw new AppError({
+        description: 'You do not have permission to complete this session.',
+        httpCode: HttpCode.FORBIDDEN,
+      });
+    }
+
+    if (!session.sessionTranscription) {
+      throw new AppError({
+        description: 'Transcript not found.',
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    if (session.sessionTranscription.transcription) {
+      const transcription = session.sessionTranscription
+        .transcription as JsonObject;
+      const recap = await recapTranscription(transcription.text as string);
+      if (recap) {
+        session = await prisma.session.update({
+          where: {
+            id: sessionId,
+          },
+          data: {
+            suggestedRecap: recap,
+          },
+          include: {
+            sessionTranscription: true,
+            images: true,
+          },
+        });
+      }
+    }
+
+    track(AppEvent.RecapSessionTranscription, userId, trackingInfo);
+
+    return session;
   }
 
   @Security('jwt')

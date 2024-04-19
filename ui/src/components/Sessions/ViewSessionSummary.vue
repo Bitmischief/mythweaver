@@ -1,122 +1,208 @@
 <script lang="ts" setup>
-import { getSession, patchSession, SessionBase } from '@/api/sessions.ts';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { getSession, patchSession, SessionBase } from '@/api/sessions.ts';
 import { useRoute } from 'vue-router';
-import { showError, showSuccess } from '@/lib/notifications.ts';
 import { ServerEvent } from '@/lib/serverEvents.ts';
 import { useCurrentUserRole, useWebsocketChannel } from '@/lib/hooks.ts';
 import { useEventBus } from '@/lib/events.ts';
-import RegeneratableTextEdit from '@/components/Core/Forms/RegeneratableTextEdit.vue';
 import { CampaignRole } from '@/api/campaigns.ts';
+import { showError, showSuccess } from '@/lib/notifications.ts';
+import CustomizableImage from '@/components/Images/CustomizableImage.vue';
+import ViewSessionTranscription from '@/components/Sessions/ViewSessionTranscription.vue';
+import { format } from 'date-fns';
+import { generateArbitraryProperty } from '@/lib/generation.ts';
+import Spinner from '@/components/Core/Spinner.vue';
 
 const route = useRoute();
 const channel = useWebsocketChannel();
 const eventBus = useEventBus();
 const currentUserRole = useCurrentUserRole();
 
-const summary = ref('');
-const summaryKey = ref(0);
-const suggestedSummary = ref('');
-const suggestions = ref('');
-const suggestedSuggestions = ref('');
 const session = ref<SessionBase>({} as SessionBase);
 
+const sessionImageUri = ref('');
+const sessionSuggestedImagePrompt = ref('');
 const sessionId = computed(() => parseInt(route.params.sessionId.toString()));
 
 onMounted(async () => {
   await init();
 
   channel.bind(ServerEvent.SessionUpdated, async function () {
-    const response = await getSession(sessionId.value);
-    session.value = {
-      ...session.value,
-      name: response.data.name,
-      imageUri: response.data.imageUri,
-      planning: response.data.planning,
-    };
+    await init();
   });
+
+  eventBus.$on(
+    'updated-conjuration-image',
+    async (payload: { imageUri: string }) => {
+      sessionImageUri.value = payload.imageUri;
+      await saveSession('image');
+    },
+  );
 });
 
 onUnmounted(() => {
-  channel.unbind(ServerEvent.SessionUpdated);
+  channel.unbind_all();
+  eventBus.$off('session-summary-panel-updated');
+  eventBus.$off('updated-conjuration-image');
 });
 
 async function init() {
   const response = await getSession(sessionId.value);
 
-  summary.value = response.data.summary;
-  suggestedSummary.value = response.data.suggestedSummary;
-  suggestions.value = response.data.suggestions;
-  suggestedSuggestions.value = response.data.suggestedSuggestions;
-
   session.value = response.data as SessionBase;
-  forceSummaryRerender();
+  sessionImageUri.value = session.value.imageUri || '';
+  sessionSuggestedImagePrompt.value = session.value.suggestedImagePrompt || '';
 }
 
-function forceSummaryRerender() {
-  summaryKey.value += 1;
-}
+const sessionType = computed(() => {
+  if (session.value.completed) {
+    return 'Completed';
+  } else if (session.value.archived) {
+    return 'Archived';
+  } else if (session.value.planning || session.value.recap) {
+    return 'In Progress';
+  } else {
+    return 'Upcoming';
+  }
+});
 
-async function clickSaveSession() {
+async function saveSession(updated?: string) {
   const putSessionResponse = await patchSession({
-    id: sessionId.value,
-    summary: summary.value,
-    suggestedSummary: suggestedSummary.value,
-    suggestions: suggestions.value,
-    suggestedSuggestions: suggestedSuggestions.value,
+    id: session.value.id,
+    campaignId: session.value.campaignId,
+    imageUri: sessionImageUri.value,
+    suggestedImagePrompt: sessionSuggestedImagePrompt.value,
   });
 
   if (putSessionResponse.status === 200) {
-    showSuccess({ message: 'Session saved' });
-    eventBus.$emit('session-summary-panel-updated', {
-      summary: summary.value,
-      suggestions: suggestions.value,
-    });
+    if (updated) {
+      showSuccess({ message: `Session ${updated} saved!` });
+    }
   } else {
     showError({ message: 'Failed to save session' });
   }
 }
+
+const sessionDate = computed(() => {
+  return session.value && session.value.date
+    ? format(session.value.date, 'MMM dd, yyyy @ h:mm a')
+    : 'TBD';
+});
+
+const loadingImageModal = ref(false);
+async function showCustomizeImageModal() {
+  loadingImageModal.value = true;
+  if (!session.value.suggestedImagePrompt && session.value.recap) {
+    sessionSuggestedImagePrompt.value = await generateArbitraryProperty({
+      propertyName: 'aiImagePrompt',
+      context: 'TTRPG session',
+      background: session.value.recap,
+    });
+    await saveSession();
+  }
+
+  eventBus.$emit('toggle-customize-image-modal', {
+    prompt: sessionSuggestedImagePrompt.value,
+    linking: {
+      sessionId: session.value.id,
+    },
+  });
+  loadingImageModal.value = false;
+}
 </script>
 
 <template>
-  <div v-if="!summary" class="text-center text-neutral-300 text-xl">
-    No summary yet. Provide a
-    <router-link to="recap" class="underline text-fuchsia-200"
-      >recap</router-link
+  <template v-if="session.completed">
+    <div
+      class="flex gap-4 mt-4 flex-wrap lg:flex-nowrap justify-center items-stretch"
     >
-    and click "Generate Summary" to get started.
-  </div>
-
-  <template v-if="summary || suggestedSummary">
-    <RegeneratableTextEdit
-      :key="summaryKey"
-      v-model="summary"
-      auto-height
-      :disabled="currentUserRole !== CampaignRole.DM"
-      :suggestion="suggestedSummary"
-      context="session"
-      :background="session"
-      label="Summary"
-      help="This is a generated summary of your session, based on your provided recap."
-      type="textarea"
-      @clear-suggestion="suggestedSummary = ''"
-    />
-
-    <RegeneratableTextEdit
-      v-model="suggestions"
-      auto-height
-      :disabled="currentUserRole !== CampaignRole.DM"
-      :suggestion="suggestedSuggestions"
-      context="session"
-      :background="session"
-      label="Suggestions"
-      help="This is a generated set of suggestions to improve your roleplaying based on your provided recap."
-      type="textarea"
-      @clear-suggestion="suggestedSuggestions = ''"
-    />
+      <div v-if="!sessionImageUri">
+        <button
+          :disabled="loadingImageModal"
+          class="button-gradient whitespace-nowrap"
+          @click="showCustomizeImageModal"
+        >
+          <span v-if="!loadingImageModal">Generate Session Image</span>
+          <span v-else class="flex">
+            <Spinner class="w-5 h-5 mr-2" />
+            <span>Generating prompt...</span>
+          </span>
+        </button>
+      </div>
+      <div v-else>
+        <CustomizableImage
+          :editable="currentUserRole === CampaignRole.DM"
+          :image-uri="sessionImageUri"
+          :prompt="sessionSuggestedImagePrompt"
+          class="rounded-md w-full md:w-[20em]"
+          :type="sessionType"
+          :linking="{ sessionId: session.id }"
+          @set-image="
+            sessionImageUri = $event.imageUri;
+            sessionSuggestedImagePrompt = $event.prompt;
+          "
+        />
+      </div>
+      <div class="grow">
+        <div class="bg-surface-2 h-full rounded-[8px] p-4">
+          <div class="flex align-center text-xl mb-2">
+            <div>Recap</div>
+          </div>
+          <div
+            v-if="session.recap"
+            class="text-neutral-300 bg-surface-2 pr-2 whitespace-pre-wrap"
+          >
+            {{ session.recap }}
+          </div>
+          <div
+            v-else
+            class="text-sm text-neutral-500 text-center max-w-[20em] h-[12em] pt-[5em] mx-auto"
+          >
+            No recap has been provided
+          </div>
+        </div>
+      </div>
+    </div>
+    <div v-if="session.summary" class="mt-4">
+      <div class="bg-surface-2 h-full rounded-[8px] p-4">
+        <div class="flex align-center text-xl mb-2">
+          <div>Summary</div>
+        </div>
+        <div
+          v-if="session.summary"
+          class="text-neutral-300 max-h-[16em] overflow-y-auto bg-surface-2 pr-2"
+        >
+          {{ session.summary }}
+        </div>
+        <div
+          v-else
+          class="text-sm text-neutral-500 text-center max-w-[20em] h-[12em] pt-[5em] mx-auto"
+        >
+          Summary will be available once this session is completed
+        </div>
+      </div>
+    </div>
+    <div v-if="session.audioUri" class="mt-4">
+      <div class="bg-surface-2 rounded-[8px] p-4">
+        <div class="flex align-center text-xl mb-2">
+          <div>Audio</div>
+        </div>
+        <ViewSessionTranscription read-only />
+      </div>
+    </div>
   </template>
-
-  <div v-if="summary && currentUserRole === CampaignRole.DM" class="flex">
-    <button class="button-ghost" @click="clickSaveSession">Save Changes</button>
+  <div
+    v-else
+    class="bg-surface-2 p-6 text-center rounded-[20px] text-neutral-400 mt-6"
+  >
+    <div v-if="session.isOver">
+      Check back later once your GM adds more session info.
+    </div>
+    <div v-else>
+      This is an upcoming session scheduled for
+      <div class="text-lg text-neutral-200 my-4">{{ sessionDate }}</div>
+      Check back here again later after the session is over and your GM has
+      added a session recap and/or session audio.
+    </div>
   </div>
 </template>

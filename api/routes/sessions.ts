@@ -135,6 +135,7 @@ const patchSessionsSchema = z.object({
   name: z.string().nullable().optional(),
   archived: z.boolean().nullable().optional(),
   planning: z.string().nullable().optional(),
+  planningJson: z.any().nullable().optional(),
   imageUri: z.string().nullable().optional(),
   recap: z.string().nullable().optional(),
   summary: z.string().nullable().optional(),
@@ -145,6 +146,9 @@ const patchSessionsSchema = z.object({
   suggestedSuggestions: z.string().nullable().optional(),
   suggestedImageUri: z.string().nullable().optional(),
   suggestedImagePrompt: z.string().nullable().optional(),
+  date: z.coerce.date().nullable().optional(),
+  isOver: z.boolean().nullable().optional(),
+  completed: z.boolean().nullable().optional(),
 });
 
 router.patch('/:sessionId', [
@@ -318,6 +322,28 @@ router.patch('/:sessionId/transcription', [
     );
 
     return res.status(200).send();
+  },
+]);
+
+router.post('/:sessionId/recap-transcription', [
+  useAuthenticateRequest(),
+  useInjectLoggingInfo(),
+  useValidateRequest(getSessionSchema, {
+    validationType: ValidationTypes.Route,
+  }),
+  async (req: Request, res: Response) => {
+    const controller = new SessionController();
+
+    const { sessionId = 0 } = req.params;
+
+    const response = await controller.postRecapTranscription(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      useLogger(res),
+      sessionId as number,
+    );
+
+    return res.status(200).send(response);
   },
 ]);
 

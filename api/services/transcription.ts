@@ -1,6 +1,9 @@
 import axios, { AxiosResponse } from 'axios';
 import { prisma } from '../lib/providers/prisma';
 import { sendWebsocketMessage, WebSocketEvent } from './websockets';
+import { getClient } from '../lib/providers/openai';
+
+const openai = getClient();
 
 const transcriptionServiceDomain = process.env.TRANSCRIPTION_SERVICE_DOMAIN;
 const serviceToken = process.env.X_SERVICE_TOKEN;
@@ -77,4 +80,23 @@ export const transcribeSessionAudio = async (request: TranscriptionRequest) => {
   }
 
   return response;
+};
+
+export const recapTranscription = async (transcription: string) => {
+  const response = await openai.chat.completions.create({
+    model: 'gpt-4-turbo',
+    messages: [
+      {
+        role: 'system',
+        content:
+          'You are a helpful assistant and professional DM/GM who is a master story teller and is knowledgeable in all things TTRPG.',
+      },
+      {
+        role: 'user',
+        content: `Given the following transcription of a TTRPG session, please tell me the highlights of what happened. Please respond only with the recap and no other text. Only include the information that would be relevant for players to remember for future sessions: ${transcription}`,
+      },
+    ],
+  });
+
+  return response.choices[0]?.message?.content || '';
 };

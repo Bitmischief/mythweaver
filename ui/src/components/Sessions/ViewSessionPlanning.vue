@@ -6,12 +6,14 @@ import { showError, showSuccess } from '@/lib/notifications.ts';
 import { useCurrentUserRole, useWebsocketChannel } from '@/lib/hooks.ts';
 import { ServerEvent } from '@/lib/serverEvents.ts';
 import { CampaignRole } from '@/api/campaigns.ts';
+import WysiwygEditor from '@/components/Core/WysiwygEditor.vue';
+import { cloneDeep, isEqual } from 'lodash';
 
 const route = useRoute();
 const currentUserRole = useCurrentUserRole();
 const channel = useWebsocketChannel();
 
-const session = ref<SessionBase>({} as SessionBase);
+const session = ref<SessionBase>();
 
 onMounted(async () => {
   await init();
@@ -24,7 +26,7 @@ onMounted(async () => {
       ...session.value,
       name: response.data.name,
       imageUri: response.data.imageUri,
-    };
+    } as SessionBase;
   });
 });
 
@@ -41,58 +43,85 @@ async function loadSession() {
     parseInt(route.params.sessionId.toString()),
   );
   session.value = response.data as SessionBase;
+
+  if (session.value.planningJson) {
+    origPlanning = cloneDeep(session.value.planningJson);
+    readOnly.value = true;
+  }
 }
 
 async function clickSaveSession() {
-  const putSessionResponse = await patchSession({
-    ...session.value,
-  });
+  if (session.value) {
+    const putSessionResponse = await patchSession(session.value);
 
-  if (putSessionResponse.status === 200) {
-    showSuccess({ message: 'Session saved' });
-  } else {
-    showError({ message: 'Failed to save session' });
+    if (putSessionResponse.status === 200) {
+      showSuccess({ message: 'Session saved' });
+      unsavedChanges.value = false;
+    } else {
+      showError({ message: 'Failed to save session' });
+    }
   }
 }
+
+let origPlanning: any; // used to check for unsaved changes
+const readOnly = ref(false);
+const unsavedChanges = ref(false);
+
+const toggleReadOnly = () => {
+  readOnly.value = !readOnly.value;
+};
+const planningChanged = (planning: any) => {
+  // eslint-disable-next-line
+  const { time: originalTime, ...original } = origPlanning;
+  // eslint-disable-next-line
+  const { time: updatedTime, ...updated } = planning;
+
+  unsavedChanges.value = !isEqual(original, updated);
+};
 </script>
 
 <template>
-  <FormKit
-    v-model="session.planning"
-    label="Planning"
-    type="textarea"
-    :disabled="currentUserRole !== CampaignRole.DM"
-    auto-height
-    placeholder="Last Session Recap:
-- Discovered the ancient map leading to the Lost Temple.
-- Escaped the ambush set by the Crimson Bandit Guild.
-
-This Session Goals:
-- Begin with the party arriving at the temple outskirts.
-- Navigate traps and puzzles inside the temple.
-- Encounter the guardian of the temple's main chamber.
-
-Encounters:
-1. Forest Ambush: Bandit Guild's final attempt to stop the party.
-2. Temple Puzzles: Decipher ancient riddles and mechanisms.
-3. Guardian Battle: A challenging fight with a mystical guardian.
-
-NPCs to Highlight:
-- Aric, the wise hermit who knows the temple's secrets.
-- Zara, the guild spy posing as an ally.
-
-Loot/Items:
-- Ancient artifacts, rare gems, healing potions.
-
-Notes/Reminders:
-- Adjust puzzle difficulty based on party's past performance.
-- Be ready for possible peaceful resolution with the guardian.
-
-Post-Session:
-- Gather feedback, particularly about puzzle design and combat balance."
-  />
-
-  <div class="flex mt-6">
-    <button class="button-ghost" @click="clickSaveSession">Save Changes</button>
+  <div v-if="session">
+    <div class="flex flex-wrap md:flex-nowrap justify-between mb-2">
+      <div class="text-lg font-bold text-neutral-200 self-center">
+        Session Planning
+        <span v-if="unsavedChanges" class="text-xs text-neutral-500">
+          Unsaved Changes
+        </span>
+      </div>
+      <div
+        v-if="currentUserRole === CampaignRole.DM"
+        class="flex gap-2 grow justify-end"
+      >
+        <div>
+          <button
+            v-if="!readOnly || unsavedChanges"
+            class="button-gradient self-center"
+            @click="clickSaveSession"
+          >
+            Save Changes
+          </button>
+        </div>
+        <div>
+          <button class="button-ghost self-center" @click="toggleReadOnly">
+            {{ readOnly ? 'Edit Mode' : 'Read Mode' }}
+          </button>
+        </div>
+      </div>
+    </div>
+    <WysiwygEditor
+      :key="'' + readOnly"
+      v-model="session.planningJson"
+      :read-only="readOnly"
+      :class="{
+        'cursor-pointer': readOnly && currentUserRole === CampaignRole.DM,
+      }"
+      @update:model-value="planningChanged"
+      @click="
+        readOnly && currentUserRole === CampaignRole.DM
+          ? (readOnly = false)
+          : null
+      "
+    />
   </div>
 </template>

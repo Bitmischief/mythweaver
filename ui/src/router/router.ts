@@ -20,11 +20,6 @@ import EarlyAccessView from '@/views/EarlyAccessView.vue';
 import CharactersList from '@/views/CharactersList.vue';
 import CharactersView from '@/views/CharactersView.vue';
 import CharactersNew from '@/components/Characters/NewCharacter.vue';
-import ViewSessionRelationships from '@/components/Sessions/ViewSessionRelationships.vue';
-import ViewSessionPlanning from '@/components/Sessions/ViewSessionPlanning.vue';
-import ViewSessionSummary from '@/components/Sessions/ViewSessionSummary.vue';
-import ViewSessionRecap from '@/components/Sessions/ViewSessionRecap.vue';
-import ViewSessionTranscription from '@/components/Sessions/ViewSessionTranscription.vue';
 import AuthenticatedView from '@/views/AuthenticatedView.vue';
 import AccountView from '@/views/AccountView.vue';
 import OverviewCampaign from '@/components/Campaigns/OverviewCampaign.vue';
@@ -204,28 +199,6 @@ const router = createRouter({
             {
               path: ':sessionId',
               component: ViewSession,
-              children: [
-                {
-                  path: 'relationships',
-                  component: ViewSessionRelationships,
-                },
-                {
-                  path: 'planning',
-                  component: ViewSessionPlanning,
-                },
-                {
-                  path: 'recap',
-                  component: ViewSessionRecap,
-                },
-                {
-                  path: 'summary',
-                  component: ViewSessionSummary,
-                },
-                {
-                  path: 'transcription',
-                  component: ViewSessionTranscription,
-                },
-              ],
             },
           ],
         },

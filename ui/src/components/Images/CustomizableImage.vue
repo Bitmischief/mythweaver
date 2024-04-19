@@ -12,7 +12,7 @@ import { showError } from '@/lib/notifications.ts';
 
 const props = withDefaults(
   defineProps<{
-    imageId: string | null | undefined;
+    imageId?: string | null | undefined;
     imageUri: string | undefined;
     prompt?: string;
     negativePrompt?: string;
@@ -22,7 +22,7 @@ const props = withDefaults(
     imageConjurationFailed?: boolean;
     imageConjurationFailureReason?: string;
     type: string;
-    seed: string;
+    seed?: string;
     linking?: {
       sessionId?: number;
       characterId?: number;

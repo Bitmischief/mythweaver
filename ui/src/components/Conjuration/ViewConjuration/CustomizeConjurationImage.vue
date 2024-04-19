@@ -229,9 +229,18 @@ const alreadyUpscaled = computed(() => {
         <div class="image-badge">Original</div>
       </div>
     </div>
-    <div v-else class="text-neutral-400 text-center mb-2 mt-10">
+    <div
+      v-else-if="linking?.characterId"
+      class="text-neutral-400 text-center mb-2 mt-10"
+    >
       Enter a description of you character below to generate a character
       portrait
+    </div>
+    <div
+      v-else-if="linking?.sessionId"
+      class="text-neutral-400 text-center mb-2 mt-10"
+    >
+      Enter a description of you session below to generate a session cover image
     </div>
     <div v-if="showUpscale && props.imageId" class="flex justify-center mb-2">
       <div class="min-w-[50%]">

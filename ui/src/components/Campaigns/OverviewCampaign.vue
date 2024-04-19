@@ -155,7 +155,7 @@ async function handleCreateSession() {
   const createSessionResponse = await postSession({});
 
   showSuccess({ message: 'Session created!' });
-  await router.push(`/sessions/${createSessionResponse.data.id}/planning`);
+  await router.push(`/sessions/${createSessionResponse.data.id}`);
 }
 
 function campaignMemberName(campaignMemberId: number | undefined) {
@@ -279,7 +279,7 @@ async function handleRemoveMember() {
           <div class="col-span-4 2xl:col-span-3 lg:pl-4 flex flex-col">
             <div>
               <div class="mt-2 truncate">
-                <router-link :to="`/sessions/${latestSession.id}/planning`">
+                <router-link :to="`/sessions/${latestSession.id}`">
                   {{ latestSession.name }}
                 </router-link>
               </div>

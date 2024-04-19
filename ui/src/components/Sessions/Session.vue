@@ -6,6 +6,7 @@ import { ClockIcon, CalendarDaysIcon } from '@heroicons/vue/24/outline';
 
 const props = defineProps<{
   session: SessionBase;
+  dense?: boolean;
 }>();
 
 onMounted(() => {
@@ -35,46 +36,65 @@ const sessionType = computed(() => {
     return 'Upcoming';
   }
 });
+
+const sessionDate = computed(() => {
+  if (!props.session.date) {
+    return 'TBD';
+  }
+  return format(props.session.date, 'MMM d, yyyy @ h:mm a');
+});
 </script>
 
 <template>
-  <div>
+  <div
+    class="relative flex cursor-pointer justify-end rounded-[20px] shadow-xl bg-surface-2 p-2"
+    :class="{ 'flex-col': !dense, 'flex-row': dense }"
+  >
     <div
-      class="relative flex cursor-pointer flex-col justify-end rounded-[20px] shadow-xl bg-surface-2"
+      :class="{
+        'basis-1/3 my-auto': dense,
+        'basis-1': !dense,
+      }"
     >
-      <div class="m-2">
-        <img
-          :src="session.imageUri || '/images/session_bg_square.png'"
-          class="rounded-[16px]"
-        />
-      </div>
+      <img
+        :src="session.imageUri || '/images/session_bg_square.png'"
+        alt="session image"
+        class="rounded-[16px]"
+      />
+    </div>
 
-      <div
-        class="absolute left-4 top-4 flex h-6 justify-center items-center rounded-full bg-white/50 group text-black text-xs font-bold px-4"
-      >
-        {{ sessionType }}
-      </div>
+    <div
+      class="absolute left-4 top-4 flex h-6 justify-center items-center rounded-full bg-white/50 group text-black text-xs font-bold px-4"
+      :class="{ hidden: dense }"
+    >
+      {{ sessionType }}
+    </div>
 
-      <div
-        class="flex w-full justify-between rounded-b-lg bg-surface-2 px-3 pb-2"
-      >
-        <div class="max-w-[100%]">
-          <div class="relative text-md truncate">
-            {{ session.name || 'No Summary Provided' }}
-          </div>
-          <div class="flex text-sm text-neutral-500 my-2">
-            <div v-if="session.audioUri" class="flex mr-4">
-              <ClockIcon class="h-5 mr-1" />
-              {{ sessionDuration }}
+    <div
+      class="flex w-full justify-between rounded-b-lg bg-surface-2 px-3 pb-2"
+      :class="{
+        'basis-1': !dense,
+        'basis-2/3 pt-2 overflow-hidden': dense,
+      }"
+    >
+      <div class="max-w-[100%]">
+        <div class="relative text-md truncate">
+          {{ session.name || 'No Summary Provided' }}
+        </div>
+        <div class="text-sm text-neutral-500 my-2">
+          <div class="flex mb-2">
+            <CalendarDaysIcon class="h-5 mr-1" />
+            <div>
+              {{ sessionDate }}
             </div>
-            <div class="flex">
-              <CalendarDaysIcon class="h-5 mr-1" />
-              {{ format(new Date(session.updatedAt), 'MMM d, yyyy') }}
-            </div>
           </div>
-          <div class="text-sm text-neutral-500 truncate-2-line">
-            {{ session.summary || 'Add a summary to generate a recap' }}
+          <div v-if="session.audioUri" class="flex">
+            <ClockIcon class="h-5 mr-1" />
+            {{ sessionDuration }}
           </div>
+        </div>
+        <div class="text-sm text-neutral-500 truncate-2-line">
+          {{ session.summary || 'Add a summary to generate a recap' }}
         </div>
       </div>
     </div>
