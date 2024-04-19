@@ -12,6 +12,7 @@ import ViewSessionTranscription from '@/components/Sessions/ViewSessionTranscrip
 import { format } from 'date-fns';
 import { generateArbitraryProperty } from '@/lib/generation.ts';
 import Spinner from '@/components/Core/Spinner.vue';
+import { SparklesIcon } from '@heroicons/vue/24/solid';
 
 const route = useRoute();
 const channel = useWebsocketChannel();
@@ -117,17 +118,26 @@ async function showCustomizeImageModal() {
       class="flex gap-4 mt-4 flex-wrap lg:flex-nowrap justify-center items-stretch"
     >
       <div v-if="!sessionImageUri">
-        <button
-          :disabled="loadingImageModal"
-          class="button-gradient whitespace-nowrap"
-          @click="showCustomizeImageModal"
+        <div
+          class="relative flex h-full align-middle border border-surface-3 rounded-[12px] p-4"
         >
-          <span v-if="!loadingImageModal">Generate Session Image</span>
-          <span v-else class="flex">
-            <Spinner class="w-5 h-5 mr-2" />
-            <span>Generating prompt...</span>
-          </span>
-        </button>
+          <button
+            :disabled="loadingImageModal"
+            class="whitespace-nowrap button-ghost hover:button-gradient hover:text-neutral-200 group/ssnbtn"
+            @click="showCustomizeImageModal"
+          >
+            <span v-if="!loadingImageModal" class="flex">
+              <SparklesIcon
+                class="h-5 w-5 mr-2 rotate-180 group-hover/ssnbtn:rotate-0 transition-all"
+              />
+              <span>Add Session Image</span>
+            </span>
+            <span v-else class="flex">
+              <Spinner class="w-5 h-5 mr-2" />
+              <span>Generating suggested prompt...</span>
+            </span>
+          </button>
+        </div>
       </div>
       <div v-else>
         <CustomizableImage

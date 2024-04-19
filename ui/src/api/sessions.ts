@@ -62,6 +62,7 @@ export interface PatchSessionRequest {
   date?: Date | undefined;
   isOver?: boolean | undefined;
   completed?: boolean | undefined;
+  planningJson?: any | undefined;
 
   suggestedName?: string | undefined;
   suggestedSummary?: string | undefined;
