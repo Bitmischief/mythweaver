@@ -162,9 +162,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div
-    class="rounded-[12px] bg-surface-2 w-full overflow-x-auto overflow-y-hidden py-4"
-  >
+  <div class="rounded-[12px] bg-surface-2 w-full py-4">
     <div id="editor" class="w-full"></div>
   </div>
 </template>
