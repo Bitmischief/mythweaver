@@ -5,12 +5,13 @@ import {
   postRecapTranscription,
   SessionBase,
 } from '@/api/sessions.ts';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { showError, showSuccess } from '@/lib/notifications.ts';
 import { useCurrentUserRole, useUnsavedChangesWarning } from '@/lib/hooks.ts';
 import { CampaignRole } from '@/api/campaigns.ts';
 import { BarsArrowUpIcon } from '@heroicons/vue/24/solid';
+import { isEqual } from 'lodash';
 
 const route = useRoute();
 const currentUserRole = useCurrentUserRole();
@@ -58,6 +59,17 @@ function copySuggestedRecap() {
   session.value.recap = session.value.suggestedRecap;
 }
 
+const unsavedChanges = ref(false);
+
+watch(
+  () => session.value.recap,
+  (oldVal, newVal) => {
+    if (newVal !== undefined && !isEqual(oldVal, newVal)) {
+      unsavedChanges.value = true;
+    }
+  },
+);
+
 async function saveRecap() {
   const putSessionResponse = await patchSession({
     id: session.value.id,
@@ -66,6 +78,7 @@ async function saveRecap() {
   });
 
   if (putSessionResponse.status === 200) {
+    unsavedChanges.value = false;
     showSuccess({ message: `Session recap saved!` });
   } else {
     showError({ message: 'Failed to save session recap' });
@@ -126,7 +139,7 @@ async function saveRecap() {
           type="submit"
           label="Save"
           input-class="$reset button-gradient"
-          :disabled="processing"
+          :disabled="processing || !unsavedChanges"
         />
       </div>
       <div class="relative group/recap">

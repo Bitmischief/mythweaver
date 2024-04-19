@@ -13,7 +13,7 @@ import {
   SessionBase,
 } from '@/api/sessions.ts';
 import { useRoute, useRouter } from 'vue-router';
-import { showError, showSuccess } from '@/lib/notifications.ts';
+import { showError, showInfo, showSuccess } from '@/lib/notifications.ts';
 import Menu from '@/components/Core/General/Menu.vue';
 import { MenuButton, MenuItem } from '@headlessui/vue';
 import { ServerEvent } from '@/lib/serverEvents.ts';
@@ -177,21 +177,6 @@ async function clickUnarchiveSession() {
   }
 }
 
-async function saveSession() {
-  const putSessionResponse = await patchSession({
-    id: session.value.id,
-    campaignId: session.value.campaignId,
-    name: sessionName.value,
-    date: sessionDate.value,
-  });
-
-  if (putSessionResponse.status === 200) {
-    showSuccess({ message: `Session saved!` });
-  } else {
-    showError({ message: 'Failed to save session' });
-  }
-}
-
 async function handleCreateRelationship(type: ConjurationRelationshipType) {
   eventBus.$emit('create-relationship', {
     relationshipType: type,
@@ -232,14 +217,46 @@ async function sessionComplete() {
   }
 }
 
+const pingSessionOverButton = ref(false);
+const pingSessionCompleteButton = ref(false);
+
 async function changeTab(tabName: string) {
+  if (tabName === 'transcript' && currentUserPlan.value === BillingPlan.Free) {
+    showInfo({
+      message: 'You must have a paid plan to access this feature.',
+      timeout: 2000,
+      position: 'center',
+    });
+    return;
+  } else if (
+    (tabName === 'recap' || tabName === 'transcript') &&
+    !session.value.isOver
+  ) {
+    showInfo({
+      message: 'You must mark the session as over first.',
+      timeout: 2000,
+      position: 'center',
+    });
+    pingSessionOverButton.value = true;
+    setTimeout(() => {
+      pingSessionOverButton.value = false;
+    }, 500);
+    return;
+  } else if (tabName === 'overview' && !session.value.completed) {
+    showInfo({
+      message: 'You must mark the session as complete first.',
+      timeout: 2000,
+      position: 'center',
+    });
+    pingSessionCompleteButton.value = true;
+    setTimeout(() => {
+      pingSessionCompleteButton.value = false;
+    }, 500);
+    return;
+  }
   tab.value = tabName;
   await router.push({ hash: `#${tabName}` });
 }
-
-const sessionHeaderEditable = computed(() => {
-  return tab.value === 'plan';
-});
 </script>
 
 <template>
@@ -277,10 +294,10 @@ const sessionHeaderEditable = computed(() => {
               :class="{
                 'button-gradient': tab === 'transcript',
                 'button-primary': tab !== 'transcript',
+                'opacity-50':
+                  session.isOver === false ||
+                  currentUserPlan === BillingPlan.Free,
               }"
-              :disabled="
-                session.isOver === false || currentUserPlan === BillingPlan.Free
-              "
               @click="changeTab('transcript')"
             >
               Transcript
@@ -303,8 +320,8 @@ const sessionHeaderEditable = computed(() => {
             :class="{
               'button-gradient': tab === 'recap',
               'button-primary': tab !== 'recap',
+              'opacity-50': session.isOver === false,
             }"
-            :disabled="session.isOver === false"
             @click="changeTab('recap')"
           >
             Recap
@@ -315,8 +332,8 @@ const sessionHeaderEditable = computed(() => {
             :class="{
               'button-gradient': tab === 'overview',
               'button-primary': tab !== 'overview',
+              'opacity-50': !session.completed,
             }"
-            :disabled="!session.completed"
             @click="changeTab('overview')"
           >
             Overview
@@ -331,17 +348,21 @@ const sessionHeaderEditable = computed(() => {
         <button
           v-if="!session.completed && session.isOver === false"
           class="button-ghost self-center"
+          :class="{ 'purple-pulse': pingSessionOverButton }"
           @click="sessionOver"
         >
           Mark Session As Over
         </button>
-        <button
-          v-if="session.isOver && !session.completed && tab === 'recap'"
-          class="button-ghost self-center"
-          @click="sessionComplete"
-        >
-          Mark Session As Complete
-        </button>
+        <div class="self-center">
+          <button
+            v-if="session.isOver && !session.completed && tab === 'recap'"
+            class="button-ghost"
+            :class="{ 'purple-pulse': pingSessionCompleteButton }"
+            @click="sessionComplete"
+          >
+            Mark Session As Complete
+          </button>
+        </div>
         <Menu class="self-center">
           <MenuButton class="button-primary">
             <EllipsisVerticalIcon class="h-5" />
@@ -393,46 +414,19 @@ const sessionHeaderEditable = computed(() => {
         </Menu>
       </div>
     </div>
-    <FormKit type="form" :actions="false" @submit="saveSession">
-      <div class="md:mt-6 flex flex-wrap md:flex-nowrap gap-4 mb-4">
-        <div :class="{ grow: sessionHeaderEditable }">
-          <FormKit
-            v-if="sessionHeaderEditable"
-            v-model="sessionName"
-            type="text"
-            label="Session Name"
-            input-class="md:text-xl"
-            validation="required"
-          />
-          <div v-else class="text-xl text-neutral-200">
-            <div class="text-neutral-400 text-xs">Session Name</div>
-            {{ sessionName }}
-          </div>
-        </div>
-        <div class="shrink">
-          <FormKit
-            v-if="sessionHeaderEditable"
-            v-model="sessionDate"
-            type="datetime-local"
-            label="Session Date"
-            input-class="md:text-xl"
-            validation-visibility="live"
-          />
-          <div v-else class="text-xl text-neutral-200">
-            <div class="text-neutral-400 text-xs">Session Date</div>
-            {{ format(sessionDate, 'MMM d, yyyy @ h:mm a') }}
-          </div>
-        </div>
-        <button
-          v-if="tab === 'plan'"
-          type="submit"
-          class="button-gradient self-center"
-        >
-          Save
-        </button>
+    <div
+      v-if="tab !== 'plan'"
+      class="md:mt-6 flex flex-wrap md:flex-nowrap gap-4 mb-4"
+    >
+      <div class="text-xl text-neutral-200">
+        <div class="text-neutral-400 text-xs">Session Name</div>
+        {{ sessionName }}
       </div>
-    </FormKit>
-
+      <div class="text-xl text-neutral-200">
+        <div class="text-neutral-400 text-xs">Session Date</div>
+        {{ format(sessionDate, 'MMM d, yyyy @ h:mm a') }}
+      </div>
+    </div>
     <div v-if="tab === 'overview'">
       <ViewSessionSummary />
     </div>
@@ -487,7 +481,7 @@ const sessionHeaderEditable = computed(() => {
       </div>
     </div>
     <div v-if="tab === 'plan'">
-      <div class="mt-4 pb-6 mb-6 border border-neutral-800 rounded-[20px] p-4">
+      <div>
         <ViewSessionPlanning />
       </div>
       <div class="mt-4 pb-6 mb-12 border border-neutral-800 rounded-[20px] p-4">

@@ -16,6 +16,7 @@ const timeoutRef = ref(0);
 const messageRef = ref('');
 const contextRef = ref();
 const routeRef = ref();
+const positionRef = ref();
 
 onMounted(() => {
   eventBus.$on('showNotification', (options: any) => {
@@ -25,6 +26,7 @@ onMounted(() => {
       message,
       context,
       route,
+      position,
     } = options || {};
 
     typeRef.value = type;
@@ -32,6 +34,7 @@ onMounted(() => {
     messageRef.value = message;
     contextRef.value = context;
     routeRef.value = route;
+    positionRef.value = position;
 
     showNotification.value = true;
 
@@ -61,7 +64,14 @@ function clickNotification() {
     aria-live="assertive"
     class="pointer-events-none fixed inset-0 z-50 flex items-end px-4 py-6 sm:items-start sm:p-6"
   >
-    <div class="flex w-full flex-col items-center space-y-4 sm:items-end">
+    <div
+      class="flex w-full flex-col items-center space-y-4"
+      :class="{
+        'sm:items-end': !positionRef || positionRef === 'right',
+        'sm:items-center': positionRef === 'center',
+        'sm:items-start': positionRef === 'left',
+      }"
+    >
       <transition
         enter-active-class="transform ease-out duration-300 transition"
         enter-from-class="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
