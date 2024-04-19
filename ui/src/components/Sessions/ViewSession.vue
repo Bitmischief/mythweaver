@@ -211,7 +211,7 @@ async function sessionOver() {
     if (currentUserPlan.value === BillingPlan.Free) {
       await changeTab('recap');
     } else {
-      await changeTab('transcription');
+      await changeTab('transcript');
     }
   } catch {
     showError({ message: 'Failed to mark session as over' });
@@ -225,6 +225,7 @@ async function sessionComplete() {
       completed: true,
     });
     showSuccess({ message: 'Session marked as complete' });
+    await init();
     await changeTab('overview');
   } catch {
     showError({ message: 'Failed to mark session as over' });
@@ -335,7 +336,7 @@ const sessionHeaderEditable = computed(() => {
           Mark Session As Over
         </button>
         <button
-          v-if="session.isOver && !session.completed"
+          v-if="session.isOver && !session.completed && tab === 'recap'"
           class="button-ghost self-center"
           @click="sessionComplete"
         >
