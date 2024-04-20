@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { useAuthStore } from '@/store/auth.store.ts';
 import {
+  BillingPlan,
   getCurrentSubscription,
   patchCurrentUser,
   Subscription,
@@ -16,7 +17,11 @@ import ModalAlternate from '@/components/ModalAlternate.vue';
 import { XCircleIcon } from '@heroicons/vue/24/solid';
 import PlanBadge from '@/components/Core/PlanBadge.vue';
 import { AxiosError } from 'axios';
+import { useEventBus } from '@/lib/events.ts';
 
+defineEmits(['show-subscription-modal']);
+
+const eventBus = useEventBus();
 const store = useAuthStore();
 const user = computed(() => store.user);
 const tab = ref('billing');
@@ -31,9 +36,16 @@ const imageCredit100PackPriceId = computed(
 const subscription = ref<Subscription | null>(null);
 
 async function clickBilling() {
-  billingLoading.value = true;
-  const portalUrlResponse = await getBillingPortalUrl();
-  location.href = portalUrlResponse.data;
+  if (
+    user.value?.plan === BillingPlan.Trial ||
+    user.value?.plan === BillingPlan.Free
+  ) {
+    eventBus.$emit('show-subscription-modal');
+  } else {
+    billingLoading.value = true;
+    const portalUrlResponse = await getBillingPortalUrl();
+    location.href = portalUrlResponse.data;
+  }
 }
 
 onMounted(async () => {
