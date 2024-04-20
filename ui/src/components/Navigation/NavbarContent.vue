@@ -13,10 +13,13 @@ import {
   PlusIcon,
 } from '@heroicons/vue/20/solid';
 import {
-  Squares2X2Icon,
   BookmarkSquareIcon,
   PhotoIcon,
+  SparklesIcon,
+  Squares2X2Icon,
 } from '@heroicons/vue/24/outline';
+import { useCurrentUserPlan } from '@/lib/hooks.ts';
+import { BillingPlan } from '@/api/users.ts';
 
 defineProps<{
   collapsed?: boolean;
@@ -24,6 +27,7 @@ defineProps<{
 const router = useRouter();
 const eventBus = useEventBus();
 const campaignStore = useCampaignStore();
+const currentUserPlan = useCurrentUserPlan();
 
 const emit = defineEmits(['nav-item-selected']);
 
@@ -239,4 +243,37 @@ async function navigateToCreateCampaign() {
       <div v-if="!collapsed" class="whitespace-nowrap">Gallery</div>
     </router-link>
   </div>
+  <div
+    v-if="
+      currentUserPlan === BillingPlan.Trial ||
+      currentUserPlan === BillingPlan.Free
+    "
+    class="mt-auto"
+  >
+    <div
+      class="mb-4 mt-2 w-full upgrade-box rounded-[12px] text-neutral-200 px-3 py-2"
+    >
+      <SparklesIcon class="h-5 w-5 mt-1 mb-2" />
+      <div class="text-sm">Upgrade to pro</div>
+      <div class="mt-1 mb-3 text-xs text-neutral-400">
+        Upgrade your plan to enjoy more features
+      </div>
+      <button
+        class="bg-gradient-to-tr from-[#E95252] to-[#E5AD59] w-full py-1 text-sm rounded-[6px]"
+        @click="eventBus.$emit('show-subscription-modal')"
+      >
+        Upgrade plan
+      </button>
+    </div>
+  </div>
 </template>
+
+<style lang="scss" scoped>
+.upgrade-box {
+  background: radial-gradient(
+    circle at 100% 0,
+    rgba(90, 50, 170, 0.5) 0%,
+    rgb(5 7 18) 40%
+  );
+}
+</style>

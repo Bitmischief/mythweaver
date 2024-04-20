@@ -19,6 +19,8 @@ import { useLDClient, useLDReady } from 'launchdarkly-vue-client-sdk';
 import UpgradeContainer from '@/components/Core/Billing/UpgradeContainer.vue';
 import mixpanel from 'mixpanel-browser';
 import { getRedeemPreOrderUrl } from '@/api/billing.ts';
+import PricingTable from '@/components/Core/PricingTable.vue';
+import { XCircleIcon } from '@heroicons/vue/24/solid';
 
 const ldReady = useLDReady();
 const authStore = useAuthStore();
@@ -27,6 +29,7 @@ const intercom = useIntercom();
 const ldClient = useLDClient();
 
 const showPreorderRedemptionModal = ref(false);
+const showUpgradeModal = ref(false);
 
 onBeforeMount(async () => {
   if (
@@ -152,6 +155,10 @@ async function navigateToPreOrderRedemptionUrl() {
   const response = await getRedeemPreOrderUrl();
   location.href = response.data;
 }
+
+eventBus.$on('show-subscription-modal', () => {
+  showUpgradeModal.value = true;
+});
 </script>
 
 <template>
@@ -307,6 +314,26 @@ async function navigateToPreOrderRedemptionUrl() {
           </div>
         </div>
       </div>
+    </div>
+  </ModalAlternate>
+
+  <ModalAlternate
+    :show="showUpgradeModal"
+    extra-dark
+    @close="showUpgradeModal = false"
+  >
+    <div
+      class="w-[90vw] md:w-[70vw] xl:w-[60vw] p-6 bg-surface-2 rounded-[20px] border border-surface-3"
+    >
+      <div class="flex gap-4 justify-between text-neutral-300">
+        <div class="text-xl mb-6">Subscription Plans</div>
+        <XCircleIcon
+          class="h-6 w-6 cursor-pointer"
+          @click="showUpgradeModal = false"
+        />
+      </div>
+
+      <PricingTable />
     </div>
   </ModalAlternate>
 
