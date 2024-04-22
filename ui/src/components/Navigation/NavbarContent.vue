@@ -267,13 +267,3 @@ async function navigateToCreateCampaign() {
     </div>
   </div>
 </template>
-
-<style lang="scss" scoped>
-.upgrade-box {
-  background: radial-gradient(
-    circle at 100% 0,
-    rgba(90, 50, 170, 0.5) 0%,
-    rgb(5 7 18) 40%
-  );
-}
-</style>

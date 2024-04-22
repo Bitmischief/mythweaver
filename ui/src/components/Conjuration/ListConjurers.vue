@@ -11,7 +11,7 @@
         class="w-8 md:w-12 mx-auto"
       />
       <div class="text-[24px] md:text-[48px] font-bold text-center">
-        Mythweaver AI
+        MythWeaver AI
       </div>
       <div class="text-neutral-600 mb-4 md:mb-12 text-center">
         Generate captivating visuals & conjurations

@@ -6,13 +6,41 @@ import {
   getConjurations,
 } from '@/api/conjurations.ts';
 import { AdjustmentsVerticalIcon, SparklesIcon } from '@heroicons/vue/20/solid';
-import { Squares2X2Icon, QueueListIcon } from '@heroicons/vue/24/outline';
-import { PhotoIcon } from '@heroicons/vue/24/outline';
+import {
+  PhotoIcon,
+  QueueListIcon,
+  Squares2X2Icon,
+} from '@heroicons/vue/24/outline';
 import ConjurationQuickView from '@/components/Conjuration/ConjurationListItemView.vue';
 import { debounce } from 'lodash';
 import ConjurationsListFiltering from '@/components/Conjuration/ConjurationsListFiltering.vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useConjurationsStore } from '@/store/conjurations.store.ts';
+import { useCurrentUserPlan } from '@/lib/hooks.ts';
+import { BillingPlan } from '@/api/users.ts';
+
+const images = [
+  '00dc4632-7923-479c-a504-f350c39b9fd9.png',
+  '1fb2abf0-d4f0-464e-93d6-37e1f8b8219d.png',
+  '3c57d49f-1020-489c-a46a-3c601722ce27.png',
+  '8b1b573b-f69e-421e-932c-78a7dab9f814.png',
+  '9f909332-8746-4ab1-8b95-fefceb75f741.png',
+  '15a858c3-e056-481c-a418-70be9e73a7ac.png',
+  '97a56157-2f53-4aa6-97b1-d7de81a99073.png',
+  '353a2875-0cc4-4477-8e42-1abb71283f05.png',
+  '440d481d-f4cc-46a7-aa42-8fb236d2140c.png',
+  '0845ded8-17dd-4bff-81c4-2abc50597619.png',
+  '853ebd3c-dd5e-40db-a38a-482c0f531dfa.png',
+  '6075b439-7e4f-40de-b2be-dae5cf184b61.png',
+  '91928134-8bd2-4e23-8297-2843bde2a018.png',
+  'a433f28a-b29a-47e4-85a5-55fc0d3e89f3.png',
+  'b7148017-22c2-482d-bf5a-d9b49b4db721.png',
+  'c0766b49-3be3-477d-9426-78f0eb3c3bfe.png',
+  'cbc17909-abed-47d6-ae99-f0d1f92b0fe8.png',
+  'f3b3166e-6462-43e3-90a6-def3f6dc7a2e.png',
+];
+
+const currentUserPlan = useCurrentUserPlan();
 
 const pagingDone = ref(false);
 const conjurations = ref<Conjuration[]>([]);
@@ -133,7 +161,7 @@ const pageConjurations = debounce(() => {
 }, 250);
 
 async function loadConjurations(append = false) {
-  if (pagingDone.value) return;
+  if (pagingDone.value || currentUserPlan.value === BillingPlan.Free) return;
 
   const conjurationsResponse = await getConjurations({
     ...conjurationsQuery.value,
@@ -267,53 +295,71 @@ function changeView(type: string) {
     </div>
   </div>
 
-  <div
-    v-if="!conjurations.length && conjurationsMineQuery.saved && !loading"
-    class="flex justify-center h-full"
-  >
-    <div class="flex flex-col justify-center text-center">
-      <div>
-        <PhotoIcon class="h-14 text-neutral-500 mx-auto" />
+  <div v-if="currentUserPlan !== BillingPlan.Free">
+    <div
+      v-if="!conjurations.length && conjurationsMineQuery.saved && !loading"
+      class="flex justify-center h-full"
+    >
+      <div class="flex flex-col justify-center text-center">
+        <div>
+          <PhotoIcon class="h-14 text-neutral-500 mx-auto" />
+        </div>
+        <div class="self-center text-2xl my-4">
+          No conjurations have been saved yet.
+        </div>
+        <div class="text-neutral-500 mb-8 max-w-[40em]">
+          Conjurations you have saved will appear on this screen. Try creating
+          your first conjuration using the button below, or you can visit the
+          Gallery to view and save community generated conjurations.
+        </div>
+        <router-link to="/conjurations/new" class="flex justify-center">
+          <button class="button-gradient flex">
+            <SparklesIcon class="mr-2 h-5 w-5 self-center" />
+            <span class="self-center">Create Conjuration</span>
+          </button>
+        </router-link>
       </div>
-      <div class="self-center text-2xl my-4">
-        No conjurations have been saved yet.
+    </div>
+    <div
+      v-if="conjurations.length && !loading"
+      class="grid place-items-stretch gap-2 md:gap-5"
+      :class="{
+        'grid-cols-1 md:grid-cols-2 xl:grid-cols-3': viewType === 'list',
+        'grid-cols-2 md:grid-cols-3 lg:grid-cols-4': viewType === 'grid',
+      }"
+    >
+      <ConjurationQuickView
+        v-for="conjuration of conjurations"
+        :key="conjuration.name"
+        :data="conjuration"
+        :show-saves="!conjurationsMineQuery.saved"
+        :condensed-view="viewType === 'list'"
+        @add-conjuration="handleConjurationChange"
+        @remove-conjuration="handleConjurationChange"
+      />
+    </div>
+
+    <div v-if="conjurations.length && pagingDone" class="my-12 pb-12 w-full">
+      <div class="text-center text-xl text-gray-500 divider">
+        No more conjurations to show!
       </div>
-      <div class="text-neutral-500 mb-8 max-w-[40em]">
-        Conjurations you have saved will appear on this screen. Try creating
-        your first conjuration using the button below, or you can visit the
-        Gallery to view and save community generated conjurations.
-      </div>
-      <router-link to="/conjurations/new" class="flex justify-center">
-        <button class="button-gradient flex">
-          <SparklesIcon class="mr-2 h-5 w-5 self-center" />
-          <span class="self-center">Create Conjuration</span>
-        </button>
-      </router-link>
     </div>
   </div>
-
   <div
-    v-if="conjurations.length && !loading"
-    class="grid place-items-stretch gap-2 md:gap-5"
-    :class="{
-      'grid-cols-1 md:grid-cols-2 xl:grid-cols-3': viewType === 'list',
-      'grid-cols-2 md:grid-cols-3 lg:grid-cols-4': viewType === 'grid',
-    }"
+    v-else
+    class="grid place-items-stretch gap-2 md:gap-5 grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
   >
-    <ConjurationQuickView
-      v-for="conjuration of conjurations"
-      :key="conjuration.name"
-      :data="conjuration"
-      :show-saves="!conjurationsMineQuery.saved"
-      :condensed-view="viewType === 'list'"
-      @add-conjuration="handleConjurationChange"
-      @remove-conjuration="handleConjurationChange"
-    />
-  </div>
-
-  <div v-if="conjurations.length && pagingDone" class="my-12 pb-12 w-full">
-    <div class="text-center text-xl text-gray-500 divider">
-      No more conjurations to show!
+    <div
+      v-for="(img, i) of images"
+      :key="`${i}_img`"
+      class="bg-surface-2 p-2 rounded-[20px]"
+    >
+      <img
+        :src="`/images/samples/${img}`"
+        alt="conjuration image"
+        class="rounded-[18px]"
+      />
+      <div class="px-1 py-2">Cool Conjuration</div>
     </div>
   </div>
 </template>
