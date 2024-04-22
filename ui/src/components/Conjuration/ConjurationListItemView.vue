@@ -126,10 +126,10 @@ async function addConjuration() {
         </div>
         <div
           v-if="showSaves"
-          class="absolute m-2 bg-white/50 rounded-[4px]"
+          class="absolute bg-white/50 rounded-[4px]"
           :class="{
-            'right-0 -top-1 w-5': condensedView,
-            'right-0 top-0 h-6': !condensedView,
+            'right-1 top-1 min-w-5': condensedView,
+            'right-2 top-2 h-6': !condensedView,
             'bg-white/50': !conjuration.saved,
             'bg-fuchsia-500/90': conjuration.saved,
           }"
@@ -137,7 +137,7 @@ async function addConjuration() {
         >
           <div class="flex h-full justify-center text-xs font-bold">
             <BookmarkIconSolid
-              class="h-5 w-5 self-center"
+              class="min-h-5 min-w-5 self-center"
               :class="{
                 'text-neutral-600': !conjuration.saved,
                 'text-neutral-200': conjuration.saved,
@@ -186,10 +186,10 @@ async function addConjuration() {
             </div>
             <div
               v-if="showSaves"
-              class="absolute m-2 bg-white/50 rounded-[4px] group/bookmark"
+              class="absolute bg-white/50 rounded-[4px] group/bookmark"
               :class="{
-                'right-0 -top-1 w-5': condensedView,
-                'right-2 top-2.5 h-6': !condensedView,
+                'right-2 top-2 min-w-5': condensedView,
+                'right-4 top-4 h-6': !condensedView,
                 'bg-white/50 hover:bg-white/60': !conjuration.saved,
                 'bg-fuchsia-500/90': conjuration.saved,
               }"
@@ -198,7 +198,7 @@ async function addConjuration() {
               <div class="flex h-full justify-center text-xs font-bold">
                 <div class="relative self-center">
                   <BookmarkIconSolid
-                    class="h-5 w-5 self-center"
+                    class="min-h-5 min-w-5 self-center"
                     :class="{
                       'text-neutral-200': conjuration.saved,
                       'text-neutral-600 group-hover/bookmark:text-neutral-800':
