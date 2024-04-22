@@ -102,6 +102,10 @@ input[type='number'] {
   animation: pulse-animation 500ms infinite;
 }
 
+.upgrade-box {
+  background: radial-gradient(circle at 100% 0, rgba(90, 50, 170, 0.5) 0%, rgb(5 7 18) 40%);
+}
+
 @keyframes pulse-animation {
   0% {
     box-shadow: 0 0 0 0 rgba(217, 70, 239, 0.75);

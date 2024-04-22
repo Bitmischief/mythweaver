@@ -3,7 +3,6 @@ import { useAuthStore } from '@/store';
 import { computed, onMounted, ref } from 'vue';
 import { useWebsocketChannel } from '@/lib/hooks.ts';
 import { ServerEvent } from '@/lib/serverEvents.ts';
-import { BillingPlan } from '@/api/users.ts';
 import { useLDFlag } from 'launchdarkly-vue-client-sdk';
 import { FreeTierConjurationLimit } from '@/lib/consts.ts';
 import { useEventBus } from '@/lib/events.ts';
@@ -50,7 +49,9 @@ const conjurationLimitMet = computed(() => {
   );
 });
 const showConjurationCount = computed(() => {
-  return authStore.user && authStore.user.plan === BillingPlan.Free;
+  // This may get added back in the future
+  // return authStore.user && authStore.user.plan === BillingPlan.Free;
+  return false;
 });
 </script>
 

@@ -12,7 +12,7 @@ import { useIntercom } from '@homebaseai/vue3-intercom';
 import Loader from './components/Core/Loader.vue';
 import { ServerEvent } from '@/lib/serverEvents.ts';
 import { showSuccess } from '@/lib/notifications.ts';
-import { useWebsocketChannel } from '@/lib/hooks.ts';
+import { useCurrentUserPlan, useWebsocketChannel } from '@/lib/hooks.ts';
 import { ConjurationRelationshipType } from '@/lib/enums.ts';
 import CreateRelationship from '@/components/Relationships/CreateRelationship.vue';
 import { useLDClient, useLDReady } from 'launchdarkly-vue-client-sdk';
@@ -21,12 +21,17 @@ import mixpanel from 'mixpanel-browser';
 import { getRedeemPreOrderUrl } from '@/api/billing.ts';
 import PricingTable from '@/components/Core/PricingTable.vue';
 import { XCircleIcon } from '@heroicons/vue/24/solid';
+import { BillingPlan } from '@/api/users.ts';
+import { SparklesIcon } from '@heroicons/vue/24/outline';
+import { useRoute } from 'vue-router';
 
 const ldReady = useLDReady();
 const authStore = useAuthStore();
 const eventBus = useEventBus();
 const intercom = useIntercom();
 const ldClient = useLDClient();
+const currentUserPlan = useCurrentUserPlan();
+const route = useRoute();
 
 const showPreorderRedemptionModal = ref(false);
 const showUpgradeModal = ref(false);
@@ -179,12 +184,40 @@ eventBus.$on('show-subscription-modal', () => {
         class="flex w-full flex-col overflow-y-auto md:rounded-tr-none"
         :class="{
           'pb-6 mb-6 bg-surface p-5 md:px-8': !!authStore.user,
+          'blur pointer-events-none overflow-hidden':
+            route.meta.paidRequired && currentUserPlan === BillingPlan.Free,
         }"
         :style="{
           height: `${!!authStore.user ? 'calc(100vh - 4.1rem)' : 'auto'}`,
         }"
       >
         <router-view />
+      </div>
+      <div
+        v-if="
+          !(authStore.isLoading || showLoading || !ldReady) &&
+          route.meta.paidRequired &&
+          currentUserPlan === BillingPlan.Free
+        "
+        class="absolute top-1/4 left-1/2 -translate-x-1/2 bg-surface rounded-[12px] w-[90vw] md:w-auto"
+      >
+        <div
+          class="border border-[#5A32AA7F] upgrade-box p-12 rounded-[12px] text-neutral-200"
+        >
+          <div class="mt-1 mb-2 text-xl flex">
+            <SparklesIcon class="h-8 w-8 mr-1" />
+            <div class="self-center">Upgrade to pro</div>
+          </div>
+          <div class="mt-1 mb-4 text-neutral-400">
+            You have to upgrade your plan to use this feature
+          </div>
+          <button
+            class="bg-gradient-to-tr from-[#E95252] to-[#E5AD59] w-full rounded-[6px] py-2 px-4"
+            @click="eventBus.$emit('show-subscription-modal')"
+          >
+            Upgrade plan
+          </button>
+        </div>
       </div>
     </div>
     <NotificationHandler />
