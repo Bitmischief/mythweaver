@@ -28,10 +28,11 @@
                 gens.proOnly &&
                 currentUserPlan !== BillingPlan.Trial &&
                 currentUserPlan !== BillingPlan.Pro,
+              'relative group/experimental': gens.experimental,
             }"
           >
             <button
-              class="w-[8em] md:w-[12em] py-2 px-4 rounded-[10px] flex justify-center whitespace-nowrap disabled:bg-surface/25"
+              class="w-[8em] md:w-[12em] py-2 px-4 rounded-[10px] flex gap-1 justify-center whitespace-nowrap disabled:bg-surface/25"
               :class="{
                 'text-white bg-surface-3': generator?.code === gens.code,
               }"
@@ -49,11 +50,21 @@
                   currentUserPlan !== BillingPlan.Trial &&
                   currentUserPlan !== BillingPlan.Pro
                 "
-                class="h-5 w-5 ml-2 self-center"
+                class="h-5 w-5 self-center"
+              />
+              <BeakerIcon
+                v-else-if="gens.experimental"
+                class="h-5 w-5 text-fuchsia-500/75"
               />
             </button>
             <div class="tooltip-top group-hover/proOnly:block">
               This conjuration type is only available to Pro users
+              <div class="tooltip-arrow" />
+            </div>
+            <div class="tooltip-top group-hover/experimental:block py-2 px-4">
+              This is an experimental new conjuration type, please be aware that
+              <br />
+              the results might not be as polished as other conjuration types.
               <div class="tooltip-arrow" />
             </div>
           </div>
@@ -292,7 +303,7 @@ import { useAuthStore } from '@/store';
 import { BillingPlan } from '@/api/users.ts';
 import { FreeTierConjurationLimit } from '@/lib/consts.ts';
 import { useLDFlag } from 'launchdarkly-vue-client-sdk';
-import { LockClosedIcon } from '@heroicons/vue/24/outline';
+import { LockClosedIcon, BeakerIcon } from '@heroicons/vue/24/outline';
 
 const route = useRoute();
 const router = useRouter();
