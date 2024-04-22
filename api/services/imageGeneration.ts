@@ -397,7 +397,7 @@ const postUpscaleRequest = async (
         Key: imageId,
       });
       const response = await s3.send(command);
-      formData.append('image', response.Body as Readable);
+      formData.append('image', Buffer.from((await response.Body?.transformToByteArray()) as Uint8Array));
     } else {
       const imageDir = `${process.env.DATA_DIR ?? './public/images'}/${imageId}`;
       const image = fs.readFileSync(imageDir);
