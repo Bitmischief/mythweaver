@@ -149,14 +149,23 @@ const router = createRouter({
               path: 'list',
               alias: '',
               component: ListConjurations,
+              meta: {
+                paidRequired: true,
+              },
             },
             {
               path: 'view/:conjurationId',
               component: ViewConjuration,
+              meta: {
+                paidRequired: true,
+              },
             },
             {
               path: 'new',
               component: ListConjurers,
+              meta: {
+                paidRequired: true,
+              },
             },
             {
               path: 'conjure/:summonerCode',
