@@ -5,7 +5,11 @@ import {
   getConjuration,
   getConjurations,
 } from '@/api/conjurations.ts';
-import { AdjustmentsVerticalIcon, SparklesIcon } from '@heroicons/vue/20/solid';
+import {
+  AdjustmentsVerticalIcon,
+  SparklesIcon,
+  MagnifyingGlassIcon,
+} from '@heroicons/vue/20/solid';
 import {
   PhotoIcon,
   QueueListIcon,
@@ -46,6 +50,8 @@ const pagingDone = ref(false);
 const conjurations = ref<Conjuration[]>([]);
 const showFilters = ref(false);
 const loading = ref(false);
+const clearFilterKey = ref(1);
+const searchText = ref();
 
 const route = useRoute();
 const router = useRouter();
@@ -182,7 +188,10 @@ function handleFiltersUpdated(filters: any) {
   // the spread here is necessary so that we aren't setting the REFERENCE of the object.
   // otherwise after the first apply click, any filter changes will be applied immediately
   // without waiting for another apply click
-  conjurationsFilterQuery.value = { ...filters };
+  conjurationsFilterQuery.value = {
+    ...filters,
+    search: searchText.value ? searchText.value : undefined,
+  };
   showFilters.value = false;
 }
 
@@ -209,10 +218,17 @@ const viewType = computed(() => {
 function changeView(type: string) {
   conjurationsStore.setType(type);
 }
+
+const clearFilters = () => {
+  conjurationsFilterQuery.value = defaultFilters;
+  searchText.value = undefined;
+  clearFilterKey.value += 1;
+};
 </script>
 
 <template>
   <ConjurationsListFiltering
+    :key="clearFilterKey"
     :show="showFilters"
     @close="showFilters = false"
     @update-filters="handleFiltersUpdated"
@@ -233,6 +249,25 @@ function changeView(type: string) {
       <div
         class="mt-2 self-center flex justify-center md:justify-end gap-2 grow flex-wrap md:flex-nowrap"
       >
+        <div class="grow">
+          <FormKit type="form" :actions="false" @submit="handleFiltersUpdated">
+            <div class="flex grow">
+              <FormKit
+                v-model="searchText"
+                type="search"
+                placeholder="Search names & tags"
+                outer-class="$reset grow"
+                inner-class="rounded-tr-none rounded-br-none"
+              />
+              <button
+                class="button-gradient rounded-tl-none rounded-bl-none"
+                type="submit"
+              >
+                <MagnifyingGlassIcon class="h-5 w-5" />
+              </button>
+            </div>
+          </FormKit>
+        </div>
         <button
           v-if="
             conjurationsMineQuery.saved && !conjurationsHistoryQuery.history
@@ -260,7 +295,7 @@ function changeView(type: string) {
             JSON.stringify(defaultFilters)
           "
           class="button-ghost-white"
-          @click="conjurationsFilterQuery = defaultFilters"
+          @click="clearFilters"
         >
           <span class="text-white text-sm font-normal"> Clear Filters </span>
         </button>
