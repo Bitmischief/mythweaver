@@ -126,7 +126,7 @@ async function addConjuration() {
         </div>
         <div
           v-if="showSaves"
-          class="absolute bg-white/50 rounded-[4px]"
+          class="absolute rounded-[4px]"
           :class="{
             'right-1 top-1 min-w-5': condensedView,
             'right-2 top-2 h-6': !condensedView,
@@ -186,7 +186,7 @@ async function addConjuration() {
             </div>
             <div
               v-if="showSaves"
-              class="absolute bg-white/50 rounded-[4px] group/bookmark"
+              class="absolute rounded-[4px] group/bookmark"
               :class="{
                 'right-2 top-2 min-w-5': condensedView,
                 'right-4 top-4 h-6': !condensedView,
