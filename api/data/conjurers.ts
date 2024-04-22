@@ -12,6 +12,7 @@ export interface Generator {
   promptOverride?: string;
   basePromptExtraContext?: string;
   supportedImageStylePresets?: string[];
+  proOnly: boolean;
 }
 
 export interface GeneratorCustomArg {
@@ -27,7 +28,7 @@ export const getGenerator = (code: string): Generator | undefined => {
 const conjurers: Generator[] = [
   {
     code: 'characters',
-    name: 'Characters',
+    name: 'NPCs',
     description: 'Create rich, detailed characters to populate your world.',
     customizationHelpPrompt:
       'A gnome scribe adorned with swirling tattoos that glow faintly in the moonlight, bearing an ancient map etched into her skin, and a past entangled with forgotten gods',
@@ -40,6 +41,7 @@ const conjurers: Generator[] = [
     basePromptExtraContext:
       "Please thoroughly flesh out the character's backstory, including their motivations, goals, and fears, using at least 100 words to describe the background of this character. Please populate tags with any values you think applicable to this character, to allow easy searching, including their race, occupation, gender, class and any others you deem helpful.",
     supportedImageStylePresets: ['fantasy-art', 'digital-art', 'comic-book'],
+    proOnly: false,
   },
   // {
   //   code: "encounters",
@@ -72,6 +74,7 @@ const conjurers: Generator[] = [
     basePromptExtraContext:
       "Please thoroughly flesh out the location's history, including historical events, climate and unique look, using at least 100 words to describe the history of this location. Please populate tags with any values you think applicable to this location, to allow easy searching.",
     supportedImageStylePresets: ['fantasy-art', 'digital-art'],
+    proOnly: false,
   },
   {
     code: 'monsters',
@@ -84,18 +87,25 @@ const conjurers: Generator[] = [
       '{ "name": "", "description": "", "storyImpact": "", "playerInteraction": "", "specialAbilities": "", "imageAIPrompt": "", "tags": [""] }',
     allowsImageGeneration: true,
     basePromptExtraContext:
-      "Please generate a uniquely terrifying, monstrous creature worthy of testing our adventurer's mettle. Please populate tags with any values you think applicable to this location, to allow easy searching.",
+      "Please generate a uniquely terrifying, monstrous creature worthy of testing our adventurer's mettle. Please populate tags with any values you think applicable to this monster, to allow easy searching.",
     supportedImageStylePresets: ['fantasy-art', 'digital-art'],
+    proOnly: false,
   },
-  // {
-  //   code: "items",
-  //   name: "Items",
-  //   description: "Build customized items that don't break your game.",
-  //   imageUri: "items.png",
-  //   formatPrompt:
-  //     '[{ \n      "name": "", \n      "looks": "", \n      "imageAIPrompt": "", \n      "personality": "",\n      "background": ""\n    }]',
-  //   allowsImageGeneration: true,
-  // },
+  {
+    code: 'items',
+    name: 'Magic Items',
+    description: "Build customized items that don't break your game.",
+    customizationHelpPrompt:
+      'An ornate, jeweled dagger thats blade glows with an inner light.',
+    imageUri: 'items.png',
+    formatPrompt:
+      '{ "name": "", "description": "", "magicalProperties": "", "value": "", "rarity": "", "imageAIPrompt": "" }',
+    allowsImageGeneration: true,
+    basePromptExtraContext:
+      'Please generate an item to be used in a TTRPG game. Please populate tags with any values you think applicable to this item, to allow easy searching.',
+    supportedImageStylePresets: ['fantasy-art', 'digital-art'],
+    proOnly: true,
+  },
 ];
 
 export default conjurers;
