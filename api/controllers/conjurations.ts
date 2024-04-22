@@ -76,6 +76,27 @@ export default class ConjurationController {
       .map((c) => c.trim())
       .filter((c) => c.length > 0);
 
+    const orClause = [];
+    if (tags) {
+      orClause.push({
+        tags: {
+          hasEvery: tags.split(',').map((t) => t.trim()),
+        },
+      });
+    }
+    if (search !== undefined) {
+      orClause.push({
+        name: {
+          search: search,
+        },
+      });
+      orClause.push({
+        tags: {
+          has: search.toLowerCase(),
+        },
+      });
+    }
+
     const conjurations = await prisma.conjuration.findMany({
       where: {
         saves: history
@@ -101,23 +122,7 @@ export default class ConjurationController {
               },
             }
           : undefined,
-        OR: tags
-          ? [
-              {
-                tags: tags
-                  ? {
-                      hasEvery: tags.split(',').map((t) => t.trim()),
-                    }
-                  : undefined,
-              },
-            ]
-          : undefined,
-        name:
-          search !== undefined
-            ? {
-                search: search,
-              }
-            : undefined,
+        OR: orClause.length ? orClause : undefined,
       },
       skip: offset,
       take: limit,
