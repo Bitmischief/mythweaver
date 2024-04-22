@@ -30,6 +30,8 @@ function getConjurationDescription(conjuration: Conjuration) {
     text = conjuration.data.history;
   } else if (conjuration.conjurerCode === 'monsters') {
     text = conjuration.data.description;
+  } else if (conjuration.conjurerCode === 'items') {
+    text = conjuration.data.description;
   }
   return text;
 }
@@ -41,6 +43,8 @@ function conjurationType(conjuration: Conjuration) {
     return 'Location';
   } else if (conjuration.conjurerCode === 'characters') {
     return 'NPC';
+  } else if (conjuration.conjurerCode === 'items') {
+    return 'Magic Item';
   } else {
     return '';
   }
@@ -181,7 +185,7 @@ async function addConjuration() {
           class="bg-surface-2 rounded-[20px] opacity-0 p-3 flex-col absolute bottom-0 right-0 left-0 top-[100px] group-hover:opacity-100 group-hover:flex group-hover:top-0 transition-all"
         >
           <div>
-            <div class="truncate text-lg pb-5 mt-2 mr-12">
+            <div class="truncate text-lg my-2 mr-12">
               {{ conjuration.name }}
             </div>
             <div
@@ -243,7 +247,7 @@ async function addConjuration() {
             </div>
           </div>
           <div
-            class="relative text-sm text-neutral-400 hidden group-hover:block overflow-hidden shrink overflow-ellipsis"
+            class="relative h-full text-sm text-neutral-400 hidden group-hover:block overflow-hidden shrink overflow-ellipsis"
           >
             {{ getConjurationDescription(conjuration) }}
 

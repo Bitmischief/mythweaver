@@ -20,18 +20,54 @@
         <div
           class="flex gap-1 text-neutral-500 rounded-[10px] bg-surface-2 p-1 border border-surface-3 text-sm"
         >
-          <button
+          <div
             v-for="(gens, i) in generators"
             :key="`generator_${i}`"
-            class="w-[8em] md:w-[12em] text-center py-2 px-4"
             :class="{
-              'text-white rounded-[10px] bg-surface-3':
-                generator?.code === gens.code,
+              'relative group/proOnly':
+                gens.proOnly &&
+                currentUserPlan !== BillingPlan.Trial &&
+                currentUserPlan !== BillingPlan.Pro,
+              'relative group/experimental': gens.experimental,
             }"
-            @click="generatorChanged(gens)"
           >
-            {{ gens.name }}
-          </button>
+            <button
+              class="w-[8em] md:w-[12em] py-2 px-4 rounded-[10px] flex gap-1 justify-center whitespace-nowrap disabled:bg-surface/25"
+              :class="{
+                'text-white bg-surface-3': generator?.code === gens.code,
+              }"
+              :disabled="
+                gens.proOnly &&
+                currentUserPlan !== BillingPlan.Trial &&
+                currentUserPlan !== BillingPlan.Pro
+              "
+              @click="generatorChanged(gens)"
+            >
+              <span class="self-center">{{ gens.name }}</span>
+              <LockClosedIcon
+                v-if="
+                  gens.proOnly &&
+                  currentUserPlan !== BillingPlan.Trial &&
+                  currentUserPlan !== BillingPlan.Pro
+                "
+                class="h-5 w-5 self-center"
+              />
+              <BeakerIcon
+                v-else-if="gens.experimental"
+                class="h-5 w-5 text-fuchsia-500/75"
+              />
+            </button>
+            <div class="tooltip-top group-hover/proOnly:block">
+              This conjuration type is only available to Pro users
+              <div class="tooltip-arrow" />
+            </div>
+            <div class="tooltip-top group-hover/experimental:block py-2 px-4">
+              This is an experimental new conjuration type, please be aware that
+              <br />
+              the results might not be as polished as other conjuration types.
+              <div class="tooltip-arrow" />
+            </div>
+          </div>
         </div>
       </div>
       <div
@@ -195,17 +231,44 @@
       </div>
       <div class="text-lg mt-12 text-center">Sample Prompts</div>
       <div
-        class="grid grid-cols-1 xl:grid-cols-3 text-neutral-500 mx-auto gap-4 mt-4"
+        class="grid grid-cols-1 xl:grid-cols-3 text-neutral-500 mx-auto gap-4 mt-4 justify-around"
       >
-        <div :key="`sample_prompt_1`" class="rounded-[20px] bg-surface-2 p-4">
-          {{ characterDescription }}
-        </div>
-        <div :key="`sample_prompt_2`" class="rounded-[20px] bg-surface-2 p-4">
-          {{ locationDescription }}
-        </div>
-        <div :key="`sample_prompt_3`" class="rounded-[20px] bg-surface-2 p-4">
-          {{ monsterDescription }}
-        </div>
+        <template v-if="generator?.code === 'characters'">
+          <div
+            v-for="(des, i) in characterDescription"
+            :key="`sample_npc_${i}`"
+            class="rounded-[20px] bg-surface-2 p-4"
+          >
+            {{ des }}
+          </div>
+        </template>
+        <template v-else-if="generator?.code === 'locations'">
+          <div
+            v-for="(des, i) in locationDescription"
+            :key="`sample_npc_${i}`"
+            class="rounded-[20px] bg-surface-2 p-4"
+          >
+            {{ des }}
+          </div>
+        </template>
+        <template v-else-if="generator?.code === 'monsters'">
+          <div
+            v-for="(des, i) in monsterDescription"
+            :key="`sample_npc_${i}`"
+            class="rounded-[20px] bg-surface-2 p-4"
+          >
+            {{ des }}
+          </div>
+        </template>
+        <template v-else-if="generator?.code === 'items'">
+          <div
+            v-for="(des, i) in itemDescription"
+            :key="`sample_npc_${i}`"
+            class="rounded-[20px] bg-surface-2 p-4"
+          >
+            {{ des }}
+          </div>
+        </template>
       </div>
     </div>
   </div>
@@ -225,6 +288,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { Conjurer, getConjurers, postConjure } from '@/api/generators.ts';
 import { useRoute, useRouter } from 'vue-router';
 import {
+  useCurrentUserPlan,
   useQuickConjure,
   useSelectedCampaignId,
   useWebsocketChannel,
@@ -239,6 +303,7 @@ import { useAuthStore } from '@/store';
 import { BillingPlan } from '@/api/users.ts';
 import { FreeTierConjurationLimit } from '@/lib/consts.ts';
 import { useLDFlag } from 'launchdarkly-vue-client-sdk';
+import { LockClosedIcon, BeakerIcon } from '@heroicons/vue/24/outline';
 
 const route = useRoute();
 const router = useRouter();
@@ -250,6 +315,7 @@ const generator = ref<Conjurer>();
 const channel = useWebsocketChannel();
 const authStore = useAuthStore();
 const showConjurationLimit = useLDFlag('free-tier-conjuration-limit', false);
+const currentUserPlan = useCurrentUserPlan();
 
 onMounted(async () => {
   let { prompt, code, imagePrompt, imageNegativePrompt, stylePreset } =
@@ -510,8 +576,8 @@ const characterDescription = computed(() => {
     'A halfling warlock with a cursed book that writes its own dark prophecies, providing both forbidden knowledge and a path to unavoidable fate.',
     'A tabaxi cleric with a holy relic in the form of a feline statuette, imbued with the powers of the divine and able to summon celestial feline companions.',
   ];
-  const randIndex = Math.floor(Math.random() * descriptions.length);
-  return descriptions[randIndex];
+  const shuffled = descriptions.sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, 3);
 });
 
 const locationDescription = computed(() => {
@@ -568,8 +634,8 @@ const locationDescription = computed(() => {
     'The Twilight Monastery, a mountain retreat where monks attune their spirits to the balance of day and night, and where ancient rituals unlock the power of twilight for those deemed worthy.',
     'The Enchanted Lotus Pool, a hidden pool surrounded by luminescent lotus flowers, each with the power to reveal glimpses of the future to those who dare to meditate upon their radiant petals.',
   ];
-  const randIndex = Math.floor(Math.random() * descriptions.length);
-  return descriptions[randIndex];
+  const shuffled = descriptions.sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, 3);
 });
 
 const monsterDescription = computed(() => {
@@ -639,8 +705,64 @@ const monsterDescription = computed(() => {
     'The Infernal Djinn, a fire-infused genie that can command flames with a mere thought, capable of creating infernos and unleashing searing heat upon its foes.',
     'The Celestial Revenant, a benevolent spirit bound to the mortal realm, capable of healing wounds and restoring life, but with the power to unleash divine wrath upon those who threaten the balance.',
   ];
-  const randIndex = Math.floor(Math.random() * descriptions.length);
-  return descriptions[randIndex];
+  const shuffled = descriptions.sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, 3);
+});
+
+const itemDescription = computed(() => {
+  const descriptions = [
+    'A shimmering cloak that grants its wearer the ability to communicate telepathically with nearby creatures and remain unseen in shadows.',
+    'A golden goblet that continuously fills with a sweet, rejuvenating nectar when tilted, providing sustenance and restoring vitality to the drinker.',
+    'A radiant orb that floats beside its bearer, illuminating dark paths and revealing hidden secrets when commanded.',
+    'A quill that inscribes words infused with temporal energy, allowing the user to rewrite recent events by altering the written record.',
+    'A belt adorned with elemental gems that grants the wearer resistance to fire, frost, lightning, and earth, harmonizing with the forces of nature.',
+    'A shimmering veil that grants its wearer the ability to change appearance at will, adopting the guise of any creature or individual.',
+    'A spyglass that reveals hidden spectral phenomena and allows the user to see into the ethereal plane, spotting invisible creatures and magical illusions.',
+    "A sword that emits a haunting echo with each strike, disorienting foes and imbuing the wielder's attacks with spectral energy.",
+    'An amulet adorned with a radiant star that absorbs starlight by night, granting the wearer the ability to emit dazzling bursts of light in darkness.',
+    'A shell that, when blown, summons a powerful storm that lashes out at enemies and provides protection to allies within its radius.',
+    'A regal crown that grants the wearer dominion over ice and snow, allowing them to freeze objects and creatures with a touch.',
+    'Gloves that harness the power of air, granting the wearer the ability to manipulate wind currents and create gusts of air at will.',
+    'A shard of a magical mirror that reflects the true nature of things, revealing illusions and hidden truths when gazed upon.',
+    'A small, ornate chime that, when rung, produces soothing melodies that heal wounds and calm turbulent emotions.',
+    'A dark shroud that grants its wearer the ability to become incorporeal for a short time, passing through solid objects and avoiding physical harm.',
+    'A flask containing the essence of a mystical grove, allowing plants to grow rapidly and flourish in even the harshest environments.',
+    "A crown that enhances the wearer's voice, allowing them to project their words over great distances and command attention with authority.",
+    'A medallion infused with the resilience of stone, granting its wearer enhanced durability and resistance to physical damage.',
+    'A scepter that, when held aloft, summons the warmth and brilliance of the morning sun, dispelling darkness and revitalizing allies.',
+    'A cloak woven from threads of magic that constantly shifts in color and pattern, providing camouflage and blending seamlessly into any environment.',
+    'A quill made from the feather of a phoenix that ignites with flames when used to write, creating scrolls of fiery magic that can be unleashed.',
+    'A goblet that grants its drinker enhanced awareness and vigilance, allowing them to detect hidden dangers and see through deception.',
+    'An amulet that harnesses the power of dusk and dawn, granting the wearer the ability to transition between day and night at will.',
+    'A shield that projects a protective barrier around its wielder, repelling incoming attacks and providing sanctuary in the midst of battle.',
+    "A mask that enhances the wearer's senses under moonlight, granting night vision and the ability to perceive ethereal beings.",
+    'An hourglass filled with shimmering sands that, when inverted, temporarily slows time within its vicinity, granting the user enhanced reflexes.',
+    'A chalice filled with celestial waters that grants the drinker visions of distant realms and the wisdom of cosmic entities.',
+    'A blade forged from shadowsteel that allows its wielder to move unseen in darkness and strike with lethal precision.',
+    'A tome containing ancient knowledge of the elements, granting the reader mastery over fire, water, air, and earth magic.',
+    'A scepter that conjures swirling storms of ethereal energy, unleashing lightning and thunder upon foes with devastating force.',
+    "A crown adorned with living vines and blossoms that grants its wearer control over plant life, allowing them to command nature's allies.",
+    'A medallion that allows its wearer to project their consciousness into the astral plane, exploring distant realms and realms of thought.',
+    'A staff carved from the heartwood of an ancient tree, imbued with the essence of nature and capable of channeling primal magic.',
+    'A chalice filled with healing elixir that restores vitality and purges ailments with a single sip, rejuvenating the drinker.',
+    'Gauntlets that harness the power of fire, allowing the wearer to manipulate flames and conjure fiery projectiles.',
+    'A grimoire filled with arcane blueprints and diagrams, empowering the reader to construct magical artifacts and enchanted constructs.',
+    'A pendant that projects an ethereal barrier around its wearer, deflecting magical attacks and providing protection from harmful spells.',
+    "A ring that enhances the wearer's agility and reflexes, allowing them to move with supernatural speed and evade attacks effortlessly.",
+    'A lantern that emits a calming glow, soothing restless spirits and dispelling negative energies within its radius.',
+    'A satchel that can hold an infinite number of items without increasing in size or weight, defying the laws of space and volume.',
+    'A flute that plays enchanting melodies, charming creatures and captivating audiences with its magical tunes.',
+    'A compass that always points toward the nearest source of magical energy, guiding the user to hidden artifacts and arcane anomalies.',
+    'A crystal that resonates with the energies of the cosmos, amplifying magical abilities and granting the user celestial insights.',
+    'A mask that grants the wearer the ability to understand and speak any language, breaking down barriers of communication.',
+    'A quiver that replenishes its arrows magically, ensuring that the wielder never runs out of ammunition in the heat of battle.',
+    'A mirror that reveals the true form of shapeshifters and illusions, exposing hidden enemies and their deceptive disguises.',
+    'A pendant that creates a protective barrier around its wearer, deflecting incoming attacks and nullifying harmful effects.',
+    'A staff that channels the power of thunderstorms, summoning lightning bolts and creating thunderous shockwaves when struck against the ground.',
+    'A crown that bestows the wisdom of ancient rulers upon its wearer, granting insights into politics, strategy, and diplomacy.',
+  ];
+  const shuffled = descriptions.sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, 3);
 });
 </script>
 
