@@ -5,7 +5,7 @@ import {
   EllipsisVerticalIcon,
   LockClosedIcon,
 } from '@heroicons/vue/24/solid';
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import {
   deleteSession,
   getSession,
