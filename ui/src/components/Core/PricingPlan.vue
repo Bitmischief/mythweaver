@@ -74,7 +74,7 @@ async function upgrade() {
               </div>
             </div>
             <div v-else>
-              Free Forever
+              Free
               <div class="text-sm opacity-0">
                 ${{ (monthlyPrice * 12).toFixed(2) }}
               </div>

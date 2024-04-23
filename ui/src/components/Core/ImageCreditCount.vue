@@ -140,7 +140,7 @@ const clickCreditCount = () => {
       <PricingPlan
         name="100 Image Credit Pack"
         :price="5"
-        :features="['Generate 100 more images', 'No subscription required']"
+        :features="['Generate 100 more images']"
         :price-id="imageCredit100PackPriceId"
       />
     </div>

@@ -25,7 +25,11 @@ const proPlanId = computed(() => import.meta.env.VITE_STRIPE_PRO_PLAN_ID);
         name="Free"
         :monthly-price="0"
         :yearly-price="0"
-        :features="['5 saved conjurations', 'Access to Public Gallery']"
+        :features="[
+          'View Campaigns',
+          'View Sessions',
+          'Player character creation and management',
+        ]"
         :current="
           currentPlan === BillingPlan.Free || currentPlan === BillingPlan.Trial
         "
@@ -42,8 +46,6 @@ const proPlanId = computed(() => import.meta.env.VITE_STRIPE_PRO_PLAN_ID);
           'Image Modifications',
           'Private Conjurations',
           'Campaign Management',
-          'Session AI summaries',
-          'Player character creation and management',
         ]"
         :price-id="basicPlanId"
         :current="currentPlan === BillingPlan.Basic"
@@ -57,8 +59,7 @@ const proPlanId = computed(() => import.meta.env.VITE_STRIPE_PRO_PLAN_ID);
           'All Basic features PLUS',
           'Session Audio Recordings',
           'Session Audio Transcripts',
-          'Commercial Usage Rights',
-          '(soon) Advanced Conjuration Types',
+          'Advanced Conjuration Types',
           '(soon) World Management',
           'Priority Support',
         ]"
