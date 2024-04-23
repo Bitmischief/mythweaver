@@ -59,8 +59,7 @@ const proPlanId = computed(() => import.meta.env.VITE_STRIPE_PRO_PLAN_ID);
           'All Basic features PLUS',
           'Session Audio Recordings',
           'Session Audio Transcripts',
-          'Commercial Usage Rights',
-          '(soon) Advanced Conjuration Types',
+          'Advanced Conjuration Types',
           '(soon) World Management',
           'Priority Support',
         ]"
