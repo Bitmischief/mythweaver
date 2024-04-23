@@ -161,7 +161,7 @@ async function addConjuration() {
       </div>
 
       <div
-        class="flex justify-between px-3 pb-2 rounded-[16px] bg-surface-2 z-10 group-hover:grow transition-all"
+        class="flex justify-between px-3 pb-2 rounded-[16px] bg-surface-2 group-hover:grow transition-all"
         :class="{
           'basis-1': !condensedView,
           'basis-2/3 pt-2 overflow-hidden': condensedView,
