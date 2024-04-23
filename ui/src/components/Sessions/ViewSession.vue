@@ -5,7 +5,7 @@ import {
   EllipsisVerticalIcon,
   LockClosedIcon,
 } from '@heroicons/vue/24/solid';
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import {
   deleteSession,
   getSession,
@@ -52,16 +52,7 @@ const sessionDate = ref();
 const tab = ref();
 const showAudio = ref(false);
 
-const checkRelationshipsFlag = async () => {
-  if (!showRelationships.value && route.path.endsWith('relationships')) {
-    await router.push(`/sessions/${sessionId.value}`);
-  }
-};
-
 onMounted(async () => {
-  await checkRelationshipsFlag();
-  await init();
-
   eventBus.$on('session-processing', (payload: { recap: string }) => {
     session.value.processing = true;
     session.value.recap = payload.recap;
@@ -84,15 +75,14 @@ onMounted(async () => {
     await router.push({ hash: '#overview' });
     await init();
   });
+
+  await init();
 });
 
 onUnmounted(() => {
   eventBus.$off('session-summary-panel-updated');
-
   channel.unbind(ServerEvent.SessionUpdated);
 });
-
-watch(showRelationships, checkRelationshipsFlag);
 
 async function init() {
   const response = await getSession(sessionId.value);
@@ -428,7 +418,7 @@ async function changeTab(tabName: string) {
       </div>
       <div class="text-xl text-neutral-200">
         <div class="text-neutral-400 text-xs">Session Date</div>
-        {{ format(sessionDate, 'MMM d, yyyy @ h:mm a') }}
+        {{ sessionDate ? format(sessionDate, 'MMM d, yyyy @ h:mm a') : 'TBD' }}
       </div>
     </div>
     <div v-if="tab === 'overview'">
