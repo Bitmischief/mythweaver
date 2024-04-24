@@ -243,13 +243,7 @@ async function navigateToCreateCampaign() {
       <div v-if="!collapsed" class="whitespace-nowrap">Gallery</div>
     </router-link>
   </div>
-  <div
-    v-if="
-      currentUserPlan === BillingPlan.Trial ||
-      currentUserPlan === BillingPlan.Free
-    "
-    class="mt-auto"
-  >
+  <div v-if="currentUserPlan !== BillingPlan.Pro" class="mt-auto">
     <div
       class="mb-4 mt-2 w-full upgrade-box rounded-[12px] text-neutral-200 px-3 py-2"
     >
