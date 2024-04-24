@@ -24,11 +24,9 @@
             v-for="(gens, i) in generators"
             :key="`generator_${i}`"
             :class="{
-              'relative group/proOnly':
-                gens.proOnly &&
-                currentUserPlan !== BillingPlan.Trial &&
-                currentUserPlan !== BillingPlan.Pro,
-              'relative group/experimental': gens.experimental,
+              'relative group/proOnly': proOnly(gens),
+              'relative group/experimental':
+                !proOnly(gens) && gens.experimental,
             }"
           >
             <button
@@ -36,20 +34,12 @@
               :class="{
                 'text-white bg-surface-3': generator?.code === gens.code,
               }"
-              :disabled="
-                gens.proOnly &&
-                currentUserPlan !== BillingPlan.Trial &&
-                currentUserPlan !== BillingPlan.Pro
-              "
+              :disabled="proOnly(gens)"
               @click="generatorChanged(gens)"
             >
               <span class="self-center">{{ gens.name }}</span>
               <LockClosedIcon
-                v-if="
-                  gens.proOnly &&
-                  currentUserPlan !== BillingPlan.Trial &&
-                  currentUserPlan !== BillingPlan.Pro
-                "
+                v-if="proOnly(gens)"
                 class="h-5 w-5 self-center"
               />
               <BeakerIcon
@@ -69,6 +59,12 @@
             </div>
           </div>
         </div>
+      </div>
+      <div
+        v-if="selectedIsProOnly"
+        class="text-center text-sm text-amber-500/75 mb-2"
+      >
+        This conjuration type is only available to Pro users
       </div>
       <div
         class="bg-gradient-to-r from-fuchsia-500 to-violet-500 p-px rounded-[20px] purple-shadow"
@@ -91,6 +87,7 @@
                 type="textarea"
                 validation="length:0,1000"
                 auto-height
+                :disabled="selectedIsProOnly"
               />
               <div class="hidden md:block absolute top-1 right-1">
                 <button
@@ -110,7 +107,7 @@
                 <button
                   v-else
                   class="button-gradient py-2 px-3 flex"
-                  :disabled="(disabled as boolean)"
+                  :disabled="(disabled as boolean) || selectedIsProOnly"
                   type="submit"
                 >
                   <img
@@ -514,6 +511,18 @@ const conjurationLimitReached = computed(() => {
     authStore.user.conjurationCount >= FreeTierConjurationLimit
   );
 });
+
+const selectedIsProOnly = computed(() => {
+  return generator.value ? proOnly(generator.value) : false;
+});
+
+const proOnly = (gen: Conjurer) => {
+  return (
+    gen.proOnly &&
+    currentUserPlan.value !== BillingPlan.Trial &&
+    currentUserPlan.value !== BillingPlan.Pro
+  );
+};
 
 const characterDescription = computed(() => {
   const descriptions = [
