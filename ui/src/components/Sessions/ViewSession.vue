@@ -143,10 +143,10 @@ async function clickDeleteSession() {
   if (deleteSessionResponse.status === 200) {
     if (session.value.archived) {
       showSuccess({ message: 'Session deleted successfully!' });
-      await router.push('/sessions');
+      await router.push('/sessions#archived');
     } else {
       showSuccess({ message: 'Session archived successfully!' });
-      await init();
+      await router.push('/sessions');
     }
   } else {
     showError({ message: 'Failed to delete session. Try again soon!' });
@@ -181,6 +181,7 @@ async function sessionOver() {
       id: session.value.id,
       isOver: true,
     });
+    session.value.isOver = true;
     showSuccess({ message: 'Session marked as over' });
 
     if (currentUserPlan.value === BillingPlan.Free) {

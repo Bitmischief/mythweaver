@@ -9,6 +9,7 @@ import { debounce } from 'lodash';
 import Spinner from '@/components/Core/Spinner.vue';
 import { useEventBus } from '@/lib/events.ts';
 import { CheckCircleIcon } from '@heroicons/vue/20/solid';
+import { format } from 'date-fns';
 
 defineEmits(['relationship-created']);
 
@@ -113,6 +114,13 @@ async function linkSession(session: SessionBase) {
     linking.value = -1;
   }
 }
+
+function sessionDateDisplay(session: SessionBase) {
+  if (!session.date) {
+    return 'TBD';
+  }
+  return format(session.date, 'MMM d, yyyy @ h:mm a');
+}
 </script>
 
 <template>
@@ -134,7 +142,7 @@ async function linkSession(session: SessionBase) {
         >
           <div class="relative">
             <img
-              :src="session.imageUri"
+              :src="session.imageUri || '/images/session_bg_square.png'"
               alt="session image"
               class="mx-auto w-full h-auto rounded-[12px]"
             />
@@ -167,6 +175,9 @@ async function linkSession(session: SessionBase) {
                 <span v-else>Relationship Exists</span>
               </div>
             </div>
+          </div>
+          <div class="text-sm text-neutral-500">
+            {{ sessionDateDisplay(session) }}
           </div>
         </div>
         <div v-if="moreToLoad" class="text-center col-span-full">

@@ -8,7 +8,7 @@ import { CampaignRole } from '@/api/campaigns.ts';
 import { PlusIcon } from '@heroicons/vue/20/solid';
 import { CalendarDaysIcon, UserGroupIcon } from '@heroicons/vue/24/outline';
 import { showSuccess } from '@/lib/notifications.ts';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useSelectedCampaignId } from '@/lib/hooks.ts';
 import { format } from 'date-fns';
 
@@ -16,6 +16,7 @@ const selectedCampaignId = useSelectedCampaignId();
 const eventBus = useEventBus();
 const campaignStore = useCampaignStore();
 const router = useRouter();
+const route = useRoute();
 
 const sessionsSearch = ref<{
   offset: number;
@@ -45,6 +46,13 @@ onMounted(async () => {
 
 async function init() {
   sessions.value = [];
+
+  if (route.hash === '#archived') {
+    sessionsSearch.value.archived = true;
+  } else {
+    sessionsSearch.value.archived = undefined;
+  }
+
   await loadSessions();
 }
 
@@ -69,6 +77,15 @@ async function handleCreateSession() {
 
   showSuccess({ message: 'Session created!' });
   await router.push(`/sessions/${createSessionResponse.data.id}#plan`);
+}
+
+async function toggleArchived() {
+  if (route.hash === '#archived') {
+    await router.push({ hash: '' });
+  } else {
+    await router.push({ hash: '#archived' });
+  }
+  await init();
 }
 
 const planningSessions = computed(() => {
@@ -100,16 +117,21 @@ const completedSessions = computed(() => {
 <template>
   <div class="flex w-full justify-between rounded-xl py-4">
     <div class="w-full md:flex md:justify-between">
-      <div class="text-xl self-center font-bold">Sessions</div>
+      <div class="text-xl self-center">
+        Sessions
+        <span v-if="sessionsSearch.archived" class="text-neutral-500">
+          | Archived
+        </span>
+      </div>
 
       <div class="mt-2 self-center md:mt-0 flex gap-2 justify-between">
         <button
-          class="self-center button-primary"
-          @click="
-            sessionsSearch.archived =
-              sessionsSearch.archived === undefined ? true : undefined;
-            init();
-          "
+          class="self-center text-neutral-400"
+          :class="{
+            'button-ghost-white': !sessionsSearch.archived,
+            'button-ghost': sessionsSearch.archived,
+          }"
+          @click="toggleArchived"
         >
           <span v-if="!sessionsSearch.archived" class="self-center"
             >View Archived</span
