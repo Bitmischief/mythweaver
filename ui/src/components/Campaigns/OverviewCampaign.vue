@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 import {
   PencilSquareIcon,
-  CalendarDaysIcon,
   ClockIcon,
   UserGroupIcon,
+  ArrowRightIcon,
 } from '@heroicons/vue/24/outline';
-import { PlusIcon } from '@heroicons/vue/20/solid';
+import { PlusIcon, SparklesIcon } from '@heroicons/vue/20/solid';
 import { computed, onMounted, ref } from 'vue';
 import {
   Campaign,
@@ -27,10 +27,12 @@ import ModalAlternate from '@/components/ModalAlternate.vue';
 import CharacterOverview from '../Characters/CharacterOverview.vue';
 import { AxiosError } from 'axios';
 import { useCurrentUserRole } from '@/lib/hooks.ts';
+import { useAuthStore } from '@/store';
 
 const selectedCampaignId = useSelectedCampaignId();
 const eventBus = useEventBus();
 const router = useRouter();
+const authStore = useAuthStore();
 
 const campaign = ref<Campaign>({} as Campaign);
 const characters = ref<Character[]>([]);
@@ -41,8 +43,10 @@ const showInviteModal = ref(false);
 const showDeleteModal = ref(false);
 const inviteLoading = ref(false);
 const inviteEmail = ref('');
+const latestSession = ref<SessionBase>();
 
 const currentUserRole = useCurrentUserRole();
+const currentUser = computed(() => authStore.user);
 
 const sessionsSearch = ref<{
   offset: number;
@@ -84,6 +88,8 @@ async function loadSessions() {
   });
 
   sessions.value = getSessionsResponse.data.data;
+
+  loadLatestSession();
 }
 
 async function loadCharacters() {
@@ -114,26 +120,27 @@ const gm = computed(() => {
 });
 
 const latestSessionDuration = ref('N/A');
-// const sessionAudio = ref(new Audio());
+const latestSessionDate = ref('');
 
-const latestSession = computed(() => {
+const loadLatestSession = () => {
   if (!sessions.value.length) {
     return null;
   }
 
-  const latestCompleted = sessions.value.filter(
-    (s: SessionBase) => s.completed,
-  );
-  if (!latestCompleted.length) {
+  const completed = sessions.value.filter((s: SessionBase) => s.completed);
+
+  if (!completed.length) {
     return null;
   }
 
-  const latestSession = latestCompleted[0];
+  const latestCompleted = completed.sort(function (a, b) {
+    return new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime();
+  })[0];
 
-  if (latestSession.audioUri) {
-    let audioUri = latestSession.audioUri;
-    if (!latestSession.audioUri?.startsWith('https')) {
-      audioUri = `https://${latestSession.audioUri}`;
+  if (latestCompleted.audioUri) {
+    let audioUri = latestCompleted.audioUri;
+    if (!latestCompleted.audioUri?.startsWith('https')) {
+      audioUri = `https://${latestCompleted.audioUri}`;
     }
     const sessionAudio = new Audio(audioUri);
     sessionAudio.addEventListener('loadedmetadata', () => {
@@ -142,9 +149,15 @@ const latestSession = computed(() => {
       latestSessionDuration.value = `${h}h ${m}m`;
     });
   }
+  if (latestCompleted.date) {
+    latestSessionDate.value = format(
+      latestCompleted.date,
+      'MMM d, yyyy @ h:mm a',
+    );
+  }
 
-  return latestSession;
-});
+  latestSession.value = latestCompleted;
+};
 
 async function handleCreateSession() {
   if (currentUserRole.value !== CampaignRole.DM) {
@@ -170,6 +183,14 @@ function campaignMemberName(campaignMemberId: number | undefined) {
 
   const email = member.user?.email ? member.user.email : member.email;
   return splitEmail(email);
+}
+
+function campaignMemberEmail(campaignMemberId: number | undefined) {
+  const member = campaign.value.members?.find((m) => m.id === campaignMemberId);
+  if (!member) {
+    return;
+  }
+  return member.user?.email;
 }
 
 async function invitePlayer() {
@@ -236,7 +257,7 @@ async function handleRemoveMember() {
     </div>
   </div>
   <div
-    class="grid grid-cols-1 lg:grid-cols-5 grid-rows-1 gap-y-4 lg:gap-4 mb-4"
+    class="grid grid-cols-1 lg:grid-cols-6 grid-rows-1 gap-y-4 lg:gap-4 mb-4"
   >
     <div class="rounded-[18px] bg-surface-3 p-4 col-span-3 h-full mt-4">
       <div class="text-lg mb-2">
@@ -261,41 +282,44 @@ async function handleRemoveMember() {
         </div>
       </div>
     </div>
-    <div class="flex rounded-[18px] bg-surface-3 p-4 col-span-2 h-full mt-4">
-      <div v-if="latestSession">
-        <div class="grid grid-cols-4 relative h-full">
-          <div class="col-span-4 2xl:col-span-1 relative">
+    <div class="flex rounded-[18px] bg-surface-3 p-4 col-span-3 h-full mt-4">
+      <div v-if="latestSession" class="flex flex-col">
+        <div class="text-lg mb-2 flex gap-2">
+          <div>Last Session</div>
+          <div class="text-neutral-500 text-sm md:text-lg self-center">
+            | {{ latestSessionDate }}
+          </div>
+        </div>
+        <div class="flex gap-2 relative grow">
+          <div class="basis-1/3 flex flex-col justify-center">
             <img
               :src="latestSession?.imageUri"
               class="rounded-[12px]"
               alt="session img"
             />
-            <span
-              class="px-2 py-1 bg-white/75 rounded-[12px] text-black text-sm absolute top-2 left-2 whitespace-nowrap"
-            >
-              Last session
-            </span>
           </div>
-          <div class="col-span-4 2xl:col-span-3 lg:pl-4 flex flex-col">
-            <div>
-              <div class="mt-2 truncate">
+          <div class="basis-2/3 lg:pl-4 flex flex-col">
+            <div class="text-neutral-200 group/sessionName flex gap-2">
+              <div class="text-lg truncate underline">
                 <router-link :to="`/sessions/${latestSession.id}`">
                   {{ latestSession.name }}
                 </router-link>
               </div>
-            </div>
-            <div class="text-neutral-400 text-sm flex py-2">
-              <div v-if="latestSession.audioUri" class="flex mr-4">
-                <ClockIcon class="h-5 mr-1" />
-                {{ latestSessionDuration }}
-              </div>
-              <div class="flex">
-                <CalendarDaysIcon class="h-5 mr-1" />
-                {{ format(new Date(latestSession.updatedAt), 'MMM d, yyyy') }}
+              <div class="hidden group-hover/sessionName:block self-center">
+                <ArrowRightIcon class="h-5" />
               </div>
             </div>
-            <div class="text-neutral-500 grow max-h-[12em] overflow-y-auto">
-              {{ latestSession.summary }}
+            <div
+              v-if="latestSession.audioUri"
+              class="text-neutral-400 text-sm flex py-2 mr-4"
+            >
+              <ClockIcon class="h-5 mr-1" />
+              {{ latestSessionDuration }}
+            </div>
+            <div
+              class="text-neutral-400 text-sm grow max-h-[12em] overflow-y-auto"
+            >
+              {{ latestSession.recap }}
             </div>
           </div>
         </div>
@@ -354,11 +378,7 @@ async function handleRemoveMember() {
           <div class="my-2">
             Last session:
             <span class="text-neutral-300">
-              {{
-                latestSession
-                  ? format(new Date(latestSession.updatedAt), 'MMM d, yyyy')
-                  : 'No Sessions'
-              }}
+              {{ latestSessionDate }}
             </span>
           </div>
         </div>
@@ -391,15 +411,23 @@ async function handleRemoveMember() {
             v-for="member in campaign.members"
             :key="`${member.id}_member`"
             class="md:flex text-sm p-2 group justify-between min-h-[3.5em] whitespace-nowrap border-b border-neutral-700"
+            :class="{
+              'bg-fuchsia-500/10 rounded-[12px]':
+                currentUser?.email === member.user?.email,
+            }"
           >
             <div class="grid md:grid-cols-3 grow">
               <div
-                class="self-center col-span-1 truncate"
+                class="self-center col-span-1 truncate flex gap-1"
                 :class="{
                   'text-white': member.user,
                   'text-neutral-400': !member.user,
                 }"
               >
+                <SparklesIcon
+                  v-if="currentUser?.email === member.user?.email"
+                  class="h-5 text-fuchsia-500/50"
+                />
                 {{
                   member.user?.username ??
                   splitEmail(member.user ? member.user.email : member.email)
@@ -424,7 +452,10 @@ async function handleRemoveMember() {
               </div>
             </div>
             <div
-              v-if="member.role != CampaignRole.DM"
+              v-if="
+                currentUserRole === CampaignRole.DM &&
+                member.role != CampaignRole.DM
+              "
               class="md:hidden md:pl-4 mt-4 md:mt-0 group-hover:block"
             >
               <button
@@ -467,8 +498,15 @@ async function handleRemoveMember() {
               class="rounded-[20px]"
             />
             <div
-              class="absolute top-1 left-1 max-w-[95%] rounded-full bg-white/50 text-black px-2 truncate"
+              class="absolute top-1 left-1 max-w-[95%] rounded-full bg-white/50 text-black px-1 truncate flex"
             >
+              <SparklesIcon
+                v-if="
+                  currentUser?.email ===
+                  campaignMemberEmail(char.campaignMemberId)
+                "
+                class="h-5 text-fuchsia-500/75 self-center"
+              />
               {{ campaignMemberName(char.campaignMemberId) }}
             </div>
           </div>
