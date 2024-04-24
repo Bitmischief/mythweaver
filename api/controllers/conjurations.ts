@@ -84,16 +84,19 @@ export default class ConjurationController {
         },
       });
     }
-    if (search !== undefined) {
+    if (search) {
       orClause.push({
         name: {
-          search: search,
+          search: search.replaceAll(/\s/g, ' | '),
         },
       });
-      orClause.push({
-        tags: {
-          has: search.toLowerCase(),
-        },
+      const t = search.toLowerCase().split(/\s/g);
+      t.forEach((tag) => {
+        orClause.push({
+          tags: {
+            has: tag,
+          },
+        });
       });
     }
 

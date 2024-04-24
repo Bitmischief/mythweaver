@@ -190,7 +190,6 @@ function handleFiltersUpdated(filters: any) {
   // without waiting for another apply click
   conjurationsFilterQuery.value = {
     ...filters,
-    search: searchText.value ? searchText.value : undefined,
   };
   showFilters.value = false;
 }
@@ -255,6 +254,7 @@ const clearFilters = () => {
               <FormKit
                 v-model="searchText"
                 type="search"
+                name="search"
                 placeholder="Search names & tags"
                 outer-class="$reset grow"
                 inner-class="rounded-tr-none rounded-br-none"
