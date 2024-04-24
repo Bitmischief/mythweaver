@@ -125,6 +125,7 @@ export default class ConjurationController {
               },
             }
           : undefined,
+        imageUri: !saved ? { not: null } : undefined,
         OR: orClause.length ? orClause : undefined,
       },
       skip: offset,

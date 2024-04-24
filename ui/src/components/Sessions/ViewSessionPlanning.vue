@@ -40,10 +40,11 @@ async function init() {
 
 async function clickSaveSession() {
   if (session.value) {
+    console.log(sessionDate.value);
     const putSessionResponse = await patchSession({
       id: session.value.id,
       name: sessionName.value,
-      date: sessionDate.value,
+      date: sessionDate.value ? new Date(sessionDate.value) : undefined,
       planningJson: session.value.planningJson,
     });
     if (putSessionResponse.status === 200) {
@@ -88,6 +89,7 @@ const planningChanged = (planning: any) => {
           />
         </div>
         <div class="shrink">
+          {{ sessionDate }}
           <FormKit
             v-model="sessionDate"
             type="datetime-local"
