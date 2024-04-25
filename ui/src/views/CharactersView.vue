@@ -10,7 +10,7 @@ import { AxiosError } from 'axios';
 import { showError, showSuccess } from '@/lib/notifications.ts';
 import CustomizableImage from '@/components/Images/CustomizableImage.vue';
 import { useEventBus } from '@/lib/events.ts';
-import Loader from '@/App.vue';
+import Loader from '@/components/Core/Loader.vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ArrowLeftIcon } from '@heroicons/vue/24/outline';
 import ModalAlternate from '@/components/ModalAlternate.vue';
