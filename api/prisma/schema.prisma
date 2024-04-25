@@ -299,6 +299,7 @@ model Image {
   negativePrompt String?
   stylePreset    String?
   seed           String?
+  primary        Boolean @default(false)
 
   conjurationId Int?
   sessionId     Int?
