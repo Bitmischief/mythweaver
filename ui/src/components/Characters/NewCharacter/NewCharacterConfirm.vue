@@ -21,15 +21,15 @@ const emit = defineEmits(['back', 'complete']);
         Save Character
       </button>
     </div>
-    <div class="md:flex">
-      <LightboxImage
-        :src="character.imageUri"
-        class="w-full md:w-[15rem] rounded-[10px]"
-      />
-      <div
-        class="mt-4 md:mt-0 md:ml-6 w-full grid grid-cols-2 3xl:grid-cols-4 gap-4"
-      >
-        <div>
+    <div class="md:flex mb-6">
+      <div class="w-full md:w-1/3">
+        <LightboxImage
+          :src="character.images?.find((i) => i.primary)?.uri"
+          class="rounded-[10px]"
+        />
+      </div>
+      <div class="w-full md:w-2/3 px-6 flex flex-wrap justify-between">
+        <div class="w-full mb-4">
           <div class="text-md text-neutral-500">Name</div>
           <div class="text-2xl">{{ character.name }}</div>
         </div>
@@ -53,28 +53,38 @@ const emit = defineEmits(['back', 'complete']);
             }}
           </div>
         </div>
-      </div>
-    </div>
-    <div class="w-full py-4">
-      <div class="mt-6 grid md:grid-cols-2 gap-8">
-        <div>
-          <div class="text-md text-neutral-500">Backstory</div>
-          <div class="text-lg">
-            {{
-              character.backstory?.length
-                ? character.backstory
-                : 'Backstory not provided'
-            }}
-          </div>
-        </div>
-        <div>
-          <div class="text-md text-neutral-500">Personality</div>
-          <div class="text-lg">
-            {{
-              character.personality?.length
-                ? character.personality
-                : 'Personality not provided'
-            }}
+        <div class="w-full">
+          <div class="mt-6 grid grid-cols-1 gap-8">
+            <div>
+              <div class="text-md text-neutral-500">Backstory</div>
+              <div class="text-lg">
+                {{
+                  character.backstory?.length
+                    ? character.backstory
+                    : 'Backstory not provided'
+                }}
+              </div>
+            </div>
+            <div>
+              <div class="text-md text-neutral-500">Personality</div>
+              <div class="text-lg">
+                {{
+                  character.personality?.length
+                    ? character.personality
+                    : 'Personality not provided'
+                }}
+              </div>
+            </div>
+            <div>
+              <div class="text-md text-neutral-500">Looks</div>
+              <div class="text-lg">
+                {{
+                  character.looks?.length
+                    ? character.looks
+                    : 'Looks not provided'
+                }}
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -293,7 +293,10 @@ async function handleRemoveMember() {
         <div class="flex gap-2 relative grow">
           <div class="basis-1/3 flex flex-col justify-center">
             <img
-              :src="latestSession?.imageUri"
+              :src="
+                latestSession?.images?.find((i) => i.primary)?.uri ||
+                '/images/session_bg_square.png'
+              "
               class="rounded-[12px]"
               alt="session img"
             />
@@ -493,7 +496,7 @@ async function handleRemoveMember() {
         >
           <div class="relative">
             <img
-              :src="char.imageUri"
+              :src="char.images?.find((i) => i.primary)?.uri"
               alt="character portrait"
               class="rounded-[20px]"
             />

@@ -12,6 +12,8 @@ import NewCharacterLooks from '@/components/Characters/NewCharacter/NewCharacter
 import NewCharacterConfirm from '@/components/Characters/NewCharacter/NewCharacterConfirm.vue';
 import { useEventBus } from '@/lib/events.ts';
 import { useRouter } from 'vue-router';
+import { useWebsocketChannel } from '@/lib/hooks.ts';
+import { ServerEvent } from '@/lib/serverEvents.ts';
 
 defineEmits(['close', 'created']);
 
@@ -20,26 +22,24 @@ const router = useRouter();
 const character = ref<Character>({} as Character);
 const step = ref(1);
 const conjureImageDone = ref(false);
+const channel = useWebsocketChannel();
 
 onMounted(async () => {
   eventBus.$on('conjure-image-done', () => {
     conjureImageDone.value = true;
   });
 
-  eventBus.$on(
-    'updated-conjuration-image',
-    async (payload: { imageUri: string; prompt: string }) => {
-      setTimeout(() => {
-        character.value.imageUri = payload.imageUri;
-        step.value++;
-      }, 50);
-    },
-  );
+  channel.bind(ServerEvent.PrimaryImageSet, (data: any[]) => {
+    setTimeout(() => {
+      character.value.images = data;
+      step.value++;
+    }, 50);
+  });
 });
 
 onUnmounted(() => {
   eventBus.$off('conjure-image-done');
-  eventBus.$off('updated-conjuration-image');
+  channel.unbind_all();
 });
 
 async function initCharacter() {

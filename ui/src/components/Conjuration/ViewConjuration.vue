@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import {
   Conjuration,
   copyConjuration,
@@ -59,13 +59,6 @@ const isQuickConjure = computed(() => {
 
 onMounted(async () => {
   await loadConjuration();
-  eventBus.$on('set-image', (image: any) => {
-    conjuration?.value?.images?.push(image);
-  });
-});
-
-onUnmounted(() => {
-  eventBus.$off('set-image');
 });
 
 watch(conjurationId, async () => {

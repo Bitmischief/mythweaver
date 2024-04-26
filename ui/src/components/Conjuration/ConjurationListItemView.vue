@@ -68,6 +68,13 @@ async function addConjuration() {
     }
   }
 }
+
+const primaryImageUri = computed(() => {
+  if (conjuration.value?.images?.length) {
+    return conjuration.value.images.find((i) => i.primary).uri;
+  }
+  return null;
+});
 </script>
 
 <template>
@@ -88,8 +95,8 @@ async function addConjuration() {
         }"
       >
         <img
-          v-if="conjuration.imageUri"
-          :src="conjuration.imageUri"
+          v-if="primaryImageUri"
+          :src="primaryImageUri"
           :alt="conjuration.name"
           class="rounded-[16px] pointer-events-none"
         />

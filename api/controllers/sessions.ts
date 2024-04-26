@@ -125,7 +125,11 @@ export default class SessionController {
         date: 'desc',
       },
       include: {
-        images: true,
+        images: {
+          where: {
+            primary: true,
+          },
+        },
       },
     });
 
@@ -149,6 +153,7 @@ export default class SessionController {
     return {
       data: sessions.map((s) => ({
         ...s,
+        imageUri: null,
         linked: relationships.length
           ? relationships.some(
               (r) =>
@@ -197,7 +202,10 @@ export default class SessionController {
 
     track(AppEvent.GetSession, userId, trackingInfo);
 
-    return session;
+    return {
+      ...session,
+      imageUri: null,
+    };
   }
 
   @Security('jwt')

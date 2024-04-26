@@ -48,7 +48,6 @@ export interface PutCampaignRequest {
   campaignId: number;
   name: string;
   description?: string;
-  imageUri?: string;
   rpgSystemCode: string;
 }
 

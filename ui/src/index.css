@@ -206,4 +206,8 @@ input[type='number'] {
       @apply tooltip-arrow-base left-full -translate-x-1/2 translate-y-1/2 bottom-1/2;
     }
   }
+  [type='text']:focus {
+    border-radius: 12px;
+    @apply focus:ring-fuchsia-500 active:ring-fuchsia-500;
+  }
 }

@@ -135,6 +135,11 @@ export default class ConjurationController {
       },
       include: {
         saves: true,
+        images: {
+          where: {
+            primary: true,
+          },
+        },
       },
     });
 
@@ -167,6 +172,7 @@ export default class ConjurationController {
                 r.nextType === ConjurationRelationshipType.CONJURATION,
             )
           : false,
+        imageUri: null,
       })),
       offset: offset,
       limit: limit,
@@ -211,6 +217,7 @@ export default class ConjurationController {
 
     return {
       ...conjuration,
+      imageUri: null,
       saves: undefined,
       saved: conjuration.saves.length > 0,
     };
@@ -500,6 +507,13 @@ export default class ConjurationController {
       where: {
         id: conjurationId,
       },
+      include: {
+        images: {
+          where: {
+            primary: true,
+          },
+        },
+      },
     });
 
     if (!existingConjuration) {
@@ -527,12 +541,35 @@ export default class ConjurationController {
         },
         createdAt: undefined,
         updatedAt: undefined,
+        images: undefined,
       },
     });
 
+    if (existingConjuration.images.length) {
+      const origPrimaryImage = existingConjuration.images[0];
+      await prisma.image.create({
+        data: {
+          ...origPrimaryImage,
+          id: undefined,
+          userId: userId,
+          conjurationId: conjuration.id,
+        },
+      });
+    }
+
     await sendConjurationCountUpdatedEvent(userId);
 
-    return conjuration;
+    const newConjuration = await prisma.conjuration.findUnique({
+      where: {
+        id: conjuration.id,
+      },
+      include: {
+        saves: true,
+        images: true,
+      },
+    });
+
+    return newConjuration;
   }
 
   @Security('jwt')

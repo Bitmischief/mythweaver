@@ -100,4 +100,26 @@ router.post('/:imageId/upscale', [
   },
 ]);
 
+router.patch('/:imageId/primary', [
+  useAuthenticateRequest(),
+  useInjectLoggingInfo(),
+  useValidateRequest(patchRouteSchema, {
+    validationType: ValidationTypes.Route,
+  }),
+  async (req: Request, res: Response) => {
+    const controller = new ImageController();
+
+    const { imageId = 0 } = req.params;
+
+    const response = await controller.patchPrimaryImage(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      useLogger(res),
+      imageId as number,
+    );
+
+    return res.status(200).send(response);
+  },
+]);
+
 export default router;

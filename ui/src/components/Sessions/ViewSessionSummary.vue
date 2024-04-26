@@ -21,7 +21,6 @@ const currentUserRole = useCurrentUserRole();
 
 const session = ref<SessionBase>({} as SessionBase);
 
-const sessionImageUri = ref('');
 const sessionSuggestedImagePrompt = ref('');
 const sessionId = computed(() => parseInt(route.params.sessionId.toString()));
 
@@ -32,13 +31,13 @@ onMounted(async () => {
     await init();
   });
 
-  eventBus.$on(
-    'updated-conjuration-image',
-    async (payload: { imageUri: string }) => {
-      sessionImageUri.value = payload.imageUri;
-      await saveSession('image');
-    },
-  );
+  channel.bind(ServerEvent.PrimaryImageSet, async function () {
+    await init();
+  });
+
+  eventBus.$on('updated-conjuration-image', async () => {
+    await init();
+  });
 });
 
 onUnmounted(() => {
@@ -51,7 +50,6 @@ async function init() {
   const response = await getSession(sessionId.value);
 
   session.value = response.data as SessionBase;
-  sessionImageUri.value = session.value.imageUri || '';
   sessionSuggestedImagePrompt.value = session.value.suggestedImagePrompt || '';
 }
 
@@ -71,7 +69,6 @@ async function saveSession(updated?: string) {
   const putSessionResponse = await patchSession({
     id: session.value.id,
     campaignId: session.value.campaignId,
-    imageUri: sessionImageUri.value,
     suggestedImagePrompt: sessionSuggestedImagePrompt.value,
   });
 
@@ -103,13 +100,22 @@ async function showCustomizeImageModal() {
   }
 
   eventBus.$emit('toggle-customize-image-modal', {
-    prompt: sessionSuggestedImagePrompt.value,
+    image: {
+      prompt: sessionSuggestedImagePrompt.value,
+    },
     linking: {
       sessionId: session.value.id,
     },
   });
   loadingImageModal.value = false;
 }
+
+const primaryImage = computed(() => {
+  if (session.value.images?.length) {
+    return session.value.images.find((i) => i.primary);
+  }
+  return undefined;
+});
 </script>
 
 <template>
@@ -117,7 +123,7 @@ async function showCustomizeImageModal() {
     <div
       class="flex gap-4 mt-4 flex-wrap lg:flex-nowrap justify-center items-stretch"
     >
-      <div v-if="!sessionImageUri">
+      <div v-if="!primaryImage">
         <div
           class="relative flex h-full align-middle border border-surface-3 rounded-[12px] p-4"
         >
@@ -142,15 +148,10 @@ async function showCustomizeImageModal() {
       <div v-else>
         <CustomizableImage
           :editable="currentUserRole === CampaignRole.DM"
-          :image-uri="sessionImageUri"
-          :prompt="sessionSuggestedImagePrompt"
+          :image="primaryImage"
           class="rounded-md w-full md:w-[20em]"
           :type="sessionType"
           :linking="{ sessionId: session.id }"
-          @set-image="
-            sessionImageUri = $event.imageUri;
-            sessionSuggestedImagePrompt = $event.prompt;
-          "
         />
       </div>
       <div class="grow">

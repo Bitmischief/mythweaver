@@ -11,7 +11,6 @@ import CustomizableImage from '@/components/Images/CustomizableImage.vue';
 import { useWebsocketChannel } from '@/lib/hooks.ts';
 import { ServerEvent } from '@/lib/serverEvents.ts';
 import Select from '@/components/Core/Forms/Select.vue';
-import { patchImageConjurationId } from '@/api/images.ts';
 import { BillingPlan } from '@/api/users.ts';
 
 const props = defineProps<{
@@ -28,12 +27,7 @@ const hasValidPlan = useHasValidPlan();
 const editableConjuration = ref(props.conjuration);
 const addingTag = ref(false);
 const tagText = ref('');
-const showCustomizeImageModal = ref(false);
 const tagInput = ref<HTMLElement | null>(null);
-const negativePrompt = ref('');
-const stylePreset = ref('');
-const seed = ref('');
-const imageId = ref(null);
 
 const editable = computed(
   () => props.conjuration?.userId === currentUserId.value,
@@ -53,8 +47,6 @@ const dataArray = computed(() => {
 });
 
 onMounted(() => {
-  setPromptSettings();
-
   eventBus.$on(
     'save-conjuration',
     async (payload: { conjurationId: number }) => {
@@ -64,42 +56,16 @@ onMounted(() => {
     },
   );
 
-  eventBus.$on(
-    'updated-conjuration-image',
-    async (payload: {
-      imageId: number;
-      imageUri: string;
-      prompt: string;
-      negativePrompt: string;
-      stylePreset: string;
-      seed: string;
-    }) => {
-      showCustomizeImageModal.value = false;
+  channel.bind(ServerEvent.PrimaryImageSet, function (data: any[]) {
+    editableConjuration.value.images = data;
+  });
 
-      setTimeout(async () => {
-        editableConjuration.value.imageUri = payload.imageUri;
-        editableConjuration.value.imageAIPrompt = payload.prompt;
-        negativePrompt.value = payload.negativePrompt;
-        stylePreset.value = payload.stylePreset;
-        seed.value = payload.seed;
-
-        await patchImageConjurationId(
-          payload.imageId,
-          editableConjuration.value.id,
-        );
-        await saveConjuration();
-      }, 50);
-    },
-  );
-
-  channel.bind(ServerEvent.ImageCreated, function (data: any) {
-    if (!editableConjuration.value.imageUri) {
-      editableConjuration.value.imageUri = data.uri;
-      editableConjuration.value.imageAIPrompt = data.prompt;
-      negativePrompt.value = data.negativePrompt;
-      stylePreset.value = data.stylePreset;
-      seed.value = data.seed;
-      eventBus.$emit('set-image', data);
+  channel.bind(ServerEvent.ImageUpscaled, function (data: any) {
+    if (editableConjuration.value.images?.length) {
+      const imageIdx = editableConjuration.value.images.findIndex(
+        (i) => i.id === data.id,
+      );
+      editableConjuration.value.images[imageIdx] = data;
     }
   });
 
@@ -120,17 +86,10 @@ onMounted(() => {
 
 onUnmounted(() => {
   eventBus.$off('save-conjuration');
-  eventBus.$off('updated-conjuration-image');
-  channel.unbind(ServerEvent.ImageCreated);
-  channel.unbind(ServerEvent.ImageFiltered);
-  channel.unbind(ServerEvent.ImageError);
+  channel.unbind_all();
 });
 
 onUpdated(() => {
-  if (!editableConjuration.value.imageUri) {
-    editableConjuration.value.imageUri = props.conjuration.imageUri;
-  }
-
   if (props.conjuration.id !== editableConjuration.value.id) {
     editableConjuration.value = props.conjuration;
   }
@@ -159,6 +118,7 @@ async function saveConjuration() {
     await patchConjuration(props.conjuration.id, {
       ...editableConjuration.value,
       data: Object.fromEntries(dataArray.value.map((x) => [x.key, x.value])),
+      imageUri: undefined,
     });
     showSuccess({ message: 'Successfully saved conjuration' });
   } catch (e) {
@@ -196,22 +156,12 @@ const conjurationType = computed(() => {
   }
 });
 
-const setPromptSettings = () => {
-  if (
-    editableConjuration.value.images?.length &&
-    editableConjuration.value.images.some(
-      (i) => editableConjuration.value.imageUri === i.uri,
-    )
-  ) {
-    const image = editableConjuration.value.images.find(
-      (i) => editableConjuration.value.imageUri === i.uri,
-    );
-    negativePrompt.value = image.negativePrompt;
-    stylePreset.value = image.stylePreset;
-    seed.value = image.seed;
-    imageId.value = image.id;
+const primaryImage = computed(() => {
+  if (editableConjuration.value?.images?.length) {
+    return editableConjuration.value.images.find((i) => i.primary);
   }
-};
+  return undefined;
+});
 </script>
 
 <template>
@@ -219,16 +169,12 @@ const setPromptSettings = () => {
     <div class="md:flex">
       <div class="max-w-[35rem] overflow-hidden rounded-md md:mr-6">
         <CustomizableImage
-          :image-id="imageId"
-          :image-uri="editableConjuration.imageUri"
-          :prompt="editableConjuration.imageAIPrompt"
-          :negative-prompt="negativePrompt"
+          :image="primaryImage"
           :editable="editable"
           :alt="editableConjuration.name"
           :image-conjuration-failed="imageConjurationFailed"
           :image-conjuration-failure-reason="imageConjurationFailureReason"
           :type="conjurationType"
-          :seed="seed"
           :linking="{ conjurationId: editableConjuration.id }"
         />
 

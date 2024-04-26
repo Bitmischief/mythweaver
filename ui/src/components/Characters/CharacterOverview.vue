@@ -18,7 +18,7 @@
             </div>
           </div>
           <CustomizableImage
-            :image-uri="character.imageUri"
+            :image="character.images?.find((i) => i.primary)"
             :editable="false"
             :alt="character.name"
             :linking="{ characterId: character.id }"
