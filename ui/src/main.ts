@@ -11,6 +11,7 @@ import VueIntercom from '@homebaseai/vue3-intercom';
 import { LDPlugin } from 'launchdarkly-vue-client-sdk';
 import * as Sentry from '@sentry/vue';
 import { isDevelopment, isLocalDevelopment, isProduction } from '@/lib/util.ts';
+import auth0Client from '@/plugins/auth.ts';
 
 const app = createApp(App);
 
@@ -61,5 +62,7 @@ Sentry.init({
     return event;
   },
 });
+
+app.use(auth0Client as any);
 
 app.mount('#app');

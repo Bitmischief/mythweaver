@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express';
-import { useAuthenticateRequest } from '../lib/authMiddleware';
+import { checkAuth0Jwt, useInjectUserId } from '../lib/authMiddleware';
 import { z } from 'zod';
 import {
   useValidateRequest,
@@ -22,7 +22,8 @@ const postGenerateMagicLinkSchema = z.object({
 });
 
 router.get('/', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(getGeneratorsSchema, {
     validationType: ValidationTypes.Query,
@@ -49,7 +50,8 @@ const generatorIdSchema = z.object({
 });
 
 router.get('/:generatorCode', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(generatorIdSchema, {
     validationType: ValidationTypes.Route,
@@ -71,7 +73,8 @@ router.get('/:generatorCode', [
 ]);
 
 router.post('/:generatorCode/generate/quick', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(generatorIdSchema, {
     validationType: ValidationTypes.Route,
@@ -103,7 +106,8 @@ const postGeneratorGenerateSchema = z.object({
 });
 
 router.post('/:generatorCode/generate', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(generatorIdSchema, {
     validationType: ValidationTypes.Route,
@@ -131,7 +135,8 @@ const conjurationRequestIdSchema = z.object({
 });
 
 router.get('/requests/:conjurationRequestId', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(conjurationRequestIdSchema, {
     validationType: ValidationTypes.Route,
@@ -160,7 +165,8 @@ const postGenerateArbitrarySchema = z.object({
 });
 
 router.post('/arbitrary', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(postGenerateArbitrarySchema),
   async (req: Request, res: Response) => {
@@ -178,7 +184,8 @@ router.post('/arbitrary', [
 ]);
 
 router.post('/magic-link/:magicLink', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(postGenerateMagicLinkSchema, {
     validationType: ValidationTypes.Route,

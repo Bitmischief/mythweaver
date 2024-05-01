@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import ModalAlternate from '@/components/ModalAlternate.vue';
-import LoginContent from '@/components/Login/LoginContent.vue';
 import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import {
@@ -116,8 +115,6 @@ onMounted(async () => {
           {{ invite.campaignName }} beckons!
         </div>
       </div>
-
-      <LoginContent class="mt-6" :invite-code="inviteCode" />
     </div>
   </ModalAlternate>
 </template>

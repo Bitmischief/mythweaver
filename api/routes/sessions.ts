@@ -1,5 +1,9 @@
 import express, { Request, Response } from 'express';
-import { SecurityType, useAuthenticateRequest } from '../lib/authMiddleware';
+import {
+  checkAuth0Jwt,
+  useAuthenticateServiceRequest,
+  useInjectUserId,
+} from '../lib/authMiddleware';
 import { z } from 'zod';
 import {
   useValidateRequest,
@@ -38,7 +42,8 @@ const getSessionsSchema = z.object({
 });
 
 router.get('/', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(getSessionsSchema, {
     validationType: ValidationTypes.Query,
@@ -87,7 +92,8 @@ const postSessionTranscriptionSchema = z.object({
 });
 
 router.get('/:sessionId', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(getSessionSchema, {
     validationType: ValidationTypes.Route,
@@ -114,7 +120,8 @@ const postSessionsSchema = z.object({
 });
 
 router.post('/', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(postSessionsSchema),
   async (req: Request, res: Response) => {
@@ -152,7 +159,8 @@ const patchSessionsSchema = z.object({
 });
 
 router.patch('/:sessionId', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(patchSessionsSchema),
   useValidateRequest(getSessionSchema, {
@@ -176,7 +184,8 @@ router.patch('/:sessionId', [
 ]);
 
 router.delete('/:sessionId', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(getSessionSchema, {
     validationType: ValidationTypes.Route,
@@ -202,7 +211,8 @@ const postGenerateSummarySchema = z.object({
 });
 
 router.post('/:sessionId/generate-summary', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(getSessionSchema, {
     validationType: ValidationTypes.Route,
@@ -226,7 +236,8 @@ router.post('/:sessionId/generate-summary', [
 ]);
 
 router.post('/:sessionId/complete', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(getSessionSchema, {
     validationType: ValidationTypes.Route,
@@ -248,7 +259,8 @@ router.post('/:sessionId/complete', [
 ]);
 
 router.post('/:sessionId/audio', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(getSessionSchema, {
     validationType: ValidationTypes.Route,
@@ -276,7 +288,8 @@ router.post('/:sessionId/audio', [
 ]);
 
 router.post('/:sessionId/transcription', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(getSessionSchema, {
     validationType: ValidationTypes.Route,
@@ -300,7 +313,7 @@ router.post('/:sessionId/transcription', [
 ]);
 
 router.patch('/:sessionId/transcription', [
-  useAuthenticateRequest(SecurityType.ServiceToken),
+  useAuthenticateServiceRequest,
   useInjectLoggingInfo(),
   useValidateRequest(getSessionSchema, {
     validationType: ValidationTypes.Route,
@@ -326,7 +339,8 @@ router.patch('/:sessionId/transcription', [
 ]);
 
 router.post('/:sessionId/recap-transcription', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(getSessionSchema, {
     validationType: ValidationTypes.Route,

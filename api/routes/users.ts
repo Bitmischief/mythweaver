@@ -1,18 +1,19 @@
 import express, { Request, Response } from 'express';
-import { SecurityType, useAuthenticateRequest } from '../lib/authMiddleware';
+import {
+  checkAuth0Jwt,
+  useAuthenticateServiceRequest,
+  useInjectUserId,
+} from '../lib/authMiddleware';
 import { z } from 'zod';
 import { useValidateRequest } from '../lib/validationMiddleware';
 import UserController from '../controllers/users';
-import mailchimpClient from '../lib/mailchimpMarketing';
-import { lists, Status } from '@mailchimp/mailchimp_marketing';
-import EmailType = lists.EmailType;
-import { format } from 'date-fns';
 import { useInjectLoggingInfo, useLogger } from '../lib/loggingMiddleware';
 
 const router = express.Router();
 
 router.get('/me', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   async (req: Request, res: Response) => {
     const controller = new UserController();
@@ -36,7 +37,8 @@ const patchUsersSchema = z.object({
 });
 
 router.patch('/me', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(patchUsersSchema),
   async (req: Request, res: Response) => {
@@ -53,7 +55,8 @@ router.patch('/me', [
 ]);
 
 router.get('/me/subscription', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   async (req: Request, res: Response) => {
     const controller = new UserController();
@@ -74,7 +77,7 @@ const postAddCreditsSchema = z.object({
 });
 
 router.post('/add-credits', [
-  useAuthenticateRequest(SecurityType.ServiceToken),
+  useAuthenticateServiceRequest(),
   useInjectLoggingInfo(),
   useValidateRequest(postAddCreditsSchema),
   async (req: Request, res: Response) => {

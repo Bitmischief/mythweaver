@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import bodyParser from 'body-parser';
-import { useAuthenticateRequest } from '../lib/authMiddleware';
+import { checkAuth0Jwt, useInjectUserId } from '../lib/authMiddleware';
 import { useInjectLoggingInfo, useLogger } from '../lib/loggingMiddleware';
 import BillingController from '../controllers/billing';
 import { validateEvent } from '../services/billing';
@@ -18,7 +18,8 @@ const postCheckoutUrlSchema = z.object({
 });
 
 router.post('/checkout-url', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(postCheckoutUrlSchema),
   async (req: Request, res: Response) => {
@@ -35,7 +36,8 @@ router.post('/checkout-url', [
 ]);
 
 router.get('/redeem-preorder-url', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   async (req: Request, res: Response) => {
     const controller = new BillingController();
@@ -57,7 +59,8 @@ const getPortalUrlSchema = z.object({
 });
 
 router.get('/portal-url', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(getPortalUrlSchema, {
     validationType: ValidationTypes.Query,

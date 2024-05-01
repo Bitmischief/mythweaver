@@ -6,20 +6,34 @@ import TrialInfo from '@/components/Navigation/TrialInfo.vue';
 import { computed } from 'vue';
 import ImageCreditCount from '@/components/Core/ImageCreditCount.vue';
 import ConjurationLimit from '@/components/Core/ConjurationLimit.vue';
+import { useAuth0 } from '@auth0/auth0-vue';
 
 const authStore = useAuthStore();
+const auth0 = useAuth0();
 
 async function logout() {
-  await authStore.logout();
+  await auth0.logout({
+    logoutParams: {
+      returnTo: `${window.location.origin}/auth/login`,
+    },
+  });
 }
 
 const username = computed(() => {
-  if (authStore.user?.username) {
-    return authStore.user.username;
+  if (auth0.user.value) {
+    return auth0.user.value.nickname;
   }
 
   let emailAddress = authStore.user?.email || '';
   return emailAddress.substring(0, emailAddress.indexOf('@'));
+});
+
+const profilePicutre = computed(() => {
+  if (auth0.user.value?.picture) {
+    return auth0.user.value.picture;
+  }
+
+  return '/favicon.png';
 });
 </script>
 
@@ -38,8 +52,8 @@ const username = computed(() => {
       >
         <img
           class="mr-2 bg-zinc-800 rounded-full w-8 h-8 self-center flex justify-center"
-          src="/favicon.png"
-          alt="img"
+          :src="profilePicutre"
+          alt="profile picture"
         />
         <div class="pr-2">
           {{ username }}

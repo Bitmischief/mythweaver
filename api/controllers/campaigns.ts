@@ -437,8 +437,6 @@ export default class CampaignController {
       },
     });
 
-    console.log(otherMembers);
-
     return {
       campaignName: invite.campaign.name,
       invitingEmail: otherMembers.filter((m) => m.role === CampaignRole.DM)[0]
