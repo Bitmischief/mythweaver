@@ -48,7 +48,7 @@ const patchCharactersSchema = z.object({
   class: z.string().max(50),
   imageUri: z.string().max(2000).optional(),
   name: z.string().max(50).optional(),
-  backstory: z.string().max(2000).optional(),
+  backstory: z.string().max(10000).optional(),
   personality: z.string().max(2000).optional(),
   looks: z.string().max(2000).optional().nullable(),
 });
