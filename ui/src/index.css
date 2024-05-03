@@ -206,4 +206,7 @@ input[type='number'] {
       @apply tooltip-arrow-base left-full -translate-x-1/2 translate-y-1/2 bottom-1/2;
     }
   }
+  .gradient-text {
+    @apply bg-clip-text font-bold text-transparent bg-gradient-to-r from-fuchsia-500 to-blue-400;
+  }
 }

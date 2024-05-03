@@ -27,9 +27,16 @@ class ErrorHandler {
   }
 
   private handleCriticalError(
-    error: Error | AppError,
+    error: Error | AppError | any,
     response?: Response,
   ): void {
+    if (error.status === 401) {
+      response
+        ?.status(HttpCode.UNAUTHORIZED)
+        ?.json({ message: 'Unauthorized' });
+      return;
+    }
+
     logger.fatal('Critical uncaught error', {
       message: error?.message,
       description: (error as AppError)?.description,

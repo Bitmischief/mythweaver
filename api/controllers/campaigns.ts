@@ -411,40 +411,33 @@ export default class CampaignController {
     @Inject() logger: MythWeaverLogger,
     @Route() inviteCode: string,
   ): Promise<any> {
-    const invite = await prisma.campaignMember.findUnique({
+    const campaign = await prisma.campaign.findFirst({
       where: {
         inviteCode,
       },
       include: {
-        campaign: true,
+        members: {
+          include: {
+            user: true,
+            character: true,
+          },
+        },
+        user: true,
       },
     });
 
-    if (!invite) {
+    if (!campaign) {
       throw new AppError({
-        description: 'Invite not found.',
+        description: 'Campaign not found.',
         httpCode: HttpCode.NOT_FOUND,
       });
     }
 
-    const otherMembers = await prisma.campaignMember.findMany({
-      where: {
-        campaignId: invite.campaignId,
-      },
-      include: {
-        user: true,
-        character: true,
-      },
-    });
-
-    console.log(otherMembers);
-
     return {
-      campaignName: invite.campaign.name,
-      invitingEmail: otherMembers.filter((m) => m.role === CampaignRole.DM)[0]
-        ?.user?.email,
-      members: otherMembers
-        .filter((m) => m.email !== invite.email)
+      campaignName: campaign.name,
+      invitingEmail: campaign.user.email,
+      members: campaign.members
+        .filter((m) => m.email !== campaign.user.email)
         .map((m) => ({
           email: m?.email ?? m?.user?.email,
           role: m?.role,
@@ -462,27 +455,49 @@ export default class CampaignController {
     @Inject() logger: MythWeaverLogger,
     @Route() inviteCode: string,
   ) {
-    const invite = await prisma.campaignMember.findUnique({
+    const user = await prisma.user.findUnique({
       where: {
-        inviteCode,
+        id: userId,
       },
     });
 
-    if (!invite) {
+    if (!user) {
+      throw new AppError({
+        description: 'User not found.',
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    const campaign = await prisma.campaign.findFirst({
+      where: {
+        inviteCode,
+      },
+      include: {
+        members: {
+          include: {
+            user: true,
+          },
+        },
+      },
+    });
+
+    if (!campaign) {
       throw new AppError({
         httpCode: HttpCode.BAD_REQUEST,
         description: 'Invite code is invalid',
       });
     }
 
-    await prisma.campaignMember.update({
-      where: {
-        id: invite.id,
-      },
+    if (campaign.members.some((m: any) => m.user?.id === userId)) {
+      return;
+    }
+
+    await prisma.campaignMember.create({
       data: {
-        userId: userId,
-        inviteCode: null,
-        joinedAt: new Date(),
+        campaignId: campaign.id,
+        email: user.email,
+        role: CampaignRole.Player,
+        userId: user.id,
       },
     });
   }

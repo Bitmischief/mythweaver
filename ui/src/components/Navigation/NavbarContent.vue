@@ -240,7 +240,7 @@ async function navigateToCreateCampaign() {
       @click="emit('nav-item-selected')"
     >
       <PhotoIcon class="h-5 mr-2" />
-      <div v-if="!collapsed" class="whitespace-nowrap">Gallery</div>
+      <div v-if="!collapsed" class="whitespace-nowrap">Public Gallery</div>
     </router-link>
   </div>
   <div v-if="currentUserPlan !== BillingPlan.Pro" class="mt-auto">

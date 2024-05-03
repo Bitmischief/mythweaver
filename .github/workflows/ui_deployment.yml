@@ -40,6 +40,8 @@ jobs:
           echo VITE_LAUNCH_DARKLY_CLIENT_ID=${{ secrets.LAUNCH_DARKLY_CLIENT_ID }} >> .env
           echo VITE_SENTRY_DSN=${{ secrets.UI_SENTRY_DSN }} >> .env
           echo VITE_MIXPANEL_TOKEN=${{ secrets.MIXPANEL_TOKEN }} >> .env
+          echo VITE_AUTH0_DOMAIN=${{ secrets.AUTH0_DOMAIN }} >> .env
+          echo VITE_AUTH0_CLIENT_ID=${{ secrets.AUTH0_CLIENT_ID }} >> .env
           echo VERSION=${{ github.ref_name }} >> .env
 
       - name: Build container image

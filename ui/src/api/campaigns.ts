@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { Character } from '@/api/characters.ts';
 
 export const enum CampaignRole {
   DM = 1,
@@ -15,6 +16,7 @@ export interface Campaign {
   rpgSystemCode: string;
   atmosphere?: string[];
   members?: CampaignMember[];
+  inviteCode?: string;
 }
 
 export interface CampaignMember {
@@ -59,10 +61,7 @@ export interface CampaignInvite {
     {
       email: string;
       role: number;
-      character: {
-        name: string;
-        imageUri: string;
-      };
+      character: Character[];
     },
   ];
 }

@@ -4,15 +4,15 @@ import {
   ClockIcon,
   UserGroupIcon,
   ArrowRightIcon,
+  Square2StackIcon,
 } from '@heroicons/vue/24/outline';
-import { PlusIcon, SparklesIcon } from '@heroicons/vue/20/solid';
+import { PlusIcon, SparklesIcon, XCircleIcon } from '@heroicons/vue/20/solid';
 import { computed, onMounted, ref } from 'vue';
 import {
   Campaign,
   CampaignMember,
   deleteCampaignMember,
   getCampaign,
-  invitePlayerToCampaign,
   getCampaignCharacters,
 } from '@/api/campaigns.ts';
 import { CampaignRole } from '@/api/campaigns.ts';
@@ -28,6 +28,7 @@ import CharacterOverview from '../Characters/CharacterOverview.vue';
 import { AxiosError } from 'axios';
 import { useCurrentUserRole } from '@/lib/hooks.ts';
 import { useAuthStore } from '@/store';
+import { useClipboard } from '@vueuse/core';
 
 const selectedCampaignId = useSelectedCampaignId();
 const eventBus = useEventBus();
@@ -41,12 +42,12 @@ const viewingCharacter = ref<Character>();
 const viewCharacter = ref(false);
 const showInviteModal = ref(false);
 const showDeleteModal = ref(false);
-const inviteLoading = ref(false);
-const inviteEmail = ref('');
 const latestSession = ref<SessionBase>();
 
 const currentUserRole = useCurrentUserRole();
 const currentUser = computed(() => authStore.user);
+
+const { copy, copied, isSupported } = useClipboard();
 
 const sessionsSearch = ref<{
   offset: number;
@@ -193,35 +194,6 @@ function campaignMemberEmail(campaignMemberId: number | undefined) {
   return member.user?.email;
 }
 
-async function invitePlayer() {
-  if (!inviteEmail.value) {
-    return;
-  }
-
-  try {
-    inviteLoading.value = true;
-    await invitePlayerToCampaign(
-      inviteEmail.value,
-      selectedCampaignId.value || 0,
-    );
-    showSuccess({
-      message: 'Invite sent successfully',
-      context:
-        'The invitation has been successfully sent. Once accepted, they will be visible in the list of party members.',
-    });
-  } catch (e) {
-    const err = e as AxiosError;
-    showError({
-      message: (err?.response?.data as any)?.message?.toString() || '',
-    });
-    return;
-  }
-
-  await init();
-  inviteLoading.value = false;
-  showInviteModal.value = false;
-}
-
 const requestedRemovedMemberId = ref<number | null>(null);
 const removeMemberLoading = ref(false);
 
@@ -244,6 +216,10 @@ async function handleRemoveMember() {
     removeMemberLoading.value = false;
   }
 }
+
+const inviteLink = computed(() => {
+  return `${window.location.origin}/invite?code=${campaign.value.inviteCode}`;
+});
 </script>
 
 <template>
@@ -402,7 +378,7 @@ async function handleRemoveMember() {
               @click="showInviteModal = true"
             >
               <UserGroupIcon class="h-5 mr-1" />
-              Add Players
+              Invite Players
             </button>
           </div>
         </div>
@@ -526,36 +502,47 @@ async function handleRemoveMember() {
       </div>
     </ModalAlternate>
     <ModalAlternate :show="showInviteModal" @close="showInviteModal = false">
-      <div class="md:w-[499px] p-6 bg-surface-2 rounded-[20px]">
+      <div class="w-[95vw] md:w-[50vw] p-6 bg-surface-2 rounded-[20px]">
+        <div class="flex justify-end">
+          <button @click="showInviteModal = false">
+            <span class="self-center">
+              <XCircleIcon class="h-5 w-5" />
+            </span>
+          </button>
+        </div>
         <img
           src="@/assets/icons/addPlayer.svg"
           alt="add player"
           class="h-14 mx-auto"
         />
-        <div class="text-center text-white text-2xl my-4">Invite Player</div>
-        <div class="text-center text-neutral-500 mb-4">
-          Summon a fellow adventurer to join your epic tale!
-        </div>
+        <div class="text-center text-white text-2xl my-4">Invite Players</div>
 
-        <input
-          v-model="inviteEmail"
-          autofocus
-          placeholder="Enter player email"
-          class="input-primary"
-          @keyup.enter="invitePlayer"
-        />
-
-        <div class="grid grid-cols-2 gap-4 mt-4">
-          <button class="button-primary" @click="showInviteModal = false">
-            <span class="self-center"> Cancel </span>
-          </button>
-
-          <button class="button-white" @click="invitePlayer">
-            <span v-if="!inviteLoading">Send Invitation</span>
-            <span v-else class="self-center text-base animate-pulse"
-              >Inviting...</span
+        <div class="text-center border rounded-[20px] p-4 border-neutral-700">
+          <div class="text-sm text-neutral-500 mb-2">
+            Your players can join this campaign using this invite link
+          </div>
+          <div class="text-lg text-neutral-200 flex justify-center gap-2">
+            <div class="self-center">
+              {{ inviteLink }}
+            </div>
+            <div
+              v-if="isSupported"
+              class="relative group/copy-link hover:cursor-pointer"
+              @click="copy(inviteLink)"
             >
-          </button>
+              <Square2StackIcon
+                class="w-8 h-8 self-center text-neutral-500 group-active/copy-link:text-fuchsia-500 group-active/copy-link:fill-fuchsia-600"
+              />
+              <div
+                class="tooltip-top hidden group-hover/copy-link:block"
+                :class="{ 'bg-fuchsia-800': copied }"
+              >
+                <span v-if="copied">Link Copied!</span>
+                <span v-else>Copy link</span>
+                <div class="tooltip-arrow" />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </ModalAlternate>

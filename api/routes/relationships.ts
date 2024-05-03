@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import { z } from 'zod';
-import { useAuthenticateRequest } from '../lib/authMiddleware';
+import { checkAuth0Jwt, useInjectUserId } from '../lib/authMiddleware';
 import { useInjectLoggingInfo, useLogger } from '../lib/loggingMiddleware';
 import {
   useValidateRequest,
@@ -38,7 +38,8 @@ const getRelationshipsSchema = z.object({
 });
 
 router.get('/:type/:nodeId', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(relationshipsRouteSchema, {
     validationType: ValidationTypes.Route,
@@ -76,7 +77,8 @@ const postRelationshipsSchema = z.object({
 });
 
 router.post('/:type/:nodeId', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(relationshipsRouteSchema, {
     validationType: ValidationTypes.Route,
@@ -103,7 +105,8 @@ const relationshipIdRouteSchema = z.object({
 });
 
 router.delete('/:relationshipId', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(relationshipIdRouteSchema, {
     validationType: ValidationTypes.Route,
@@ -128,7 +131,8 @@ const patchRelationshipSchema = z.object({
 });
 
 router.patch('/:relationshipId', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(relationshipIdRouteSchema, {
     validationType: ValidationTypes.Route,

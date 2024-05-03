@@ -1,20 +1,30 @@
-import jwt from 'jsonwebtoken';
+import { jwtDecode } from 'jwt-decode';
 import { Request, Response, NextFunction } from 'express';
 import { prisma } from './providers/prisma';
-import { MythWeaverLogger } from './logger';
 import { injectRequestId } from './loggingMiddleware';
+import { auth } from 'express-oauth2-jwt-bearer';
+import { createCustomer } from '../services/billing';
+import { modifyImageCreditCount } from '../services/credits';
+import { ImageCreditChangeType } from '@prisma/client';
+import { CampaignRole } from '../controllers/campaigns';
+import mailchimpClient from './mailchimpMarketing';
+import { lists, Status } from '@mailchimp/mailchimp_marketing';
+import { format } from 'date-fns';
+import { AppEvent, track } from './tracking';
+import EmailType = lists.EmailType;
 
-export enum SecurityType {
-  JWT = 'jwt',
-  ServiceToken = 'service-token',
-}
+export const checkAuth0Jwt = auth({
+  audience: process.env.API_URL,
+  issuerBaseURL: process.env.ISSUER_BASE_URL,
+  authRequired: true,
+});
 
-export const useAuthenticateRequest = (securityType = SecurityType.JWT) => {
+export const useAuthenticateServiceRequest = () => {
   return async (req: Request, res: Response, next: NextFunction) => {
     const logger = injectRequestId(req, res);
 
     try {
-      const result = await expressAuthentication(req, res, securityType);
+      const result = await expressServiceAuthentication(req, res);
 
       if (!result) {
         logger.error('Returning 401 for request', req);
@@ -29,63 +39,130 @@ export const useAuthenticateRequest = (securityType = SecurityType.JWT) => {
   };
 };
 
-export async function expressAuthentication(
+export async function expressServiceAuthentication(
   req: Request,
   res: Response,
-  securityName: SecurityType,
 ): Promise<boolean> {
   const logger = injectRequestId(req, res);
 
-  if (securityName === 'jwt') {
-    const token =
-      req.body.token || req.query.token || req.headers['authorization'];
+  const req_token = req.headers['x-mw-token'];
 
-    logger.info('Authenticating provided jwt', token);
+  logger.info('Authenticating provided service token.');
 
-    const { userId } = verifyJwt(token, logger);
+  const serviceToken = process.env.X_SERVICE_TOKEN;
+  if (!serviceToken) {
+    logger.error('No "x-mw-token" env variable found.');
+    return false;
+  }
 
-    const user = await prisma.user.findUnique({
+  return serviceToken === req_token;
+}
+
+export const useInjectUserId = () => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    const logger = injectRequestId(req, res);
+
+    const token = req.auth?.token || '';
+    const jwt = jwtDecode(token) as any;
+
+    if (!jwt.email) {
+      return res.status(401).send();
+    }
+
+    let user = await prisma.user.findUnique({
       where: {
-        id: parseInt(userId),
+        email: jwt.email,
       },
     });
 
     if (!user) {
-      return false;
+      user = await createNewUser(res, jwt.email, logger);
     }
 
     res.locals.auth = {
       userId: user.id,
-      email: user.email,
     };
 
-    return true;
-  }
-
-  if (securityName === SecurityType.ServiceToken) {
-    const req_token = req.headers['x-mw-token'];
-
-    logger.info('Authenticating provided service token.');
-
-    const serviceToken = process.env.X_SERVICE_TOKEN;
-    if (!serviceToken) {
-      logger.error('No "x-mw-token" env variable found.');
-      return false;
-    }
-
-    return serviceToken === req_token;
-  }
-
-  return false;
-}
-
-export const verifyJwt = (token: string, logger: MythWeaverLogger) => {
-  const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY || '');
-  const { userId } = decoded as any;
-
-  logger.info(`Request authenticated for user id ${userId}`);
-
-  return {
-    userId: userId as string,
+    return next();
   };
+};
+
+const createNewUser = async (res: Response, email: string, logger: any) => {
+  const earlyAccessEnd = new Date();
+  earlyAccessEnd.setHours(new Date().getHours() + 24 * 7);
+
+  const stripeCustomerId = await createCustomer(email);
+
+  const user = await prisma.user.create({
+    data: {
+      email: email,
+      trialEndsAt: earlyAccessEnd,
+      billingCustomerId: stripeCustomerId,
+      imageCredits: 0,
+      username: await buildUniqueUsername(email.toLowerCase()),
+    },
+  });
+
+  await modifyImageCreditCount(
+    user.id,
+    10,
+    ImageCreditChangeType.TRIAL,
+    'Initial credits for signup',
+  );
+
+  await prisma.campaign.create({
+    data: {
+      name: 'My Campaign',
+      description: '',
+      rpgSystemCode: 'Dungeons & Dragons',
+      userId: user.id,
+      members: {
+        create: {
+          userId: user.id,
+          role: CampaignRole.DM,
+          joinedAt: new Date(),
+        },
+      },
+    },
+  });
+
+  const response = (await mailchimpClient.lists.batchListMembers(
+    process.env.MAILCHIMP_AUDIENCE_ID as string,
+    {
+      members: [
+        {
+          email_address: email,
+          email_type: 'html' as EmailType,
+          status: 'subscribed' as Status,
+          ip_opt: res.locals.trackingInfo?.ip,
+          ip_signup: res.locals.trackingInfo?.ip,
+          timestamp_signup: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+          timestamp_opt: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+        },
+      ],
+    },
+  )) as any;
+
+  if (response?.errors?.length > 0) {
+    logger.warn('Received errors from Mailchimp', response.errors);
+  }
+
+  track(AppEvent.Registered, user.id, res.locals.trackingInfo, {
+    email,
+  });
+
+  return user;
+};
+
+const buildUniqueUsername = async (email: string) => {
+  const username = email.split('@')[0];
+  const usernameExists = await prisma.user.findFirst({
+    where: {
+      username,
+    },
+  });
+
+  return usernameExists
+    ? username + Math.floor(Math.random() * 1000)
+    : username;
 };

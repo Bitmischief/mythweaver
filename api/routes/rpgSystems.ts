@@ -1,5 +1,4 @@
 import express, { Request, Response } from 'express';
-import { useAuthenticateRequest } from '../lib/authMiddleware';
 import { z } from 'zod';
 import {
   useValidateRequest,
@@ -7,6 +6,7 @@ import {
 } from '../lib/validationMiddleware';
 import { RpgSystemController } from '../controllers/rpgSystems';
 import { useInjectLoggingInfo, useLogger } from '../lib/loggingMiddleware';
+import { checkAuth0Jwt, useInjectUserId } from '../lib/authMiddleware';
 
 const router = express.Router();
 
@@ -17,7 +17,8 @@ const getRpgSystemsSchema = z.object({
 });
 
 router.get('/', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(getRpgSystemsSchema, {
     validationType: ValidationTypes.Query,
