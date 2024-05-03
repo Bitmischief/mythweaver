@@ -46,7 +46,6 @@ export async function expressServiceAuthentication(
   const logger = injectRequestId(req, res);
 
   const req_token = req.headers['x-mw-token'];
-
   logger.info('Authenticating provided service token.');
 
   const serviceToken = process.env.X_SERVICE_TOKEN;

@@ -85,6 +85,7 @@ onUpdated(async () => {
 
 async function initNotifications() {
   const channel = useWebsocketChannel();
+
   channel.bind(ServerEvent.TranscriptionComplete, (sessionId: number) => {
     showSuccess({
       message: 'Transcription Complete',
