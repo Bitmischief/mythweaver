@@ -120,6 +120,8 @@ spec:
               value: <VERSION>
             - name: LAUNCH_DARKLY_SDK_KEY
               value: <LAUNCH_DARKLY_SDK_KEY>
+            - name: ISSUER_BASE_URL
+              value: <ISSUER_BASE_URL>
           readinessProbe:
             httpGet:
               path: /docs

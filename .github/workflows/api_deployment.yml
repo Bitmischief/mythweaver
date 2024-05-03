@@ -85,6 +85,7 @@ jobs:
           sed -i 's|<SENTRY_DSN>|${{ secrets.API_SENTRY_DSN }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           sed -i 's|<VERSION>|${{ github.ref_name }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           sed -i 's|<LAUNCH_DARKLY_SDK_KEY>|${{ secrets.LAUNCH_DARKLY_SDK_KEY }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<ISSUER_BASE_URL>|${{ secrets.ISSUER_BASE_URL }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           cat $GITHUB_WORKSPACE/.k8s/api-deployment.yml
 
       - name: Save DigitalOcean kubeconfig with short-lived credentials
