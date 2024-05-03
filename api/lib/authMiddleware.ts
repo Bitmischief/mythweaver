@@ -3,6 +3,15 @@ import { Request, Response, NextFunction } from 'express';
 import { prisma } from './providers/prisma';
 import { injectRequestId } from './loggingMiddleware';
 import { auth } from 'express-oauth2-jwt-bearer';
+import { createCustomer } from '../services/billing';
+import { modifyImageCreditCount } from '../services/credits';
+import { ImageCreditChangeType } from '@prisma/client';
+import { CampaignRole } from '../controllers/campaigns';
+import mailchimpClient from './mailchimpMarketing';
+import { lists, Status } from '@mailchimp/mailchimp_marketing';
+import { format } from 'date-fns';
+import { AppEvent, track } from './tracking';
+import EmailType = lists.EmailType;
 
 export const checkAuth0Jwt = auth({
   audience: process.env.API_URL,
@@ -51,7 +60,7 @@ export async function expressServiceAuthentication(
 
 export const useInjectUserId = () => {
   return async (req: Request, res: Response, next: NextFunction) => {
-    injectRequestId(req, res);
+    const logger = injectRequestId(req, res);
 
     const token = req.auth?.token || '';
     const jwt = jwtDecode(token) as any;
@@ -60,16 +69,14 @@ export const useInjectUserId = () => {
       return res.status(401).send();
     }
 
-    const user = await prisma.user.findUnique({
+    let user = await prisma.user.findUnique({
       where: {
         email: jwt.email,
       },
     });
 
     if (!user) {
-      // we need to create a new user here
-      console.log('no user exists in the db with this email');
-      return res.status(401).send();
+      user = await createNewUser(res, jwt.email, logger);
     }
 
     res.locals.auth = {
@@ -78,4 +85,84 @@ export const useInjectUserId = () => {
 
     return next();
   };
+};
+
+const createNewUser = async (res: Response, email: string, logger: any) => {
+  const earlyAccessEnd = new Date();
+  earlyAccessEnd.setHours(new Date().getHours() + 24 * 7);
+
+  const stripeCustomerId = await createCustomer(email);
+
+  const user = await prisma.user.create({
+    data: {
+      email: email,
+      trialEndsAt: earlyAccessEnd,
+      billingCustomerId: stripeCustomerId,
+      imageCredits: 0,
+      username: await buildUniqueUsername(email.toLowerCase()),
+    },
+  });
+
+  await modifyImageCreditCount(
+    user.id,
+    10,
+    ImageCreditChangeType.TRIAL,
+    'Initial credits for signup',
+  );
+
+  await prisma.campaign.create({
+    data: {
+      name: 'My Campaign',
+      description: '',
+      rpgSystemCode: 'Dungeons & Dragons',
+      userId: user.id,
+      members: {
+        create: {
+          userId: user.id,
+          role: CampaignRole.DM,
+          joinedAt: new Date(),
+        },
+      },
+    },
+  });
+
+  const response = (await mailchimpClient.lists.batchListMembers(
+    process.env.MAILCHIMP_AUDIENCE_ID as string,
+    {
+      members: [
+        {
+          email_address: email,
+          email_type: 'html' as EmailType,
+          status: 'subscribed' as Status,
+          ip_opt: res.locals.trackingInfo?.ip,
+          ip_signup: res.locals.trackingInfo?.ip,
+          timestamp_signup: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+          timestamp_opt: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+        },
+      ],
+    },
+  )) as any;
+
+  if (response?.errors?.length > 0) {
+    logger.warn('Received errors from Mailchimp', response.errors);
+  }
+
+  track(AppEvent.Registered, user.id, res.locals.trackingInfo, {
+    email,
+  });
+
+  return user;
+};
+
+const buildUniqueUsername = async (email: string) => {
+  const username = email.split('@')[0];
+  const usernameExists = await prisma.user.findFirst({
+    where: {
+      username,
+    },
+  });
+
+  return usernameExists
+    ? username + Math.floor(Math.random() * 1000)
+    : username;
 };

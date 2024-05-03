@@ -5,7 +5,7 @@ import { AxiosError } from 'axios';
 import { showError } from '@/lib/notifications.ts';
 import { useCurrentUserId, useSelectedCampaignId } from '@/lib/hooks.ts';
 import { useRouter } from 'vue-router';
-import { PlusIcon, UserIcon } from '@heroicons/vue/24/outline';
+import { PlusIcon } from '@heroicons/vue/20/solid';
 import { useEventBus } from '@/lib/events.ts';
 
 const selectedCampaignId = useSelectedCampaignId();
@@ -147,10 +147,7 @@ async function viewCharacter(id: number) {
   <div v-if="!characters.length && !loading">
     <div class="flex justify-center h-full items-center">
       <div class="flex flex-col text-center">
-        <div>
-          <UserIcon class="h-14 text-neutral-500 mx-auto" />
-        </div>
-        <div class="self-center text-2xl my-4">
+        <div class="self-center text-2xl mt-12 mb-4">
           No characters created for this campaign yet.
         </div>
         <div class="text-neutral-500 mb-8 max-w-[40em]">
@@ -159,11 +156,11 @@ async function viewCharacter(id: number) {
           the button below.
         </div>
         <router-link
-          class="flex justify-center self-center button-gradient mx-auto"
+          class="flex justify-center self-center button-gradient mx-auto text-lg my-6"
           to="/character/new"
         >
           <PlusIcon class="mr-2 h-5 w-5 self-center" />
-          <span class="self-center">Create Character</span>
+          <span class="self-center">Create Your First Character</span>
         </router-link>
       </div>
     </div>

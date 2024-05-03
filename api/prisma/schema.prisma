@@ -181,6 +181,7 @@ model Campaign {
   conjurations Conjuration[]
   members      CampaignMember[]
   characters   Character[]
+  inviteCode   String? @default(dbgenerated("gen_random_uuid()::text"))
 
   @@map("campaigns")
 }

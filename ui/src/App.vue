@@ -3,7 +3,7 @@ import Navbar from '@/components/Navigation/NavBar.vue';
 import { useAuthStore } from '@/store';
 import NotificationHandler from '@/components/Notifications/NotificationHandler.vue';
 import { useEventBus } from '@/lib/events.ts';
-import { onMounted, onBeforeMount, onUpdated, ref } from 'vue';
+import { onMounted, onBeforeMount, onUpdated, ref, watch } from 'vue';
 import NavBarHeader from '@/components/Navigation/NavBarHeader.vue';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import LightboxRoot from '@/components/LightboxRoot.vue';
@@ -39,11 +39,15 @@ const showUpgradeModal = ref(false);
 const { isLoading, isAuthenticated } = useAuth0();
 
 onBeforeMount(async () => {
-  if (
-    location.pathname.startsWith('/auth/magic-link') ||
-    location.pathname.startsWith('/invite')
-  ) {
+  if (location.pathname.startsWith('/invite')) {
     await authStore.clearCache();
+  }
+});
+
+watch(isAuthenticated, async (isAuthenticated) => {
+  if (isAuthenticated) {
+    await authStore.loadCurrentUser();
+    await initIntercom();
   }
 });
 
@@ -73,9 +77,6 @@ onMounted(async () => {
       }
     }
   });
-
-  await authStore.loadCurrentUser();
-  await initIntercom();
 });
 
 onUpdated(async () => {
@@ -196,6 +197,7 @@ eventBus.$on('show-subscription-modal', () => {
         v-if="
           !isLoading &&
           isAuthenticated &&
+          authStore.user &&
           !(authStore.isLoading || showLoading || !ldReady) &&
           route.meta.paidRequired &&
           currentUserPlan === BillingPlan.Free

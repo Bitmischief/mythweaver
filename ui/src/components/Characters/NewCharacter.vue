@@ -78,11 +78,7 @@ async function next() {
   <div class="flex p-6 rounded-[12px] pb-1 flex-col bg-surface-2">
     <div class="text-3xl">
       Bring your character
-      <span
-        class="bg-clip-text font-bold text-transparent bg-gradient-to-r from-fuchsia-500 to-blue-400"
-      >
-        to life
-      </span>
+      <span class="gradient-text"> to life </span>
     </div>
 
     <NewCharacterBasic

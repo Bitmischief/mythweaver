@@ -27,6 +27,13 @@ axios.interceptors.response.use(
     return res;
   },
   async (err) => {
+    if (
+      window.location.pathname.includes('/invite') ||
+      window.location.pathname.includes('/login')
+    ) {
+      return;
+    }
+
     if (err.response.status === 401) {
       await logout();
     }
