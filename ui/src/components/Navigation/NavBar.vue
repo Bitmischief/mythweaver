@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Bars3Icon } from '@heroicons/vue/24/solid';
-import { onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { Dialog, DialogPanel } from '@headlessui/vue';
 import { useAuthStore } from '@/store';
 import NavbarContent from '@/components/Navigation/NavbarContent.vue';
@@ -10,9 +10,11 @@ import ImageCreditCount from '../Core/ImageCreditCount.vue';
 import PlanBadge from '@/components/Core/PlanBadge.vue';
 import { Cog6ToothIcon } from '@heroicons/vue/24/outline';
 import ConjurationLimit from '@/components/Core/ConjurationLimit.vue';
+import { useAuth0 } from '@auth0/auth0-vue';
 
 const authStore = useAuthStore();
 const showPanel = ref(false);
+const auth0 = useAuth0();
 
 const statusRefreshId = ref(0);
 
@@ -38,6 +40,28 @@ async function logout() {
 
 const collapsed = ref(false);
 const intercom = useIntercom();
+
+const thirdPartySignin = computed(() => {
+  const sub = auth0.user.value?.sub?.toLowerCase();
+  return (
+    sub?.includes('discord') ||
+    sub?.includes('google') ||
+    sub?.includes('twitter') ||
+    sub?.includes('facebook')
+  );
+});
+const loginType = computed(() => {
+  const sub = auth0.user.value?.sub?.toLowerCase();
+  return sub?.includes('discord')
+    ? 'Discord'
+    : sub?.includes('google')
+      ? 'Google'
+      : sub?.includes('twitter')
+        ? 'Twitter'
+        : sub?.includes('facebook')
+          ? 'Facebook'
+          : 'Email';
+});
 </script>
 
 <template>
@@ -104,6 +128,18 @@ const intercom = useIntercom();
                 scrolling="no"
               ></iframe>
             </div>
+            <div v-if="thirdPartySignin">
+              <div class="text-sm text-neutral-400 text-center mx-2 my-2">
+                Currently logged in as {{ auth0.user?.value?.nickname }} via
+                {{ loginType }}
+              </div>
+            </div>
+            <div
+              v-else-if="authStore.user"
+              class="text-center text-neutral-400 text-xs"
+            >
+              Logged in as <span>{{ authStore.user.email }}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -159,8 +195,15 @@ const intercom = useIntercom();
                   scrolling="no"
                 ></iframe>
                 <hr class="py-2 border-neutral-800 -mx-4 mt-5" />
+
+                <div v-if="thirdPartySignin">
+                  <div class="text-sm text-neutral-400 text-center mx-2 my-2">
+                    Currently logged in as {{ auth0.user?.value?.nickname }} via
+                    {{ loginType }}
+                  </div>
+                </div>
                 <div
-                  v-if="authStore.user"
+                  v-else-if="authStore.user"
                   class="text-center text-neutral-400 text-xs"
                 >
                   Logged in as <span>{{ authStore.user.email }}</span>
