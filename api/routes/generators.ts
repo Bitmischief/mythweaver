@@ -183,6 +183,31 @@ router.post('/arbitrary', [
   },
 ]);
 
+const postGenerateArbitraryFromPromptSchema = z.object({
+  background: z.any().optional(),
+  context: z.string(),
+  prompt: z.string().min(3).max(1000),
+});
+
+router.post('/arbitrary/prompt', [
+  checkAuth0Jwt,
+  useInjectUserId(),
+  useInjectLoggingInfo(),
+  useValidateRequest(postGenerateArbitraryFromPromptSchema),
+  async (req: Request, res: Response) => {
+    const controller = new GeneratorController();
+
+    const response = await controller.postGenerateArbitraryFromPrompt(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      useLogger(res),
+      req.body,
+    );
+
+    return res.status(200).send(response);
+  },
+]);
+
 router.post('/magic-link/:magicLink', [
   checkAuth0Jwt,
   useInjectUserId(),

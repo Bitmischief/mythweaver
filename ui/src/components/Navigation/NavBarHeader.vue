@@ -20,20 +20,12 @@ async function logout() {
 }
 
 const username = computed(() => {
-  if (auth0.user.value) {
-    return auth0.user.value.nickname;
+  if (authStore.user?.username) {
+    return authStore.user?.username;
   }
 
   let emailAddress = authStore.user?.email || '';
   return emailAddress.substring(0, emailAddress.indexOf('@'));
-});
-
-const profilePicutre = computed(() => {
-  if (auth0.user.value?.picture) {
-    return auth0.user.value.picture;
-  }
-
-  return '/favicon.png';
 });
 </script>
 
@@ -52,7 +44,7 @@ const profilePicutre = computed(() => {
       >
         <img
           class="mr-2 bg-zinc-800 rounded-full w-8 h-8 self-center flex justify-center"
-          :src="profilePicutre"
+          src="/favicon.png"
           alt="profile picture"
         />
         <div class="pr-2">
