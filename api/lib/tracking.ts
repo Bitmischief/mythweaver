@@ -55,6 +55,9 @@ export enum AppEvent {
   SessionTranscriptionFailed = 'Session Transcription Failed',
   SessionTranscriptionStarted = 'Session Transcription Started',
   RecapSessionTranscription = 'Recap Session Transcription',
+  GenerateArbitrary = 'Generate Arbitrary',
+  GenerateArbitraryFromPrompt = 'Generate Arbitrary From Prompt',
+  GenerateArbitraryReplacement = 'Generate Arbitrary Replacement',
 }
 
 export interface TrackingInfo {

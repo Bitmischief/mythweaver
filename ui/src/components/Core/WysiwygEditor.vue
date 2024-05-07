@@ -70,12 +70,25 @@ onMounted(() => {
       },
       inlineToolbar: true,
     };
-    tools.inlineGeneration = {
+    tools.FastGenerate = {
+      class: InlineGeneration,
+      shortcut: 'ALT+F',
+      inlineToolbar: true,
+      config: {
+        context: props.context,
+        turbo: true,
+      },
+      toolbar: {
+        title: 'this is a test',
+      },
+    };
+    tools.AdvancedGenerate = {
       class: InlineGeneration,
       shortcut: 'ALT+G',
       inlineToolbar: true,
       config: {
         context: props.context,
+        turbo: false,
       },
     };
   }

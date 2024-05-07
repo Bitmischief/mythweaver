@@ -211,6 +211,7 @@ router.post('/arbitrary/prompt', [
 const postGenerateArbitraryReplacementSchema = z.object({
   full: z.string(),
   replace: z.string(),
+  turbo: z.boolean().optional().default(false),
 });
 
 router.post('/arbitrary/replace', [
