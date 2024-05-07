@@ -51,6 +51,11 @@ export interface PostGenerateArbitraryFromPromptRequest {
   prompt: number;
 }
 
+export interface PostGenerateArbitraryReplacementRequest {
+  replace: string;
+  full: string;
+}
+
 @Route('generators')
 @Tags('Conjuration')
 export class GeneratorController {
@@ -338,6 +343,62 @@ export class GeneratorController {
           Please return the response in the following JSON format: { "label": "", "text": "" }.
           Where 'label' is a string that succinctly labels what was generated in the 'text' field,
           and 'text' is a string that holds the generated output.
+          Do not include any other text in your response.`,
+        },
+      ],
+    });
+
+    const gptResponse = response.choices[0]?.message?.content;
+    logger.info('Received raw response from openai', gptResponse);
+    const gptJson = sanitizeJson(gptResponse || '');
+    logger.info('Received sanitized json', gptJson);
+
+    return gptJson;
+  }
+
+  @Post('/arbitrary/replace')
+  @Security('jwt')
+  @OperationId('postGenerateArbitraryReplacement')
+  public async postGenerateArbitraryReplacement(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
+    @Body() request: PostGenerateArbitraryReplacementRequest,
+  ): Promise<any> {
+    if (!request.full.includes(request.replace)) {
+      throw new AppError({
+        httpCode: HttpCode.BAD_REQUEST,
+        description:
+          'The provided text does not contain the text to be replaced.',
+      });
+    }
+
+    track(AppEvent.GetConjurer, userId, trackingInfo);
+    const openai = getClient();
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4-turbo',
+      messages: [
+        {
+          role: 'system',
+          content:
+            'You are a helpful assistant who is creative and knowledgeable in table top role playing games.',
+        },
+        {
+          role: 'system',
+          content:
+            'If you are extra creative and helpful with the following prompt you will be rewarded based on how much effort you put in.',
+        },
+        {
+          role: 'user',
+          content: `Please replace the following text:
+          ${request.replace}.
+          within this block of text:
+          ${request.full}.
+          Replace the text with a new unique idea that fits the context of the original text.
+          Please return the response in the following JSON format: { "replaced": "", "full": "" }.
+          Where 'replaced' is the specific text you came up with to replace the original,
+          and 'full' is the entire block of text that includes your new replacement text.
+          The 'replaced' text should preserve all leading and trailing spaces that were present in the replaced text.
           Do not include any other text in your response.`,
         },
       ],
