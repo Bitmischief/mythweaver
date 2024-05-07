@@ -34,6 +34,8 @@ import AlignmentTuneTool from 'editorjs-text-alignment-blocktune';
 
 // @ts-ignore
 import GenerationBlock from '@/plugins/generation-block/generation-block';
+// @ts-ignore
+import InlineGeneration from '@/plugins/inline-generation/inline-generation';
 
 const showInlineTextGeneration = useLDFlag('inline-text-generation', false);
 const emit = defineEmits(['update:modelValue']);
@@ -67,6 +69,14 @@ onMounted(() => {
         context: props.context,
       },
       inlineToolbar: true,
+    };
+    tools.inlineGeneration = {
+      class: InlineGeneration,
+      shortcut: 'ALT+G',
+      inlineToolbar: true,
+      config: {
+        context: props.context,
+      },
     };
   }
 
@@ -172,8 +182,8 @@ onMounted(() => {
     onReady: () => {
       editorReady.value = true;
       const undo = new Undo({ editor: e });
-      if (value.value) {
-        undo.initialize(value.value);
+      if (props.modelValue) {
+        undo.initialize(props.modelValue.blocks);
       }
       new DragDrop(e);
       MermaidTool.config({ theme: 'dark' });

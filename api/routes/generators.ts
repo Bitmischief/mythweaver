@@ -208,6 +208,30 @@ router.post('/arbitrary/prompt', [
   },
 ]);
 
+const postGenerateArbitraryReplacementSchema = z.object({
+  full: z.string(),
+  replace: z.string(),
+});
+
+router.post('/arbitrary/replace', [
+  checkAuth0Jwt,
+  useInjectUserId(),
+  useInjectLoggingInfo(),
+  useValidateRequest(postGenerateArbitraryReplacementSchema),
+  async (req: Request, res: Response) => {
+    const controller = new GeneratorController();
+
+    const response = await controller.postGenerateArbitraryReplacement(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      useLogger(res),
+      req.body,
+    );
+
+    return res.status(200).send(response);
+  },
+]);
+
 router.post('/magic-link/:magicLink', [
   checkAuth0Jwt,
   useInjectUserId(),

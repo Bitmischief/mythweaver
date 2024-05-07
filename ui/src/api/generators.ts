@@ -57,6 +57,11 @@ export interface PostGenerateArbitraryFromPromptRequest {
   propertyName: string;
 }
 
+export interface PostGenerateArbitraryReplacementRequest {
+  full: string;
+  replace: string;
+}
+
 export const postGenerateArbitrary = (request: PostGenerateArbitraryRequest) => {
   return axios.post(`/generators/arbitrary`, request);
 };
@@ -65,6 +70,12 @@ export const postGenerateArbitraryFromPrompt = (
   request: PostGenerateArbitraryFromPromptRequest,
 ) => {
   return axios.post(`/generators/arbitrary/prompt`, request);
+};
+
+export const postGenerateArbitraryReplacement = (
+  request: PostGenerateArbitraryReplacementRequest,
+) => {
+  return axios.post(`/generators/arbitrary/replace`, request);
 };
 
 export const postMagicLinkGeneration = (magicLink: string) => {
