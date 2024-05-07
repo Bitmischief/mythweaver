@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
+import { useLDFlag } from 'launchdarkly-vue-client-sdk';
 import EditorJs from '@editorjs/editorjs';
 
 // @ts-ignore
@@ -31,14 +32,20 @@ import Underline from '@editorjs/underline';
 // @ts-ignore
 import AlignmentTuneTool from 'editorjs-text-alignment-blocktune';
 
+// @ts-ignore
+import GenerationBlock from '@/plugins/generation-block/generation-block';
+
+const showInlineTextGeneration = useLDFlag('inline-text-generation', false);
 const emit = defineEmits(['update:modelValue']);
 const props = withDefaults(
   defineProps<{
     modelValue: any;
     readOnly?: boolean;
+    context?: string;
   }>(),
   {
     readOnly: false,
+    context: 'session',
   },
 );
 
@@ -50,6 +57,103 @@ const value = computed({
 });
 
 onMounted(() => {
+  let tools = {} as any;
+
+  if (showInlineTextGeneration.value) {
+    tools.generationBlock = {
+      class: GenerationBlock,
+      shortcut: 'ALT+A',
+      config: {
+        context: props.context,
+      },
+      inlineToolbar: true,
+    };
+  }
+
+  tools = {
+    ...tools,
+    marker: {
+      class: Marker,
+      shortcut: 'ALT+M',
+      inlineToolbar: true,
+    },
+    strikethrough: {
+      class: Strikethrough,
+      shortcut: 'ALT+S',
+      inlineToolbar: true,
+    },
+    underline: {
+      class: Underline,
+      shortcut: 'ALT+U',
+      inlineToolbar: true,
+    },
+    header: {
+      class: Header,
+      shortcut: 'ALT+H',
+      inlineToolbar: true,
+    },
+    paragraph: {
+      class: Paragraph,
+      inlineToolbar: true,
+      tunes: ['anyTuneName'],
+    },
+    nestedList: {
+      class: NestedList,
+      shortcut: 'ALT+B',
+      toolbox: {
+        title: 'Bullet List',
+        icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><line x1="9" x2="19" y1="7" y2="7" stroke="currentColor" stroke-linecap="round" stroke-width="2"></line><line x1="9" x2="19" y1="12" y2="12" stroke="currentColor" stroke-linecap="round" stroke-width="2"></line><line x1="9" x2="19" y1="17" y2="17" stroke="currentColor" stroke-linecap="round" stroke-width="2"></line><path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M5.00001 17H4.99002"></path><path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M5.00001 12H4.99002"></path><path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M5.00001 7H4.99002"></path></svg>',
+      },
+      config: {
+        defaultStyle: 'unordered',
+      },
+      inlineToolbar: true,
+    },
+    orderedList: {
+      class: NestedList,
+      shortcut: 'ALT+N',
+      toolbox: {
+        title: 'Numbered List',
+      },
+      config: {
+        defaultStyle: 'ordered',
+      },
+      inlineToolbar: true,
+    },
+    checklist: {
+      class: Checklist,
+      shortcut: 'ALT+C',
+      inlineToolbar: true,
+    },
+    table: {
+      class: Table,
+      shortcut: 'ALT+T',
+      inlineToolbar: true,
+    },
+    mermaid: {
+      class: MermaidTool,
+      shortcut: 'ALT+F',
+      toolbox: {
+        title: 'Flowchart',
+        icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path d="M3 3h18v18H3V3zm4 4v10h10V7H7z" fill="currentColor"></path></svg>',
+      },
+    },
+    delimiter: {
+      class: Delimiter,
+      shortcut: 'ALT+D',
+    },
+    anyTuneName: {
+      class: AlignmentTuneTool,
+      config: {
+        default: 'left',
+        blocks: {
+          header: 'center',
+          list: 'right',
+        },
+      },
+    },
+  };
+
   const e = new EditorJs({
     holder: 'editor',
     placeholder: 'Start planning your session here!',
@@ -74,88 +178,7 @@ onMounted(() => {
       new DragDrop(e);
       MermaidTool.config({ theme: 'dark' });
     },
-    tools: {
-      marker: {
-        class: Marker,
-        shortcut: 'ALT+M',
-        inlineToolbar: true,
-      },
-      strikethrough: {
-        class: Strikethrough,
-        shortcut: 'ALT+S',
-        inlineToolbar: true,
-      },
-      underline: {
-        class: Underline,
-        shortcut: 'ALT+U',
-        inlineToolbar: true,
-      },
-      header: {
-        class: Header,
-        shortcut: 'ALT+H',
-        inlineToolbar: true,
-      },
-      paragraph: {
-        class: Paragraph,
-        inlineToolbar: true,
-        tunes: ['anyTuneName'],
-      },
-      nestedList: {
-        class: NestedList,
-        shortcut: 'ALT+B',
-        toolbox: {
-          title: 'Bullet List',
-          icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><line x1="9" x2="19" y1="7" y2="7" stroke="currentColor" stroke-linecap="round" stroke-width="2"></line><line x1="9" x2="19" y1="12" y2="12" stroke="currentColor" stroke-linecap="round" stroke-width="2"></line><line x1="9" x2="19" y1="17" y2="17" stroke="currentColor" stroke-linecap="round" stroke-width="2"></line><path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M5.00001 17H4.99002"></path><path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M5.00001 12H4.99002"></path><path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M5.00001 7H4.99002"></path></svg>',
-        },
-        config: {
-          defaultStyle: 'unordered',
-        },
-        inlineToolbar: true,
-      },
-      orderedList: {
-        class: NestedList,
-        shortcut: 'ALT+N',
-        toolbox: {
-          title: 'Numbered List',
-        },
-        config: {
-          defaultStyle: 'ordered',
-        },
-        inlineToolbar: true,
-      },
-      checklist: {
-        class: Checklist,
-        shortcut: 'ALT+C',
-        inlineToolbar: true,
-      },
-      table: {
-        class: Table,
-        shortcut: 'ALT+T',
-        inlineToolbar: true,
-      },
-      mermaid: {
-        class: MermaidTool,
-        shortcut: 'ALT+F',
-        toolbox: {
-          title: 'Flowchart',
-          icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path d="M3 3h18v18H3V3zm4 4v10h10V7H7z" fill="currentColor"></path></svg>',
-        },
-      },
-      delimiter: {
-        class: Delimiter,
-        shortcut: 'ALT+D',
-      },
-      anyTuneName: {
-        class: AlignmentTuneTool,
-        config: {
-          default: 'left',
-          blocks: {
-            header: 'center',
-            list: 'right',
-          },
-        },
-      },
-    },
+    tools: tools,
   });
   editor.value = e;
 });
@@ -187,6 +210,7 @@ onMounted(() => {
   }
   .ce-popover {
     background: #1e202a;
+    min-width: 250px;
     .ce-popover-item__icon {
       color: #e5e7eb;
       border: blue;
@@ -327,6 +351,20 @@ onMounted(() => {
     color: #e5e7eb;
     &:hover {
       color: rgba(229, 231, 235, 0.7);
+    }
+  }
+
+  .ce-block__generation {
+    background: #0f111b;
+    width: 100%;
+    input,
+    textarea {
+      background: #1e202a;
+      width: 100%;
+    }
+    [contenteditable='true']:empty:not(:focus):before {
+      content: attr(data-placeholder);
+      color: #4a4a4a;
     }
   }
 }
