@@ -54,6 +54,7 @@ export interface PostGenerateArbitraryFromPromptRequest {
 export interface PostGenerateArbitraryReplacementRequest {
   replace: string;
   full: string;
+  turbo: boolean;
 }
 
 @Route('generators')
@@ -376,7 +377,7 @@ export class GeneratorController {
     track(AppEvent.GenerateArbitraryReplacement, userId, trackingInfo);
     const openai = getClient();
     const response = await openai.chat.completions.create({
-      model: 'gpt-4-turbo',
+      model: request.turbo ? 'gpt-3.5-turbo' : 'gpt-4-turbo',
       messages: [
         {
           role: 'system',

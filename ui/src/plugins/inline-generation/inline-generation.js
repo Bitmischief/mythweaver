@@ -6,23 +6,22 @@ export default class InlineGeneration {
     return true;
   }
 
-  static get title() {
-    return 'Generate New Text';
-  }
-
-  constructor() {
+  constructor({ config }) {
     this.button = null;
     this.fullText = '';
+    this.config = config;
   }
 
   render() {
     this.button = document.createElement('button');
     this.button.type = 'button';
     this.button.classList.add(
-      'button-gradient',
+      this.config.turbo ? 'button-secondary' : 'button-gradient',
       'px-1',
       'py-0',
       'my-1',
+      'mx-0.5',
+      'border-0',
       'rounded-[6px]',
     );
     this.button.innerHTML =
@@ -39,6 +38,7 @@ export default class InlineGeneration {
       const res = await postGenerateArbitraryReplacement({
         replace: replace.textContent,
         full: this.fullText,
+        turbo: this.config.turbo,
       });
       range.extractContents();
       const fragment = new DocumentFragment();
