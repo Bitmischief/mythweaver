@@ -308,6 +308,12 @@ onMounted(() => {
       &.ce-block--drop-target .ce-block__content {
         border: none;
       }
+      a {
+        color: #d946ef;
+        &:hover {
+          color: #8b5cf6;
+        }
+      }
     }
   }
   .cdx-checklist__item-checkbox-check {
