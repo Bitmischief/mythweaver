@@ -47,7 +47,7 @@ export default class BillingController {
     @Inject() trackingInfo: TrackingInfo,
     @Inject() logger: MythWeaverLogger,
     @Body()
-      body: {
+    body: {
       priceId: string;
       subscription: boolean;
     },
