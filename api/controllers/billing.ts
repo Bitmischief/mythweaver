@@ -428,6 +428,7 @@ export default class BillingController {
               logger,
               (prevSubscription?.plan?.product as string) ?? null,
               (prevSubscription?.plan as Stripe.Plan) ?? null,
+              event.data.object.discount?.coupon,
             );
           }
         } else {
@@ -480,6 +481,7 @@ const processSubscriptionPaid = async (
   logger: MythWeaverLogger,
   prevProductId: string,
   prevStripePlan: Stripe.Plan,
+  coupon: Stripe.Coupon | undefined,
 ) => {
   const user = await getUser(billingCustomerId);
   const plan = getPlanForProductId(productId);
@@ -522,10 +524,16 @@ const processSubscriptionPaid = async (
     },
   });
 
-  logger.info('Incrementing image credits for user', { curCreditCount });
+  const incrementCreditCount =
+    amountPaid > 0 || coupon?.percent_off === 100
+      ? curCreditCount - prevCreditCount
+      : 0;
+  logger.info('Incrementing image credits for user by', {
+    incrementCreditCount,
+  });
   await modifyImageCreditCount(
     user.id,
-    amountPaid > 0 ? curCreditCount - prevCreditCount : 0,
+    incrementCreditCount,
     ImageCreditChangeType.SUBSCRIPTION,
     `${plan} plan`,
   );
