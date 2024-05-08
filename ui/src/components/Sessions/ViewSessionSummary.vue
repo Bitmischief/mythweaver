@@ -17,7 +17,7 @@ import ViewSessionTranscription from '@/components/Sessions/ViewSessionTranscrip
 import { format } from 'date-fns';
 import { generateArbitraryProperty } from '@/lib/generation.ts';
 import Spinner from '@/components/Core/Spinner.vue';
-import { SparklesIcon } from '@heroicons/vue/24/solid';
+import { SparklesIcon, ArrowPathIcon } from '@heroicons/vue/24/solid';
 import { EnvelopeIcon, EnvelopeOpenIcon } from '@heroicons/vue/24/outline';
 
 const route = useRoute();
@@ -204,10 +204,10 @@ const emailSummary = async () => {
         <div class="bg-surface-2 h-full rounded-[8px] p-4">
           <div class="flex align-center justify-between text-xl mb-2">
             <div class="self-center">Summary</div>
-            <div v-if="session.summary">
+            <div v-if="session.summary" class="flex gap-2">
               <button
                 class="button-ghost text-sm py-1 flex"
-                :disabled="emailLoading"
+                :disabled="emailLoading || summaryLoading"
                 @click="emailSummary"
               >
                 <span v-if="emailLoading" class="flex">Emailing Summary</span>
@@ -236,6 +236,16 @@ const emailSummary = async () => {
                     }"
                   />
                 </span>
+              </button>
+              <button
+                :disabled="summaryLoading"
+                class="button-ghost py-1"
+                @click="generateSummary"
+              >
+                <ArrowPathIcon
+                  class="h-5 w-5"
+                  :class="{ 'animate-spin': summaryLoading }"
+                />
               </button>
             </div>
           </div>

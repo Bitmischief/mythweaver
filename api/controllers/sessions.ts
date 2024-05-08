@@ -448,6 +448,13 @@ export default class SessionController {
       },
       include: {
         members: {
+          where: {
+            NOT: [
+              {
+                joinedAt: null,
+              },
+            ],
+          },
           include: {
             user: true,
           },
@@ -465,7 +472,7 @@ export default class SessionController {
     }
 
     for (const member of campaign.members) {
-      const email = member.user?.email || member.email;
+      const email = member.user?.email;
       await sendTransactionalEmail(
         'post-session',
         `MythWeaver Session Recap: ${
@@ -477,7 +484,7 @@ export default class SessionController {
         [
           {
             name: 'CHARACTER_NAME',
-            content: email || '',
+            content: member.user?.username || '',
           },
           {
             name: 'CAMPAIGN_NAME',
