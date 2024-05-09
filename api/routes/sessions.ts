@@ -235,7 +235,7 @@ router.post('/:sessionId/generate-summary', [
   },
 ]);
 
-router.post('/:sessionId/complete', [
+router.post('/:sessionId/email-summary', [
   checkAuth0Jwt,
   useInjectUserId(),
   useInjectLoggingInfo(),
@@ -247,7 +247,7 @@ router.post('/:sessionId/complete', [
 
     const { sessionId = 0 } = req.params;
 
-    await controller.postCompleteSession(
+    await controller.postSessionSummaryEmail(
       res.locals.auth.userId,
       res.locals.trackingInfo,
       useLogger(res),

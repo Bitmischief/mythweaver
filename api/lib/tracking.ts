@@ -58,6 +58,8 @@ export enum AppEvent {
   GenerateArbitrary = 'Generate Arbitrary',
   GenerateArbitraryFromPrompt = 'Generate Arbitrary From Prompt',
   GenerateArbitraryReplacement = 'Generate Arbitrary Replacement',
+  GetImageModels = 'Get Image Models',
+  GetArtist = 'Get Artist',
 }
 
 export interface TrackingInfo {
