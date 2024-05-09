@@ -37,16 +37,16 @@ jobs:
           yarn prisma db seed
 
       - name: Build container image
-        run: docker build -t ${{ secrets.REGISTRY_NAME }}/mythweaver-api:$(echo $GITHUB_SHA | head -c7)_$(echo $GITHUB_JOB) -f .docker/Dockerfile.api .
+        run: docker build -t ${{ secrets.REGISTRY_NAME }}/mythweaver-api:$(echo $GITHUB_SHA | head -c7)_$(echo $GITHUB_RUN_ATTEMPT) -f .docker/Dockerfile.api .
 
       - name: Log in to DockerHub and Push Container
         run: |
           docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_TOKEN }}
-          docker push ${{ secrets.REGISTRY_NAME }}/mythweaver-api:$(echo $GITHUB_SHA | head -c7)_$(echo $GITHUB_JOB)
+          docker push ${{ secrets.REGISTRY_NAME }}/mythweaver-api:$(echo $GITHUB_SHA | head -c7)_$(echo $GITHUB_RUN_ATTEMPT)
 
       - name: Update deployment file
         run: |
-          TAG=$(echo $GITHUB_SHA | head -c7)_$(echo $GITHUB_JOB) 
+          TAG=$(echo $GITHUB_SHA | head -c7)_$(echo $GITHUB_RUN_ATTEMPT) 
           sed -i 's|<IMAGE>|${{ secrets.REGISTRY_NAME }}/mythweaver-api:'${TAG}'|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           sed -i 's|<API_URL>|${{ vars.API_URL }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           sed -i 's|<APP_URL>|${{ vars.APP_URL }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
