@@ -117,8 +117,8 @@ export const postRecapTranscription = (sessionId: number) => {
   return axios.post(`/sessions/${sessionId}/recap-transcription`);
 };
 
-export const postCompleteSession = (sessionId: number) => {
-  return axios.post(`/sessions/${sessionId}/complete`);
+export const postSessionSummaryEmail = (sessionId: number) => {
+  return axios.post(`/sessions/${sessionId}/email-summary`);
 };
 
 export const postSessionAudio = (sessionId: number, request: FormData) => {
