@@ -36,4 +36,7 @@ router.use(`/images`, imagesRoutes);
 import relationshipRoutes from './relationships';
 router.use(`/relationships`, relationshipRoutes);
 
+import imageModelRoutes from './imageModels';
+router.use(`/models/images`, imageModelRoutes);
+
 export default router;
