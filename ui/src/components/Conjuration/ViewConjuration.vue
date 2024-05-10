@@ -189,6 +189,8 @@ async function handleCreateRelationship(type: ConjurationRelationshipType) {
     nodeType: ConjurationRelationshipType.CONJURATION,
   });
 }
+
+const readOnly = ref(true);
 </script>
 
 <template>
@@ -234,11 +236,19 @@ async function handleCreateRelationship(type: ConjurationRelationshipType) {
           class="button-gradient flex self-center"
           @click="quickConjure(conjuration.conjurerCode)"
         >
-          <ArrowPathIcon class="mr-2 h-5 w-5 self-center" /> Retry Quick Conjure
+          <ArrowPathIcon class="mr-2 h-5 w-5 self-center" />
+          Retry Quick Conjure
         </button>
 
         <button
           v-if="isMyConjuration"
+          class="button-ghost self-center"
+          @click="readOnly = !readOnly"
+        >
+          {{ readOnly ? 'Edit Mode' : 'Read Mode' }}
+        </button>
+        <button
+          v-if="isMyConjuration && !readOnly"
           class="button-ghost flex self-center"
           @click="
             eventBus.$emit('save-conjuration', {
@@ -325,6 +335,8 @@ async function handleCreateRelationship(type: ConjurationRelationshipType) {
       :key="conjuration.updatedAt"
       :conjuration="conjuration"
       :image-conjuration-failed="conjuration.imageGenerationFailed"
+      :read-only="readOnly"
+      @edit="readOnly = false"
     />
     <div v-if="showRelationships" class="mt-4">
       <div class="text-xl my-2">Related Conjurations</div>

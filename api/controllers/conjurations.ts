@@ -518,6 +518,7 @@ export default class ConjurationController {
         ...existingConjuration,
         id: undefined,
         data: existingConjuration.data as any,
+        dataBackup: existingConjuration.dataBackup as any,
         visibility: ConjurationVisibility.PRIVATE,
         userId,
         saves: {

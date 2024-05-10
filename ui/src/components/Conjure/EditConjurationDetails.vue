@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import { Conjuration, patchConjuration } from '@/api/conjurations.ts';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { ArrowLeftIcon, ArrowRightIcon } from '@heroicons/vue/24/solid';
 import { Conjurer } from '@/api/generators.ts';
 import { showError, showSuccess } from '@/lib/notifications.ts';
+import WysiwygEditor from '@/components/Core/WysiwygEditor.vue';
 
 const emit = defineEmits(['update:modelValue', 'back', 'next']);
 const props = defineProps<{
   modelValue: Conjuration;
   generator: Conjurer;
 }>();
+const readOnly = ref(true);
 
 const conjuration = computed({
   get: () => props.modelValue,
@@ -30,14 +32,6 @@ const dataArray = computed(() => {
     };
   });
 });
-
-function normalizeKeyName(key: string) {
-  return key
-    .replace(/([a-z])([A-Z])/g, '$1 $2')
-    .split(' ')
-    .map((x) => x.charAt(0).toUpperCase() + x.slice(1))
-    .join(' ');
-}
 
 async function saveConjuration() {
   try {
@@ -86,26 +80,16 @@ async function saveConjuration() {
             Save changes
           </button>
         </div>
-        <div
-          v-for="(data, i) in dataArray"
-          :key="`data-${i}`"
-          :class="{ 'mb-8': i !== dataArray.length - 1 }"
-          class="bg-surface-2 rounded-[12px]"
-        >
-          <div class="mb-1 text-lg text-white pt-3 px-3">
-            {{ normalizeKeyName(data.key) }}
-          </div>
-          <FormKit
-            v-model="data.value"
-            type="textarea"
-            inner-class="border-none"
-            :input-class="{
-              '$reset input-primary border-none focus:ring-fuchsia-500': true,
-              'dark:text-neutral-400': true,
-            }"
-            auto-height
-          />
+        <div class="text-sm text-neutral-400">
+          Double click anywhere in the editor to start editing the content.
         </div>
+        <WysiwygEditor
+          :key="'' + readOnly"
+          v-model="conjuration.data"
+          :read-only="readOnly"
+          :placeholder="`Add details to your ${generator.name} here!`"
+          @dblclick="readOnly = false"
+        />
       </div>
     </div>
   </div>

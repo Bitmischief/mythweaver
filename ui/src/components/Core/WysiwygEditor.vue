@@ -44,10 +44,12 @@ const props = withDefaults(
     modelValue: any;
     readOnly?: boolean;
     context?: string;
+    placeholder?: string;
   }>(),
   {
     readOnly: false,
     context: 'session',
+    placeholder: 'Start planning your session here...',
   },
 );
 
@@ -179,7 +181,7 @@ onMounted(() => {
 
   const e = new EditorJs({
     holder: 'editor',
-    placeholder: 'Start planning your session here!',
+    placeholder: props.placeholder,
     data: value.value,
     minHeight: 100,
     autofocus: false,
@@ -223,76 +225,95 @@ onMounted(() => {
   h6 {
     font-size: revert;
   }
+
   .ce-toolbar__plus,
   .ce-toolbar__settings-btn {
     color: #e5e7eb;
     background: #1e202a;
+
     &:hover {
       background: rgb(179, 38, 203);
     }
   }
+
   .ce-popover {
     background: #1e202a;
     min-width: 250px;
+
     .ce-popover-item__icon {
       color: #e5e7eb;
       border: blue;
       background: rgb(179, 38, 203);
     }
+
     .ce-popover-item__title {
       color: #e5e7eb;
     }
+
     .ce-popover-item:hover:not(.ce-popover-item--no-hover) {
       background: rgba(255, 255, 255, 0.1);
     }
   }
+
   .ce-inline-toolbar__dropdown:hover {
     background: #4a4a4a;
     border-radius: 6px;
   }
+
   .ce-conversion-toolbar {
     background: #1e202a;
+
     .ce-conversion-tool {
       .ce-conversion-tool__icon svg {
         color: #1e202a;
       }
     }
+
     .ce-conversion-tool:hover {
       background: #4a4a4a;
     }
   }
+
   .cdx-search-field {
     color: #e5e7eb;
     background-color: #4a4a4a;
+
     .cdx-search-field__icon svg {
       color: #e5e7eb;
     }
+
     .cdx-search-field__input {
       color: #e5e7eb;
     }
   }
+
   .cdx-input {
     background-color: #1e202a;
   }
+
   .ce-toolbar {
     @media (min-width: 650px) {
       left: 65px;
     }
+
     .ce-toolbar__content {
       max-width: 100%;
     }
   }
+
   .codex-editor {
     .ce-block {
       ::selection {
         background: #8b5cf6;
       }
+
       .cdx-marker {
         background: rgb(179, 38, 203);
         border-radius: 12px;
         padding: 3px 6px;
         color: #e5e7eb;
       }
+
       .ce-block__content {
         border-radius: 12px;
         padding: 0 12px;
@@ -302,82 +323,105 @@ onMounted(() => {
           margin: 0 60px;
         }
       }
+
       &.ce-block--selected .ce-block__content {
         background: #1e202a;
       }
+
       &.ce-block--drop-target .ce-block__content {
         border: none;
       }
+
       a {
         color: #d946ef;
+
         &:hover {
           color: #8b5cf6;
         }
       }
     }
   }
+
   .cdx-checklist__item-checkbox-check {
     background: transparent;
     border: 1px solid #4a4a4a;
   }
+
   .cdx-checklist__item--checked .cdx-checklist__item-checkbox-check {
     background: linear-gradient(to right, #d946ef, #8b5cf6);
     border: none;
   }
+
   .cdx-search-field__input {
     color: #1e202a;
     padding: 0 0.5em;
   }
+
   .tc-popover {
     background: #1e202a;
+
     .tc-popover__item-icon {
       background: transparent;
     }
   }
+
   .tc-wrap {
     --color-background: #1e202a;
   }
+
   .ce-inline-toolbar {
     background: #1e202a;
+
     .ce-inline-tool:hover {
       background-color: #4a4a4a;
     }
+
     .ce-inline-tool--active {
       color: #d946ef;
     }
+
     .ce-inline-toolbar__actions {
       .ce-inline-tool-input {
         &:focus {
           border: none;
           --tw-ring-color: #d946ef;
         }
+
         background: #1e202a;
       }
     }
   }
+
   .cdx-simple-image__picture--with-background {
     background: transparent;
   }
+
   .cdx-settings-button {
     &:hover {
       background: #4a4a4a;
     }
+
     &.cdx-settings-button--active {
       background: #4a4a4a;
       color: #e5e7eb;
     }
+
     svg {
       fill: #e5e7eb;
     }
   }
+
   .tc-row {
     border-left: 1px solid var(--color-border);
   }
+
   .tc-add-column {
     border-right: 1px solid var(--color-border);
   }
+
   .tc-toolbox__toggler {
     color: #e5e7eb;
+
     &:hover {
       color: rgba(229, 231, 235, 0.7);
     }
@@ -386,11 +430,13 @@ onMounted(() => {
   .ce-block__generation {
     background: #0f111b;
     width: 100%;
+
     input,
     textarea {
       background: #1e202a;
       width: 100%;
     }
+
     [contenteditable='true']:empty:not(:focus):before {
       content: attr(data-placeholder);
       color: #4a4a4a;

@@ -30,6 +30,7 @@ const props = withDefaults(
     stylePreset?: string;
     noActions?: boolean;
     cancelButtonTextOverride?: string;
+    saveButtonTextOverride?: string;
     inModal?: boolean;
     seed?: string;
     imageId?: number;
@@ -45,6 +46,7 @@ const props = withDefaults(
     imageUri: undefined,
     stylePreset: 'fantasy-art',
     cancelButtonTextOverride: undefined,
+    saveButtonTextOverride: undefined,
     seed: undefined,
     imageId: undefined,
     linking: undefined,
@@ -482,7 +484,9 @@ const alreadyUpscaled = computed(() => {
           }"
           @click="setImage"
         >
-          <span class="self-center text-center w-full"> Save Image </span>
+          <span class="self-center text-center w-full">
+            {{ saveButtonTextOverride ? saveButtonTextOverride : 'Save Image' }}
+          </span>
         </button>
       </div>
     </div>

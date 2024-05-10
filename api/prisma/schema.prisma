@@ -88,6 +88,7 @@ model Conjuration {
   conjurerCode          String
   imageUri              String?
   imageAIPrompt         String?
+  dataBackup            Json?
   data                  Json
   tags                  String[]
   imageGenerationFailed Boolean               @default(false)
@@ -181,7 +182,7 @@ model Campaign {
   conjurations Conjuration[]
   members      CampaignMember[]
   characters   Character[]
-  inviteCode   String?          @default(dbgenerated("gen_random_uuid()::text"))
+  inviteCode   String?          @default(dbgenerated("(gen_random_uuid())::text"))
 
   @@map("campaigns")
 }

@@ -58,7 +58,7 @@ const viewConjuration = async () => {
         <span class="self-center">Back</span>
       </button>
       <div class="text-xl self-center">
-        Generate an image for your
+        Generate an image of your
         <span class="gradient-text">{{ generator.name }}</span>
       </div>
     </div>
@@ -66,6 +66,7 @@ const viewConjuration = async () => {
       <CustomizeConjurationImage
         :prompt="conjuration?.imageAIPrompt"
         :linking="{ conjurationId: conjuration?.id }"
+        save-button-text-override="Save and Continue"
       />
     </div>
   </div>

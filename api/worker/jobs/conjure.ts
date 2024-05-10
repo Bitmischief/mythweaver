@@ -12,6 +12,7 @@ import {
 } from '../../services/websockets';
 import logger from '../../lib/logger';
 import { sendConjurationCountUpdatedEvent } from '../../lib/planRestrictionHelpers';
+import { nanoid } from 'nanoid';
 
 const openai = getClient();
 
@@ -110,6 +111,7 @@ export const conjure = async (request: ConjureEvent) => {
     });
   }
 
+  const editorJsFormattedData = formatDataForEditorJs(conjuration, generator);
   const createdConjuration = await prisma.conjuration.create({
     data: {
       name: conjuration.name,
@@ -118,13 +120,7 @@ export const conjure = async (request: ConjureEvent) => {
         user.plan === BillingPlan.FREE || user.plan === BillingPlan.TRIAL
           ? ConjurationVisibility.PUBLIC
           : ConjurationVisibility.PRIVATE,
-      data: {
-        ...conjuration,
-        name: undefined,
-        imageAIPrompt: undefined,
-        imageUri: undefined,
-        tags: undefined,
-      },
+      data: editorJsFormattedData,
       imageAIPrompt: request.imagePrompt || conjuration.imageAIPrompt,
       imageUri: conjuration.imageUri,
       conjurerCode: generator.code || '',
@@ -194,6 +190,34 @@ export const conjure = async (request: ConjureEvent) => {
       conjurationIds: [createdConjuration.id],
     });
   }
+};
+
+const formatDataForEditorJs = (conjuration: any, generator: any) => {
+  const conjurationCopy = { ...conjuration };
+
+  delete conjurationCopy.name;
+  delete conjurationCopy.imageAIPrompt;
+  delete conjurationCopy.imageUri;
+  delete conjurationCopy.tags;
+
+  return {
+    time: new Date().getTime(),
+    blocks: Object.keys(conjurationCopy).map((key) => {
+      const keyCapitalized = key.charAt(0).toUpperCase() + key.slice(1);
+      const genCapitalized =
+        generator.name.charAt(0).toUpperCase() + generator.name.slice(1);
+      return {
+        id: nanoid(10),
+        data: {
+          text: conjurationCopy[key],
+          label: keyCapitalized,
+          prompt: `${keyCapitalized} for this ${genCapitalized}`,
+        },
+        type: 'generationBlock',
+      };
+    }),
+    version: '2.29.1',
+  };
 };
 
 const buildPrompt = (
