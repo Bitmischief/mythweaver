@@ -17,6 +17,7 @@ const openai = getClient();
 
 export const conjure = async (request: ConjureEvent) => {
   const generator = getGenerator(request.generatorCode);
+  const type = request.type || 'image-text';
 
   if (!generator) {
     throw new AppError({
@@ -144,53 +145,55 @@ export const conjure = async (request: ConjureEvent) => {
     createdConjuration,
   );
 
-  await sendConjurationCountUpdatedEvent(request.userId);
+  if (type === 'image-text') {
+    await sendConjurationCountUpdatedEvent(request.userId);
 
-  const imagePrompt = request.imagePrompt?.length
-    ? request.imagePrompt
-    : conjuration.imageAIPrompt;
+    const imagePrompt = request.imagePrompt?.length
+      ? request.imagePrompt
+      : conjuration.imageAIPrompt;
 
-  const uris = await generateImage({
-    userId: request.userId,
-    prompt: imagePrompt,
-    count: 1,
-    negativePrompt: request.imageNegativePrompt,
-    stylePreset: request.imageStylePreset,
-    linking: {
-      conjurationId: createdConjuration.id,
-    },
-  });
+    const uris = await generateImage({
+      userId: request.userId,
+      prompt: imagePrompt,
+      count: 1,
+      negativePrompt: request.imageNegativePrompt,
+      stylePreset: request.imageStylePreset,
+      linking: {
+        conjurationId: createdConjuration.id,
+      },
+    });
 
-  if (!uris) {
+    if (!uris) {
+      await prisma.conjuration.update({
+        where: {
+          id: createdConjuration.id,
+        },
+        data: {
+          imageGenerationFailed: true,
+        },
+      });
+
+      throw new AppError({
+        description: 'Error generating image.',
+        httpCode: HttpCode.INTERNAL_SERVER_ERROR,
+      });
+    }
+
+    conjuration.imageUri = uris[0];
+
     await prisma.conjuration.update({
       where: {
         id: createdConjuration.id,
       },
       data: {
-        imageGenerationFailed: true,
+        imageUri: conjuration.imageUri,
       },
     });
 
-    throw new AppError({
-      description: 'Error generating image.',
-      httpCode: HttpCode.INTERNAL_SERVER_ERROR,
+    await processTagsQueue.add({
+      conjurationIds: [createdConjuration.id],
     });
   }
-
-  conjuration.imageUri = uris[0];
-
-  await prisma.conjuration.update({
-    where: {
-      id: createdConjuration.id,
-    },
-    data: {
-      imageUri: conjuration.imageUri,
-    },
-  });
-
-  await processTagsQueue.add({
-    conjurationIds: [createdConjuration.id],
-  });
 };
 
 const buildPrompt = (

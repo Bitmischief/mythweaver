@@ -29,7 +29,7 @@ export const getGenerator = (code: string): Generator | undefined => {
 const conjurers: Generator[] = [
   {
     code: 'characters',
-    name: 'NPCs',
+    name: 'NPC',
     description: 'Create rich, detailed characters to populate your world.',
     customizationHelpPrompt:
       'A gnome scribe adorned with swirling tattoos that glow faintly in the moonlight, bearing an ancient map etched into her skin, and a past entangled with forgotten gods',
@@ -65,7 +65,7 @@ const conjurers: Generator[] = [
   // },
   {
     code: 'locations',
-    name: 'Locations',
+    name: 'Location',
     description: 'Explore exotic locations in your world.',
     customizationHelpPrompt:
       'a secluded forest glen, where the trees whisper ancient secrets in the wind, encircled by stone pillars that harbor echoes of forgotten rituals, and a shimmering pond that holds the reflection of a realm not of this world',
@@ -81,7 +81,7 @@ const conjurers: Generator[] = [
   },
   {
     code: 'monsters',
-    name: 'Monsters',
+    name: 'Monster',
     description: 'Create terrifying monsters to challenge your players.',
     customizationHelpPrompt:
       'a towering, hulking beast with a single eye and a gaping maw, covered in thick, matted fur, and a long, barbed tail that lashes out at anything that comes near',
@@ -97,7 +97,7 @@ const conjurers: Generator[] = [
   },
   {
     code: 'items',
-    name: 'Magic Items',
+    name: 'Magic Item',
     description: "Build customized items that don't break your game.",
     customizationHelpPrompt:
       'An ornate, jeweled dagger thats blade glows with an inner light.',

@@ -36,6 +36,7 @@ export interface PostGeneratorGenerate {
   imageStylePreset?: ImageStylePreset;
   imagePrompt?: string;
   imageNegativePrompt?: string;
+  type?: string;
 }
 
 export interface PostGenerateArbitraryRequest {
@@ -221,6 +222,7 @@ export class GeneratorController {
         imagePrompt: request.imagePrompt,
         imageNegativePrompt: request.imageNegativePrompt,
         prompt: request.prompt,
+        // todo: add type to conjuration request
       },
     });
 
@@ -234,6 +236,7 @@ export class GeneratorController {
       imageStylePreset: request.imageStylePreset,
       imagePrompt: request.imagePrompt,
       imageNegativePrompt: request.imageNegativePrompt,
+      type: request.type,
     });
 
     return {

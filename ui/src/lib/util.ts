@@ -57,3 +57,10 @@ export function toPascalCase(text: string): string {
 export const isProduction = window.location.origin === 'https://app.mythweaver.co';
 export const isDevelopment = window.location.origin === 'https://dev-app.mythweaver.co';
 export const isLocalDevelopment = window.location.origin === 'http://localhost:3000';
+
+export function toTitleCase(str: string) {
+  return str
+    .match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g)
+    ?.map((x) => x.charAt(0).toUpperCase() + x.slice(1))
+    .join(' ');
+}

@@ -174,7 +174,7 @@ async function routeBack() {
 
 async function conjureUsingPrompt() {
   await router.push({
-    path: '/conjurations/new',
+    path: '/conjure',
     query: {
       prompt: conjuration.value?.prompt,
       code: conjuration.value?.conjurerCode,

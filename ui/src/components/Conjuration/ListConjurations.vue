@@ -308,7 +308,7 @@ const clearFilters = () => {
           <span class="text-white text-sm font-normal">Filters</span>
         </button>
 
-        <router-link to="/conjurations/new" class="flex">
+        <router-link to="/conjure" class="flex">
           <button class="button-gradient flex self-center">
             <SparklesIcon class="mr-2 h-5 w-5 self-center" />
             <span class="self-center">Create</span>
@@ -347,7 +347,7 @@ const clearFilters = () => {
           your first conjuration using the button below, or you can visit the
           Gallery to view and save community generated conjurations.
         </div>
-        <router-link to="/conjurations/new" class="flex justify-center">
+        <router-link to="/conjure" class="flex justify-center">
           <button class="button-gradient flex">
             <SparklesIcon class="mr-2 h-5 w-5 self-center" />
             <span class="self-center">Create Conjuration</span>

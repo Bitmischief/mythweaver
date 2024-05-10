@@ -41,6 +41,7 @@ export interface ConjureEvent {
   imageStylePreset?: ImageStylePreset;
   imagePrompt?: string | undefined;
   imageNegativePrompt?: string | undefined;
+  type?: string;
 }
 
 export const conjureQueue = new Queue<ConjureEvent>('conjuring', config);
