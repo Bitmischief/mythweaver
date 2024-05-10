@@ -31,6 +31,7 @@ import {
   transcribeSessionAudio,
 } from '../services/transcription';
 import { JsonObject } from '@prisma/client/runtime/library';
+import { format } from 'date-fns';
 
 interface GetSessionsResponse {
   data: Session[];
@@ -426,9 +427,9 @@ export default class SessionController {
   }
 
   @Security('jwt')
-  @OperationId('completeSession')
-  @Post('/:sessionId/complete')
-  public async postCompleteSession(
+  @OperationId('emailSummary')
+  @Post('/:sessionId/email-summary')
+  public async postSessionSummaryEmail(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
     @Inject() logger: MythWeaverLogger,
@@ -455,6 +456,13 @@ export default class SessionController {
       },
       include: {
         members: {
+          where: {
+            NOT: [
+              {
+                joinedAt: null,
+              },
+            ],
+          },
           include: {
             user: true,
           },
@@ -472,31 +480,41 @@ export default class SessionController {
     }
 
     for (const member of campaign.members) {
-      const email = member.user?.email || member.email;
+      const email = member.user?.email;
       await sendTransactionalEmail(
         'post-session',
-        `🎲 MythWeaver Session Recap: ${campaign.name} 🐉`,
+        `MythWeaver Session Recap: ${
+          session.date
+            ? format(session.date, 'MMM d, yyyy @ h:mm a')
+            : campaign.name
+        }`,
         email || '',
         [
           {
             name: 'CHARACTER_NAME',
-            content: email || '',
+            content: member.user?.username || '',
           },
           {
             name: 'CAMPAIGN_NAME',
             content: campaign.name,
           },
           {
+            name: 'SESSION_NAME',
+            content: session.name || '',
+          },
+          {
+            name: 'SESSION_DATE',
+            content: session.date
+              ? format(session.date, 'MMM d, yyyy @ h:mm a')
+              : 'TBD',
+          },
+          {
             name: 'SUMMARY',
             content: session.summary || '',
           },
           {
-            name: 'SUGGESTIONS',
-            content: session.suggestions || '',
-          },
-          {
             name: 'SESSION_URL',
-            content: `${urlPrefix}/sessions/${session?.id}/edit`,
+            content: `${urlPrefix}/sessions/${session?.id}#overview`,
           },
           {
             name: 'SESSION_IMAGE_URI',
@@ -505,15 +523,6 @@ export default class SessionController {
         ],
       );
     }
-
-    await prisma.session.update({
-      where: {
-        id: sessionId,
-      },
-      data: {
-        completed: true,
-      },
-    });
   }
 
   @Security('jwt')

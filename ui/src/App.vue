@@ -3,7 +3,7 @@ import Navbar from '@/components/Navigation/NavBar.vue';
 import { useAuthStore } from '@/store';
 import NotificationHandler from '@/components/Notifications/NotificationHandler.vue';
 import { useEventBus } from '@/lib/events.ts';
-import { onMounted, onBeforeMount, onUpdated, ref } from 'vue';
+import { onMounted, onBeforeMount, onUpdated, ref, watch } from 'vue';
 import NavBarHeader from '@/components/Navigation/NavBarHeader.vue';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import LightboxRoot from '@/components/LightboxRoot.vue';
@@ -24,6 +24,7 @@ import { XCircleIcon } from '@heroicons/vue/24/solid';
 import { BillingPlan } from '@/api/users.ts';
 import { SparklesIcon } from '@heroicons/vue/24/outline';
 import { useRoute } from 'vue-router';
+import { useAuth0 } from '@auth0/auth0-vue';
 
 const ldReady = useLDReady();
 const authStore = useAuthStore();
@@ -35,13 +36,18 @@ const route = useRoute();
 
 const showPreorderRedemptionModal = ref(false);
 const showUpgradeModal = ref(false);
+const { isLoading, isAuthenticated } = useAuth0();
 
 onBeforeMount(async () => {
-  if (
-    location.pathname.startsWith('/auth/magic-link') ||
-    location.pathname.startsWith('/invite')
-  ) {
+  if (location.pathname.startsWith('/invite')) {
     await authStore.clearCache();
+  }
+});
+
+watch(isAuthenticated, async (isAuthenticated) => {
+  if (isAuthenticated) {
+    await authStore.loadCurrentUser();
+    await initIntercom();
   }
 });
 
@@ -71,12 +77,6 @@ onMounted(async () => {
       }
     }
   });
-
-  if (authStore.tokens) {
-    await authStore.loadCurrentUser();
-  }
-
-  await initIntercom();
 });
 
 onUpdated(async () => {
@@ -85,6 +85,7 @@ onUpdated(async () => {
 
 async function initNotifications() {
   const channel = useWebsocketChannel();
+
   channel.bind(ServerEvent.TranscriptionComplete, (sessionId: number) => {
     showSuccess({
       message: 'Transcription Complete',
@@ -197,6 +198,9 @@ eventBus.$on('show-subscription-modal', () => {
       </div>
       <div
         v-if="
+          !isLoading &&
+          isAuthenticated &&
+          authStore.user &&
           !(authStore.isLoading || showLoading || !ldReady) &&
           route.meta.paidRequired &&
           currentUserPlan === BillingPlan.Free
@@ -225,7 +229,7 @@ eventBus.$on('show-subscription-modal', () => {
     <NotificationHandler />
 
     <div
-      v-if="authStore.isLoading || showLoading || !ldReady"
+      v-if="isLoading || authStore.isLoading || showLoading || !ldReady"
       class="absolute w-full h-full bg-surface opacity-95"
     >
       <div class="flex justify-center items-center w-full h-full">

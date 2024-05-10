@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express';
-import { useAuthenticateRequest } from '../lib/authMiddleware';
+import { checkAuth0Jwt, useInjectUserId } from '../lib/authMiddleware';
 import { z } from 'zod';
 import {
   useValidateRequest,
@@ -17,7 +17,8 @@ const getCampaignsSchema = z.object({
 });
 
 router.get('/', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(getCampaignsSchema, {
     validationType: ValidationTypes.Query,
@@ -44,7 +45,8 @@ const getCampaignSchema = z.object({
 });
 
 router.get('/:campaignId', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(getCampaignSchema, {
     validationType: ValidationTypes.Route,
@@ -71,7 +73,8 @@ const postCampaignSchema = z.object({
 });
 
 router.post('/', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(postCampaignSchema),
   async (req: Request, res: Response) => {
@@ -99,7 +102,8 @@ const putCampaignSchema = z.object({
 });
 
 router.put('/:campaignId', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(putCampaignIdSchema, {
     validationType: ValidationTypes.Route,
@@ -127,7 +131,8 @@ const deleteCampaignSchema = z.object({
 });
 
 router.delete('/:campaignId', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(deleteCampaignSchema, {
     validationType: ValidationTypes.Route,
@@ -158,7 +163,8 @@ const getCampaignMembersSchema = z.object({
 });
 
 router.get('/:campaignId/members', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(getCampaignMembersRouteSchema, {
     validationType: ValidationTypes.Route,
@@ -193,7 +199,8 @@ const postInviteCampaignMemberSchema = z.object({
 });
 
 router.post('/:campaignId/members', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(postInviteCampaignMemberRouteSchema, {
     validationType: ValidationTypes.Route,
@@ -222,7 +229,8 @@ const deleteCampaignMemberRouteSchema = z.object({
 });
 
 router.delete('/:campaignId/members/:memberId', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(deleteCampaignMemberRouteSchema, {
     validationType: ValidationTypes.Route,
@@ -277,7 +285,8 @@ const postAcceptInviteRouteSchema = z.object({
 });
 
 router.post('/invites/:inviteCode', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useValidateRequest(postAcceptInviteRouteSchema, {
     validationType: ValidationTypes.Route,
   }),
@@ -301,7 +310,8 @@ const getCampaignCharacterRouteSchema = z.object({
 });
 
 router.get('/:campaignId/character/:characterId', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useValidateRequest(getCampaignCharacterRouteSchema, {
     validationType: ValidationTypes.Route,
   }),
@@ -325,7 +335,8 @@ const getCampaignCharactersRouteSchema = z.object({
 });
 
 router.get('/:campaignId/characters', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useValidateRequest(getCampaignCharactersRouteSchema, {
     validationType: ValidationTypes.Route,
   }),

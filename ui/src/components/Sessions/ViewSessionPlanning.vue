@@ -129,11 +129,8 @@ const planningChanged = (planning: any) => {
         :key="'' + readOnly"
         v-model="session.planningJson"
         :read-only="readOnly"
-        :class="{
-          'cursor-pointer': readOnly && currentUserRole === CampaignRole.DM,
-        }"
         @update:model-value="planningChanged"
-        @click="
+        @dblclick="
           readOnly && currentUserRole === CampaignRole.DM
             ? (readOnly = false)
             : null

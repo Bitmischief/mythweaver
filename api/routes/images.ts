@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express';
-import { useAuthenticateRequest } from '../lib/authMiddleware';
+import { checkAuth0Jwt, useInjectUserId } from '../lib/authMiddleware';
 import { z } from 'zod';
 import {
   useValidateRequest,
@@ -26,7 +26,8 @@ const postImageSchema = z.object({
 });
 
 router.post('/', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(postImageSchema),
   async (req: Request, res: Response) => {
@@ -51,7 +52,8 @@ const patchConjurationIdSchema = z.object({
 });
 
 router.patch('/:imageId/conjurationId', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(patchRouteSchema, {
     validationType: ValidationTypes.Route,
@@ -79,7 +81,8 @@ const postUpscaleRouteSchema = z.object({
 });
 
 router.post('/:imageId/upscale', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(postUpscaleRouteSchema, {
     validationType: ValidationTypes.Route,

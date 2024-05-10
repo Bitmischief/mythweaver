@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import ModalAlternate from '@/components/ModalAlternate.vue';
-import LoginContent from '@/components/Login/LoginContent.vue';
 import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import {
@@ -9,100 +8,175 @@ import {
   getCampaignInvite,
 } from '@/api/campaigns.ts';
 import { useAuthStore } from '@/store';
-import { showSuccess } from '@/lib/notifications.ts';
+import { showError, showSuccess } from '@/lib/notifications.ts';
 import { useCampaignStore } from '@/store/campaign.store.ts';
-import { CampaignRole } from '@/api/campaigns.ts';
-import { QuestionMarkCircleIcon } from '@heroicons/vue/24/outline';
+import { useAuth0 } from '@auth0/auth0-vue';
+import Spinner from '@/components/Core/Spinner.vue';
 
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
 const campaignStore = useCampaignStore();
+const { loginWithRedirect, isAuthenticated, user } = useAuth0();
+const email = user.value?.email;
 
-const inviteCode = computed(() => route.query.c?.toString());
+const inviteCode = computed(() => route.query.code?.toString());
 const invite = ref<CampaignInvite | null>(null);
 
 onMounted(async () => {
+  try {
+    if (!inviteCode.value) {
+      console.log('no invite code');
+    } else {
+      const inviteResponse = await getCampaignInvite(inviteCode.value);
+      invite.value = inviteResponse.data as CampaignInvite;
+    }
+  } catch (err) {
+    console.error(err);
+  }
+});
+
+const accepting = ref(false);
+const acceptInvite = async () => {
   if (!inviteCode.value) return;
 
-  const inviteResponse = await getCampaignInvite(inviteCode.value);
-  invite.value = inviteResponse.data as CampaignInvite;
-
-  if (authStore.tokens) {
+  accepting.value = true;
+  try {
     await acceptCampaignInvite(inviteCode.value);
     showSuccess({ message: 'Campaign invite accepted!' });
     await campaignStore.loadCampaigns();
-    await router.push('/');
+    await router.push('/characters');
+  } catch (err) {
+    showError({
+      message:
+        'Something went wrong accepting the campaign invite. Please try again.',
+    });
+  } finally {
+    accepting.value = false;
   }
-});
+};
+
+const register = async () => {
+  await loginWithRedirect({
+    authorizationParams: {
+      screen_hint: 'signup',
+    },
+    appState: {
+      target: `/auth/invite?code=${inviteCode.value}`,
+    },
+  });
+};
 </script>
 
 <template>
   <ModalAlternate :show="true">
     <div
       v-if="invite && !authStore.tokens"
-      class="md:w-[499px] p-6 bg-neutral-900 rounded-[20px]"
+      class="w-[90vw] md:w-[50vw] p-6 bg-neutral-900 rounded-[20px]"
     >
-      <img src="/images/logo-horizontal-2.svg" class="h-12 w-auto mx-auto" />
+      <img src="/images/logo-horizontal-2.svg" class="h-16 w-auto mx-auto" />
 
-      <div class="mt-6 text-center text-white text-2xl">You're Invited!</div>
-
-      <div
-        class="mt-1 mb-6 text-center w-full text-zinc-500 text-sm font-normal leading-[25px]"
-      >
-        {{ invite.invitingEmail }} has invited you to join them on MythWeaver
-      </div>
-
-      <div class="mt-4 text-center text-4xl font-bold">
-        {{ invite.campaignName }}
+      <div class="mt-6 text-center text-white text-2xl">
+        You've been invited to join
+        <span class="gradient-text"> {{ invite.campaignName }}! </span>
       </div>
 
       <div
-        v-if="invite.members.length"
-        class="mt-4 w-full flex flex-nowrap overflow-x-auto overflow-y-hidden h-52 pb-4"
+        class="mt-1 mb-6 text-center w-full text-neutral-400 font-normal leading-[25px]"
       >
+        <span class="gradient-text">
+          {{ invite.invitingEmail }}
+        </span>
+        has invited you to join their campaign on MythWeaver
+      </div>
+
+      <div v-if="isAuthenticated" class="text-center">
         <div
-          v-for="member in invite.members"
-          :key="member.email"
-          class="mr-2 h-52 w-52 shrink-0"
+          class="flex flex-wrap md:flex-nowrap justify-center text-lg md:text-2xl text-neutral-200 my-4"
         >
-          <div class="relative h-48 w-48 bg-surface-3 rounded-[20px]">
-            <img
-              v-if="
-                member.role === CampaignRole.Player &&
-                member.character &&
-                member.character.imageUri
-              "
-              :src="member.character.imageUri"
-              alt="character portrait"
-              class="rounded-[16px]"
-            />
-            <img
-              v-else-if="member.role === CampaignRole.DM"
-              src="@/assets/GM.png"
-              alt="GM portrait"
-              class="rounded-[16px]"
-            />
-            <QuestionMarkCircleIcon
-              v-else
-              class="w-44 h-44 p-4 text-neutral-500 m-auto"
-            />
+          <div>Welcome to MythWeaver</div>
+          <div v-if="user" class="ml-1">
+            <span class="gradient-text">{{ email }}</span
+            >!
+          </div>
+        </div>
+        <button
+          class="w-full md:w-auto button-gradient text-lg py-4"
+          :disabled="accepting"
+          @click="acceptInvite"
+        >
+          <span v-if="!accepting">Accept Invite</span>
+          <span v-else class="flex gap-2">
+            Accepting invite<Spinner class="h-5 w-5 self-center" />
+          </span>
+        </button>
+      </div>
+      <div v-else class="text-center">
+        <button class="button-gradient text-lg py-4" @click="register">
+          Create An Account
+        </button>
+      </div>
+
+      <div v-if="invite.members.length" class="mt-6 w-full">
+        <div class="flex w-full">
+          <div class="grow self-center px-2">
+            <hr class="border-neutral-700" />
+          </div>
+          <div class="self-center text-neutral-400">Current Characters</div>
+          <div class="grow self-center px-2">
+            <hr class="mt-1/2 border-neutral-700" />
+          </div>
+        </div>
+        <div class="w-full">
+          <div
+            v-for="member in invite.members"
+            :key="member.email"
+            class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4"
+          >
             <div
-              class="absolute top-2 left-2 rounded-full bg-white/75 text-black self-center px-2"
+              v-for="character in member.character"
+              :key="character.id"
+              class="flex p-4 bg-surface-3 rounded-[20px]"
             >
-              {{ member.role === CampaignRole.DM ? 'GM' : 'Player' }}
-            </div>
-            <div
-              v-if="member.character"
-              class="absolute bottom-2 left-2 right-2 rounded-full bg-white/75 text-black self-center px-2 truncate"
-            >
-              {{ member.character.name }}
-            </div>
-            <div
-              v-else
-              class="absolute bottom-2 left-2 right-2 rounded-full bg-white/75 text-black self-center px-2 truncate"
-            >
-              {{ member.email }}
+              <div
+                class="basis-1/4 min-h-24 min-w-24 bg-neutral-900 rounded-[20px]"
+              >
+                <div class="relative">
+                  <img
+                    :src="
+                      character.imageUri || 'images/character_bg_square.png'
+                    "
+                    alt="character portrait"
+                    class="rounded-[16px]"
+                  />
+                  <div
+                    v-if="!character.imageUri"
+                    class="absolute top-1/2 left-1/2 -translate-x-1/2 text-neutral-300 text-lg"
+                  >
+                    No Image
+                  </div>
+                </div>
+              </div>
+              <div class="basis-3/4 overflow-hidden">
+                <div class="self-center px-2">
+                  <div class="truncate">
+                    <span class="text-neutral-500">Name:</span>
+                    {{ character.name }}
+                  </div>
+                  <div class="truncate">
+                    <span class="text-neutral-500">Race:</span>
+                    {{ character.race }}
+                  </div>
+                  <div class="truncate">
+                    <span class="text-neutral-500">Class:</span>
+                    {{ character.class }}
+                  </div>
+                </div>
+                <div class="self-center px-2 truncate">
+                  <span class="text-neutral-500">Player:</span>
+                  {{ member.email }}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -116,8 +190,6 @@ onMounted(async () => {
           {{ invite.campaignName }} beckons!
         </div>
       </div>
-
-      <LoginContent class="mt-6" :invite-code="inviteCode" />
     </div>
   </ModalAlternate>
 </template>

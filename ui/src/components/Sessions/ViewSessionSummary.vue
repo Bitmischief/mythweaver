@@ -1,18 +1,24 @@
 <script lang="ts" setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue';
-import { getSession, patchSession, SessionBase } from '@/api/sessions.ts';
+import {
+  getSession,
+  patchSession,
+  postSessionSummaryEmail,
+  SessionBase,
+} from '@/api/sessions.ts';
 import { useRoute } from 'vue-router';
 import { ServerEvent } from '@/lib/serverEvents.ts';
 import { useCurrentUserRole, useWebsocketChannel } from '@/lib/hooks.ts';
 import { useEventBus } from '@/lib/events.ts';
 import { CampaignRole } from '@/api/campaigns.ts';
-import { showError, showSuccess } from '@/lib/notifications.ts';
+import { showError, showInfo, showSuccess } from '@/lib/notifications.ts';
 import CustomizableImage from '@/components/Images/CustomizableImage.vue';
 import ViewSessionTranscription from '@/components/Sessions/ViewSessionTranscription.vue';
 import { format } from 'date-fns';
 import { generateArbitraryProperty } from '@/lib/generation.ts';
 import Spinner from '@/components/Core/Spinner.vue';
-import { SparklesIcon } from '@heroicons/vue/24/solid';
+import { SparklesIcon, ArrowPathIcon } from '@heroicons/vue/24/solid';
+import { EnvelopeIcon, EnvelopeOpenIcon } from '@heroicons/vue/24/outline';
 
 const route = useRoute();
 const channel = useWebsocketChannel();
@@ -70,6 +76,7 @@ async function saveSession(updated?: string) {
     id: session.value.id,
     campaignId: session.value.campaignId,
     suggestedImagePrompt: sessionSuggestedImagePrompt.value,
+    summary: session.value.summary,
   });
 
   if (putSessionResponse.status === 200) {
@@ -116,6 +123,46 @@ const primaryImage = computed(() => {
   }
   return undefined;
 });
+
+const summaryLoading = ref(false);
+const generateSummary = async () => {
+  if (!session.value.recap?.length) {
+    showInfo({ message: 'You must add a recap before generating a summary' });
+    return;
+  }
+
+  summaryLoading.value = true;
+  try {
+    session.value.summary = await generateArbitraryProperty({
+      propertyName: 'aiSummary',
+      context: 'session',
+      background: session.value.recap,
+    });
+    await saveSession('summary');
+  } catch {
+    showError({ message: 'Failed to generate summary. Please try again.' });
+  } finally {
+    summaryLoading.value = false;
+  }
+};
+
+const emailLoading = ref(false);
+const emailSent = ref(false);
+const emailSummary = async () => {
+  emailLoading.value = true;
+  try {
+    await postSessionSummaryEmail(session.value.id);
+    emailSent.value = true;
+    showSuccess({ message: 'A summary has been emailed to your players!' });
+    setTimeout(() => {
+      emailSent.value = false;
+    }, 2000);
+  } catch {
+    showError({ message: 'Failed to generate summary. Please try again.' });
+  } finally {
+    emailLoading.value = false;
+  }
+};
 </script>
 
 <template>
@@ -156,41 +203,105 @@ const primaryImage = computed(() => {
       </div>
       <div class="grow">
         <div class="bg-surface-2 h-full rounded-[8px] p-4">
-          <div class="flex align-center text-xl mb-2">
-            <div>Recap</div>
+          <div class="flex align-center justify-between text-xl mb-2">
+            <div class="self-center">Summary</div>
+            <div v-if="session.summary" class="flex gap-2">
+              <button
+                class="button-ghost text-sm py-1 flex"
+                :disabled="emailLoading || summaryLoading"
+                @click="emailSummary"
+              >
+                <span v-if="emailLoading" class="flex">Emailing Summary</span>
+                <span v-else-if="emailSent">Email Sent!</span>
+                <span v-else>Email Summary To Players</span>
+                <span class="relative">
+                  <EnvelopeIcon
+                    class="h-5 w-5 ml-2 transition-all"
+                    :class="{
+                      'rotate-0 opacity-1': !emailLoading && !emailSent,
+                      'rotate-180 opacity-0': emailLoading || emailSent,
+                    }"
+                  />
+                  <Spinner
+                    class="absolute top-0 ml-2 transition-all"
+                    :class="{
+                      'opacity-0': !emailLoading,
+                      'opacity-1': emailLoading,
+                    }"
+                  />
+                  <EnvelopeOpenIcon
+                    class="absolute top-0 h-5 w-5 ml-2 transition-all"
+                    :class="{
+                      'rotate-0 opacity-1': !emailLoading && emailSent,
+                      'rotate-180 opacity-0': emailLoading || !emailSent,
+                    }"
+                  />
+                </span>
+              </button>
+              <button
+                :disabled="summaryLoading"
+                class="button-ghost py-1"
+                @click="generateSummary"
+              >
+                <ArrowPathIcon
+                  class="h-5 w-5"
+                  :class="{ 'animate-spin': summaryLoading }"
+                />
+              </button>
+            </div>
           </div>
           <div
-            v-if="session.recap"
-            class="text-neutral-300 bg-surface-2 pr-2 whitespace-pre-wrap"
+            v-if="session.summary"
+            class="text-neutral-300 max-h-[16em] overflow-y-auto bg-surface-2 pr-2"
           >
-            {{ session.recap }}
+            {{ session.summary }}
+          </div>
+          <div
+            v-else-if="currentUserRole !== CampaignRole.DM"
+            class="text-sm text-neutral-500 text-center max-w-[20em] h-[12em] pt-[5em] mx-auto"
+          >
+            No summary has been created
           </div>
           <div
             v-else
-            class="text-sm text-neutral-500 text-center max-w-[20em] h-[12em] pt-[5em] mx-auto"
+            class="h-[12em] flex flex-col justify-center text-neutral-200"
           >
-            No recap has been provided
+            <div class="flex justify-center">
+              <div class="text-center">
+                <div v-if="!summaryLoading" class="mb-2">
+                  No summary has been generated yet.
+                </div>
+                <button
+                  class="button-gradient"
+                  :disabled="summaryLoading"
+                  @click="generateSummary"
+                >
+                  <span v-if="summaryLoading" class="flex"
+                    >Generating Summary<Spinner class="ml-1"
+                  /></span>
+                  <span v-else>Generate Summary From Recap</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
-    <div v-if="session.summary" class="mt-4">
-      <div class="bg-surface-2 h-full rounded-[8px] p-4">
-        <div class="flex align-center text-xl mb-2">
-          <div>Summary</div>
-        </div>
-        <div
-          v-if="session.summary"
-          class="text-neutral-300 max-h-[16em] overflow-y-auto bg-surface-2 pr-2"
-        >
-          {{ session.summary }}
-        </div>
-        <div
-          v-else
-          class="text-sm text-neutral-500 text-center max-w-[20em] h-[12em] pt-[5em] mx-auto"
-        >
-          Summary will be available once this session is completed
-        </div>
+    <div class="bg-surface-2 h-full rounded-[8px] p-4 mt-4">
+      <div class="flex align-center text-xl mb-2">
+        <div>Recap</div>
+      </div>
+      <div
+        v-if="session.recap"
+        class="text-neutral-300 bg-surface-2 pr-2 whitespace-pre-wrap"
+      >
+        {{ session.recap }}
+      </div>
+      <div
+        v-else
+        class="text-sm text-neutral-500 text-center max-w-[20em] h-[12em] pt-[5em] mx-auto"
+      >
+        No recap has been provided
       </div>
     </div>
     <div v-if="session.audioUri" class="mt-4">

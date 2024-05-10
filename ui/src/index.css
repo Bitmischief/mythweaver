@@ -210,4 +210,7 @@ input[type='number'] {
     border-radius: 12px;
     @apply focus:ring-fuchsia-500 active:ring-fuchsia-500;
   }
+  .gradient-text {
+    @apply bg-clip-text font-bold text-transparent bg-gradient-to-r from-fuchsia-500 to-blue-400;
+  }
 }

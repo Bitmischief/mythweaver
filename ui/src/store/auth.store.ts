@@ -34,7 +34,6 @@ export const useAuthStore = defineStore({
         this.user = userResponse.data;
 
         if (!this.user) {
-          showError({ message: 'Unable to load user, please try again soon.' });
           return;
         }
 
@@ -56,7 +55,7 @@ export const useAuthStore = defineStore({
         const eventBus = useEventBus();
         eventBus.$emit('user-loaded', this.user);
       } catch (err) {
-        showError({ message: 'Unable to load user, please try again soon.' });
+        console.log('Unable to load user');
       } finally {
         this.isLoading = false;
       }

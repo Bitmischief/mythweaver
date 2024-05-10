@@ -45,6 +45,18 @@ export interface PostGenerateArbitraryRequest {
   length: number;
 }
 
+export interface PostGenerateArbitraryFromPromptRequest {
+  background: any;
+  context: string;
+  prompt: number;
+}
+
+export interface PostGenerateArbitraryReplacementRequest {
+  replace: string;
+  full: string;
+  turbo: boolean;
+}
+
 @Route('generators')
 @Tags('Conjuration')
 export class GeneratorController {
@@ -263,7 +275,7 @@ export class GeneratorController {
     @Inject() logger: MythWeaverLogger,
     @Body() request: PostGenerateArbitraryRequest,
   ): Promise<any> {
-    track(AppEvent.GetConjurer, userId, trackingInfo);
+    track(AppEvent.GenerateArbitrary, userId, trackingInfo);
     const openai = getClient();
     const response = await openai.chat.completions.create({
       model: 'gpt-4-turbo',
@@ -287,6 +299,108 @@ export class GeneratorController {
           Make sure propertyValue is no more than ${
             request.length
           } characters.`,
+        },
+      ],
+    });
+
+    const gptResponse = response.choices[0]?.message?.content;
+    logger.info('Received raw response from openai', gptResponse);
+    const gptJson = sanitizeJson(gptResponse || '');
+    logger.info('Received sanitized json', gptJson);
+
+    return gptJson;
+  }
+
+  @Post('/arbitrary/prompt')
+  @Security('jwt')
+  @OperationId('postGenerateArbitraryFromPrompt')
+  public async postGenerateArbitraryFromPrompt(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
+    @Body() request: PostGenerateArbitraryFromPromptRequest,
+  ): Promise<any> {
+    track(AppEvent.GenerateArbitraryFromPrompt, userId, trackingInfo);
+    const openai = getClient();
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4-turbo',
+      messages: [
+        {
+          role: 'system',
+          content:
+            'You are a helpful assistant who is creative and knowledgeable in table top role playing games.',
+        },
+        {
+          role: 'system',
+          content:
+            'If you are extra creative and helpful with the following prompt you will be rewarded based on how much effort you put in.',
+        },
+        {
+          role: 'user',
+          content: `Please generate me ideas for a ${request.context} using the following prompt as guidance:
+          ${request.prompt}.
+          Use the following as general context about the ${request.context} which can be optionally used as inspiration:
+          ${JSON.stringify(request.background)}.
+          Please return the response in the following JSON format: { "label": "", "text": "" }.
+          Where 'label' is a string that succinctly labels what was generated in the 'text' field,
+          and 'text' is a string that holds the generated output.
+          Do not include any other text in your response.`,
+        },
+      ],
+    });
+
+    const gptResponse = response.choices[0]?.message?.content;
+    logger.info('Received raw response from openai', gptResponse);
+    const gptJson = sanitizeJson(gptResponse || '');
+    logger.info('Received sanitized json', gptJson);
+
+    return gptJson;
+  }
+
+  @Post('/arbitrary/replace')
+  @Security('jwt')
+  @OperationId('postGenerateArbitraryReplacement')
+  public async postGenerateArbitraryReplacement(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
+    @Body() request: PostGenerateArbitraryReplacementRequest,
+  ): Promise<any> {
+    if (!request.full.includes(request.replace)) {
+      throw new AppError({
+        httpCode: HttpCode.BAD_REQUEST,
+        description:
+          'The provided text does not contain the text to be replaced.',
+      });
+    }
+
+    track(AppEvent.GenerateArbitraryReplacement, userId, trackingInfo);
+    const openai = getClient();
+    const response = await openai.chat.completions.create({
+      model: request.turbo ? 'gpt-3.5-turbo' : 'gpt-4-turbo',
+      messages: [
+        {
+          role: 'system',
+          content:
+            'You are a helpful assistant who is creative and knowledgeable in table top role playing games.',
+        },
+        {
+          role: 'system',
+          content:
+            'If you are extra creative and helpful with the following prompt you will be rewarded based on how much effort you put in.',
+        },
+        {
+          role: 'user',
+          content: `Please replace the following text:
+          ${request.replace}.
+          within this block of text:
+          ${request.full}.
+          Replace the text with a new unique idea that fits the context of the original text.
+          Please return the response in the following JSON format: { "replaced": "", "full": "" }.
+          Where 'replaced' is the specific text you came up with to replace the original,
+          and 'full' is the entire block of text that includes your new replacement text.
+          The 'replaced' text should preserve all leading and trailing spaces that were present in the replaced text.
+          Do not include any other text in your response.`,
         },
       ],
     });

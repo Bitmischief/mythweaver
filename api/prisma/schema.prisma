@@ -181,6 +181,7 @@ model Campaign {
   conjurations Conjuration[]
   members      CampaignMember[]
   characters   Character[]
+  inviteCode   String?          @default(dbgenerated("gen_random_uuid()::text"))
 
   @@map("campaigns")
 }
@@ -196,17 +197,17 @@ model Session {
   archived   Boolean   @default(false)
   isOver     Boolean   @default(false)
 
-  summary     String?
-  transcript  String?
-  planning    String?
-  recap       String?
-  imageUri    String?
-  suggestions String?
-  name        String?
-  audioName   String?
-  audioUri    String?
+  summary      String?
+  transcript   String?
+  planning     String?
+  recap        String?
+  imageUri     String?
+  suggestions  String?
+  name         String?
+  audioName    String?
+  audioUri     String?
   planningJson Json?
-  date        DateTime? @db.Timestamptz(6)
+  date         DateTime? @db.Timestamptz(6)
 
   suggestedName        String?
   suggestedSummary     String?
@@ -378,4 +379,51 @@ model ProcessedStripeEvents {
   data      Json
 
   @@map("processed_stripe_events")
+}
+
+model Artist {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+
+  name        String
+  description String?
+  email       String?
+
+  profilePicUri   String?
+  callToActionUri String?
+  dataCardUri     String?
+
+  profileImageUris String[]
+
+  ImageModelArtist ImageModelArtist[]
+
+  @@map("artists")
+}
+
+model ImageModel {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+
+  description     String
+  strengths       String[]
+  promptPrefix    String?
+  sampleImageUris String[]
+  executionUri    String?
+
+  artists ImageModelArtist[]
+
+  @@map("image_models")
+}
+
+model ImageModelArtist {
+  imageModelId Int
+  artistId     Int
+
+  artist Artist?     @relation(fields: [artistId], references: [id])
+  model  ImageModel? @relation(fields: [imageModelId], references: [id])
+
+  @@id([imageModelId, artistId])
+  @@map("image_model_artists")
 }

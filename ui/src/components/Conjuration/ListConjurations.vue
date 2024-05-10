@@ -242,7 +242,7 @@ const clearFilters = () => {
             >| History</span
           >
         </div>
-        <div v-else class="text-xl self-center mr-6">Gallery</div>
+        <div v-else class="text-xl self-center mr-6">Public Gallery</div>
       </div>
 
       <div

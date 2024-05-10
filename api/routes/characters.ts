@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import express, { Request, Response } from 'express';
-import { useAuthenticateRequest } from '../lib/authMiddleware';
+import { checkAuth0Jwt, useInjectUserId } from '../lib/authMiddleware';
 import {
   useValidateRequest,
   ValidationTypes,
@@ -23,7 +23,8 @@ const postCharactersSchema = z.object({
 });
 
 router.post('/', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useValidateRequest(postCharactersSchema),
   async (req: Request, res: Response) => {
     const controller = new CharacterController();
@@ -48,13 +49,14 @@ const patchCharactersSchema = z.object({
   class: z.string().max(50),
   imageUri: z.string().max(2000).optional(),
   name: z.string().max(50).optional(),
-  backstory: z.string().max(2000).optional(),
+  backstory: z.string().max(10000).optional(),
   personality: z.string().max(2000).optional(),
   looks: z.string().max(2000).optional().nullable(),
 });
 
 router.patch('/:characterId', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useValidateRequest(patchCharactersSchema),
   useValidateRequest(patchCharacterIdSchema, {
     validationType: ValidationTypes.Route,
@@ -79,7 +81,8 @@ const deleteCharacterByIdSchema = z.object({
 });
 
 router.delete('/:characterId', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useValidateRequest(deleteCharacterByIdSchema, {
     validationType: ValidationTypes.Route,
   }),

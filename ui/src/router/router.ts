@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { useAuthStore } from '@/store';
 import LoginView from '@/views/LoginView.vue';
 import CampaignsView from '@/views/CampaignsView.vue';
 import ListCampaigns from '@/components/Campaigns/ListCampaigns.vue';
@@ -14,7 +13,6 @@ import ListSessions from '@/components/Sessions/ListSessions.vue';
 import ListConjurations from '@/components/Conjuration/ListConjurations.vue';
 import ViewConjuration from '@/components/Conjuration/ViewConjuration.vue';
 import InviteView from '@/views/InviteView.vue';
-import MagicLink from '@/components/Auth/MagicLink.vue';
 import PreAuthView from '@/views/PreAuthView.vue';
 import EarlyAccessView from '@/views/EarlyAccessView.vue';
 import CharactersList from '@/views/CharactersList.vue';
@@ -23,7 +21,7 @@ import CharactersNew from '@/components/Characters/NewCharacter.vue';
 import AuthenticatedView from '@/views/AuthenticatedView.vue';
 import AccountView from '@/views/AccountView.vue';
 import OverviewCampaign from '@/components/Campaigns/OverviewCampaign.vue';
-import MagicLinkConjuration from '@/components/Conjuration/MagicLinkConjuration.vue';
+import { authGuard } from '@auth0/auth0-vue';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -39,17 +37,6 @@ const router = createRouter({
     {
       path: '/earlyaccess',
       redirect: '/auth/earlyaccess',
-    },
-    {
-      path: '/magic-link',
-      redirect: '/auth/magic-link',
-      children: [
-        {
-          name: 'CONJURE',
-          path: 'conjure',
-          component: MagicLinkConjuration,
-        },
-      ],
     },
     {
       path: '/invite',
@@ -75,11 +62,6 @@ const router = createRouter({
           component: EarlyAccessView,
         },
         {
-          name: 'MAGIC_LINK',
-          path: 'magic-link',
-          component: MagicLink,
-        },
-        {
           name: 'INVITE',
           path: 'invite',
           component: InviteView,
@@ -90,41 +72,31 @@ const router = createRouter({
       name: 'HOME',
       path: '/',
       redirect: '/conjurations',
-      meta: {
-        authRequired: true,
-      },
+      beforeEnter: authGuard,
       component: AuthenticatedView,
       children: [
         {
           name: 'CHARACTERS',
           path: '/characters',
           component: CharactersList,
-          meta: {
-            authRequired: true,
-          },
+          beforeEnter: authGuard,
         },
         {
           path: '/character/new',
           component: CharactersNew,
-          meta: {
-            authRequired: true,
-          },
+          beforeEnter: authGuard,
         },
         {
           name: 'CHARACTER',
           path: '/character/:characterId',
           component: CharactersView,
-          meta: {
-            authRequired: true,
-          },
+          beforeEnter: authGuard,
         },
         {
           name: 'CAMPAIGNS',
           path: '/campaigns',
           component: CampaignsView,
-          meta: {
-            authRequired: true,
-          },
+          beforeEnter: authGuard,
           children: [
             {
               path: 'list',
@@ -141,14 +113,13 @@ const router = createRouter({
           name: 'CONJURING',
           path: '/conjurations',
           component: ConjuringView,
-          meta: {
-            authRequired: true,
-          },
+          beforeEnter: authGuard,
           children: [
             {
               path: 'list',
               alias: '',
               component: ListConjurations,
+              beforeEnter: authGuard,
               meta: {
                 paidRequired: true,
               },
@@ -156,6 +127,7 @@ const router = createRouter({
             {
               path: 'view/:conjurationId',
               component: ViewConjuration,
+              beforeEnter: authGuard,
               meta: {
                 paidRequired: true,
               },
@@ -163,6 +135,7 @@ const router = createRouter({
             {
               path: 'new',
               component: ListConjurers,
+              beforeEnter: authGuard,
               meta: {
                 paidRequired: true,
               },
@@ -170,6 +143,7 @@ const router = createRouter({
             {
               path: 'conjure/:summonerCode',
               component: ViewConjurer,
+              beforeEnter: authGuard,
             },
           ],
         },
@@ -177,18 +151,18 @@ const router = createRouter({
           name: 'CAMPAIGN',
           path: '/campaign',
           component: CampaignsView,
-          meta: {
-            authRequired: true,
-          },
+          beforeEnter: authGuard,
           children: [
             {
               path: 'edit',
               alias: '',
               component: ViewCampaign,
+              beforeEnter: authGuard,
             },
             {
               path: 'overview',
               component: OverviewCampaign,
+              beforeEnter: authGuard,
             },
           ],
         },
@@ -196,18 +170,18 @@ const router = createRouter({
           name: 'SESSION',
           path: '/sessions',
           component: SessionsView,
-          meta: {
-            authRequired: true,
-          },
+          beforeEnter: authGuard,
           children: [
             {
               path: 'list',
               alias: '',
               component: ListSessions,
+              beforeEnter: authGuard,
             },
             {
               path: ':sessionId',
               component: ViewSession,
+              beforeEnter: authGuard,
             },
           ],
         },
@@ -215,24 +189,12 @@ const router = createRouter({
           name: 'ACCOUNT',
           path: '/account-settings',
           component: AccountView,
-          meta: {
-            authRequired: true,
-          },
+          beforeEnter: authGuard,
         },
       ],
     },
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
-});
-
-router.beforeEach(async (to) => {
-  const authRequired = to?.meta?.authRequired || false;
-  const auth = useAuthStore();
-
-  if (authRequired && !auth.tokens) {
-    auth.returnUrl = to.fullPath;
-    return '/login';
-  }
 });
 
 export default router;
