@@ -104,7 +104,8 @@ router.post('/:imageId/upscale', [
 ]);
 
 router.patch('/:imageId/primary', [
-  useAuthenticateRequest(),
+  checkAuth0Jwt,
+  useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(patchRouteSchema, {
     validationType: ValidationTypes.Route,

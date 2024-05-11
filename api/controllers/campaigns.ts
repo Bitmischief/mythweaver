@@ -549,7 +549,7 @@ export default class CampaignController {
 
     return {
       ...character,
-      imageUri: null,
+      imageUri: character.images.find((i) => i.primary)?.uri || null,
     };
   }
 
@@ -595,7 +595,7 @@ export default class CampaignController {
 
     return characters.map((c) => ({
       ...c,
-      imageUri: null,
+      imageUri: c.images.find((i) => i.primary)?.uri || null,
     }));
   }
 }

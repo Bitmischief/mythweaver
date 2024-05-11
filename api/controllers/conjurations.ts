@@ -172,7 +172,7 @@ export default class ConjurationController {
                 r.nextType === ConjurationRelationshipType.CONJURATION,
             )
           : false,
-        imageUri: null,
+        imageUri: c.images.find((i) => i.primary)?.uri || null,
       })),
       offset: offset,
       limit: limit,
@@ -217,7 +217,7 @@ export default class ConjurationController {
 
     return {
       ...conjuration,
-      imageUri: null,
+      imageUri: conjuration.images.find((i) => i.primary)?.uri || null,
       saves: undefined,
       saved: conjuration.saves.length > 0,
     };

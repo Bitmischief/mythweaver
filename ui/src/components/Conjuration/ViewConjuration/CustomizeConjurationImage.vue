@@ -217,6 +217,16 @@ const alreadyUpscaled = computed(() => {
 
 <template>
   <template v-if="!conjuring && !upscaling && !done">
+    <div class="py-4" :class="{ 'absolute right-2 top-0': image.uri }">
+      <div class="flex justify-end">
+        <div class="self-center">
+          <ImageCreditCount v-if="authStore.user" />
+        </div>
+        <button class="px-4 rounded-full" @click="emit('cancel')">
+          <XCircleIcon class="w-6 self-center" />
+        </button>
+      </div>
+    </div>
     <div v-if="image.uri" class="md:flex mb-4 justify-center mt-10">
       <div class="relative">
         <LightboxImage
@@ -419,16 +429,6 @@ const alreadyUpscaled = computed(() => {
         </div>
       </div>
     </div>
-    <div class="absolute right-2 top-0 p-4">
-      <div class="flex justify-end">
-        <div class="self-center">
-          <ImageCreditCount v-if="authStore.user" />
-        </div>
-        <button class="px-4 rounded-full" @click="emit('cancel')">
-          <XCircleIcon class="w-6 self-center" />
-        </button>
-      </div>
-    </div>
   </template>
   <template v-else-if="conjuring && !done && !imageError">
     <div class="p-12 text-center">
@@ -526,15 +526,15 @@ const alreadyUpscaled = computed(() => {
       </div>
 
       <div
-        v-for="image of images"
-        :key="image.uri"
+        v-for="img of images"
+        :key="img.uri"
         class="relative cursor-pointer"
-        :class="{ 'md:col-span-2': !image.uri && images.length === 1 }"
+        :class="{ 'md:col-span-2': !img.uri && images.length === 1 }"
       >
         <div class="relative max-w-[500px]">
           <div
             class="absolute flex bottom-2 right-2 cursor-pointer bg-white/50 rounded-[8px]"
-            @click="eventBus.$emit('open-lightbox', image.uri)"
+            @click="eventBus.$emit('open-lightbox', img.uri)"
           >
             <ArrowsPointingOutIcon
               class="p-1 w-8 h-8 self-center transition-all hover:scale-125 text-black"
@@ -542,15 +542,16 @@ const alreadyUpscaled = computed(() => {
           </div>
 
           <img
-            :src="image.uri"
+            :src="img.uri"
+            alt="conjuration image"
             class="rounded-[25px] max-w-[500px]"
             :class="{
-              'border-2 border-fuchsia-500': selectedImg?.id === image.id,
+              'border-2 border-fuchsia-500': selectedImg?.id === img.id,
             }"
             @click="
-              selectedImg?.id === image.id
+              selectedImg?.id === img.id
                 ? (selectedImg = null)
-                : (selectedImg = image)
+                : (selectedImg = img)
             "
           />
         </div>

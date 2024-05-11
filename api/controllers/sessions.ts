@@ -154,7 +154,7 @@ export default class SessionController {
     return {
       data: sessions.map((s) => ({
         ...s,
-        imageUri: null,
+        imageUri: s.images.find((i) => i.primary)?.uri || null,
         linked: relationships.length
           ? relationships.some(
               (r) =>
@@ -205,7 +205,7 @@ export default class SessionController {
 
     return {
       ...session,
-      imageUri: null,
+      imageUri: session.images.find((i) => i.primary)?.uri || null,
     };
   }
 
@@ -439,6 +439,13 @@ export default class SessionController {
       where: {
         id: sessionId,
       },
+      include: {
+        images: {
+          where: {
+            primary: true,
+          },
+        },
+      },
     });
 
     if (!session) {
@@ -518,7 +525,7 @@ export default class SessionController {
           },
           {
             name: 'SESSION_IMAGE_URI',
-            content: session.imageUri || '',
+            content: session.images.find((i) => i.primary)?.uri || '',
           },
         ],
       );

@@ -56,6 +56,10 @@ onMounted(() => {
     },
   );
 
+  channel.bind(ServerEvent.ImageCreated, function (image: any) {
+    editableConjuration.value.images = [{ ...image }];
+  });
+
   channel.bind(ServerEvent.PrimaryImageSet, function (data: any[]) {
     editableConjuration.value.images = data;
   });
@@ -156,12 +160,27 @@ const conjurationType = computed(() => {
   }
 });
 
+const hasAnyImages = computed(() => {
+  return editableConjuration.value?.images?.length;
+});
+
 const primaryImage = computed(() => {
   if (editableConjuration.value?.images?.length) {
     return editableConjuration.value.images.find((i) => i.primary);
   }
   return undefined;
 });
+
+function showCustomizeImageModal() {
+  eventBus.$emit('toggle-customize-image-modal', {
+    image: {
+      prompt: editableConjuration.value.imageAIPrompt,
+    },
+    linking: {
+      conjurationId: editableConjuration.value.id,
+    },
+  });
+}
 </script>
 
 <template>
@@ -169,6 +188,7 @@ const primaryImage = computed(() => {
     <div class="md:flex">
       <div class="max-w-[35rem] overflow-hidden rounded-md md:mr-6">
         <CustomizableImage
+          v-if="hasAnyImages"
           :image="primaryImage"
           :editable="editable"
           :alt="editableConjuration.name"
@@ -177,6 +197,14 @@ const primaryImage = computed(() => {
           :type="conjurationType"
           :linking="{ conjurationId: editableConjuration.id }"
         />
+        <div v-else>
+          <button
+            class="button-gradient w-full"
+            @click="showCustomizeImageModal"
+          >
+            Create Image
+          </button>
+        </div>
 
         <div class="mt-4 font-bold text-center">
           <input

@@ -172,6 +172,13 @@ export default class ImageController {
       });
     }
 
+    if (!image.uri) {
+      throw new AppError({
+        description: 'Image does not have a URI.',
+        httpCode: HttpCode.BAD_REQUEST,
+      });
+    }
+
     if (!user.earlyAccessExempt) {
       if (user.imageCredits < 1) {
         throw new AppError({

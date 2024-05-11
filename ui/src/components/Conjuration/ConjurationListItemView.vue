@@ -73,7 +73,18 @@ const primaryImageUri = computed(() => {
   if (conjuration.value?.images?.length) {
     return conjuration.value.images.find((i) => i.primary).uri;
   }
-  return null;
+  switch (conjuration.value?.conjurerCode) {
+    case 'characters':
+      return '/images/conjurations/character-no-image.png';
+    case 'locations':
+      return '/images/conjurations/location-no-image.png';
+    case 'monsters':
+      return '/images/conjurations/monster-no-image.png';
+    case 'items':
+      return '/images/conjurations/item-no-image.png';
+    default:
+      return '';
+  }
 });
 </script>
 
@@ -88,7 +99,7 @@ const primaryImageUri = computed(() => {
       @click="navigateToViewConjuration(conjuration.id)"
     >
       <div
-        class="relative m-2 grow group-hover:my-0 transition-all"
+        class="relative m-2 grow group-hover:mx-6 transition-all"
         :class="{
           'basis-1/3 my-auto': condensedView,
           'basis-1': !condensedView,
@@ -99,6 +110,7 @@ const primaryImageUri = computed(() => {
           :src="primaryImageUri"
           :alt="conjuration.name"
           class="rounded-[16px] pointer-events-none"
+          :class="{ 'blur-sm': !conjuration.images?.length }"
         />
         <div v-else class="w-full flex justify-center h-full bg-gray-900/75">
           <div

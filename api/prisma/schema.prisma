@@ -181,7 +181,7 @@ model Campaign {
   conjurations Conjuration[]
   members      CampaignMember[]
   characters   Character[]
-  inviteCode   String?          @default(dbgenerated("gen_random_uuid()::text"))
+  inviteCode   String?          @default(dbgenerated("(gen_random_uuid())::text"))
 
   @@map("campaigns")
 }
@@ -295,7 +295,7 @@ model Image {
   updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
 
   userId         Int
-  uri            String
+  uri            String?
   prompt         String
   negativePrompt String?
   stylePreset    String?

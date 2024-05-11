@@ -102,6 +102,21 @@ export const generateImage = async (request: ImageRequest) => {
   let validImageCount = 0;
   let tries = 0;
   const maxImageTries = 30;
+  const imageIds = [];
+
+  for (let i = 0; i < request.count; i++) {
+    const image = await prisma.image.create({
+      data: {
+        userId: request.userId,
+        prompt: request.prompt,
+        negativePrompt: request.negativePrompt,
+        stylePreset: preset,
+        ...request.linking,
+        primary: true,
+      },
+    });
+    imageIds.push(image.id);
+  }
 
   do {
     tries += request.count;
@@ -153,22 +168,20 @@ export const generateImage = async (request: ImageRequest) => {
 
       urls.push(url);
 
-      const createdImage = await prisma.image.create({
+      const updatedImage = await prisma.image.update({
+        where: {
+          id: imageIds[validImageCount],
+        },
         data: {
-          userId: request.userId,
           uri: url,
-          prompt: request.prompt,
-          negativePrompt: request.negativePrompt,
-          stylePreset: preset,
           seed: image.seed.toString(),
-          ...request.linking,
         },
       });
 
       await sendWebsocketMessage(
         request.userId,
         WebSocketEvent.ImageCreated,
-        createdImage,
+        updatedImage,
       );
 
       validImageCount++;
