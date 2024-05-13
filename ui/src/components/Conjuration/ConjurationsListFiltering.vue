@@ -24,7 +24,6 @@ const conjurers = ref<Conjurer[]>([]);
 const conjurationsFilterQuery = ref({
   campaignId: selectedCampaignId.value,
   conjurerCodes: [],
-  imageStylePreset: undefined,
   tags: [],
 });
 
@@ -77,30 +76,6 @@ function removeTag(tag: string) {
           value-prop="code"
           multiple
           placeholder="Select conjuration types"
-        />
-      </div>
-
-      <div class="mt-4">
-        <div class="mb-1 text-neutral-400 text-sm">Image Style</div>
-        <Select
-          v-model="conjurationsFilterQuery.imageStylePreset"
-          :options="[
-            {
-              name: 'Fantasy Art',
-              value: 'fantasy-art',
-            },
-            {
-              name: 'Digital Art',
-              value: 'digital-art',
-            },
-            {
-              name: 'Comic Book',
-              value: 'comic-book',
-            },
-          ]"
-          display-prop="name"
-          value-prop="value"
-          placeholder="Select image styles"
         />
       </div>
 

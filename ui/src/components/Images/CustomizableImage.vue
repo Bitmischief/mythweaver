@@ -7,7 +7,6 @@ import {
   ArrowDownTrayIcon,
 } from '@heroicons/vue/24/outline';
 import { useEventBus } from '@/lib/events.ts';
-import { onMounted, onUnmounted } from 'vue';
 import { showError } from '@/lib/notifications.ts';
 
 const props = withDefaults(
@@ -47,28 +46,7 @@ const props = withDefaults(
   },
 );
 
-const emit = defineEmits(['set-image']);
-
 const eventBus = useEventBus();
-
-onMounted(() => {
-  eventBus.$on(
-    'updated-conjuration-image',
-    (payload: {
-      imageUri: string;
-      prompt: string;
-      negativePrompt: string;
-      stylePreset: string;
-      seed: string;
-    }) => {
-      emit('set-image', payload);
-    },
-  );
-});
-
-onUnmounted(() => {
-  eventBus.$off('updated-conjuration-image');
-});
 
 function showCustomizeImageModal() {
   eventBus.$emit('toggle-customize-image-modal', {

@@ -40,16 +40,11 @@ onMounted(async () => {
   channel.bind(ServerEvent.PrimaryImageSet, async function () {
     await init();
   });
-
-  eventBus.$on('updated-conjuration-image', async () => {
-    await init();
-  });
 });
 
 onUnmounted(() => {
   channel.unbind_all();
   eventBus.$off('session-summary-panel-updated');
-  eventBus.$off('updated-conjuration-image');
 });
 
 async function init() {
@@ -95,6 +90,7 @@ const sessionDate = computed(() => {
 });
 
 const loadingImageModal = ref(false);
+
 async function showCustomizeImageModal() {
   loadingImageModal.value = true;
   if (!session.value.suggestedImagePrompt && session.value.recap) {

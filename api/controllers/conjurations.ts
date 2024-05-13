@@ -118,14 +118,7 @@ export default class ConjurationController {
           : undefined,
         userId: history ? userId : undefined,
         visibility: saved || history ? undefined : ConjurationVisibility.PUBLIC,
-        images: stylePreset
-          ? {
-              some: {
-                stylePreset: stylePreset,
-              },
-            }
-          : undefined,
-        imageUri: !saved ? { not: null } : undefined,
+        images: !saved ? { some: { primary: true } } : undefined,
         OR: orClause.length ? orClause : undefined,
       },
       skip: offset,
@@ -135,11 +128,7 @@ export default class ConjurationController {
       },
       include: {
         saves: true,
-        images: {
-          where: {
-            primary: true,
-          },
-        },
+        images: true,
       },
     });
 
@@ -508,11 +497,7 @@ export default class ConjurationController {
         id: conjurationId,
       },
       include: {
-        images: {
-          where: {
-            primary: true,
-          },
-        },
+        images: true,
       },
     });
 
