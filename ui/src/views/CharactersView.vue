@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import {
   Character,
   deleteCharacters,
@@ -9,7 +9,6 @@ import {
 import { AxiosError } from 'axios';
 import { showError, showSuccess } from '@/lib/notifications.ts';
 import CustomizableImage from '@/components/Images/CustomizableImage.vue';
-import { useEventBus } from '@/lib/events.ts';
 import Loader from '@/components/Core/Loader.vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ArrowLeftIcon } from '@heroicons/vue/24/outline';
@@ -17,7 +16,6 @@ import ModalAlternate from '@/components/ModalAlternate.vue';
 import { useCurrentUserId } from '@/lib/hooks.ts';
 
 const currentUserId = useCurrentUserId();
-const eventBus = useEventBus();
 const route = useRoute();
 const router = useRouter();
 const character = ref<Character | undefined>(undefined);
@@ -25,14 +23,6 @@ const loading = ref(false);
 
 onMounted(async () => {
   await init();
-
-  eventBus.$on('updated-conjuration-image', async () => {
-    await init();
-  });
-});
-
-onUnmounted(() => {
-  eventBus.$off('updated-conjuration-image');
 });
 
 const characterId = computed(() =>
@@ -80,6 +70,7 @@ async function deleteCharacter() {
 }
 
 const confirmDelete = ref(false);
+
 function showConfirmDelete() {
   confirmDelete.value = true;
 }
@@ -106,7 +97,7 @@ const primaryImage = computed(() => {
           class="button-primary flex mb-4 self-center"
           to="/characters"
         >
-          <ArrowLeftIcon class="h-5 w-5 mr-2" />
+          <ArrowLeftIcon class="h-5 w-5 mr-2"/>
           Back
         </router-link>
         <div
@@ -183,7 +174,7 @@ const primaryImage = computed(() => {
                   placeholder="Age"
                   validation="required|number|between:0,9999999"
                 >
-                  <template #suffix> years </template>
+                  <template #suffix> years</template>
                 </FormKit>
               </div>
               <div>

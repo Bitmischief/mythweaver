@@ -57,7 +57,9 @@ onMounted(() => {
   );
 
   channel.bind(ServerEvent.ImageCreated, function (image: any) {
-    editableConjuration.value.images = [{ ...image }];
+    if (!primaryImage.value?.uri) {
+      editableConjuration.value.images = [{ ...image }];
+    }
   });
 
   channel.bind(ServerEvent.PrimaryImageSet, function (data: any[]) {

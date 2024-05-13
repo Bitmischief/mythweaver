@@ -259,6 +259,7 @@ export default class ImageController {
         conjurationId: image.conjurationId,
         sessionId: image.sessionId,
         characterId: image.characterId,
+        primary: true,
       },
     });
 

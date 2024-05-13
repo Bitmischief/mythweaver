@@ -71,19 +71,20 @@ async function addConjuration() {
 
 const primaryImageUri = computed(() => {
   if (conjuration.value?.images?.length) {
-    return conjuration.value.images.find((i) => i.primary).uri;
-  }
-  switch (conjuration.value?.conjurerCode) {
-    case 'characters':
-      return '/images/conjurations/character-no-image.png';
-    case 'locations':
-      return '/images/conjurations/location-no-image.png';
-    case 'monsters':
-      return '/images/conjurations/monster-no-image.png';
-    case 'items':
-      return '/images/conjurations/item-no-image.png';
-    default:
-      return '';
+    return conjuration.value.images.find((i) => i.primary === true)?.uri;
+  } else {
+    switch (conjuration.value?.conjurerCode) {
+      case 'characters':
+        return '/images/conjurations/character-no-image.png';
+      case 'locations':
+        return '/images/conjurations/location-no-image.png';
+      case 'monsters':
+        return '/images/conjurations/monster-no-image.png';
+      case 'items':
+        return '/images/conjurations/item-no-image.png';
+      default:
+        return '';
+    }
   }
 });
 </script>
@@ -114,7 +115,7 @@ const primaryImageUri = computed(() => {
         />
         <div v-else class="w-full flex justify-center h-full bg-gray-900/75">
           <div
-            class="self-center text-center text-[2rem] text-white animate-pulse"
+            class="self-center text-center text-[2rem] gradient-text animate-pulse"
           >
             Conjuring image...
           </div>
