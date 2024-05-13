@@ -31,6 +31,13 @@ const sessionDate = computed(() => {
   }
   return format(props.session.date, 'MMM d, yyyy @ h:mm a');
 });
+
+const primaryImageUri = computed(() => {
+  if (props.session.images?.length) {
+    return props.session.images.find((i) => i.primary)?.uri;
+  }
+  return undefined;
+});
 </script>
 
 <template>
@@ -39,7 +46,7 @@ const sessionDate = computed(() => {
   >
     <div class="basis-1/3 my-auto">
       <img
-        :src="session.imageUri || '/images/session_bg_square.png'"
+        :src="primaryImageUri || '/images/session_bg_square.png'"
         alt="session image"
         class="rounded-[16px]"
       />

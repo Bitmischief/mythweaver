@@ -56,6 +56,13 @@ async function fetchSession() {
   const response = await getSession(props.nodeId);
   session.value = response.data;
 }
+
+const primaryImageUri = (data: any) => {
+  if (data?.images?.length) {
+    return data.images.find((i: any) => i.primary)?.uri;
+  }
+  return undefined;
+};
 </script>
 
 <template>
@@ -79,9 +86,9 @@ async function fetchSession() {
         >
           <div class="bg-surface-3 rounded-[20px] p-2 my-auto text-center">
             <img
-              :src="conjuration.imageUri"
+              :src="primaryImageUri(conjuration)"
               alt="conjuration"
-              class="max-w-[300px] rounded-[18px]"
+              class="min-w-[250px] max-w-[300px] rounded-[18px]"
             />
             <div class="mt-2 text-lg">{{ conjuration.name }}</div>
           </div>
@@ -94,9 +101,9 @@ async function fetchSession() {
             class="bg-surface-3 rounded-[20px] p-2 overflow-x-hidden my-auto"
           >
             <img
-              :src="session.imageUri || '/images/session_bg_square.png'"
+              :src="primaryImageUri(session) || '/images/session_bg_square.png'"
               alt="session"
-              class="max-w-[300px] w-full rounded-[18px]"
+              class="min-w-[250px] max-w-[300px] w-full rounded-[18px]"
             />
             <div class="text-center truncate">{{ session.name }}</div>
           </div>

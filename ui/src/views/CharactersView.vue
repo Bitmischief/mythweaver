@@ -26,13 +26,9 @@ const loading = ref(false);
 onMounted(async () => {
   await init();
 
-  eventBus.$on(
-    'updated-conjuration-image',
-    async (payload: { imageUri: string; prompt: string }) => {
-      if (!character.value) return;
-      character.value.imageUri = payload.imageUri;
-    },
-  );
+  eventBus.$on('updated-conjuration-image', async () => {
+    await init();
+  });
 });
 
 onUnmounted(() => {
@@ -87,6 +83,13 @@ const confirmDelete = ref(false);
 function showConfirmDelete() {
   confirmDelete.value = true;
 }
+
+const primaryImage = computed(() => {
+  if (character.value?.images?.length) {
+    return character.value.images.find((i) => i.primary);
+  }
+  return undefined;
+});
 </script>
 
 <template>
@@ -147,7 +150,7 @@ function showConfirmDelete() {
               </div>
             </div>
             <CustomizableImage
-              :image-uri="character.imageUri"
+              :image="primaryImage"
               :editable="true"
               :alt="character.name"
               :linking="{ characterId: character.id }"

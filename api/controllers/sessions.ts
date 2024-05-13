@@ -126,7 +126,11 @@ export default class SessionController {
         date: 'desc',
       },
       include: {
-        images: true,
+        images: {
+          where: {
+            primary: true,
+          },
+        },
       },
     });
 
@@ -150,6 +154,7 @@ export default class SessionController {
     return {
       data: sessions.map((s) => ({
         ...s,
+        imageUri: s.images.find((i) => i.primary)?.uri || null,
         linked: relationships.length
           ? relationships.some(
               (r) =>
@@ -198,7 +203,10 @@ export default class SessionController {
 
     track(AppEvent.GetSession, userId, trackingInfo);
 
-    return session;
+    return {
+      ...session,
+      imageUri: session.images.find((i) => i.primary)?.uri || null,
+    };
   }
 
   @Security('jwt')
@@ -431,6 +439,13 @@ export default class SessionController {
       where: {
         id: sessionId,
       },
+      include: {
+        images: {
+          where: {
+            primary: true,
+          },
+        },
+      },
     });
 
     if (!session) {
@@ -510,7 +525,7 @@ export default class SessionController {
           },
           {
             name: 'SESSION_IMAGE_URI',
-            content: session.imageUri || '',
+            content: session.images.find((i) => i.primary)?.uri || '',
           },
         ],
       );

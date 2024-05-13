@@ -13,6 +13,7 @@ export interface Character {
   looks?: string;
   campaignMemberId?: number;
   userId: number;
+  images?: any[];
 }
 
 export const getCurrentCampaignCharacter = () => {

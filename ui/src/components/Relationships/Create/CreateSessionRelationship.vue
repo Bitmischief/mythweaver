@@ -121,6 +121,13 @@ function sessionDateDisplay(session: SessionBase) {
   }
   return format(session.date, 'MMM d, yyyy @ h:mm a');
 }
+
+const primaryImageUri = (data: any) => {
+  if (data?.images?.length) {
+    return data.images.find((i: any) => i.primary)?.uri;
+  }
+  return undefined;
+};
 </script>
 
 <template>
@@ -142,7 +149,7 @@ function sessionDateDisplay(session: SessionBase) {
         >
           <div class="relative">
             <img
-              :src="session.imageUri || '/images/session_bg_square.png'"
+              :src="primaryImageUri(session) || '/images/session_bg_square.png'"
               alt="session image"
               class="mx-auto w-full h-auto rounded-[12px]"
             />

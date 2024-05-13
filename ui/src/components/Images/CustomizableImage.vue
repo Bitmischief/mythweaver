@@ -12,17 +12,19 @@ import { showError } from '@/lib/notifications.ts';
 
 const props = withDefaults(
   defineProps<{
-    imageId?: string | null | undefined;
-    imageUri: string | undefined;
-    prompt?: string;
-    negativePrompt?: string;
-    stylePreset?: string;
+    image?: {
+      id?: string | null | undefined;
+      uri: string | undefined;
+      prompt?: string;
+      negativePrompt?: string;
+      stylePreset?: string;
+      seed?: string;
+    };
     editable?: boolean;
     alt?: string;
     imageConjurationFailed?: boolean;
     imageConjurationFailureReason?: string;
     type: string;
-    seed?: string;
     linking?: {
       sessionId?: number;
       characterId?: number;
@@ -30,15 +32,17 @@ const props = withDefaults(
     };
   }>(),
   {
-    imageId: undefined,
-    imageUri: undefined,
-    prompt: undefined,
-    negativePrompt: undefined,
-    stylePreset: 'fantasy-art',
+    image: () => ({
+      id: undefined,
+      uri: undefined,
+      prompt: undefined,
+      negativePrompt: undefined,
+      stylePreset: 'fantasy-art',
+      seed: undefined,
+    }),
     alt: undefined,
     imageConjurationFailureReason: undefined,
     type: undefined,
-    seed: undefined,
     linking: undefined,
   },
 );
@@ -68,19 +72,14 @@ onUnmounted(() => {
 
 function showCustomizeImageModal() {
   eventBus.$emit('toggle-customize-image-modal', {
-    prompt: props.prompt,
-    negativePrompt: props.negativePrompt,
-    stylePreset: props.stylePreset,
-    imageUri: props.imageUri,
+    image: props.image,
     alt: props.alt,
-    seed: props.seed,
-    imageId: props.imageId,
     linking: props.linking,
   });
 }
 
 function showImage() {
-  eventBus.$emit('open-lightbox', props.imageUri);
+  eventBus.$emit('open-lightbox', props.image.uri);
 }
 
 function downloadImage(url: string) {
@@ -118,10 +117,10 @@ function downloadImage(url: string) {
       </button>
       <div class="relative group ml-2">
         <button
-          v-if="imageUri"
+          v-if="image.uri"
           type="button"
           class="flex button-white bg-white/50 mr-1"
-          @click="downloadImage(imageUri)"
+          @click="downloadImage(image.uri)"
         >
           <ArrowDownTrayIcon class="h-5 w-5" />
         </button>
@@ -134,7 +133,7 @@ function downloadImage(url: string) {
     </div>
 
     <div
-      v-if="imageUri"
+      v-if="image.uri"
       class="absolute flex bottom-2 right-2 cursor-pointer bg-white/50 rounded-[8px]"
       @click="showImage"
     >
@@ -144,8 +143,8 @@ function downloadImage(url: string) {
     </div>
 
     <LightboxImage
-      v-if="imageUri"
-      :src="imageUri"
+      v-if="image.uri"
+      :src="image.uri"
       :alt="alt"
       class="rounded-[20px]"
     />

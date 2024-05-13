@@ -1,7 +1,11 @@
 <script lang="ts" setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import LightboxImage from '@/components/LightboxImage.vue';
-import { conjureImage, postImageUpscale } from '@/api/images.ts';
+import {
+  conjureImage,
+  patchPrimaryImage,
+  postImageUpscale,
+} from '@/api/images.ts';
 import { useEventBus } from '@/lib/events.ts';
 import {
   ArrowsPointingOutIcon,
@@ -24,15 +28,17 @@ const showUpscale = useLDFlag('image-upscale', false);
 
 const props = withDefaults(
   defineProps<{
-    prompt?: string;
-    negativePrompt?: string;
-    imageUri?: string;
-    stylePreset?: string;
+    image?: {
+      id?: number;
+      prompt?: string;
+      negativePrompt?: string;
+      uri?: string;
+      stylePreset?: string;
+      seed?: string;
+    };
     noActions?: boolean;
     cancelButtonTextOverride?: string;
     inModal?: boolean;
-    seed?: string;
-    imageId?: number;
     linking?: {
       sessionId?: number;
       characterId?: number;
@@ -40,13 +46,15 @@ const props = withDefaults(
     };
   }>(),
   {
-    prompt: '',
-    negativePrompt: '',
-    imageUri: undefined,
-    stylePreset: 'fantasy-art',
+    image: () => ({
+      id: undefined,
+      prompt: '',
+      negativePrompt: '',
+      uri: undefined,
+      stylePreset: 'fantasy-art',
+      seed: undefined,
+    }),
     cancelButtonTextOverride: undefined,
-    seed: undefined,
-    imageId: undefined,
     linking: undefined,
   },
 );
@@ -56,9 +64,9 @@ const emit = defineEmits(['cancel']);
 const eventBus = useEventBus();
 const channel = useWebsocketChannel();
 
-const editablePrompt = ref(props.prompt);
-const editableNegativePrompt = ref(props.negativePrompt);
-const editableStylePreset = ref(props.stylePreset);
+const editablePrompt = ref(props.image.prompt);
+const editableNegativePrompt = ref(props.image.negativePrompt);
+const editableStylePreset = ref(props.image.stylePreset);
 const imagePresetStyles = ref([
   { code: 'fantasy-art', name: 'Fantasy Art' },
   { code: 'digital-art', name: 'Digital Art' },
@@ -88,10 +96,6 @@ const promptOptionsTab = ref(promptOptions.value[0]);
 onMounted(async () => {
   eventBus.$on('conjure-image', async () => {
     await conjure();
-  });
-
-  eventBus.$on('set-selected-conjuration-image', () => {
-    setImage();
   });
 
   channel.bind(ServerEvent.ImageCreated, function (data: any) {
@@ -128,8 +132,10 @@ onMounted(async () => {
 
   channel.bind(ServerEvent.ImageUpscaled, function (data: any) {
     selectedImg.value = data;
-    setImage();
     upscaling.value = false;
+    if (props.inModal) {
+      eventBus.$emit('toggle-customize-image-modal');
+    }
   });
 
   channel.bind(ServerEvent.ImageUpscalingDone, function () {
@@ -156,7 +162,7 @@ async function conjure() {
       editableNegativePrompt.value || '',
       editableStylePreset.value || 'fantasy-art',
       count.value || 1,
-      useSeed.value ? props.seed : undefined,
+      useSeed.value ? props.image.seed : undefined,
       props.linking,
     );
 
@@ -179,18 +185,9 @@ async function conjure() {
   }
 }
 
-function setImage() {
+async function setImage() {
   if (!selectedImg?.value) return;
-
-  eventBus.$emit('updated-conjuration-image', {
-    imageId: selectedImg.value.id,
-    imageUri: selectedImg.value.uri,
-    prompt: editablePrompt.value,
-    negativePrompt: editableNegativePrompt.value,
-    stylePreset: editableStylePreset.value,
-    seed: selectedImg.value.seed,
-  });
-
+  await patchPrimaryImage(selectedImg.value.id);
   if (props.inModal) {
     eventBus.$emit('toggle-customize-image-modal');
   }
@@ -198,9 +195,9 @@ function setImage() {
 
 async function upscale() {
   try {
-    if (props.imageId) {
+    if (props.image.id) {
       upscaling.value = true;
-      await postImageUpscale(props.imageId);
+      await postImageUpscale(props.image.id);
     }
   } catch (e: any) {
     showError({
@@ -211,19 +208,29 @@ async function upscale() {
 }
 
 const alreadyUpscaled = computed(() => {
-  if (!props.imageUri) return false;
+  if (!props.image.uri) return false;
   const img = new Image();
-  img.src = props.imageUri;
+  img.src = props.image.uri;
   return img.width > 1024 || img.height > 1024;
 });
 </script>
 
 <template>
   <template v-if="!conjuring && !upscaling && !done">
-    <div v-if="imageUri" class="md:flex mb-4 justify-center mt-10">
+    <div class="py-4" :class="{ 'absolute right-2 top-0': image.uri }">
+      <div class="flex justify-end">
+        <div class="self-center">
+          <ImageCreditCount v-if="authStore.user" />
+        </div>
+        <button class="px-4 rounded-full" @click="emit('cancel')">
+          <XCircleIcon class="w-6 self-center" />
+        </button>
+      </div>
+    </div>
+    <div v-if="image.uri" class="md:flex mb-4 justify-center mt-10">
       <div class="relative">
         <LightboxImage
-          :src="imageUri"
+          :src="image.uri"
           class="w-72 h-72 mx-auto md:my-auto rounded-[25px]"
         />
         <div class="image-badge">Original</div>
@@ -242,7 +249,7 @@ const alreadyUpscaled = computed(() => {
     >
       Enter a description of you session below to generate a session cover image
     </div>
-    <div v-if="showUpscale && props.imageId" class="flex justify-center mb-2">
+    <div v-if="showUpscale && props.image.id" class="flex justify-center mb-2">
       <div class="min-w-[50%]">
         <div
           class="flex flex-wrap gap-1 w-full text-neutral-500 rounded-[18px] bg-surface-2 p-1 border border-surface-3 text-sm"
@@ -307,7 +314,7 @@ const alreadyUpscaled = computed(() => {
           <div class="flex px-2 relative">
             <div class="group">
               <FormKit
-                v-if="showSeed && seed"
+                v-if="showSeed && image.seed"
                 v-model="useSeed"
                 type="checkbox"
                 label="Use same image seed"
@@ -422,16 +429,6 @@ const alreadyUpscaled = computed(() => {
         </div>
       </div>
     </div>
-    <div class="absolute right-2 top-0 p-4">
-      <div class="flex justify-end">
-        <div class="self-center">
-          <ImageCreditCount v-if="authStore.user" />
-        </div>
-        <button class="px-4 rounded-full" @click="emit('cancel')">
-          <XCircleIcon class="w-6 self-center" />
-        </button>
-      </div>
-    </div>
   </template>
   <template v-else-if="conjuring && !done && !imageError">
     <div class="p-12 text-center">
@@ -507,17 +504,17 @@ const alreadyUpscaled = computed(() => {
     <div
       class="grid grid-cols-1 place-items-center md:grid-cols-2 p-2 gap-4 md:gap-8"
     >
-      <div v-if="imageUri" class="relative max-w-[500px]">
+      <div v-if="image.uri" class="relative max-w-[500px]">
         <div
           class="absolute flex bottom-2 right-2 cursor-pointer bg-white/50 rounded-[8px]"
-          @click="eventBus.$emit('open-lightbox', imageUri)"
+          @click="eventBus.$emit('open-lightbox', image.uri)"
         >
           <ArrowsPointingOutIcon
             class="p-1 w-8 h-8 self-center transition-all hover:scale-125 text-black"
           />
         </div>
         <img
-          :src="imageUri"
+          :src="image.uri"
           alt="conjurationImg"
           class="rounded-[25px] cursor-pointer"
           :class="{
@@ -529,15 +526,15 @@ const alreadyUpscaled = computed(() => {
       </div>
 
       <div
-        v-for="image of images"
-        :key="image.uri"
+        v-for="img of images"
+        :key="img.uri"
         class="relative cursor-pointer"
-        :class="{ 'md:col-span-2': !imageUri && images.length === 1 }"
+        :class="{ 'md:col-span-2': !img.uri && images.length === 1 }"
       >
         <div class="relative max-w-[500px]">
           <div
             class="absolute flex bottom-2 right-2 cursor-pointer bg-white/50 rounded-[8px]"
-            @click="eventBus.$emit('open-lightbox', image.uri)"
+            @click="eventBus.$emit('open-lightbox', img.uri)"
           >
             <ArrowsPointingOutIcon
               class="p-1 w-8 h-8 self-center transition-all hover:scale-125 text-black"
@@ -545,15 +542,16 @@ const alreadyUpscaled = computed(() => {
           </div>
 
           <img
-            :src="image.uri"
+            :src="img.uri"
+            alt="conjuration image"
             class="rounded-[25px] max-w-[500px]"
             :class="{
-              'border-2 border-fuchsia-500': selectedImg?.id === image.id,
+              'border-2 border-fuchsia-500': selectedImg?.id === img.id,
             }"
             @click="
-              selectedImg?.id === image.id
+              selectedImg?.id === img.id
                 ? (selectedImg = null)
-                : (selectedImg = image)
+                : (selectedImg = img)
             "
           />
         </div>

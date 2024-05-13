@@ -117,12 +117,14 @@ eventBus.$on('global-loading-stop', () => {
 const showCustomizeImageModal = ref(false);
 const customizeImageArgs = ref<CustomizeImageRequest | undefined>(undefined);
 export interface CustomizeImageRequest {
-  imageUri: string;
-  prompt: string;
-  negativePrompt: string;
-  stylePreset: string;
-  seed: string;
-  imageId: number;
+  image?: {
+    id: number;
+    uri: string;
+    prompt: string;
+    negativePrompt: string;
+    stylePreset: string;
+    seed: string;
+  };
   linking?: {
     sessionId?: number;
     characterId?: number;
@@ -244,12 +246,7 @@ eventBus.$on('show-subscription-modal', () => {
       class="pt-8 md:p-6 md:px-12 bg-surface-2 rounded-[20px] min-w-[70vw] text-white text-center mb-12"
     >
       <CustomizeConjurationImage
-        :prompt="customizeImageArgs?.prompt"
-        :negative-prompt="customizeImageArgs?.negativePrompt"
-        :image-uri="customizeImageArgs?.imageUri"
-        :looks="customizeImageArgs?.stylePreset"
-        :seed="customizeImageArgs?.seed"
-        :image-id="customizeImageArgs?.imageId"
+        :image="customizeImageArgs?.image"
         :linking="customizeImageArgs?.linking"
         in-modal
         @cancel="showCustomizeImageModal = false"

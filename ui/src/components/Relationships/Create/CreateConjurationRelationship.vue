@@ -113,6 +113,13 @@ async function linkConjuration(conjuration: Conjuration) {
     linking.value = -1;
   }
 }
+
+const primaryImageUri = (data: any) => {
+  if (data?.images?.length) {
+    return data.images.find((i: any) => i.primary)?.uri;
+  }
+  return undefined;
+};
 </script>
 
 <template>
@@ -134,7 +141,7 @@ async function linkConjuration(conjuration: Conjuration) {
         >
           <div class="relative">
             <img
-              :src="conjuration.imageUri"
+              :src="primaryImageUri(conjuration)"
               alt="conjuration image"
               class="mx-auto w-full h-auto rounded-[12px]"
             />

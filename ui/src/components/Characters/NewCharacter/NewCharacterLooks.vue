@@ -63,7 +63,7 @@ onUnmounted(() => {
       </div>
       <div v-else class="shrink">
         <CustomizeConjurationImage
-          :prompt="value.looks"
+          :image="{ prompt: value.looks }"
           :linking="{ characterId: value.id }"
           cancel-button-text-override="Back"
           @cancel="emit('back')"
