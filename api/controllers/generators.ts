@@ -243,6 +243,7 @@ export class GeneratorController {
       conjurationRequestId: conjurationRequest.id,
     };
   }
+
   @Get('/requests/{conjurationRequestId}')
   @Security('jwt')
   @OperationId('getConjurationRequest')
@@ -281,7 +282,7 @@ export class GeneratorController {
     track(AppEvent.GenerateArbitrary, userId, trackingInfo);
     const openai = getClient();
     const response = await openai.chat.completions.create({
-      model: 'gpt-4-turbo',
+      model: 'gpt-4o',
       messages: [
         {
           role: 'system',
@@ -326,7 +327,7 @@ export class GeneratorController {
     track(AppEvent.GenerateArbitraryFromPrompt, userId, trackingInfo);
     const openai = getClient();
     const response = await openai.chat.completions.create({
-      model: 'gpt-4-turbo',
+      model: 'gpt-4o',
       messages: [
         {
           role: 'system',
@@ -380,7 +381,7 @@ export class GeneratorController {
     track(AppEvent.GenerateArbitraryReplacement, userId, trackingInfo);
     const openai = getClient();
     const response = await openai.chat.completions.create({
-      model: request.turbo ? 'gpt-3.5-turbo' : 'gpt-4-turbo',
+      model: 'gpt-4o',
       messages: [
         {
           role: 'system',

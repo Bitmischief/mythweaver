@@ -55,7 +55,9 @@ const proOnly = (gen: Conjurer) => {
 </script>
 
 <template>
-  <div class="text-xl mb-2">What would you like to conjure?</div>
+  <div class="text-xl mb-2">
+    What would you like to <span class="gradient-text">Conjure</span>?
+  </div>
   <div class="grid gap-4 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 mb-6">
     <div
       v-for="(gens, i) in generators"

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 import { useLDFlag } from 'launchdarkly-vue-client-sdk';
-import { onBeforeMount, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import MeteorShower from '@/components/Core/MeteorShower.vue';
 import GeneratorSelect from '@/components/Conjure/GeneratorSelect.vue';
 import { Conjurer } from '@/api/generators.ts';
@@ -14,17 +14,25 @@ import CreateConjurationImage from '@/components/Conjure/CreateConjurationImage.
 const steps = ['generator', 'conjure', 'edit', 'image'];
 
 const current = ref('generator');
-const conjureV2 = useLDFlag('conjure-v2', false);
+const conjureV2 = useLDFlag('conjure-v2');
 const router = useRouter();
 
 const generator = ref<Conjurer>();
 const conjuration = ref<Conjuration>();
 
-onBeforeMount(() => {
-  if (!conjureV2.value) {
+watch(conjureV2, () => {
+  checkConjureV2();
+});
+
+onMounted(() => {
+  checkConjureV2();
+});
+
+const checkConjureV2 = () => {
+  if (conjureV2.value === false) {
     router.push('conjurations/new');
   }
-});
+};
 
 const back = () => {
   const currentIndex = steps.findIndex((step) => step === current.value);
