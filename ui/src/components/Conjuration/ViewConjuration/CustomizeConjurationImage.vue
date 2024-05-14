@@ -38,6 +38,7 @@ const props = withDefaults(
     };
     noActions?: boolean;
     cancelButtonTextOverride?: string;
+    saveButtonTextOverride?: string;
     inModal?: boolean;
     linking?: {
       sessionId?: number;
@@ -55,6 +56,7 @@ const props = withDefaults(
       seed: undefined,
     }),
     cancelButtonTextOverride: undefined,
+    saveButtonTextOverride: undefined,
     linking: undefined,
   },
 );
@@ -479,7 +481,9 @@ const alreadyUpscaled = computed(() => {
           }"
           @click="setImage"
         >
-          <span class="self-center text-center w-full"> Save Image </span>
+          <span class="self-center text-center w-full">
+            {{ saveButtonTextOverride ? saveButtonTextOverride : 'Save Image' }}
+          </span>
         </button>
       </div>
     </div>

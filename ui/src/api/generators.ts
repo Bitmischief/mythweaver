@@ -23,9 +23,11 @@ export interface PostConjureRequest {
   count: number;
   campaignId: number;
   customArg?: string;
+  prompt?: string;
   imageStylePreset?: string;
   imagePrompt?: string;
   imageNegativePrompt?: string;
+  type?: 'text' | 'image-text';
 }
 
 export interface CustomArg {

@@ -25,13 +25,20 @@ async function navigateToViewConjuration(conjurationId: number) {
 function getConjurationDescription(conjuration: Conjuration) {
   let text = '';
   if (conjuration.conjurerCode === 'characters') {
-    text = conjuration.data.background;
+    text = conjuration.data.blocks.find(
+      (b: any) => (b.data.label = 'Description'),
+    )?.data.text;
   } else if (conjuration.conjurerCode === 'locations') {
-    text = conjuration.data.history;
+    text = conjuration.data.blocks.find((b: any) => (b.data.label = 'History'))
+      ?.data.text;
   } else if (conjuration.conjurerCode === 'monsters') {
-    text = conjuration.data.description;
+    text = conjuration.data.blocks.find(
+      (b: any) => (b.data.label = 'Description'),
+    )?.data.text;
   } else if (conjuration.conjurerCode === 'items') {
-    text = conjuration.data.description;
+    text = conjuration.data.blocks.find(
+      (b: any) => (b.data.label = 'Description'),
+    )?.data.text;
   }
   return text;
 }

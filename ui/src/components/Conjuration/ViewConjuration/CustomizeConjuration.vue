@@ -6,21 +6,30 @@ import { remove } from 'lodash';
 import { useEventBus } from '@/lib/events.ts';
 import { showError, showSuccess } from '@/lib/notifications.ts';
 import { AxiosError } from 'axios';
-import { useCurrentUserId, useHasValidPlan } from '@/lib/hooks.ts';
+import {
+  useCurrentUserId,
+  useCurrentUserRole,
+  useHasValidPlan,
+} from '@/lib/hooks.ts';
 import CustomizableImage from '@/components/Images/CustomizableImage.vue';
 import { useWebsocketChannel } from '@/lib/hooks.ts';
 import { ServerEvent } from '@/lib/serverEvents.ts';
 import Select from '@/components/Core/Forms/Select.vue';
 import { BillingPlan } from '@/api/users.ts';
+import { CampaignRole } from '@/api/campaigns.ts';
+import WysiwygEditor from '@/components/Core/WysiwygEditor.vue';
 
+const emit = defineEmits(['edit']);
 const props = defineProps<{
   conjuration: Conjuration;
   imageConjurationFailed?: boolean;
   imageConjurationFailureReason?: string;
+  readOnly?: boolean;
 }>();
 
 const eventBus = useEventBus();
 const currentUserId = useCurrentUserId();
+const currentUserRole = useCurrentUserRole();
 const channel = useWebsocketChannel();
 const hasValidPlan = useHasValidPlan();
 
@@ -138,14 +147,6 @@ async function saveConjuration() {
 function beginAddingTag() {
   addingTag.value = true;
   tagInput.value?.focus();
-}
-
-function normalizeKeyName(key: string) {
-  return key
-    .replace(/([a-z])([A-Z])/g, '$1 $2')
-    .split(' ')
-    .map((x) => x.charAt(0).toUpperCase() + x.slice(1))
-    .join(' ');
 }
 
 const conjurationType = computed(() => {
@@ -297,27 +298,17 @@ function showCustomizeImageModal() {
       </div>
 
       <div class="w-full mt-4 md:mt-0 md:ml-4">
-        <div
-          v-for="(data, i) in dataArray"
-          :key="`data-${i}`"
-          :class="{ 'mb-8': i !== dataArray.length - 1 }"
-          class="bg-surface-2 rounded-[12px]"
-        >
-          <div class="mb-1 text-lg text-white pt-3 px-3">
-            {{ normalizeKeyName(data.key) }}
-          </div>
-          <FormKit
-            v-model="data.value"
-            type="textarea"
-            inner-class="border-none"
-            :input-class="{
-              '$reset input-primary border-none focus:ring-fuchsia-500': true,
-              'pointer-events-none': !editable,
-              'dark:text-neutral-400': true,
-            }"
-            auto-height
-          />
-        </div>
+        <WysiwygEditor
+          :key="'' + readOnly"
+          v-model="editableConjuration.data"
+          :read-only="readOnly"
+          :placeholder="`Add details to your ${conjurationType} here!`"
+          @dblclick="
+            editable && currentUserRole === CampaignRole.DM
+              ? emit('edit')
+              : null
+          "
+        />
       </div>
     </div>
   </div>

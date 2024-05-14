@@ -21,6 +21,7 @@ import CharactersNew from '@/components/Characters/NewCharacter.vue';
 import AuthenticatedView from '@/views/AuthenticatedView.vue';
 import AccountView from '@/views/AccountView.vue';
 import OverviewCampaign from '@/components/Campaigns/OverviewCampaign.vue';
+import ConjureView from '@/views/ConjureView.vue';
 import { authGuard } from '@auth0/auth0-vue';
 
 const router = createRouter({
@@ -192,6 +193,12 @@ const router = createRouter({
           beforeEnter: authGuard,
         },
       ],
+    },
+    {
+      name: 'CONJURE',
+      path: '/conjure',
+      beforeEnter: authGuard,
+      component: ConjureView,
     },
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],

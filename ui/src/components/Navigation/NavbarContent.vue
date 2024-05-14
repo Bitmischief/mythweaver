@@ -77,7 +77,7 @@ async function navigateToCreateCampaign() {
   <div class="flex w-full flex-col mt-4">
     <router-link
       class="button-gradient flex justify-center text-white"
-      to="/conjurations/new"
+      to="/conjure"
       @click="emit('nav-item-selected')"
     >
       <span class="self-center">Conjure</span>

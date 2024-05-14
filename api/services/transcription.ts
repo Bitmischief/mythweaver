@@ -84,7 +84,7 @@ export const transcribeSessionAudio = async (request: TranscriptionRequest) => {
 
 export const recapTranscription = async (transcription: string) => {
   const response = await openai.chat.completions.create({
-    model: 'gpt-4-turbo',
+    model: 'gpt-4o',
     messages: [
       {
         role: 'system',

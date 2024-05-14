@@ -29,10 +29,11 @@ export const getGenerator = (code: string): Generator | undefined => {
 const conjurers: Generator[] = [
   {
     code: 'characters',
-    name: 'NPCs',
-    description: 'Create rich, detailed characters to populate your world.',
+    name: 'NPC',
+    description:
+      'Conjure up compelling NPCs with distinctive traits and narratives to bring depth and intrigue to your game world.',
     customizationHelpPrompt:
-      'A gnome scribe adorned with swirling tattoos that glow faintly in the moonlight, bearing an ancient map etched into her skin, and a past entangled with forgotten gods',
+      "Tell us your NPC's basic outline, and we'll craft a vivid and dynamic character to enrich your game world!",
     imageUri: 'characters.png',
     formatPrompt:
       '{ \n      "name": "", \n      "looks": "", \n      "imageAIPrompt": "", \n      "personality": "",\n      "quirks": ""\n      "fears": ""\n      "hobbies": ""\n      "background": ""\n      "tags": [""]\n    }',
@@ -45,33 +46,16 @@ const conjurers: Generator[] = [
     proOnly: false,
     experimental: false,
   },
-  // {
-  //   code: "encounters",
-  //   name: "Encounters",
-  //   description: "Build exciting and engaging encounters for your players.",
-  //   imageUri: "encounters.png",
-  //   formatPrompt:
-  //     '[{ \n      "name": "", \n      "looks": "", \n      "imageAIPrompt": "", \n      "personality": "",\n      "background": ""\n    }]',
-  //   allowsImageGeneration: true,
-  // },
-  // {
-  //   code: "treasure",
-  //   name: "Treasure",
-  //   description: "Intrigue your players with unique treasure.",
-  //   imageUri: "treasure.png",
-  //   formatPrompt:
-  //     '[{ \n      "name": "", \n      "looks": "", \n      "imageAIPrompt": "", \n      "personality": "",\n      "background": ""\n    }]',
-  //   allowsImageGeneration: true,
-  // },
   {
     code: 'locations',
-    name: 'Locations',
-    description: 'Explore exotic locations in your world.',
+    name: 'Location',
+    description:
+      'From bustling taverns to dank dungeons, conjure up captivating realms and settings that ignite the spirit of adventure.',
     customizationHelpPrompt:
-      'a secluded forest glen, where the trees whisper ancient secrets in the wind, encircled by stone pillars that harbor echoes of forgotten rituals, and a shimmering pond that holds the reflection of a realm not of this world',
+      'Share a description of your desired locale, and we’ll craft unique features and captivating details to enrich your next session!',
     imageUri: 'locations.png',
     formatPrompt:
-      '{ "name": "", "history": "", "imageAIPrompt": "", "tags": [""] }',
+      '{ "name": "", "history": "", "climate": "", "notableLandmarks": "", "imageAIPrompt": "", "tags": [""] }',
     allowsImageGeneration: true,
     basePromptExtraContext:
       "Please thoroughly flesh out the location's history, including historical events, climate and unique look, using at least 100 words to describe the history of this location. Please populate tags with any values you think applicable to this location, to allow easy searching.",
@@ -81,10 +65,11 @@ const conjurers: Generator[] = [
   },
   {
     code: 'monsters',
-    name: 'Monsters',
-    description: 'Create terrifying monsters to challenge your players.',
+    name: 'Monster',
+    description:
+      'Conjure up fearsome and unforgettable monsters to elevate your game and thrill your adventurers.',
     customizationHelpPrompt:
-      'a towering, hulking beast with a single eye and a gaping maw, covered in thick, matted fur, and a long, barbed tail that lashes out at anything that comes near',
+      'Tell us about your monster idea: The more vivid the description, the better we can craft a unique and engaging foe for your adventure.',
     imageUri: 'monsters.png',
     formatPrompt:
       '{ "name": "", "description": "", "storyImpact": "", "playerInteraction": "", "specialAbilities": "", "imageAIPrompt": "", "tags": [""] }',
@@ -97,13 +82,14 @@ const conjurers: Generator[] = [
   },
   {
     code: 'items',
-    name: 'Magic Items',
-    description: "Build customized items that don't break your game.",
+    name: 'Magic Item',
+    description:
+      'Conjure up magical treasures that are sure to dazzle, challenge, and delight your adventurers!',
     customizationHelpPrompt:
-      'An ornate, jeweled dagger thats blade glows with an inner light.',
+      "Describe your vision, and we'll conjure a unique Magical Item tailored to enhance your adventure with enchanting features and intriguing lore!",
     imageUri: 'items.png',
     formatPrompt:
-      '{ "name": "", "description": "", "magicalProperties": "", "value": "", "rarity": "", "imageAIPrompt": "" }',
+      '{ "name": "", "description": "", "magicalProperties": "", "lore": "", "value": "", "rarity": "", "imageAIPrompt": "" }',
     allowsImageGeneration: true,
     basePromptExtraContext:
       'Please generate an item to be used in a TTRPG game. Please populate tags with any values you think applicable to this item, to allow easy searching.',

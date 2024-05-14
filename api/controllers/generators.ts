@@ -36,6 +36,7 @@ export interface PostGeneratorGenerate {
   imageStylePreset?: ImageStylePreset;
   imagePrompt?: string;
   imageNegativePrompt?: string;
+  type?: string;
 }
 
 export interface PostGenerateArbitraryRequest {
@@ -221,6 +222,7 @@ export class GeneratorController {
         imagePrompt: request.imagePrompt,
         imageNegativePrompt: request.imageNegativePrompt,
         prompt: request.prompt,
+        // todo: add type to conjuration request
       },
     });
 
@@ -234,12 +236,14 @@ export class GeneratorController {
       imageStylePreset: request.imageStylePreset,
       imagePrompt: request.imagePrompt,
       imageNegativePrompt: request.imageNegativePrompt,
+      type: request.type,
     });
 
     return {
       conjurationRequestId: conjurationRequest.id,
     };
   }
+
   @Get('/requests/{conjurationRequestId}')
   @Security('jwt')
   @OperationId('getConjurationRequest')
@@ -278,7 +282,7 @@ export class GeneratorController {
     track(AppEvent.GenerateArbitrary, userId, trackingInfo);
     const openai = getClient();
     const response = await openai.chat.completions.create({
-      model: 'gpt-4-turbo',
+      model: 'gpt-4o',
       messages: [
         {
           role: 'system',
@@ -323,7 +327,7 @@ export class GeneratorController {
     track(AppEvent.GenerateArbitraryFromPrompt, userId, trackingInfo);
     const openai = getClient();
     const response = await openai.chat.completions.create({
-      model: 'gpt-4-turbo',
+      model: 'gpt-4o',
       messages: [
         {
           role: 'system',
@@ -377,7 +381,7 @@ export class GeneratorController {
     track(AppEvent.GenerateArbitraryReplacement, userId, trackingInfo);
     const openai = getClient();
     const response = await openai.chat.completions.create({
-      model: request.turbo ? 'gpt-3.5-turbo' : 'gpt-4-turbo',
+      model: 'gpt-4o',
       messages: [
         {
           role: 'system',

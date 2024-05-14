@@ -103,6 +103,7 @@ const postGeneratorGenerateSchema = z.object({
   imageStylePreset: z.string().max(500).optional(),
   imagePrompt: z.string().max(1000).optional(),
   imageNegativePrompt: z.string().max(1000).optional(),
+  type: z.string().optional(),
 });
 
 router.post('/:generatorCode/generate', [

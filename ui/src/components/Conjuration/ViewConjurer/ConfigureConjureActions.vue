@@ -31,7 +31,7 @@ async function handleSaveConjuration() {
 <template>
   <div class="flex justify-between mb-6">
     <router-link
-      :to="`/conjurations/new`"
+      :to="`/conjure`"
       class="bg-surface-2 flex rounded-md border border-gray-600/50 p-3"
     >
       <ArrowLeftIcon class="mr-2 h-4 w-4 self-center" /> Back

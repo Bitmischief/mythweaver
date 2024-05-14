@@ -28,6 +28,7 @@ export enum AppEvent {
   UpscaleImage = 'Upscale Image',
   QuickConjure = 'Quick Conjure',
   Conjure = 'Conjure',
+  ConjureText = 'Conjure Text',
   GetConjurationRequests = 'Get Conjuration Requests',
   GetRpgSystems = 'Get Rpg Systems',
   GetSessions = 'Get Sessions',

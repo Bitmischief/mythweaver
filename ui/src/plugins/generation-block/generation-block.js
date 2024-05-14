@@ -72,6 +72,7 @@ export default class GenerationBlock {
       this.input.style.padding = '6px 12px';
       this.input.style.marginTop = '0.5em';
       this.input.style.whiteSpace = 'pre-wrap';
+      this.input.style.minHeight = '5em';
       this.input.dataset.placeholder = 'Text';
 
       this.button = document.createElement('button');

@@ -12,11 +12,13 @@ import {
 } from '../../services/websockets';
 import logger from '../../lib/logger';
 import { sendConjurationCountUpdatedEvent } from '../../lib/planRestrictionHelpers';
+import { nanoid } from 'nanoid';
 
 const openai = getClient();
 
 export const conjure = async (request: ConjureEvent) => {
   const generator = getGenerator(request.generatorCode);
+  const type = request.type || 'image-text';
 
   if (!generator) {
     throw new AppError({
@@ -52,7 +54,7 @@ export const conjure = async (request: ConjureEvent) => {
 
     try {
       response = await openai.chat.completions.create({
-        model: 'gpt-4-turbo',
+        model: 'gpt-4o',
         messages: [
           {
             role: 'system',
@@ -109,6 +111,7 @@ export const conjure = async (request: ConjureEvent) => {
     });
   }
 
+  const editorJsFormattedData = formatDataForEditorJs(conjuration, generator);
   const createdConjuration = await prisma.conjuration.create({
     data: {
       name: conjuration.name,
@@ -117,13 +120,7 @@ export const conjure = async (request: ConjureEvent) => {
         user.plan === BillingPlan.FREE || user.plan === BillingPlan.TRIAL
           ? ConjurationVisibility.PUBLIC
           : ConjurationVisibility.PRIVATE,
-      data: {
-        ...conjuration,
-        name: undefined,
-        imageAIPrompt: undefined,
-        imageUri: undefined,
-        tags: undefined,
-      },
+      data: editorJsFormattedData,
       imageAIPrompt: request.imagePrompt || conjuration.imageAIPrompt,
       imageUri: conjuration.imageUri,
       conjurerCode: generator.code || '',
@@ -144,53 +141,86 @@ export const conjure = async (request: ConjureEvent) => {
     createdConjuration,
   );
 
-  await sendConjurationCountUpdatedEvent(request.userId);
+  if (type === 'image-text') {
+    await sendConjurationCountUpdatedEvent(request.userId);
 
-  const imagePrompt = request.imagePrompt?.length
-    ? request.imagePrompt
-    : conjuration.imageAIPrompt;
+    const imagePrompt = request.imagePrompt?.length
+      ? request.imagePrompt
+      : conjuration.imageAIPrompt;
 
-  const uris = await generateImage({
-    userId: request.userId,
-    prompt: imagePrompt,
-    count: 1,
-    negativePrompt: request.imageNegativePrompt,
-    stylePreset: request.imageStylePreset,
-    linking: {
-      conjurationId: createdConjuration.id,
-    },
-  });
+    const uris = await generateImage({
+      userId: request.userId,
+      prompt: imagePrompt,
+      count: 1,
+      negativePrompt: request.imageNegativePrompt,
+      stylePreset: request.imageStylePreset,
+      linking: {
+        conjurationId: createdConjuration.id,
+      },
+    });
 
-  if (!uris) {
+    if (!uris) {
+      await prisma.conjuration.update({
+        where: {
+          id: createdConjuration.id,
+        },
+        data: {
+          imageGenerationFailed: true,
+        },
+      });
+
+      throw new AppError({
+        description: 'Error generating image.',
+        httpCode: HttpCode.INTERNAL_SERVER_ERROR,
+      });
+    }
+
+    conjuration.imageUri = uris[0];
+
     await prisma.conjuration.update({
       where: {
         id: createdConjuration.id,
       },
       data: {
-        imageGenerationFailed: true,
+        imageUri: conjuration.imageUri,
       },
     });
 
-    throw new AppError({
-      description: 'Error generating image.',
-      httpCode: HttpCode.INTERNAL_SERVER_ERROR,
+    await processTagsQueue.add({
+      conjurationIds: [createdConjuration.id],
     });
   }
+};
 
-  conjuration.imageUri = uris[0];
+const formatDataForEditorJs = (conjuration: any, generator: any) => {
+  const conjurationCopy = { ...conjuration };
 
-  await prisma.conjuration.update({
-    where: {
-      id: createdConjuration.id,
-    },
-    data: {
-      imageUri: conjuration.imageUri,
-    },
-  });
+  delete conjurationCopy.name;
+  delete conjurationCopy.imageAIPrompt;
+  delete conjurationCopy.imageUri;
+  delete conjurationCopy.tags;
 
-  await processTagsQueue.add({
-    conjurationIds: [createdConjuration.id],
-  });
+  return {
+    time: new Date().getTime(),
+    blocks: Object.keys(conjurationCopy).map((key) => {
+      const keyCapitalized = key.charAt(0).toUpperCase() + key.slice(1);
+      const label =
+        keyCapitalized.match(/($[a-z])|[A-Z][^A-Z]+/g)?.join(' ') ||
+        keyCapitalized;
+      const genCapitalized =
+        generator.name.charAt(0).toUpperCase() + generator.name.slice(1);
+      return {
+        id: nanoid(10),
+        data: {
+          text: conjurationCopy[key],
+          label: label,
+          prompt: `${label} for this ${genCapitalized}`,
+        },
+        type: 'generationBlock',
+      };
+    }),
+    version: '2.29.1',
+  };
 };
 
 const buildPrompt = (
