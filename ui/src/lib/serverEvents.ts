@@ -28,4 +28,5 @@ export enum ServerEvent {
   TranscriptionStarted = 'transcription-started',
   TranscriptionError = 'transcription-error',
   TranscriptionComplete = 'transcription-complete',
+  PrimaryImageSet = 'primary-image-set',
 }

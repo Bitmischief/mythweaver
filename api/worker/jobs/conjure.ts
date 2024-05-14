@@ -204,14 +204,17 @@ const formatDataForEditorJs = (conjuration: any, generator: any) => {
     time: new Date().getTime(),
     blocks: Object.keys(conjurationCopy).map((key) => {
       const keyCapitalized = key.charAt(0).toUpperCase() + key.slice(1);
+      const label =
+        keyCapitalized.match(/($[a-z])|[A-Z][^A-Z]+/g)?.join(' ') ||
+        keyCapitalized;
       const genCapitalized =
         generator.name.charAt(0).toUpperCase() + generator.name.slice(1);
       return {
         id: nanoid(10),
         data: {
           text: conjurationCopy[key],
-          label: keyCapitalized,
-          prompt: `${keyCapitalized} for this ${genCapitalized}`,
+          label: label,
+          prompt: `${label} for this ${genCapitalized}`,
         },
         type: 'generationBlock',
       };

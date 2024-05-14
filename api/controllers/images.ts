@@ -13,6 +13,7 @@ import { generateImage, upscaleImage } from '../services/imageGeneration';
 import { prisma } from '../lib/providers/prisma';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import { MythWeaverLogger } from '../lib/logger';
+import { sendWebsocketMessage, WebSocketEvent } from '../services/websockets';
 
 interface PostImageRequest {
   prompt: string;
@@ -171,6 +172,13 @@ export default class ImageController {
       });
     }
 
+    if (!image.uri) {
+      throw new AppError({
+        description: 'Image does not have a URI.',
+        httpCode: HttpCode.BAD_REQUEST,
+      });
+    }
+
     if (!user.earlyAccessExempt) {
       if (user.imageCredits < 1) {
         throw new AppError({
@@ -186,5 +194,79 @@ export default class ImageController {
       userId,
       imageUri: image.uri,
     });
+  }
+
+  @Security('jwt')
+  @OperationId('setPrimary')
+  @Patch('/:imageId/primary')
+  public async patchPrimaryImage(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
+    @Route() imageId: number,
+  ): Promise<void> {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user) {
+      throw new AppError({
+        description: 'User not found.',
+        httpCode: HttpCode.BAD_REQUEST,
+      });
+    }
+
+    const image = await prisma.image.findUnique({
+      where: {
+        id: imageId,
+        userId: userId,
+      },
+    });
+
+    if (!image) {
+      throw new AppError({
+        description: 'Image not found.',
+        httpCode: HttpCode.BAD_REQUEST,
+      });
+    }
+
+    await prisma.image.updateMany({
+      where: {
+        userId: userId,
+        conjurationId: image.conjurationId,
+        sessionId: image.sessionId,
+        characterId: image.characterId,
+      },
+      data: {
+        primary: false,
+      },
+    });
+
+    await prisma.image.update({
+      where: {
+        id: imageId,
+      },
+      data: {
+        primary: true,
+      },
+    });
+
+    const updatedImages = await prisma.image.findMany({
+      where: {
+        userId: userId,
+        conjurationId: image.conjurationId,
+        sessionId: image.sessionId,
+        characterId: image.characterId,
+        primary: true,
+      },
+    });
+
+    await sendWebsocketMessage(
+      userId,
+      WebSocketEvent.PrimaryImageSet,
+      updatedImages,
+    );
   }
 }

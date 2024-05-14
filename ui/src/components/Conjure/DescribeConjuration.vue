@@ -269,8 +269,7 @@ const itemDescription = computed(() => {
         you want to conjure
       </div>
       <div class="text-sm text-neutral-500 mb-2">
-        We'll use this to info to generate fun and compelling characteristics
-        for your {{ generator.name }} to help bring it to life!
+        {{ generator.customizationHelpPrompt }}
       </div>
       <div
         class="w-full bg-gradient-to-r from-fuchsia-500 to-violet-500 p-px rounded-[20px] purple-shadow"

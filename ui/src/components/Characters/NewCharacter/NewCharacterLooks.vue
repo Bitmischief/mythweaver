@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import CustomizeConjurationImage from '@/components/Conjuration/ViewConjuration/CustomizeConjurationImage.vue';
 import { Character } from '@/api/characters.ts';
-import { computed, onMounted, onUnmounted } from 'vue';
-import { useEventBus } from '@/lib/events.ts';
+import { computed } from 'vue';
 import LightboxImage from '@/components/LightboxImage.vue';
 import { ArrowLeftIcon } from '@heroicons/vue/24/solid';
 
@@ -12,29 +11,11 @@ const props = defineProps<{
 
 const emit = defineEmits(['update:modelValue', 'complete', 'back']);
 
-const eventBus = useEventBus();
-
 const value = computed({
   get: () => props.modelValue,
   set: (value) => {
     emit('update:modelValue', value);
   },
-});
-
-onMounted(() => {
-  eventBus.$on(
-    'updated-conjuration-image',
-    (payload: { imageUri: string; prompt: string }) => {
-      setTimeout(() => {
-        value.value.imageUri = payload.imageUri;
-        emit('complete');
-      }, 50);
-    },
-  );
-});
-
-onUnmounted(() => {
-  eventBus.$off('updated-conjuration-image');
 });
 </script>
 
@@ -63,7 +44,7 @@ onUnmounted(() => {
       </div>
       <div v-else class="shrink">
         <CustomizeConjurationImage
-          :prompt="value.looks"
+          :image="{ prompt: value.looks }"
           :linking="{ characterId: value.id }"
           cancel-button-text-override="Back"
           @cancel="emit('back')"

@@ -4,13 +4,19 @@ import { toTitleCase } from '@/lib/util.ts';
 import { BillingPlan } from '@/api/users.ts';
 import { computed, onMounted, ref } from 'vue';
 import { useCurrentUserPlan } from '@/lib/hooks.ts';
-import { ArrowRightIcon } from '@heroicons/vue/24/solid';
+import { ArrowRightIcon, LockClosedIcon } from '@heroicons/vue/24/solid';
+import { useEventBus } from '@/lib/events.ts';
 
 const props = defineProps<{
   modelValue: Conjurer | undefined;
 }>();
 
-const emit = defineEmits(['update:modelValue', 'next', 'back']);
+const emit = defineEmits([
+  'update:modelValue',
+  'next',
+  'back',
+  'show-subscription-modal',
+]);
 
 const value = computed({
   get: () => props.modelValue,
@@ -19,6 +25,7 @@ const value = computed({
   },
 });
 
+const eventBus = useEventBus();
 const currentUserPlan = useCurrentUserPlan();
 const generators = ref<Conjurer[]>([]);
 const imagePresetStyles = ref<any[]>([]);
@@ -49,33 +56,49 @@ const proOnly = (gen: Conjurer) => {
 
 <template>
   <div class="text-xl mb-2">What would you like to conjure?</div>
-  <div
-    class="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-  >
+  <div class="grid gap-4 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 mb-6">
     <div
       v-for="(gens, i) in generators"
       :key="`generator_${i}`"
       class="cursor-pointer group/generator rounded-[20px] p-px"
       :class="{
         'active bg-gradient': value === gens,
-        'relative group/proOnly': proOnly(gens),
+        'relative proOnly': proOnly(gens),
         'relative group/experimental': !proOnly(gens) && gens.experimental,
       }"
-      @click="value = gens"
+      @click="
+        !proOnly(gens)
+          ? (value = gens)
+          : eventBus.$emit('show-subscription-modal')
+      "
     >
-      <div class="flex bg-surface-2 rounded-[20px] p-3">
-        <div class="basis-1/4 self-center">
+      <div
+        class="absolute h-full w-full hidden group-[.proOnly]/generator:flex justify-center rounded-[24px] bg-purple-900/10"
+      >
+        <div class="rounded-[20px] bg-surface-2/50 p-2 my-auto">
+          <LockClosedIcon class="h-10 w-10 mx-auto" />
+          <div class="">Pro Only</div>
+        </div>
+      </div>
+      <div class="flex bg-surface-2 rounded-[24px] p-2">
+        <div class="basis-1/3 self-center">
           <img
             :src="`./images/generators/${gens.imageUri}`"
             alt="generator image"
-            class="rounded-full"
+            class="rounded-[20px]"
           />
         </div>
-        <div class="basis-3/4 px-3 py-2 rounded-[12px] self-center">
-          <div class="truncate text-xl">
+        <div class="basis-2/3 px-3 rounded-[12px]">
+          <div class="truncate text-xl flex">
             {{ gens.name }}
+            <div
+              v-if="gens.proOnly"
+              class="self-center mx-2 text-white text-xs px-2 skew-x-[-20deg] rounded-tl-[5px] rounded-br-[5px] bg-gradient-to-r from-[#E95252] to-[#E5AD59]"
+            >
+              PRO
+            </div>
           </div>
-          <div class="text-xs text-neutral-500 truncate-2-line">
+          <div class="text-sm text-neutral-500">
             {{ gens.description }}
           </div>
         </div>
@@ -86,7 +109,11 @@ const proOnly = (gen: Conjurer) => {
         <button
           v-if="value === gens"
           class="button-gradient flex justify-center gap-2 rounded-[16px] w-full"
-          @click="$emit('next')"
+          @click="
+            !proOnly(gens)
+              ? $emit('next')
+              : eventBus.$emit('show-subscription-modal')
+          "
         >
           Continue
           <ArrowRightIcon class="h-4 w-4 self-center" />

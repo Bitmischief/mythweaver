@@ -69,6 +69,13 @@ const campaignCharacters = computed(() => {
 async function viewCharacter(id: number) {
   await router.push(`/character/${id}`);
 }
+
+function primaryImage(char: Character) {
+  if (char.images?.length) {
+    return char.images.find((i) => i.primary)?.uri;
+  }
+  return undefined;
+}
 </script>
 
 <template>
@@ -87,22 +94,24 @@ async function viewCharacter(id: number) {
           {{ myCharacters.length }}
         </div>
       </div>
-      <div class="flex overflow-x-auto">
+      <div
+        class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
+      >
         <div
           v-for="(char, i) in myCharacters"
           :key="`char_${i}`"
-          class="bg-surface-3 rounded-[25px] p-1 cursor-pointer max-w-[15em] mr-6 overflow-hidden"
+          class="bg-surface-3 rounded-[25px] p-1 cursor-pointer w-full mr-6 overflow-hidden"
           @click="viewCharacter(char.id)"
         >
           <div class="relative">
             <img
-              :src="char.imageUri || 'images/character_bg_square.png'"
+              :src="primaryImage(char) || 'images/character_bg_square.png'"
               alt="character portrait"
               class="rounded-[20px]"
-              :class="{ 'blur-sm': !char.imageUri }"
+              :class="{ 'blur-sm': !primaryImage(char) }"
             />
             <div
-              v-if="!char.imageUri"
+              v-if="!primaryImage(char)"
               class="absolute top-1/2 left-1/2 -translate-x-1/2 text-neutral-300 text-lg"
             >
               No Image
@@ -123,16 +132,18 @@ async function viewCharacter(id: number) {
           {{ campaignCharacters.length }}
         </div>
       </div>
-      <div class="flex overflow-x-auto">
+      <div
+        class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
+      >
         <div
           v-for="(char, i) in campaignCharacters"
           :key="`char_${i}`"
-          class="bg-surface-3 rounded-[25px] p-1 cursor-pointer min-w-[10em] max-w-[15em] mr-6 overflow-hidden"
+          class="bg-surface-3 rounded-[25px] p-1 cursor-pointer w-full mr-6 overflow-hidden"
           @click="viewCharacter(char.id)"
         >
           <div class="relative">
             <img
-              :src="char.imageUri"
+              :src="primaryImage(char)"
               alt="character portrait"
               class="rounded-[20px]"
             />

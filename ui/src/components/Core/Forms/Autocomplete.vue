@@ -49,7 +49,7 @@ function openOptions() {
   <Combobox
     v-model="value"
     as="div"
-    class="gradient-border-no-opacity relative h-10 w-full cursor-pointer rounded-xl bg-black text-left text-white"
+    class="gradient-border-no-opacity relative w-full cursor-pointer rounded-xl bg-black text-left text-white"
     :multiple="multiple"
     nullable
   >

@@ -547,7 +547,10 @@ export default class CampaignController {
 
     track(AppEvent.GetCharacter, userId, trackingInfo);
 
-    return character;
+    return {
+      ...character,
+      imageUri: character.images.find((i) => i.primary)?.uri || null,
+    };
   }
 
   @Security('jwt')
@@ -580,12 +583,19 @@ export default class CampaignController {
         campaignId: campaignId,
       },
       include: {
-        images: true,
+        images: {
+          where: {
+            primary: true,
+          },
+        },
       },
     });
 
     track(AppEvent.GetCharacters, campaignId, trackingInfo);
 
-    return characters;
+    return characters.map((c) => ({
+      ...c,
+      imageUri: c.images.find((i) => i.primary)?.uri || null,
+    }));
   }
 }

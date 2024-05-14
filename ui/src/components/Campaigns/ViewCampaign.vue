@@ -52,7 +52,6 @@ async function handleSaveCampaign() {
       campaignId: selectedCampaignId.value || 0,
       name: campaign.value.name,
       description: campaign.value.description,
-      imageUri: campaign.value.imageUri,
       rpgSystemCode: campaign.value.rpgSystemCode,
     });
 

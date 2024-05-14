@@ -118,14 +118,7 @@ export default class ConjurationController {
           : undefined,
         userId: history ? userId : undefined,
         visibility: saved || history ? undefined : ConjurationVisibility.PUBLIC,
-        images: stylePreset
-          ? {
-              some: {
-                stylePreset: stylePreset,
-              },
-            }
-          : undefined,
-        imageUri: !saved ? { not: null } : undefined,
+        images: !saved ? { some: { primary: true } } : undefined,
         OR: orClause.length ? orClause : undefined,
       },
       skip: offset,
@@ -135,6 +128,7 @@ export default class ConjurationController {
       },
       include: {
         saves: true,
+        images: true,
       },
     });
 
@@ -167,6 +161,7 @@ export default class ConjurationController {
                 r.nextType === ConjurationRelationshipType.CONJURATION,
             )
           : false,
+        imageUri: c.images.find((i) => i.primary)?.uri || null,
       })),
       offset: offset,
       limit: limit,
@@ -211,6 +206,7 @@ export default class ConjurationController {
 
     return {
       ...conjuration,
+      imageUri: conjuration.images.find((i) => i.primary)?.uri || null,
       saves: undefined,
       saved: conjuration.saves.length > 0,
     };
@@ -500,6 +496,9 @@ export default class ConjurationController {
       where: {
         id: conjurationId,
       },
+      include: {
+        images: true,
+      },
     });
 
     if (!existingConjuration) {
@@ -528,12 +527,35 @@ export default class ConjurationController {
         },
         createdAt: undefined,
         updatedAt: undefined,
+        images: undefined,
       },
     });
 
+    if (existingConjuration.images.length) {
+      const origPrimaryImage = existingConjuration.images[0];
+      await prisma.image.create({
+        data: {
+          ...origPrimaryImage,
+          id: undefined,
+          userId: userId,
+          conjurationId: conjuration.id,
+        },
+      });
+    }
+
     await sendConjurationCountUpdatedEvent(userId);
 
-    return conjuration;
+    const newConjuration = await prisma.conjuration.findUnique({
+      where: {
+        id: conjuration.id,
+      },
+      include: {
+        saves: true,
+        images: true,
+      },
+    });
+
+    return newConjuration;
   }
 
   @Security('jwt')

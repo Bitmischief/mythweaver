@@ -1,20 +1,21 @@
 <script setup lang="ts">
 import { ArrowLeftIcon } from '@heroicons/vue/24/solid';
 import { Conjurer } from '@/api/generators.ts';
-import { Conjuration, patchConjuration } from '@/api/conjurations.ts';
-import { computed, onMounted } from 'vue';
+import { Conjuration } from '@/api/conjurations.ts';
+import { computed, onMounted, onUnmounted } from 'vue';
 import CustomizeConjurationImage from '@/components/Conjuration/ViewConjuration/CustomizeConjurationImage.vue';
-import { useEventBus } from '@/lib/events.ts';
-import { showError, showSuccess } from '@/lib/notifications.ts';
+import { showSuccess } from '@/lib/notifications.ts';
 import { useRouter } from 'vue-router';
+import { ServerEvent } from '@/lib/serverEvents.ts';
+import { useWebsocketChannel } from '@/lib/hooks.ts';
 
 const emit = defineEmits(['update:modelValue', 'back', 'next']);
 const props = defineProps<{
   modelValue: Conjuration;
   generator: Conjurer;
 }>();
-const eventBus = useEventBus();
 const router = useRouter();
+const channel = useWebsocketChannel();
 
 const conjuration = computed({
   get: () => props.modelValue,
@@ -24,26 +25,15 @@ const conjuration = computed({
 });
 
 onMounted(() => {
-  eventBus.$on('updated-conjuration-image', async (data: any) => {
-    conjuration.value.imageUri = data.imageUri;
-    await saveConjuration();
+  channel.bind(ServerEvent.PrimaryImageSet, async () => {
+    showSuccess({ message: 'Successfully saved conjuration image!' });
+    await viewConjuration();
   });
 });
 
-async function saveConjuration() {
-  try {
-    await patchConjuration(conjuration.value.id, {
-      imageUri: conjuration.value.imageUri || '',
-    });
-    showSuccess({ message: 'Successfully saved conjuration image!' });
-    await viewConjuration();
-  } catch (e) {
-    showError({
-      message:
-        'Something went wrong saving your conjuration image. Please try again.',
-    });
-  }
-}
+onUnmounted(() => {
+  channel.unbind_all();
+});
 
 const viewConjuration = async () => {
   await router.push(`/conjurations/view/${conjuration.value.id}`);
@@ -52,7 +42,7 @@ const viewConjuration = async () => {
 
 <template>
   <div class="w-full">
-    <div class="mb-4 flex gap-2">
+    <div class="flex gap-2">
       <button class="button-primary flex gap-2" @click="emit('back')">
         <ArrowLeftIcon class="h-5 w-5 self-center" />
         <span class="self-center">Back</span>
@@ -64,7 +54,7 @@ const viewConjuration = async () => {
     </div>
     <div>
       <CustomizeConjurationImage
-        :prompt="conjuration?.imageAIPrompt"
+        :image="{ prompt: conjuration?.imageAIPrompt || '' }"
         :linking="{ conjurationId: conjuration?.id }"
         save-button-text-override="Save and Continue"
       />
