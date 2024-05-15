@@ -33,6 +33,7 @@ import { CampaignRole } from '@/api/campaigns.ts';
 import ViewRelationships from '@/components/Relationships/ViewRelationships.vue';
 import { useLDFlag } from 'launchdarkly-vue-client-sdk';
 import { AxiosError } from 'axios';
+import ModalAlternate from '@/components/ModalAlternate.vue';
 
 const showRelationships = useLDFlag('relationships', false);
 
@@ -113,28 +114,25 @@ async function handleSaveConjuration() {
 }
 
 async function handleRemoveConjuration() {
-  if (confirm('Are you sure you want to remove this conjuration?')) {
-    await removeConjuration(conjurationId.value);
-    showSuccess({ message: 'Successfully removed conjuration!' });
-    location.reload();
-  }
+  await removeConjuration(conjurationId.value);
+  showSuccess({ message: 'Successfully removed conjuration!' });
+  location.reload();
 }
 
+const confirmDeleteConjuration = ref(false);
+
 async function handleDeleteConjuration() {
-  if (
-    confirm('Are you sure you want to permanently delete this conjuration?')
-  ) {
-    try {
-      await deleteConjuration(conjurationId.value);
-      showSuccess({ message: 'Successfully deleted conjuration!' });
-      await router.push('/conjurations');
-    } catch (e) {
-      const err = e as AxiosError;
-      showError({
-        message: (err?.response?.data as any)?.message?.toString() || '',
-      });
-      return;
-    }
+  try {
+    await deleteConjuration(conjurationId.value);
+    showSuccess({ message: 'Successfully deleted conjuration!' });
+    confirmDeleteConjuration.value = false;
+    await router.push('/conjurations');
+  } catch (e) {
+    const err = e as AxiosError;
+    showError({
+      message: (err?.response?.data as any)?.message?.toString() || '',
+    });
+    return;
   }
 }
 
@@ -161,8 +159,13 @@ async function handleCopyConjuration() {
 }
 
 async function routeBack() {
-  router.go(-1);
-  await router.push('/conjurations#saved');
+  if (!isMyConjuration.value) {
+    await router.push('/conjurations#gallery');
+  } else if (!conjuration.value?.saved) {
+    await router.push('/conjurations#history');
+  } else {
+    await router.push('/conjurations#saved');
+  }
 }
 
 async function conjureUsingPrompt() {
@@ -218,13 +221,6 @@ const readOnly = ref(true);
         class="flex flex-wrap xl:flex-nowrap whitespace-nowrap gap-2 mt-0 justify-end grow"
       >
         <button
-          v-if="conjuration.prompt"
-          class="button-ghost flex self-center"
-          @click="conjureUsingPrompt"
-        >
-          Conjure With Same Prompt
-        </button>
-        <button
           v-if="isQuickConjure"
           class="button-gradient flex self-center"
           @click="quickConjure(conjuration.conjurerCode)"
@@ -234,11 +230,11 @@ const readOnly = ref(true);
         </button>
 
         <button
-          v-if="isMyConjuration"
-          class="button-ghost self-center"
-          @click="readOnly = !readOnly"
+          v-if="isMyConjuration && readOnly"
+          class="button-gradient self-center"
+          @click="readOnly = false"
         >
-          {{ readOnly ? 'Edit Mode' : 'Read Mode' }}
+          Edit
         </button>
         <button
           v-if="isMyConjuration && !readOnly"
@@ -276,6 +272,15 @@ const readOnly = ref(true);
 
           <template #content>
             <div class="relative z-60 bg-surface-3 p-2 rounded-[12px]">
+              <MenuItem class="menu-item">
+                <button
+                  v-if="conjuration.prompt"
+                  class="button-primary flex"
+                  @click="conjureUsingPrompt"
+                >
+                  Conjure With Same Prompt
+                </button>
+              </MenuItem>
               <MenuItem v-if="showRelationships" class="menu-item">
                 <button
                   v-if="currentUserRole === CampaignRole.DM"
@@ -313,7 +318,7 @@ const readOnly = ref(true);
               <MenuItem v-if="isMyConjuration" class="menu-item">
                 <button
                   class="button-primary flex"
-                  @click="handleDeleteConjuration"
+                  @click="confirmDeleteConjuration = true"
                 >
                   Delete Conjuration
                 </button>
@@ -338,5 +343,35 @@ const readOnly = ref(true);
         :start-node-type="ConjurationRelationshipType.CONJURATION"
       />
     </div>
+    <ModalAlternate :show="confirmDeleteConjuration">
+      <div v-if="conjuration" class="bg-surface-3 rounded-[12px] p-6">
+        <div class="text-lg text-white">
+          Are you sure you want to permanently delete
+          <span class="text-fuchsia-500">{{ conjuration.name }}</span
+          >?
+        </div>
+        <div class="font-bold underline text-neutral-400 text-center my-6">
+          Note: This action <b>cannot</b> be undone
+        </div>
+        <div class="flex gap-2 justify-center mt-4">
+          <div>
+            <FormKit
+              label="Cancel"
+              type="button"
+              input-class="$reset button-ghost self-center"
+              @click="confirmDeleteConjuration = false"
+            />
+          </div>
+          <div>
+            <FormKit
+              label="Confirm Delete"
+              type="button"
+              input-class="$reset button-gradient self-center"
+              @click="handleDeleteConjuration"
+            />
+          </div>
+        </div>
+      </div>
+    </ModalAlternate>
   </template>
 </template>

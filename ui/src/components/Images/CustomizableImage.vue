@@ -8,6 +8,7 @@ import {
 } from '@heroicons/vue/24/outline';
 import { useEventBus } from '@/lib/events.ts';
 import { showError } from '@/lib/notifications.ts';
+import { computed } from 'vue';
 
 const props = withDefaults(
   defineProps<{
@@ -75,6 +76,12 @@ function downloadImage(url: string) {
     })
     .catch(() => showError({ message: 'Failed to download image' }));
 }
+
+const alreadyUpscaled = computed(() => {
+  const img = new Image();
+  img.src = props.image.uri || '';
+  return img.width > 1024 || img.height > 1024;
+});
 </script>
 
 <template>
@@ -84,15 +91,6 @@ function downloadImage(url: string) {
     </div>
 
     <div v-if="editable" class="absolute flex top-2 right-2">
-      <button
-        type="button"
-        class="flex button-white bg-white/50"
-        :disabled="!editable"
-        @click="showCustomizeImageModal"
-      >
-        <PencilSquareIcon class="h-5 mr-1" />
-        <span class="self-center">Customize</span>
-      </button>
       <div class="relative group ml-2">
         <button
           v-if="image.uri"
@@ -106,6 +104,29 @@ function downloadImage(url: string) {
           class="absolute mt-2 top-[100%] right-0 hidden group-hover:block whitespace-nowrap px-2 py-1 bg-surface-3 rounded-full"
         >
           Download Image
+        </div>
+      </div>
+      <button
+        type="button"
+        class="flex button-gradient bg-white/50"
+        :disabled="!editable"
+        @click="showCustomizeImageModal"
+      >
+        <PencilSquareIcon class="h-5 mr-1" />
+        <span class="self-center">Modify Image</span>
+      </button>
+      <div
+        v-if="alreadyUpscaled"
+        class="relative ml-2 self-center group/upscale"
+      >
+        <img
+          src="@/assets/icons/gradient-sparkles.svg"
+          alt="sparkles"
+          class="w-6 h-6"
+        />
+        <div class="tooltip-bottom-left hidden group-hover/upscale:block">
+          Upscaled
+          <div class="tooltip-arrow" />
         </div>
       </div>
     </div>

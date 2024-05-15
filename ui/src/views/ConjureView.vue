@@ -1,31 +1,50 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useLDFlag } from 'launchdarkly-vue-client-sdk';
 import { onMounted, ref, watch } from 'vue';
 import MeteorShower from '@/components/Core/MeteorShower.vue';
 import GeneratorSelect from '@/components/Conjure/GeneratorSelect.vue';
-import { Conjurer } from '@/api/generators.ts';
+import { Conjurer, getConjurers } from '@/api/generators.ts';
 import DescribeConjuration from '@/components/Conjure/DescribeConjuration.vue';
-import { Conjuration } from '@/api/conjurations.ts';
+import { Conjuration, getConjuration } from '@/api/conjurations.ts';
 import EditConjurationDetails from '@/components/Conjure/EditConjurationDetails.vue';
 import CreateConjurationImage from '@/components/Conjure/CreateConjurationImage.vue';
 
-// tabs will probably be generator | conjure | edit | image | summary
-const steps = ['generator', 'conjure', 'edit', 'image'];
-
-const current = ref('generator');
+const current = ref<'generator' | 'conjure' | 'edit' | 'image'>('generator');
 const conjureV2 = useLDFlag('conjure-v2');
 const router = useRouter();
+const route = useRoute();
 
 const generator = ref<Conjurer>();
+const generators = ref<Conjurer[]>([]);
 const conjuration = ref<Conjuration>();
+const defaultPrompt = ref('');
 
 watch(conjureV2, () => {
   checkConjureV2();
 });
 
-onMounted(() => {
+onMounted(async () => {
   checkConjureV2();
+  await loadGenerators();
+
+  if (route.query.code) {
+    generator.value = generators.value.find((g) => g.code === route.query.code);
+  } else {
+    generator.value = generators.value[0];
+  }
+  if (route.query.prompt) {
+    defaultPrompt.value = route.query.prompt as string;
+  }
+
+  if (route.query.id) {
+    await loadConjuration(route.query.id);
+    current.value = 'edit';
+  } else if (route.query.code) {
+    current.value = 'conjure';
+  } else {
+    current.value = 'generator';
+  }
 });
 
 const checkConjureV2 = () => {
@@ -35,19 +54,71 @@ const checkConjureV2 = () => {
 };
 
 const back = () => {
-  const currentIndex = steps.findIndex((step) => step === current.value);
-  if (currentIndex > 0) {
-    current.value = steps[currentIndex - 1];
+  switch (current.value) {
+    case 'conjure':
+      current.value = 'generator';
+      router.push({ query: {} });
+      break;
+    case 'edit':
+      current.value = 'conjure';
+      router.push({
+        query: {
+          code: generator.value?.code,
+          prompt: conjuration.value?.prompt,
+        },
+      });
+      break;
+    case 'image':
+      current.value = 'edit';
+      router.push({
+        query: {
+          code: generator.value?.code,
+          prompt: conjuration.value?.prompt,
+          id: conjuration.value?.id,
+        },
+      });
+      break;
   }
 };
 
 const next = () => {
-  console.log('next hit', current.value);
-  const currentIndex = steps.findIndex((step) => step === current.value);
-  if (currentIndex < steps.length - 1) {
-    current.value = steps[currentIndex + 1];
+  switch (current.value) {
+    case 'generator':
+      current.value = 'conjure';
+      router.push({ query: { code: generator.value?.code } });
+      break;
+    case 'conjure':
+      current.value = 'edit';
+      router.push({
+        query: {
+          code: generator.value?.code,
+          prompt: conjuration.value?.prompt,
+          id: conjuration.value?.id,
+        },
+      });
+      break;
+    case 'edit':
+      current.value = 'image';
+      router.push({
+        query: {
+          code: generator.value?.code,
+          prompt: conjuration.value?.prompt,
+          id: conjuration.value?.id,
+        },
+      });
+      break;
   }
 };
+
+async function loadGenerators() {
+  const generatorsResponse = await getConjurers();
+  generators.value = generatorsResponse.data.data;
+}
+
+async function loadConjuration(id: any) {
+  const conjurationResponse = await getConjuration(id);
+  conjuration.value = conjurationResponse.data;
+}
 </script>
 
 <template>
@@ -60,6 +131,7 @@ const next = () => {
       <DescribeConjuration
         v-model="conjuration"
         :generator="generator"
+        :default-prompt="defaultPrompt"
         @back="back"
         @next="next"
       />

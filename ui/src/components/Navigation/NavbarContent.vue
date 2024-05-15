@@ -17,6 +17,7 @@ import {
   PhotoIcon,
   SparklesIcon,
   Squares2X2Icon,
+  ClockIcon,
 } from '@heroicons/vue/24/outline';
 import { useCurrentUserPlan } from '@/lib/hooks.ts';
 import { BillingPlan } from '@/api/users.ts';
@@ -213,7 +214,7 @@ async function navigateToCreateCampaign() {
       <div v-if="!collapsed" class="whitespace-nowrap">Sessions</div>
     </router-link>
 
-    <div class="text-xs text-gray-500 font-bold mb-3 mt-6">TOOLS</div>
+    <div class="text-xs text-gray-500 font-bold mb-3 mt-6">CONJURATIONS</div>
 
     <router-link
       class="nav-item"
@@ -227,6 +228,22 @@ async function navigateToCreateCampaign() {
     >
       <BookmarkSquareIcon class="h-5 mr-2" />
       <div v-if="!collapsed" class="whitespace-nowrap">My Conjurations</div>
+    </router-link>
+
+    <router-link
+      class="nav-item"
+      :class="[
+        router.currentRoute.value.fullPath.startsWith('/conjurations#history')
+          ? 'default-border-no-opacity'
+          : '',
+      ]"
+      to="/conjurations#history"
+      @click="emit('nav-item-selected')"
+    >
+      <ClockIcon class="h-5 mr-2" />
+      <div v-if="!collapsed" class="whitespace-nowrap">
+        My Conjuration History
+      </div>
     </router-link>
 
     <router-link

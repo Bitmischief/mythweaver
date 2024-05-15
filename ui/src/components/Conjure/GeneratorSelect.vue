@@ -35,9 +35,9 @@ onMounted(async () => {
 });
 
 async function loadGenerators() {
-  const generatorsReponse = await getConjurers();
-  generators.value = generatorsReponse.data.data;
-  value.value = generatorsReponse.data.data[0];
+  const generatorsResponse = await getConjurers();
+  generators.value = generatorsResponse.data.data;
+  value.value = generatorsResponse.data.data[0];
   imagePresetStyles.value =
     value.value?.supportedImageStylePresets?.map((style) => ({
       code: style,
@@ -64,7 +64,7 @@ const proOnly = (gen: Conjurer) => {
       :key="`generator_${i}`"
       class="cursor-pointer group/generator rounded-[20px] p-px"
       :class="{
-        'active bg-gradient': value === gens,
+        'active bg-gradient': value?.code === gens.code,
         'relative proOnly': proOnly(gens),
         'relative group/experimental': !proOnly(gens) && gens.experimental,
       }"
@@ -109,7 +109,7 @@ const proOnly = (gen: Conjurer) => {
         class="max-h-0 group-[.active]/generator:max-h-10 transition-all overflow-hidden"
       >
         <button
-          v-if="value === gens"
+          v-if="value?.code === gens.code"
           class="button-gradient flex justify-center gap-2 rounded-[16px] w-full"
           @click="
             !proOnly(gens)
