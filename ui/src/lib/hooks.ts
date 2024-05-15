@@ -47,8 +47,12 @@ export function useWebsocketChannel() {
   if (!userId.value) {
     throw new Error('No userId to bind server events to!');
   }
-
-  return pusher.subscribe(userId.value.toString());
+  const channel = pusher.channel(userId.value.toString());
+  if (channel) {
+    return channel;
+  } else {
+    return pusher.subscribe(userId.value.toString());
+  }
 }
 
 export function useUnsavedChangesWarning(originalValue: Ref<any>, currentValue: Ref<any>) {

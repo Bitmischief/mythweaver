@@ -35,3 +35,7 @@ export const postImageUpscale = async (imageId: number) => {
 export const patchPrimaryImage = async (imageId: number) => {
   return axios.patch(`/images/${imageId}/primary`);
 };
+
+export const getConjurationImageHistory = async (conjurationId: number) => {
+  return axios.get(`/images/conjurations/${conjurationId}/history`);
+};

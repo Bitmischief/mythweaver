@@ -25,15 +25,17 @@ const conjuration = computed({
 });
 
 onMounted(() => {
-  channel.bind(ServerEvent.PrimaryImageSet, async () => {
-    showSuccess({ message: 'Successfully saved conjuration image!' });
-    await saveConjuration(conjuration.value.id);
-    await viewConjuration();
-  });
+  channel.bind(ServerEvent.PrimaryImageSet, primaryImageSetHandler);
 });
 
+async function primaryImageSetHandler() {
+  showSuccess({ message: 'Successfully saved conjuration image!' });
+  await saveConjuration(conjuration.value.id);
+  await viewConjuration();
+}
+
 onUnmounted(() => {
-  channel.unbind_all();
+  channel.unbind(ServerEvent.PrimaryImageSet, primaryImageSetHandler);
 });
 
 const viewConjuration = async () => {

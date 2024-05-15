@@ -1,5 +1,6 @@
 import {
   Body,
+  Get,
   Inject,
   OperationId,
   Patch,
@@ -14,6 +15,7 @@ import { prisma } from '../lib/providers/prisma';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import { MythWeaverLogger } from '../lib/logger';
 import { sendWebsocketMessage, WebSocketEvent } from '../services/websockets';
+import { Image } from '@prisma/client';
 
 interface PostImageRequest {
   prompt: string;
@@ -268,5 +270,53 @@ export default class ImageController {
       WebSocketEvent.PrimaryImageSet,
       updatedImages,
     );
+  }
+
+  @Security('jwt')
+  @OperationId('getConjurationImageHistory')
+  @Get('/conjurations/:conjurationId/history')
+  public async getConjurationImageHistory(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
+    @Route() conjurationId: number,
+  ): Promise<Image[]> {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user) {
+      throw new AppError({
+        description: 'User not found.',
+        httpCode: HttpCode.BAD_REQUEST,
+      });
+    }
+
+    const conjuration = await prisma.conjuration.findUnique({
+      where: {
+        id: conjurationId,
+        userId: userId,
+      },
+      include: {
+        images: {
+          where: {
+            NOT: {
+              uri: null,
+            },
+          },
+        },
+      },
+    });
+
+    if (!conjuration) {
+      throw new AppError({
+        description: 'Conjuration not found.',
+        httpCode: HttpCode.BAD_REQUEST,
+      });
+    }
+
+    return conjuration.images;
   }
 }

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useWebsocketChannel } from '@/lib/hooks.ts';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { ServerEvent } from '@/lib/serverEvents.ts';
 import { useAuthStore } from '@/store';
 import { XCircleIcon } from '@heroicons/vue/24/solid';
@@ -32,9 +32,18 @@ defineProps<{
 onMounted(() => {
   channel.bind(
     ServerEvent.UserImageCreditCountUpdated,
-    (newImageCreditCount: number) => {
-      creditCountChanged(newImageCreditCount);
-    },
+    userImageCreditCountUpdatedHandler,
+  );
+});
+
+function userImageCreditCountUpdatedHandler(newImageCreditCount: number) {
+  creditCountChanged(newImageCreditCount);
+}
+
+onUnmounted(() => {
+  channel.unbind(
+    ServerEvent.UserImageCreditCountUpdated,
+    userImageCreditCountUpdatedHandler,
   );
 });
 
@@ -119,7 +128,9 @@ const clickCreditCount = () => {
         "
       >
         <div class="flex justify-between mb-2">
-          <div class="grow m-3"><hr class="border-1 border-neutral-500" /></div>
+          <div class="grow m-3">
+            <hr class="border-1 border-neutral-500" />
+          </div>
           <div class="self-center">Subscribe</div>
           <div class="grow m-3">
             <hr class="border-1 border-neutral-500 self-center" />
@@ -129,7 +140,9 @@ const clickCreditCount = () => {
         <PricingTable />
 
         <div class="flex justify-between">
-          <div class="grow m-3"><hr class="border-1 border-neutral-500" /></div>
+          <div class="grow m-3">
+            <hr class="border-1 border-neutral-500" />
+          </div>
           <div class="self-center">or</div>
           <div class="grow m-3">
             <hr class="border-1 border-neutral-500 self-center" />

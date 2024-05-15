@@ -33,17 +33,21 @@ const sessionId = computed(() => parseInt(route.params.sessionId.toString()));
 onMounted(async () => {
   await init();
 
-  channel.bind(ServerEvent.SessionUpdated, async function () {
-    await init();
-  });
-
-  channel.bind(ServerEvent.PrimaryImageSet, async function () {
-    await init();
-  });
+  channel.bind(ServerEvent.SessionUpdated, sessionUpdatedHandler);
+  channel.bind(ServerEvent.PrimaryImageSet, primaryImageSetHandler);
 });
 
+async function sessionUpdatedHandler() {
+  await init();
+}
+
+async function primaryImageSetHandler() {
+  await init();
+}
+
 onUnmounted(() => {
-  channel.unbind_all();
+  channel.unbind(ServerEvent.SessionUpdated, sessionUpdatedHandler);
+  channel.unbind(ServerEvent.SessionUpdated, primaryImageSetHandler);
   eventBus.$off('session-summary-panel-updated');
 });
 

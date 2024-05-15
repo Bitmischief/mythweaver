@@ -77,23 +77,26 @@ function handleBeginConjuring(data: { conjurationRequestId: number }) {
   generating.value = true;
   conjurationRequestId.value = data.conjurationRequestId;
 
-  channel.bind(ServerEvent.ConjurationCreated, function (data: any) {
-    console.log('conjuration created');
-    value.value = data;
-    emit('next');
-    generating.value = false;
-  });
+  channel.bind(ServerEvent.ConjurationCreated, conjurationCreatedHandler);
+  channel.bind(ServerEvent.ConjurationError, conjurationErrorHandler);
+}
 
-  channel.bind(ServerEvent.ConjurationError, function () {
-    generating.value = false;
-    showError({
-      message: `There was a server error creating your ${props.generator.name}. Please try again, or reach out to support if the problem persists.`,
-    });
+function conjurationCreatedHandler(data: any) {
+  value.value = data;
+  emit('next');
+  generating.value = false;
+}
+
+function conjurationErrorHandler() {
+  generating.value = false;
+  showError({
+    message: `There was a server error creating your ${props.generator.name}. Please try again, or reach out to support if the problem persists.`,
   });
 }
 
 onUnmounted(() => {
-  channel.unbind_all();
+  channel.unbind(ServerEvent.ConjurationCreated, conjurationCreatedHandler);
+  channel.unbind(ServerEvent.ConjurationError, conjurationErrorHandler);
 });
 
 const selectedIsProOnly = computed(() => {
