@@ -45,6 +45,7 @@ const props = withDefaults(
       characterId?: number;
       conjurationId?: number;
     };
+    showImageCredits: boolean;
   }>(),
   {
     image: () => ({
@@ -58,6 +59,7 @@ const props = withDefaults(
     cancelButtonTextOverride: undefined,
     saveButtonTextOverride: undefined,
     linking: undefined,
+    showImageCredits: true,
   },
 );
 
@@ -219,12 +221,20 @@ const alreadyUpscaled = computed(() => {
 
 <template>
   <template v-if="!conjuring && !upscaling && !done">
-    <div class="py-4" :class="{ 'absolute right-2 top-0': image.uri }">
+    <div
+      v-if="showImageCredits || inModal"
+      class="py-4"
+      :class="{ 'absolute right-2 top-0': image.uri }"
+    >
       <div class="flex justify-end">
         <div class="self-center">
-          <ImageCreditCount v-if="authStore.user" />
+          <ImageCreditCount v-if="authStore.user && showImageCredits" />
         </div>
-        <button class="px-4 rounded-full" @click="emit('cancel')">
+        <button
+          v-if="inModal"
+          class="px-4 rounded-full"
+          @click="emit('cancel')"
+        >
           <XCircleIcon class="w-6 self-center" />
         </button>
       </div>
@@ -451,18 +461,18 @@ const alreadyUpscaled = computed(() => {
     </div>
   </template>
   <template v-else-if="done && !conjuring && images.length">
-    <div class="absolute right-2 top-0 p-4">
+    <div v-if="showImageCredits || inModal" class="absolute right-2 top-0 p-4">
       <div class="flex justify-end">
         <div class="self-center">
-          <ImageCreditCount v-if="authStore.user" />
+          <ImageCreditCount v-if="authStore.user && showImageCredits" />
         </div>
         <button class="px-4 rounded-full" @click="emit('cancel')">
           <XCircleIcon class="w-6 self-center" />
         </button>
       </div>
     </div>
-    <div class="mx-4 md:mx-0 mt-10">
-      <div v-if="!noActions" class="mt-6 flex justify-end py-2">
+    <div v-if="!noActions" class="mx-4 md:mx-0 mt-10 actions">
+      <div class="flex justify-end py-2">
         <button
           class="button-primary mr-2 flex"
           @click="
@@ -506,9 +516,9 @@ const alreadyUpscaled = computed(() => {
     </div>
 
     <div
-      class="grid grid-cols-1 place-items-center md:grid-cols-2 p-2 gap-4 md:gap-8"
+      class="grid grid-cols-1 place-items-center md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 p-2 gap-4 md:gap-8"
     >
-      <div v-if="image.uri" class="relative max-w-[500px]">
+      <div v-if="image.uri" class="relative max-w-full">
         <div
           class="absolute flex bottom-2 right-2 cursor-pointer bg-white/50 rounded-[8px]"
           @click="eventBus.$emit('open-lightbox', image.uri)"
@@ -520,7 +530,7 @@ const alreadyUpscaled = computed(() => {
         <img
           :src="image.uri"
           alt="conjurationImg"
-          class="rounded-[25px] cursor-pointer"
+          class="rounded-[25px] cursor-pointer w-full"
           :class="{
             'border-2 border-fuchsia-500': selectedImg === null,
           }"
@@ -532,10 +542,10 @@ const alreadyUpscaled = computed(() => {
       <div
         v-for="img of images"
         :key="img.uri"
-        class="relative cursor-pointer"
+        class="relative cursor-pointer w-full"
         :class="{ 'md:col-span-2': !img.uri && images.length === 1 }"
       >
-        <div class="relative max-w-[500px]">
+        <div class="relative w-full">
           <div
             class="absolute flex bottom-2 right-2 cursor-pointer bg-white/50 rounded-[8px]"
             @click="eventBus.$emit('open-lightbox', img.uri)"
@@ -548,7 +558,7 @@ const alreadyUpscaled = computed(() => {
           <img
             :src="img.uri"
             alt="conjuration image"
-            class="rounded-[25px] max-w-[500px]"
+            class="rounded-[25px]"
             :class="{
               'border-2 border-fuchsia-500': selectedImg?.id === img.id,
             }"

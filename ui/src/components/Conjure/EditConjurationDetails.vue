@@ -1,11 +1,21 @@
 <script setup lang="ts">
-import { Conjuration, patchConjuration } from '@/api/conjurations.ts';
+import {
+  Conjuration,
+  patchConjuration,
+  saveConjuration,
+} from '@/api/conjurations.ts';
 import { computed, ref } from 'vue';
-import { ArrowLeftIcon, ArrowRightIcon } from '@heroicons/vue/24/solid';
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  ArrowRightStartOnRectangleIcon,
+} from '@heroicons/vue/24/solid';
 import { Conjurer } from '@/api/generators.ts';
 import { showError, showSuccess } from '@/lib/notifications.ts';
 import WysiwygEditor from '@/components/Core/WysiwygEditor.vue';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const emit = defineEmits(['update:modelValue', 'back', 'next']);
 const props = defineProps<{
   modelValue: Conjuration;
@@ -33,7 +43,7 @@ const dataArray = computed(() => {
   });
 });
 
-async function saveConjuration() {
+async function saveConjurationData() {
   try {
     await patchConjuration(conjuration.value.id, {
       name: conjuration.value.name,
@@ -47,20 +57,40 @@ async function saveConjuration() {
     });
   }
 }
+
+const saveAndContinue = async () => {
+  await saveConjurationData();
+  emit('next');
+};
+
+const saveAndGotoConjuration = async () => {
+  await saveConjurationData();
+  await saveConjuration(conjuration.value.id);
+  await router.push(`/conjurations/view/${conjuration.value.id}`);
+};
 </script>
 
 <template>
   <div class="w-full">
-    <div class="mb-4 flex gap-2 justify-between">
+    <div class="mb-4 flex flex-wrap md:flex-nowrap gap-2 justify-between">
       <button class="button-primary flex gap-2" @click="emit('back')">
         <ArrowLeftIcon class="h-5 w-5 self-center" />
         <span class="self-center">Try again</span>
       </button>
 
-      <button class="button-gradient flex gap-2" @click="emit('next')">
-        <span class="self-center">Continue to Image Generation</span>
-        <ArrowRightIcon class="h-5 w-5 self-center" />
-      </button>
+      <div class="flex flex-wrap md:flex-nowrap justify-end gap-2">
+        <button
+          class="button-primary flex gap-2"
+          @click="saveAndGotoConjuration"
+        >
+          <span class="self-center">Skip Image Creation</span>
+          <ArrowRightStartOnRectangleIcon class="h-5 w-5 self-center" />
+        </button>
+        <button class="button-gradient flex gap-2" @click="saveAndContinue">
+          <span class="self-center">Create an Image</span>
+          <ArrowRightIcon class="h-5 w-5 self-center" />
+        </button>
+      </div>
     </div>
     <div class="mb-4 text-xl">
       Refine the details of your
@@ -68,17 +98,14 @@ async function saveConjuration() {
     </div>
     <div class="md:flex">
       <div class="w-full">
-        <div class="flex gap-2 mb-8 font-bold text-center">
-          <input
+        <div class="relative mb-8 font-bold">
+          <FormKit
             v-model="conjuration.name"
-            class="input-secondary text-2xl grow"
+            type="text"
+            label="Name"
+            inner-class="$reset w-full"
+            input-class="$reset input-secondary text-xl"
           />
-          <button
-            class="button-gradient whitespace-nowrap"
-            @click="saveConjuration"
-          >
-            Save changes
-          </button>
         </div>
         <div class="text-sm text-neutral-400">
           Double click anywhere in the editor to start editing the content.

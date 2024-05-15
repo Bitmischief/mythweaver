@@ -73,15 +73,12 @@ onMounted(() => {
 
   channel.bind(ServerEvent.PrimaryImageSet, function (data: any[]) {
     editableConjuration.value.images = data;
+    showSuccess({ message: 'Image saved' });
   });
 
   channel.bind(ServerEvent.ImageUpscaled, function (data: any) {
-    if (editableConjuration.value.images?.length) {
-      const imageIdx = editableConjuration.value.images.findIndex(
-        (i) => i.id === data.id,
-      );
-      editableConjuration.value.images[imageIdx] = data;
-    }
+    editableConjuration.value.images = [{ ...data }];
+    showSuccess({ message: 'Image upscaled' });
   });
 
   channel.bind(ServerEvent.ImageFiltered, function () {
@@ -213,7 +210,7 @@ function showCustomizeImageModal() {
           <input
             v-model="editableConjuration.name"
             class="input-secondary text-2xl"
-            :disabled="!editable"
+            :disabled="!editable || readOnly"
           />
         </div>
 
@@ -234,7 +231,7 @@ function showCustomizeImageModal() {
             ]"
             value-prop="code"
             display-prop="name"
-            :disabled="!editable"
+            :disabled="!editable || readOnly"
           />
           <div class="text-neutral-500 text-xs mx-2">
             Controls whether any MythWeaver user can view this conjuration or

@@ -18,7 +18,7 @@ import {
 import ConjurationQuickView from '@/components/Conjuration/ConjurationListItemView.vue';
 import { debounce } from 'lodash';
 import ConjurationsListFiltering from '@/components/Conjuration/ConjurationsListFiltering.vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import { useConjurationsStore } from '@/store/conjurations.store.ts';
 import { useCurrentUserPlan } from '@/lib/hooks.ts';
 import { BillingPlan } from '@/api/users.ts';
@@ -54,7 +54,6 @@ const clearFilterKey = ref(1);
 const searchText = ref();
 
 const route = useRoute();
-const router = useRouter();
 
 const defaultPaging = {
   offset: 0,
@@ -154,14 +153,6 @@ watch(
   },
 );
 
-const toggleHistory = async () => {
-  if (route.hash === '#history') {
-    await router.push('/conjurations#saved');
-  } else {
-    await router.push('/conjurations#history');
-  }
-};
-
 const pageConjurations = debounce(() => {
   conjurationsPagingQuery.value.offset += conjurationsPagingQuery.value.limit;
 }, 250);
@@ -214,6 +205,7 @@ const conjurationsStore = useConjurationsStore();
 const viewType = computed(() => {
   return conjurationsStore.viewType;
 });
+
 function changeView(type: string) {
   conjurationsStore.setType(type);
 }
@@ -268,26 +260,6 @@ const clearFilters = () => {
             </div>
           </FormKit>
         </div>
-        <button
-          v-if="
-            conjurationsMineQuery.saved && !conjurationsHistoryQuery.history
-          "
-          class="button-ghost-primary self-center whitespace-nowrap flex flex-nowrap"
-          @click="toggleHistory"
-        >
-          <span class="text-sm flex">
-            Show <span class="hidden md:block mx-1">Conjuration</span> History
-          </span>
-        </button>
-        <button
-          v-if="conjurationsMineQuery.saved && conjurationsHistoryQuery.history"
-          class="button-ghost self-center whitespace-nowrap flex flex-nowrap"
-          @click="toggleHistory"
-        >
-          <span class="text-neutral-300 text-sm flex">
-            <span class="hidden md:block mr-1">Show</span>My Conjurations
-          </span>
-        </button>
 
         <button
           v-if="

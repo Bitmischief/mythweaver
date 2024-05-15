@@ -119,97 +119,136 @@ input[type='number'] {
   .button-primary {
     @apply disabled:bg-surface-3/50 disabled:text-neutral-500 bg-surface-3 text-white text-sm rounded-[12px] px-4 py-2 hover:cursor-pointer;
   }
+
   .button-secondary {
     @apply bg-[#292C3B] text-white text-sm rounded-[12px] px-4 py-2 hover:cursor-pointer;
   }
+
   .button-ghost {
     @apply disabled:border-neutral-500 disabled:text-fuchsia-500/50 disabled:cursor-not-allowed bg-transparent text-fuchsia-500 text-sm border border-fuchsia-500 rounded-[12px] px-4 py-2 hover:cursor-pointer;
   }
+
   .button-ghost-white {
     @apply disabled:border-neutral-500 disabled:text-neutral-500 disabled:cursor-not-allowed bg-transparent text-white text-sm border border-white rounded-[12px] px-4 py-2 hover:cursor-pointer;
   }
+
   .button-ghost-primary {
     @apply disabled:border-neutral-500/75 disabled:text-neutral-500/75 disabled:cursor-not-allowed bg-transparent text-neutral-300 text-sm border border-neutral-500 rounded-[12px] px-4 py-2 hover:cursor-pointer;
   }
+
   .button-gradient {
     @apply disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-fuchsia-500 to-violet-500 rounded-[12px] text-sm px-4 py-2 hover:cursor-pointer;
   }
+
   .button-white {
     @apply bg-white text-black rounded-[12px] text-sm px-4 py-2 hover:cursor-pointer;
   }
+
   .input-primary {
     @apply text-sm py-3 w-full border border-surface-3 bg-surface-2 px-4 text-white rounded-[12px] focus:border-fuchsia-500 focus:ring-0;
   }
+
   .input-secondary {
     @apply text-sm py-3 w-full border border-surface-3 bg-surface px-4 text-white rounded-[12px] focus:border-fuchsia-500 focus:ring-0;
   }
+
   .input-ghost {
     @apply text-sm py-3 bg-surface-2 w-full rounded-[12px] border-surface-3 focus:border-fuchsia-500 focus:ring-0;
   }
+
   .select-ghost {
     @apply text-sm py-3 px-3 text-white text-left cursor-pointer bg-surface-2 w-full rounded-[12px] border border-surface-3 min-h-[3em];
   }
+
   .select-secondary {
     @apply text-sm py-3 px-3 text-white text-left cursor-pointer bg-surface w-full rounded-[12px] border border-surface-3 min-h-[3em];
   }
+
   .nav-item {
     @apply text-sm my-0.5 py-2 px-4 text-gray-300 flex overflow-hidden hover:bg-purple-800/20 rounded-[12px];
   }
+
   .bg-gradient {
     @apply bg-gradient-to-r from-fuchsia-500 to-violet-500;
   }
+
   .tag {
     @apply rounded-full px-4 py-1 bg-surface-3 text-xs m-0.5;
   }
+
   .bg-rounded-purple {
     @apply hover:bg-purple-800/20 rounded-full;
   }
+
   .image-badge {
     @apply absolute left-2 top-2 flex h-6 justify-center items-center rounded-full bg-white/50 text-black text-xs font-bold px-4;
   }
+
   .menu-item {
     @apply hover:bg-purple-800/20 hover:cursor-pointer w-full;
   }
+
   .tooltip-base {
     @apply absolute text-neutral-300 hidden w-full md:w-auto md:whitespace-nowrap px-4 md:px-2 py-1 bg-surface-3 rounded-[20px];
   }
+
   .tooltip-y {
     @apply tooltip-base right-1/2 translate-x-1/2;
   }
+
   .tooltip-x {
     @apply tooltip-base bottom-1/2 translate-y-1/2;
   }
+
   .tooltip-arrow-base {
     @apply invisible absolute h-2 w-2 bg-inherit before:visible before:absolute before:h-2 before:w-2 before:rotate-45 before:bg-inherit before:content-[''];
   }
+
   .tooltip-bottom {
     @apply tooltip-y mt-2 top-[100%];
+
     .tooltip-arrow {
       @apply tooltip-arrow-base bottom-full translate-y-1/2 translate-x-1/2 right-1/2;
     }
   }
+
+  .tooltip-bottom-left {
+    @apply tooltip-y right-0 translate-x-0 mt-2 top-[100%];
+
+    .tooltip-arrow {
+      @apply tooltip-arrow-base bottom-full translate-y-1/2 right-0;
+    }
+  }
+
   .tooltip-top {
     @apply tooltip-y mb-2 bottom-[100%];
+
     .tooltip-arrow {
       @apply tooltip-arrow-base top-full -translate-y-1/2 translate-x-1/2 right-1/2;
     }
   }
+
   .tooltip-right {
     @apply tooltip-x ml-2 left-[100%];
+
     .tooltip-arrow {
       @apply tooltip-arrow-base right-full translate-x-1/2 translate-y-1/2 bottom-1/2;
     }
   }
+
   .tooltip-left {
     @apply tooltip-x mr-2 right-[100%];
+
     .tooltip-arrow {
       @apply tooltip-arrow-base left-full -translate-x-1/2 translate-y-1/2 bottom-1/2;
     }
   }
+
   [type='text']:focus {
     border-radius: 12px;
     @apply focus:ring-fuchsia-500 active:ring-fuchsia-500;
   }
+
   .gradient-text {
     @apply bg-clip-text font-bold text-transparent bg-gradient-to-r from-fuchsia-500 to-blue-400;
   }
