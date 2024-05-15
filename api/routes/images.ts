@@ -126,4 +126,31 @@ router.patch('/:imageId/primary', [
   },
 ]);
 
+const getConjurationImageHistorySchema = z.object({
+  conjurationId: z.coerce.number(),
+});
+
+router.get('/conjurations/:conjurationId/history', [
+  checkAuth0Jwt,
+  useInjectUserId(),
+  useInjectLoggingInfo(),
+  useValidateRequest(getConjurationImageHistorySchema, {
+    validationType: ValidationTypes.Route,
+  }),
+  async (req: Request, res: Response) => {
+    const controller = new ImageController();
+
+    const { conjurationId = 0 } = req.params;
+
+    const response = await controller.getConjurationImageHistory(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      useLogger(res),
+      conjurationId as number,
+    );
+
+    return res.status(200).send(response);
+  },
+]);
+
 export default router;

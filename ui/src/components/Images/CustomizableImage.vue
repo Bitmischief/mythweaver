@@ -8,7 +8,7 @@ import {
 } from '@heroicons/vue/24/outline';
 import { useEventBus } from '@/lib/events.ts';
 import { showError } from '@/lib/notifications.ts';
-import { computed } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
 const props = withDefaults(
   defineProps<{
@@ -48,6 +48,12 @@ const props = withDefaults(
 );
 
 const eventBus = useEventBus();
+const imgWidth = ref(0);
+const imgHeight = ref(0);
+
+onMounted(() => {
+  setImgDimensions();
+});
 
 function showCustomizeImageModal() {
   eventBus.$emit('toggle-customize-image-modal', {
@@ -55,6 +61,17 @@ function showCustomizeImageModal() {
     alt: props.alt,
     linking: props.linking,
   });
+}
+
+function setImgDimensions() {
+  if (props.image.uri) {
+    const img = new Image();
+    img.onload = () => {
+      imgWidth.value = img.width;
+      imgHeight.value = img.height;
+    };
+    img.src = props.image.uri;
+  }
 }
 
 function showImage() {
@@ -78,9 +95,7 @@ function downloadImage(url: string) {
 }
 
 const alreadyUpscaled = computed(() => {
-  const img = new Image();
-  img.src = props.image.uri || '';
-  return img.width > 1024 || img.height > 1024;
+  return imgWidth.value > 1024 || imgHeight.value > 1024;
 });
 </script>
 

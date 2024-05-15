@@ -483,49 +483,55 @@ function handleBeginConjuring(data: { conjurationRequestId: number }) {
 
   conjurationRequestId.value = data.conjurationRequestId;
 
-  channel.bind(ServerEvent.ConjurationCreated, function (data: any) {
-    generating.value = false;
-    createdConjuration.value = data;
-    router.push(`/conjurations/view/${createdConjuration.value.id}`);
-  });
+  channel.bind(ServerEvent.ConjurationCreated, conjurationCreatedHandler);
+  channel.bind(ServerEvent.ConjurationError, conjurationErrorHandler);
+  channel.bind(ServerEvent.ImageCreated, imageCreatedHandler);
+  channel.bind(ServerEvent.ImageFiltered, imageFilteredHandler);
+  channel.bind(ServerEvent.ImageError, imageErrorHandler);
+}
 
-  channel.bind(ServerEvent.ConjurationError, function () {
-    generating.value = false;
-    showError({
-      message:
-        'There was a server error creating your conjuration. Reach out to support for help resolving this issue.',
-    });
-  });
+function conjurationCreatedHandler(data: any) {
+  generating.value = false;
+  createdConjuration.value = data;
+  router.push(`/conjurations/view/${createdConjuration.value.id}`);
+}
 
-  channel.bind(ServerEvent.ImageCreated, function (data: any) {
-    createdConjuration.value.imageUri = data.uri;
-  });
-
-  channel.bind(ServerEvent.ImageFiltered, function () {
-    const message =
-      'The generated image was filtered out by our content moderation system. Please try again.';
-    showError({
-      message,
-    });
-    imageGenerationFailed.value = true;
-    imageGenerationFailureReason.value = message;
-  });
-
-  channel.bind(ServerEvent.ImageError, function (data: any) {
-    showError({
-      message: data.message,
-    });
-    imageGenerationFailed.value = true;
-    imageGenerationFailureReason.value = data.message;
+function conjurationErrorHandler() {
+  generating.value = false;
+  showError({
+    message:
+      'There was a server error creating your conjuration. Reach out to support for help resolving this issue.',
   });
 }
 
+function imageCreatedHandler(data: any) {
+  createdConjuration.value.imageUri = data.uri;
+}
+
+function imageFilteredHandler() {
+  const message =
+    'The generated image was filtered out by our content moderation system. Please try again.';
+  showError({
+    message,
+  });
+  imageGenerationFailed.value = true;
+  imageGenerationFailureReason.value = message;
+}
+
+function imageErrorHandler(data: any) {
+  showError({
+    message: data.message,
+  });
+  imageGenerationFailed.value = true;
+  imageGenerationFailureReason.value = data.message;
+}
+
 onUnmounted(() => {
-  channel.unbind(ServerEvent.ConjurationCreated);
-  channel.unbind(ServerEvent.ConjurationError);
-  channel.unbind(ServerEvent.ImageCreated);
-  channel.unbind(ServerEvent.ImageFiltered);
-  channel.unbind(ServerEvent.ImageError);
+  channel.unbind(ServerEvent.ConjurationCreated, conjurationCreatedHandler);
+  channel.unbind(ServerEvent.ConjurationError, conjurationErrorHandler);
+  channel.unbind(ServerEvent.ImageCreated, imageCreatedHandler);
+  channel.unbind(ServerEvent.ImageFiltered, imageFilteredHandler);
+  channel.unbind(ServerEvent.ImageError, imageErrorHandler);
 });
 
 const conjurationLimitReached = computed(() => {

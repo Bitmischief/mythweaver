@@ -68,48 +68,55 @@ async function init() {
     loadingTranscribeSession.value = true;
   }
 
-  channel.bind(ServerEvent.TranscriptionStarted, async function () {
-    showSuccess({
-      message: 'Session transcription is in progress!',
-      context:
-        'This process can take 10-20 minutes depending on the length of your session.',
-    });
-    loadingTranscribeSession.value = true;
-
-    await init();
-  });
-
-  channel.bind(ServerEvent.TranscriptionComplete, async function () {
-    const response = await getSession(
-      parseInt(route.params.sessionId.toString()),
-    );
-
-    session.value = {
-      ...session.value,
-      sessionTranscription: response.data.sessionTranscription,
-    };
-    originalSession.value = { ...session.value };
-
-    loadingTranscribeSession.value = false;
-  });
-
-  channel.bind(ServerEvent.TranscriptionError, async function () {
-    showError({
-      message: 'Session transcription was not successful',
-      context:
-        'Please try again, if the problem persists please contact our support team',
-    });
-    loadingTranscribeSession.value = false;
-  });
+  channel.bind(ServerEvent.TranscriptionStarted, transcriptionStartedHandler);
+  channel.bind(ServerEvent.TranscriptionComplete, transcriptionCompleteHandler);
+  channel.bind(ServerEvent.TranscriptionError, transcriptionErrorHandler);
 
   sessionLoading.value = false;
 }
 
+async function transcriptionStartedHandler() {
+  showSuccess({
+    message: 'Session transcription is in progress!',
+    context:
+      'This process can take 10-20 minutes depending on the length of your session.',
+  });
+  loadingTranscribeSession.value = true;
+
+  await init();
+}
+
+async function transcriptionCompleteHandler() {
+  const response = await getSession(
+    parseInt(route.params.sessionId.toString()),
+  );
+
+  session.value = {
+    ...session.value,
+    sessionTranscription: response.data.sessionTranscription,
+  };
+  originalSession.value = { ...session.value };
+
+  loadingTranscribeSession.value = false;
+}
+
+async function transcriptionErrorHandler() {
+  showError({
+    message: 'Session transcription was not successful',
+    context:
+      'Please try again, if the problem persists please contact our support team',
+  });
+  loadingTranscribeSession.value = false;
+}
+
 onUnmounted(() => {
   window.removeEventListener('scroll', setScroll, true);
-  channel.unbind(ServerEvent.TranscriptionComplete);
-  channel.unbind(ServerEvent.TranscriptionStarted);
-  channel.unbind(ServerEvent.TranscriptionError);
+  channel.unbind(
+    ServerEvent.TranscriptionComplete,
+    transcriptionCompleteHandler,
+  );
+  channel.unbind(ServerEvent.TranscriptionStarted, transcriptionStartedHandler);
+  channel.unbind(ServerEvent.TranscriptionError, transcriptionErrorHandler);
 });
 
 const setScroll = () => {
@@ -377,6 +384,7 @@ audio {
   width: 100%;
   margin-bottom: 2rem;
 }
+
 audio::-webkit-media-controls-panel {
   background: linear-gradient(
     to right,
@@ -385,6 +393,7 @@ audio::-webkit-media-controls-panel {
     rgba(64, 170, 241, 0.75)
   );
 }
+
 input[type='file'] {
   display: none;
 }

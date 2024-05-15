@@ -29,17 +29,19 @@ onMounted(async () => {
     conjureImageDone.value = true;
   });
 
-  channel.bind(ServerEvent.PrimaryImageSet, (data: any[]) => {
-    setTimeout(() => {
-      character.value.images = data;
-      step.value++;
-    }, 50);
-  });
+  channel.bind(ServerEvent.PrimaryImageSet, primaryImageSetHandler);
 });
+
+function primaryImageSetHandler(data: any[]) {
+  setTimeout(() => {
+    character.value.images = data;
+    step.value++;
+  }, 50);
+}
 
 onUnmounted(() => {
   eventBus.$off('conjure-image-done');
-  channel.unbind_all();
+  channel.unbind(ServerEvent.PrimaryImageSet, primaryImageSetHandler);
 });
 
 async function initCharacter() {

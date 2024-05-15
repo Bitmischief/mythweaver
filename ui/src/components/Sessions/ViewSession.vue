@@ -67,21 +67,25 @@ onMounted(async () => {
     await router.push('summary');
   });
 
-  channel.bind(ServerEvent.SessionUpdated, async function () {
-    await init();
-  });
-
-  channel.bind(ServerEvent.SessionCompleted, async function () {
-    await router.push({ hash: '#overview' });
-    await init();
-  });
+  channel.bind(ServerEvent.SessionUpdated, sessionUpdatedHandler);
+  channel.bind(ServerEvent.SessionCompleted, sessionCompletedHandler);
 
   await init();
 });
 
+async function sessionUpdatedHandler() {
+  await init();
+}
+
+async function sessionCompletedHandler() {
+  await router.push({ hash: '#overview' });
+  await init();
+}
+
 onUnmounted(() => {
   eventBus.$off('session-summary-panel-updated');
-  channel.unbind(ServerEvent.SessionUpdated);
+  channel.unbind(ServerEvent.SessionUpdated, sessionUpdatedHandler);
+  channel.unbind(ServerEvent.SessionCompleted, sessionCompletedHandler);
 });
 
 async function init() {
@@ -254,7 +258,8 @@ async function changeTab(tabName: string) {
   <div v-if="session" class="pb-12 relative">
     <div class="flex flex-wrap justify-between">
       <router-link :to="`/sessions`" class="button-primary flex self-center">
-        <ArrowLeftIcon class="mr-2 h-4 w-4 self-center" /> Back to list
+        <ArrowLeftIcon class="mr-2 h-4 w-4 self-center" />
+        Back to list
       </router-link>
 
       <div

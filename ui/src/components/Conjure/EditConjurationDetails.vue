@@ -11,7 +11,7 @@ import {
   ArrowRightStartOnRectangleIcon,
 } from '@heroicons/vue/24/solid';
 import { Conjurer } from '@/api/generators.ts';
-import { showError, showSuccess } from '@/lib/notifications.ts';
+import { showError } from '@/lib/notifications.ts';
 import WysiwygEditor from '@/components/Core/WysiwygEditor.vue';
 import { useRouter } from 'vue-router';
 
@@ -49,7 +49,6 @@ async function saveConjurationData() {
       name: conjuration.value.name,
       data: Object.fromEntries(dataArray.value.map((x) => [x.key, x.value])),
     });
-    showSuccess({ message: 'Successfully saved conjuration!' });
   } catch (e) {
     showError({
       message:

@@ -3,6 +3,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue';
 import LightboxImage from '@/components/LightboxImage.vue';
 import {
   conjureImage,
+  getConjurationImageHistory,
   patchPrimaryImage,
   postImageUpscale,
 } from '@/api/images.ts';
@@ -45,7 +46,7 @@ const props = withDefaults(
       characterId?: number;
       conjurationId?: number;
     };
-    showImageCredits: boolean;
+    showImageCredits?: boolean;
   }>(),
   {
     image: () => ({
@@ -93,6 +94,7 @@ const loading = ref(false);
 const count = ref(1);
 const useSeed = ref(false);
 const tab = ref('customize');
+const imageHistory = ref<any[]>([]);
 
 const promptOptions = ref(['Image Count', 'Image Style', 'Negative Prompt']);
 const promptOptionsTab = ref(promptOptions.value[0]);
@@ -102,56 +104,83 @@ onMounted(async () => {
     await conjure();
   });
 
-  channel.bind(ServerEvent.ImageCreated, function (data: any) {
-    images.value.push(data);
-    conjuring.value = false;
-    loading.value = false;
-    if (selectedImg.value === null) {
-      selectedImg.value = data;
-    }
-  });
+  channel.bind(ServerEvent.ImageCreated, imageCreatedHandler);
+  channel.bind(ServerEvent.ImageFiltered, imageFilteredHandler);
+  channel.bind(ServerEvent.ImagePromptRephrased, imagePromptRephrasedHandler);
+  channel.bind(ServerEvent.ImageError, imageErrorHandler);
+  channel.bind(ServerEvent.ImageUpscaled, imageUpscaledHandler);
+  channel.bind(ServerEvent.ImageUpscalingDone, imageUpscalingDoneHandler);
 
-  channel.bind(ServerEvent.ImageFiltered, function () {
-    showError({
-      message:
-        'The generated image was filtered out by our content moderation system. Please try again.',
-    });
-    imageFiltered.value = true;
-    conjuring.value = false;
-  });
-
-  channel.bind(ServerEvent.ImagePromptRephrased, function (prompt: string) {
-    imagePromptRephrased.value = true;
-    rephrasedPrompt.value = prompt;
-  });
-
-  channel.bind(ServerEvent.ImageError, function (data: any) {
-    showError({
-      message: data.message,
-    });
-    imageError.value = true;
-    conjuring.value = false;
-    upscaling.value = false;
-  });
-
-  channel.bind(ServerEvent.ImageUpscaled, function (data: any) {
-    selectedImg.value = data;
-    upscaling.value = false;
-    if (props.inModal) {
-      eventBus.$emit('toggle-customize-image-modal');
-    }
-  });
-
-  channel.bind(ServerEvent.ImageUpscalingDone, function () {
-    loading.value = true;
-    showSuccess({ message: 'Image successfully upscaled!' });
-  });
+  await fetchImageHistory();
 });
+
+function imageCreatedHandler(data: any) {
+  images.value.push(data);
+  conjuring.value = false;
+  loading.value = false;
+  if (selectedImg.value === null) {
+    selectedImg.value = data;
+  }
+}
+
+function imageFilteredHandler() {
+  showError({
+    message:
+      'The generated image was filtered out by our content moderation system. Please try again.',
+  });
+  imageFiltered.value = true;
+  conjuring.value = false;
+}
 
 onUnmounted(() => {
   eventBus.$off('conjure-image');
-  channel.unbind_all();
+  channel.unbind(ServerEvent.ImageCreated, imageCreatedHandler);
+  channel.unbind(ServerEvent.ImageFiltered, imageFilteredHandler);
+  channel.unbind(ServerEvent.ImagePromptRephrased, imagePromptRephrasedHandler);
+  channel.unbind(ServerEvent.ImageError, imageErrorHandler);
+  channel.unbind(ServerEvent.ImageUpscaled, imageUpscaledHandler);
+  channel.unbind(ServerEvent.ImageUpscalingDone, imageUpscalingDoneHandler);
 });
+
+async function fetchImageHistory() {
+  try {
+    if (props.linking?.conjurationId) {
+      const imageHistoryResponse = await getConjurationImageHistory(
+        props.linking?.conjurationId,
+      );
+      imageHistory.value = imageHistoryResponse.data;
+    }
+  } catch {
+    console.log('Unable to fetch image history');
+  }
+}
+
+function imagePromptRephrasedHandler(prompt: string) {
+  imagePromptRephrased.value = true;
+  rephrasedPrompt.value = prompt;
+}
+
+function imageErrorHandler(data: any) {
+  showError({
+    message: data.message,
+  });
+  imageError.value = true;
+  conjuring.value = false;
+  upscaling.value = false;
+}
+
+function imageUpscaledHandler(data: any) {
+  selectedImg.value = data;
+  upscaling.value = false;
+  if (props.inModal) {
+    eventBus.$emit('toggle-customize-image-modal');
+  }
+}
+
+function imageUpscalingDoneHandler() {
+  loading.value = true;
+  showSuccess({ message: 'Image successfully upscaled!' });
+}
 
 async function conjure() {
   try {
@@ -217,6 +246,11 @@ const alreadyUpscaled = computed(() => {
   img.src = props.image.uri;
   return img.width > 1024 || img.height > 1024;
 });
+
+const savePrimaryImage = async (image: any) => {
+  selectedImg.value = image;
+  await setImage();
+};
 </script>
 
 <template>
@@ -279,6 +313,13 @@ const alreadyUpscaled = computed(() => {
             @click="tab = 'upscale'"
           >
             Upscale Image
+          </button>
+          <button
+            class="grow"
+            :class="{ 'button-primary': tab === 'history' }"
+            @click="tab = 'history'"
+          >
+            Image History
           </button>
         </div>
       </div>
@@ -441,6 +482,30 @@ const alreadyUpscaled = computed(() => {
         </div>
       </div>
     </div>
+    <div v-if="tab === 'history'">
+      <div
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+      >
+        <div
+          v-for="(img, i) in imageHistory"
+          :key="`img_history_${i}`"
+          class="relative group/image mx-4 md:mx-0"
+        >
+          <img
+            :src="img.uri"
+            alt="image"
+            class="rounded-[20px] group-hover/image:opacity-50"
+          />
+          <div
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 hidden group-hover/image:block"
+          >
+            <button class="button-gradient" @click="savePrimaryImage(img)">
+              Set as image
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </template>
   <template v-else-if="conjuring && !done && !imageError">
     <div class="p-12 text-center">
@@ -515,9 +580,7 @@ const alreadyUpscaled = computed(() => {
       </div>
     </div>
 
-    <div
-      class="grid grid-cols-1 place-items-center md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 p-2 gap-4 md:gap-8"
-    >
+    <div class="flex flex-wrap lg:flex-nowrap gap-8 justify-center">
       <div v-if="image.uri" class="relative max-w-full">
         <div
           class="absolute flex bottom-2 right-2 cursor-pointer bg-white/50 rounded-[8px]"
@@ -530,7 +593,7 @@ const alreadyUpscaled = computed(() => {
         <img
           :src="image.uri"
           alt="conjurationImg"
-          class="rounded-[25px] cursor-pointer w-full"
+          class="rounded-[25px] cursor-pointer w-full max-w-[500px]"
           :class="{
             'border-2 border-fuchsia-500': selectedImg === null,
           }"
@@ -542,7 +605,7 @@ const alreadyUpscaled = computed(() => {
       <div
         v-for="img of images"
         :key="img.uri"
-        class="relative cursor-pointer w-full"
+        class="relative cursor-pointer w-full max-w-[500px]"
         :class="{ 'md:col-span-2': !img.uri && images.length === 1 }"
       >
         <div class="relative w-full">
