@@ -116,6 +116,7 @@ eventBus.$on('global-loading-stop', () => {
 
 const showCustomizeImageModal = ref(false);
 const customizeImageArgs = ref<CustomizeImageRequest | undefined>(undefined);
+
 export interface CustomizeImageRequest {
   image?: {
     id: number;
@@ -131,6 +132,7 @@ export interface CustomizeImageRequest {
     conjurationId?: number;
   };
 }
+
 eventBus.$on('toggle-customize-image-modal', (args: CustomizeImageRequest) => {
   showCustomizeImageModal.value = !showCustomizeImageModal.value;
 
@@ -145,11 +147,13 @@ const showCreateRelationshipModal = ref(false);
 const createRelationshipArgs = ref<CreateRelationshipRequest | undefined>(
   undefined,
 );
+
 export interface CreateRelationshipRequest {
   relationshipType: ConjurationRelationshipType;
   nodeId: number;
   nodeType: ConjurationRelationshipType;
 }
+
 eventBus.$on('create-relationship', (args: CreateRelationshipRequest) => {
   showCreateRelationshipModal.value = !showCreateRelationshipModal.value;
   if (!args) {
@@ -243,7 +247,7 @@ eventBus.$on('show-subscription-modal', () => {
 
   <ModalAlternate :show="showCustomizeImageModal" extra-dark>
     <div
-      class="pt-8 md:p-6 md:px-12 bg-surface-2 rounded-[20px] min-w-[70vw] text-white text-center mb-12"
+      class="relative pt-8 md:m-6 md:p-6 md:px-12 bg-surface-2 rounded-[20px] min-w-[70vw] text-white text-center mb-12"
     >
       <CustomizeConjurationImage
         :image="customizeImageArgs?.image"

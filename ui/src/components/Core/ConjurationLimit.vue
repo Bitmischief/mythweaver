@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useAuthStore } from '@/store';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useWebsocketChannel } from '@/lib/hooks.ts';
 import { ServerEvent } from '@/lib/serverEvents.ts';
 import { useLDFlag } from 'launchdarkly-vue-client-sdk';
@@ -21,9 +21,18 @@ defineProps<{
 onMounted(() => {
   channel.bind(
     ServerEvent.UserConjurationCountUpdated,
-    (newConjurationCount: number) => {
-      conjurationCountChanged(newConjurationCount);
-    },
+    userConjurationCountUpdatedHandler,
+  );
+});
+
+function userConjurationCountUpdatedHandler(newConjurationCount: number) {
+  conjurationCountChanged(newConjurationCount);
+}
+
+onUnmounted(() => {
+  channel.unbind(
+    ServerEvent.UserConjurationCountUpdated,
+    userConjurationCountUpdatedHandler,
   );
 });
 

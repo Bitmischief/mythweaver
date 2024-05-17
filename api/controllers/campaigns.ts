@@ -534,7 +534,11 @@ export default class CampaignController {
         campaignId: campaignId,
       },
       include: {
-        images: true,
+        images: {
+          where: {
+            primary: true,
+          },
+        },
       },
     });
 

@@ -37,6 +37,7 @@ const editableConjuration = ref(props.conjuration);
 const addingTag = ref(false);
 const tagText = ref('');
 const tagInput = ref<HTMLElement | null>(null);
+const imageKey = ref(0);
 
 const editable = computed(
   () => props.conjuration?.userId === currentUserId.value,
@@ -55,7 +56,7 @@ const dataArray = computed(() => {
   });
 });
 
-onMounted(() => {
+onMounted(async () => {
   eventBus.$on(
     'save-conjuration',
     async (payload: { conjurationId: number }) => {
@@ -65,43 +66,52 @@ onMounted(() => {
     },
   );
 
-  channel.bind(ServerEvent.ImageCreated, function (image: any) {
-    if (!primaryImage.value?.uri) {
-      editableConjuration.value.images = [{ ...image }];
-    }
-  });
-
-  channel.bind(ServerEvent.PrimaryImageSet, function (data: any[]) {
-    editableConjuration.value.images = data;
-  });
-
-  channel.bind(ServerEvent.ImageUpscaled, function (data: any) {
-    if (editableConjuration.value.images?.length) {
-      const imageIdx = editableConjuration.value.images.findIndex(
-        (i) => i.id === data.id,
-      );
-      editableConjuration.value.images[imageIdx] = data;
-    }
-  });
-
-  channel.bind(ServerEvent.ImageFiltered, function () {
-    const message =
-      'The generated image was filtered out by our content moderation system. Please try again.';
-    showError({
-      message,
-    });
-  });
-
-  channel.bind(ServerEvent.ImageError, function (data: any) {
-    showError({
-      message: data.message,
-    });
-  });
+  channel.bind(ServerEvent.ImageCreated, imageCreatedHandler);
+  channel.bind(ServerEvent.PrimaryImageSet, primaryImageSetHandler);
+  channel.bind(ServerEvent.ImageUpscaled, imageUpscaledHandler);
+  channel.bind(ServerEvent.ImageFiltered, imageFilteredHandler);
+  channel.bind(ServerEvent.ImageError, imageErrorHandler);
 });
+
+function imageCreatedHandler(image: any) {
+  if (!primaryImage.value?.uri) {
+    editableConjuration.value.images = [{ ...image }];
+  }
+}
+
+function primaryImageSetHandler(data: any[]) {
+  editableConjuration.value.images = data;
+  imageKey.value++;
+  showSuccess({ message: 'Image saved' });
+}
+
+function imageUpscaledHandler(data: any) {
+  editableConjuration.value.images = [{ ...data }];
+  imageKey.value++;
+  showSuccess({ message: 'Image upscaled' });
+}
+
+function imageFilteredHandler() {
+  const message =
+    'The generated image was filtered out by our content moderation system. Please try again.';
+  showError({
+    message,
+  });
+}
+
+function imageErrorHandler(data: any) {
+  showError({
+    message: data.message,
+  });
+}
 
 onUnmounted(() => {
   eventBus.$off('save-conjuration');
-  channel.unbind_all();
+  channel.unbind(ServerEvent.PrimaryImageSet, primaryImageSetHandler);
+  channel.unbind(ServerEvent.ImageCreated, imageCreatedHandler);
+  channel.unbind(ServerEvent.ImageUpscaled, imageUpscaledHandler);
+  channel.unbind(ServerEvent.ImageFiltered, imageFilteredHandler);
+  channel.unbind(ServerEvent.ImageError, imageErrorHandler);
 });
 
 onUpdated(() => {
@@ -192,6 +202,7 @@ function showCustomizeImageModal() {
       <div class="max-w-[35rem] overflow-hidden rounded-md md:mr-6">
         <CustomizableImage
           v-if="hasAnyImages"
+          :key="imageKey"
           :image="primaryImage"
           :editable="editable"
           :alt="editableConjuration.name"
@@ -213,7 +224,7 @@ function showCustomizeImageModal() {
           <input
             v-model="editableConjuration.name"
             class="input-secondary text-2xl"
-            :disabled="!editable"
+            :disabled="!editable || readOnly"
           />
         </div>
 
@@ -234,7 +245,7 @@ function showCustomizeImageModal() {
             ]"
             value-prop="code"
             display-prop="name"
-            :disabled="!editable"
+            :disabled="!editable || readOnly"
           />
           <div class="text-neutral-500 text-xs mx-2">
             Controls whether any MythWeaver user can view this conjuration or

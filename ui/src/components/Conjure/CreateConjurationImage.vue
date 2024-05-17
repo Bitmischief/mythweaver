@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ArrowLeftIcon } from '@heroicons/vue/24/solid';
 import { Conjurer } from '@/api/generators.ts';
-import { Conjuration } from '@/api/conjurations.ts';
+import { Conjuration, saveConjuration } from '@/api/conjurations.ts';
 import { computed, onMounted, onUnmounted } from 'vue';
 import CustomizeConjurationImage from '@/components/Conjuration/ViewConjuration/CustomizeConjurationImage.vue';
 import { showSuccess } from '@/lib/notifications.ts';
@@ -25,14 +25,17 @@ const conjuration = computed({
 });
 
 onMounted(() => {
-  channel.bind(ServerEvent.PrimaryImageSet, async () => {
-    showSuccess({ message: 'Successfully saved conjuration image!' });
-    await viewConjuration();
-  });
+  channel.bind(ServerEvent.PrimaryImageSet, primaryImageSetHandler);
 });
 
+async function primaryImageSetHandler() {
+  showSuccess({ message: 'Successfully saved conjuration image!' });
+  await saveConjuration(conjuration.value.id);
+  await viewConjuration();
+}
+
 onUnmounted(() => {
-  channel.unbind_all();
+  channel.unbind(ServerEvent.PrimaryImageSet, primaryImageSetHandler);
 });
 
 const viewConjuration = async () => {
@@ -42,7 +45,7 @@ const viewConjuration = async () => {
 
 <template>
   <div class="w-full">
-    <div class="flex gap-2">
+    <div class="flex flex-wrap md:flex-nowrap gap-2">
       <button class="button-primary flex gap-2" @click="emit('back')">
         <ArrowLeftIcon class="h-5 w-5 self-center" />
         <span class="self-center">Back</span>
@@ -52,10 +55,13 @@ const viewConjuration = async () => {
         <span class="gradient-text">{{ generator.name }}</span>
       </div>
     </div>
-    <div>
+    <div
+      class="lg:[&>.actions]:mb-6 mt-6 [&>.actions]:mt-2 lg:[&>.actions]:-mt-[4.5em]"
+    >
       <CustomizeConjurationImage
         :image="{ prompt: conjuration?.imageAIPrompt || '' }"
         :linking="{ conjurationId: conjuration?.id }"
+        :show-image-credits="false"
         save-button-text-override="Save and Continue"
       />
     </div>

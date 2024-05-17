@@ -17,6 +17,7 @@ import { ArrowLeftIcon } from '@heroicons/vue/24/solid';
 const emit = defineEmits(['update:modelValue', 'next', 'back']);
 const props = defineProps<{
   modelValue: Conjuration | undefined;
+  defaultPrompt?: string;
   generator: Conjurer;
 }>();
 
@@ -34,7 +35,7 @@ const selectedCampaignId = useSelectedCampaignId();
 
 const generating = ref(false);
 const conjurationRequestId = ref<number | undefined>(undefined);
-const prompt = ref<string>('');
+const prompt = ref<string>(props.defaultPrompt || '');
 
 async function generate() {
   if (!props.generator) {
@@ -76,23 +77,26 @@ function handleBeginConjuring(data: { conjurationRequestId: number }) {
   generating.value = true;
   conjurationRequestId.value = data.conjurationRequestId;
 
-  channel.bind(ServerEvent.ConjurationCreated, function (data: any) {
-    console.log('conjuration created');
-    value.value = data;
-    emit('next');
-    generating.value = false;
-  });
+  channel.bind(ServerEvent.ConjurationCreated, conjurationCreatedHandler);
+  channel.bind(ServerEvent.ConjurationError, conjurationErrorHandler);
+}
 
-  channel.bind(ServerEvent.ConjurationError, function () {
-    generating.value = false;
-    showError({
-      message: `There was a server error creating your ${props.generator.name}. Please try again, or reach out to support if the problem persists.`,
-    });
+function conjurationCreatedHandler(data: any) {
+  value.value = data;
+  emit('next');
+  generating.value = false;
+}
+
+function conjurationErrorHandler() {
+  generating.value = false;
+  showError({
+    message: `There was a server error creating your ${props.generator.name}. Please try again, or reach out to support if the problem persists.`,
   });
 }
 
 onUnmounted(() => {
-  channel.unbind_all();
+  channel.unbind(ServerEvent.ConjurationCreated, conjurationCreatedHandler);
+  channel.unbind(ServerEvent.ConjurationError, conjurationErrorHandler);
 });
 
 const selectedIsProOnly = computed(() => {
@@ -134,6 +138,31 @@ const characterDescription = computed(() => {
     'A merfolk sorceress, female, controls water elements, seeks revenge against surface dwellers.',
     'A minotaur gladiator, male, legendary fighter, seeks freedom from his past.',
     'A female human witch, lives in the deep woods, known for her prophetic visions.',
+    'A grizzled dwarf blacksmith with a mysterious past, known for crafting legendary weapons.',
+    'A young human sorcerer who accidentally turned their best friend into a frog.',
+    'An aging elven librarian in search of a lost, ancient text of great power.',
+    'A gnome inventor whose gadgets constantly malfunction in unexpected ways.',
+    'A half-orc mercenary who longs to escape a life of violence for a peaceful existence.',
+    'A tiefling bartender who hears every bit of gossip in town and sometimes offers cryptic advice.',
+    'A blind seer who can communicate with spirits and offers prophetic visions.',
+    'A reclusive ranger living in the forest, fiercely protecting a hidden sanctuary.',
+    'An ambitious dragonborn merchant aiming to establish a trade empire.',
+    'A charming halfling thief with a penchant for getting into trouble but always finds a way out.',
+    'A devout cleric searching for proof of their deity’s existence in the mortal realm.',
+    'An eccentric wizard whose house is filled with strange and dangerous magical creatures.',
+    'A stoic paladin haunted by a dark secret from their past.',
+    'A rebellious noble who funds a secret rebellion against the oppressive regime.',
+    'A warforged scholar investigating ancient ruins to uncover their origins.',
+    'A sly kenku information broker who speaks in cryptic phrases.',
+    'A pirate captain with a code of honor and a hidden treasure map.',
+    'An eccentric bard who tells enchanting stories and knows more than they let on.',
+    'A mysterious monk who wanders the land seeking enlightenment and aiding the needy.',
+    'A cursed noble eternally searching for a way to break their curse.',
+    'A jovial innkeeper who is a retired adventurer with tales of grand exploits.',
+    'A haunted ghost who seeks closure for their untimely demise.',
+    'A fallen knight looking to reclaim their lost honor through acts of heroism.',
+    'A traveling healer with a dark secret about the source of their powers.',
+    'A rogue druid who protects a sacred grove from anyone they deem a threat.',
   ];
   const shuffled = descriptions.sort(() => 0.5 - Math.random());
   return shuffled.slice(0, 3);
@@ -166,6 +195,31 @@ const locationDescription = computed(() => {
     'A sacrificial altar atop a stormy cliff, used by cultists to summon dark, thunderous entities from another realm.',
     'A tranquil monastery in a blooming valley, where monks meditate on celestial alignments to gain enlightenment.',
     'A cursed graveyard where the dead whisper secrets at night, and necromancers seek knowledge of dark magics.',
+    'An underground cavern with glowing fungi and hidden crystal formations.',
+    'A floating island suspended in the sky by ancient magic.',
+    'A bustling marketplace where goods from various realms are traded.',
+    'A dense forest with paths that shift and change.',
+    'A haunted mansion on the outskirts of a desolate town.',
+    'A secret thieves guild hideout beneath a bridge.',
+    'A forgotten temple deep within a swamp.',
+    'A lighthouse on a cliff that guides spectral ships.',
+    'A desert oasis that appears only during a full moon.',
+    'A mountaintop monastery with wind-swept balconies.',
+    'A library of forbidden knowledge guarded by enchanted statues.',
+    'A castle overtaken by wild, magical vegetation.',
+    "A volcanic crater housing a dragon's lair.",
+    'A serene meadow where time flows differently.',
+    'A deteriorating shipwreck on a mysterious beach.',
+    'An ancient battlefield where ghostly warriors continue to fight.',
+    'A maze-like city with hidden passages and secrets.',
+    'A shadowy cave filled with cursed relics.',
+    'A floating black market attended by otherworldly beings.',
+    'A tranquil village where residents never age.',
+    'A rift in reality leading to parallel worlds.',
+    'A grand coliseum built to host mythical beast battles.',
+    'A sunken city beneath a lake, accessible only during drought.',
+    'A glacial palace of ice inhabited by frost spirits.',
+    'A hidden grove where an ancient tree whispers secrets.',
   ];
   const shuffled = descriptions.sort(() => 0.5 - Math.random());
   return shuffled.slice(0, 3);
@@ -198,6 +252,31 @@ const monsterDescription = computed(() => {
     'A galactic squid that traverses through space, absorbing energy from stars',
     'A puppeteer insect that takes control of other creatures through parasitic infestation',
     'A witch’s familiar that gains power through devouring magical artifacts',
+    'A mischievous trickster spirit that enjoys leading adventurers into traps.',
+    'A sentient storm cloud that strikes with lightning and commands the winds.',
+    'A polymorphed creature that can switch between animal and humanoid forms at will.',
+    'A sentient fungus that spreads spores to mind-control its victims.',
+    'A time-traveling entity that seeks to alter historical events to its benefit.',
+    'A mirror guardian that creates evil duplicates of those who gaze into it.',
+    'A chimeric beast that adapts and evolves new traits to counter its foes.',
+    'A cursed artifact that possesses those who attempt to wield its power.',
+    'A hive mind insect swarm that acts with a singular, sinister purpose.',
+    'A fallen celestial that seeks redemption through nefarious means.',
+    'A mimicking creature that can duplicate the abilities and appearance of others.',
+    'A living shadow that drains the life force from those it touches.',
+    'A demon-bound mortal who battles internally with their infernal nature.',
+    'An ancient tree that has become animated and seeks vengeance on those who harmed the forest.',
+    'A spectral knight who hunts anyone that resembles their former nemesis.',
+    'A sentient ooze that absorbs knowledge and memories from those it devours.',
+    'A trickster ghost that delights in causing chaos within settlements.',
+    'A cursed beast that turns others into monsters with its bite.',
+    'A sentient weapon that manipulates its wielder to fulfill its own dark desires.',
+    'A forgotten deity who has reawakened and seeks to reclaim their lost worshippers.',
+    'A phantasmal bard whose music can drive listeners to madness or despair.',
+    'A construct designed to protect an ancient relic, evolving new defenses over time.',
+    'A possessed puppet that seeks to trap souls within its wooden form.',
+    'A corrupted elemental that disrupts the balance of nature.',
+    'A wandering nightmare that manifests from the fears of the unconscious mind.',
   ];
   const shuffled = descriptions.sort(() => 0.5 - Math.random());
   return shuffled.slice(0, 3);
@@ -230,6 +309,31 @@ const itemDescription = computed(() => {
     'Scissors that can cut through any material.',
     'A map that updates its topography in real time.',
     'A stone that can store sunlight and emit it during the night.',
+    'A rare weapon imbued with the power to control fire, carried by a legendary warrior.',
+    'A common amulet that grants the wearer brief invisibility, often used by thieves.',
+    'An ancient book containing spells of forbidden knowledge, guarded by a powerful sorcerer.',
+    'A mysterious orb that reveals hidden truths, sought after by wise scholars.',
+    'A belt that grants its wearer extraordinary strength, once owned by a giant.',
+    'A cloak that allows its wearer to move silently, prized by assassins.',
+    'A ring that can heal wounds, highly valued by clerics.',
+    'A staff that can control the weather, wielded by druids.',
+    'A gemstone that can capture the soul of its bearer, feared by many.',
+    'A pair of boots that can walk on water, treasured by sailors.',
+    'A pendant that can communicate with animals, commonly used by rangers.',
+    'A shield that can reflect magic spells, used by ancient knights.',
+    'A musical instrument that can charm anyone who hears it, played by bards.',
+    'A potion that grants temporary superhuman agility, made by alchemists.',
+    'A pair of gloves that can manipulate shadows, used by spies.',
+    "A mask that can change the wearer's appearance, used by infiltrators.",
+    'A helmet that can read minds, worn by telepaths.',
+    'A sword that can cut through any material, forged by master blacksmiths.',
+    'A lantern that can reveal hidden paths, carried by explorers.',
+    'A bracelet that can protect against poison, worn by adventurers.',
+    'A scroll that can summon a powerful creature, used by summoners.',
+    'A necklace that can control time, feared by everyone.',
+    'A quiver that never runs out of arrows, used by archers.',
+    'A key that can open any lock, sought after by burglars.',
+    'A mirror that can show glimpses of the future, held by seers.',
   ];
   const shuffled = descriptions.sort(() => 0.5 - Math.random());
   return shuffled.slice(0, 3);

@@ -190,7 +190,11 @@ export default class SessionController {
       },
       include: {
         sessionTranscription: true,
-        images: true,
+        images: {
+          where: {
+            primary: true,
+          },
+        },
       },
     });
 
@@ -360,7 +364,11 @@ export default class SessionController {
       },
       include: {
         sessionTranscription: true,
-        images: true,
+        images: {
+          where: {
+            primary: true,
+          },
+        },
       },
     });
 
@@ -415,7 +423,11 @@ export default class SessionController {
           },
           include: {
             sessionTranscription: true,
-            images: true,
+            images: {
+              where: {
+                primary: true,
+              },
+            },
           },
         });
       }
