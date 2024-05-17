@@ -1,6 +1,7 @@
 import { prisma } from '../lib/providers/prisma';
 import { ImageCreditChangeType } from '@prisma/client';
 import { setIntercomCustomAttributes } from '../lib/intercom';
+import { sendWebsocketMessage, WebSocketEvent } from './websockets';
 
 export const modifyImageCreditCount = async (
   userId: number,
@@ -27,6 +28,12 @@ export const modifyImageCreditCount = async (
       comment,
     },
   });
+
+  await sendWebsocketMessage(
+    userId,
+    WebSocketEvent.UserImageCreditCountUpdated,
+    updatedUser.imageCredits,
+  );
 
   await setIntercomCustomAttributes(userId, {
     'Credit Count': updatedUser.imageCredits,

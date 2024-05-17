@@ -2,7 +2,7 @@ import { Generator, getGenerator } from '../../data/conjurers';
 import { BillingPlan, Campaign, ConjurationVisibility } from '@prisma/client';
 import { AppError, HttpCode } from '../../lib/errors/AppError';
 import { sanitizeJson, trimPlural } from '../../lib/utils';
-import { generateImage } from '../../services/imageGeneration';
+import { generateImage } from '../../services/images/imageGeneration';
 import { prisma } from '../../lib/providers/prisma';
 import { ConjureEvent, processTagsQueue } from '../index';
 import { getClient } from '../../lib/providers/openai';
@@ -148,7 +148,7 @@ export const conjure = async (request: ConjureEvent) => {
       ? request.imagePrompt
       : conjuration.imageAIPrompt;
 
-    const uris = await generateImage({
+    const images = await generateImage({
       userId: request.userId,
       prompt: imagePrompt,
       count: 1,
@@ -157,9 +157,10 @@ export const conjure = async (request: ConjureEvent) => {
       linking: {
         conjurationId: createdConjuration.id,
       },
+      forceImagePrimary: true,
     });
 
-    if (!uris) {
+    if (!images) {
       await prisma.conjuration.update({
         where: {
           id: createdConjuration.id,
@@ -175,7 +176,7 @@ export const conjure = async (request: ConjureEvent) => {
       });
     }
 
-    conjuration.imageUri = uris[0];
+    conjuration.imageUri = images[0]?.uri;
 
     await prisma.conjuration.update({
       where: {

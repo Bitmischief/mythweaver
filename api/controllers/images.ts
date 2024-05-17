@@ -9,7 +9,10 @@ import {
   Tags,
 } from 'tsoa';
 import { TrackingInfo } from '../lib/tracking';
-import { generateImage, upscaleImage } from '../services/imageGeneration';
+import {
+  generateImage,
+  upscaleImage,
+} from '../services/images/imageGeneration';
 import { prisma } from '../lib/providers/prisma';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import { MythWeaverLogger } from '../lib/logger';

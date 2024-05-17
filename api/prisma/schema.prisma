@@ -302,6 +302,9 @@ model Image {
   stylePreset    String?
   seed           String?
   primary        Boolean @default(false)
+  upscaled       Boolean @default(false)
+  generating     Boolean @default(false)
+  failed         Boolean @default(false)
 
   conjurationId Int?
   sessionId     Int?
@@ -407,11 +410,13 @@ model ImageModel {
   createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
   updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
 
-  description     String
-  strengths       String[]
-  promptPrefix    String?
-  sampleImageUris String[]
-  executionUri    String?
+  description             String
+  strengths               String[]
+  promptPrefix            String?
+  sampleImageUris         String[]
+  executionUri            String?
+  defaultPrompt           Boolean  @default(false)
+  stableDiffusionApiModel Boolean  @default(false)
 
   artists ImageModelArtist[]
 

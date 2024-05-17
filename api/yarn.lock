@@ -2545,6 +2545,11 @@ arraybuffer.prototype.slice@^1.0.3:
     is-array-buffer "^3.0.4"
     is-shared-array-buffer "^1.0.2"
 
+async-await-retry@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/async-await-retry/-/async-await-retry-2.1.0.tgz#c5a595654a0c32d159801ae8ea1e461efb74fcc9"
+  integrity sha512-eP0cVR8SfTussawaGL1edKe6aQJiVo2A8+TFBhpg3GKMHcn3FvAT/CfdaPtXdbsLsca/L7qwhi7e8D7SDFnoNQ==
+
 asynckit@^0.4.0:
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/asynckit/-/asynckit-0.4.0.tgz#c79ed97f7f34cb8f2ba1bc9790bcc366474b4b79"
