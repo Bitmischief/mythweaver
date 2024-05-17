@@ -1,16 +1,13 @@
 import { prisma } from '../../lib/providers/prisma';
 import { sendWebsocketMessage, WebSocketEvent } from '../websockets';
 import { generateStableDiffusionImage } from './stableDiffusionImageService';
-import {
-  GeneratedImage,
-  ImageGenerationRequest,
-  ImageGenerationResponse,
-} from './models';
+import { GeneratedImage, ImageGenerationRequest } from './models';
 import { Image, ImageCreditChangeType } from '@prisma/client';
 import { generateMythWeaverModelImage } from './mythweaverImageService';
-import logger from '../../lib/logger';
 import { modifyImageCreditCount } from '../credits';
 import { AppEvent, track } from '../../lib/tracking';
+import { AppError, ErrorType, HttpCode } from '../../lib/errors/AppError';
+import retry from 'async-await-retry';
 
 export const generateImage = async (request: ImageGenerationRequest) => {
   const user = await prisma.user.findUnique({
@@ -20,20 +17,56 @@ export const generateImage = async (request: ImageGenerationRequest) => {
   });
 
   if (!user) {
-    await sendWebsocketMessage(request.userId, WebSocketEvent.ImageError, {
-      message: 'User not found.',
+    throw new AppError({
+      description: 'User not found.',
+      httpCode: HttpCode.BAD_REQUEST,
+      websocket: {
+        userId: request.userId,
+        errorCode: ErrorType.ImageGenerationError,
+        context: {
+          ...request.linking,
+        },
+      },
     });
-
-    return undefined;
   }
 
   if (user.imageCredits < request.count) {
-    await sendWebsocketMessage(request.userId, WebSocketEvent.ImageError, {
-      message:
+    throw new AppError({
+      description:
         'You do not have enough image credits to generate this many images. Please try with fewer images, or buy more credits.',
+      httpCode: HttpCode.BAD_REQUEST,
+      websocket: {
+        userId: request.userId,
+        errorCode: ErrorType.ImageGenerationError,
+        context: {
+          ...request.linking,
+        },
+      },
+    });
+  }
+
+  if (!request.modelId) {
+    const defaultModel = await prisma.imageModel.findFirst({
+      where: {
+        default: true,
+      },
     });
 
-    return undefined;
+    if (!defaultModel) {
+      throw new AppError({
+        description: 'Default model not found.',
+        httpCode: HttpCode.INTERNAL_SERVER_ERROR,
+        websocket: {
+          userId: request.userId,
+          errorCode: ErrorType.ImageGenerationError,
+          context: {
+            ...request.linking,
+          },
+        },
+      });
+    }
+
+    request.modelId = defaultModel.id;
   }
 
   const imagePromises = [];
@@ -110,11 +143,17 @@ const generateImageFromProperProvider = async (
   });
 
   if (!model) {
-    await sendWebsocketMessage(request.userId, WebSocketEvent.ImageError, {
-      message: 'Model not found.',
+    throw new AppError({
+      description: 'Image model not found.',
+      httpCode: HttpCode.BAD_REQUEST,
+      websocket: {
+        userId: request.userId,
+        errorCode: ErrorType.ImageGenerationError,
+        context: {
+          ...request.linking,
+        },
+      },
     });
-
-    return;
   }
 
   track(AppEvent.ConjureImage, request.userId, undefined, {
@@ -124,31 +163,39 @@ const generateImageFromProperProvider = async (
     count: request.count,
   });
 
-  let imageGenerationResponse: GeneratedImage | undefined;
+  let imageGenerationResponse: GeneratedImage;
 
-  if (model.stableDiffusionApiModel) {
-    imageGenerationResponse = await generateImageWithRetry(request.userId, () =>
-      generateStableDiffusionImage(request),
-    );
-  } else {
-    imageGenerationResponse = await generateImageWithRetry(request.userId, () =>
-      generateMythWeaverModelImage(request, model),
-    );
-  }
-
-  if (!imageGenerationResponse) {
-    await sendWebsocketMessage(request.userId, WebSocketEvent.ImageError, {
-      message:
-        'After multiple retries, we were unable to generate an image. Please try again.',
+  try {
+    if (model.stableDiffusionApiModel) {
+      imageGenerationResponse = await retry(async () => {
+        return await generateStableDiffusionImage(request);
+      });
+    } else {
+      imageGenerationResponse = await retry(async () => {
+        return await generateMythWeaverModelImage(request, model);
+      });
+    }
+  } catch (err) {
+    throw new AppError({
+      description:
+        'The image generation service was unable to generate an image that met the criteria. Please try again.',
+      httpCode: HttpCode.INTERNAL_SERVER_ERROR,
+      websocket: {
+        userId: request.userId,
+        errorCode: ErrorType.ImageGenerationError,
+        context: {
+          ...request.linking,
+        },
+      },
     });
-
-    return;
   }
 
   await sendWebsocketMessage(
     request.userId,
     WebSocketEvent.ImageGenerationDone,
-    {},
+    {
+      image: imageGenerationResponse,
+    },
   );
 
   const imageCredits = await modifyImageCreditCount(
@@ -165,35 +212,4 @@ const generateImageFromProperProvider = async (
   );
 
   return imageGenerationResponse;
-};
-
-const generateImageWithRetry = async (
-  userId: number,
-  imageGenerationFunction: () => Promise<ImageGenerationResponse>,
-  maxRetries = 10,
-) => {
-  let tries = 0;
-
-  do {
-    let response: ImageGenerationResponse | undefined = undefined;
-
-    try {
-      response = await imageGenerationFunction();
-    } catch (err) {
-      logger.error('Error generating image.', { userId });
-    }
-
-    if (response && response.images && response.images.length > 0) {
-      return response.images[0];
-    }
-
-    tries++;
-  } while (tries < maxRetries);
-
-  await sendWebsocketMessage(userId, WebSocketEvent.ImageFiltered, {
-    message:
-      'The image generation service was unable to generate an image that met the criteria. Please try again.',
-  });
-
-  return undefined;
 };

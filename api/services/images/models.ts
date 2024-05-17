@@ -1,7 +1,7 @@
 import { ImageStylePreset } from '../../controllers/images';
 
 export interface ImageGenerationRequest {
-  modelId: number;
+  modelId?: number;
   userId: number;
   prompt: string;
   count: number;

@@ -2,6 +2,7 @@ import axios, { AxiosResponse } from 'axios';
 import { prisma } from '../lib/providers/prisma';
 import { sendWebsocketMessage, WebSocketEvent } from './websockets';
 import { getClient } from '../lib/providers/openai';
+import { AppError, ErrorType, HttpCode } from '../lib/errors/AppError';
 
 const openai = getClient();
 
@@ -30,15 +31,18 @@ export const transcribeSessionAudio = async (request: TranscriptionRequest) => {
   });
 
   if (!user) {
-    await sendWebsocketMessage(
-      request.userId,
-      WebSocketEvent.TranscriptionError,
-      {
-        message: 'User not found.',
+    throw new AppError({
+      description: 'Unable to find user.',
+      httpCode: HttpCode.INTERNAL_SERVER_ERROR,
+      websocket: {
+        userId: request.userId,
+        errorCode: ErrorType.TranscriptionError,
+        context: {
+          userId: request.userId,
+          sessionId: request.sessionId,
+        },
       },
-    );
-
-    throw new Error('User not found');
+    });
   }
 
   // todo: eventually check if user.plan === 'PRO'
@@ -59,14 +63,19 @@ export const transcribeSessionAudio = async (request: TranscriptionRequest) => {
       },
     );
   } catch (err) {
-    await sendWebsocketMessage(request.userId, WebSocketEvent.ImageError, {
-      message:
+    throw new AppError({
+      description:
         'There was an error while making the transcription request. Please try again.',
+      httpCode: HttpCode.INTERNAL_SERVER_ERROR,
+      websocket: {
+        userId: request.userId,
+        errorCode: ErrorType.TranscriptionError,
+        context: {
+          userId: request.userId,
+          sessionId: request.sessionId,
+        },
+      },
     });
-
-    throw new Error(
-      'There was an error while making the transcription request. Please try again.',
-    );
   }
 
   if (response.data) {

@@ -12,7 +12,7 @@ import {
   Tags,
 } from 'tsoa';
 import { prisma } from '../lib/providers/prisma';
-import { AppError, HttpCode } from '../lib/errors/AppError';
+import { AppError, ErrorType, HttpCode } from '../lib/errors/AppError';
 import {
   BillingPlan,
   Prisma,
@@ -754,11 +754,19 @@ export default class SessionController {
         sessionTranscription.userId,
         trackingInfo,
       );
-      await sendWebsocketMessage(
-        sessionTranscription.userId,
-        WebSocketEvent.TranscriptionError,
-        {},
-      );
+
+      throw new AppError({
+        description: 'There was an error transcribing your session.',
+        httpCode: HttpCode.INTERNAL_SERVER_ERROR,
+        websocket: {
+          userId: sessionTranscription.userId,
+          errorCode: ErrorType.TranscriptionError,
+          context: {
+            userId: sessionTranscription.userId,
+            sessionId: sessionId,
+          },
+        },
+      });
     }
 
     return;

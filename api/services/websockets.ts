@@ -17,13 +17,10 @@ export const sendWebsocketMessage = async (
 };
 
 export enum WebSocketEvent {
+  Error = 'error',
   ConjurationCreated = 'conjuration-created',
-  ConjurationError = 'conjuration-error',
   ImageCreated = 'image-created',
   ImageUpscaled = 'image-upscaled',
-  ImageFiltered = 'image-filtered',
-  ImagePromptRephrased = 'image-prompt-rephrased',
-  ImageError = 'image-error',
   ImageGenerationDone = 'image-generation-done',
   ImageUpscalingDone = 'image-upscaling-done',
   SessionUpdated = 'session-updated',
@@ -32,7 +29,13 @@ export enum WebSocketEvent {
   UserImageCreditCountUpdated = 'user-image-credit-count-updated',
   UserConjurationCountUpdated = 'user-conjuration-count-updated',
   TranscriptionStarted = 'transcription-started',
-  TranscriptionError = 'transcription-error',
   TranscriptionComplete = 'transcription-complete',
   PrimaryImageSet = 'primary-image-set',
+}
+
+export interface WebSocketContext {
+  userId?: number;
+  sessionId?: number;
+  imageId?: number;
+  conjurationId?: number;
 }

@@ -1,16 +1,12 @@
 import axios, { AxiosResponse } from 'axios';
-import { sendWebsocketMessage, WebSocketEvent } from '../websockets';
 import { AppEvent, track } from '../../lib/tracking';
 import { v4 as uuidv4 } from 'uuid';
-import { modifyImageCreditCount } from '../credits';
-import { ImageCreditChangeType } from '@prisma/client';
 import FormData from 'form-data';
-import { AppError, HttpCode } from '../../lib/errors/AppError';
+import { AppError, ErrorType, HttpCode } from '../../lib/errors/AppError';
 import { getImage, saveImage } from '../dataStorage';
-import logger from '../../lib/logger';
 import {
+  GeneratedImage,
   ImageGenerationRequest,
-  ImageGenerationResponse,
   ImageUpscaleRequest,
   ImageUpscaleResponse,
 } from './models';
@@ -23,10 +19,8 @@ const upscaleEngine = 'esrgan-v1-x2plus';
 
 export const generateStableDiffusionImage = async (
   request: ImageGenerationRequest,
-): Promise<ImageGenerationResponse> => {
+): Promise<GeneratedImage | undefined> => {
   if (!apiKey) throw new Error('Missing Stability API key.');
-
-  const result = {} as ImageGenerationResponse;
 
   const imageResponse = await postToStableDiffusion(
     {
@@ -37,24 +31,28 @@ export const generateStableDiffusionImage = async (
   );
 
   if (!imageResponse) {
-    return result;
+    return;
   }
 
   const artifacts = imageResponse.artifacts.filter(
     (a: any) => a.finishReason === 'SUCCESS',
   );
 
-  for (const image of artifacts) {
-    const imageId = uuidv4();
-    const url = await saveImage(imageId, image.base64);
-
-    result.images.push({
-      uri: url,
-      seed: image.seed,
+  if (artifacts.length === 0) {
+    throw new AppError({
+      description: 'Image generation failed.',
+      httpCode: HttpCode.INTERNAL_SERVER_ERROR,
     });
   }
 
-  return result;
+  const image = artifacts[0];
+  const imageId = uuidv4();
+  const url = await saveImage(imageId, image.base64);
+
+  return {
+    uri: url,
+    seed: image.seed,
+  };
 };
 
 const postToStableDiffusion = async (
@@ -99,12 +97,18 @@ const postToStableDiffusion = async (
       },
     );
   } catch (err: any) {
-    await sendWebsocketMessage(request.userId, WebSocketEvent.ImageError, {
-      message:
+    throw new AppError({
+      description:
         'There was an error generating your image. This could be due to our content filtering system rejecting your prompt, or an unexpected outage with one of our providers. Please try again.',
+      httpCode: HttpCode.INTERNAL_SERVER_ERROR,
+      websocket: {
+        userId: request.userId,
+        errorCode: ErrorType.ImageGenerationError,
+        context: {
+          ...request.linking,
+        },
+      },
     });
-
-    return undefined;
   }
 
   return {
@@ -120,18 +124,19 @@ export const stableDiffusionUpscaleImage = async (
   track(AppEvent.UpscaleImage, request.userId, undefined, {});
   const upscaleResponse = await postStableDiffusionUpscaleRequest(request);
 
-  const artifacts = upscaleResponse?.artifacts.filter(
-    (a: any) => a.finishReason === 'SUCCESS',
-  );
+  const artifacts =
+    upscaleResponse?.artifacts?.filter(
+      (a: any) => a.finishReason === 'SUCCESS',
+    ) || [];
 
-  const image = artifacts[0];
-
-  if (!image) {
+  if (artifacts.length === 0) {
     throw new AppError({
       description: 'Image upscale failed.',
       httpCode: HttpCode.INTERNAL_SERVER_ERROR,
     });
   }
+
+  const image = artifacts[0];
 
   const imageId = uuidv4();
   return await saveImage(imageId, image.base64);
@@ -169,13 +174,19 @@ const postStableDiffusionUpscaleRequest = async (
       },
     );
   } catch (err: any) {
-    logger.error('There was an issue upscaling an image.', { err });
-    await sendWebsocketMessage(request.userId, WebSocketEvent.ImageError, {
-      message:
-        'There was an error upscaling your image. This could be due to our content filtering system rejecting your prompt, or an unexpected outage with one of our providers. Please try again.',
+    throw new AppError({
+      description:
+        'There was an error upscaling your image. This could be due to an unexpected outage with one of our providers. Please try again.',
+      httpCode: HttpCode.INTERNAL_SERVER_ERROR,
+      websocket: {
+        userId: request.userId,
+        errorCode: ErrorType.ImageUpscaleError,
+        context: {
+          imageId: request.imageId,
+          userId: request.userId,
+        },
+      },
     });
-
-    return undefined;
   }
 
   return response.data;

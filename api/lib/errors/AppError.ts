@@ -1,3 +1,9 @@
+import {
+  sendWebsocketMessage,
+  WebSocketContext,
+  WebSocketEvent,
+} from '../../services/websockets';
+
 export enum HttpCode {
   OK = 200,
   NO_CONTENT = 204,
@@ -9,11 +15,25 @@ export enum HttpCode {
   INTERNAL_SERVER_ERROR = 500,
 }
 
+export enum ErrorType {
+  ImageGenerationError = 'image-generation-error',
+  ImageUpscaleError = 'image-upscale-error',
+  ConjurationError = 'conjuration-error',
+  TranscriptionError = 'transcription-error',
+}
+
 export interface AppErrorArgs {
   name?: string;
+  isOperational?: boolean;
   httpCode: HttpCode;
   description: string;
-  isOperational?: boolean;
+  websocket?: AppErrorWebsocketConfig;
+}
+
+export interface AppErrorWebsocketConfig {
+  userId: number;
+  errorCode: ErrorType;
+  context?: WebSocketContext;
 }
 
 export class AppError extends Error {
@@ -21,6 +41,7 @@ export class AppError extends Error {
   public readonly httpCode: HttpCode;
   public readonly isOperational: boolean = true;
   public readonly description: string;
+  public readonly websocket?: AppErrorWebsocketConfig;
 
   constructor(args: AppErrorArgs) {
     super(args.description);
@@ -30,9 +51,19 @@ export class AppError extends Error {
     this.name = args.name || 'Error';
     this.description = args.description;
     this.httpCode = args.httpCode;
+    this.websocket = args.websocket;
 
     if (args.isOperational !== undefined) {
       this.isOperational = args.isOperational;
+    }
+
+    if (this.websocket) {
+      sendWebsocketMessage(this.websocket.userId, WebSocketEvent.Error, {
+        context: this.websocket.context,
+        message: 'Model not found.',
+      }).then(() => {
+        console.log('Websocket error event pushed to client.');
+      });
     }
 
     Error.captureStackTrace(this);

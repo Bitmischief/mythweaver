@@ -410,13 +410,14 @@ model ImageModel {
   createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
   updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
 
-  description             String
-  strengths               String[]
-  promptPrefix            String?
-  sampleImageUris         String[]
-  executionUri            String?
-  defaultPrompt           Boolean  @default(false)
-  stableDiffusionApiModel Boolean  @default(false)
+  description     String
+  strengths       String[]
+  promptPrefix    String?
+  sampleImageUris String[]
+  executionUri    String?
+
+  default                 Boolean @default(false)
+  stableDiffusionApiModel Boolean @default(false)
 
   artists ImageModelArtist[]
 
