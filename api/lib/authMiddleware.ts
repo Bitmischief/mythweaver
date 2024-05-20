@@ -1,5 +1,5 @@
 import { jwtDecode } from 'jwt-decode';
-import { Request, Response, NextFunction } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { prisma } from './providers/prisma';
 import { injectRequestId } from './loggingMiddleware';
 import { auth } from 'express-oauth2-jwt-bearer';
@@ -11,6 +11,7 @@ import mailchimpClient from './mailchimpMarketing';
 import { lists, Status } from '@mailchimp/mailchimp_marketing';
 import { format } from 'date-fns';
 import { AppEvent, track } from './tracking';
+import { AdConversionEvent, reportAdConversionEvent } from './ads';
 import EmailType = lists.EmailType;
 
 export const checkAuth0Jwt = auth({
@@ -149,6 +150,8 @@ const createNewUser = async (res: Response, email: string, logger: any) => {
   track(AppEvent.Registered, user.id, res.locals.trackingInfo, {
     email,
   });
+
+  await reportAdConversionEvent(AdConversionEvent.Lead, user);
 
   return user;
 };

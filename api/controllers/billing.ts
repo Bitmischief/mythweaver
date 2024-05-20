@@ -33,6 +33,8 @@ import logger, { MythWeaverLogger } from '../lib/logger';
 import { setIntercomCustomAttributes } from '../lib/intercom';
 import { modifyImageCreditCount } from '../services/credits';
 import { postToDiscordBillingChannel } from '../services/discord';
+import { reportMetaAdConversionEvent } from '../lib/ads/meta';
+import { AdConversionEvent, reportAdConversionEvent } from '../lib/ads';
 
 const PRO_PLAN_IMAGE_CREDITS = 300;
 const BASIC_PLAN_IMAGE_CREDITS = 100;
@@ -348,6 +350,13 @@ export default class BillingController {
       await postToDiscordBillingChannel(
         `New subscription: ${user.email}! Amount: $${subscriptionAmount}.`,
       );
+
+      await reportAdConversionEvent(AdConversionEvent.Purchase, user, {
+        purchase: {
+          currency: 'USD',
+          value: subscriptionAmount,
+        },
+      });
     }
 
     await prisma.user.update({
