@@ -18,13 +18,13 @@ export const generateMythWeaverModelImage = async (
 
   const response = await axios.post(model.executionUri, {
     prompt: `${model.promptPrefix} ${request.prompt}`,
-    steps: 70,
+    steps: 50,
   });
 
   const image = response.data;
 
   const imageId = uuidv4();
-  const url = await saveImage(imageId, image.image);
+  const url = await saveImage(imageId, image.base64);
 
   return {
     uri: url,
