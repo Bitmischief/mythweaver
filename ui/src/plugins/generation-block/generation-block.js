@@ -98,9 +98,9 @@ export default class GenerationBlock {
     let background = {};
     const count = this.api.blocks.getBlocksCount();
     for (let i = 0; i < count; i++) {
-      const block = this.api.blocks.getBlockByIndex(i);
-      if (this.block.id !== block.id) {
-        const value = await block.save();
+      const b = this.api.blocks.getBlockByIndex(i);
+      if (this.block.id !== b.id) {
+        const value = await b.save();
         if (value.tool === 'generationBlock' || value.tool === 'paragraph') {
           background[`${this.context}_notes_${i}`] = value.data;
         }
