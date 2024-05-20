@@ -32,6 +32,7 @@ import {
 } from '../services/transcription';
 import { JsonObject } from '@prisma/client/runtime/library';
 import { format } from 'date-fns';
+import { getTranscription } from '../services/dataStorage';
 
 interface GetSessionsResponse {
   data: Session[];
@@ -73,7 +74,6 @@ interface PostSessionAudioResponse {
 
 interface PatchSessionTranscriptionRequest {
   status: TranscriptionStatus;
-  transcription?: Prisma.JsonObject;
 }
 
 export enum SessionStatus {
@@ -739,13 +739,15 @@ export default class SessionController {
       });
     }
 
+    const transcription = await getTranscription(sessionId);
+
     await prisma.sessionTranscription.update({
       where: {
         sessionId: sessionId,
       },
       data: {
         status: request.status,
-        transcription: request.transcription,
+        transcription: transcription,
       },
     });
 
