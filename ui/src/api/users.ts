@@ -19,6 +19,7 @@ export interface User {
   imageCredits: number;
   preorderRedemptionCoupon: string;
   conjurationCount: number;
+  initialTrackingData: any;
 }
 
 export interface Subscription {

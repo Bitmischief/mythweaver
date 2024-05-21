@@ -114,6 +114,7 @@ const saveAndGotoConjuration = async () => {
           v-model="conjuration.data"
           :read-only="readOnly"
           :placeholder="`Add details to your ${generator.name} here!`"
+          :context="generator.name"
           @dblclick="readOnly = false"
         />
       </div>

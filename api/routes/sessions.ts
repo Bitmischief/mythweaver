@@ -80,15 +80,8 @@ const getSessionSchema = z.object({
   sessionId: z.coerce.number().default(0),
 });
 
-const transcriptionObjectSchema = z.object({
-  text: z.string(),
-  segments: z.any().array(),
-  language: z.string(),
-});
-
-const postSessionTranscriptionSchema = z.object({
+const patchSessionTranscriptionSchema = z.object({
   status: z.string(),
-  transcription: transcriptionObjectSchema.optional(),
 });
 
 router.get('/:sessionId', [
@@ -313,12 +306,12 @@ router.post('/:sessionId/transcription', [
 ]);
 
 router.patch('/:sessionId/transcription', [
-  useAuthenticateServiceRequest,
+  useAuthenticateServiceRequest(),
   useInjectLoggingInfo(),
   useValidateRequest(getSessionSchema, {
     validationType: ValidationTypes.Route,
   }),
-  useValidateRequest(postSessionTranscriptionSchema, {
+  useValidateRequest(patchSessionTranscriptionSchema, {
     validationType: ValidationTypes.Body,
     logRequest: false,
   }),

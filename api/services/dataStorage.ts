@@ -71,3 +71,15 @@ export const getImage = async (imageId: string) => {
     return fs.readFileSync(imageDir);
   }
 };
+
+export const getTranscription = async (sessionId: number) => {
+  const command = new GetObjectCommand({
+    Bucket: process.env.TRANSCRIPTION_BUCKET,
+    Key: `${sessionId}.json`,
+  });
+  const response = await s3.send(command);
+  const jsonBuffer = Buffer.from(
+    (await response.Body?.transformToByteArray()) as Uint8Array,
+  );
+  return JSON.parse(jsonBuffer.toString());
+};

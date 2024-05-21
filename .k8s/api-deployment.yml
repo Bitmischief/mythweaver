@@ -122,6 +122,12 @@ spec:
               value: <LAUNCH_DARKLY_SDK_KEY>
             - name: ISSUER_BASE_URL
               value: <ISSUER_BASE_URL>
+            - name: FACEBOOK_CONVERSIONS_ACCESS_TOKEN
+              value: <FACEBOOK_CONVERSIONS_ACCESS_TOKEN>
+            - name: FACEBOOK_CONVERSIONS_PIXEL_ID
+              value: "<FACEBOOK_CONVERSIONS_PIXEL_ID>"
+            - name: TRANSCRIPTION_BUCKET
+              value: <TRANSCRIPTION_BUCKET>
           readinessProbe:
             httpGet:
               path: /docs
