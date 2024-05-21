@@ -314,6 +314,7 @@ function showCustomizeImageModal() {
           v-model="editableConjuration.data"
           :read-only="readOnly"
           :placeholder="`Add details to your ${conjurationType} here!`"
+          :context="conjurationType"
           @dblclick="
             editable && currentUserRole === CampaignRole.DM
               ? emit('edit')

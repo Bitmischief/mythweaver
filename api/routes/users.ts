@@ -34,6 +34,7 @@ const patchUsersSchema = z.object({
   tags: z.array(z.string()).optional(),
   data: z.array(z.object({ key: z.string(), value: z.any() })).optional(),
   confirmEarlyAccessStart: z.boolean().optional(),
+  initialTrackingData: z.any().optional(),
 });
 
 router.patch('/me', [
@@ -50,6 +51,7 @@ router.patch('/me', [
       useLogger(res),
       req.body,
     );
+
     return res.status(200).send(response);
   },
 ]);

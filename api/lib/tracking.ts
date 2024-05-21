@@ -1,6 +1,7 @@
 import Mixpanel from 'mixpanel';
 import { Request } from 'express';
 import UAParser from 'ua-parser-js';
+import { isProduction } from './utils';
 
 let mixpanel: Mixpanel.Mixpanel | undefined;
 
@@ -112,7 +113,7 @@ export const extractTrackingInfo = (req: Request): TrackingInfo => {
 };
 
 const init = () => {
-  if (process.env.API_URL !== 'https://api.mythweaver.co') return;
+  if (!isProduction) return;
 
   if (!mixpanel) {
     mixpanel = Mixpanel.init(process.env.MIXPANEL_TOKEN as string);
