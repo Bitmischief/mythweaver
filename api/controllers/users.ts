@@ -20,13 +20,14 @@ import {
 } from '../services/billing';
 
 interface PatchUserRequest {
-  campaignId: number;
-  name: string;
-  username: string;
+  campaignId?: number;
+  name?: string;
+  username?: string;
   imageUri?: string;
-  data: any;
+  data?: any;
   tags?: string[];
   confirmEarlyAccessStart?: boolean;
+  initialTrackingData?: any;
 }
 
 interface AddUserCreditsRequest {
@@ -139,6 +140,26 @@ export default class UserController {
           httpCode: HttpCode.BAD_REQUEST,
         });
       }
+    }
+
+    const existingUser = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!existingUser) {
+      throw new AppError({
+        description: 'User not found.',
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    if (payload.initialTrackingData && existingUser.initialTrackingData) {
+      logger.info(
+        'User already has initial tracking data, dropping new initialTrackingData',
+      );
+      return existingUser;
     }
 
     return prisma.user.update({

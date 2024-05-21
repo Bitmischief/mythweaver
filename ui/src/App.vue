@@ -25,6 +25,7 @@ import { BillingPlan } from '@/api/users.ts';
 import { SparklesIcon } from '@heroicons/vue/24/outline';
 import { useRoute } from 'vue-router';
 import { useAuth0 } from '@auth0/auth0-vue';
+import { reportInitialTrackingData } from '@/lib/tracking.ts';
 
 const ldReady = useLDReady();
 const authStore = useAuthStore();
@@ -70,7 +71,12 @@ onMounted(async () => {
       });
 
       mixpanel.init(import.meta.env.VITE_MIXPANEL_TOKEN as string);
-      mixpanel.identify(user.id.toString());
+
+      if (!user.initialTrackingData) {
+        await reportInitialTrackingData();
+      }
+
+      mixpanel.alias(user.id.toString());
 
       if (user.preorderRedemptionCoupon) {
         showPreorderRedemptionModal.value = true;

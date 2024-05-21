@@ -347,8 +347,13 @@ export default class BillingController {
 
       const subscriptionAmount =
         (event.data.object.items.data[0].price.unit_amount || 0) / 100;
+
+      const trackingString = Object.entries(user.initialTrackingData || {})
+        .map(([key, value]) => `${key}: ${value}`)
+        .join(', ');
+
       await postToDiscordBillingChannel(
-        `New subscription: ${user.email}! Amount: $${subscriptionAmount}.`,
+        `New subscription: ${user.email}! Amount: $${subscriptionAmount}. ${user.initialTrackingData ? `Source: ${trackingString}` : ''}`,
       );
 
       await reportAdConversionEvent(AdConversionEvent.Purchase, user, {

@@ -52,6 +52,8 @@ model User {
   preorderRedemptionCoupon        String?
   preorderRedemptionStripePriceId String?
 
+  initialTrackingData Json?
+
   refreshTokens            RefreshToken[]
   campaigns                Campaign[]
   sessions                 Session[]
