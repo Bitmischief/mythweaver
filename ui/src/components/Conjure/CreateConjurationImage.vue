@@ -3,7 +3,7 @@ import { ArrowLeftIcon } from '@heroicons/vue/24/solid';
 import { Conjurer } from '@/api/generators.ts';
 import { Conjuration, saveConjuration } from '@/api/conjurations.ts';
 import { computed, onMounted, onUnmounted } from 'vue';
-import CustomizeConjurationImage from '@/components/Conjuration/ViewConjuration/CustomizeConjurationImage.vue';
+import ConjureImage from '@/components/Conjure/ConjureImage.vue';
 import { showSuccess } from '@/lib/notifications.ts';
 import { useRouter } from 'vue-router';
 import { ServerEvent } from '@/lib/serverEvents.ts';
@@ -44,21 +44,23 @@ const viewConjuration = async () => {
 </script>
 
 <template>
-  <div class="w-full">
-    <div class="flex flex-wrap md:flex-nowrap gap-2">
+  <div class="relative w-full md:mt-12">
+    <div class="absolute -mt-9 md:mt-0 md:flex gap-2 z-10">
+      <div class="md:hidden text-xl self-center mb-2 whitespace-nowrap">
+        Generate an image of your
+        <span class="gradient-text">{{ generator.name }}</span>
+      </div>
       <button class="button-primary flex gap-2" @click="emit('back')">
         <ArrowLeftIcon class="h-5 w-5 self-center" />
         <span class="self-center">Back</span>
       </button>
-      <div class="text-xl self-center">
+      <div class="hidden md:block text-xl self-center">
         Generate an image of your
         <span class="gradient-text">{{ generator.name }}</span>
       </div>
     </div>
-    <div
-      class="lg:[&>.actions]:mb-6 mt-6 [&>.actions]:mt-2 lg:[&>.actions]:-mt-[4.5em]"
-    >
-      <CustomizeConjurationImage
+    <div class="md:-mt-12 mt-6">
+      <ConjureImage
         :image="{ prompt: conjuration?.imageAIPrompt || '' }"
         :linking="{ conjurationId: conjuration?.id }"
         :show-image-credits="false"
