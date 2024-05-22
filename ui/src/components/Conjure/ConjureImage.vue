@@ -458,7 +458,7 @@ const selectedModelIsMythWeaverV1 = computed(() => {
                   </button>
                 </div>
               </div>
-              <div v-if="true || (showSeed && image.seed)" class="group">
+              <div v-if="showSeed && image.seed" class="group">
                 <div class="text-neutral-300 text-xs mb-1">
                   Use Same Image Seed?
                 </div>
@@ -483,15 +483,15 @@ const selectedModelIsMythWeaverV1 = computed(() => {
                   </button>
                 </div>
                 <div
-                  class="absolute text-left px-2 py-2 bottom-[calc(100%+10px)] left-0 bg-surface-3 rounded-[12px] z-30 invisible group-hover:visible"
+                  class="absolute text-left px-2 py-2 bottom-[calc(100%+10px)] right-0 bg-surface-3 rounded-[12px] z-30 invisible group-hover:visible"
                 >
                   <div>
-                    Checking this will allow you to make alterations to your
+                    Choosing 'Yes' will allow you to make alterations to your
                     prompt while keeping the overall image the same.
                   </div>
                   <div>
-                    Leave this unchecked if you want to create a new image not
-                    inspired by the original.
+                    We recommend leaving this as 'No' if you are unfamiliar with
+                    image seeds.
                   </div>
                 </div>
               </div>
