@@ -311,11 +311,13 @@ model Image {
   conjurationId Int?
   sessionId     Int?
   characterId   Int?
+  modelId       Int?
 
   user        User         @relation(fields: [userId], references: [id])
   conjuration Conjuration? @relation(fields: [conjurationId], references: [id], onDelete: SetNull)
   session     Session?     @relation(fields: [sessionId], references: [id], onDelete: SetNull)
   character   Character?   @relation(fields: [characterId], references: [id], onDelete: SetNull)
+  imageModel  ImageModel?  @relation(fields: [modelId], references: [id], onDelete: SetNull)
 
   @@index([userId], name: "images_user_id")
   @@map("images")
@@ -422,6 +424,7 @@ model ImageModel {
   stableDiffusionApiModel Boolean @default(false)
 
   artists ImageModelArtist[]
+  images  Image[]
 
   @@map("image_models")
 }

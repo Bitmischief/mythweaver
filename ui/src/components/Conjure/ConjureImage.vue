@@ -39,7 +39,7 @@ const props = withDefaults(
       uri?: string;
       stylePreset?: string;
       seed?: string;
-      imageModelId?: number;
+      modelId?: number;
     };
     noActions?: boolean;
     cancelButtonTextOverride?: string;
@@ -60,7 +60,7 @@ const props = withDefaults(
       uri: undefined,
       stylePreset: 'fantasy-art',
       seed: undefined,
-      imageModelId: undefined,
+      modelId: undefined,
     }),
     cancelButtonTextOverride: undefined,
     saveButtonTextOverride: undefined,
@@ -77,7 +77,7 @@ const channel = useWebsocketChannel();
 const editablePrompt = ref(props.image.prompt);
 const editableNegativePrompt = ref(props.image.negativePrompt);
 const editableStylePreset = ref(props.image.stylePreset);
-const editableImageModelId = ref(props.image.imageModelId);
+const editableImageModelId = ref(props.image.modelId);
 const imagePresetStyles = ref([
   { code: 'fantasy-art', name: 'Fantasy Art (Default)' },
   { code: 'digital-art', name: 'Digital Art' },
@@ -155,9 +155,12 @@ async function fetchImageModels() {
   try {
     const imageModelsResponse = await getImageModels();
     imageModels.value = imageModelsResponse.data.data;
-    const defaultModel = imageModels.value.find((im) => im.default === true);
-    if (defaultModel) {
-      editableImageModelId.value = defaultModel.id;
+
+    if (!props.image.modelId) {
+      const defaultModel = imageModels.value.find((im) => im.default === true);
+      if (defaultModel) {
+        editableImageModelId.value = defaultModel.id;
+      }
     }
   } catch {
     console.log('Unable to fetch image models');

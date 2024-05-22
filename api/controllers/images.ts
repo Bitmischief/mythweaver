@@ -83,6 +83,7 @@ export default class ImageController {
     }
 
     generateImage({
+      modelId: request.modelId,
       userId,
       prompt: request.prompt,
       count,

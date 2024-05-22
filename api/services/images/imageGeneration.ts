@@ -92,6 +92,7 @@ const generateSingleImage = async (
       primary: request.forceImagePrimary || false,
       generating: true,
       failed: false,
+      modelId: request.modelId,
     },
   });
 
