@@ -124,6 +124,10 @@ input[type='number'] {
     @apply bg-[#292C3B] text-white text-sm rounded-[12px] px-4 py-2 hover:cursor-pointer;
   }
 
+  .button-surface-2 {
+    @apply bg-surface-2 text-neutral-500 text-sm rounded-[12px] px-4 py-2 hover:cursor-pointer;
+  }
+
   .button-ghost {
     @apply disabled:border-neutral-500 disabled:text-fuchsia-500/50 disabled:cursor-not-allowed bg-transparent text-fuchsia-500 text-sm border border-fuchsia-500 rounded-[12px] px-4 py-2 hover:cursor-pointer;
   }

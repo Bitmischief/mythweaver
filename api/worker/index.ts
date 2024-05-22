@@ -7,6 +7,7 @@ import { sendWebsocketMessage, WebSocketEvent } from '../services/websockets';
 import logger from '../lib/logger';
 import { endTrials } from './jobs/endTrials';
 import { processLifetimeSubscriptionCredits } from './jobs/processLifetimeSubscriptionCredits';
+import { AppError, ErrorType, HttpCode } from '../lib/errors/AppError';
 
 const config = process.env.REDIS_ENDPOINT || '';
 
@@ -63,16 +64,17 @@ conjureQueue.process(async (job, done) => {
   } catch (err) {
     logger.error('Error processing conjure job!', err);
 
-    await sendWebsocketMessage(
-      job.data.userId,
-      WebSocketEvent.ConjurationError,
-      {
-        message:
+    done(
+      new AppError({
+        description:
           'There was an error generating your conjuration. Please try again.',
-      },
+        httpCode: HttpCode.INTERNAL_SERVER_ERROR,
+        websocket: {
+          userId: job.data.userId,
+          errorCode: ErrorType.ConjurationError,
+        },
+      }),
     );
-
-    done(new Error('Error processing conjure job!'));
   }
 });
 

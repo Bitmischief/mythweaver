@@ -10,14 +10,16 @@ import {
   Tags,
 } from 'tsoa';
 import { TrackingInfo } from '../lib/tracking';
-import { generateImage, upscaleImage } from '../services/imageGeneration';
+import { generateImage } from '../services/images/imageGeneration';
 import { prisma } from '../lib/providers/prisma';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import { MythWeaverLogger } from '../lib/logger';
 import { sendWebsocketMessage, WebSocketEvent } from '../services/websockets';
+import { upscaleImage } from '../services/images/upscalingService';
 import { Image } from '@prisma/client';
 
 interface PostImageRequest {
+  modelId?: number;
   prompt: string;
   negativePrompt?: string;
   stylePreset?: ImageStylePreset;
@@ -81,6 +83,7 @@ export default class ImageController {
     }
 
     generateImage({
+      modelId: request.modelId,
       userId,
       prompt: request.prompt,
       count,
@@ -191,11 +194,7 @@ export default class ImageController {
       }
     }
 
-    upscaleImage({
-      imageId,
-      userId,
-      imageUri: image.uri,
-    });
+    upscaleImage(userId, imageId);
   }
 
   @Security('jwt')

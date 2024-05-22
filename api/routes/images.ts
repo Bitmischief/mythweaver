@@ -11,6 +11,7 @@ import { useInjectLoggingInfo, useLogger } from '../lib/loggingMiddleware';
 const router = express.Router();
 
 const postImageSchema = z.object({
+  modelId: z.number().optional(),
   prompt: z.string().max(1000),
   negativePrompt: z.string().max(1000).optional(),
   stylePreset: z.string().max(250).optional(),

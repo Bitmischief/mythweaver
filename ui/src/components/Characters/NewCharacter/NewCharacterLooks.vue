@@ -4,6 +4,10 @@ import { Character } from '@/api/characters.ts';
 import { computed } from 'vue';
 import LightboxImage from '@/components/LightboxImage.vue';
 import { ArrowLeftIcon } from '@heroicons/vue/24/solid';
+import ConjureImage from '@/App.vue';
+import { useLDFlag } from 'launchdarkly-vue-client-sdk';
+
+const conjureV2 = useLDFlag('conjure-v2');
 
 const props = defineProps<{
   modelValue: Character;
@@ -43,7 +47,15 @@ const value = computed({
         </div>
       </div>
       <div v-else class="shrink">
+        <ConjureImage
+          v-if="conjureV2"
+          :image="{ prompt: value.looks }"
+          :linking="{ characterId: value.id }"
+          cancel-button-text-override="Back"
+          @cancel="emit('back')"
+        />
         <CustomizeConjurationImage
+          v-else
           :image="{ prompt: value.looks }"
           :linking="{ characterId: value.id }"
           cancel-button-text-override="Back"

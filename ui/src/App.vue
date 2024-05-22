@@ -15,7 +15,11 @@ import { showSuccess } from '@/lib/notifications.ts';
 import { useCurrentUserPlan, useWebsocketChannel } from '@/lib/hooks.ts';
 import { ConjurationRelationshipType } from '@/lib/enums.ts';
 import CreateRelationship from '@/components/Relationships/CreateRelationship.vue';
-import { useLDClient, useLDReady } from 'launchdarkly-vue-client-sdk';
+import {
+  useLDClient,
+  useLDFlag,
+  useLDReady,
+} from 'launchdarkly-vue-client-sdk';
 import UpgradeContainer from '@/components/Core/Billing/UpgradeContainer.vue';
 import mixpanel from 'mixpanel-browser';
 import { getRedeemPreOrderUrl } from '@/api/billing.ts';
@@ -26,6 +30,7 @@ import { SparklesIcon } from '@heroicons/vue/24/outline';
 import { useRoute } from 'vue-router';
 import { useAuth0 } from '@auth0/auth0-vue';
 import { reportInitialTrackingData } from '@/lib/tracking.ts';
+import ConjureImage from '@/components/Conjure/ConjureImage.vue';
 
 const ldReady = useLDReady();
 const authStore = useAuthStore();
@@ -38,6 +43,7 @@ const route = useRoute();
 const showPreorderRedemptionModal = ref(false);
 const showUpgradeModal = ref(false);
 const { isLoading, isAuthenticated } = useAuth0();
+const conjureV2 = useLDFlag('conjure-v2');
 
 onBeforeMount(async () => {
   if (location.pathname.startsWith('/invite')) {
@@ -253,9 +259,17 @@ eventBus.$on('show-subscription-modal', () => {
 
   <ModalAlternate :show="showCustomizeImageModal" extra-dark>
     <div
-      class="relative pt-8 md:m-6 md:p-6 md:px-12 bg-surface-2 rounded-[20px] min-w-[70vw] text-white text-center mb-12"
+      class="relative pt-8 md:m-6 md:p-6 md:px-12 bg-surface-2 rounded-[20px] min-w-[70vw] text-white mb-12"
     >
+      <ConjureImage
+        v-if="conjureV2"
+        :image="customizeImageArgs?.image"
+        :linking="customizeImageArgs?.linking"
+        in-modal
+        @cancel="showCustomizeImageModal = false"
+      />
       <CustomizeConjurationImage
+        v-else
         :image="customizeImageArgs?.image"
         :linking="customizeImageArgs?.linking"
         in-modal

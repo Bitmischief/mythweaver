@@ -2,7 +2,7 @@ import { CompleteSessionEvent } from '../index';
 import { getClient } from '../../lib/providers/openai';
 import { prisma } from '../../lib/providers/prisma';
 import { sanitizeJson } from '../../lib/utils';
-import { generateImage } from '../../services/imageGeneration';
+import { generateImage } from '../../services/images/imageGeneration';
 import {
   sendWebsocketMessage,
   WebSocketEvent,
@@ -92,22 +92,23 @@ export const completeSession = async (request: CompleteSessionEvent) => {
       },
     });
 
-    const uris = await generateImage({
+    const images = await generateImage({
       userId: request.userId,
       prompt: gptJsonParsed.prompt,
       count: 1,
       linking: {
         sessionId: request.sessionId,
       },
+      forceImagePrimary: true,
     });
 
-    if (!uris) {
+    if (!images || images.length === 0) {
       throw new Error('Error generating image');
     }
 
     const payload = {
-      imageUri: !session?.imageUri ? uris[0] : undefined,
-      suggestedImageUri: uris[0],
+      imageUri: !session?.imageUri ? images[0]?.uri : undefined,
+      suggestedImageUri: images[0]?.uri,
     };
 
     await prisma.session.update({

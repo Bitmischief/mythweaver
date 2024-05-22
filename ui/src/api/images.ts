@@ -11,6 +11,7 @@ export const conjureImage = async (
     conjurationId?: number;
     characterId?: number;
   },
+  modelId?: number,
 ) => {
   return axios.post('/images', {
     prompt,
@@ -19,6 +20,7 @@ export const conjureImage = async (
     count,
     seed,
     linking,
+    modelId,
   });
 };
 
