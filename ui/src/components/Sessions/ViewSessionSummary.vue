@@ -3,6 +3,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue';
 import {
   getSession,
   patchSession,
+  postGenerateSummary,
   postSessionSummaryEmail,
   SessionBase,
 } from '@/api/sessions.ts';
@@ -133,11 +134,11 @@ const generateSummary = async () => {
 
   summaryLoading.value = true;
   try {
-    session.value.summary = await generateArbitraryProperty({
-      propertyName: 'aiSummary',
-      context: 'session',
-      background: session.value.recap,
+    const summaryResponse = await postGenerateSummary({
+      recap: session.value.recap,
     });
+    console.log(summaryResponse);
+    session.value.summary = summaryResponse.data;
     await saveSession('summary');
   } catch {
     showError({ message: 'Failed to generate summary. Please try again.' });

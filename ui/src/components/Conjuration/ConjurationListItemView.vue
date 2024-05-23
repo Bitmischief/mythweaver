@@ -78,7 +78,7 @@ async function addConjuration() {
 
 const primaryImageUri = computed(() => {
   if (conjuration.value?.images?.length) {
-    return conjuration.value.images.find((i) => i.primary === true)?.uri;
+    return conjuration.value.images?.find((i) => i.primary === true)?.uri;
   } else {
     switch (conjuration.value?.conjurerCode) {
       case 'characters':

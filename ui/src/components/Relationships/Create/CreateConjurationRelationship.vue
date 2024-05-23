@@ -88,6 +88,7 @@ async function fetchConjurations(concat = true) {
 }
 
 const linking = ref<number>(-1);
+
 async function linkConjuration(conjuration: Conjuration) {
   linking.value = conjuration.id;
   try {
@@ -116,7 +117,7 @@ async function linkConjuration(conjuration: Conjuration) {
 
 const primaryImageUri = (data: any) => {
   if (data?.images?.length) {
-    return data.images.find((i: any) => i.primary)?.uri;
+    return data.images?.find((i: any) => i.primary)?.uri;
   }
   return undefined;
 };

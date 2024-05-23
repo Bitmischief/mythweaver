@@ -89,6 +89,7 @@ async function fetchSessions(concat = true) {
 }
 
 const linking = ref<number>(-1);
+
 async function linkSession(session: SessionBase) {
   linking.value = session.id;
   try {
@@ -124,7 +125,7 @@ function sessionDateDisplay(session: SessionBase) {
 
 const primaryImageUri = (data: any) => {
   if (data?.images?.length) {
-    return data.images.find((i: any) => i.primary)?.uri;
+    return data.images?.find((i: any) => i.primary)?.uri;
   }
   return undefined;
 };
