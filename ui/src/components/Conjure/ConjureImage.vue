@@ -123,7 +123,26 @@ onMounted(async () => {
   }
 });
 
+const timeoutRef = ref();
+const timeoutDuration = ref(45000);
+const timedOut = ref(false);
+
+function regenerate() {
+  images.value = [];
+  conjuring.value = false;
+  clearTimeout(timeoutRef.value);
+}
+
 function imageCreatedHandler(data: any) {
+  if (!images.value.length && count.value > 1) {
+    timeoutRef.value = setTimeout(
+      (d) => {
+        d.value = true;
+      },
+      timeoutDuration.value,
+      timedOut,
+    );
+  }
   images.value.push(data);
   conjuring.value = false;
   loading.value = false;
@@ -243,6 +262,22 @@ async function conjure() {
     return;
   }
 }
+
+const retryConjure = async () => {
+  timedOut.value = false;
+  const retryCount = count.value - images.value.length;
+  if (retryCount >= 1) {
+    await conjureImage(
+      editablePrompt.value || '',
+      editableNegativePrompt.value || '',
+      editableStylePreset.value || 'fantasy-art',
+      retryCount,
+      useSeed.value ? props.image.seed : undefined,
+      props.linking,
+      editableImageModelId.value || undefined,
+    );
+  }
+};
 
 async function setImage() {
   if (!selectedImg?.value) return;
@@ -508,7 +543,10 @@ const selectedModelIsMythWeaverV1 = computed(() => {
             <div class="flex flex-wrap lg:flex-nowrap gap-6">
               <div class="lg:basis-2/3">
                 <div class="text-neutral-400">Sample Output</div>
-                <div class="flex gap-6">
+                <div
+                  :key="`sample_${selectedImageModel.id}`"
+                  class="flex gap-6"
+                >
                   <div
                     v-for="(sampleUri, i) in selectedImageModel.sampleImageUris"
                     :key="`sample_${i}`"
@@ -670,14 +708,15 @@ const selectedModelIsMythWeaverV1 = computed(() => {
       </div>
     </div>
     <div v-if="!noActions" class="mx-4 md:mx-0 mt-10 actions">
-      <div class="flex justify-end py-2">
+      <div class="flex gap-2 justify-end py-2">
         <button
-          class="button-primary mr-2 flex"
-          @click="
-            images = [];
-            conjuring = false;
-          "
+          v-if="timedOut && images.length < count"
+          class="button-gradient"
+          @click.prevent="retryConjure"
         >
+          Retry Failed Images ({{ count - images.length }})
+        </button>
+        <button class="button-primary flex" @click="regenerate">
           <ArrowPathIcon class="w-5 mr-1" />
           Regenerate
         </button>
@@ -713,32 +752,36 @@ const selectedModelIsMythWeaverV1 = computed(() => {
       </div>
     </div>
 
-    <div class="flex flex-wrap lg:flex-nowrap gap-8 justify-center">
-      <div v-if="image.uri" class="relative max-w-full">
-        <div
-          class="absolute flex bottom-2 right-2 cursor-pointer bg-white/50 rounded-[8px]"
-          @click="eventBus.$emit('open-lightbox', image.uri)"
-        >
-          <ArrowsPointingOutIcon
-            class="p-1 w-8 h-8 self-center transition-all hover:scale-125 text-black"
+    <div
+      class="flex flex-wrap lg:flex-nowrap gap-8 mt-4 justify-center place-items-stretch"
+    >
+      <div v-if="image.uri" class="w-full max-w-[90%] md:max-w-[45%]">
+        <div class="relative w-full">
+          <div
+            class="absolute flex bottom-2 right-2 cursor-pointer bg-white/50 rounded-[8px]"
+            @click="eventBus.$emit('open-lightbox', image.uri)"
+          >
+            <ArrowsPointingOutIcon
+              class="p-1 w-8 h-8 self-center transition-all hover:scale-125 text-black"
+            />
+          </div>
+          <img
+            :src="image.uri"
+            alt="conjurationImg"
+            class="rounded-[25px] cursor-pointer w-full"
+            :class="{
+              'border-2 border-fuchsia-500': selectedImg === null,
+            }"
+            @click="selectedImg = null"
           />
+          <div class="image-badge">Original</div>
         </div>
-        <img
-          :src="image.uri"
-          alt="conjurationImg"
-          class="rounded-[25px] cursor-pointer w-full max-w-[500px]"
-          :class="{
-            'border-2 border-fuchsia-500': selectedImg === null,
-          }"
-          @click="selectedImg = null"
-        />
-        <div class="image-badge">Original</div>
       </div>
 
       <div
         v-for="img of images"
         :key="img.uri"
-        class="relative cursor-pointer w-full max-w-[500px]"
+        class="relative cursor-pointer w-full max-w-[90%] md:max-w-[45%]"
         :class="{ 'md:col-span-2': !img.uri && images.length === 1 }"
       >
         <div class="relative w-full">
@@ -764,6 +807,32 @@ const selectedModelIsMythWeaverV1 = computed(() => {
                 : (selectedImg = img)
             "
           />
+        </div>
+      </div>
+      <div
+        v-for="placeholder of count - images.length"
+        :key="`placeholder_${placeholder}`"
+        class="relative aspect-square w-full max-w-[90%] md:max-w-[45%]"
+        :class="{ 'md:col-span-2': images.length === 1 }"
+      >
+        <div
+          v-if="!timedOut"
+          class="flex flex-col h-full justify-center text-center bg-surface-2 rounded-[25px]"
+        >
+          <Loader />
+          <div class="text-xl gradient-text my-4 animate-pulse">
+            Conjuring...
+          </div>
+        </div>
+        <div
+          v-else
+          class="flex flex-col h-full justify-center text-center bg-surface-2 rounded-[25px]"
+        >
+          <div class="mb-2 text-neutral-200">This Image Is Taking A While</div>
+          <div class="text-neutral-500 text-xs px-6">
+            This image is taking longer than expected to generate. You can retry
+            the image generation or continue to wait.
+          </div>
         </div>
       </div>
 
