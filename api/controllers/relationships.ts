@@ -98,18 +98,34 @@ export default class RelationshipController {
             WHEN ec."nextType" = 'CAMPAIGN' THEN to_jsonb(camp.*)
             WHEN ec."nextType" = 'CHARACTER' THEN to_jsonb(character.*)
           END AS entityData
-          FROM
-            entity_chain ec
-          LEFT JOIN
-            conjurations conj ON ec."nextType" = 'CONJURATION' AND ec."nextNodeId" = conj.id
-          LEFT JOIN
-            sessions sess ON ec."nextType" = 'SESSION' AND ec."nextNodeId" = sess.id
-          LEFT JOIN
-            campaigns camp ON ec."nextType" = 'CAMPAIGN' AND ec."nextNodeId" = camp.id
-          LEFT JOIN
-            characters character ON ec."nextType" = 'CHARACTER' AND ec."nextNodeId" = character.id
-          ORDER BY ec.id, ec.depth
-        )
+          FROM entity_chain ec
+           LEFT JOIN
+               (SELECT c.*, i.uri as "imageUri"
+                FROM conjurations c
+                         LEFT JOIN (SELECT *
+                                    FROM images
+                                    WHERE "primary" = true) i
+                                   ON i."conjurationId" = c.id) conj
+               ON ec."nextType" = 'CONJURATION' AND ec."nextNodeId" = conj.id
+           LEFT JOIN
+               (SELECT s.*, i.uri as "imageUri"
+                FROM sessions s
+                         LEFT JOIN (SELECT *
+                                    FROM images
+                                    WHERE "primary" = true) i
+                                   ON i."sessionId" = s.id) sess
+               ON ec."nextType" = 'SESSION' AND ec."nextNodeId" = sess.id
+           LEFT JOIN
+               campaigns camp ON ec."nextType" = 'CAMPAIGN' AND ec."nextNodeId" = camp.id
+           LEFT JOIN
+               (SELECT c.*, i.uri as "imageUri"
+                FROM characters c
+                         LEFT JOIN (SELECT *
+                                    FROM images
+                                    WHERE "primary" = true) i
+                                   ON i."characterId" = c.id) character
+               ON ec."nextType" = 'CHARACTER' AND ec."nextNodeId" = character.id
+          ORDER BY ec.id, ec.depth)
         SELECT * FROM enriched_entities;
       `);
   }

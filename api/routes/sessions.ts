@@ -203,28 +203,22 @@ const postGenerateSummarySchema = z.object({
   recap: z.string().max(15000),
 });
 
-router.post('/:sessionId/generate-summary', [
+router.post('/generate-summary', [
   checkAuth0Jwt,
   useInjectUserId(),
   useInjectLoggingInfo(),
-  useValidateRequest(getSessionSchema, {
-    validationType: ValidationTypes.Route,
-  }),
   useValidateRequest(postGenerateSummarySchema),
   async (req: Request, res: Response) => {
     const controller = new SessionController();
 
-    const { sessionId = 0 } = req.params;
-
-    await controller.postGenerateSummary(
+    const response = await controller.postGenerateSummary(
       res.locals.auth.userId,
       res.locals.trackingInfo,
       useLogger(res),
-      sessionId as number,
       req.body,
     );
 
-    return res.status(200).send();
+    return res.status(200).send(response);
   },
 ]);
 

@@ -54,7 +54,7 @@ const props = withDefaults(
 );
 
 const editor = ref<EditorJs>();
-const editorReady = ref(false);
+const editorReady = ref(props.readOnly ?? false);
 const value = computed({
   get: () => props.modelValue,
   set: (value) => emit('update:modelValue', value),

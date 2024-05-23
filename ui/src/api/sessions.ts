@@ -109,8 +109,8 @@ export const deleteSession = (sessionId: number) => {
   return axios.delete(`/sessions/${sessionId}`);
 };
 
-export const postGenerateSummary = (sessionId: number, request: PostGenerateSummaryRequest) => {
-  return axios.post(`/sessions/${sessionId}/generate-summary`, request);
+export const postGenerateSummary = (request: PostGenerateSummaryRequest) => {
+  return axios.post(`/sessions/generate-summary`, request);
 };
 
 export const postRecapTranscription = (sessionId: number) => {

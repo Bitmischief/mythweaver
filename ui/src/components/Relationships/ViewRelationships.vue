@@ -18,6 +18,7 @@ import QuickViewConjuration from '@/components/Conjuration/QuickViewConjuration.
 import { toPascalCase } from '@/lib/util.ts';
 import { useEventBus } from '@/lib/events.ts';
 import QuickViewSession from '@/components/Sessions/QuickViewSession.vue';
+import { useRouter } from 'vue-router';
 
 const eventBus = useEventBus();
 const props = defineProps<{
@@ -26,6 +27,7 @@ const props = defineProps<{
 }>();
 const relationships = ref<any[]>([]);
 const relationshipHistory = ref<any[]>([]);
+const router = useRouter();
 
 onMounted(async () => {
   await fetchRelationships(props.startNodeId, props.startNodeType);
@@ -49,14 +51,7 @@ async function fetchRelationships(
 ) {
   try {
     const response = await getConjurationRelationships(nodeId, type);
-    relationships.value = response.data.filter(
-      (d: any) =>
-        d.previousNodeId === nodeId &&
-        (d.nextType === props.startNodeType
-          ? d.nextNodeId !== props.startNodeId
-          : true) &&
-        !relationshipHistory.value.some((rh) => rh.nextNodeId === d.nextNodeId),
-    );
+    relationships.value = response.data.filter((r: any) => r.depth === 1);
   } catch (e: any) {
     showError({
       message:
@@ -88,9 +83,9 @@ async function clearHistory() {
 
 const currentlyViewingRelationship = ref<any>(null);
 const showViewModal = ref(false);
+
 async function viewNode(relationship: any) {
-  currentlyViewingRelationship.value = relationship;
-  showViewModal.value = true;
+  await router.push(`/conjurations/view/${relationship.entitydata.id}`);
 }
 
 async function removeRelationship(relationship: any) {

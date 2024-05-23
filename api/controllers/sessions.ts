@@ -23,7 +23,7 @@ import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { CampaignRole } from './campaigns';
 import { completeSessionQueue } from '../worker';
 import { sendTransactionalEmail } from '../lib/transactionalEmail';
-import { urlPrefix } from '../lib/utils';
+import { sanitizeJson, urlPrefix } from '../lib/utils';
 import { sendWebsocketMessage, WebSocketEvent } from '../services/websockets';
 import { MythWeaverLogger } from '../lib/logger';
 import {
@@ -33,6 +33,7 @@ import {
 import { JsonObject } from '@prisma/client/runtime/library';
 import { format } from 'date-fns';
 import { getTranscription } from '../services/dataStorage';
+import { getClient } from '../lib/providers/openai';
 
 interface GetSessionsResponse {
   data: Session[];
@@ -302,51 +303,37 @@ export default class SessionController {
 
   @Security('jwt')
   @OperationId('generateSummary')
-  @Post('/:sessionId/generate-summary')
+  @Post('/generate-summary')
   public async postGenerateSummary(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
     @Inject() logger: MythWeaverLogger,
-    @Route() sessionId: number,
     @Body() request: PostCompleteSessionRequest,
-  ): Promise<boolean> {
-    const session = await this.getSession(
-      userId,
-      trackingInfo,
-      logger,
-      sessionId,
-    );
-
-    const campaignMember = await prisma.campaignMember.findUnique({
-      where: {
-        userId_campaignId: {
-          userId,
-          campaignId: session.campaignId,
+  ): Promise<any> {
+    const openai = getClient();
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      messages: [
+        {
+          role: 'system',
+          content:
+            'You are a helpful assistant who is knowledgeable in dungeons and dragons.',
         },
-      },
+        {
+          role: 'user',
+          content: `Please summarize the ttrpg session that just happened, that has the following details:
+          ${request?.recap}.
+          Please return only text, do not include any other formatting.
+          Please make the length of the summary proportional to the length of the recap,
+          ensuring you include the most important highlights from the recap.`,
+        },
+      ],
     });
 
-    if (!campaignMember || campaignMember.role !== CampaignRole.DM) {
-      throw new AppError({
-        description: 'You do not have permission to complete this session.',
-        httpCode: HttpCode.FORBIDDEN,
-      });
-    }
+    const gptResponse = response.choices[0]?.message?.content;
+    logger.info('Received raw response from openai', gptResponse);
 
-    await prisma.session.update({
-      where: {
-        id: sessionId,
-      },
-      data: {
-        recap: request.recap,
-      },
-    });
-
-    await completeSessionQueue.add({ userId, sessionId: sessionId });
-
-    track(AppEvent.CompleteSession, userId, trackingInfo);
-
-    return true;
+    return gptResponse;
   }
 
   @Security('jwt')

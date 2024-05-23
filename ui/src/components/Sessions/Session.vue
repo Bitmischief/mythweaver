@@ -34,7 +34,7 @@ const sessionDate = computed(() => {
 
 const primaryImageUri = computed(() => {
   if (props.session.images?.length) {
-    return props.session.images.find((i) => i.primary)?.uri;
+    return props.session.images?.find((i) => i.primary)?.uri;
   }
   return undefined;
 });
