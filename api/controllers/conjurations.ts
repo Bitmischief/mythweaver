@@ -316,7 +316,7 @@ export default class ConjurationController {
     }
 
     if (
-      user.plan === BillingPlan.FREE &&
+      (user.plan === BillingPlan.FREE || user.plan === BillingPlan.TRIAL) &&
       conjuration.visibility === ConjurationVisibility.PUBLIC &&
       request.visibility === ConjurationVisibility.PRIVATE
     ) {

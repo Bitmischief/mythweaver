@@ -105,6 +105,7 @@ export default class UserController {
         ],
       },
     });
+
     return {
       ...user,
       conjurationCount: conjurationCount,

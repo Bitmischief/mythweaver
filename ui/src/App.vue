@@ -193,7 +193,7 @@ eventBus.$on('show-subscription-modal', () => {
         v-if="!!authStore.user"
         class="hidden md:flex border-b border-zinc-900"
       >
-        <div class="w-full bg-surface-2 z-10 h-[4rem] flex justify-end">
+        <div class="w-full bg-surface-2 z-10 h-[4rem] flex">
           <NavBarHeader />
         </div>
       </div>

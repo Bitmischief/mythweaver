@@ -20,6 +20,7 @@ export interface User {
   preorderRedemptionCoupon: string;
   conjurationCount: number;
   initialTrackingData: any;
+  amountSupportingArtistsUsd: number;
 }
 
 export interface Subscription {

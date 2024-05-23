@@ -27,6 +27,7 @@ export enum WebSocketEvent {
   SessionCompleted = 'session-completed',
   SessionImageUpdated = 'session-image-updated',
   UserImageCreditCountUpdated = 'user-image-credit-count-updated',
+  UserArtistContributionsUpdated = 'user-artist-contributions-updated',
   UserConjurationCountUpdated = 'user-conjuration-count-updated',
   TranscriptionStarted = 'transcription-started',
   TranscriptionComplete = 'transcription-complete',

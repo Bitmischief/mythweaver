@@ -212,5 +212,22 @@ const generateImageFromProperProvider = async (
     imageCredits,
   );
 
+  const { amountSupportingArtistsUsd } = await prisma.user.update({
+    where: {
+      id: request.userId,
+    },
+    data: {
+      amountSupportingArtistsUsd: {
+        increment: 0.01,
+      },
+    },
+  });
+
+  await sendWebsocketMessage(
+    request.userId,
+    WebSocketEvent.UserArtistContributionsUpdated,
+    amountSupportingArtistsUsd,
+  );
+
   return imageGenerationResponse;
 };
