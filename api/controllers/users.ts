@@ -165,7 +165,10 @@ export default class UserController {
         return existingUser;
       }
 
-      identify(userId, payload.initialTrackingData);
+      identify(userId, {
+        email: existingUser.email,
+        ...payload.initialTrackingData,
+      });
     }
 
     return prisma.user.update({
