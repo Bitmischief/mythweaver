@@ -35,6 +35,7 @@ const patchUsersSchema = z.object({
   data: z.array(z.object({ key: z.string(), value: z.any() })).optional(),
   confirmEarlyAccessStart: z.boolean().optional(),
   initialTrackingData: z.any().optional(),
+  onboarded: z.boolean().optional(),
 });
 
 router.patch('/me', [

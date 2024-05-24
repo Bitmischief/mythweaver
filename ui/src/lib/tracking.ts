@@ -19,30 +19,17 @@ export const reportInitialTrackingData = async () => {
     try {
       const marketingInfo = JSON.parse(marketingInfoCookie);
 
-      // Set Mixpanel properties from the marketing_info cookie
-      if (marketingInfo.referrer) {
-        mixpanel.register({ $referrer: marketingInfo.referrer });
-        mixpanel.register({ $referring_domain: marketingInfo.referrer });
-        mixpanel.register({ initial_referrer: marketingInfo.referrer });
-        mixpanel.register({ initial_referring_domain: marketingInfo.referrer });
-      }
-      if (marketingInfo.params) {
-        if (marketingInfo.params.utm_source) {
-          mixpanel.register({ utm_source: marketingInfo.params.utm_source });
-        }
-        if (marketingInfo.params.utm_medium) {
-          mixpanel.register({ utm_medium: marketingInfo.params.utm_medium });
-        }
-        if (marketingInfo.params.utm_campaign) {
-          mixpanel.register({ utm_campaign: marketingInfo.params.utm_campaign });
-        }
-        if (marketingInfo.params.utm_term) {
-          mixpanel.register({ utm_term: marketingInfo.params.utm_term });
-        }
-        if (marketingInfo.params.utm_content) {
-          mixpanel.register({ utm_content: marketingInfo.params.utm_content });
-        }
-      }
+      mixpanel.register({
+        $referrer: marketingInfo.referrer,
+        $referring_domain: marketingInfo.referrer,
+        initial_referrer: marketingInfo.referrer,
+        initial_referring_domain: marketingInfo.referrer,
+        utm_source: marketingInfo.params?.utm_source,
+        utm_medium: marketingInfo.params?.utm_medium,
+        utm_campaign: marketingInfo.params?.utm_campaign,
+        utm_term: marketingInfo.params?.utm_term,
+        utm_content: marketingInfo.params?.utm_content,
+      });
     } catch (error) {
       console.error('Error parsing marketing_info cookie:', error);
     }

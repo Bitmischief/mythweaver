@@ -28,6 +28,7 @@ interface PatchUserRequest {
   tags?: string[];
   confirmEarlyAccessStart?: boolean;
   initialTrackingData?: any;
+  onboarded?: boolean;
 }
 
 interface AddUserCreditsRequest {
