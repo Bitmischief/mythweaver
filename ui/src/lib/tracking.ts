@@ -67,5 +67,6 @@ export const reportInitialTrackingData = async () => {
 
   await patchCurrentUser({
     initialTrackingData: mixpanelData,
+    onboarded: true,
   });
 };
