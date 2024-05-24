@@ -211,8 +211,6 @@ const router = createRouter({
 
 router.beforeResolve((to, from, next) => {
   if (from.path === '/' && to.redirectedFrom?.path === '/subscribed') {
-    console.log('!!!!!!!!!!!!!!!!!!!!!!! send subscription event to api here');
-
     fbq('track', 'Purchase');
   }
 
