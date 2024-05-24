@@ -21,6 +21,7 @@ export interface User {
   conjurationCount: number;
   initialTrackingData: any;
   amountSupportingArtistsUsd: number;
+  onboarded: boolean;
 }
 
 export interface Subscription {

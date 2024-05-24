@@ -31,6 +31,7 @@ import { useRoute } from 'vue-router';
 import { useAuth0 } from '@auth0/auth0-vue';
 import { reportInitialTrackingData } from '@/lib/tracking.ts';
 import ConjureImage from '@/components/Conjure/ConjureImage.vue';
+import { fbq } from '@/lib/conversions.ts';
 
 const ldReady = useLDReady();
 const authStore = useAuthStore();
@@ -78,11 +79,12 @@ onMounted(async () => {
 
       mixpanel.init(import.meta.env.VITE_MIXPANEL_TOKEN as string);
 
-      if (!user.initialTrackingData) {
+      mixpanel.alias(user.id.toString());
+
+      if (!user.onboarded) {
+        fbq('track', 'Lead');
         await reportInitialTrackingData();
       }
-
-      mixpanel.alias(user.id.toString());
 
       if (user.preorderRedemptionCoupon) {
         showPreorderRedemptionModal.value = true;

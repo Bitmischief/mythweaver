@@ -176,30 +176,6 @@ export default class BillingController {
     return await getBillingPortalUrl(user.billingCustomerId, request);
   }
 
-  @Post('/subscribed')
-  @SuccessResponse('200', 'Success')
-  public async postSubscribedEvent(
-    @Inject() userId: number,
-    @Inject() logger: MythWeaverLogger,
-  ): Promise<void> {
-    const user = await prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
-    });
-
-    if (!user) {
-      logger.warn("Couldn't find user for id", userId);
-
-      throw new AppError({
-        description: 'User not found',
-        httpCode: HttpCode.NOT_FOUND,
-      });
-    }
-
-    // do something here with google??
-  }
-
   public async processWebhook(event: Stripe.Event, logger: MythWeaverLogger) {
     logger.info('Processing Stripe webhook event', { event });
 

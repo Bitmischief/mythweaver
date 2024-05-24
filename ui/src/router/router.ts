@@ -23,7 +23,7 @@ import AccountView from '@/views/AccountView.vue';
 import OverviewCampaign from '@/components/Campaigns/OverviewCampaign.vue';
 import ConjureView from '@/views/ConjureView.vue';
 import { authGuard } from '@auth0/auth0-vue';
-import { postSubscribedEvent } from '@/api/billing.ts';
+import { fbq } from '@/lib/conversions.ts';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -212,7 +212,8 @@ const router = createRouter({
 router.beforeResolve((to, from, next) => {
   if (from.path === '/' && to.redirectedFrom?.path === '/subscribed') {
     console.log('!!!!!!!!!!!!!!!!!!!!!!! send subscription event to api here');
-    postSubscribedEvent();
+
+    fbq('track', 'Purchase');
   }
 
   return next();

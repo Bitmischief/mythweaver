@@ -24,7 +24,3 @@ export const getRedeemPreOrderUrl = (request?: BillingPortalUrlRequest) => {
     params: request,
   });
 };
-
-export const postSubscribedEvent = () => {
-  return axios.post('/billing/subscribed');
-};

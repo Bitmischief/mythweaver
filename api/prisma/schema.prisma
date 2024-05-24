@@ -52,6 +52,7 @@ model User {
   preorderRedemptionCoupon        String?
   preorderRedemptionStripePriceId String?
   amountSupportingArtistsUsd      Float           @default(0)
+  onboarded                       Boolean         @default(false)
 
   initialTrackingData Json?
 
