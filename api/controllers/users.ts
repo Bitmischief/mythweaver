@@ -11,7 +11,7 @@ import {
 import { prisma } from '../lib/providers/prisma';
 import { ImageCreditChangeType, User } from '@prisma/client';
 import { AppError, HttpCode } from '../lib/errors/AppError';
-import { AppEvent, track, TrackingInfo } from '../lib/tracking';
+import { AppEvent, identify, track, TrackingInfo } from '../lib/tracking';
 import { MythWeaverLogger } from '../lib/logger';
 import { modifyImageCreditCount } from '../services/credits';
 import {
@@ -157,11 +157,15 @@ export default class UserController {
       });
     }
 
-    if (payload.initialTrackingData && existingUser.initialTrackingData) {
-      logger.info(
-        'User already has initial tracking data, dropping new initialTrackingData',
-      );
-      return existingUser;
+    if (payload.initialTrackingData) {
+      if (existingUser.initialTrackingData) {
+        logger.info(
+          'User already has initial tracking data, dropping new initialTrackingData',
+        );
+        return existingUser;
+      }
+
+      identify(userId, payload.initialTrackingData);
     }
 
     return prisma.user.update({
