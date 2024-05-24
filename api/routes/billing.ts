@@ -91,4 +91,19 @@ router.post('/webhook', [
   },
 ]);
 
+router.post('/subscribed', [
+  checkAuth0Jwt,
+  useInjectUserId(),
+  async (req: Request, res: Response) => {
+    const controller = new BillingController();
+
+    await controller.postSubscribedEvent(
+      res.locals.auth.userId,
+      useLogger(res),
+    );
+
+    res.status(200).send();
+  },
+]);
+
 export default router;
