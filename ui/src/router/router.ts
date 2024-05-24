@@ -23,6 +23,7 @@ import AccountView from '@/views/AccountView.vue';
 import OverviewCampaign from '@/components/Campaigns/OverviewCampaign.vue';
 import ConjureView from '@/views/ConjureView.vue';
 import { authGuard } from '@auth0/auth0-vue';
+import { postSubscribedEvent } from '@/api/billing.ts';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -42,6 +43,10 @@ const router = createRouter({
     {
       path: '/invite',
       redirect: '/auth/invite',
+    },
+    {
+      path: '/subscribed',
+      redirect: '/account-settings',
     },
     {
       name: 'AUTH',
@@ -202,6 +207,15 @@ const router = createRouter({
     },
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
+});
+
+router.beforeResolve((to, from, next) => {
+  if (from.path === '/' && to.redirectedFrom?.path === '/subscribed') {
+    console.log('!!!!!!!!!!!!!!!!!!!!!!! send subscription event to api here');
+    postSubscribedEvent();
+  }
+
+  return next();
 });
 
 export default router;
