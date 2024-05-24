@@ -69,7 +69,7 @@ const artistMoneyRaised = computed(() =>
 
 <template>
   <div
-    class="flex w-full px-6 justify-between"
+    class="flex w-full px-6"
     :class="showArtistMoneyRaised ? 'justify-between' : 'justify-end'"
   >
     <div
