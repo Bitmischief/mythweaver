@@ -141,6 +141,9 @@ const generateImageFromProperProvider = async (
     where: {
       id: request.modelId,
     },
+    include: {
+      artists: true,
+    },
   });
 
   if (!model) {
@@ -212,22 +215,24 @@ const generateImageFromProperProvider = async (
     imageCredits,
   );
 
-  const { amountSupportingArtistsUsd } = await prisma.user.update({
-    where: {
-      id: request.userId,
-    },
-    data: {
-      amountSupportingArtistsUsd: {
-        increment: 0.01,
+  if (model.artists.length === 1) {
+    const { amountSupportingArtistsUsd } = await prisma.user.update({
+      where: {
+        id: request.userId,
       },
-    },
-  });
+      data: {
+        amountSupportingArtistsUsd: {
+          increment: 0.01,
+        },
+      },
+    });
 
-  await sendWebsocketMessage(
-    request.userId,
-    WebSocketEvent.UserArtistContributionsUpdated,
-    amountSupportingArtistsUsd,
-  );
+    await sendWebsocketMessage(
+      request.userId,
+      WebSocketEvent.UserArtistContributionsUpdated,
+      amountSupportingArtistsUsd,
+    );
+  }
 
   return imageGenerationResponse;
 };

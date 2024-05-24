@@ -17,6 +17,7 @@ import {
   ConjurationRelationshipType,
   ConjurationVisibility,
   BillingPlan,
+  Image,
 } from '@prisma/client';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
@@ -132,6 +133,13 @@ export default class ConjurationController {
           where: {
             primary: true,
           },
+          include: {
+            imageModel: {
+              select: {
+                description: true,
+              },
+            },
+          },
         },
       },
     });
@@ -165,7 +173,9 @@ export default class ConjurationController {
                 r.nextType === ConjurationRelationshipType.CONJURATION,
             )
           : false,
-        imageUri: c.images.find((i) => i.primary)?.uri || null,
+        imageUri: c.images.find((i: any) => i.primary)?.uri || null,
+        imageModelName:
+          c.images.find((i: any) => i.primary)?.imageModel?.description || null,
       })),
       offset: offset,
       limit: limit,
@@ -192,8 +202,8 @@ export default class ConjurationController {
           },
         },
         images: {
-          where: {
-            primary: true,
+          include: {
+            imageModel: true,
           },
         },
       },
@@ -214,7 +224,7 @@ export default class ConjurationController {
 
     return {
       ...conjuration,
-      imageUri: conjuration.images.find((i) => i.primary)?.uri || null,
+      imageUri: conjuration.images.find((i: Image) => i.primary)?.uri || null,
       saves: undefined,
       saved: conjuration.saves.length > 0,
     };
