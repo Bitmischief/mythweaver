@@ -23,7 +23,7 @@ onMounted(async () => {
         screen_hint: 'login',
       },
       appState: {
-        target: `/conjurations#gallery`,
+        target: `/conjure`,
       },
     });
   }
