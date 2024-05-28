@@ -421,6 +421,7 @@ model ImageModel {
   promptPrefix    String?
   sampleImageUris String[]
   executionUri    String?
+  defaultSteps    Int      @default(70)
 
   default                 Boolean @default(false)
   stableDiffusionApiModel Boolean @default(false)

@@ -18,7 +18,7 @@ const campaignStore = useCampaignStore();
 
 const campaign = ref<Campaign>({
   name: '',
-  rpgSystemCode: '',
+  rpgSystemCode: 'D&D',
   publicAdventureCode: null,
 } as Campaign);
 
@@ -116,7 +116,7 @@ async function joinExistingCampaign() {
             placeholder="What roleplaying system are you using?"
           />
 
-          <div v-if="campaign.rpgSystemCode" class="mt-6 text-center">
+          <div class="mt-6 text-center">
             <button
               class="mt-4 rounded-xl bg-gradient px-4 py-3 text-sm"
               @click="handleCreateCampaign"

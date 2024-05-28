@@ -110,6 +110,9 @@ const planningChanged = (planning: any) => {
       <div class="flex flex-wrap md:flex-nowrap justify-between mb-2">
         <div class="text-lg font-bold text-neutral-200 self-center">
           Session Planning
+          <div class="text-sm text-neutral-500">
+            This is where you can plan out your session. Only you can see this.
+          </div>
           <span v-if="unsavedChanges" class="text-xs text-neutral-500">
             Unsaved Changes
           </span>

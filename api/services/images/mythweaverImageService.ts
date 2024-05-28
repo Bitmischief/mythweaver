@@ -18,7 +18,7 @@ export const generateMythWeaverModelImage = async (
 
   const response = await axios.post(model.executionUri, {
     prompt: `${model.promptPrefix} ${request.prompt}`,
-    steps: 50,
+    steps: model.defaultSteps,
   });
 
   const image = response.data;
