@@ -71,6 +71,10 @@ const saveAndGotoConjuration = async () => {
 
 <template>
   <div class="w-full">
+    <div class="mb-4 text-xl">
+      Refine the details of your
+      <span class="gradient-text">{{ generator.name }}</span>
+    </div>
     <div class="mb-4 flex flex-wrap md:flex-nowrap gap-2 justify-between">
       <button class="button-primary flex gap-2" @click="emit('back')">
         <ArrowLeftIcon class="h-5 w-5 self-center" />
@@ -90,10 +94,6 @@ const saveAndGotoConjuration = async () => {
           <ArrowRightIcon class="h-5 w-5 self-center" />
         </button>
       </div>
-    </div>
-    <div class="mb-4 text-xl">
-      Refine the details of your
-      <span class="gradient-text">{{ generator.name }}</span>
     </div>
     <div class="md:flex">
       <div class="w-full">

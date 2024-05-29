@@ -37,36 +37,78 @@ export default class GenerationBlock {
       roValue.innerHTML = this.data && this.data.text ? this.data.text : 'Text';
       this.wrapper.appendChild(roValue);
     } else {
+      this.wrapper.classList.add('rounded-[12px]', 'p-2', 'mb-4');
+      this.wrapper.style.backgroundColor = 'rgba(75,76,80,0.1)';
+
       const promptWrapper = document.createElement('div');
-      promptWrapper.classList.add('flex');
+      promptWrapper.classList.add('flex', 'relative', 'pt-4');
+
+      this.promptLabel = document.createElement('div');
+      this.promptLabel.innerHTML = 'Prompt';
+      this.promptLabel.classList.add(
+        'text-neutral-400',
+        'text-xs',
+        'absolute',
+        'top-0',
+        'px-1',
+      );
 
       this.prompt = document.createElement('input');
-      this.prompt.className = 'ce-block__generation__prompt';
+      this.prompt.type = 'text';
       this.prompt.disabled = this.readOnly;
       this.prompt.value = this.data && this.data.prompt ? this.data.prompt : '';
       this.prompt.placeholder =
         'Prompt (ex. generate a random side quest for my next session)';
       this.prompt.classList.add('grow');
       this.prompt.style.borderRadius = '12px 0 0 12px';
+      promptWrapper.appendChild(this.promptLabel);
       promptWrapper.appendChild(this.prompt);
+
+      const labelWrapper = document.createElement('div');
+      labelWrapper.classList.add('flex', 'relative', 'pt-3');
+
+      this.labelLabel = document.createElement('div');
+      this.labelLabel.innerHTML = 'Label';
+      this.labelLabel.classList.add(
+        'text-neutral-400',
+        'text-xs',
+        'absolute',
+        'top-1',
+        'px-1',
+      );
 
       this.label = document.createElement('div');
       this.label.className = 'ce-block__generation__label';
       this.label.contentEditable = !this.readOnly;
       this.label.innerHTML =
         this.data && this.data.label ? this.data.label : '';
-
+      this.label.classList.add('grow');
       this.label.style.borderRadius = '12px';
       this.label.style.border = '1px solid #6b7280';
-      this.label.style.padding = '6px 12px';
+      this.label.style.padding = '0.5em 0.75em';
       this.label.style.marginTop = '0.5em';
       this.label.dataset.placeholder = 'Label';
+      labelWrapper.appendChild(this.labelLabel);
+      labelWrapper.appendChild(this.label);
+
+      const inputWrapper = document.createElement('div');
+      inputWrapper.classList.add('flex', 'relative', 'pt-3');
+
+      this.inputLabel = document.createElement('div');
+      this.inputLabel.innerHTML = 'Text';
+      this.inputLabel.classList.add(
+        'text-neutral-400',
+        'text-xs',
+        'absolute',
+        'top-1',
+        'px-1',
+      );
 
       this.input = document.createElement('div');
       this.input.className = 'ce-block__generation__input';
       this.input.contentEditable = !this.readOnly;
       this.input.innerHTML = this.data && this.data.text ? this.data.text : '';
-
+      this.input.classList.add('grow');
       this.input.style.borderRadius = '12px';
       this.input.style.border = '1px solid #6b7280';
       this.input.style.padding = '6px 12px';
@@ -74,6 +116,8 @@ export default class GenerationBlock {
       this.input.style.whiteSpace = 'pre-wrap';
       this.input.style.minHeight = '5em';
       this.input.dataset.placeholder = 'Text';
+      inputWrapper.appendChild(this.inputLabel);
+      inputWrapper.appendChild(this.input);
 
       this.button = document.createElement('button');
       this.button.classList.add('button-gradient', 'flex', 'gap-2', 'pt-3');
@@ -87,8 +131,8 @@ export default class GenerationBlock {
       promptWrapper.appendChild(this.button);
 
       this.wrapper.appendChild(promptWrapper);
-      this.wrapper.appendChild(this.label);
-      this.wrapper.appendChild(this.input);
+      this.wrapper.appendChild(labelWrapper);
+      this.wrapper.appendChild(inputWrapper);
     }
 
     return this.wrapper;

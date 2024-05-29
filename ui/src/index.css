@@ -185,7 +185,7 @@ input[type='number'] {
   }
 
   .image-badge {
-    @apply absolute left-2 top-2 flex h-6 justify-center items-center rounded-full bg-white/50 text-black text-xs font-bold px-4;
+    @apply absolute left-2 top-2 flex h-8 justify-center items-center rounded-full bg-white/50 text-black text-xs font-bold px-4;
   }
 
   .menu-item {
@@ -250,7 +250,15 @@ input[type='number'] {
 
   [type='text']:focus {
     border-radius: 12px;
-    @apply focus:ring-fuchsia-500 active:ring-fuchsia-500;
+    @apply focus:ring-transparent active:ring-transparent border-fuchsia-500;
+  }
+
+  [contenteditable]:focus {
+    @apply ring-transparent -outline-offset-1 outline-double outline-fuchsia-500 border-fuchsia-500;
+  }
+
+  [contenteditable]:focus-visible {
+    @apply border-fuchsia-500;
   }
 
   .gradient-text {

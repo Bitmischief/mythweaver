@@ -415,7 +415,6 @@ onMounted(() => {
   }
 
   .ce-block__generation {
-    background: #0f111b;
     width: 100%;
 
     input,

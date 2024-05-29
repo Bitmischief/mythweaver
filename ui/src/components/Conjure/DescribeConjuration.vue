@@ -352,6 +352,14 @@ const itemDescription = computed(() => {
   </div>
   <div v-else>
     <FormKit :actions="false" type="form" @submit="generate">
+      <div class="text-xl">
+        Give us a description of the
+        <span class="gradient-text">{{ generator.name }}</span>
+        you want to conjure
+      </div>
+      <div class="text-sm text-neutral-500 mb-4">
+        {{ generator.customizationHelpPrompt }}
+      </div>
       <div class="mb-4 flex gap-2 justify-between">
         <button class="button-primary flex gap-2" @click="emit('back')">
           <ArrowLeftIcon class="h-5 w-5 self-center" />
@@ -366,14 +374,6 @@ const itemDescription = computed(() => {
           />
           <span class="self-center">Conjure</span>
         </button>
-      </div>
-      <div class="text-xl">
-        Give us a description of the
-        <span class="gradient-text">{{ generator.name }}</span>
-        you want to conjure
-      </div>
-      <div class="text-sm text-neutral-500 mb-2">
-        {{ generator.customizationHelpPrompt }}
       </div>
       <div
         class="w-full bg-gradient-to-r from-fuchsia-500 to-violet-500 p-px rounded-[20px] purple-shadow"
