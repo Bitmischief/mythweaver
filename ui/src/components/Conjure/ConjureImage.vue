@@ -25,6 +25,7 @@ import { useLDFlag } from 'launchdarkly-vue-client-sdk';
 import ImageCreditCount from '@/components/Core/ImageCreditCount.vue';
 import { useAuthStore } from '@/store';
 import { getImageModels } from '@/api/imageModels.ts';
+import { ArrowLeftIcon } from '@heroicons/vue/24/solid';
 
 const authStore = useAuthStore();
 const showSeed = useLDFlag('image-seed', false);
@@ -51,6 +52,7 @@ const props = withDefaults(
       conjurationId?: number;
     };
     showImageCredits?: boolean;
+    showBack?: boolean;
   }>(),
   {
     image: () => ({
@@ -66,10 +68,11 @@ const props = withDefaults(
     saveButtonTextOverride: undefined,
     linking: undefined,
     showImageCredits: true,
+    showBack: false,
   },
 );
 
-const emit = defineEmits(['cancel']);
+const emit = defineEmits(['cancel', 'back']);
 
 const eventBus = useEventBus();
 const channel = useWebsocketChannel();
@@ -412,7 +415,13 @@ const selectedModelIsMythWeaverV1 = computed(() => {
       type="form"
       @submit="conjure"
     >
-      <div class="flex justify-end mb-4 mt-3">
+      <div class="flex justify-between mb-4 mt-3">
+        <div>
+          <button class="button-primary flex gap-2 z-10" @click="emit('back')">
+            <ArrowLeftIcon class="h-5 w-5 self-center" />
+            <span class="self-center">Back</span>
+          </button>
+        </div>
         <button
           class="flex button-gradient py-2 px-3 disabled:opacity-75"
           type="submit"
@@ -456,7 +465,7 @@ const selectedModelIsMythWeaverV1 = computed(() => {
                   value-prop="id"
                   display-prop="description"
                   secondary
-                  class="w-full"
+                  class="w-full min-w-[10em]"
                 />
               </div>
             </div>
@@ -707,31 +716,43 @@ const selectedModelIsMythWeaverV1 = computed(() => {
         </button>
       </div>
     </div>
-    <div v-if="!noActions" class="mx-4 md:mx-0 mt-10 actions">
-      <div class="flex gap-2 justify-end py-2">
-        <button
-          v-if="timedOut && images.length < count"
-          class="button-gradient"
-          @click.prevent="retryConjure"
-        >
-          Retry Failed Images ({{ count - images.length }})
-        </button>
-        <button class="button-primary flex" @click="regenerate">
-          <ArrowPathIcon class="w-5 mr-1" />
-          Regenerate
-        </button>
-        <button
-          class="button-ghost"
-          :class="{
-            'opacity-50 cursor-default': !selectedImg,
-            'transition-all hover:scale-110': selectedImg,
-          }"
-          @click="setImage"
-        >
-          <span class="self-center text-center w-full">
-            {{ saveButtonTextOverride ? saveButtonTextOverride : 'Save Image' }}
-          </span>
-        </button>
+    <div
+      v-if="!noActions"
+      class="mx-4 md:mx-0 actions"
+      :class="{ 'mt-10': showImageCredits || inModal }"
+    >
+      <div class="flex gap-2 px-4 md:px-0 justify-end py-2">
+        <div class="self-center">
+          <button
+            v-if="timedOut && images.length < count"
+            class="button-gradient"
+            @click.prevent="retryConjure"
+          >
+            Retry Failed Images ({{ count - images.length }})
+          </button>
+        </div>
+        <div class="self-center">
+          <button class="button-primary flex" @click="regenerate">
+            <ArrowPathIcon class="w-5 mr-1" />
+            Regenerate
+          </button>
+        </div>
+        <div class="self-center">
+          <button
+            class="button-ghost"
+            :class="{
+              'opacity-50 cursor-default': !selectedImg,
+              'transition-all hover:scale-110': selectedImg,
+            }"
+            @click="setImage"
+          >
+            <span class="self-center text-center w-full">
+              {{
+                saveButtonTextOverride ? saveButtonTextOverride : 'Save Image'
+              }}
+            </span>
+          </button>
+        </div>
       </div>
     </div>
 

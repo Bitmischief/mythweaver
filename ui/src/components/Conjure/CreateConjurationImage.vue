@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ArrowLeftIcon } from '@heroicons/vue/24/solid';
 import { Conjurer } from '@/api/generators.ts';
 import { Conjuration, saveConjuration } from '@/api/conjurations.ts';
 import { computed, onMounted, onUnmounted } from 'vue';
@@ -44,27 +43,21 @@ const viewConjuration = async () => {
 </script>
 
 <template>
-  <div class="relative w-full md:mt-12">
-    <div class="absolute -mt-9 md:mt-0 md:flex gap-2 z-10">
-      <div class="md:hidden text-xl self-center mb-2 whitespace-nowrap">
-        Generate an image of your
-        <span class="gradient-text">{{ generator.name }}</span>
-      </div>
-      <button class="button-primary flex gap-2" @click="emit('back')">
-        <ArrowLeftIcon class="h-5 w-5 self-center" />
-        <span class="self-center">Back</span>
-      </button>
-      <div class="hidden md:block text-xl self-center">
+  <div class="relative w-full">
+    <div class="gap-2">
+      <div class="text-xl self-center mb-2 whitespace-nowrap">
         Generate an image of your
         <span class="gradient-text">{{ generator.name }}</span>
       </div>
     </div>
-    <div class="md:-mt-12 mt-6">
+    <div>
       <ConjureImage
         :image="{ prompt: conjuration?.imageAIPrompt || '' }"
         :linking="{ conjurationId: conjuration?.id }"
         :show-image-credits="false"
         save-button-text-override="Save and Continue"
+        show-back
+        @back="emit('back')"
       />
     </div>
   </div>

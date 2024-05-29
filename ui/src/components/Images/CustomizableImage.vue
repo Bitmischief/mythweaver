@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import LightboxImage from '@/components/LightboxImage.vue';
-import { ArrowsPointingOutIcon } from '@heroicons/vue/20/solid';
 import {
   PencilSquareIcon,
   ArrowPathIcon,
@@ -19,6 +18,9 @@ const props = withDefaults(
       negativePrompt?: string;
       stylePreset?: string;
       seed?: string;
+      imageModel?: {
+        description?: string;
+      };
     };
     editable?: boolean;
     alt?: string;
@@ -39,6 +41,9 @@ const props = withDefaults(
       negativePrompt: undefined,
       stylePreset: 'fantasy-art',
       seed: undefined,
+      imageModel: {
+        description: '',
+      },
     }),
     alt: undefined,
     imageConjurationFailureReason: undefined,
@@ -72,10 +77,6 @@ function setImgDimensions() {
     };
     img.src = props.image.uri;
   }
-}
-
-function showImage() {
-  eventBus.$emit('open-lightbox', props.image.uri);
 }
 
 function downloadImage(url: string) {
@@ -147,13 +148,12 @@ const alreadyUpscaled = computed(() => {
     </div>
 
     <div
-      v-if="image.uri"
-      class="absolute flex bottom-2 right-2 cursor-pointer bg-white/50 rounded-[8px]"
-      @click="showImage"
+      v-if="image.imageModel?.description"
+      class="absolute flex bottom-2 right-2 cursor-pointer bg-neutral-500/50 rounded-[8px]"
     >
-      <ArrowsPointingOutIcon
-        class="p-1 w-8 h-8 self-center transition-all hover:scale-125 text-black"
-      />
+      <div class="text-neutral-300 text-sm px-2">
+        {{ image.imageModel?.description }}
+      </div>
     </div>
 
     <LightboxImage

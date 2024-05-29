@@ -148,12 +148,6 @@ const primaryImageUri = computed(() => {
           <div class="relative">
             <BookmarkIconSolid v-if="conjuration.saved" class="w-5 h-5" />
             <BookmarkIconOutline v-else class="w-5 h-5" />
-            <div
-              class="absolute bottom-[105%] right-0 whitespace-nowrap invisible group-hover/bookmark:visible text-neutral-300 bg-surface-2 rounded-full px-2 py-1"
-            >
-              <span v-if="conjuration.saved">In My Conjurations</span>
-              <span v-else>Not in My Conjurations</span>
-            </div>
           </div>
         </div>
         <div
@@ -213,15 +207,34 @@ const primaryImageUri = computed(() => {
           class="bg-surface-2 rounded-[20px] opacity-0 p-3 flex-col absolute bottom-0 right-0 left-0 top-[100px] group-hover:opacity-100 group-hover:flex group-hover:top-0 transition-all"
         >
           <div>
-            <div class="truncate text-lg my-2 mr-12">
+            <div class="truncate text-lg mt-1 mb-2 mr-14">
               {{ conjuration.name }}
+            </div>
+            <div
+              v-if="showBookmarkIcon"
+              class="absolute text-white/75 group/bookmark py-1"
+              :class="{
+                'right-4 top-4 min-w-5': condensedView,
+                'right-6 top-4 h-6': !condensedView,
+              }"
+            >
+              <div class="relative">
+                <BookmarkIconSolid v-if="conjuration.saved" class="w-5 h-5" />
+                <BookmarkIconOutline v-else class="w-5 h-5" />
+                <div
+                  class="absolute -top-9 -right-6 whitespace-nowrap invisible group-hover/bookmark:visible text-neutral-300 bg-surface-3/75 rounded-full px-2 py-1"
+                >
+                  <span v-if="conjuration.saved">In My Conjurations</span>
+                  <span v-else>Not in My Conjurations</span>
+                </div>
+              </div>
             </div>
             <div
               v-if="showSaves"
               class="absolute rounded-[4px] group/bookmark"
               :class="{
                 'right-2 top-2 min-w-5': condensedView,
-                'right-4 top-4 h-6': !condensedView,
+                'right-6 top-4 h-6': !condensedView,
                 'bg-white/50 hover:bg-white/60': !conjuration.saved,
                 'bg-fuchsia-500/90': conjuration.saved,
               }"

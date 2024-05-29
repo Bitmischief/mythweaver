@@ -49,7 +49,7 @@ onMounted(async () => {
 
 const checkConjureV2 = () => {
   if (conjureV2.value === false) {
-    router.push('conjurations/new');
+    router.push({ path: 'conjurations/new', query: route.query });
   }
 };
 
