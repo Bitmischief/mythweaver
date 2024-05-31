@@ -35,7 +35,11 @@ function refreshStatusBadge() {
 }
 
 async function logout() {
-  await authStore.logout();
+  await auth0.logout({
+    logoutParams: {
+      returnTo: `${window.location.origin}/auth/login`,
+    },
+  });
 }
 
 const collapsed = ref(false);
