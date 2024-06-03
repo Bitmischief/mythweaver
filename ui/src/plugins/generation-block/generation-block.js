@@ -54,6 +54,7 @@ export default class GenerationBlock {
       );
 
       this.prompt = document.createElement('input');
+      this.prompt.className = 'ce-block__generation__prompt';
       this.prompt.type = 'text';
       this.prompt.disabled = this.readOnly;
       this.prompt.value = this.data && this.data.prompt ? this.data.prompt : '';
