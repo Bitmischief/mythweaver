@@ -136,6 +136,7 @@ function regenerate() {
   images.value = [];
   conjuring.value = false;
   imageTimeouts.value = 0;
+  timedOut.value = false;
   clearTimeout(timeoutRef.value);
 }
 
