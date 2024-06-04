@@ -14,6 +14,7 @@ export interface ImageGenerationRequest {
   };
   seed?: string;
   forceImagePrimary?: boolean;
+  imageId?: number;
 }
 
 export interface ImageGenerationResponse {

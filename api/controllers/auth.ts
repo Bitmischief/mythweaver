@@ -50,11 +50,6 @@ interface MagicLinkRequest {
   conjurationPrompt?: string | undefined;
 }
 
-interface Auth0UserRequest {
-  email: string;
-  username: string | undefined;
-}
-
 @Route('auth')
 @Tags('Auth')
 export default class AuthController {

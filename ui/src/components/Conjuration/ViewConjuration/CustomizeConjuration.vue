@@ -71,6 +71,10 @@ onMounted(async () => {
   channel.bind(ServerEvent.ImageUpscaled, imageUpscaledHandler);
   channel.bind(ServerEvent.ImageFiltered, imageFilteredHandler);
   channel.bind(ServerEvent.ImageError, imageErrorHandler);
+  channel.bind(
+    ServerEvent.ImageGenerationTimeout,
+    imageGenerationTimeoutHandler,
+  );
 });
 
 function imageCreatedHandler(image: any) {
@@ -105,6 +109,26 @@ function imageErrorHandler(data: any) {
   });
 }
 
+function imageGenerationTimeoutHandler() {
+  if (editableConjuration.value?.images?.length) {
+    editableConjuration.value.images = editableConjuration.value.images.map(
+      (i) => {
+        if (i.primary) {
+          return {
+            ...i,
+            generating: false,
+            failed: true,
+          };
+        }
+        return i;
+      },
+    );
+  }
+  showError({
+    message: 'Image generation timed out. Please try again.',
+  });
+}
+
 onUnmounted(() => {
   eventBus.$off('save-conjuration');
   channel.unbind(ServerEvent.PrimaryImageSet, primaryImageSetHandler);
@@ -112,6 +136,10 @@ onUnmounted(() => {
   channel.unbind(ServerEvent.ImageUpscaled, imageUpscaledHandler);
   channel.unbind(ServerEvent.ImageFiltered, imageFilteredHandler);
   channel.unbind(ServerEvent.ImageError, imageErrorHandler);
+  channel.unbind(
+    ServerEvent.ImageGenerationTimeout,
+    imageGenerationTimeoutHandler,
+  );
 });
 
 onUpdated(() => {
@@ -216,7 +244,7 @@ function showCustomizeImageModal() {
             class="button-gradient w-full"
             @click="showCustomizeImageModal"
           >
-            Create Image
+            Conjure Image
           </button>
         </div>
 
