@@ -3,11 +3,11 @@ import { processTags } from './jobs/processTags';
 import { conjure } from './jobs/conjure';
 import { completeSession } from './jobs/completeSession';
 import { ImageStylePreset } from '../controllers/images';
-import { sendWebsocketMessage, WebSocketEvent } from '../services/websockets';
 import logger from '../lib/logger';
 import { endTrials } from './jobs/endTrials';
 import { processLifetimeSubscriptionCredits } from './jobs/processLifetimeSubscriptionCredits';
 import { AppError, ErrorType, HttpCode } from '../lib/errors/AppError';
+import { checkImageStatus } from './jobs/imageStatus';
 
 const config = process.env.REDIS_ENDPOINT || '';
 
@@ -131,5 +131,20 @@ lifetimeSubscriptionCreditQueue.process(async (job, done) => {
   } catch (err) {
     logger.error('Error processing lifetime subscription credits job!', err);
     done(new Error('Error processing lifetime subscription credits job!'));
+  }
+});
+
+export const checkImageStatusQueue = new Queue('check-image-status', config);
+
+checkImageStatusQueue.process(async (job, done) => {
+  logger.info('Processing check image status job', job.data);
+
+  try {
+    await checkImageStatus(job.data);
+    logger.info('Completed processing check image status job', job.data);
+    done();
+  } catch (err) {
+    logger.error('Error processing check image status job!', err);
+    done(new Error('Error processing check image status job!'));
   }
 });

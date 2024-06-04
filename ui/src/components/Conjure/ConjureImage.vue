@@ -97,6 +97,7 @@ const done = computed(() => {
 const images = ref<any[]>([]);
 const selectedImg = ref<any>(null);
 const imageError = ref(false);
+const imageErrorMessage = ref('');
 const imageFiltered = ref(false);
 const imagePromptRephrased = ref(false);
 const rephrasedPrompt = ref('');
@@ -119,6 +120,10 @@ onMounted(async () => {
   channel.bind(ServerEvent.ImageError, imageErrorHandler);
   channel.bind(ServerEvent.ImageUpscaled, imageUpscaledHandler);
   channel.bind(ServerEvent.ImageUpscalingDone, imageUpscalingDoneHandler);
+  channel.bind(
+    ServerEvent.ImageGenerationTimeout,
+    imageGenerationTimeoutHandler,
+  );
 
   await fetchImageModels();
   if (props.image.id) {
@@ -133,19 +138,11 @@ const timedOut = ref(false);
 function regenerate() {
   images.value = [];
   conjuring.value = false;
+  imageTimeouts.value = 0;
   clearTimeout(timeoutRef.value);
 }
 
 function imageCreatedHandler(data: any) {
-  if (!images.value.length && count.value > 1) {
-    timeoutRef.value = setTimeout(
-      (d) => {
-        d.value = true;
-      },
-      timeoutDuration.value,
-      timedOut,
-    );
-  }
   images.value.push(data);
   conjuring.value = false;
   loading.value = false;
@@ -171,6 +168,10 @@ onUnmounted(() => {
   channel.unbind(ServerEvent.ImageError, imageErrorHandler);
   channel.unbind(ServerEvent.ImageUpscaled, imageUpscaledHandler);
   channel.unbind(ServerEvent.ImageUpscalingDone, imageUpscalingDoneHandler);
+  channel.unbind(
+    ServerEvent.ImageGenerationTimeout,
+    imageGenerationTimeoutHandler,
+  );
 });
 
 async function fetchImageModels() {
@@ -229,6 +230,20 @@ function imageUpscalingDoneHandler() {
   showSuccess({ message: 'Image successfully upscaled!' });
 }
 
+const imageTimeouts = ref(0);
+
+function imageGenerationTimeoutHandler() {
+  imageTimeouts.value += 1;
+  if (imageTimeouts.value === count.value) {
+    imageErrorMessage.value =
+      'The image generation was taking longer than normal so the request was cancelled. You have not been charged any image credits. This issue could be due to a high traffic or a temporary provider outage. Please try again.';
+    imageError.value = true;
+    conjuring.value = false;
+    upscaling.value = false;
+    imageTimeouts.value = 0;
+  }
+}
+
 async function conjure() {
   try {
     conjuring.value = true;
@@ -246,7 +261,13 @@ async function conjure() {
       props.linking,
       editableImageModelId.value || undefined,
     );
-
+    timeoutRef.value = setTimeout(
+      (d) => {
+        d.value = true;
+      },
+      timeoutDuration.value,
+      timedOut,
+    );
     eventBus.$emit('conjure-image-done', {});
   } catch (e) {
     const err = e as AxiosError;
@@ -332,6 +353,9 @@ const selectedModelIsMythWeaverV1 = computed(() => {
 </script>
 
 <template>
+  <div v-if="imageError && imageErrorMessage" class="text-sm text-red-500">
+    {{ imageErrorMessage }}
+  </div>
   <template v-if="!conjuring && !upscaling && !done">
     <div
       v-if="showImageCredits || inModal"
@@ -689,20 +713,6 @@ const selectedModelIsMythWeaverV1 = computed(() => {
       </div>
     </div>
   </template>
-  <template v-else-if="conjuring && !done && !imageError">
-    <div>
-      <div class="text-sm text-neutral-500">
-        {{ image.prompt }}
-      </div>
-    </div>
-    <div class="p-12 text-center">
-      <Loader />
-      <div class="text-3xl m-4">Conjuring</div>
-      <div class="text-lg text-neutral-500">
-        This can take a minute or two to fully load
-      </div>
-    </div>
-  </template>
   <template v-else-if="upscaling && !done">
     <div class="p-12 text-center">
       <Loader />
@@ -712,7 +722,7 @@ const selectedModelIsMythWeaverV1 = computed(() => {
       </div>
     </div>
   </template>
-  <template v-else-if="done && !conjuring && images.length">
+  <template v-else>
     <div v-if="showImageCredits || inModal" class="absolute right-2 top-0 p-4">
       <div class="flex justify-end">
         <div class="self-center">
@@ -861,19 +871,16 @@ const selectedModelIsMythWeaverV1 = computed(() => {
           v-else
           class="flex flex-col h-full justify-center text-center bg-surface-2 rounded-[25px]"
         >
-          <div class="mb-2 text-neutral-200">This Image Is Taking A While</div>
+          <Loader />
+          <div class="my-4 text-neutral-200">
+            This Image Is Taking Longer Than Usual
+          </div>
           <div class="text-neutral-500 text-xs px-6">
             This image is taking longer than expected to generate. You can retry
-            the image generation or continue to wait.
+            the image generation or continue to wait. You will not be charged
+            image credits for images that fail to generate.
           </div>
         </div>
-      </div>
-
-      <div
-        v-if="loading"
-        class="flex justify-center min-h-[20rem] text-fuchsia-200 animate-pulse text-2xl"
-      >
-        <div class="self-center">Generating image....</div>
       </div>
     </div>
   </template>

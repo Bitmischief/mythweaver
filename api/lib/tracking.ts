@@ -62,6 +62,7 @@ export enum AppEvent {
   GenerateArbitraryReplacement = 'Generate Arbitrary Replacement',
   GetImageModels = 'Get Image Models',
   GetArtist = 'Get Artist',
+  ImageTimeout = 'Image Timeout',
 }
 
 export interface TrackingInfo {
