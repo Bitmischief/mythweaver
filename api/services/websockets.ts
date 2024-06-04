@@ -32,6 +32,7 @@ export enum WebSocketEvent {
   TranscriptionStarted = 'transcription-started',
   TranscriptionComplete = 'transcription-complete',
   PrimaryImageSet = 'primary-image-set',
+  ImageGenerationTimeout = 'image-generation-timeout',
 }
 
 export interface WebSocketContext {

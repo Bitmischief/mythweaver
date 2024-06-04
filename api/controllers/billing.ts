@@ -33,7 +33,6 @@ import logger, { MythWeaverLogger } from '../lib/logger';
 import { setIntercomCustomAttributes } from '../lib/intercom';
 import { modifyImageCreditCount } from '../services/credits';
 import { postToDiscordBillingChannel } from '../services/discord';
-import { reportMetaAdConversionEvent } from '../lib/ads/meta';
 import { AdConversionEvent, reportAdConversionEvent } from '../lib/ads';
 
 const PRO_PLAN_IMAGE_CREDITS = 300;

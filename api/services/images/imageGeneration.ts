@@ -8,6 +8,7 @@ import { modifyImageCreditCount } from '../credits';
 import { AppEvent, track } from '../../lib/tracking';
 import { AppError, ErrorType, HttpCode } from '../../lib/errors/AppError';
 import retry from 'async-await-retry';
+import { checkImageStatusQueue } from '../../worker';
 
 export const generateImage = async (request: ImageGenerationRequest) => {
   const user = await prisma.user.findUnique({
@@ -95,9 +96,18 @@ const generateSingleImage = async (
       modelId: request.modelId,
     },
   });
-
+  await checkImageStatusQueue.add(
+    {
+      userId: request.userId,
+      imageId: image.id,
+    },
+    {
+      delay: 120000,
+    },
+  );
   const imageGenerationResponse = await generateImageFromProperProvider({
     ...request,
+    imageId: image.id,
   });
 
   if (!imageGenerationResponse) {
@@ -192,6 +202,17 @@ const generateImageFromProperProvider = async (
         },
       },
     });
+  }
+
+  if (request.imageId) {
+    const image = await prisma.image.findUnique({
+      where: {
+        id: request.imageId,
+      },
+    });
+    if (image?.failed) {
+      return;
+    }
   }
 
   await sendWebsocketMessage(

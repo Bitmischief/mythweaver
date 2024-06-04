@@ -83,21 +83,21 @@ async function addConjuration() {
   }
 }
 
-const primaryImageUri = computed(() => {
+const primaryImage = computed(() => {
   if (conjuration.value?.images?.length) {
-    return conjuration.value.images?.find((i) => i.primary === true)?.uri;
+    return conjuration.value.images?.find((i) => i.primary === true);
   } else {
     switch (conjuration.value?.conjurerCode) {
       case 'characters':
-        return '/images/conjurations/character-no-image.png';
+        return { uri: '/images/conjurations/character-no-image.png' };
       case 'locations':
-        return '/images/conjurations/location-no-image.png';
+        return { uri: '/images/conjurations/location-no-image.png' };
       case 'monsters':
-        return '/images/conjurations/monster-no-image.png';
+        return { uri: '/images/conjurations/monster-no-image.png' };
       case 'items':
-        return '/images/conjurations/item-no-image.png';
+        return { uri: '/images/conjurations/item-no-image.png' };
       default:
-        return '';
+        return { uri: '' };
     }
   }
 });
@@ -121,12 +121,20 @@ const primaryImageUri = computed(() => {
         }"
       >
         <img
-          v-if="primaryImageUri"
-          :src="primaryImageUri"
+          v-if="primaryImage?.uri"
+          :src="primaryImage?.uri"
           :alt="conjuration.name"
           class="rounded-[16px] pointer-events-none"
           :class="{ 'blur-sm': !conjuration.images?.length }"
         />
+        <div
+          v-else-if="primaryImage?.failed"
+          class="w-full flex justify-center h-full bg-gray-900/75"
+        >
+          <div class="self-center text-center text-lg">
+            Image Conjuration Timed Out
+          </div>
+        </div>
         <div v-else class="w-full flex justify-center h-full bg-gray-900/75">
           <div
             class="self-center text-center text-[2rem] gradient-text animate-pulse"
