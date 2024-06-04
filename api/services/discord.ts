@@ -14,5 +14,6 @@ export const postToDiscordBillingChannel = async (message: string) => {
 
   await axios.post(process.env.DISCORD_BILLING_WEBHOOK || '', {
     content: message,
+    flags: 1 << 2, // Suppress embeds
   });
 };
