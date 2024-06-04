@@ -238,7 +238,7 @@ const clearFilters = () => {
       </div>
 
       <div
-        class="mt-2 self-center flex justify-center md:justify-end gap-2 grow flex-wrap md:flex-nowrap"
+        class="mt-2 md:mt-0 self-center flex justify-center md:justify-end gap-2 grow flex-wrap md:flex-nowrap"
       >
         <div class="grow">
           <FormKit type="form" :actions="false" @submit="handleFiltersUpdated">

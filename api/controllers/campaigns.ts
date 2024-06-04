@@ -582,9 +582,20 @@ export default class CampaignController {
       });
     }
 
-    const characters = await prisma.character.findMany({
+    const relationships = await prisma.conjurationRelationships.findMany({
       where: {
-        campaignId: campaignId,
+        previousNodeId: campaignId,
+        previousType: 'CAMPAIGN',
+        nextType: 'CHARACTER',
+      },
+    });
+
+    const characters = await prisma.conjuration.findMany({
+      where: {
+        conjurerCode: 'CHARACTER',
+        id: {
+          in: relationships.map((r) => r.nextNodeId),
+        },
       },
       include: {
         images: {

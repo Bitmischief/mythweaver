@@ -234,7 +234,7 @@ async function handleCreateRelationship() {
 
 <template>
   <div class="flex justify-between mb-6">
-    <div>Overview</div>
+    <div class="self-center text-xl">Overview</div>
     <div v-if="currentUserRole === CampaignRole.DM" class="flex">
       <router-link to="/campaign/edit" class="button-ghost flex mr-2">
         <PencilSquareIcon class="h-5 w-5 mr-1" />
