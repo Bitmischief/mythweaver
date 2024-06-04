@@ -102,7 +102,7 @@ const generateSingleImage = async (
       imageId: image.id,
     },
     {
-      delay: 120000,
+      delay: 5000,
     },
   );
   const imageGenerationResponse = await generateImageFromProperProvider({

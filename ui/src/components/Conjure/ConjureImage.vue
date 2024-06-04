@@ -21,15 +21,12 @@ import { ServerEvent } from '@/lib/serverEvents.ts';
 import Select from '@/components/Core/Forms/Select.vue';
 import Loader from '@/components/Core/Loader.vue';
 import { AxiosError } from 'axios';
-import { useLDFlag } from 'launchdarkly-vue-client-sdk';
 import ImageCreditCount from '@/components/Core/ImageCreditCount.vue';
 import { useAuthStore } from '@/store';
 import { getImageModels } from '@/api/imageModels.ts';
 import { ArrowLeftIcon } from '@heroicons/vue/24/solid';
 
 const authStore = useAuthStore();
-const showSeed = useLDFlag('image-seed', false);
-const showUpscale = useLDFlag('image-upscale', false);
 
 const props = withDefaults(
   defineProps<{
@@ -104,7 +101,7 @@ const rephrasedPrompt = ref('');
 const loading = ref(false);
 const count = ref(1);
 const useSeed = ref(false);
-const tab = ref('customize');
+const tab = ref(props.image?.uri ? 'upscale' : 'customize');
 const imageHistory = ref<any[]>([]);
 
 const showAdvancedOptions = ref(false);
@@ -397,20 +394,10 @@ const selectedModelIsMythWeaverV1 = computed(() => {
     >
       Enter a description of you session below to generate a session cover image
     </div>
-    <div v-if="showUpscale && props.image.id" class="flex justify-center mb-2">
+    <div v-if="props.image.uri" class="flex justify-center mb-2">
       <div
         class="flex flex-wrap md:flex-nowrap gap-1 text-neutral-500 rounded-[18px] bg-surface-2 p-1 border border-surface-3 text-sm"
       >
-        <button
-          class="grow w-[12em]"
-          :class="{
-            'button-primary': tab === 'customize',
-            'button-surface-2': tab !== 'customize',
-          }"
-          @click="tab = 'customize'"
-        >
-          Customize Image
-        </button>
         <button
           class="grow w-[12em]"
           :class="{
@@ -434,7 +421,7 @@ const selectedModelIsMythWeaverV1 = computed(() => {
       </div>
     </div>
     <FormKit
-      v-if="!showUpscale || tab === 'customize'"
+      v-if="tab === 'customize'"
       :actions="false"
       type="form"
       @submit="conjure"
@@ -528,7 +515,7 @@ const selectedModelIsMythWeaverV1 = computed(() => {
                   </button>
                 </div>
               </div>
-              <div v-if="showSeed && image.seed" class="group">
+              <div v-if="image.seed" class="group">
                 <div class="text-neutral-300 text-xs mb-1">
                   Use Same Image Seed?
                 </div>
@@ -673,7 +660,7 @@ const selectedModelIsMythWeaverV1 = computed(() => {
       </div>
     </FormKit>
     <div
-      v-if="showUpscale && tab === 'upscale'"
+      v-if="tab === 'upscale'"
       class="p-6 border border-neutral-800 rounded-[20px]"
     >
       <div v-if="alreadyUpscaled">This image has already been upscaled.</div>

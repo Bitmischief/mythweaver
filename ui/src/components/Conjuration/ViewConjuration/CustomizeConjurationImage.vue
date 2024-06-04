@@ -19,13 +19,10 @@ import { ServerEvent } from '@/lib/serverEvents.ts';
 import Select from '@/components/Core/Forms/Select.vue';
 import Loader from '@/components/Core/Loader.vue';
 import { AxiosError } from 'axios';
-import { useLDFlag } from 'launchdarkly-vue-client-sdk';
 import ImageCreditCount from '@/components/Core/ImageCreditCount.vue';
 import { useAuthStore } from '@/store';
 
 const authStore = useAuthStore();
-const showSeed = useLDFlag('image-seed', false);
-const showUpscale = useLDFlag('image-upscale', false);
 
 const props = withDefaults(
   defineProps<{
@@ -93,7 +90,7 @@ const rephrasedPrompt = ref('');
 const loading = ref(false);
 const count = ref(1);
 const useSeed = ref(false);
-const tab = ref('customize');
+const tab = ref(props.image.uri ? 'upscale' : 'customize');
 const imageHistory = ref<any[]>([]);
 
 const promptOptions = ref(['Image Count', 'Image Style', 'Negative Prompt']);
@@ -228,7 +225,7 @@ async function setImage() {
 
 async function upscale() {
   try {
-    if (props.image.id) {
+    if (props.image.id && props.image.uri) {
       upscaling.value = true;
       await postImageUpscale(props.image.id);
     }
@@ -258,19 +255,24 @@ const savePrimaryImage = async (image: any) => {
     <div
       v-if="showImageCredits || inModal"
       class="py-4"
-      :class="{ 'absolute right-2 top-0': image.uri }"
+      :class="{ 'absolute right-2 top-0': image?.uri }"
     >
-      <div class="flex justify-end">
-        <div class="self-center">
-          <ImageCreditCount v-if="authStore.user && showImageCredits" />
+      <div class="flex justify-between">
+        <div v-if="!props.image?.uri" class="text-lg self-center">
+          Conjure New Image
         </div>
-        <button
-          v-if="inModal"
-          class="px-4 rounded-full"
-          @click="emit('cancel')"
-        >
-          <XCircleIcon class="w-6 self-center" />
-        </button>
+        <div class="flex gap-2">
+          <div class="self-center">
+            <ImageCreditCount v-if="authStore?.user && showImageCredits" />
+          </div>
+          <button
+            v-if="inModal"
+            class="px-4 rounded-full"
+            @click="emit('cancel')"
+          >
+            <XCircleIcon class="w-6 self-center" />
+          </button>
+        </div>
       </div>
     </div>
     <div v-if="image.uri" class="md:flex mb-4 justify-center mt-10">
@@ -279,7 +281,7 @@ const savePrimaryImage = async (image: any) => {
           :src="image.uri"
           class="w-72 h-72 mx-auto md:my-auto rounded-[25px]"
         />
-        <div class="image-badge">Original</div>
+        <div class="image-badge">Current</div>
       </div>
     </div>
     <div
@@ -295,18 +297,11 @@ const savePrimaryImage = async (image: any) => {
     >
       Enter a description of you session below to generate a session cover image
     </div>
-    <div v-if="showUpscale && props.image.id" class="flex justify-center mb-2">
+    <div v-if="props.image.uri" class="flex justify-center mb-2">
       <div class="min-w-[50%]">
         <div
           class="flex flex-wrap gap-1 w-full text-neutral-500 rounded-[18px] bg-surface-2 p-1 border border-surface-3 text-sm"
         >
-          <button
-            class="grow"
-            :class="{ 'button-primary': tab === 'customize' }"
-            @click="tab = 'customize'"
-          >
-            Customize Image
-          </button>
           <button
             class="grow"
             :class="{ 'button-primary': tab === 'upscale' }"
@@ -325,7 +320,7 @@ const savePrimaryImage = async (image: any) => {
       </div>
     </div>
     <FormKit
-      v-if="!showUpscale || tab === 'customize'"
+      v-if="tab === 'customize'"
       :actions="false"
       type="form"
       @submit="conjure"
@@ -367,7 +362,7 @@ const savePrimaryImage = async (image: any) => {
           <div class="flex px-2 relative">
             <div class="group">
               <FormKit
-                v-if="showSeed && image.seed"
+                v-if="image.seed"
                 v-model="useSeed"
                 type="checkbox"
                 label="Use same image seed"
@@ -467,7 +462,7 @@ const savePrimaryImage = async (image: any) => {
       </div>
     </FormKit>
     <div
-      v-if="showUpscale && tab === 'upscale'"
+      v-if="tab === 'upscale'"
       class="p-6 border border-neutral-800 rounded-[20px]"
     >
       <div v-if="alreadyUpscaled">This image has already been upscaled.</div>
@@ -529,7 +524,7 @@ const savePrimaryImage = async (image: any) => {
     <div v-if="showImageCredits || inModal" class="absolute right-2 top-0 p-4">
       <div class="flex justify-end">
         <div class="self-center">
-          <ImageCreditCount v-if="authStore.user && showImageCredits" />
+          <ImageCreditCount v-if="authStore?.user && showImageCredits" />
         </div>
         <button class="px-4 rounded-full" @click="emit('cancel')">
           <XCircleIcon class="w-6 self-center" />
@@ -581,17 +576,17 @@ const savePrimaryImage = async (image: any) => {
     </div>
 
     <div class="flex flex-wrap lg:flex-nowrap gap-8 justify-center">
-      <div v-if="image.uri" class="relative max-w-full">
+      <div v-if="image?.uri" class="relative max-w-full">
         <div
           class="absolute flex bottom-2 right-2 cursor-pointer bg-white/50 rounded-[8px]"
-          @click="eventBus.$emit('open-lightbox', image.uri)"
+          @click="eventBus.$emit('open-lightbox', image?.uri)"
         >
           <ArrowsPointingOutIcon
             class="p-1 w-8 h-8 self-center transition-all hover:scale-125 text-black"
           />
         </div>
         <img
-          :src="image.uri"
+          :src="image?.uri"
           alt="conjurationImg"
           class="rounded-[25px] cursor-pointer w-full max-w-[500px]"
           :class="{

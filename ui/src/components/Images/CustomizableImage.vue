@@ -21,6 +21,8 @@ const props = withDefaults(
       imageModel?: {
         description?: string;
       };
+      generating?: boolean;
+      failed?: boolean;
     };
     editable?: boolean;
     alt?: string;
@@ -44,6 +46,8 @@ const props = withDefaults(
       imageModel: {
         description: '',
       },
+      generating: false,
+      failed: false,
     }),
     alt: undefined,
     imageConjurationFailureReason: undefined,
@@ -59,6 +63,17 @@ const imgHeight = ref(0);
 onMounted(() => {
   setImgDimensions();
 });
+
+function showCreateImageModal() {
+  eventBus.$emit('toggle-customize-image-modal', {
+    image: {
+      ...props.image,
+      uri: undefined,
+    },
+    alt: props.alt,
+    linking: props.linking,
+  });
+}
 
 function showCustomizeImageModal() {
   eventBus.$emit('toggle-customize-image-modal', {
@@ -106,12 +121,12 @@ const alreadyUpscaled = computed(() => {
       {{ type }}
     </div>
 
-    <div v-if="editable" class="absolute flex top-2 right-2">
+    <div v-if="editable" class="absolute flex gap-2 top-2 right-2">
       <div class="relative group ml-2">
         <button
           v-if="image.uri"
           type="button"
-          class="flex button-white bg-white/50 mr-1"
+          class="flex button-white bg-white/50"
           @click="downloadImage(image.uri)"
         >
           <ArrowDownTrayIcon class="h-5 w-5" />
@@ -126,10 +141,18 @@ const alreadyUpscaled = computed(() => {
         type="button"
         class="flex button-gradient bg-white/50"
         :disabled="!editable"
+        @click="showCreateImageModal"
+      >
+        <span class="self-center"> Conjure New Image</span>
+      </button>
+      <button
+        v-if="!image.failed && image.uri"
+        type="button"
+        class="flex button-ghost"
+        :disabled="!editable"
         @click="showCustomizeImageModal"
       >
-        <PencilSquareIcon class="h-5 mr-1" />
-        <span class="self-center">Modify Image</span>
+        <PencilSquareIcon v-if="image.uri" class="h-5" />
       </button>
       <div
         v-if="alreadyUpscaled"
@@ -167,7 +190,7 @@ const alreadyUpscaled = computed(() => {
       class="w-full min-h-[20rem] flex justify-center h-full bg-surface"
     >
       <div
-        v-if="!imageConjurationFailed"
+        v-if="!image.failed"
         class="self-center text-center text-[2rem] text-white"
       >
         <span v-if="type !== 'Character'" class="animate-pulse"
@@ -177,16 +200,19 @@ const alreadyUpscaled = computed(() => {
       </div>
       <div v-else class="flex">
         <div class="self-center">
-          <div class="text-center text-[2rem]">Conjuration failed</div>
-          <div class="text-center text-[1rem]">
+          <div class="text-center text-xl">Image Conjuration Timed Out</div>
+          <div class="text-center text-lg">
             {{ imageConjurationFailureReason }}
+          </div>
+          <div class="text-sm text-neutral-500 mb-2">
+            You have not been charged any credits for this image.
           </div>
           <div>
             <button
-              class="button-white flex mx-auto"
+              class="button-ghost-white flex mx-auto"
               @click="showCustomizeImageModal"
             >
-              Retry
+              Retry Image
               <ArrowPathIcon class="w-5 ml-2" />
             </button>
           </div>
