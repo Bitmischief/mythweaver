@@ -115,8 +115,33 @@ function getBadge(relationship: any) {
     } else {
       return '';
     }
+  } else if (relationship.nextType === ConjurationRelationshipType.CAMPAIGN) {
+    return 'Campaign';
+  } else if (relationship.nextType === ConjurationRelationshipType.SESSION) {
+    return 'Session';
   } else {
     return toPascalCase(relationship.nextType);
+  }
+}
+
+function noImage(relationship: any) {
+  if (relationship.entitydata?.conjurerCode) {
+    const conjurerCode = relationship.entitydata.conjurerCode;
+    if (conjurerCode === 'monsters') {
+      return '/images/conjurations/monster-no-image.png';
+    } else if (conjurerCode === 'locations') {
+      return '/images/conjurations/location-no-image.png';
+    } else if (conjurerCode === 'characters') {
+      return '/images/conjurations/character-no-image.png';
+    } else if (conjurerCode === 'items') {
+      return '/images/conjurations/item-no-image.png';
+    } else if (conjurerCode === 'players') {
+      return '/images/conjurations/player-character-no-image.png';
+    } else {
+      return '';
+    }
+  } else if (relationship.nextType === ConjurationRelationshipType.CAMPAIGN) {
+    return '/images/generators/campaign.png';
   }
 }
 </script>
@@ -156,7 +181,7 @@ function getBadge(relationship: any) {
     >
       <div class="relative">
         <img
-          :src="relationship.entitydata.imageUri"
+          :src="relationship.entitydata.imageUri || noImage(relationship)"
           alt="relationship img"
           class="rounded-[10px]"
         />
@@ -178,7 +203,13 @@ function getBadge(relationship: any) {
                 Remove Relationship
               </div>
             </div>
-            <div class="relative flex group cursor-pointer sm:mx-2">
+            <div
+              v-if="
+                relationship.nextType ===
+                ConjurationRelationshipType.CONJURATION
+              "
+              class="relative flex group cursor-pointer sm:mx-2"
+            >
               <ArrowTopRightOnSquareIcon
                 class="h-8 w-8"
                 @click="viewNode(relationship)"

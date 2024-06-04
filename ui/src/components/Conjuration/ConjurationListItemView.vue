@@ -40,6 +40,10 @@ function getConjurationDescription(conjuration: Conjuration) {
     text = conjuration?.data?.blocks?.find(
       (b: any) => (b.data.label = 'Description'),
     )?.data.text;
+  } else if (conjuration.conjurerCode === 'players') {
+    text = conjuration?.data?.blocks?.find(
+      (b: any) => (b.data.label = 'Backstory'),
+    )?.data.text;
   }
   return text;
 }
@@ -53,6 +57,8 @@ function conjurationType(conjuration: Conjuration) {
     return 'NPC';
   } else if (conjuration.conjurerCode === 'items') {
     return 'Magic Item';
+  } else if (conjuration.conjurerCode === 'players') {
+    return 'Character';
   } else {
     return '';
   }

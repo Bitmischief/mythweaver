@@ -168,6 +168,8 @@ const conjurationType = computed(() => {
     return 'NPC';
   } else if (props.conjuration.conjurerCode === 'items') {
     return 'Magic Item';
+  } else if (props.conjuration.conjurerCode === 'players') {
+    return 'Character';
   } else {
     return '';
   }

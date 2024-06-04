@@ -7,6 +7,7 @@ import { useCurrentUserId, useSelectedCampaignId } from '@/lib/hooks.ts';
 import { useRouter } from 'vue-router';
 import { PlusIcon } from '@heroicons/vue/20/solid';
 import { useEventBus } from '@/lib/events.ts';
+import { ConjurationRelationshipType } from '@/lib/enums.ts';
 
 const selectedCampaignId = useSelectedCampaignId();
 const eventBus = useEventBus();
@@ -76,12 +77,25 @@ function primaryImage(char: Character) {
   }
   return undefined;
 }
+
+async function handleCreateRelationship() {
+  eventBus.$emit('create-relationship', {
+    relationshipType: ConjurationRelationshipType.CONJURATION,
+    nodeId: selectedCampaignId.value,
+    nodeType: ConjurationRelationshipType.CAMPAIGN,
+  });
+}
 </script>
 
 <template>
   <div v-if="characters.length && !loading">
-    <div class="w-full flex justify-end">
-      <router-link class="button-ghost" to="/character/new">
+    <div class="w-full flex gap-2 justify-end">
+      <div>
+        <button class="button-gradient" @click="handleCreateRelationship">
+          Add Existing Character
+        </button>
+      </div>
+      <router-link class="button-ghost" to="/conjure?code=players">
         Create New Character
       </router-link>
     </div>
@@ -105,10 +119,12 @@ function primaryImage(char: Character) {
         >
           <div class="relative">
             <img
-              :src="primaryImage(char) || 'images/character_bg_square.png'"
+              :src="
+                primaryImage(char) ||
+                'images/conjurations/player-character-no-image.png'
+              "
               alt="character portrait"
               class="rounded-[20px]"
-              :class="{ 'blur-sm': !primaryImage(char) }"
             />
             <div
               v-if="!primaryImage(char)"

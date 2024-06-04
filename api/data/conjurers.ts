@@ -28,6 +28,25 @@ export const getGenerator = (code: string): Generator | undefined => {
 
 const conjurers: Generator[] = [
   {
+    code: 'players',
+    name: 'Character',
+    description:
+      'Conjure up Characters with immersive backstories and unique characteristics that take your role-playing to the next level.',
+    customizationHelpPrompt:
+      "Tell us the key details about your Character (age, race, class, backstory) and we'll help you craft an interesting backstory, personality, and looks!",
+    imageUri: 'player-characters.png',
+    formatPrompt:
+      '{ "name": "",  "looks": "",  "imageAIPrompt": "",  "personality": "", "quirks": "", "fears": "", "hobbies": "", "background": "", "age": "", "race": "", "class": "", "tags": [""] }',
+    allowsImageGeneration: true,
+    imagePromptExtraContext:
+      "Include the characters' sex and any defining visual characteristics in the prompt.",
+    basePromptExtraContext:
+      "Please thoroughly flesh out the character's backstory, including their motivations, goals, and fears, using at least 100 words to describe the background of this character. Please populate tags with any values you think applicable to this character, to allow easy searching, including their race, occupation, gender, class and any others you deem helpful.",
+    supportedImageStylePresets: ['fantasy-art', 'digital-art', 'comic-book'],
+    proOnly: false,
+    experimental: false,
+  },
+  {
     code: 'characters',
     name: 'NPC',
     description:
@@ -36,7 +55,7 @@ const conjurers: Generator[] = [
       "Tell us your NPC's basic outline, and we'll craft a vivid and dynamic character to enrich your game world!",
     imageUri: 'characters.png',
     formatPrompt:
-      '{ \n      "name": "", \n      "looks": "", \n      "imageAIPrompt": "", \n      "personality": "",\n      "quirks": ""\n      "fears": ""\n      "hobbies": ""\n      "background": ""\n      "tags": [""]\n    }',
+      '{ "name": "",  "looks": "",  "imageAIPrompt": "",  "personality": "", "quirks": "", "fears": "", "hobbies": "", "background": "", "tags": [""] }',
     allowsImageGeneration: true,
     imagePromptExtraContext:
       "Include the characters' sex and any defining visual characteristics in the prompt.",

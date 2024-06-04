@@ -16,8 +16,9 @@ import {
   BookmarkSquareIcon,
   PhotoIcon,
   SparklesIcon,
-  Squares2X2Icon,
   ClockIcon,
+  StarIcon,
+  UsersIcon,
 } from '@heroicons/vue/24/outline';
 import { useCurrentUserPlan } from '@/lib/hooks.ts';
 import { BillingPlan } from '@/api/users.ts';
@@ -180,8 +181,8 @@ async function navigateToCreateCampaign() {
       to="/campaign/overview"
       @click="emit('nav-item-selected')"
     >
-      <Squares2X2Icon class="h-5 mr-2" />
-      <div v-if="!collapsed" class="whitespace-nowrap">Overview</div>
+      <StarIcon class="h-5 mr-2" />
+      <div v-if="!collapsed" class="whitespace-nowrap">Campaign Overview</div>
     </router-link>
     <router-link
       class="nav-item"
@@ -193,12 +194,8 @@ async function navigateToCreateCampaign() {
       to="/characters"
       @click="emit('nav-item-selected')"
     >
-      <img
-        src="@/assets/icons/characters.svg"
-        alt="characters"
-        class="h-5 mr-2"
-      />
-      <div v-if="!collapsed" class="whitespace-nowrap">Characters</div>
+      <UsersIcon class="h-5 mr-2" />
+      <div v-if="!collapsed" class="whitespace-nowrap">Campaign Characters</div>
     </router-link>
     <router-link
       class="nav-item"
@@ -211,7 +208,7 @@ async function navigateToCreateCampaign() {
       @click="emit('nav-item-selected')"
     >
       <img src="@/assets/icons/sessions.svg" alt="sessions" class="h-5 mr-2" />
-      <div v-if="!collapsed" class="whitespace-nowrap">Sessions</div>
+      <div v-if="!collapsed" class="whitespace-nowrap">Campaign Sessions</div>
     </router-link>
 
     <div class="text-xs text-gray-500 font-bold mb-3 mt-6">CONJURATIONS</div>

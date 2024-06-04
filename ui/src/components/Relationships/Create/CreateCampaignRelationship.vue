@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
 import { showError, showSuccess } from '@/lib/notifications.ts';
-import { Conjuration, getConjurations } from '@/api/conjurations.ts';
+import { getCampaigns } from '@/api/campaigns.ts';
 import { postConjurationRelationship } from '@/api/relationships.ts';
 import { ConjurationRelationshipType } from '@/lib/enums.ts';
-import { LinkIcon, CheckCircleIcon } from '@heroicons/vue/20/solid';
+import { LinkIcon } from '@heroicons/vue/24/outline';
 import { debounce } from 'lodash';
 import Spinner from '@/components/Core/Spinner.vue';
 import { useEventBus } from '@/lib/events.ts';
+import { CheckCircleIcon } from '@heroicons/vue/20/solid';
+import { format } from 'date-fns';
 
 defineEmits(['relationship-created']);
 
@@ -21,7 +23,7 @@ let eventBus = useEventBus();
 
 onMounted(async () => {
   try {
-    await fetchConjurations();
+    await fetchCampaigns();
   } catch (e: any) {
     showError({ message: e.message });
   } finally {
@@ -29,9 +31,9 @@ onMounted(async () => {
   }
 });
 
-let searchText = ref<string | undefined>('');
-let conjurations = ref<Conjuration[]>([]);
-let loadingConjurations = ref(true);
+let searchText = ref<string | undefined>();
+let campaigns = ref<any[]>([]);
+let loadingCampaigns = ref(true);
 let page = ref(0);
 let moreToLoad = ref(true);
 
@@ -39,69 +41,66 @@ watch(
   searchText,
   debounce(async () => {
     page.value = 0;
-    await fetchConjurations(false);
+    await fetchCampaigns(false);
   }, 1000),
 );
 
 async function loadNextPage() {
   page.value += 1;
-  await fetchConjurations();
+  await fetchCampaigns();
 }
 
-async function fetchConjurations(concat = true) {
+async function fetchCampaigns(concat = true) {
   try {
-    loadingConjurations.value = true;
+    loadingCampaigns.value = true;
     const pageSize = 25;
     const search =
       searchText.value !== undefined && searchText.value === ''
         ? undefined
         : searchText.value;
-    const response = await getConjurations({
+    const response = await getCampaigns({
       offset: page.value * pageSize,
       limit: pageSize,
-      saved: true,
-      search: search,
-      nodeId: props.nodeId,
-      nodeType: props.nodeType,
+      term: search,
     });
     const results = response.data.data.filter((c: any) =>
-      props.nodeType === ConjurationRelationshipType.CONJURATION
+      props.nodeType === ConjurationRelationshipType.CAMPAIGN
         ? c.id !== props.nodeId
         : true,
     );
     moreToLoad.value = !(response.data.data.length < pageSize);
     if (results.length) {
       if (concat) {
-        conjurations.value = conjurations.value.concat(results);
+        campaigns.value = campaigns.value.concat(results);
       } else {
-        conjurations.value = results;
+        campaigns.value = results;
       }
     }
   } catch (e: any) {
     showError({
-      message: `Something went wrong fetching conjurations.`,
+      message: `Something went wrong fetching campaigns.`,
       context: e.message,
     });
   } finally {
-    loadingConjurations.value = false;
+    loadingCampaigns.value = false;
   }
 }
 
 const linking = ref<number>(-1);
 
-async function linkConjuration(conjuration: Conjuration) {
-  linking.value = conjuration.id;
+async function linkCampaign(campaign: CampaignBase) {
+  linking.value = campaign.id;
   try {
     await postConjurationRelationship(
-      conjuration.id,
-      ConjurationRelationshipType.CONJURATION,
+      campaign.id,
+      ConjurationRelationshipType.CAMPAIGN,
       {
         relatedNodeId: props.nodeId,
         relatedNodeType: props.nodeType,
       },
     );
     showSuccess({ message: 'Conjuration relationship created!' });
-    conjuration.linked = true;
+    campaign.linked = true;
     eventBus.$emit('relationship-created', {
       nodeId: props.nodeId,
       nodeType: props.nodeType,
@@ -115,44 +114,19 @@ async function linkConjuration(conjuration: Conjuration) {
   }
 }
 
+function campaignDateDisplay(campaign: CampaignBase) {
+  if (!campaign.date) {
+    return 'TBD';
+  }
+  return format(campaign.date, 'MMM d, yyyy @ h:mm a');
+}
+
 const primaryImageUri = (data: any) => {
   if (data?.images?.length) {
     return data.images?.find((i: any) => i.primary)?.uri;
   }
   return undefined;
 };
-
-function conjurationType(conjuration: Conjuration) {
-  if (conjuration.conjurerCode === 'monsters') {
-    return 'Monster';
-  } else if (conjuration.conjurerCode === 'locations') {
-    return 'Location';
-  } else if (conjuration.conjurerCode === 'characters') {
-    return 'NPC';
-  } else if (conjuration.conjurerCode === 'items') {
-    return 'Magic Item';
-  } else if (conjuration.conjurerCode === 'players') {
-    return 'Character';
-  } else {
-    return '';
-  }
-}
-
-function noImage(conjurerCode: string) {
-  if (conjurerCode === 'monsters') {
-    return '/images/conjurations/monster-no-image.png';
-  } else if (conjurerCode === 'locations') {
-    return '/images/conjurations/location-no-image.png';
-  } else if (conjurerCode === 'characters') {
-    return '/images/conjurations/character-no-image.png';
-  } else if (conjurerCode === 'items') {
-    return '/images/conjurations/item-no-image.png';
-  } else if (conjurerCode === 'players') {
-    return '/images/conjurations/player-character-no-image.png';
-  } else {
-    return '';
-  }
-}
 </script>
 
 <template>
@@ -160,80 +134,71 @@ function noImage(conjurerCode: string) {
     <FormKit
       v-model="searchText"
       type="text"
-      placeholder="Search conjurations"
+      placeholder="Search campaigns"
       autofocus
     />
   </div>
-  <div v-show="!loading" class="h-[calc(100%-3em)]">
+  <div v-show="!loading && !loadingCampaigns" class="h-[calc(100%-3em)]">
     <div class="h-full overflow-y-auto">
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 pr-2">
         <div
-          v-for="(conjuration, i) in conjurations"
-          :key="`conjuration_${i}`"
+          v-for="(campaign, i) in campaigns"
+          :key="`campaign_${i}`"
           class="bg-surface-3 rounded-[12px] p-2"
         >
           <div class="relative">
             <img
               :src="
-                primaryImageUri(conjuration) ||
-                noImage(conjuration.conjurerCode)
+                primaryImageUri(campaign) || '/images/campaign_bg_square.png'
               "
-              alt="conjuration image"
+              alt="campaign image"
               class="mx-auto w-full h-auto rounded-[12px]"
             />
-            <div
-              class="absolute flex justify-center items-center rounded-full bg-white/50 text-black text-xs font-bold left-2 top-2 h-6 px-4"
-            >
-              {{ conjurationType(conjuration) }}
-            </div>
           </div>
           <div class="flex justify-between mt-2">
             <div
               class="self-center whitespace-nowrap overflow-hidden text-ellipsis"
             >
-              {{ conjuration.name }}
+              {{ campaign.name }}
             </div>
             <div
               class="relative self-center"
               :class="{ 'group hover:text-fuchsia-500': linking === -1 }"
             >
               <LinkIcon
-                v-if="linking !== conjuration.id && !conjuration.linked"
+                v-if="linking !== campaign.id && !campaign.linked"
                 class="h-8 w-8"
                 :class="{
                   'cursor-not-allowed text-neutral-500': linking !== -1,
                   'cursor-pointer': linking === -1,
                 }"
-                @click="linkConjuration(conjuration)"
+                @click="linkCampaign(campaign)"
               />
-              <CheckCircleIcon v-else-if="conjuration.linked" class="h-8 w-8" />
+              <CheckCircleIcon v-else-if="campaign.linked" class="h-8 w-8" />
               <Spinner v-else class="h-8 w-8" />
               <div
                 class="group-hover:block absolute -top-6 right-0 bg-surface-2 px-2 rounded-full hidden text-neutral-300 whitespace-nowrap"
               >
-                <span v-if="!conjuration.linked">Create Relationship</span>
+                <span v-if="!campaign.linked">Create Relationship</span>
                 <span v-else>Relationship Exists</span>
               </div>
             </div>
           </div>
+          <div class="text-sm text-neutral-500">
+            {{ campaignDateDisplay(campaign) }}
+          </div>
         </div>
         <div v-if="moreToLoad" class="text-center col-span-full">
           <button class="button-gradient" @click="loadNextPage">
-            <span v-if="!loadingConjurations">Load More</span>
-            <Spinner v-else />
+            Load More
           </button>
         </div>
         <div v-else class="text-center col-span-full">No more results...</div>
       </div>
     </div>
   </div>
-  <div
-    v-show="loading || loadingConjurations"
-    class="flex justify-center h-full"
-  >
-    <div class="my-auto min-w-[20vw] animate-pulse">
-      Loading Conjurations...
-    </div>
+  <div v-show="loading || loadingCampaigns" class="flex justify-center h-full">
+    <div class="my-auto min-w-[20vw] animate-pulse">Loading Campaigns...</div>
   </div>
 </template>
 

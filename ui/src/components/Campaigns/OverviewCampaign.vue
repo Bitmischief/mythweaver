@@ -29,6 +29,8 @@ import { AxiosError } from 'axios';
 import { useCurrentUserRole } from '@/lib/hooks.ts';
 import { useAuthStore } from '@/store';
 import { useClipboard } from '@vueuse/core';
+import ViewRelationships from '@/components/Relationships/ViewRelationships.vue';
+import { ConjurationRelationshipType } from '@/lib/enums.ts';
 
 const selectedCampaignId = useSelectedCampaignId();
 const eventBus = useEventBus();
@@ -220,6 +222,14 @@ async function handleRemoveMember() {
 const inviteLink = computed(() => {
   return `${window.location.origin}/invite?code=${campaign.value.inviteCode}`;
 });
+
+async function handleCreateRelationship() {
+  eventBus.$emit('create-relationship', {
+    relationshipType: ConjurationRelationshipType.CONJURATION,
+    nodeId: selectedCampaignId.value,
+    nodeType: ConjurationRelationshipType.CAMPAIGN,
+  });
+}
 </script>
 
 <template>
@@ -494,6 +504,18 @@ const inviteLink = computed(() => {
           </div>
         </div>
       </div>
+    </div>
+    <div class="col-span-5">
+      <div class="flex gap-2 justify-between mb-2">
+        <div class="text-xl">Campaign Relationships</div>
+        <button class="button-gradient" @click="handleCreateRelationship">
+          Add Relationships
+        </button>
+      </div>
+      <ViewRelationships
+        :start-node-id="selectedCampaignId"
+        :start-node-type="ConjurationRelationshipType.CAMPAIGN"
+      />
     </div>
     <ModalAlternate :show="viewCharacter" @close="viewCharacter = false">
       <div class="bg-surface-2 rounded-[20px] md:max-w-[75vw]">

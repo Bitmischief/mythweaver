@@ -79,7 +79,9 @@ const primaryImage = computed(() => {
   if (character.value?.images?.length) {
     return character.value.images.find((i) => i.primary);
   }
-  return undefined;
+  return {
+    uri: '/images/conjurations/player-character-no-image.png',
+  };
 });
 </script>
 
