@@ -66,6 +66,7 @@ export const conjure = async (request: ConjureEvent) => {
             content: prompt,
           },
         ],
+        response_format: { type: 'json_object' },
       });
     } catch (err: any) {
       logger.error(
@@ -230,32 +231,24 @@ const buildPrompt = (
   customArg?: string | undefined,
   imagePrompt?: string | undefined,
 ) => {
-  let prompt = `You are a master storyteller. Please generate me a unique ${trimPlural(
+  let prompt = `Please help me flesh out an idea for a ${trimPlural(
     generator.name.toLowerCase(),
   )}`;
 
-  if (campaign) {
-    let rpgSystem = campaign.rpgSystemCode;
-    if (!rpgSystem) {
-      rpgSystem = 'a role-playing game like dungeons and dragons.';
-    }
-    prompt += ` to be used in a role-playing game like ${rpgSystem}`;
-  } else {
-    prompt += ' to be used in a role-playing game like dungeons and dragons. ';
-  }
+  prompt += ` to be used in a role-playing game of ${campaign?.rpgSystemCode || 'dungeons and dragons'}.`;
 
   if (customArg && customArg.length > 0) {
-    prompt += `I want ${customArg} `;
+    prompt += `Use the following information to guide you: ${customArg} `;
   }
 
-  prompt += `Please focus on generating a distinctly unique and different ${trimPlural(
+  prompt += `Using the info provided, generate a ${trimPlural(
     generator.name.toLowerCase(),
-  )} with really engaging, immersive and compelling attributes. Please return JSON only so that I can easily deserialize into a javascript object. Use the following format. ${
-    generator.formatPrompt
-  }. Please escape any double quotes in any JSON properties with a backslash. `;
+  )} with engaging, immersive and compelling attributes that incorporate this information.`;
+
+  prompt += `Please return the result as JSON using the following format: ${generator.formatPrompt}.`;
 
   if (generator.allowsImageGeneration && !imagePrompt) {
-    prompt += `Please generate a prompt to be used by an AI image generator to generate an portrait image for this ${trimPlural(
+    prompt += `Using the same information provided above, please generate a prompt to be used by an AI image generator to generate an portrait image for this ${trimPlural(
       generator.name.toLowerCase(),
     )} to be stored in the JSON property 'imageAIPrompt'. ${
       generator.imagePromptExtraContext

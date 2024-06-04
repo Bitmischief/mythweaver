@@ -127,7 +127,7 @@ onMounted(async () => {
 });
 
 const timeoutRef = ref();
-const timeoutDuration = ref(45000);
+const timeoutDuration = ref(60000);
 const timedOut = ref(false);
 
 function regenerate() {
@@ -416,20 +416,22 @@ const selectedModelIsMythWeaverV1 = computed(() => {
       @submit="conjure"
     >
       <div class="flex justify-between mb-4 mt-3">
-        <div>
+        <div v-if="showBack">
           <button class="button-primary flex gap-2 z-10" @click="emit('back')">
             <ArrowLeftIcon class="h-5 w-5 self-center" />
             <span class="self-center">Back</span>
           </button>
         </div>
-        <button
-          class="flex button-gradient py-2 px-3 disabled:opacity-75"
-          type="submit"
-        >
-          <img src="@/assets/icons/wand.svg" alt="wand" class="h-4 mr-1" />
-          Conjure
-          <ArrowRightIcon class="h-5 ml-1 self-center" />
-        </button>
+        <div class="grow flex justify-end">
+          <button
+            class="flex button-gradient py-2 px-3 disabled:opacity-75"
+            type="submit"
+          >
+            <img src="@/assets/icons/wand.svg" alt="wand" class="h-4 mr-1" />
+            Conjure
+            <ArrowRightIcon class="h-5 ml-1 self-center" />
+          </button>
+        </div>
       </div>
       <div
         class="bg-gradient-to-r from-fuchsia-500 to-violet-500 p-px rounded-[20px] purple-shadow min-w-[90vw] md:min-w-[60vw]"
@@ -688,6 +690,11 @@ const selectedModelIsMythWeaverV1 = computed(() => {
     </div>
   </template>
   <template v-else-if="conjuring && !done && !imageError">
+    <div>
+      <div class="text-sm text-neutral-500">
+        {{ image.prompt }}
+      </div>
+    </div>
     <div class="p-12 text-center">
       <Loader />
       <div class="text-3xl m-4">Conjuring</div>
@@ -721,6 +728,11 @@ const selectedModelIsMythWeaverV1 = computed(() => {
       class="mx-4 md:mx-0 actions"
       :class="{ 'mt-10': showImageCredits || inModal }"
     >
+      <div>
+        <div class="text-sm text-neutral-500">
+          {{ image.prompt }}
+        </div>
+      </div>
       <div class="flex gap-2 px-4 md:px-0 justify-end py-2">
         <div class="self-center">
           <button
