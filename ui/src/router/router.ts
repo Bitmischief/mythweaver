@@ -23,7 +23,7 @@ import AccountView from '@/views/AccountView.vue';
 import OverviewCampaign from '@/components/Campaigns/OverviewCampaign.vue';
 import ConjureView from '@/views/ConjureView.vue';
 import { authGuard } from '@auth0/auth0-vue';
-import { fbq } from '@/lib/conversions.ts';
+import { fbq, rdt } from '@/lib/conversions.ts';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -212,6 +212,7 @@ const router = createRouter({
 router.beforeResolve((to, from, next) => {
   if (from.path === '/' && to.redirectedFrom?.path === '/subscribed') {
     fbq('track', 'Purchase');
+    rdt('track', 'Purchase');
   }
 
   return next();

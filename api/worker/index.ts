@@ -3,10 +3,8 @@ import { processTags } from './jobs/processTags';
 import { conjure } from './jobs/conjure';
 import { completeSession } from './jobs/completeSession';
 import { ImageStylePreset } from '../controllers/images';
-import { sendWebsocketMessage, WebSocketEvent } from '../services/websockets';
 import logger from '../lib/logger';
 import { endTrials } from './jobs/endTrials';
-import { processLifetimeSubscriptionCredits } from './jobs/processLifetimeSubscriptionCredits';
 import { AppError, ErrorType, HttpCode } from '../lib/errors/AppError';
 
 const config = process.env.REDIS_ENDPOINT || '';
@@ -113,23 +111,5 @@ endTrialQueue.process(async (job, done) => {
   } catch (err) {
     logger.error('Error processing end trials job!', err);
     done(new Error('Error processing end trials job!'));
-  }
-});
-
-export const lifetimeSubscriptionCreditQueue = new Queue(
-  'lifetime-subscription-credits',
-  config,
-);
-
-lifetimeSubscriptionCreditQueue.process(async (job, done) => {
-  logger.info('Processing end lifetime subscription credits job');
-
-  try {
-    await processLifetimeSubscriptionCredits();
-    logger.info('Completed processing lifetime subscription credits job');
-    done();
-  } catch (err) {
-    logger.error('Error processing lifetime subscription credits job!', err);
-    done(new Error('Error processing lifetime subscription credits job!'));
   }
 });
