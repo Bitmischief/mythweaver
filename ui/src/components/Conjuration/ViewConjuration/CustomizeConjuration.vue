@@ -202,7 +202,7 @@ const conjurationType = computed(() => {
 });
 
 const hasAnyImages = computed(() => {
-  return editableConjuration.value?.images?.length;
+  return editableConjuration.value?.images?.some((i) => i.primary && i.uri);
 });
 
 const primaryImage = computed(() => {
@@ -238,17 +238,18 @@ function showCustomizeImageModal() {
           :image-conjuration-failure-reason="imageConjurationFailureReason"
           :type="conjurationType"
           :linking="{ conjurationId: editableConjuration.id }"
+          class="mb-2"
         />
-        <div v-else>
+        <div v-else-if="editable">
           <button
-            class="button-gradient w-full"
+            class="button-gradient w-full mb-2"
             @click="showCustomizeImageModal"
           >
             Conjure Image
           </button>
         </div>
 
-        <div class="mt-4 font-bold text-center">
+        <div class="mb-2 font-bold text-center">
           <input
             v-model="editableConjuration.name"
             class="input-secondary text-2xl"
@@ -256,7 +257,7 @@ function showCustomizeImageModal() {
           />
         </div>
 
-        <div class="mt-2">
+        <div>
           <Select
             v-model="editableConjuration.visibility"
             placeholder="Update visibility"

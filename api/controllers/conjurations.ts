@@ -119,7 +119,9 @@ export default class ConjurationController {
           : undefined,
         userId: history ? userId : undefined,
         visibility: saved || history ? undefined : ConjurationVisibility.PUBLIC,
-        images: !saved ? { some: { primary: true } } : undefined,
+        images: !saved
+          ? { some: { primary: true, uri: { not: null } } }
+          : undefined,
         OR: orClause.length ? orClause : undefined,
       },
       skip: offset,

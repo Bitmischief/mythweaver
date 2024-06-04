@@ -117,7 +117,7 @@ const alreadyUpscaled = computed(() => {
 
 <template>
   <div class="relative">
-    <div class="image-badge">
+    <div v-if="image.uri" class="image-badge">
       {{ type }}
     </div>
 
@@ -185,10 +185,7 @@ const alreadyUpscaled = computed(() => {
       :alt="alt"
       class="rounded-[20px]"
     />
-    <div
-      v-else
-      class="w-full min-h-[20rem] flex justify-center h-full bg-surface"
-    >
+    <div v-else class="w-full flex justify-center h-full bg-surface">
       <div
         v-if="!image.failed"
         class="self-center text-center text-[2rem] text-white"
@@ -198,7 +195,7 @@ const alreadyUpscaled = computed(() => {
         >
         <span v-else>No Image</span>
       </div>
-      <div v-else class="flex">
+      <div v-else-if="editable" class="flex my-[150px]">
         <div class="self-center">
           <div class="text-center text-xl">Image Conjuration Timed Out</div>
           <div class="text-center text-lg">
