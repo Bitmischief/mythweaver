@@ -23,7 +23,7 @@ import AccountView from '@/views/AccountView.vue';
 import OverviewCampaign from '@/components/Campaigns/OverviewCampaign.vue';
 import ConjureView from '@/views/ConjureView.vue';
 import { authGuard } from '@auth0/auth0-vue';
-import { fbq, rdt } from '@/lib/conversions.ts';
+import { fbq, gtag, rdt } from '@/lib/conversions.ts';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -213,6 +213,10 @@ router.beforeResolve((to, from, next) => {
   if (from.path === '/' && to.redirectedFrom?.path === '/subscribed') {
     fbq('track', 'Purchase');
     rdt('track', 'Purchase');
+    gtag('event', 'conversion', {
+      send_to: 'AW-16543803684/iS19CODC6rYZEKTS2dA9',
+      transaction_id: '',
+    });
   }
 
   return next();
