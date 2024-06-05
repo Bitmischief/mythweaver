@@ -728,7 +728,7 @@ const selectedModelIsMythWeaverV1 = computed(() => {
     >
       <div>
         <div class="text-sm text-neutral-500">
-          {{ image.prompt }}
+          {{ editablePrompt }}
         </div>
       </div>
       <div class="flex gap-2 px-4 md:px-0 justify-end py-2">

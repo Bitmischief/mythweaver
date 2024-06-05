@@ -5,6 +5,7 @@ import {
   copyConjuration,
   deleteConjuration,
   getConjuration,
+  postConvertConjurationRequest,
   removeConjuration,
   saveConjuration,
 } from '@/api/conjurations.ts';
@@ -15,10 +16,16 @@ import {
   ArrowLeftIcon,
   ArrowPathIcon,
   DocumentDuplicateIcon,
+  LinkIcon,
+  BookmarkSlashIcon,
+  ArrowsRightLeftIcon,
+  XCircleIcon,
 } from '@heroicons/vue/24/solid';
 import {
   BookmarkSquareIcon,
   EllipsisHorizontalIcon,
+  TrashIcon,
+  ChatBubbleLeftRightIcon,
 } from '@heroicons/vue/24/outline';
 import {
   useCurrentUserId,
@@ -34,6 +41,9 @@ import { CampaignRole } from '@/api/campaigns.ts';
 import ViewRelationships from '@/components/Relationships/ViewRelationships.vue';
 import { AxiosError } from 'axios';
 import ModalAlternate from '@/components/ModalAlternate.vue';
+import { Conjurer, getConjurers } from '@/api/generators.ts';
+import Select from '@/components/Core/Forms/Select.vue';
+import { postConjurationRelationship } from '@/api/relationships.ts';
 
 const route = useRoute();
 const router = useRouter();
@@ -44,7 +54,7 @@ const currentUserRole = useCurrentUserRole();
 const selectedCampaignId = useSelectedCampaignId();
 
 const conjuration = ref<Conjuration | null>(null);
-const privateConjuration = ref(true);
+const privateConjuration = ref(false);
 
 const conjurationId = computed(() =>
   parseInt(route.params.conjurationId?.toString()),
@@ -200,6 +210,77 @@ const isCharacterNotInCampaign = computed(() => {
     )
   );
 });
+
+const loadingChangeConjurationType = ref(false);
+const showConvertConjurationType = ref(false);
+const generators = ref<Conjurer[]>([]);
+const selectedConjurerCode = ref<string | null>(null);
+
+const showConvertConjurationTypeModal = async () => {
+  if (!generators.value.length) {
+    await loadGenerators();
+  }
+  showConvertConjurationType.value = true;
+};
+
+const currentConjurationType = computed(() => {
+  if (!generators.value.length) return;
+  return generators.value.find(
+    (g: any) => g.code === conjuration.value?.conjurerCode,
+  );
+});
+
+const changeConjurationType = async () => {
+  if (conjuration.value && selectedConjurerCode.value) {
+    try {
+      loadingChangeConjurationType.value = true;
+      const response = await postConvertConjurationRequest({
+        conjurationId: conjuration.value.id,
+        conjurerCode: selectedConjurerCode.value,
+      });
+      conjuration.value.conjurerCode = response.data.conjurerCode;
+      showSuccess({ message: 'Conjuration type updated' });
+      showConvertConjurationType.value = false;
+    } catch {
+      showError({
+        message:
+          'Something went wrong changing the conjuration type. Please try again.',
+      });
+    } finally {
+      loadingChangeConjurationType.value = false;
+    }
+  }
+};
+
+async function loadGenerators() {
+  const generatorsResponse = await getConjurers();
+  generators.value = generatorsResponse.data.data;
+  if (generators.value.length) {
+    selectedConjurerCode.value = generators.value[0].code;
+  }
+}
+
+async function addToCampaign() {
+  if (!selectedCampaignId.value || !conjuration.value) return;
+
+  try {
+    await postConjurationRelationship(
+      selectedCampaignId.value,
+      ConjurationRelationshipType.CAMPAIGN,
+      {
+        relatedNodeId: conjuration.value.id,
+        relatedNodeType: ConjurationRelationshipType.CHARACTER,
+      },
+    );
+    await loadConjuration();
+    showSuccess({ message: 'Character added to campaign!' });
+  } catch (e: any) {
+    showError({
+      message:
+        'Something went wrong adding your character to this campaign, please try again.',
+    });
+  }
+}
 </script>
 
 <template>
@@ -245,9 +326,9 @@ const isCharacterNotInCampaign = computed(() => {
         <button
           v-if="isMyConjuration && isCharacterNotInCampaign"
           class="button-gradient self-center"
-          @click="readOnly = false"
+          @click="addToCampaign"
         >
-          Add To Campaign
+          Add To Current Campaign
         </button>
         <button
           v-if="isMyConjuration && readOnly"
@@ -296,9 +377,10 @@ const isCharacterNotInCampaign = computed(() => {
                 <div class="menu-item">
                   <button
                     v-if="conjuration.prompt"
-                    class="button-text flex"
+                    class="button-text flex gap-2"
                     @click="conjureUsingPrompt"
                   >
+                    <ChatBubbleLeftRightIcon class="h-5 w-5" />
                     Conjure With Same Prompt
                   </button>
                 </div>
@@ -307,13 +389,14 @@ const isCharacterNotInCampaign = computed(() => {
                 <div class="menu-item">
                   <button
                     v-if="currentUserRole === CampaignRole.DM"
-                    class="button-text flex"
+                    class="button-text flex gap-2"
                     @click="
                       handleCreateRelationship(
                         ConjurationRelationshipType.CONJURATION,
                       )
                     "
                   >
+                    <LinkIcon class="h-5 w-5" />
                     Link Conjuration
                   </button>
                 </div>
@@ -322,13 +405,14 @@ const isCharacterNotInCampaign = computed(() => {
                 <div class="menu-item">
                   <button
                     v-if="currentUserRole === CampaignRole.DM"
-                    class="button-text flex"
+                    class="button-text flex gap-2"
                     @click="
                       handleCreateRelationship(
                         ConjurationRelationshipType.SESSION,
                       )
                     "
                   >
+                    <LinkIcon class="h-5 w-5" />
                     Link Sessions
                   </button>
                 </div>
@@ -337,13 +421,14 @@ const isCharacterNotInCampaign = computed(() => {
                 <div class="menu-item">
                   <button
                     v-if="currentUserRole === CampaignRole.DM"
-                    class="button-text flex"
+                    class="button-text flex gap-2"
                     @click="
                       handleCreateRelationship(
                         ConjurationRelationshipType.CAMPAIGN,
                       )
                     "
                   >
+                    <LinkIcon class="h-5 w-5" />
                     Link To Campaign
                   </button>
                 </div>
@@ -351,9 +436,21 @@ const isCharacterNotInCampaign = computed(() => {
               <MenuItem>
                 <div class="menu-item">
                   <button
-                    class="button-text flex"
+                    class="button-text flex gap-2"
+                    @click="showConvertConjurationTypeModal"
+                  >
+                    <ArrowsRightLeftIcon class="h-5 w-5" />
+                    Change Conjuration Type
+                  </button>
+                </div>
+              </MenuItem>
+              <MenuItem>
+                <div class="menu-item">
+                  <button
+                    class="button-text flex gap-2"
                     @click="handleRemoveConjuration"
                   >
+                    <BookmarkSlashIcon class="h-5 w-5" />
                     Remove From My Conjurations
                   </button>
                 </div>
@@ -361,9 +458,10 @@ const isCharacterNotInCampaign = computed(() => {
               <MenuItem v-if="isMyConjuration">
                 <div class="menu-item">
                   <button
-                    class="button-text flex"
+                    class="button-text text-red-500 flex gap-2"
                     @click="confirmDeleteConjuration = true"
                   >
+                    <TrashIcon class="h-5 w-5" />
                     Delete Conjuration
                   </button>
                 </div>
@@ -414,6 +512,59 @@ const isCharacterNotInCampaign = computed(() => {
               input-class="$reset button-gradient self-center"
               @click="handleDeleteConjuration"
             />
+          </div>
+        </div>
+      </div>
+    </ModalAlternate>
+    <ModalAlternate :show="showConvertConjurationType">
+      <div
+        v-if="conjuration"
+        class="w-[90vw] md:w-auto min-w-[25vw] bg-surface-3 rounded-[12px] p-6"
+      >
+        <div class="flex gap-6 justify-between">
+          <div class="text-lg self-center">Change Conjuration Type</div>
+          <div class="self-center" @click="showConvertConjurationType = false">
+            <XCircleIcon class="h-6 w-6" />
+          </div>
+        </div>
+        <div class="flex flex-wrap md:flex-nowrap gap-2 justify-center mt-4">
+          <div class="basis-full md:basis-2/5">
+            <div class="text-neutral-500 text-sm px-1">Current Type</div>
+            <div class="select-ghost">
+              {{ currentConjurationType?.name || 'N/A' }}
+            </div>
+          </div>
+          <div class="basis-full md:basis-1/5 flex flex-col justify-center">
+            <ArrowsRightLeftIcon class="h-6 w-6 mx-2 mx-auto" />
+          </div>
+          <div class="basis-full md:basis-2/5">
+            <div class="text-neutral-500 text-sm px-1">New Type</div>
+            <div>
+              <Select
+                v-model="selectedConjurerCode"
+                :options="generators"
+                display-prop="name"
+                value-prop="code"
+                placeholder="Select conjuration type"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="mt-4">
+          <div
+            v-if="selectedConjurerCode === currentConjurationType?.code"
+            class="text-sm text-neutral-500"
+          >
+            The selected types are the same
+          </div>
+          <div>
+            <button
+              :disabled="selectedConjurerCode === currentConjurationType?.code"
+              class="button-gradient w-full"
+              @click="changeConjurationType"
+            >
+              Update Type
+            </button>
           </div>
         </div>
       </div>

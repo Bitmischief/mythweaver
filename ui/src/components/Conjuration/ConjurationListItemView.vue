@@ -26,29 +26,21 @@ async function navigateToViewConjuration(conjurationId: number) {
 }
 
 function getConjurationDescription(conjuration: Conjuration) {
-  let text = '';
-  if (conjuration.conjurerCode === 'characters') {
-    text = conjuration?.data?.blocks?.find(
-      (b: any) => b.data?.label?.toLowerCase() === 'description',
-    )?.data.text;
-  } else if (conjuration.conjurerCode === 'locations') {
-    text = conjuration?.data?.blocks?.find(
-      (b: any) => b.data?.label?.toLowerCase() === 'history',
-    )?.data.text;
-  } else if (conjuration.conjurerCode === 'monsters') {
-    text = conjuration?.data?.blocks?.find(
-      (b: any) => b.data?.label?.toLowerCase() === 'description',
-    )?.data.text;
-  } else if (conjuration.conjurerCode === 'items') {
-    text = conjuration?.data?.blocks?.find(
-      (b: any) => b.data?.label?.toLowerCase() === 'description',
-    )?.data.text;
-  } else if (conjuration.conjurerCode === 'players') {
-    text = conjuration?.data?.blocks?.find(
+  return (
+    conjuration?.data?.blocks?.find(
       (b: any) => b.data?.label?.toLowerCase() === 'backstory',
-    )?.data.text;
-  }
-  return text;
+    )?.data.text ||
+    conjuration?.data?.blocks?.find(
+      (b: any) => b.data?.label?.toLowerCase() === 'description',
+    )?.data.text ||
+    conjuration?.data?.blocks?.find(
+      (b: any) => b.data?.label?.toLowerCase() === 'history',
+    )?.data.text ||
+    conjuration?.data?.blocks?.find(
+      (b: any) => b.data?.label?.toLowerCase() === 'background',
+    )?.data.text ||
+    conjuration?.data?.blocks?.first()?.data.text
+  );
 }
 
 function conjurationType(conjuration: Conjuration) {

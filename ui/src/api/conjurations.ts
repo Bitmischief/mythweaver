@@ -105,3 +105,12 @@ export const copyConjuration = (conjurationId: number) => {
 export const getConjurationRequest = (requestId: number) => {
   return axios.get(`/conjurations/request/${requestId}`);
 };
+
+export interface PostConvertConjurationRequest {
+  conjurationId: number;
+  conjurerCode: string;
+}
+
+export const postConvertConjurationRequest = (request: PostConvertConjurationRequest) => {
+  return axios.post(`/conjurations/convert`, request);
+};

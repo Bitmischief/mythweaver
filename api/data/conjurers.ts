@@ -1,5 +1,5 @@
 export interface Generator {
-  code?: string;
+  code: string;
   name: string;
   description: string;
   customizationHelpPrompt: string;
@@ -36,7 +36,7 @@ const conjurers: Generator[] = [
       "Tell us the key details about your Character (age, race, class, backstory) and we'll help you craft an interesting backstory, personality, and looks!",
     imageUri: 'player-characters.png',
     formatPrompt:
-      '{ "name": "",  "looks": "",  "imageAIPrompt": "",  "personality": "", "quirks": "", "fears": "", "hobbies": "", "background": "", "age": "", "race": "", "class": "", "tags": [""] }',
+      '{ "name": "",  "looks": "",  "imageAIPrompt": "",  "personality": "", "quirks": "", "fears": "", "hobbies": "", "backstory": "", "age": "", "race": "", "class": "", "tags": [""] }',
     allowsImageGeneration: true,
     imagePromptExtraContext:
       "Include the characters' sex and any defining visual characteristics in the prompt.",

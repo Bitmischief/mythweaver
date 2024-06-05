@@ -50,6 +50,11 @@ interface PatchConjurationRequest {
   visibility?: ConjurationVisibility;
 }
 
+interface ConvertConjurationRequest {
+  conjurationId: number;
+  conjurerCode: string;
+}
+
 @Route('conjurations')
 @Tags('Conjurations')
 export default class ConjurationController {
@@ -653,5 +658,36 @@ export default class ConjurationController {
     }
 
     return conjuration;
+  }
+
+  @Security('jwt')
+  @OperationId('postConvertConjurationRequest')
+  @Post('/convert')
+  public async convertConjurationTypes(
+    @Inject() userId: number,
+    @Body() request: ConvertConjurationRequest,
+  ): Promise<any> {
+    const conjuration = await prisma.conjuration.findFirst({
+      where: {
+        id: request.conjurationId,
+        userId: userId,
+      },
+    });
+
+    if (!conjuration) {
+      throw new AppError({
+        description: `Conjuration with not found.`,
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    return prisma.conjuration.update({
+      where: {
+        id: conjuration.id,
+      },
+      data: {
+        conjurerCode: request.conjurerCode,
+      },
+    });
   }
 }
