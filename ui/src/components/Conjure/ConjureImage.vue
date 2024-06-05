@@ -573,7 +573,7 @@ const selectedModelIsMythWeaverV1 = computed(() => {
                 </div>
               </div>
 
-              <div class="flex" v-if="selectedImageModel.paysRoyalties">
+              <div v-if="selectedImageModel.paysRoyalties" class="flex">
                 <CheckIcon class="h-5 w-5 mr-2" aria-hidden="true" />
                 <div>
                   This model pays royalties to the artist(s) for each image

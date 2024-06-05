@@ -15,7 +15,6 @@ import { prisma } from '../lib/providers/prisma';
 import {
   Campaign,
   CampaignMember,
-  Conjuration,
   ConjurationRelationshipType,
 } from '@prisma/client';
 import { AppError, HttpCode } from '../lib/errors/AppError';

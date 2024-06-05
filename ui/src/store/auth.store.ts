@@ -120,7 +120,6 @@ export const useAuthStore = defineStore({
     async logout() {
       this.tokens = null;
       await this.clearCache();
-      await router.push('/login');
     },
     async clearCache() {
       localStorage.clear();
