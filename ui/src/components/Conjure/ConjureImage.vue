@@ -21,15 +21,12 @@ import { ServerEvent } from '@/lib/serverEvents.ts';
 import Select from '@/components/Core/Forms/Select.vue';
 import Loader from '@/components/Core/Loader.vue';
 import { AxiosError } from 'axios';
-import { useLDFlag } from 'launchdarkly-vue-client-sdk';
 import ImageCreditCount from '@/components/Core/ImageCreditCount.vue';
 import { useAuthStore } from '@/store';
 import { getImageModels } from '@/api/imageModels.ts';
 import { ArrowLeftIcon } from '@heroicons/vue/24/solid';
 
 const authStore = useAuthStore();
-const showSeed = useLDFlag('image-seed', false);
-const showUpscale = useLDFlag('image-upscale', false);
 
 const props = withDefaults(
   defineProps<{
@@ -97,13 +94,14 @@ const done = computed(() => {
 const images = ref<any[]>([]);
 const selectedImg = ref<any>(null);
 const imageError = ref(false);
+const imageErrorMessage = ref('');
 const imageFiltered = ref(false);
 const imagePromptRephrased = ref(false);
 const rephrasedPrompt = ref('');
 const loading = ref(false);
 const count = ref(1);
 const useSeed = ref(false);
-const tab = ref('customize');
+const tab = ref(props.image?.uri ? 'upscale' : 'customize');
 const imageHistory = ref<any[]>([]);
 
 const showAdvancedOptions = ref(false);
@@ -119,6 +117,10 @@ onMounted(async () => {
   channel.bind(ServerEvent.ImageError, imageErrorHandler);
   channel.bind(ServerEvent.ImageUpscaled, imageUpscaledHandler);
   channel.bind(ServerEvent.ImageUpscalingDone, imageUpscalingDoneHandler);
+  channel.bind(
+    ServerEvent.ImageGenerationTimeout,
+    imageGenerationTimeoutHandler,
+  );
 
   await fetchImageModels();
   if (props.image.id) {
@@ -133,19 +135,12 @@ const timedOut = ref(false);
 function regenerate() {
   images.value = [];
   conjuring.value = false;
+  imageTimeouts.value = 0;
+  timedOut.value = false;
   clearTimeout(timeoutRef.value);
 }
 
 function imageCreatedHandler(data: any) {
-  if (!images.value.length && count.value > 1) {
-    timeoutRef.value = setTimeout(
-      (d) => {
-        d.value = true;
-      },
-      timeoutDuration.value,
-      timedOut,
-    );
-  }
   images.value.push(data);
   conjuring.value = false;
   loading.value = false;
@@ -171,6 +166,10 @@ onUnmounted(() => {
   channel.unbind(ServerEvent.ImageError, imageErrorHandler);
   channel.unbind(ServerEvent.ImageUpscaled, imageUpscaledHandler);
   channel.unbind(ServerEvent.ImageUpscalingDone, imageUpscalingDoneHandler);
+  channel.unbind(
+    ServerEvent.ImageGenerationTimeout,
+    imageGenerationTimeoutHandler,
+  );
 });
 
 async function fetchImageModels() {
@@ -229,6 +228,20 @@ function imageUpscalingDoneHandler() {
   showSuccess({ message: 'Image successfully upscaled!' });
 }
 
+const imageTimeouts = ref(0);
+
+function imageGenerationTimeoutHandler() {
+  imageTimeouts.value += 1;
+  if (imageTimeouts.value === count.value) {
+    imageErrorMessage.value =
+      'The image generation was taking longer than normal so the request was cancelled. You have not been charged any image credits. This issue could be due to a high traffic or a temporary provider outage. Please try again.';
+    imageError.value = true;
+    conjuring.value = false;
+    upscaling.value = false;
+    imageTimeouts.value = 0;
+  }
+}
+
 async function conjure() {
   try {
     conjuring.value = true;
@@ -246,7 +259,13 @@ async function conjure() {
       props.linking,
       editableImageModelId.value || undefined,
     );
-
+    timeoutRef.value = setTimeout(
+      (d) => {
+        d.value = true;
+      },
+      timeoutDuration.value,
+      timedOut,
+    );
     eventBus.$emit('conjure-image-done', {});
   } catch (e) {
     const err = e as AxiosError;
@@ -332,6 +351,9 @@ const selectedModelIsMythWeaverV1 = computed(() => {
 </script>
 
 <template>
+  <div v-if="imageError && imageErrorMessage" class="text-sm text-red-500">
+    {{ imageErrorMessage }}
+  </div>
   <template v-if="!conjuring && !upscaling && !done">
     <div
       v-if="showImageCredits || inModal"
@@ -373,20 +395,10 @@ const selectedModelIsMythWeaverV1 = computed(() => {
     >
       Enter a description of you session below to generate a session cover image
     </div>
-    <div v-if="showUpscale && props.image.id" class="flex justify-center mb-2">
+    <div v-if="props.image.uri" class="flex justify-center mb-2">
       <div
         class="flex flex-wrap md:flex-nowrap gap-1 text-neutral-500 rounded-[18px] bg-surface-2 p-1 border border-surface-3 text-sm"
       >
-        <button
-          class="grow w-[12em]"
-          :class="{
-            'button-primary': tab === 'customize',
-            'button-surface-2': tab !== 'customize',
-          }"
-          @click="tab = 'customize'"
-        >
-          Customize Image
-        </button>
         <button
           class="grow w-[12em]"
           :class="{
@@ -410,7 +422,7 @@ const selectedModelIsMythWeaverV1 = computed(() => {
       </div>
     </div>
     <FormKit
-      v-if="!showUpscale || tab === 'customize'"
+      v-if="tab === 'customize'"
       :actions="false"
       type="form"
       @submit="conjure"
@@ -504,7 +516,7 @@ const selectedModelIsMythWeaverV1 = computed(() => {
                   </button>
                 </div>
               </div>
-              <div v-if="showSeed && image.seed" class="group">
+              <div v-if="image.seed" class="group">
                 <div class="text-neutral-300 text-xs mb-1">
                   Use Same Image Seed?
                 </div>
@@ -649,7 +661,7 @@ const selectedModelIsMythWeaverV1 = computed(() => {
       </div>
     </FormKit>
     <div
-      v-if="showUpscale && tab === 'upscale'"
+      v-if="tab === 'upscale'"
       class="p-6 border border-neutral-800 rounded-[20px]"
     >
       <div v-if="alreadyUpscaled">This image has already been upscaled.</div>
@@ -689,20 +701,6 @@ const selectedModelIsMythWeaverV1 = computed(() => {
       </div>
     </div>
   </template>
-  <template v-else-if="conjuring && !done && !imageError">
-    <div>
-      <div class="text-sm text-neutral-500">
-        {{ image.prompt }}
-      </div>
-    </div>
-    <div class="p-12 text-center">
-      <Loader />
-      <div class="text-3xl m-4">Conjuring</div>
-      <div class="text-lg text-neutral-500">
-        This can take a minute or two to fully load
-      </div>
-    </div>
-  </template>
   <template v-else-if="upscaling && !done">
     <div class="p-12 text-center">
       <Loader />
@@ -712,7 +710,7 @@ const selectedModelIsMythWeaverV1 = computed(() => {
       </div>
     </div>
   </template>
-  <template v-else-if="done && !conjuring && images.length">
+  <template v-else>
     <div v-if="showImageCredits || inModal" class="absolute right-2 top-0 p-4">
       <div class="flex justify-end">
         <div class="self-center">
@@ -861,19 +859,16 @@ const selectedModelIsMythWeaverV1 = computed(() => {
           v-else
           class="flex flex-col h-full justify-center text-center bg-surface-2 rounded-[25px]"
         >
-          <div class="mb-2 text-neutral-200">This Image Is Taking A While</div>
+          <Loader />
+          <div class="my-4 text-neutral-200">
+            This Image Is Taking Longer Than Usual
+          </div>
           <div class="text-neutral-500 text-xs px-6">
             This image is taking longer than expected to generate. You can retry
-            the image generation or continue to wait.
+            the image generation or continue to wait. You will not be charged
+            image credits for images that fail to generate.
           </div>
         </div>
-      </div>
-
-      <div
-        v-if="loading"
-        class="flex justify-center min-h-[20rem] text-fuchsia-200 animate-pulse text-2xl"
-      >
-        <div class="self-center">Generating image....</div>
       </div>
     </div>
   </template>

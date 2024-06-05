@@ -15,15 +15,13 @@ import { prisma } from '../lib/providers/prisma';
 import { AppError, ErrorType, HttpCode } from '../lib/errors/AppError';
 import {
   BillingPlan,
-  Prisma,
   Session,
   ConjurationRelationshipType,
 } from '@prisma/client';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { CampaignRole } from './campaigns';
-import { completeSessionQueue } from '../worker';
 import { sendTransactionalEmail } from '../lib/transactionalEmail';
-import { sanitizeJson, urlPrefix } from '../lib/utils';
+import { urlPrefix } from '../lib/utils';
 import { sendWebsocketMessage, WebSocketEvent } from '../services/websockets';
 import { MythWeaverLogger } from '../lib/logger';
 import {

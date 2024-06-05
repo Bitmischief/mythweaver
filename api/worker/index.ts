@@ -6,6 +6,7 @@ import { ImageStylePreset } from '../controllers/images';
 import logger from '../lib/logger';
 import { endTrials } from './jobs/endTrials';
 import { AppError, ErrorType, HttpCode } from '../lib/errors/AppError';
+import { checkImageStatus } from './jobs/imageStatus';
 
 const config = process.env.REDIS_ENDPOINT || '';
 
@@ -111,5 +112,20 @@ endTrialQueue.process(async (job, done) => {
   } catch (err) {
     logger.error('Error processing end trials job!', err);
     done(new Error('Error processing end trials job!'));
+  }
+});
+
+export const checkImageStatusQueue = new Queue('check-image-status', config);
+
+checkImageStatusQueue.process(async (job, done) => {
+  logger.info('Processing check image status job', job.data);
+
+  try {
+    await checkImageStatus(job.data);
+    logger.info('Completed processing check image status job', job.data);
+    done();
+  } catch (err) {
+    logger.error('Error processing check image status job!', err);
+    done(new Error('Error processing check image status job!'));
   }
 });
