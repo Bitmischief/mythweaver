@@ -446,6 +446,7 @@ const savePrimaryImage = async (image: any) => {
               name="negative_prompt"
               validation="length:0,500"
               auto-height
+              help="The negative prompt is used to tell the AI what you DON'T want in your image. This is not a magic bullet, and can't guarantee anything, but does help to guide your output in the direction you want."
             />
             <div class="absolute text-neutral-500 text-xs right-2 bottom-0">
               {{ editableNegativePrompt?.length }} / 500
