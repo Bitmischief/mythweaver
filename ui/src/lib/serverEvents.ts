@@ -31,4 +31,6 @@ export enum ServerEvent {
   TranscriptionComplete = 'transcription-complete',
   PrimaryImageSet = 'primary-image-set',
   ImageGenerationTimeout = 'image-generation-timeout',
+  ImageGenerationError = 'image-generation-error',
+  Error = 'error',
 }

@@ -14,6 +14,7 @@ import {
   ArrowPathIcon,
   ChevronRightIcon,
   ArrowRightIcon,
+  CheckIcon,
 } from '@heroicons/vue/20/solid';
 import { showError, showSuccess } from '@/lib/notifications.ts';
 import { useWebsocketChannel } from '@/lib/hooks.ts';
@@ -175,7 +176,10 @@ onUnmounted(() => {
 async function fetchImageModels() {
   try {
     const imageModelsResponse = await getImageModels();
-    imageModels.value = imageModelsResponse.data.data;
+    imageModels.value = imageModelsResponse.data.data.map((im: any) => ({
+      ...im,
+      description: `${im.description}${!im.licensedArt ? ' - artwork NOT licensed by MythWeaver' : ''}`,
+    }));
 
     if (!props.image.modelId) {
       const defaultModel = imageModels.value.find((im) => im.default === true);
@@ -557,6 +561,48 @@ const selectedModelIsMythWeaverV1 = computed(() => {
           </div>
 
           <div v-if="editableImageModelId && selectedImageModel" class="p-4">
+            <div
+              v-if="selectedImageModel.licensedArt"
+              class="bg-green-500 w-fit text-white p-3 rounded-xl mb-4"
+            >
+              <div class="flex">
+                <CheckIcon class="h-5 w-5 mr-2" aria-hidden="true" />
+                <div>
+                  This model uses artwork licensed by MythWeaver directly from
+                  the listed "Featured Artists".
+                </div>
+              </div>
+
+              <div class="flex" v-if="selectedImageModel.paysRoyalties">
+                <CheckIcon class="h-5 w-5 mr-2" aria-hidden="true" />
+                <div>
+                  This model pays royalties to the artist(s) for each image
+                  generated.
+                </div>
+              </div>
+            </div>
+            <div
+              v-else
+              class="bg-orange-500 w-fit text-white p-3 rounded-xl mb-4"
+            >
+              <div class="text-xl">
+                MythWeaver has not licensed the art in this model.
+              </div>
+              This model will eventually be deprecated and removed from
+              MythWeaver.
+              <div>
+                Please consider using a licensed model and supporting our
+                amazing partner artists.
+              </div>
+              <div>
+                You can read more about Stable Diffusion (the model powering
+                MythWeaver v1)
+                <a href="https://stability.ai/stable-image" class="underline">
+                  here </a
+                >.
+              </div>
+            </div>
+
             <div class="mb-4">
               <div class="text-neutral-400">Model Strengths</div>
               <div class="text-neutral-200">
@@ -651,6 +697,7 @@ const selectedModelIsMythWeaverV1 = computed(() => {
                 name="negative_prompt"
                 validation="length:0,500"
                 auto-height
+                help="The negative prompt is used to tell the AI what you DON'T want in your image. This is not a magic bullet, and can't guarantee anything, but does help to guide your output in the direction you want."
               />
               <div class="absolute text-neutral-500 text-xs right-2 bottom-0">
                 {{ editableNegativePrompt?.length }} / 500

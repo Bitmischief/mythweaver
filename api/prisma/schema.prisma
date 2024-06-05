@@ -423,8 +423,10 @@ model ImageModel {
   executionUri    String?
   defaultSteps    Int      @default(70)
 
+  licensedArt             Boolean @default(false)
   default                 Boolean @default(false)
   stableDiffusionApiModel Boolean @default(false)
+  paysRoyalties           Boolean @default(false)
 
   artists ImageModelArtist[]
   images  Image[]

@@ -82,16 +82,20 @@ export default class ImageController {
       }
     }
 
-    generateImage({
-      modelId: request.modelId,
-      userId,
-      prompt: request.prompt,
-      count,
-      negativePrompt: request.negativePrompt,
-      stylePreset: request.stylePreset,
-      seed: request.seed,
-      linking: request.linking,
-    });
+    try {
+      generateImage({
+        modelId: request.modelId,
+        userId,
+        prompt: request.prompt,
+        count,
+        negativePrompt: request.negativePrompt,
+        stylePreset: request.stylePreset,
+        seed: request.seed,
+        linking: request.linking,
+      });
+    } catch (error) {
+      logger.error('Error generating image', {}, error);
+    }
   }
 
   @Security('jwt')

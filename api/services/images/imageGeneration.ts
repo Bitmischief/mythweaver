@@ -9,6 +9,7 @@ import { AppEvent, track } from '../../lib/tracking';
 import { AppError, ErrorType, HttpCode } from '../../lib/errors/AppError';
 import retry from 'async-await-retry';
 import { checkImageStatusQueue } from '../../worker';
+import { AxiosError } from 'axios';
 
 export const generateImage = async (request: ImageGenerationRequest) => {
   const user = await prisma.user.findUnique({
@@ -190,18 +191,26 @@ const generateImageFromProperProvider = async (
       });
     }
   } catch (err) {
-    throw new AppError({
-      description:
-        'The image generation service was unable to generate an image that met the criteria. Please try again.',
-      httpCode: HttpCode.INTERNAL_SERVER_ERROR,
-      websocket: {
-        userId: request.userId,
-        errorCode: ErrorType.ImageGenerationError,
+    let errorMessage =
+      'The image generation service was unable to generate an image that met the criteria. Please try again.';
+
+    const e = err as AxiosError;
+    if (e?.response?.status === 400) {
+      errorMessage = '';
+    }
+
+    await sendWebsocketMessage(
+      request.userId,
+      WebSocketEvent.ImageGenerationError,
+      {
         context: {
+          description: errorMessage,
           ...request.linking,
         },
       },
-    });
+    );
+
+    return;
   }
 
   if (request.imageId) {
