@@ -60,7 +60,7 @@ export class AppError extends Error {
     if (this.websocket) {
       sendWebsocketMessage(this.websocket.userId, WebSocketEvent.Error, {
         context: this.websocket.context,
-        message: 'Model not found.',
+        message: this.description,
       }).then(() => {
         console.log('Websocket error event pushed to client.');
       });
