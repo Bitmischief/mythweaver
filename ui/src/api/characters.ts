@@ -14,6 +14,7 @@ export interface Character {
   campaignMemberId?: number;
   userId: number;
   images?: any[];
+  user?: any;
 }
 
 export const getCurrentCampaignCharacter = () => {

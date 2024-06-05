@@ -28,13 +28,12 @@ export default class GenerationBlock {
     if (this.readOnly) {
       const roLabel = document.createElement('div');
       roLabel.classList.add('text-neutral-400', 'underline', 'text-lg');
-      roLabel.innerHTML =
-        this.data && this.data.label ? this.data.label : 'Label';
+      roLabel.innerHTML = this.data && this.data.label ? this.data.label : '';
       this.wrapper.appendChild(roLabel);
 
       const roValue = document.createElement('div');
       roValue.classList.add('text-neutral-100', 'whitespace-pre-wrap');
-      roValue.innerHTML = this.data && this.data.text ? this.data.text : 'Text';
+      roValue.innerHTML = this.data && this.data.text ? this.data.text : '';
       this.wrapper.appendChild(roValue);
     } else {
       this.wrapper.classList.add('rounded-[12px]', 'p-2', 'mb-4');
@@ -116,7 +115,7 @@ export default class GenerationBlock {
       this.input.style.marginTop = '0.5em';
       this.input.style.whiteSpace = 'pre-wrap';
       this.input.style.minHeight = '5em';
-      this.input.dataset.placeholder = 'Text';
+      this.input.dataset.placeholder = 'Generate text or enter your own';
       inputWrapper.appendChild(this.inputLabel);
       inputWrapper.appendChild(this.input);
 

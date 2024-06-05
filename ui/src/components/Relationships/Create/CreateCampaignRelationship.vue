@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
 import { showError, showSuccess } from '@/lib/notifications.ts';
-import { getCampaigns } from '@/api/campaigns.ts';
+import { Campaign, getCampaigns } from '@/api/campaigns.ts';
 import { postConjurationRelationship } from '@/api/relationships.ts';
 import { ConjurationRelationshipType } from '@/lib/enums.ts';
 import { LinkIcon } from '@heroicons/vue/24/outline';
@@ -9,7 +9,6 @@ import { debounce } from 'lodash';
 import Spinner from '@/components/Core/Spinner.vue';
 import { useEventBus } from '@/lib/events.ts';
 import { CheckCircleIcon } from '@heroicons/vue/20/solid';
-import { format } from 'date-fns';
 
 defineEmits(['relationship-created']);
 
@@ -62,6 +61,8 @@ async function fetchCampaigns(concat = true) {
       offset: page.value * pageSize,
       limit: pageSize,
       term: search,
+      nodeId: props.nodeId,
+      nodeType: props.nodeType,
     });
     const results = response.data.data.filter((c: any) =>
       props.nodeType === ConjurationRelationshipType.CAMPAIGN
@@ -88,37 +89,32 @@ async function fetchCampaigns(concat = true) {
 
 const linking = ref<number>(-1);
 
-async function linkCampaign(campaign: CampaignBase) {
-  linking.value = campaign.id;
-  try {
-    await postConjurationRelationship(
-      campaign.id,
-      ConjurationRelationshipType.CAMPAIGN,
-      {
-        relatedNodeId: props.nodeId,
-        relatedNodeType: props.nodeType,
-      },
-    );
-    showSuccess({ message: 'Conjuration relationship created!' });
-    campaign.linked = true;
-    eventBus.$emit('relationship-created', {
-      nodeId: props.nodeId,
-      nodeType: props.nodeType,
-    });
-  } catch (e: any) {
-    showError({
-      message: 'Something went wrong creating the conjuration relationship',
-    });
-  } finally {
-    linking.value = -1;
+async function linkCampaign(campaign: Campaign) {
+  if (campaign && campaign.id) {
+    linking.value = campaign.id;
+    try {
+      await postConjurationRelationship(
+        campaign.id,
+        ConjurationRelationshipType.CAMPAIGN,
+        {
+          relatedNodeId: props.nodeId,
+          relatedNodeType: props.nodeType,
+        },
+      );
+      showSuccess({ message: 'Relationship created!' });
+      campaign.linked = true;
+      eventBus.$emit('relationship-created', {
+        nodeId: props.nodeId,
+        nodeType: props.nodeType,
+      });
+    } catch (e: any) {
+      showError({
+        message: 'Something went wrong creating the relationship',
+      });
+    } finally {
+      linking.value = -1;
+    }
   }
-}
-
-function campaignDateDisplay(campaign: CampaignBase) {
-  if (!campaign.date) {
-    return 'TBD';
-  }
-  return format(campaign.date, 'MMM d, yyyy @ h:mm a');
 }
 
 const primaryImageUri = (data: any) => {
@@ -149,7 +145,7 @@ const primaryImageUri = (data: any) => {
           <div class="relative">
             <img
               :src="
-                primaryImageUri(campaign) || '/images/campaign_bg_square.png'
+                primaryImageUri(campaign) || '/images/generators/campaign.png'
               "
               alt="campaign image"
               class="mx-auto w-full h-auto rounded-[12px]"
@@ -184,9 +180,6 @@ const primaryImageUri = (data: any) => {
               </div>
             </div>
           </div>
-          <div class="text-sm text-neutral-500">
-            {{ campaignDateDisplay(campaign) }}
-          </div>
         </div>
         <div v-if="moreToLoad" class="text-center col-span-full">
           <button class="button-gradient" @click="loadNextPage">
@@ -197,7 +190,10 @@ const primaryImageUri = (data: any) => {
       </div>
     </div>
   </div>
-  <div v-show="loading || loadingCampaigns" class="flex justify-center h-full">
+  <div
+    v-show="loading || loadingCampaigns"
+    class="flex justify-center w-full h-full"
+  >
     <div class="my-auto min-w-[20vw] animate-pulse">Loading Campaigns...</div>
   </div>
 </template>

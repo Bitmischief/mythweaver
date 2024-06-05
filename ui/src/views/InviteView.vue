@@ -66,6 +66,24 @@ const register = async () => {
     },
   });
 };
+
+function primaryImage(char: any) {
+  if (char?.images?.some((i: any) => i.primary && i.uri)) {
+    return char.images.find((i: any) => i.primary)?.uri;
+  }
+  return null;
+}
+
+function characterDescription(character: any) {
+  return (
+    character?.data?.blocks?.find(
+      (b: any) => b.data?.label?.toLowerCase() === 'backstory',
+    )?.data.text ||
+    character?.data?.blocks?.find(
+      (b: any) => b.data?.label?.toLowerCase() === 'looks',
+    )?.data.text
+  );
+}
 </script>
 
 <template>
@@ -122,59 +140,63 @@ const register = async () => {
           <div class="grow self-center px-2">
             <hr class="border-neutral-700" />
           </div>
-          <div class="self-center text-neutral-400">Current Characters</div>
+          <div class="self-center text-neutral-400">Current Members</div>
           <div class="grow self-center px-2">
             <hr class="mt-1/2 border-neutral-700" />
           </div>
         </div>
         <div class="w-full">
           <div
-            v-for="member in invite.members"
-            :key="member.email"
+            v-for="(member, i) in invite.members"
+            :key="`member_${i}`"
             class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4"
           >
             <div
-              v-for="character in member.character"
-              :key="character.id"
-              class="flex p-4 bg-surface-3 rounded-[20px]"
+              v-for="(character, k) in member.character"
+              :key="`character_${k}`"
+              class="flex flex-wrap p-2 bg-surface-3 rounded-[20px]"
             >
-              <div
-                class="basis-1/4 min-h-24 min-w-24 bg-neutral-900 rounded-[20px]"
-              >
-                <div class="relative">
-                  <img
-                    :src="
-                      character.imageUri || 'images/character_bg_square.png'
-                    "
-                    alt="character portrait"
-                    class="rounded-[16px]"
-                  />
+              <div class="basis-1/3 relative">
+                <img
+                  :src="
+                    primaryImage(character) ||
+                    '/images/conjurations/player-character-no-image.png'
+                  "
+                  alt="character portrait"
+                  class="rounded-[12px]"
+                  :class="{ 'filter blur-sm': !primaryImage(character) }"
+                />
+                <div
+                  v-if="!primaryImage(character)"
+                  class="absolute top-1/2 left-0 right-0 text-center -translate-y-1/2 text-neutral-300"
+                >
+                  No Image
+                </div>
+              </div>
+              <div class="basis-2/3 relative">
+                <div class="flex flex-col absolute inset-0 pl-2">
+                  <div class="flex justify-between">
+                    <div class="text-xl self-center truncate">
+                      {{ character?.name }}
+                    </div>
+                  </div>
                   <div
-                    v-if="!character.imageUri"
-                    class="absolute top-1/2 left-1/2 -translate-x-1/2 text-neutral-300 text-lg"
+                    class="relative h-full text-sm text-neutral-400 overflow-hidden shrink overflow-ellipsis"
                   >
-                    No Image
+                    {{
+                      characterDescription(character) ||
+                      'No character description'
+                    }}
+                    <div
+                      class="absolute inset-0 z-10 bg-gradient-to-b from-transparent via-transparent to-surface-3"
+                    ></div>
                   </div>
                 </div>
               </div>
-              <div class="basis-3/4 overflow-hidden">
-                <div class="self-center px-2">
-                  <div class="truncate">
-                    <span class="text-neutral-500">Name:</span>
-                    {{ character.name }}
-                  </div>
-                  <div class="truncate">
-                    <span class="text-neutral-500">Race:</span>
-                    {{ character.race }}
-                  </div>
-                  <div class="truncate">
-                    <span class="text-neutral-500">Class:</span>
-                    {{ character.class }}
-                  </div>
-                </div>
-                <div class="self-center px-2 truncate">
-                  <span class="text-neutral-500">Player:</span>
-                  {{ member.email }}
+              <div class="basis-full">
+                <div class="text-center text-sm text-neutral-500 mt-1">
+                  Played by
+                  {{ member.username }}
                 </div>
               </div>
             </div>

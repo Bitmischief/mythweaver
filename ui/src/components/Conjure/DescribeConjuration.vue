@@ -338,6 +338,63 @@ const itemDescription = computed(() => {
   const shuffled = descriptions.sort(() => 0.5 - Math.random());
   return shuffled.slice(0, 3);
 });
+
+const playerDescription = computed(() => {
+  const descriptions = [
+    'Garris Thorne is a 36-year-old human ex-soldier, now working as a blacksmith in a small village, but carries the burden of a dark war secret that could jeopardize the entire kingdom.',
+    'Elara Mistwind is a 200-year-old high elf druid who communicates with animals and plants, seeking to uncover the mystery behind the corruption spreading through the ancient forest.',
+    'Brukan Stonefist is a 40-year-old dwarf brewer who secretly funds a rebellion against the oppressive city mayor, using his pub as a meeting place for insurgents.',
+    'Sarina Gale is a 28-year-old half-elf bard, once famous, now travels incognito to discover who stole a magical melody that controls the weather.',
+    'Torin Ashfall is a dragonborn sorcerer on a quest to uncover his true heritage after discovering a hidden document linking him to an ancient dragon lineage.',
+    'Lydia Fairweather is a human paladin dedicated to hunting down the vampire who turned her parents, and maintains a façade of a gentle healer to gather information.',
+    'Merrick Quickfoot is a gnome artificer and tinkerer who is on the run after an invention of his was used for a catastrophic attack that he didn’t intend.',
+    'Kara Nightshade is a tiefling warlock in service of an enigmatic archfey, tasked with retrieving stolen artifacts linked to her mysterious patron.',
+    'Varis Oakheart is an elven ranger who guards a forgotten portal to the Feywild, and seeks adventurers to help him repel an invasion from the other side.',
+    'Hadrik Ironjaw is a seasoned orc mercenary with a code of honor, compelled to protect a runaway prince who holds a sacred relic.',
+    'Elyse Ravenshadow is a young human wizard with amnesia, trying to piece together her fragmented past while being hunted by a secret magical society.',
+    'Finnian Trueblade is a halfling rogue and former noble, ousted from his estate, now runs a network of spies collecting secrets to reclaim his title.',
+    'Gwyneth Moonwhisper is a moon elf cleric who communes with spirits, and seeks to lay to rest the restless souls haunting a cursed battlefield.',
+    'Dorian Blackthorn is a charismatic human bard and thief, leader of a legendary band of performers who double as master thieves during their shows.',
+    'Zara Frosen is a half-orc barbarian on a quest to find a legendary weapon that can only be wielded by one of her bloodline, to defend her clan.',
+    'Calista Vex is an aasimar sorceress haunted by prophetic visions, searching for a hero she saw in a dream who will prevent a looming apocalypse.',
+    'Borin Hammerfall is a grizzled dwarf ex-adventurer turned tavern owner, whose adventuring group’s treasure is the target of a gang of thieves.',
+    'Isolde Windrider is an air genasi monk under a vow of silence, using her training to protect a series of elemental shrines around the land.',
+    'Thalios Duskbane is a dark elf necromancer who seeks redemption by hunting down powerful liches that pose a threat to his underground city.',
+    'Rhiannon Starfire is a fire genasi sorceress, and a defector from a cult that seeks to unleash elemental chaos upon the world.',
+    'Silas Thornbrook is a human ranger, now blind, who trains a group of young scouts to protect the kingdom’s borders from encroaching threats.',
+    'Nalara Swiftwind is a centaur huntress and oracle, who has foreseen a calamity in the twisting woods and seeks adventurers to prevent it.',
+    'Kethra Stormshield is a half-orc fighter on the run from a mercenary company who betrayed her, seeking allies to gain vengeance and justice.',
+    'Thalia Silverleaf is a high elf arcane trickster who stages elaborate heists targeting corrupt nobles, redistributing wealth to the impoverished.',
+    'Bastian Silverhawk is a human alchemist and healer carrying a cursed amulet, believing it’s the key to curing an incurable disease spreading in his hometown.',
+    'Aurora Jinx is a 200-year-old dwarf cleric, worships a forgotten deity, and seeks to find ancient relics to prove their god once existed.',
+    'Sylvan Thatcher is a 30-year-old half-elf bard, famous for their musical talents, traveling incognito to escape a string of obsessive fans.',
+    'Grimnir Stoneshield is a 50-year-old human paladin who, after losing his family in a raid, now hunts down and punishes those who prey on the weak.',
+    'Elara Moonshadow is a 120-year-old drow wizard who defected from a dark city to seek knowledge and redemption on the surface world.',
+    'Thorn Bramble is an awakened tree druid, tasked with protecting an ancient grove after the disappearance of their dryad companion.',
+    'Felix Green is a 28-year-old tabaxi rogue, on the run from a crime syndicate after stealing a powerful magical gem.',
+    'Orin Blackwillow is a 75-year-old gnome artificer, seeking to perfect a new invention that could revolutionize transportation.',
+    'Tatiana Steelheart is a 25-year-old half-orc barbarian who left her tribe to seek out her human father, armed with only a pendant that belonged to him.',
+    'Kendar Ynox is a 35-year-old dragonborn sorcerer who is obsessed with finding the source of their draconic bloodline’s power.',
+    'Liora Starseeker is a celestial aasimar warlock, tasked with guiding troubled souls to their final resting place.',
+    'Harkin Duskmantle is a 40-year-old human fighter, a former arena champion who was wrongly accused of murder and now seeks to clear his name.',
+    'Nalia Swiftfoot is a 20-year-old halfling ranger who guides travelers through an enchanted forest plagued by mischievous fey.',
+    'Rax Coldfire is a 55-year-old tiefling alchemist, known for their volatile potions, looking to find a cure for their ailing spouse.',
+    'Pavel Silverbeard is a 400-year-old dwarf bard whose songs hold forgotten lore, traveling to gather tales and songs to preserve their culture.',
+    'Celeste Skydancer is an 80-year-old aarakocra monk who left their mountain monastery to end an ancient prophecy of doom.',
+    'Jasper Quickstep is a 45-year-old gnome illusionist who uses their magic to tell captivating stories in small villages.',
+    'Athena Nightshade is a 37-year-old human necromancer who defied their dark upbringing to become a healer using unconventional methods.',
+    'Vesper Blackthorn is a 150-year-old half-elf ranger, the last protector of a cursed forest they vowed to cleanse.',
+    'Bartholomew Grizzlefang is a 65-year-old bugbear barbarian with a soft spot for cooking gourmet meals for his friends.',
+    'Miriel Windrunner is a 23-year-old air genasi sorcerer who can harness the power of the skies and seeks to master a lost storm magic.',
+    'Damien Highwater is a 32-year-old human pirate captain who lost half his crew to a sea monster and now hunts it for revenge.',
+    'Lorelei Frostblade is a 100-year-old half-elf druid who protects an arctic tundra, being the only one who knows of the life that thrives there.',
+    'Quill Talon is a 70-year-old kenku rogue who has never known their true origins and steals valuable information to piece together their past.',
+    'Isolde Fireweaver is a 25-year-old tiefling bard whose magical performances are known to heal the hearts of the broken and afflicted.',
+    'Rurik Ironfist is a 150-year-old dwarf fighter who retired to become a blacksmith but is drawn back to adventure by a rival in need of humbling.',
+  ];
+  const shuffled = descriptions.sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, 3);
+});
 </script>
 
 <template>
@@ -450,6 +507,21 @@ const itemDescription = computed(() => {
         <template v-else-if="generator?.code === 'items'">
           <div
             v-for="(des, i) in itemDescription"
+            :key="`sample_npc_${i}`"
+            class="rounded-[20px] bg-surface-2 p-4 flex flex-col"
+          >
+            <div class="mb-2">{{ des }}</div>
+            <button
+              class="button-ghost-primary mt-auto"
+              @click.prevent="prompt = des"
+            >
+              Copy example
+            </button>
+          </div>
+        </template>
+        <template v-else-if="generator?.code === 'players'">
+          <div
+            v-for="(des, i) in playerDescription"
             :key="`sample_npc_${i}`"
             class="rounded-[20px] bg-surface-2 p-4 flex flex-col"
           >

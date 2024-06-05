@@ -8,6 +8,13 @@ export interface PostRelationshipRequest {
   data?: any;
 }
 
+export interface DeleteRelationshipRequest {
+  previousNodeId: number;
+  previousType: ConjurationRelationshipType;
+  nextNodeId: number;
+  nextType: ConjurationRelationshipType;
+}
+
 export const postConjurationRelationship = (
   conjurationId: number,
   type: ConjurationRelationshipType,
@@ -30,4 +37,10 @@ export const getConjurationRelationships = (
 
 export const deleteConjurationRelationship = (relationshipId: number) => {
   return axios.delete(`/relationships/${relationshipId}`);
+};
+
+export const deleteConjurationRelationshipByNodeIds = (
+  conjurationRelationship: DeleteRelationshipRequest,
+) => {
+  return axios.post(`/relationships/remove`, conjurationRelationship);
 };

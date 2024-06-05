@@ -34,7 +34,6 @@ onMounted(async () => {
         await fetchCampaign();
         break;
       case ConjurationRelationshipType.CHARACTER:
-        break;
       case ConjurationRelationshipType.CONJURATION:
         await fetchConjuration();
         break;
@@ -88,7 +87,8 @@ const primaryImageUri = (data: any) => {
       <div v-if="!loading" class="flex justify-center max-h-full">
         <div
           v-if="
-            nodeType === ConjurationRelationshipType.CONJURATION &&
+            (nodeType === ConjurationRelationshipType.CONJURATION ||
+              nodeType === ConjurationRelationshipType.CHARACTER) &&
             !!conjuration
           "
           class="flex"

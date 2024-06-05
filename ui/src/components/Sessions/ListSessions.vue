@@ -118,7 +118,7 @@ const completedSessions = computed(() => {
   <div class="flex w-full justify-between rounded-xl pb-4">
     <div class="w-full md:flex md:justify-between">
       <div class="text-xl self-center">
-        Sessions
+        <span class="gradient-text">Campaign Sessions</span>
         <span v-if="sessionsSearch.archived" class="text-neutral-500">
           | Archived
         </span>

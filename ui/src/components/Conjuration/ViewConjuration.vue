@@ -24,18 +24,16 @@ import {
   useCurrentUserId,
   useCurrentUserRole,
   useQuickConjure,
+  useSelectedCampaignId,
 } from '@/lib/hooks.ts';
-import { showError, showInfo, showSuccess } from '@/lib/notifications.ts';
+import { showError, showSuccess } from '@/lib/notifications.ts';
 import { MenuButton, MenuItem } from '@headlessui/vue';
 import Menu from '@/components/Core/General/Menu.vue';
 import { ConjurationRelationshipType } from '@/lib/enums.ts';
 import { CampaignRole } from '@/api/campaigns.ts';
 import ViewRelationships from '@/components/Relationships/ViewRelationships.vue';
-import { useLDFlag } from 'launchdarkly-vue-client-sdk';
 import { AxiosError } from 'axios';
 import ModalAlternate from '@/components/ModalAlternate.vue';
-
-const showRelationships = useLDFlag('relationships', false);
 
 const route = useRoute();
 const router = useRouter();
@@ -43,8 +41,10 @@ const eventBus = useEventBus();
 const quickConjure = useQuickConjure();
 const currentUserId = useCurrentUserId();
 const currentUserRole = useCurrentUserRole();
+const selectedCampaignId = useSelectedCampaignId();
 
 const conjuration = ref<Conjuration | null>(null);
+const privateConjuration = ref(true);
 
 const conjurationId = computed(() =>
   parseInt(route.params.conjurationId?.toString()),
@@ -81,8 +81,7 @@ async function loadConjuration() {
     }
   } catch (e: any) {
     if (e.response.status === 404) {
-      showInfo({ message: 'Conjuration not found.' });
-      await router.push('/conjurations');
+      privateConjuration.value = true;
     } else {
       showError({
         message: 'We were unable to fetch this conjuration. Please try again.',
@@ -159,7 +158,9 @@ async function handleCopyConjuration() {
 }
 
 async function routeBack() {
-  if (!isMyConjuration.value) {
+  if (route.query?.from) {
+    await router.push(route.query.from as string);
+  } else if (!isMyConjuration.value) {
     await router.push('/conjurations#gallery');
   } else if (!conjuration.value?.saved) {
     await router.push('/conjurations#history');
@@ -182,11 +183,23 @@ async function handleCreateRelationship(type: ConjurationRelationshipType) {
   eventBus.$emit('create-relationship', {
     relationshipType: type,
     nodeId: conjurationId,
-    nodeType: ConjurationRelationshipType.CONJURATION,
+    nodeType:
+      conjuration.value?.conjurerCode === 'players'
+        ? ConjurationRelationshipType.CHARACTER
+        : ConjurationRelationshipType.CONJURATION,
   });
 }
 
 const readOnly = ref(true);
+
+const isCharacterNotInCampaign = computed(() => {
+  return (
+    conjuration.value?.conjurerCode === 'players' &&
+    !conjuration.value?.campaignIds?.some(
+      (cid: any) => cid === selectedCampaignId.value,
+    )
+  );
+});
 </script>
 
 <template>
@@ -230,6 +243,13 @@ const readOnly = ref(true);
         </button>
 
         <button
+          v-if="isMyConjuration && isCharacterNotInCampaign"
+          class="button-gradient self-center"
+          @click="readOnly = false"
+        >
+          Add To Campaign
+        </button>
+        <button
           v-if="isMyConjuration && readOnly"
           class="button-gradient self-center"
           @click="readOnly = false"
@@ -271,57 +291,82 @@ const readOnly = ref(true);
           </MenuButton>
 
           <template #content>
-            <div class="relative z-60 bg-surface-3 p-2 rounded-[12px]">
-              <MenuItem class="menu-item">
-                <button
-                  v-if="conjuration.prompt"
-                  class="button-primary flex"
-                  @click="conjureUsingPrompt"
-                >
-                  Conjure With Same Prompt
-                </button>
+            <div class="relative z-60 bg-surface-3 py-2 rounded-[12px]">
+              <MenuItem>
+                <div class="menu-item">
+                  <button
+                    v-if="conjuration.prompt"
+                    class="button-text flex"
+                    @click="conjureUsingPrompt"
+                  >
+                    Conjure With Same Prompt
+                  </button>
+                </div>
               </MenuItem>
-              <MenuItem v-if="showRelationships" class="menu-item">
-                <button
-                  v-if="currentUserRole === CampaignRole.DM"
-                  class="button-primary flex"
-                  @click="
-                    handleCreateRelationship(
-                      ConjurationRelationshipType.CONJURATION,
-                    )
-                  "
-                >
-                  Link Conjuration
-                </button>
+              <MenuItem>
+                <div class="menu-item">
+                  <button
+                    v-if="currentUserRole === CampaignRole.DM"
+                    class="button-text flex"
+                    @click="
+                      handleCreateRelationship(
+                        ConjurationRelationshipType.CONJURATION,
+                      )
+                    "
+                  >
+                    Link Conjuration
+                  </button>
+                </div>
               </MenuItem>
-              <MenuItem v-if="showRelationships" class="menu-item">
-                <button
-                  v-if="currentUserRole === CampaignRole.DM"
-                  class="button-primary flex"
-                  @click="
-                    handleCreateRelationship(
-                      ConjurationRelationshipType.SESSION,
-                    )
-                  "
-                >
-                  Link Sessions
-                </button>
+              <MenuItem>
+                <div class="menu-item">
+                  <button
+                    v-if="currentUserRole === CampaignRole.DM"
+                    class="button-text flex"
+                    @click="
+                      handleCreateRelationship(
+                        ConjurationRelationshipType.SESSION,
+                      )
+                    "
+                  >
+                    Link Sessions
+                  </button>
+                </div>
               </MenuItem>
-              <MenuItem class="menu-item">
-                <button
-                  class="button-primary flex"
-                  @click="handleRemoveConjuration"
-                >
-                  Remove From My Conjurations
-                </button>
+              <MenuItem>
+                <div class="menu-item">
+                  <button
+                    v-if="currentUserRole === CampaignRole.DM"
+                    class="button-text flex"
+                    @click="
+                      handleCreateRelationship(
+                        ConjurationRelationshipType.CAMPAIGN,
+                      )
+                    "
+                  >
+                    Link To Campaign
+                  </button>
+                </div>
               </MenuItem>
-              <MenuItem v-if="isMyConjuration" class="menu-item">
-                <button
-                  class="button-primary flex"
-                  @click="confirmDeleteConjuration = true"
-                >
-                  Delete Conjuration
-                </button>
+              <MenuItem>
+                <div class="menu-item">
+                  <button
+                    class="button-text flex"
+                    @click="handleRemoveConjuration"
+                  >
+                    Remove From My Conjurations
+                  </button>
+                </div>
+              </MenuItem>
+              <MenuItem v-if="isMyConjuration">
+                <div class="menu-item">
+                  <button
+                    class="button-text flex"
+                    @click="confirmDeleteConjuration = true"
+                  >
+                    Delete Conjuration
+                  </button>
+                </div>
               </MenuItem>
             </div>
           </template>
@@ -336,7 +381,7 @@ const readOnly = ref(true);
       :read-only="readOnly"
       @edit="readOnly = false"
     />
-    <div v-if="showRelationships" class="mt-4">
+    <div class="mt-4">
       <div class="text-xl my-2">Related Conjurations</div>
       <ViewRelationships
         :start-node-id="conjuration.id"
@@ -374,4 +419,14 @@ const readOnly = ref(true);
       </div>
     </ModalAlternate>
   </template>
+  <div v-else-if="privateConjuration" class="relative w-full h-full">
+    <div
+      class="absolute blur-md left-0 right-0 top-0 bottom-0 pointer-events-none"
+    >
+      <div class="bg-surface-2 h-full w-full"></div>
+    </div>
+    <div class="absolute text-2xl left-1/2 top-1/2 -translate-x-1/2 z-10">
+      <div>This conjuration is private or does not exist.</div>
+    </div>
+  </div>
 </template>

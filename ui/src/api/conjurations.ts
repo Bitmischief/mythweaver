@@ -25,6 +25,7 @@ export interface Conjuration {
   images?: any[];
   updatedAt?: string;
   linked?: boolean;
+  campaignIds?: number[];
 }
 
 export interface GetConjurationsRequest {

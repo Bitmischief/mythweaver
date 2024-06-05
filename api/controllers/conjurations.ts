@@ -158,7 +158,14 @@ export default class ConjurationController {
           nextNodeId: {
             in: conjurations.map((c: Conjuration) => c.id),
           },
-          nextType: ConjurationRelationshipType.CONJURATION,
+          OR: [
+            {
+              nextType: ConjurationRelationshipType.CONJURATION,
+            },
+            {
+              nextType: ConjurationRelationshipType.CHARACTER,
+            },
+          ],
         },
       });
     }
@@ -172,7 +179,8 @@ export default class ConjurationController {
           ? relationships.some(
               (r) =>
                 r.nextNodeId === c.id &&
-                r.nextType === ConjurationRelationshipType.CONJURATION,
+                (r.nextType === ConjurationRelationshipType.CONJURATION ||
+                  r.nextType === ConjurationRelationshipType.CHARACTER),
             )
           : false,
         imageUri: c.images.find((i: any) => i.primary)?.uri || null,
@@ -192,7 +200,9 @@ export default class ConjurationController {
     @Inject() trackingInfo: TrackingInfo,
     @Inject() logger: MythWeaverLogger,
     @Route() conjurationId = 0,
-  ): Promise<Conjuration & { saves: undefined; saved: boolean }> {
+  ): Promise<
+    Conjuration & { saves: undefined; saved: boolean; campaignIds: number[] }
+  > {
     const conjuration = await prisma.conjuration.findUnique({
       where: {
         id: conjurationId,
@@ -211,15 +221,46 @@ export default class ConjurationController {
       },
     });
 
-    if (
-      !conjuration ||
-      (conjuration.visibility === ConjurationVisibility.PRIVATE &&
-        conjuration.userId !== userId)
-    ) {
+    if (!conjuration) {
       throw new AppError({
         description: 'Conjuration not found.',
         httpCode: HttpCode.NOT_FOUND,
       });
+    }
+
+    let campaignIds = [] as number[];
+    if (conjuration.conjurerCode === 'players') {
+      const campaignRelations = await prisma.conjurationRelationships.findMany({
+        where: {
+          previousType: ConjurationRelationshipType.CAMPAIGN,
+          nextNodeId: conjurationId,
+          nextType: ConjurationRelationshipType.CHARACTER,
+        },
+      });
+      campaignIds = campaignRelations.map((r) => r.previousNodeId);
+    }
+
+    if (
+      conjuration.visibility === ConjurationVisibility.PRIVATE &&
+      conjuration.userId !== userId
+    ) {
+      // if a user is a member of a related campaign we allow them to see other players private characters
+      if (
+        conjuration.conjurerCode !== 'players' ||
+        !(await prisma.campaignMember.findFirst({
+          where: {
+            userId,
+            campaignId: {
+              in: campaignIds,
+            },
+          },
+        }))
+      ) {
+        throw new AppError({
+          description: 'Conjuration not found.',
+          httpCode: HttpCode.NOT_FOUND,
+        });
+      }
     }
 
     track(AppEvent.GetConjuration, userId, trackingInfo);
@@ -229,6 +270,7 @@ export default class ConjurationController {
       imageUri: conjuration.images.find((i: Image) => i.primary)?.uri || null,
       saves: undefined,
       saved: conjuration.saves.length > 0,
+      campaignIds: campaignIds,
     };
   }
 

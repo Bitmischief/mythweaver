@@ -19,30 +19,33 @@ const router = useRouter();
 const route = useRoute();
 
 async function navigateToViewConjuration(conjurationId: number) {
-  await router.push(`/conjurations/view/${conjurationId}`);
+  await router.push({
+    path: `/conjurations/view/${conjurationId}`,
+    query: { from: route.fullPath },
+  });
 }
 
 function getConjurationDescription(conjuration: Conjuration) {
   let text = '';
   if (conjuration.conjurerCode === 'characters') {
     text = conjuration?.data?.blocks?.find(
-      (b: any) => (b.data.label = 'Description'),
+      (b: any) => b.data?.label?.toLowerCase() === 'description',
     )?.data.text;
   } else if (conjuration.conjurerCode === 'locations') {
     text = conjuration?.data?.blocks?.find(
-      (b: any) => (b.data.label = 'History'),
+      (b: any) => b.data?.label?.toLowerCase() === 'history',
     )?.data.text;
   } else if (conjuration.conjurerCode === 'monsters') {
     text = conjuration?.data?.blocks?.find(
-      (b: any) => (b.data.label = 'Description'),
+      (b: any) => b.data?.label?.toLowerCase() === 'description',
     )?.data.text;
   } else if (conjuration.conjurerCode === 'items') {
     text = conjuration?.data?.blocks?.find(
-      (b: any) => (b.data.label = 'Description'),
+      (b: any) => b.data?.label?.toLowerCase() === 'description',
     )?.data.text;
   } else if (conjuration.conjurerCode === 'players') {
     text = conjuration?.data?.blocks?.find(
-      (b: any) => (b.data.label = 'Backstory'),
+      (b: any) => b.data?.label?.toLowerCase() === 'backstory',
     )?.data.text;
   }
   return text;

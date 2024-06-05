@@ -4,19 +4,23 @@ import { Character, getCurrentCampaignCharacters } from '@/api/characters.ts';
 import { AxiosError } from 'axios';
 import { showError, showSuccess } from '@/lib/notifications.ts';
 import { useCurrentUserId, useSelectedCampaignId } from '@/lib/hooks.ts';
-import { useRouter } from 'vue-router';
-import { PlusIcon } from '@heroicons/vue/20/solid';
+import { useRoute, useRouter } from 'vue-router';
+import { XCircleIcon } from '@heroicons/vue/20/solid';
 import { useEventBus } from '@/lib/events.ts';
 import ModalAlternate from '@/components/ModalAlternate.vue';
-import { postConjurationRelationship } from '@/api/relationships.ts';
+import {
+  deleteConjurationRelationshipByNodeIds,
+  postConjurationRelationship,
+} from '@/api/relationships.ts';
 import { ConjurationRelationshipType } from '@/lib/enums.ts';
 import { Conjuration, getConjurations } from '@/api/conjurations.ts';
 import { getCampaign } from '@/api/campaigns.ts';
-import { PlusCircleIcon, CheckCircleIcon } from '@heroicons/vue/24/outline';
+import Spinner from '@/components/Core/Spinner.vue';
 
 const selectedCampaignId = useSelectedCampaignId();
 const eventBus = useEventBus();
 const router = useRouter();
+const route = useRoute();
 const characters = ref<Character[] | []>([]);
 const createNewCharacter = ref(false);
 const loading = ref(false);
@@ -76,22 +80,31 @@ const campaignCharacters = computed(() => {
 });
 
 async function viewCharacter(id: number) {
-  await router.push(`/character/${id}`);
+  await router.push({
+    path: `/conjurations/view/${id}`,
+    query: { from: route.fullPath },
+  });
 }
 
-function primaryImage(char: Character) {
-  if (char.images?.length) {
-    return char.images.find((i) => i.primary)?.uri;
+function primaryImage(char: any) {
+  if (char.images?.some((i: any) => i.primary && i.uri)) {
+    return char.images.find((i: any) => i.primary)?.uri;
   }
-  return 'images/generators/character.png';
+  return null;
 }
 
 const showAddCharacter = ref(false);
-const characterToAddList = ref<Conjuration[]>([]);
+const characterToEditList = ref<any[]>([]);
+const showRemoveCharacter = ref(false);
 
 const showAddCharacterModal = async () => {
   await loadCharacters();
   showAddCharacter.value = true;
+};
+
+const showRemoveCharacterModal = async () => {
+  characterToEditList.value = myCharacters.value;
+  showRemoveCharacter.value = true;
 };
 
 const loadCharacters = async () => {
@@ -104,15 +117,16 @@ const loadCharacters = async () => {
       offset: 0,
       limit: 200,
     });
-    console.log('response', response.data.data);
-    characterToAddList.value = response.data.data;
+    characterToEditList.value = response.data.data;
   } catch {
     showError({ message: 'Failed to load characters. Please try again.' });
   }
 };
 
+const loadingAddToCampaign = ref(false);
 const addCharacterToCampaign = async (character: any) => {
   try {
+    loadingAddToCampaign.value = true;
     await postConjurationRelationship(
       selectedCampaignId.value || 0,
       ConjurationRelationshipType.CAMPAIGN,
@@ -121,11 +135,37 @@ const addCharacterToCampaign = async (character: any) => {
         relatedNodeType: ConjurationRelationshipType.CHARACTER,
       },
     );
+    await init();
+    await loadCharacters();
     showSuccess({ message: 'Character added to campaign' });
   } catch {
     showError({
       message: 'Failed to add character to campaign. Please try again.',
     });
+  } finally {
+    loadingAddToCampaign.value = false;
+  }
+};
+
+const loadingRemoveFromCampaign = ref(false);
+const removeCharacterFromCampaign = async (character: any) => {
+  try {
+    loadingRemoveFromCampaign.value = true;
+    await deleteConjurationRelationshipByNodeIds({
+      previousNodeId: selectedCampaignId.value || 0,
+      previousType: ConjurationRelationshipType.CAMPAIGN,
+      nextNodeId: character.id,
+      nextType: ConjurationRelationshipType.CHARACTER,
+    });
+    await init();
+    showRemoveCharacter.value = false;
+    showSuccess({ message: 'Character removed from campaign' });
+  } catch {
+    showError({
+      message: 'Failed to remove character from campaign. Please try again.',
+    });
+  } finally {
+    loadingRemoveFromCampaign.value = false;
   }
 };
 
@@ -134,16 +174,21 @@ const notInCampaign = (character: any) => {
 };
 
 function characterDescription(character: Conjuration) {
-  console.log(character);
-  return character?.data?.blocks?.find((b: any) => (b.data.label = 'Backstory'))
-    ?.data.text;
+  return (
+    character?.data?.blocks?.find(
+      (b: any) => b.data?.label?.toLowerCase() === 'backstory',
+    )?.data.text ||
+    character?.data?.blocks?.find(
+      (b: any) => b.data?.label?.toLowerCase() === 'looks',
+    )?.data.text
+  );
 }
 </script>
 
 <template>
   <div>
-    <div class="w-full flex gap-2 justify-between mb-2">
-      <div class="text-xl self-center">Characters</div>
+    <div class="w-full flex flex-wrap gap-2 justify-between mb-2">
+      <div class="text-xl self-center gradient-text">Campaign Characters</div>
       <div class="flex gap-2">
         <div>
           <button class="button-gradient" @click="showAddCharacterModal">
@@ -156,6 +201,11 @@ function characterDescription(character: Conjuration) {
         >
           Create New Character
         </router-link>
+        <div>
+          <button class="button-primary" @click="showRemoveCharacterModal">
+            Remove Characters
+          </button>
+        </div>
       </div>
     </div>
     <div v-if="myCharacters.length && !loading" class="mb-12">
@@ -180,10 +230,11 @@ function characterDescription(character: Conjuration) {
             <img
               :src="
                 primaryImage(char) ||
-                'images/conjurations/player-character-no-image.png'
+                '/images/conjurations/player-character-no-image.png'
               "
               alt="character portrait"
               class="rounded-[20px]"
+              :class="{ 'filter blur-sm': !primaryImage(char) }"
             />
             <div
               v-if="!primaryImage(char)"
@@ -244,53 +295,104 @@ function characterDescription(character: Conjuration) {
     </div>
   </div>
 
-  <ModalAlternate :show="showAddCharacter">
+  <ModalAlternate :show="showAddCharacter || showRemoveCharacter">
     <div
       class="bg-surface-2 rounded-[20px] p-6 min-w-[50vw] max-w-[95vw] lg:max-w-[75vw] xl:max-w-[60vw]"
     >
-      <div class="mb-4">
-        Add your characters to
-        <span class="gradient-text">{{ campaign.name }}</span>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-2">
+      <div class="mb-4 flex flex-wrap justify-between">
+        <div>
+          {{
+            showAddCharacter
+              ? 'Add your characters to'
+              : 'Remove characters from'
+          }}
+          <span class="gradient-text">{{ campaign.name }}</span>
+        </div>
         <div
-          v-for="(character, i) in characterToAddList"
-          :key="`char_add_${i}`"
-          class="flex bg-surface-3 p-2 rounded-[16px]"
+          class="cursor-pointer"
+          @click="
+            showAddCharacter = false;
+            showRemoveCharacter = false;
+          "
         >
-          <div class="basis-1/3">
+          <XCircleIcon class="h-5 w-5" />
+        </div>
+      </div>
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div
+          v-for="(character, i) in characterToEditList"
+          :key="`char_add_${i}`"
+          class="flex flex-wrap bg-surface-3 rounded-[16px]"
+        >
+          <div class="basis-1/3 p-2 relative">
             <img
-              :src="primaryImage(character)"
+              :src="
+                primaryImage(character) ||
+                '/images/conjurations/player-character-no-image.png'
+              "
               alt="character portrait"
-              class="rounded-[12px]"
+              class="rounded-[20px]"
+              :class="{ 'filter blur-sm': !primaryImage(character) }"
             />
+            <div
+              v-if="!primaryImage(character)"
+              class="absolute top-1/2 -translate-y-1/2 inset-x-0 text-center text-neutral-300 text-lg"
+            >
+              No Image
+            </div>
           </div>
-          <div class="basis-2/3">
-            <div class="flex justify-between">
-              <div class="text-xl self-center truncate px-2">
-                {{ character.name }}
-              </div>
-              <div class="self-center">
-                <button
-                  v-if="notInCampaign(character)"
-                  class="button-gradient flex gap-2"
-                  @click="addCharacterToCampaign(character)"
-                >
-                  <PlusCircleIcon class="h-5 w-5" />
-                  Add
-                </button>
-                <div v-else class="flex gap-2">
-                  <CheckCircleIcon class="h-5 w-5 text-green-500" />
+          <div class="basis-2/3 relative">
+            <div class="flex flex-col absolute inset-2">
+              <div class="flex justify-between">
+                <div class="text-xl self-center truncate">
+                  {{ character.name }}
                 </div>
               </div>
-            </div>
-            <div
-              class="relative h-full text-sm text-neutral-400 hidden group-hover:block overflow-hidden shrink overflow-ellipsis"
-            >
-              {{ characterDescription(character) }}
               <div
-                class="absolute inset-0 z-10 bg-gradient-to-b from-transparent via-transparent to-surface-2"
-              ></div>
+                class="relative h-full text-sm text-neutral-400 overflow-hidden shrink overflow-ellipsis"
+              >
+                {{
+                  characterDescription(character) || 'No character description'
+                }}
+                <div
+                  class="absolute inset-0 z-10 bg-gradient-to-b from-transparent via-transparent to-surface-3"
+                ></div>
+              </div>
+            </div>
+          </div>
+          <div class="basis-full p-2 pt-0">
+            <div v-if="showAddCharacter">
+              <button
+                v-if="notInCampaign(character)"
+                class="button-gradient flex justify-center w-full text-center"
+                :disabled="loadingAddToCampaign"
+                @click="addCharacterToCampaign(character)"
+              >
+                <span v-if="loadingAddToCampaign" class="flex gap-2 mx-auto">
+                  Adding
+                  <Spinner v-if="loadingAddToCampaign" />
+                </span>
+                <span v-else>Add to {{ campaign.name }}</span>
+              </button>
+              <div v-else class="flex gap-2 justify-center text-neutral-400">
+                This character is already in this campaign
+              </div>
+            </div>
+            <div v-if="showRemoveCharacter">
+              <button
+                class="button-ghost flex justify-center w-full text-center"
+                :disabled="loadingRemoveFromCampaign"
+                @click="removeCharacterFromCampaign(character)"
+              >
+                <span
+                  v-if="loadingRemoveFromCampaign"
+                  class="flex gap-2 mx-auto"
+                >
+                  Removing
+                  <Spinner v-if="loadingRemoveFromCampaign" />
+                </span>
+                <span v-else>Remove from {{ campaign.name }}</span>
+              </button>
             </div>
           </div>
         </div>

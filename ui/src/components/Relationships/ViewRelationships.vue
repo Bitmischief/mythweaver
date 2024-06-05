@@ -18,7 +18,7 @@ import QuickViewConjuration from '@/components/Conjuration/QuickViewConjuration.
 import { toPascalCase } from '@/lib/util.ts';
 import { useEventBus } from '@/lib/events.ts';
 import QuickViewSession from '@/components/Sessions/QuickViewSession.vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 const eventBus = useEventBus();
 const props = defineProps<{
@@ -28,6 +28,7 @@ const props = defineProps<{
 const relationships = ref<any[]>([]);
 const relationshipHistory = ref<any[]>([]);
 const router = useRouter();
+const route = useRoute();
 
 onMounted(async () => {
   await fetchRelationships(props.startNodeId, props.startNodeType);
@@ -85,7 +86,10 @@ const currentlyViewingRelationship = ref<any>(null);
 const showViewModal = ref(false);
 
 async function viewNode(relationship: any) {
-  await router.push(`/conjurations/view/${relationship.entitydata.id}`);
+  await router.push({
+    path: `/conjurations/view/${relationship.entitydata.id}`,
+    query: { from: route.fullPath },
+  });
 }
 
 async function removeRelationship(relationship: any) {
@@ -177,11 +181,11 @@ function noImage(relationship: any) {
     <div
       v-for="relationship in relationships"
       :key="`r_${relationship.id}`"
-      class="bg-surface-2 p-3 rounded-[12px]"
+      class="bg-surface-2 p-1 rounded-[12px]"
     >
       <div class="relative">
         <img
-          :src="relationship.entitydata.imageUri || noImage(relationship)"
+          :src="relationship.entitydata?.imageUri || noImage(relationship)"
           alt="relationship img"
           class="rounded-[10px]"
         />
@@ -205,8 +209,7 @@ function noImage(relationship: any) {
             </div>
             <div
               v-if="
-                relationship.nextType ===
-                ConjurationRelationshipType.CONJURATION
+                relationship.nextType !== ConjurationRelationshipType.CAMPAIGN
               "
               class="relative flex group cursor-pointer sm:mx-2"
             >
@@ -238,7 +241,7 @@ function noImage(relationship: any) {
         <div
           class="mt-1 text-lg whitespace-nowrap overflow-hidden text-ellipsis"
         >
-          {{ relationship.entitydata.name }}
+          {{ relationship.entitydata?.name }}
         </div>
       </div>
     </div>
