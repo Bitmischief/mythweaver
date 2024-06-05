@@ -178,7 +178,7 @@ async function fetchImageModels() {
     const imageModelsResponse = await getImageModels();
     imageModels.value = imageModelsResponse.data.data.map((im: any) => ({
       ...im,
-      description: `${im.description}${im.licensedArt ? ' - artwork licensed by MythWeaver' : ''}`,
+      description: `${im.description}${!im.licensedArt ? ' - artwork NOT licensed by MythWeaver' : ''}`,
     }));
 
     if (!props.image.modelId) {
