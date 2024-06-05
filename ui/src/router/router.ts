@@ -24,6 +24,7 @@ import OverviewCampaign from '@/components/Campaigns/OverviewCampaign.vue';
 import ConjureView from '@/views/ConjureView.vue';
 import { authGuard } from '@auth0/auth0-vue';
 import { fbq, gtag, rdt } from '@/lib/conversions.ts';
+import { isProduction } from '@/lib/util.ts';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -210,7 +211,7 @@ const router = createRouter({
 });
 
 router.beforeResolve((to, from, next) => {
-  if (from.path === '/' && to.redirectedFrom?.path === '/subscribed') {
+  if (from.path === '/' && to.redirectedFrom?.path === '/subscribed' && isProduction) {
     fbq('track', 'Purchase');
     rdt('track', 'Purchase');
     gtag('event', 'conversion', {
