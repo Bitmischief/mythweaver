@@ -186,29 +186,40 @@ const generateImageFromProperProvider = async (
         return await generateStableDiffusionImage(request);
       });
     } else {
-      imageGenerationResponse = await retry(async () => {
-        return await generateMythWeaverModelImage(request, model);
-      });
+      imageGenerationResponse = await retry(
+        async () => {
+          return await generateMythWeaverModelImage(request, model);
+        },
+        undefined,
+        {
+          onAttemptFail: (data: any) => {
+            // if we get a 400, fail immediately, don't retry
+            if ((data.error as AxiosError)?.response?.status === 400) {
+              throw data.error;
+            }
+          },
+        },
+      );
     }
   } catch (err) {
-    let errorMessage =
-      'The image generation service was unable to generate an image that met the criteria. Please try again.';
-
     const e = err as AxiosError;
     if (e?.response?.status === 400) {
-      errorMessage = '';
-    }
-
-    await sendWebsocketMessage(
-      request.userId,
-      WebSocketEvent.ImageGenerationError,
-      {
+      await sendWebsocketMessage(request.userId, WebSocketEvent.ImageFiltered, {
+        description:
+          'The returned images did not pass our content filter. Please rephrase your prompt to avoid NSFW content, and try again.',
         context: {
-          description: errorMessage,
           ...request.linking,
         },
-      },
-    );
+      });
+    } else {
+      await sendWebsocketMessage(request.userId, WebSocketEvent.Error, {
+        description:
+          'The image generation service was unable to generate an image. Please try again shortly.',
+        context: {
+          ...request.linking,
+        },
+      });
+    }
 
     return;
   }

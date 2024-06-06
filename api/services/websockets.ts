@@ -34,6 +34,7 @@ export enum WebSocketEvent {
   PrimaryImageSet = 'primary-image-set',
   ImageGenerationTimeout = 'image-generation-timeout',
   ImageGenerationError = 'image-generation-error',
+  ImageFiltered = 'image-filtered',
 }
 
 export interface WebSocketContext {

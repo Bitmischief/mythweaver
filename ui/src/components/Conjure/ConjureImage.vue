@@ -153,10 +153,15 @@ function imageCreatedHandler(data: any) {
 function imageFilteredHandler() {
   showError({
     message:
-      'The generated image was filtered out by our content moderation system. Please try again.',
+      'The returned image did not pass our NSFW content filter. Please rephrase your prompt to avoid NSFW content, and try again.',
   });
   imageFiltered.value = true;
-  conjuring.value = false;
+  count.value--;
+
+  if (count.value === 0) {
+    conjuring.value = false;
+    loading.value = false;
+  }
 }
 
 onUnmounted(() => {
@@ -810,23 +815,6 @@ const selectedModelIsMythWeaverV1 = computed(() => {
             </span>
           </button>
         </div>
-      </div>
-    </div>
-
-    <div
-      v-if="imagePromptRephrased"
-      class="bg-fuchsia-500/10 w-fit mx-auto mb-6 p-4 rounded-md mt-10"
-    >
-      <div class="text-xl text-neutral-400">
-        We rephrased your prompt to make it more likely to generate an image.
-      </div>
-      <div class="mt-2 text-lg text-left text-neutral-100">
-        <span class="font-bold text-neutral-400">Original:</span>
-        {{ editablePrompt }}
-      </div>
-      <div class="text-lg text-left text-neutral-100">
-        <span class="font-bold text-neutral-400">Rephrased:</span>
-        {{ rephrasedPrompt }}
       </div>
     </div>
 

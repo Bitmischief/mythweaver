@@ -4,6 +4,7 @@ import axios, { AxiosResponse } from 'axios';
 import { AppError, ErrorType, HttpCode } from '../../lib/errors/AppError';
 import { v4 as uuidv4 } from 'uuid';
 import { saveImage } from '../dataStorage';
+import logger from '../../lib/logger';
 
 export const generateMythWeaverModelImage = async (
   request: ImageGenerationRequest,
@@ -15,6 +16,8 @@ export const generateMythWeaverModelImage = async (
       httpCode: HttpCode.INTERNAL_SERVER_ERROR,
     });
   }
+
+  logger.info('Generating image with model: ', model);
 
   const response = await axios.post(model.executionUri, {
     prompt: `${model.promptPrefix} ${request.prompt}`,
