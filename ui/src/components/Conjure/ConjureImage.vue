@@ -356,10 +356,10 @@ const selectedImageModel = computed(() => {
 const selectedModelIsMythWeaverV1 = computed(() => {
   if (!selectedImageModel.value) return false;
 
-  const v1Model = imageModels.value.find(
-    (im) => im.description === 'MythWeaver v1',
+  const v1Model = imageModels.value.find((im) =>
+    im.description.includes('MythWeaver v1'),
   );
-  return selectedImageModel.value.id === v1Model.id;
+  return selectedImageModel.value?.id === v1Model?.id;
 });
 </script>
 
@@ -689,7 +689,7 @@ const selectedModelIsMythWeaverV1 = computed(() => {
 
           <div
             class="flex text-sm text-neutral-300 cursor-pointer p-2 rounded-[12px] hover:bg-surface-3/50 my-2"
-            @click.prevent="showAdvancedOptions = !showAdvancedOptions"
+            @click="showAdvancedOptions = !showAdvancedOptions"
           >
             <div class="self-center">Advanced Options</div>
             <ChevronRightIcon

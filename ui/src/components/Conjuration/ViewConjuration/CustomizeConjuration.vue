@@ -19,6 +19,7 @@ import Select from '@/components/Core/Forms/Select.vue';
 import { BillingPlan } from '@/api/users.ts';
 import { CampaignRole } from '@/api/campaigns.ts';
 import WysiwygEditor from '@/components/Core/WysiwygEditor.vue';
+import { mapConjurationType } from '@/lib/util.ts';
 
 const emit = defineEmits(['edit']);
 const props = defineProps<{
@@ -189,17 +190,7 @@ function beginAddingTag() {
 }
 
 const conjurationType = computed(() => {
-  if (props.conjuration.conjurerCode === 'monsters') {
-    return 'Monster';
-  } else if (props.conjuration.conjurerCode === 'locations') {
-    return 'Location';
-  } else if (props.conjuration.conjurerCode === 'characters') {
-    return 'NPC';
-  } else if (props.conjuration.conjurerCode === 'items') {
-    return 'Magic Item';
-  } else {
-    return '';
-  }
+  return mapConjurationType(props.conjuration.conjurerCode);
 });
 
 const hasAnyPrimaryImages = computed(() => {
@@ -240,6 +231,13 @@ function showImageHistoryModal() {
     showImageCredits: false,
   });
 }
+
+function edit(e: any) {
+  emit('edit');
+  setTimeout(() => {
+    e.target.select();
+  }, 100);
+}
 </script>
 
 <template>
@@ -278,7 +276,8 @@ function showImageHistoryModal() {
           <input
             v-model="editableConjuration.name"
             class="input-secondary text-2xl"
-            :disabled="!editable || readOnly"
+            :disabled="!editable"
+            @click="edit"
           />
         </div>
 
@@ -299,7 +298,8 @@ function showImageHistoryModal() {
             ]"
             value-prop="code"
             display-prop="name"
-            :disabled="!editable || readOnly"
+            :disabled="!editable"
+            @click="emit('edit')"
           />
           <div class="text-neutral-500 text-xs mx-2">
             Controls whether any MythWeaver user can view this conjuration or

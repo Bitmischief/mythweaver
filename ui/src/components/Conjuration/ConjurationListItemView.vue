@@ -6,6 +6,7 @@ import { BookmarkIcon as BookmarkIconOutline } from '@heroicons/vue/24/outline';
 import { PlusIcon, ArrowRightIcon } from '@heroicons/vue/24/solid';
 import { computed, ref } from 'vue';
 import { showError, showSuccess } from '@/lib/notifications.ts';
+import { mapConjurationType } from '@/lib/util.ts';
 
 const props = defineProps<{
   data: Conjuration | undefined;
@@ -45,17 +46,7 @@ function getConjurationDescription(conjuration: Conjuration) {
 }
 
 function conjurationType(conjuration: Conjuration) {
-  if (conjuration.conjurerCode === 'monsters') {
-    return 'Monster';
-  } else if (conjuration.conjurerCode === 'locations') {
-    return 'Location';
-  } else if (conjuration.conjurerCode === 'characters') {
-    return 'NPC';
-  } else if (conjuration.conjurerCode === 'items') {
-    return 'Magic Item';
-  } else {
-    return '';
-  }
+  return mapConjurationType(conjuration.conjurerCode);
 }
 
 const showBookmarkIcon = computed(() => {
