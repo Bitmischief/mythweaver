@@ -176,6 +176,14 @@ input[type='number'] {
     @apply bg-gradient-to-r from-fuchsia-500 to-violet-500;
   }
 
+  .bg-gradient-green {
+    @apply bg-gradient-to-r from-emerald-600 to-green-400;
+  }
+
+  .bg-gradient-blue {
+    @apply bg-gradient-to-r from-blue-600 to-cyan-400;
+  }
+
   .tag {
     @apply rounded-full px-4 py-1 bg-surface-3 text-xs m-0.5;
   }

@@ -15,7 +15,7 @@ import {
 } from '@heroicons/vue/24/outline';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import QuickViewConjuration from '@/components/Conjuration/QuickViewConjuration.vue';
-import { toPascalCase } from '@/lib/util.ts';
+import { mapConjurationType, toPascalCase } from '@/lib/util.ts';
 import { useEventBus } from '@/lib/events.ts';
 import QuickViewSession from '@/components/Sessions/QuickViewSession.vue';
 import { useRouter } from 'vue-router';
@@ -106,15 +106,7 @@ async function removeRelationship(relationship: any) {
 
 function getBadge(relationship: any) {
   if (relationship.nextType === ConjurationRelationshipType.CONJURATION) {
-    if (relationship.entitydata.conjurerCode === 'monsters') {
-      return 'Monster';
-    } else if (relationship.entitydata.conjurerCode === 'locations') {
-      return 'Location';
-    } else if (relationship.entitydata.conjurerCode === 'characters') {
-      return 'NPC';
-    } else {
-      return '';
-    }
+    return mapConjurationType(relationship.entitydata.conjurerCode);
   } else {
     return toPascalCase(relationship.nextType);
   }

@@ -245,7 +245,7 @@ const buildPrompt = (
     generator.name.toLowerCase(),
   )} with engaging, immersive and compelling attributes that incorporate this information.`;
 
-  prompt += `Please return the result as JSON using the following format: ${generator.formatPrompt}.`;
+  prompt += `Please return the result as a flat JSON object with the following keys: ${generator.formatPrompt}. Return plain text for each value. `;
 
   if (generator.allowsImageGeneration && !imagePrompt) {
     prompt += `Using the same information provided above, please generate a prompt to be used by an AI image generator to generate an portrait image for this ${trimPlural(
