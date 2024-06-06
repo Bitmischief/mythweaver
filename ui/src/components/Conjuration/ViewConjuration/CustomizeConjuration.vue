@@ -19,6 +19,7 @@ import Select from '@/components/Core/Forms/Select.vue';
 import { BillingPlan } from '@/api/users.ts';
 import { CampaignRole } from '@/api/campaigns.ts';
 import WysiwygEditor from '@/components/Core/WysiwygEditor.vue';
+import { mapConjurationType } from '@/lib/util.ts';
 
 const emit = defineEmits(['edit']);
 const props = defineProps<{
@@ -189,17 +190,7 @@ function beginAddingTag() {
 }
 
 const conjurationType = computed(() => {
-  if (props.conjuration.conjurerCode === 'monsters') {
-    return 'Monster';
-  } else if (props.conjuration.conjurerCode === 'locations') {
-    return 'Location';
-  } else if (props.conjuration.conjurerCode === 'characters') {
-    return 'NPC';
-  } else if (props.conjuration.conjurerCode === 'items') {
-    return 'Magic Item';
-  } else {
-    return '';
-  }
+  return mapConjurationType(props.conjuration.conjurerCode);
 });
 
 const hasAnyPrimaryImages = computed(() => {
