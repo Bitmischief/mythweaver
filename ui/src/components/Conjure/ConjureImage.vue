@@ -478,7 +478,7 @@ const selectedModelIsMythWeaverV1 = computed(() => {
             </div>
           </div>
           <div class="flex flex-wrap md:flex-nowrap gap-6 mt-4 px-4 relative">
-            <div class="grow">
+            <div class="grow max-w-full">
               <div class="text-neutral-300 text-xs mb-1">Image Model</div>
               <div class="flex grow gap-2">
                 <Select
@@ -568,10 +568,22 @@ const selectedModelIsMythWeaverV1 = computed(() => {
           <div v-if="editableImageModelId && selectedImageModel" class="p-4">
             <div
               v-if="selectedImageModel.licensedArt"
+              class="px-1 mb-2 text-sm text-fuchsia-500"
+            >
+              This is a brand new model that is still development. You may
+              experience longer image generation times and sometimes may get
+              weird results. We welcome any feedback in Discord or via our
+              support center. We expect these models to improve over time as we
+              refine them.
+            </div>
+            <div
+              v-if="selectedImageModel.licensedArt"
               class="bg-green-500 w-fit text-white p-3 rounded-xl mb-4"
             >
               <div class="flex">
-                <CheckIcon class="h-5 w-5 mr-2" aria-hidden="true" />
+                <div class="self-center">
+                  <CheckIcon class="h-5 w-5 mr-2" aria-hidden="true" />
+                </div>
                 <div>
                   This model uses artwork licensed by MythWeaver directly from
                   the listed "Featured Artists".
@@ -619,7 +631,7 @@ const selectedModelIsMythWeaverV1 = computed(() => {
                 <div class="text-neutral-400">Sample Output</div>
                 <div
                   :key="`sample_${selectedImageModel.id}`"
-                  class="flex gap-6"
+                  class="flex flex-wrap md:flex-nowrap gap-6"
                 >
                   <div
                     v-for="(sampleUri, i) in selectedImageModel.sampleImageUris"
@@ -672,7 +684,7 @@ const selectedModelIsMythWeaverV1 = computed(() => {
 
           <div
             class="flex text-sm text-neutral-300 cursor-pointer p-2 rounded-[12px] hover:bg-surface-3/50 my-2"
-            @click="showAdvancedOptions = !showAdvancedOptions"
+            @click.prevent="showAdvancedOptions = !showAdvancedOptions"
           >
             <div class="self-center">Advanced Options</div>
             <ChevronRightIcon
@@ -780,7 +792,7 @@ const selectedModelIsMythWeaverV1 = computed(() => {
     >
       <div>
         <div class="text-sm text-neutral-500">
-          {{ image.prompt }}
+          {{ editablePrompt }}
         </div>
       </div>
       <div class="flex gap-2 px-4 md:px-0 justify-end py-2">
