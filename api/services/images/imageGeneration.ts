@@ -10,6 +10,7 @@ import { AppError, ErrorType, HttpCode } from '../../lib/errors/AppError';
 import retry from 'async-await-retry';
 import { checkImageStatusQueue } from '../../worker';
 import { AxiosError } from 'axios';
+import logger from '../../lib/logger';
 
 export const generateImage = async (request: ImageGenerationRequest) => {
   const user = await prisma.user.findUnique({
@@ -221,6 +222,11 @@ const generateImageFromProperProvider = async (
       });
     }
 
+    return;
+  }
+
+  if (!imageGenerationResponse) {
+    logger.warn('Image generation response was undefined.');
     return;
   }
 

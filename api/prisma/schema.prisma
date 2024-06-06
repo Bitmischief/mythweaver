@@ -428,6 +428,8 @@ model ImageModel {
   stableDiffusionApiModel Boolean @default(false)
   paysRoyalties           Boolean @default(false)
 
+  loraName String?
+
   artists ImageModelArtist[]
   images  Image[]
 

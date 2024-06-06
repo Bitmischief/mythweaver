@@ -1,7 +1,7 @@
 import { GeneratedImage, ImageGenerationRequest } from './models';
 import { ImageModel } from '@prisma/client';
-import axios, { AxiosResponse } from 'axios';
-import { AppError, ErrorType, HttpCode } from '../../lib/errors/AppError';
+import axios from 'axios';
+import { AppError, HttpCode } from '../../lib/errors/AppError';
 import { v4 as uuidv4 } from 'uuid';
 import { saveImage } from '../dataStorage';
 import logger from '../../lib/logger';
@@ -22,6 +22,8 @@ export const generateMythWeaverModelImage = async (
   const response = await axios.post(model.executionUri, {
     prompt: `${model.promptPrefix} ${request.prompt}`,
     steps: model.defaultSteps,
+    negative_prompt: request.negativePrompt,
+    lora_name: model.loraName,
   });
 
   const image = response.data;
