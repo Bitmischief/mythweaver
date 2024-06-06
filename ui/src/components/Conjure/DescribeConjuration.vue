@@ -388,12 +388,12 @@ const itemDescription = computed(() => {
               help-class="px-1"
               name="prompt"
               type="textarea"
-              validation="length:0,1000"
+              validation="length:0,2500"
               rows="10"
               :disabled="selectedIsProOnly"
             />
             <div class="absolute text-neutral-500 text-xs right-2 bottom-0">
-              {{ prompt.length }} / 1000
+              {{ prompt.length }} / 2500
             </div>
           </div>
         </div>

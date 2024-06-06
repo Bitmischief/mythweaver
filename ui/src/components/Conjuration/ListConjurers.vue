@@ -85,7 +85,7 @@
                 help-class="px-1"
                 name="prompt"
                 type="textarea"
-                validation="length:0,1000"
+                validation="length:0,2500"
                 auto-height
                 :disabled="selectedIsProOnly"
               />
