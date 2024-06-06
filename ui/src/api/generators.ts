@@ -9,6 +9,7 @@ export interface Conjurer {
   supportedImageStylePresets?: string[];
   proOnly?: boolean;
   experimental?: boolean;
+  examples: string[];
 }
 
 export const getConjurers = () => {

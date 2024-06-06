@@ -62,9 +62,9 @@ const proOnly = (gen: Conjurer) => {
     <div
       v-for="(gens, i) in generators"
       :key="`generator_${i}`"
-      class="cursor-pointer group/generator rounded-[20px] p-px"
+      class="cursor-pointer group/generator p-px"
       :class="{
-        'active bg-gradient': value?.code === gens.code,
+        active: value?.code === gens.code,
         'relative proOnly': proOnly(gens),
         'relative group/experimental': !proOnly(gens) && gens.experimental,
       }"
@@ -82,7 +82,7 @@ const proOnly = (gen: Conjurer) => {
           <div class="">Pro Only</div>
         </div>
       </div>
-      <div class="flex bg-surface-2 rounded-[24px] p-2">
+      <div class="flex flex-wrap bg-surface-2 rounded-[24px] p-2">
         <div class="basis-1/3 self-center">
           <img
             :src="`./images/generators/${gens.imageUri}`"
@@ -99,27 +99,34 @@ const proOnly = (gen: Conjurer) => {
             >
               PRO
             </div>
+            <div
+              v-if="gens.experimental"
+              class="self-center text-white text-xs px-2 skew-x-[-20deg] rounded-tl-[5px] rounded-br-[5px] bg-gradient-blue"
+            >
+              BETA
+            </div>
           </div>
           <div class="text-sm text-neutral-500">
             {{ gens.description }}
           </div>
         </div>
-      </div>
-      <div
-        class="max-h-0 group-[.active]/generator:max-h-10 transition-all overflow-hidden"
-      >
-        <button
-          v-if="value?.code === gens.code"
-          class="button-gradient flex justify-center gap-2 rounded-[16px] w-full"
-          @click="
-            !proOnly(gens)
-              ? $emit('next')
-              : eventBus.$emit('show-subscription-modal')
-          "
-        >
-          Continue
-          <ArrowRightIcon class="h-4 w-4 self-center" />
-        </button>
+        <div class="w-full mt-2">
+          <div
+            class="max-h-0 group-[.active]/generator:max-h-10 transition-all overflow-hidden"
+          >
+            <button
+              class="button-gradient flex justify-center gap-2 rounded-[16px] w-full"
+              @click="
+                !proOnly(gens)
+                  ? $emit('next')
+                  : eventBus.$emit('show-subscription-modal')
+              "
+            >
+              Continue
+              <ArrowRightIcon class="h-4 w-4 self-center" />
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
