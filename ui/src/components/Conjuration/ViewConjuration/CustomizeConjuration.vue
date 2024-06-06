@@ -240,6 +240,13 @@ function showImageHistoryModal() {
     showImageCredits: false,
   });
 }
+
+function edit(e: any) {
+  emit('edit');
+  setTimeout(() => {
+    e.target.select();
+  }, 100);
+}
 </script>
 
 <template>
@@ -278,7 +285,8 @@ function showImageHistoryModal() {
           <input
             v-model="editableConjuration.name"
             class="input-secondary text-2xl"
-            :disabled="!editable || readOnly"
+            :disabled="!editable"
+            @click="edit"
           />
         </div>
 
@@ -299,7 +307,8 @@ function showImageHistoryModal() {
             ]"
             value-prop="code"
             display-prop="name"
-            :disabled="!editable || readOnly"
+            :disabled="!editable"
+            @click="emit('edit')"
           />
           <div class="text-neutral-500 text-xs mx-2">
             Controls whether any MythWeaver user can view this conjuration or

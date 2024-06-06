@@ -356,8 +356,8 @@ const selectedImageModel = computed(() => {
 const selectedModelIsMythWeaverV1 = computed(() => {
   if (!selectedImageModel.value) return false;
 
-  const v1Model = imageModels.value.find(
-    (im) => im.description === 'MythWeaver v1',
+  const v1Model = imageModels.value.find((im) =>
+    im.description.includes('MythWeaver v1'),
   );
   return selectedImageModel.value.id === v1Model.id;
 });
