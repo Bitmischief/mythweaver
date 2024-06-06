@@ -51,6 +51,7 @@ const props = withDefaults(
     };
     showImageCredits?: boolean;
     showBack?: boolean;
+    historyMode?: boolean;
   }>(),
   {
     image: () => ({
@@ -67,6 +68,7 @@ const props = withDefaults(
     linking: undefined,
     showImageCredits: true,
     showBack: false,
+    historyMode: false,
   },
 );
 
@@ -102,7 +104,9 @@ const rephrasedPrompt = ref('');
 const loading = ref(false);
 const count = ref(1);
 const useSeed = ref(false);
-const tab = ref(props.image?.uri ? 'upscale' : 'customize');
+const tab = ref(
+  props.historyMode ? 'history' : props.image?.uri ? 'upscale' : 'customize',
+);
 const imageHistory = ref<any[]>([]);
 
 const showAdvancedOptions = ref(false);
@@ -124,7 +128,7 @@ onMounted(async () => {
   );
 
   await fetchImageModels();
-  if (props.image.id) {
+  if (props.image.uri || props.historyMode) {
     await fetchImageHistory();
   }
 });
@@ -404,11 +408,12 @@ const selectedModelIsMythWeaverV1 = computed(() => {
     >
       Enter a description of you session below to generate a session cover image
     </div>
-    <div v-if="props.image.uri" class="flex justify-center mb-2">
+    <div v-if="props.image.uri || historyMode" class="flex justify-center mb-2">
       <div
         class="flex flex-wrap md:flex-nowrap gap-1 text-neutral-500 rounded-[18px] bg-surface-2 p-1 border border-surface-3 text-sm"
       >
         <button
+          v-if="!historyMode"
           class="grow w-[12em]"
           :class="{
             'button-primary': tab === 'upscale',
@@ -590,7 +595,7 @@ const selectedModelIsMythWeaverV1 = computed(() => {
                 </div>
               </div>
 
-              <div class="flex" v-if="selectedImageModel.paysRoyalties">
+              <div v-if="selectedImageModel.paysRoyalties" class="flex">
                 <CheckIcon class="h-5 w-5 mr-2" aria-hidden="true" />
                 <div>
                   This model pays royalties to the artist(s) for each image

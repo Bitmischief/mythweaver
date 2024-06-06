@@ -147,6 +147,8 @@ export interface CustomizeImageRequest {
     characterId?: number;
     conjurationId?: number;
   };
+  historyMode?: boolean;
+  showImageCredits?: boolean;
 }
 
 eventBus.$on('toggle-customize-image-modal', (args: CustomizeImageRequest) => {
@@ -269,6 +271,8 @@ eventBus.$on('show-subscription-modal', () => {
         v-if="conjureV2"
         :image="customizeImageArgs?.image"
         :linking="customizeImageArgs?.linking"
+        :history-mode="customizeImageArgs?.historyMode"
+        :show-image-credits="customizeImageArgs?.showImageCredits"
         in-modal
         @cancel="showCustomizeImageModal = false"
       />
