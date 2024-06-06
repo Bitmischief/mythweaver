@@ -75,7 +75,7 @@ const conjurers: Generator[] = [
       '{ "name": "", "description": "", "storyImpact": "", "playerInteraction": "", "specialAbilities": "", "imageAIPrompt": "", "tags": [""] }',
     allowsImageGeneration: true,
     basePromptExtraContext:
-      "Please generate a uniquely terrifying, monstrous creature worthy of testing our adventurer's mettle. Please populate tags with any values you think applicable to this monster, to allow easy searching.",
+      "Please generate a uniquely terrifying, monstrous creature worthy of testing our adventurer's mettle. Please populate tags with any values you think applicable to this monster, to allow easy searching. For the special abilities, please return raw text only.",
     supportedImageStylePresets: ['fantasy-art', 'digital-art'],
     proOnly: false,
     experimental: false,
