@@ -28,6 +28,7 @@ import {
   validateConjurationCountRestriction,
   sendConjurationCountUpdatedEvent,
 } from '../lib/planRestrictionHelpers';
+import { getCharacterCampaigns } from '../lib/relationshipsHelper';
 
 interface GetConjurationsResponse {
   data: (Conjuration & { saved: boolean })[];
@@ -235,14 +236,8 @@ export default class ConjurationController {
 
     let campaignIds = [] as number[];
     if (conjuration.conjurerCode === 'players') {
-      const campaignRelations = await prisma.conjurationRelationships.findMany({
-        where: {
-          previousType: ConjurationRelationshipType.CAMPAIGN,
-          nextNodeId: conjurationId,
-          nextType: ConjurationRelationshipType.CHARACTER,
-        },
-      });
-      campaignIds = campaignRelations.map((r) => r.previousNodeId);
+      const characterCampaigns = await getCharacterCampaigns(conjurationId);
+      campaignIds = characterCampaigns.map((r) => r.id);
     }
 
     if (

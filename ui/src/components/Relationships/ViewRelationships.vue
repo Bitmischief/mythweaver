@@ -86,10 +86,17 @@ const currentlyViewingRelationship = ref<any>(null);
 const showViewModal = ref(false);
 
 async function viewNode(relationship: any) {
-  await router.push({
-    path: `/conjurations/view/${relationship.entitydata.id}`,
-    query: { from: route.fullPath },
-  });
+  if (relationship.nextType === ConjurationRelationshipType.SESSION) {
+    await router.push({
+      path: `/sessions/${relationship.entitydata.id}`,
+      query: { from: route.fullPath },
+    });
+  } else {
+    await router.push({
+      path: `/conjurations/view/${relationship.entitydata.id}`,
+      query: { from: route.fullPath },
+    });
+  }
 }
 
 async function removeRelationship(relationship: any) {
@@ -110,7 +117,7 @@ async function removeRelationship(relationship: any) {
 
 function getBadge(relationship: any) {
   if (relationship.nextType === ConjurationRelationshipType.CONJURATION) {
-    return mapConjurationType(relationship.entitydata.conjurerCode);
+    return mapConjurationType(relationship.entitydata?.conjurerCode);
   } else {
     return toPascalCase(relationship.nextType);
   }
@@ -118,7 +125,7 @@ function getBadge(relationship: any) {
 
 function noImage(relationship: any) {
   if (relationship.entitydata?.conjurerCode) {
-    const conjurerCode = relationship.entitydata.conjurerCode;
+    const conjurerCode = relationship.entitydata?.conjurerCode;
     if (conjurerCode === 'monsters') {
       return '/images/conjurations/monster-no-image.png';
     } else if (conjurerCode === 'locations') {
@@ -130,10 +137,12 @@ function noImage(relationship: any) {
     } else if (conjurerCode === 'players') {
       return '/images/conjurations/player-character-no-image.png';
     } else {
-      return '';
+      return '/images/no-image.png';
     }
   } else if (relationship.nextType === ConjurationRelationshipType.CAMPAIGN) {
     return '/images/generators/campaign.png';
+  } else {
+    return null;
   }
 }
 </script>
@@ -173,10 +182,20 @@ function noImage(relationship: any) {
     >
       <div class="relative">
         <img
-          :src="relationship.entitydata?.imageUri || noImage(relationship)"
+          :src="
+            relationship.entitydata?.imageUri ||
+            noImage(relationship) ||
+            '/images/no-image.png'
+          "
           alt="relationship img"
           class="rounded-[10px]"
         />
+        <div
+          v-if="!relationship.entitydata?.imageUri && !noImage(relationship)"
+          class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+        >
+          No Image
+        </div>
         <div
           class="absolute top-2 left-2 rounded-full bg-white/70 text-black text-sm px-2"
         >

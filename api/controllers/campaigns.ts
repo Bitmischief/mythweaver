@@ -23,6 +23,10 @@ import { sendTransactionalEmail } from '../lib/transactionalEmail';
 import { v4 as uuidv4 } from 'uuid';
 import { urlPrefix } from '../lib/utils';
 import { MythWeaverLogger } from '../lib/logger';
+import {
+  getCampaignCharacters,
+  getManyRelationships,
+} from '../lib/relationshipsHelper';
 
 export interface GetCampaignsResponse {
   data: Campaign[];
@@ -95,18 +99,14 @@ export default class CampaignController {
     });
 
     let relationships = [] as any[];
-    if (nodeId) {
-      relationships = await prisma.conjurationRelationships.findMany({
-        where: {
-          previousNodeId: nodeId,
-          previousType: nodeType,
-          userId: userId,
-          nextNodeId: {
-            in: campaigns.map((c: Campaign) => c.id),
-          },
-          nextType: ConjurationRelationshipType.CAMPAIGN,
-        },
-      });
+    if (nodeId && nodeType) {
+      relationships = await getManyRelationships(
+        nodeId,
+        nodeType,
+        ConjurationRelationshipType.CAMPAIGN,
+        campaigns.map((c) => c.id),
+        userId,
+      );
     }
 
     track(AppEvent.GetCampaigns, userId, trackingInfo);
@@ -465,28 +465,7 @@ export default class CampaignController {
       });
     }
 
-    const campaignCharacters = await prisma.conjurationRelationships.findMany({
-      where: {
-        previousNodeId: campaign.id,
-        previousType: ConjurationRelationshipType.CAMPAIGN,
-        nextType: ConjurationRelationshipType.CHARACTER,
-      },
-    });
-
-    const characters = await prisma.conjuration.findMany({
-      where: {
-        id: {
-          in: campaignCharacters.map((c) => c.nextNodeId),
-        },
-      },
-      include: {
-        images: {
-          where: {
-            primary: true,
-          },
-        },
-      },
-    });
+    const campaignCharacters = await getCampaignCharacters(campaign.id);
 
     return {
       campaignName: campaign.name,
@@ -497,7 +476,7 @@ export default class CampaignController {
           email: m?.email ?? m?.user?.email,
           username: m?.user?.username,
           role: m?.role,
-          character: characters.filter((c) => c.userId === m.userId),
+          character: campaignCharacters.filter((c) => c.userId === m.userId),
         })),
     };
   }
@@ -638,34 +617,11 @@ export default class CampaignController {
       });
     }
 
-    const relationships = await prisma.conjurationRelationships.findMany({
-      where: {
-        previousNodeId: campaignId,
-        previousType: ConjurationRelationshipType.CAMPAIGN,
-        nextType: ConjurationRelationshipType.CHARACTER,
-      },
-    });
-
-    const characters = await prisma.conjuration.findMany({
-      where: {
-        conjurerCode: 'players',
-        id: {
-          in: relationships.map((r) => r.nextNodeId),
-        },
-      },
-      include: {
-        images: {
-          where: {
-            primary: true,
-          },
-        },
-        user: true,
-      },
-    });
+    const campaignCharacters = await getCampaignCharacters(campaignId);
 
     track(AppEvent.GetCharacters, campaignId, trackingInfo);
 
-    return characters.map((c) => ({
+    return campaignCharacters.map((c) => ({
       ...c,
       imageUri: c.images.find((i) => i.primary)?.uri || null,
     }));

@@ -483,7 +483,11 @@ async function addToCampaign() {
       <div class="text-xl my-2">Related Conjurations</div>
       <ViewRelationships
         :start-node-id="conjuration.id"
-        :start-node-type="ConjurationRelationshipType.CONJURATION"
+        :start-node-type="
+          conjuration.conjurerCode === 'players'
+            ? ConjurationRelationshipType.CHARACTER
+            : ConjurationRelationshipType.CONJURATION
+        "
       />
     </div>
     <ModalAlternate :show="confirmDeleteConjuration">

@@ -252,15 +252,23 @@ async function changeTab(tabName: string) {
   tab.value = tabName;
   await router.push({ hash: `#${tabName}` });
 }
+
+const back = () => {
+  if (route.query.from) {
+    return route.query.from.toString();
+  } else {
+    return '/sessions';
+  }
+};
 </script>
 
 <template>
   <div v-if="session" class="pb-12 relative">
     <div class="flex flex-wrap justify-between">
-      <router-link :to="`/sessions`" class="button-primary flex self-center">
+      <button class="button-primary flex self-center" @click="back">
         <ArrowLeftIcon class="mr-2 h-4 w-4 self-center" />
-        Back to list
-      </router-link>
+        Back
+      </button>
 
       <div
         v-if="currentUserRole === CampaignRole.DM"
