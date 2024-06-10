@@ -6,7 +6,7 @@ import {
   ValidationTypes,
 } from '../lib/validationMiddleware';
 import CharacterController from '../controllers/characters';
-import { useLogger } from '../lib/loggingMiddleware';
+import { useInjectLoggingInfo, useLogger } from '../lib/loggingMiddleware';
 
 const router = express.Router();
 
@@ -25,6 +25,7 @@ const postCharactersSchema = z.object({
 router.post('/', [
   checkAuth0Jwt,
   useInjectUserId(),
+  useInjectLoggingInfo(),
   useValidateRequest(postCharactersSchema),
   async (req: Request, res: Response) => {
     const controller = new CharacterController();
@@ -57,6 +58,7 @@ const patchCharactersSchema = z.object({
 router.patch('/:characterId', [
   checkAuth0Jwt,
   useInjectUserId(),
+  useInjectLoggingInfo(),
   useValidateRequest(patchCharactersSchema),
   useValidateRequest(patchCharacterIdSchema, {
     validationType: ValidationTypes.Route,
@@ -83,6 +85,7 @@ const deleteCharacterByIdSchema = z.object({
 router.delete('/:characterId', [
   checkAuth0Jwt,
   useInjectUserId(),
+  useInjectLoggingInfo(),
   useValidateRequest(deleteCharacterByIdSchema, {
     validationType: ValidationTypes.Route,
   }),

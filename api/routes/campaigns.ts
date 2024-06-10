@@ -287,6 +287,7 @@ const postAcceptInviteRouteSchema = z.object({
 router.post('/invites/:inviteCode', [
   checkAuth0Jwt,
   useInjectUserId(),
+  useInjectLoggingInfo(),
   useValidateRequest(postAcceptInviteRouteSchema, {
     validationType: ValidationTypes.Route,
   }),
@@ -312,6 +313,7 @@ const getCampaignCharacterRouteSchema = z.object({
 router.get('/:campaignId/character/:characterId', [
   checkAuth0Jwt,
   useInjectUserId(),
+  useInjectLoggingInfo(),
   useValidateRequest(getCampaignCharacterRouteSchema, {
     validationType: ValidationTypes.Route,
   }),
@@ -337,6 +339,7 @@ const getCampaignCharactersRouteSchema = z.object({
 router.get('/:campaignId/characters', [
   checkAuth0Jwt,
   useInjectUserId(),
+  useInjectLoggingInfo(),
   useValidateRequest(getCampaignCharactersRouteSchema, {
     validationType: ValidationTypes.Route,
   }),

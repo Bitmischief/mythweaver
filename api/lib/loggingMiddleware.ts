@@ -9,7 +9,7 @@ export const getRequestId = (req: Request, res: Response) =>
   uuidv4();
 
 export const injectRequestId = (req: Request, res: Response) => {
-  const currentLogger = res.locals.logger || logger;
+  const currentLogger = useLogger(res);
 
   const requestId = getRequestId(req, res);
 
@@ -19,8 +19,6 @@ export const injectRequestId = (req: Request, res: Response) => {
 
 export const useInjectLoggingInfo = () => {
   return async (req: Request, res: Response, next: NextFunction) => {
-    injectRequestId(req, res);
-
     res.locals.logger = logger.child({
       userId: res.locals.auth?.userId,
       userEmail: res.locals.auth?.email,
@@ -28,6 +26,8 @@ export const useInjectLoggingInfo = () => {
       method: req.method,
       trackingInfo: res.locals.trackingInfo,
     });
+
+    injectRequestId(req, res);
 
     return next();
   };
