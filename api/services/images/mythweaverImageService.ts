@@ -4,6 +4,7 @@ import axios from 'axios';
 import { AppError, HttpCode } from '../../lib/errors/AppError';
 import { v4 as uuidv4 } from 'uuid';
 import { saveImage } from '../dataStorage';
+import logger from '../../lib/logger';
 
 export const generateMythWeaverModelImage = async (
   request: ImageGenerationRequest,
@@ -16,9 +17,13 @@ export const generateMythWeaverModelImage = async (
     });
   }
 
+  logger.info('Generating image with model: ', model);
+
   const response = await axios.post(model.executionUri, {
     prompt: `${model.promptPrefix} ${request.prompt}`,
     steps: model.defaultSteps,
+    negative_prompt: request.negativePrompt,
+    lora_name: model.loraName,
   });
 
   const image = response.data;

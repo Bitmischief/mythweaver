@@ -101,7 +101,7 @@ async function generate(generatorCode: string) {
           name="prompt"
           help="This is used to generate the text elements of your conjuration."
           type="textarea"
-          validation="length:0,1000"
+          validation="length:0,2500"
           :placeholder="summoner.customizationHelpPrompt"
           auto-height
         />

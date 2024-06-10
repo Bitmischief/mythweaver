@@ -2,6 +2,7 @@
 import { Conjuration, patchConjuration } from '@/api/conjurations.ts';
 import { computed, onMounted, onUpdated, onUnmounted, ref } from 'vue';
 import { CheckIcon, XMarkIcon, PlusIcon } from '@heroicons/vue/20/solid';
+import { PencilSquareIcon } from '@heroicons/vue/24/outline';
 import { remove } from 'lodash';
 import { useEventBus } from '@/lib/events.ts';
 import { showError, showSuccess } from '@/lib/notifications.ts';
@@ -18,6 +19,7 @@ import Select from '@/components/Core/Forms/Select.vue';
 import { BillingPlan } from '@/api/users.ts';
 import { CampaignRole } from '@/api/campaigns.ts';
 import WysiwygEditor from '@/components/Core/WysiwygEditor.vue';
+import { mapConjurationType } from '@/lib/util.ts';
 
 const emit = defineEmits(['edit']);
 const props = defineProps<{
@@ -188,23 +190,15 @@ function beginAddingTag() {
 }
 
 const conjurationType = computed(() => {
-  if (props.conjuration.conjurerCode === 'monsters') {
-    return 'Monster';
-  } else if (props.conjuration.conjurerCode === 'locations') {
-    return 'Location';
-  } else if (props.conjuration.conjurerCode === 'characters') {
-    return 'NPC';
-  } else if (props.conjuration.conjurerCode === 'items') {
-    return 'Magic Item';
-  } else if (props.conjuration.conjurerCode === 'players') {
-    return 'Character';
-  } else {
-    return '';
-  }
+  return mapConjurationType(props.conjuration.conjurerCode);
 });
 
-const hasAnyImages = computed(() => {
+const hasAnyPrimaryImages = computed(() => {
   return editableConjuration.value?.images?.some((i) => i.primary && i.uri);
+});
+
+const hasAnyImageHistory = computed(() => {
+  return editableConjuration.value?.images?.length;
 });
 
 const primaryImage = computed(() => {
@@ -224,6 +218,26 @@ function showCustomizeImageModal() {
     },
   });
 }
+
+function showImageHistoryModal() {
+  eventBus.$emit('toggle-customize-image-modal', {
+    image: {
+      prompt: editableConjuration.value.imageAIPrompt,
+    },
+    linking: {
+      conjurationId: editableConjuration.value.id,
+    },
+    historyMode: true,
+    showImageCredits: false,
+  });
+}
+
+function edit(e: any) {
+  emit('edit');
+  setTimeout(() => {
+    e.target.select();
+  }, 100);
+}
 </script>
 
 <template>
@@ -231,7 +245,7 @@ function showCustomizeImageModal() {
     <div class="md:flex">
       <div class="max-w-[35rem] overflow-hidden rounded-md md:mr-6">
         <CustomizableImage
-          v-if="hasAnyImages"
+          v-if="hasAnyPrimaryImages"
           :key="imageKey"
           :image="primaryImage"
           :editable="editable"
@@ -242,20 +256,28 @@ function showCustomizeImageModal() {
           :linking="{ conjurationId: editableConjuration.id }"
           class="mb-2"
         />
-        <div v-else-if="editable">
-          <button
-            class="button-gradient w-full mb-2"
-            @click="showCustomizeImageModal"
-          >
-            Conjure Image
-          </button>
+        <div v-else-if="editable" class="flex gap-2">
+          <div class="grow">
+            <button
+              class="button-gradient w-full mb-2"
+              @click="showCustomizeImageModal"
+            >
+              Conjure Image
+            </button>
+          </div>
+          <div v-if="hasAnyImageHistory">
+            <button class="button-ghost" @click="showImageHistoryModal">
+              <PencilSquareIcon class="h-5 w-5" />
+            </button>
+          </div>
         </div>
 
         <div class="mb-2 font-bold text-center">
           <input
             v-model="editableConjuration.name"
             class="input-secondary text-2xl"
-            :disabled="!editable || readOnly"
+            :disabled="!editable"
+            @click="edit"
           />
         </div>
 
@@ -276,7 +298,8 @@ function showCustomizeImageModal() {
             ]"
             value-prop="code"
             display-prop="name"
-            :disabled="!editable || readOnly"
+            :disabled="!editable"
+            @click="emit('edit')"
           />
           <div class="text-neutral-500 text-xs mx-2">
             Controls whether any MythWeaver user can view this conjuration or

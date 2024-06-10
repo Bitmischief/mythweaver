@@ -64,3 +64,24 @@ export function toTitleCase(str: string) {
     ?.map((x) => x.charAt(0).toUpperCase() + x.slice(1))
     .join(' ');
 }
+
+export function mapConjurationType(conjurerCode: string) {
+  switch (conjurerCode) {
+    case 'monsters':
+      return 'Monster';
+    case 'locations':
+      return 'Location';
+    case 'characters':
+      return 'NPC';
+    case 'items':
+      return 'Magic Item';
+    case 'vehicles':
+      return 'Vehicle';
+    case 'creatures':
+      return 'Creature';
+    case 'players':
+      return 'Characters';
+    default:
+      return '';
+  }
+}
