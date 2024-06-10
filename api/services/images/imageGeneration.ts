@@ -172,13 +172,6 @@ const generateImageFromProperProvider = async (
     });
   }
 
-  track(AppEvent.ConjureImage, request.userId, undefined, {
-    prompt: request.prompt,
-    negativePrompt: request.negativePrompt,
-    stylePreset: request.stylePreset,
-    count: request.count,
-  });
-
   let imageGenerationResponse: GeneratedImage;
 
   try {
@@ -241,6 +234,15 @@ const generateImageFromProperProvider = async (
     }
   }
 
+  track(AppEvent.ConjureImage, request.userId, undefined, {
+    prompt: request.prompt,
+    negativePrompt: request.negativePrompt,
+    stylePreset: request.stylePreset,
+    count: request.count,
+    modelId: request.modelId,
+    artistId: model.artists.length ? model.artists[0].artistId : undefined,
+  });
+
   await sendWebsocketMessage(
     request.userId,
     WebSocketEvent.ImageGenerationDone,
@@ -262,7 +264,7 @@ const generateImageFromProperProvider = async (
     imageCredits,
   );
 
-  if (model.artists.length === 1) {
+  if (model.paysRoyalties) {
     const { amountSupportingArtistsUsd } = await prisma.user.update({
       where: {
         id: request.userId,
