@@ -33,7 +33,7 @@ router.post('/', [
     const response = await controller.postCharacter(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       req.body,
     );
     return res.status(201).send(response);
@@ -69,7 +69,7 @@ router.patch('/:characterId', [
     const response = await controller.patchCharacter(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       req.params.characterId as unknown as number,
       req.body,
     );
@@ -95,7 +95,7 @@ router.delete('/:characterId', [
     const response = await controller.deleteCharacter(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       req.params.characterId as unknown as number,
     );
 

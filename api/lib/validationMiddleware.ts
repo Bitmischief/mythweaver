@@ -24,7 +24,7 @@ export const useValidateRequest = (
   },
 ) => {
   return async (req: Request, res: Response, next: NextFunction) => {
-    const logger = useLogger(res);
+    const logger = useLogger();
 
     if (!options) {
       options = {

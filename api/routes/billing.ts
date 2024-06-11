@@ -28,7 +28,7 @@ router.post('/checkout-url', [
     const response = await controller.getCheckoutUrl(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       req.body,
     );
     return res.status(200).send(response);
@@ -45,7 +45,7 @@ router.get('/redeem-preorder-url', [
     const response = await controller.getRedeemPreOrderUrl(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
     );
 
     return res.status(200).send(response);
@@ -70,7 +70,7 @@ router.get('/portal-url', [
 
     const response = await controller.getPortalUrl(
       res.locals.auth.userId,
-      useLogger(res),
+      useLogger(),
       req.query,
     );
     return res.status(200).send(response);
@@ -86,7 +86,7 @@ router.post('/webhook', [
     const event = await validateEvent((req as any).rawBody, sig as string);
 
     const controller = new BillingController();
-    await controller.processWebhook(event, useLogger(res));
+    await controller.processWebhook(event, useLogger());
     res.status(200).send();
   },
 ]);

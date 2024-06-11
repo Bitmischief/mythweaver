@@ -146,7 +146,7 @@ const errorHandlerMiddleware: ErrorRequestHandler = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   next: NextFunction,
 ) => {
-  const localLogger = useLogger(res);
+  const localLogger = useLogger();
   localLogger.error(
     `Error handler middleware: ${err?.message}`,
     { req, res },

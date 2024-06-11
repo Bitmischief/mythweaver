@@ -74,8 +74,8 @@ export class MythWeaverLogger {
     );
   }
 
-  public child(context: any) {
-    this.internalLogger.child(context);
+  public child(bindings: any) {
+    this.internalLogger = this.internalLogger.child(bindings);
     return this;
   }
 }

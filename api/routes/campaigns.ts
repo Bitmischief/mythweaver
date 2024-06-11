@@ -31,7 +31,7 @@ router.get('/', [
     const response = await controller.getCampaigns(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       offset as number,
       limit as number,
     );
@@ -59,7 +59,7 @@ router.get('/:campaignId', [
     const response = await controller.getCampaign(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       campaignId as number,
     );
     return res.status(200).send(response);
@@ -83,7 +83,7 @@ router.post('/', [
     const response = await controller.createCampaign(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       req.body,
     );
     return res.status(201).send(response);
@@ -117,7 +117,7 @@ router.put('/:campaignId', [
     const response = await controller.putCampaign(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       campaignId as number,
       req.body,
     );
@@ -145,7 +145,7 @@ router.delete('/:campaignId', [
     const response = await controller.deleteCampaign(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       campaignId as number,
     );
 
@@ -180,7 +180,7 @@ router.get('/:campaignId/members', [
     const response = await controller.getCampaignMembers(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       req.params.campaignId as unknown as number,
       offset as number,
       limit as number,
@@ -214,7 +214,7 @@ router.post('/:campaignId/members', [
     const response = await controller.inviteCampaignMember(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       req.params.campaignId as unknown as number,
       req.body,
     );
@@ -241,7 +241,7 @@ router.delete('/:campaignId/members/:memberId', [
     const response = await controller.deleteCampaignMember(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       req.params.campaignId as unknown as number,
       req.params.memberId as unknown as number,
     );
@@ -272,7 +272,7 @@ router.get('/invites/:inviteCode', [
 
     const response = await controller.getInvite(
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       req.params.inviteCode as unknown as string,
     );
 
@@ -297,7 +297,7 @@ router.post('/invites/:inviteCode', [
     const response = await controller.acceptInvite(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       req.params.inviteCode as unknown as string,
     );
 
@@ -323,7 +323,7 @@ router.get('/:campaignId/character/:characterId', [
     const response = await controller.getCampaignCharacter(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       req.params.campaignId as unknown as number,
       req.params.characterId as unknown as number,
     );
@@ -349,7 +349,7 @@ router.get('/:campaignId/characters', [
     const response = await controller.getMyCampaignCharacters(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       req.params.campaignId as unknown as number,
     );
 

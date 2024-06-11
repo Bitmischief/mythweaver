@@ -53,7 +53,7 @@ router.get('/:type/:nodeId', [
     const response = await controller.getRelationships(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       req.params.type as ConjurationRelationshipType,
       req.params.nodeId as unknown as number,
       req.query.types as ConjurationRelationshipType[],
@@ -90,7 +90,7 @@ router.post('/:type/:nodeId', [
     const response = await controller.postRelationship(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       req.params.type as ConjurationRelationshipType,
       req.params.nodeId as unknown as number,
       req.body,
@@ -117,7 +117,7 @@ router.delete('/:relationshipId', [
     const response = await controller.deleteRelationship(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       req.params.relationshipId as unknown as number,
     );
 
@@ -144,7 +144,7 @@ router.patch('/:relationshipId', [
     const response = await controller.patchRelationship(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       req.params.relationshipId as unknown as number,
       req.body,
     );

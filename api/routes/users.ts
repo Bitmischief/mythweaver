@@ -21,7 +21,7 @@ router.get('/me', [
     const response = await controller.getUser(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
     );
     return res.status(200).send(response);
   },
@@ -49,7 +49,7 @@ router.patch('/me', [
     const response = await controller.patchUser(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       req.body,
     );
 
@@ -67,7 +67,7 @@ router.get('/me/subscription', [
     const response = await controller.getSubscription(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
     );
 
     return res.status(200).send(response);
@@ -88,7 +88,7 @@ router.post('/add-credits', [
 
     const response = await controller.addUserCredits(
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       req.body,
     );
     return res.status(200).send(response);
