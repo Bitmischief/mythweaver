@@ -2139,10 +2139,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/mailchimp__mailchimp_marketing@^3.0.19":
-  version "3.0.19"
-  resolved "https://registry.npmjs.org/@types/mailchimp__mailchimp_marketing/-/mailchimp__mailchimp_marketing-3.0.19.tgz"
-  integrity sha512-J7Ef7GCV/bcKCna6emidb0cp0miVY64jRknwqIjAUlHY8H6rgE4XDIWISHVJhJ5ve9xQJ+/ZFOgmE8b2tmwKGg==
+"@types/mailchimp__mailchimp_marketing@^3.0.20":
+  version "3.0.20"
+  resolved "https://registry.yarnpkg.com/@types/mailchimp__mailchimp_marketing/-/mailchimp__mailchimp_marketing-3.0.20.tgz#1089b83c281c9c79a45581a19c33f7c74c790c1c"
+  integrity sha512-fg7iKnnbfBxyVjh6WZy39sXscuhaYv9K5DRAok/ykHMJeh3la4qSv+v4i5x0IgE3fGWTRZpixhCfkkzEDUImhw==
 
 "@types/mailchimp__mailchimp_transactional@^1.0.9":
   version "1.0.10"
