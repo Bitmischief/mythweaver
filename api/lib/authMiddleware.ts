@@ -22,7 +22,7 @@ export const checkAuth0Jwt = auth({
 
 export const useAuthenticateServiceRequest = () => {
   return async (req: Request, res: Response, next: NextFunction) => {
-    const logger = useLogger(res);
+    const logger = useLogger();
 
     try {
       const result = await expressServiceAuthentication(req, res);
@@ -44,7 +44,7 @@ export async function expressServiceAuthentication(
   req: Request,
   res: Response,
 ): Promise<boolean> {
-  const logger = useLogger(res);
+  const logger = useLogger();
 
   const req_token = req.headers['x-mw-token'];
   logger.info('Authenticating provided service token.');
@@ -60,7 +60,7 @@ export async function expressServiceAuthentication(
 
 export const useInjectUserId = () => {
   return async (req: Request, res: Response, next: NextFunction) => {
-    const logger = useLogger(res);
+    const logger = useLogger();
 
     const token = req.auth?.token || '';
     const jwt = jwtDecode(token) as any;

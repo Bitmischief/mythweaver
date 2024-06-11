@@ -38,7 +38,7 @@ class ErrorHandler {
       return;
     }
 
-    const localLogger = response ? useLogger(response) : logger;
+    const localLogger = useLogger();
     localLogger.fatal(
       `Critical uncaught error: ${error?.message}`,
       {

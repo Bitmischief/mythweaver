@@ -65,7 +65,7 @@ router.get('/', [
     const response = await controller.getConjurations(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       campaignId as number,
       saved as boolean,
       conjurerCodes as string,
@@ -104,7 +104,7 @@ router.get('/tags', [
     const response = await controller.getConjurationTags(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       term as string,
       offset as number,
       limit as number,
@@ -133,7 +133,7 @@ router.get('/:conjurationId', [
     const response = await controller.getConjuration(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       conjurationId as number,
     );
     return res.status(200).send(response);
@@ -157,7 +157,7 @@ router.post('/:conjurationId/save', [
     const response = await controller.postSaveConjuration(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       req.params.conjurationId as unknown as number,
     );
     return res.status(200).send(response);
@@ -189,7 +189,7 @@ router.patch('/:conjurationId', [
     const response = await controller.patchConjuration(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       conjurationId as number,
       req.body,
     );
@@ -212,7 +212,7 @@ router.delete('/:conjurationId', [
     await controller.deleteConjuration(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       conjurationId as number,
     );
     return res.status(200).send();
@@ -236,7 +236,7 @@ router.post('/:conjurationId/remove', [
     const response = await controller.postRemoveConjuration(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       req.params.conjurationId as unknown as number,
     );
     return res.status(200).send(response);
@@ -260,7 +260,7 @@ router.post('/:conjurationId/copy', [
     const response = await controller.postCopyConjuration(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       req.params.conjurationId as unknown as number,
     );
     return res.status(200).send(response);
@@ -282,7 +282,7 @@ router.get('/request/:requestId', [
     const response = await controller.getConjurationRequest(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       requestId as number,
     );
     return res.status(200).send(response);

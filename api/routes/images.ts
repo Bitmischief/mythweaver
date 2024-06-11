@@ -37,7 +37,7 @@ router.post('/', [
     const response = await controller.postImage(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       req.body,
     );
 
@@ -68,7 +68,7 @@ router.patch('/:imageId/conjurationId', [
     const response = await controller.patchImageConjurationId(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       imageId as number,
       req.body,
     );
@@ -96,7 +96,7 @@ router.post('/:imageId/upscale', [
     const response = await controller.postImageUpscale(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       imageId as number,
     );
 
@@ -119,7 +119,7 @@ router.patch('/:imageId/primary', [
     const response = await controller.patchPrimaryImage(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       imageId as number,
     );
 
@@ -146,7 +146,7 @@ router.get('/conjurations/:conjurationId/history', [
     const response = await controller.getConjurationImageHistory(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       conjurationId as number,
     );
 
