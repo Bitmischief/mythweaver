@@ -83,34 +83,38 @@ const proOnly = (gen: Conjurer) => {
         </div>
       </div>
       <div class="flex flex-wrap bg-surface-2 rounded-[24px] p-2">
-        <div class="basis-1/3 self-center">
-          <img
-            :src="`./images/generators/${gens.imageUri}`"
-            alt="generator image"
-            class="rounded-[20px]"
-          />
-        </div>
-        <div class="basis-2/3 px-3 rounded-[12px]">
-          <div class="truncate text-xl flex">
-            {{ gens.name }}
-            <div
-              v-if="gens.proOnly"
-              class="self-center mx-2 text-white text-xs px-2 skew-x-[-20deg] rounded-tl-[5px] rounded-br-[5px] bg-gradient-to-r from-[#E95252] to-[#E5AD59]"
-            >
-              PRO
+        <div class="flex">
+          <div class="basis-1/3">
+            <img
+              :src="`./images/generators/${gens.imageUri}`"
+              alt="generator image"
+              class="rounded-[20px]"
+            />
+          </div>
+          <div class="basis-2/3 px-3 rounded-[12px]">
+            <div class="overflow-visible text-xl flex">
+              <div class="truncate">
+                {{ gens.name }}
+              </div>
+              <div
+                v-if="gens.proOnly"
+                class="self-center mx-2 text-white text-xs px-2 skew-x-[-20deg] rounded-tl-[5px] rounded-br-[5px] bg-gradient-to-r from-[#E95252] to-[#E5AD59]"
+              >
+                PRO
+              </div>
+              <div
+                v-if="gens.experimental"
+                class="self-center text-white text-xs px-2 skew-x-[-20deg] rounded-tl-[5px] rounded-br-[5px] bg-gradient-blue"
+              >
+                BETA
+              </div>
             </div>
-            <div
-              v-if="gens.experimental"
-              class="self-center text-white text-xs px-2 skew-x-[-20deg] rounded-tl-[5px] rounded-br-[5px] bg-gradient-blue"
-            >
-              BETA
+            <div class="text-sm text-neutral-500">
+              {{ gens.description }}
             </div>
           </div>
-          <div class="text-sm text-neutral-500">
-            {{ gens.description }}
-          </div>
         </div>
-        <div class="w-full mt-2">
+        <div class="w-full group-[.active]/generator:mt-2">
           <div
             class="max-h-0 group-[.active]/generator:max-h-10 transition-all overflow-hidden"
           >

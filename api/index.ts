@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+
 dotenv.config();
 
 import express, {
@@ -145,8 +146,12 @@ const errorHandlerMiddleware: ErrorRequestHandler = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   next: NextFunction,
 ) => {
-  const logger = useLogger(res);
-  logger.error(`Error handler middleware: ${err?.message}`);
+  const localLogger = useLogger(res);
+  localLogger.error(
+    `Error handler middleware: ${err?.message}`,
+    { req, res },
+    err,
+  );
   errorHandler.handleError(err, res);
 };
 

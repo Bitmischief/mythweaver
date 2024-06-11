@@ -1,7 +1,7 @@
 import { jwtDecode } from 'jwt-decode';
 import { NextFunction, Request, Response } from 'express';
 import { prisma } from './providers/prisma';
-import { injectRequestId } from './loggingMiddleware';
+import { useLogger } from './loggingMiddleware';
 import { auth } from 'express-oauth2-jwt-bearer';
 import { createCustomer } from '../services/billing';
 import { modifyImageCreditCount } from '../services/credits';
@@ -22,7 +22,7 @@ export const checkAuth0Jwt = auth({
 
 export const useAuthenticateServiceRequest = () => {
   return async (req: Request, res: Response, next: NextFunction) => {
-    const logger = injectRequestId(req, res);
+    const logger = useLogger(res);
 
     try {
       const result = await expressServiceAuthentication(req, res);
@@ -44,7 +44,7 @@ export async function expressServiceAuthentication(
   req: Request,
   res: Response,
 ): Promise<boolean> {
-  const logger = injectRequestId(req, res);
+  const logger = useLogger(res);
 
   const req_token = req.headers['x-mw-token'];
   logger.info('Authenticating provided service token.');
@@ -60,7 +60,7 @@ export async function expressServiceAuthentication(
 
 export const useInjectUserId = () => {
   return async (req: Request, res: Response, next: NextFunction) => {
-    const logger = injectRequestId(req, res);
+    const logger = useLogger(res);
 
     const token = req.auth?.token || '';
     const jwt = jwtDecode(token) as any;
@@ -81,6 +81,8 @@ export const useInjectUserId = () => {
 
     res.locals.auth = {
       userId: user.id,
+      email: jwt.email,
+      user: user,
     };
 
     return next();
