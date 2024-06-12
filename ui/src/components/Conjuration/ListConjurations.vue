@@ -229,16 +229,21 @@ const clearFilters = () => {
     <div class="w-full md:flex md:justify-between">
       <div class="flex justify-center md:justify-start grow">
         <div v-if="conjurationsMineQuery.saved" class="text-xl self-center">
-          My Conjurations
-          <span v-if="conjurationsHistoryQuery.history" class="text-neutral-500"
-            >| History</span
+          <span class="gradient-text">My Conjurations</span>
+          <span
+            v-if="conjurationsHistoryQuery.history"
+            class="text-neutral-500"
           >
+            | History
+          </span>
         </div>
-        <div v-else class="text-xl self-center mr-6">Public Gallery</div>
+        <div v-else class="text-xl self-center mr-6 gradient-text">
+          Public Gallery
+        </div>
       </div>
 
       <div
-        class="mt-2 self-center flex justify-center md:justify-end gap-2 grow flex-wrap md:flex-nowrap"
+        class="mt-2 md:mt-0 self-center flex justify-center md:justify-end gap-2 grow flex-wrap md:flex-nowrap"
       >
         <div class="grow">
           <FormKit type="form" :actions="false" @submit="handleFiltersUpdated">

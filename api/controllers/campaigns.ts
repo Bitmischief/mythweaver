@@ -12,13 +12,21 @@ import {
   Tags,
 } from 'tsoa';
 import { prisma } from '../lib/providers/prisma';
-import { Campaign, CampaignMember } from '@prisma/client';
+import {
+  Campaign,
+  CampaignMember,
+  ConjurationRelationshipType,
+} from '@prisma/client';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { sendTransactionalEmail } from '../lib/transactionalEmail';
 import { v4 as uuidv4 } from 'uuid';
 import { urlPrefix } from '../lib/utils';
 import { MythWeaverLogger } from '../lib/logger';
+import {
+  getCampaignCharacters,
+  getManyRelationships,
+} from '../lib/relationshipsHelper';
 
 export interface GetCampaignsResponse {
   data: Campaign[];
@@ -66,6 +74,9 @@ export default class CampaignController {
     @Inject() logger: MythWeaverLogger,
     @Query() offset = 0,
     @Query() limit = 25,
+    @Query() term?: string,
+    @Query() nodeId?: number,
+    @Query() nodeType?: ConjurationRelationshipType,
   ): Promise<GetCampaignsResponse> {
     logger.info('Getting campaigns');
 
@@ -76,15 +87,37 @@ export default class CampaignController {
             userId,
           },
         },
+        name: term
+          ? {
+              contains: term,
+              mode: 'insensitive',
+            }
+          : undefined,
       },
       skip: offset,
       take: limit,
     });
 
+    let relationships = [] as any[];
+    if (nodeId && nodeType) {
+      relationships = await getManyRelationships(
+        nodeId,
+        nodeType,
+        ConjurationRelationshipType.CAMPAIGN,
+        campaigns.map((c) => c.id),
+        userId,
+      );
+    }
+
     track(AppEvent.GetCampaigns, userId, trackingInfo);
 
     return {
-      data: campaigns,
+      data: campaigns.map((c) => ({
+        ...c,
+        linked: relationships.length
+          ? relationships.some((r) => r.nextNodeId === c.id)
+          : false,
+      })),
       offset: offset,
       limit: limit,
     };
@@ -99,6 +132,22 @@ export default class CampaignController {
     @Inject() logger: MythWeaverLogger,
     @Route() campaignId = 0,
   ): Promise<Campaign> {
+    const actingUserCampaignMember = await prisma.campaignMember.findUnique({
+      where: {
+        userId_campaignId: {
+          userId,
+          campaignId,
+        },
+      },
+    });
+
+    if (!actingUserCampaignMember) {
+      throw new AppError({
+        httpCode: HttpCode.FORBIDDEN,
+        description: 'You are not a member of this campaign',
+      });
+    }
+
     const campaign = await prisma.campaign.findUnique({
       where: {
         id: campaignId,
@@ -419,7 +468,6 @@ export default class CampaignController {
         members: {
           include: {
             user: true,
-            character: true,
           },
         },
         user: true,
@@ -433,6 +481,8 @@ export default class CampaignController {
       });
     }
 
+    const campaignCharacters = await getCampaignCharacters(campaign.id);
+
     return {
       campaignName: campaign.name,
       invitingEmail: campaign.user.email,
@@ -440,8 +490,9 @@ export default class CampaignController {
         .filter((m) => m.email !== campaign.user.email)
         .map((m) => ({
           email: m?.email ?? m?.user?.email,
+          username: m?.user?.username,
           role: m?.role,
-          character: m?.character,
+          character: campaignCharacters.filter((c) => c.userId === m.userId),
         })),
     };
   }
@@ -582,22 +633,11 @@ export default class CampaignController {
       });
     }
 
-    const characters = await prisma.character.findMany({
-      where: {
-        campaignId: campaignId,
-      },
-      include: {
-        images: {
-          where: {
-            primary: true,
-          },
-        },
-      },
-    });
+    const campaignCharacters = await getCampaignCharacters(campaignId);
 
     track(AppEvent.GetCharacters, campaignId, trackingInfo);
 
-    return characters.map((c) => ({
+    return campaignCharacters.map((c) => ({
       ...c,
       imageUri: c.images.find((i) => i.primary)?.uri || null,
     }));

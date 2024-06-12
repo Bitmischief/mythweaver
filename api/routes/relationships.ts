@@ -125,6 +125,42 @@ router.delete('/:relationshipId', [
   },
 ]);
 
+const deleteRelationshipsSchema = z.object({
+  previousType: z.enum([
+    ConjurationRelationshipType.CAMPAIGN,
+    ConjurationRelationshipType.SESSION,
+    ConjurationRelationshipType.CHARACTER,
+    ConjurationRelationshipType.CONJURATION,
+  ]),
+  nextType: z.enum([
+    ConjurationRelationshipType.CAMPAIGN,
+    ConjurationRelationshipType.SESSION,
+    ConjurationRelationshipType.CHARACTER,
+    ConjurationRelationshipType.CONJURATION,
+  ]),
+  previousNodeId: z.coerce.number(),
+  nextNodeId: z.coerce.number(),
+});
+
+router.post('/remove', [
+  checkAuth0Jwt,
+  useInjectUserId(),
+  useInjectLoggingInfo(),
+  useValidateRequest(deleteRelationshipsSchema),
+  async (req: Request, res: Response) => {
+    const controller = new RelationshipController();
+
+    const response = await controller.deleteRelationshipByNodeIds(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      useLogger(),
+      req.body,
+    );
+
+    return res.status(200).send(response);
+  },
+]);
+
 const patchRelationshipSchema = z.object({
   comment: z.string().optional().nullable(),
   data: z.any().optional().nullable(),

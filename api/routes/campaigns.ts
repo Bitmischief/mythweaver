@@ -8,12 +8,23 @@ import {
 import CampaignController from '../controllers/campaigns';
 import rateLimit from 'express-rate-limit';
 import { useInjectLoggingInfo, useLogger } from '../lib/loggingMiddleware';
+import { ConjurationRelationshipType } from '@prisma/client';
 
 const router = express.Router();
 
 const getCampaignsSchema = z.object({
   offset: z.coerce.number().default(0).optional(),
   limit: z.coerce.number().min(1).default(10).optional(),
+  term: z.string().optional(),
+  nodeId: z.coerce.number().optional(),
+  nodeType: z
+    .enum([
+      ConjurationRelationshipType.CAMPAIGN,
+      ConjurationRelationshipType.SESSION,
+      ConjurationRelationshipType.CHARACTER,
+      ConjurationRelationshipType.CONJURATION,
+    ])
+    .optional(),
 });
 
 router.get('/', [
@@ -26,7 +37,13 @@ router.get('/', [
   async (req: Request, res: Response) => {
     const controller = new CampaignController();
 
-    const { offset = 0, limit = 10 } = req.query;
+    const {
+      offset = 0,
+      limit = 10,
+      term = undefined,
+      nodeId = undefined,
+      nodeType = undefined,
+    } = req.query;
 
     const response = await controller.getCampaigns(
       res.locals.auth.userId,
@@ -34,6 +51,9 @@ router.get('/', [
       useLogger(),
       offset as number,
       limit as number,
+      term as string | undefined,
+      nodeId as number | undefined,
+      nodeType as ConjurationRelationshipType | undefined,
     );
 
     return res.status(200).send(response);

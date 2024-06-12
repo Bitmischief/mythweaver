@@ -1,5 +1,6 @@
 import { createAuth0 } from '@auth0/auth0-vue';
 import type { Auth0Plugin } from '@auth0/auth0-vue';
+import { useAuthStore } from '@/store';
 
 const auth0Client: Auth0Plugin = createAuth0({
   domain: import.meta.env.VITE_AUTH0_DOMAIN,
@@ -15,6 +16,8 @@ const auth0Client: Auth0Plugin = createAuth0({
 export default auth0Client;
 
 export const logout = async () => {
+  const authStore = useAuthStore();
+  await authStore.logout();
   await auth0Client.logout();
   await auth0Client.loginWithRedirect();
 };

@@ -40,6 +40,13 @@ export interface PostRelationshipRequest {
   data?: any;
 }
 
+export interface DeleteRelationshipRequest {
+  previousNodeId: number;
+  previousType: ConjurationRelationshipType;
+  nextNodeId: number;
+  nextType: ConjurationRelationshipType;
+}
+
 export interface PatchRelationshipRequest {
   comment?: string;
   data?: any;
@@ -93,38 +100,29 @@ export default class RelationshipController {
           SELECT DISTINCT ON (ec.id)
             ec.*,
           CASE
-            WHEN ec."nextType" = 'CONJURATION' THEN to_jsonb(conj.*)
+            WHEN (ec."nextType" = 'CONJURATION' OR ec."nextType" = 'CHARACTER') THEN to_jsonb(conj.*)
             WHEN ec."nextType" = 'SESSION' THEN to_jsonb(sess.*)
             WHEN ec."nextType" = 'CAMPAIGN' THEN to_jsonb(camp.*)
-            WHEN ec."nextType" = 'CHARACTER' THEN to_jsonb(character.*)
           END AS entityData
           FROM entity_chain ec
            LEFT JOIN
                (SELECT c.*, i.uri as "imageUri"
                 FROM conjurations c
-                         LEFT JOIN (SELECT *
-                                    FROM images
-                                    WHERE "primary" = true) i
-                                   ON i."conjurationId" = c.id) conj
-               ON ec."nextType" = 'CONJURATION' AND ec."nextNodeId" = conj.id
+                    LEFT JOIN (SELECT *
+                               FROM images
+                               WHERE "primary" = true) i
+                    ON i."conjurationId" = c.id) conj
+               ON (ec."nextType" = 'CONJURATION' OR ec."nextType" = 'CHARACTER') AND ec."nextNodeId" = conj.id
            LEFT JOIN
                (SELECT s.*, i.uri as "imageUri"
                 FROM sessions s
-                         LEFT JOIN (SELECT *
-                                    FROM images
-                                    WHERE "primary" = true) i
-                                   ON i."sessionId" = s.id) sess
+                    LEFT JOIN (SELECT *
+                               FROM images
+                               WHERE "primary" = true) i
+                    ON i."sessionId" = s.id) sess
                ON ec."nextType" = 'SESSION' AND ec."nextNodeId" = sess.id
            LEFT JOIN
                campaigns camp ON ec."nextType" = 'CAMPAIGN' AND ec."nextNodeId" = camp.id
-           LEFT JOIN
-               (SELECT c.*, i.uri as "imageUri"
-                FROM characters c
-                         LEFT JOIN (SELECT *
-                                    FROM images
-                                    WHERE "primary" = true) i
-                                   ON i."characterId" = c.id) character
-               ON ec."nextType" = 'CHARACTER' AND ec."nextNodeId" = character.id
           ORDER BY ec.id, ec.depth)
         SELECT * FROM enriched_entities;
       `);
@@ -211,6 +209,30 @@ export default class RelationshipController {
     await prisma.conjurationRelationships.delete({
       where: {
         id: relationshipId,
+      },
+    });
+  }
+
+  @Security('jwt')
+  @OperationId('deleteRelationshipByNodeIds')
+  @Post('/remove')
+  public async deleteRelationshipByNodeIds(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
+    @Body() relationshipData: DeleteRelationshipRequest,
+  ) {
+    logger.info('Deleting relationship', {
+      userId,
+      relationshipData,
+    });
+
+    await prisma.conjurationRelationships.deleteMany({
+      where: {
+        previousNodeId: relationshipData.previousNodeId,
+        previousType: relationshipData.previousType,
+        nextNodeId: relationshipData.nextNodeId,
+        nextType: relationshipData.nextType,
       },
     });
   }

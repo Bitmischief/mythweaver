@@ -9,6 +9,7 @@ import ConjurationController from '../controllers/conjurations';
 import { useInjectLoggingInfo, useLogger } from '../lib/loggingMiddleware';
 import { ImageStylePreset } from '../controllers/images';
 import { ConjurationRelationshipType } from '@prisma/client';
+import conjurers from '../data/conjurers';
 
 const router = express.Router();
 
@@ -36,6 +37,12 @@ const getConjurationsSchema = z.object({
 
 const getConjurationRequestSchema = z.object({
   requestId: z.coerce.number().default(0),
+});
+
+const zodEnum = <T>(arr: T[]): [T, ...T[]] => arr as [T, ...T[]];
+const postConvertConjurationRequestSchema = z.object({
+  conjurationId: z.coerce.number().default(0),
+  conjurerCode: z.enum(zodEnum(conjurers.map((c: any) => c.code as string))),
 });
 
 router.get('/', [
@@ -285,6 +292,23 @@ router.get('/request/:requestId', [
       useLogger(),
       requestId as number,
     );
+    return res.status(200).send(response);
+  },
+]);
+
+router.post('/convert', [
+  checkAuth0Jwt,
+  useInjectUserId(),
+  useInjectLoggingInfo(),
+  useValidateRequest(postConvertConjurationRequestSchema),
+  async (req: Request, res: Response) => {
+    const controller = new ConjurationController();
+
+    const response = await controller.convertConjurationTypes(
+      res.locals.auth.userId,
+      req.body,
+    );
+
     return res.status(200).send(response);
   },
 ]);

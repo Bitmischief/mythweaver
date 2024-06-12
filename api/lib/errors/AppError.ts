@@ -1,7 +1,6 @@
 import {
   sendWebsocketMessage,
   WebSocketContext,
-  WebSocketEvent,
 } from '../../services/websockets';
 
 export enum HttpCode {

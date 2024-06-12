@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { Conjuration, saveConjuration } from '@/api/conjurations.ts';
-import { useRouter, useRoute } from 'vue-router';
+import { useRoute } from 'vue-router';
 import { BookmarkIcon as BookmarkIconSolid } from '@heroicons/vue/20/solid';
 import { BookmarkIcon as BookmarkIconOutline } from '@heroicons/vue/24/outline';
 import { PlusIcon, ArrowRightIcon } from '@heroicons/vue/24/solid';
 import { computed, ref } from 'vue';
 import { showError, showSuccess } from '@/lib/notifications.ts';
-import { mapConjurationType } from '@/lib/util.ts';
+import { mapConjurationType, mapNoImage } from '@/lib/util.ts';
 
 const props = defineProps<{
   data: Conjuration | undefined;
@@ -16,33 +16,24 @@ const props = defineProps<{
 }>();
 
 const conjuration = ref(props.data);
-const router = useRouter();
 const route = useRoute();
 
-async function navigateToViewConjuration(conjurationId: number) {
-  await router.push(`/conjurations/view/${conjurationId}`);
-}
-
 function getConjurationDescription(conjuration: Conjuration) {
-  let text = '';
-  if (conjuration.conjurerCode === 'characters') {
-    text = conjuration?.data?.blocks?.find(
-      (b: any) => (b.data.label = 'Description'),
-    )?.data.text;
-  } else if (conjuration.conjurerCode === 'locations') {
-    text = conjuration?.data?.blocks?.find(
-      (b: any) => (b.data.label = 'History'),
-    )?.data.text;
-  } else if (conjuration.conjurerCode === 'monsters') {
-    text = conjuration?.data?.blocks?.find(
-      (b: any) => (b.data.label = 'Description'),
-    )?.data.text;
-  } else if (conjuration.conjurerCode === 'items') {
-    text = conjuration?.data?.blocks?.find(
-      (b: any) => (b.data.label = 'Description'),
-    )?.data.text;
-  }
-  return text;
+  return (
+    conjuration?.data?.blocks?.find(
+      (b: any) => b.data?.label?.toLowerCase() === 'backstory',
+    )?.data.text ||
+    conjuration?.data?.blocks?.find(
+      (b: any) => b.data?.label?.toLowerCase() === 'description',
+    )?.data.text ||
+    conjuration?.data?.blocks?.find(
+      (b: any) => b.data?.label?.toLowerCase() === 'history',
+    )?.data.text ||
+    conjuration?.data?.blocks?.find(
+      (b: any) => b.data?.label?.toLowerCase() === 'background',
+    )?.data.text ||
+    conjuration?.data?.blocks?.first()?.data.text
+  );
 }
 
 function conjurationType(conjuration: Conjuration) {
@@ -90,13 +81,16 @@ const primaryImage = computed(() => {
 
 <template>
   <div v-if="conjuration">
-    <div
+    <router-link
       class="h-full flex cursor-pointer rounded-[20px] shadow-xl bg-surface-2 group relative"
       :class="{
         'flex-row py-2': condensedView,
         'flex-col justify-end': !condensedView,
       }"
-      @click="navigateToViewConjuration(conjuration.id)"
+      :to="{
+        path: `/conjurations/view/${conjuration.id}`,
+        query: { from: route.fullPath },
+      }"
     >
       <div
         class="relative m-2 grow group-hover:mx-6 transition-all"
@@ -120,13 +114,22 @@ const primaryImage = computed(() => {
             Image Conjuration Timed Out
           </div>
         </div>
-        <div v-else class="w-full flex justify-center h-full bg-gray-900/75">
+        <div
+          v-else-if="primaryImage?.generating"
+          class="w-full flex justify-center h-full bg-gray-900/75"
+        >
           <div
             class="self-center text-center text-[2rem] gradient-text animate-pulse"
           >
             Conjuring image...
           </div>
         </div>
+        <img
+          v-else
+          :src="mapNoImage(conjuration.conjurerCode)"
+          :alt="conjuration.name"
+          class="rounded-[16px] pointer-events-none"
+        />
         <div
           class="absolute flex justify-center items-center rounded-full bg-white/50 text-black text-xs font-bold"
           :class="{
@@ -303,7 +306,7 @@ const primaryImage = computed(() => {
           </div>
         </div>
       </div>
-    </div>
+    </router-link>
   </div>
   <div v-else-if="skeleton">
     <div

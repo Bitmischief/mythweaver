@@ -32,6 +32,7 @@ import { JsonObject } from '@prisma/client/runtime/library';
 import { format } from 'date-fns';
 import { getTranscription } from '../services/dataStorage';
 import { getClient } from '../lib/providers/openai';
+import { getManyRelationships } from '../lib/relationshipsHelper';
 
 interface GetSessionsResponse {
   data: Session[];
@@ -136,18 +137,14 @@ export default class SessionController {
     track(AppEvent.GetSessions, userId, trackingInfo);
 
     let relationships = [] as any[];
-    if (nodeId) {
-      relationships = await prisma.conjurationRelationships.findMany({
-        where: {
-          previousNodeId: nodeId,
-          previousType: nodeType,
-          userId: userId,
-          nextNodeId: {
-            in: sessions.map((c: Session) => c.id),
-          },
-          nextType: ConjurationRelationshipType.SESSION,
-        },
-      });
+    if (nodeId && nodeType) {
+      relationships = await getManyRelationships(
+        nodeId,
+        nodeType,
+        ConjurationRelationshipType.SESSION,
+        sessions.map((c: Session) => c.id),
+        userId,
+      );
     }
 
     return {

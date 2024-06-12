@@ -17,6 +17,7 @@ export interface Campaign {
   atmosphere?: string[];
   members?: CampaignMember[];
   inviteCode?: string;
+  linked?: boolean;
 }
 
 export interface CampaignMember {
@@ -37,6 +38,8 @@ export interface GetCampaignRequest {
   term?: string;
   offset?: number;
   limit?: number;
+  nodeId?: number;
+  nodeType?: string;
 }
 
 export interface PostCampaignRequest {
@@ -59,6 +62,7 @@ export interface CampaignInvite {
   members: [
     {
       email: string;
+      username: string;
       role: number;
       character: Character[];
     },

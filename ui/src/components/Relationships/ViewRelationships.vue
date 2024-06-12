@@ -18,7 +18,7 @@ import QuickViewConjuration from '@/components/Conjuration/QuickViewConjuration.
 import { mapConjurationType, toPascalCase } from '@/lib/util.ts';
 import { useEventBus } from '@/lib/events.ts';
 import QuickViewSession from '@/components/Sessions/QuickViewSession.vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 const eventBus = useEventBus();
 const props = defineProps<{
@@ -28,6 +28,7 @@ const props = defineProps<{
 const relationships = ref<any[]>([]);
 const relationshipHistory = ref<any[]>([]);
 const router = useRouter();
+const route = useRoute();
 
 onMounted(async () => {
   await fetchRelationships(props.startNodeId, props.startNodeType);
@@ -85,7 +86,17 @@ const currentlyViewingRelationship = ref<any>(null);
 const showViewModal = ref(false);
 
 async function viewNode(relationship: any) {
-  await router.push(`/conjurations/view/${relationship.entitydata.id}`);
+  if (relationship.nextType === ConjurationRelationshipType.SESSION) {
+    await router.push({
+      path: `/sessions/${relationship.entitydata.id}`,
+      query: { from: route.fullPath },
+    });
+  } else {
+    await router.push({
+      path: `/conjurations/view/${relationship.entitydata.id}`,
+      query: { from: route.fullPath },
+    });
+  }
 }
 
 async function removeRelationship(relationship: any) {
@@ -106,9 +117,32 @@ async function removeRelationship(relationship: any) {
 
 function getBadge(relationship: any) {
   if (relationship.nextType === ConjurationRelationshipType.CONJURATION) {
-    return mapConjurationType(relationship.entitydata.conjurerCode);
+    return mapConjurationType(relationship.entitydata?.conjurerCode);
   } else {
     return toPascalCase(relationship.nextType);
+  }
+}
+
+function noImage(relationship: any) {
+  if (relationship.entitydata?.conjurerCode) {
+    const conjurerCode = relationship.entitydata?.conjurerCode;
+    if (conjurerCode === 'monsters') {
+      return '/images/conjurations/monster-no-image.png';
+    } else if (conjurerCode === 'locations') {
+      return '/images/conjurations/location-no-image.png';
+    } else if (conjurerCode === 'characters') {
+      return '/images/conjurations/character-no-image.png';
+    } else if (conjurerCode === 'items') {
+      return '/images/conjurations/item-no-image.png';
+    } else if (conjurerCode === 'players') {
+      return '/images/conjurations/player-character-no-image.png';
+    } else {
+      return '/images/no-image.png';
+    }
+  } else if (relationship.nextType === ConjurationRelationshipType.CAMPAIGN) {
+    return '/images/generators/campaign.png';
+  } else {
+    return null;
   }
 }
 </script>
@@ -144,14 +178,24 @@ function getBadge(relationship: any) {
     <div
       v-for="relationship in relationships"
       :key="`r_${relationship.id}`"
-      class="bg-surface-2 p-3 rounded-[12px]"
+      class="bg-surface-2 p-1 rounded-[12px]"
     >
       <div class="relative">
         <img
-          :src="relationship.entitydata.imageUri"
+          :src="
+            relationship.entitydata?.imageUri ||
+            noImage(relationship) ||
+            '/images/no-image.png'
+          "
           alt="relationship img"
           class="rounded-[10px]"
         />
+        <div
+          v-if="!relationship.entitydata?.imageUri && !noImage(relationship)"
+          class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+        >
+          No Image
+        </div>
         <div
           class="absolute top-2 left-2 rounded-full bg-white/70 text-black text-sm px-2"
         >
@@ -170,7 +214,12 @@ function getBadge(relationship: any) {
                 Remove Relationship
               </div>
             </div>
-            <div class="relative flex group cursor-pointer sm:mx-2">
+            <div
+              v-if="
+                relationship.nextType !== ConjurationRelationshipType.CAMPAIGN
+              "
+              class="relative flex group cursor-pointer sm:mx-2"
+            >
               <ArrowTopRightOnSquareIcon
                 class="h-8 w-8"
                 @click="viewNode(relationship)"
@@ -199,7 +248,7 @@ function getBadge(relationship: any) {
         <div
           class="mt-1 text-lg whitespace-nowrap overflow-hidden text-ellipsis"
         >
-          {{ relationship.entitydata.name }}
+          {{ relationship.entitydata?.name }}
         </div>
       </div>
     </div>

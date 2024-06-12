@@ -19,27 +19,27 @@ import { CampaignRole } from '@/api/campaigns.ts';
 import { getSessions, SessionBase, postSession } from '@/api/sessions.ts';
 import { useEventBus } from '@/lib/events.ts';
 import { useSelectedCampaignId } from '@/lib/hooks.ts';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { format } from 'date-fns';
 import { showSuccess, showError } from '@/lib/notifications';
 import { Character } from '@/api/characters';
 import ModalAlternate from '@/components/ModalAlternate.vue';
-import CharacterOverview from '../Characters/CharacterOverview.vue';
 import { AxiosError } from 'axios';
 import { useCurrentUserRole } from '@/lib/hooks.ts';
 import { useAuthStore } from '@/store';
 import { useClipboard } from '@vueuse/core';
+import ViewRelationships from '@/components/Relationships/ViewRelationships.vue';
+import { ConjurationRelationshipType } from '@/lib/enums.ts';
 
 const selectedCampaignId = useSelectedCampaignId();
 const eventBus = useEventBus();
 const router = useRouter();
+const route = useRoute();
 const authStore = useAuthStore();
 
 const campaign = ref<Campaign>({} as Campaign);
 const characters = ref<Character[]>([]);
 
-const viewingCharacter = ref<Character>();
-const viewCharacter = ref(false);
 const showInviteModal = ref(false);
 const showDeleteModal = ref(false);
 const latestSession = ref<SessionBase>();
@@ -172,28 +172,6 @@ async function handleCreateSession() {
   await router.push(`/sessions/${createSessionResponse.data.id}`);
 }
 
-function campaignMemberName(campaignMemberId: number | undefined) {
-  const member = campaign.value.members?.find((m) => m.id === campaignMemberId);
-  if (!member) {
-    return 'n/a';
-  }
-
-  if (member.user?.username) {
-    return member.user?.username;
-  }
-
-  const email = member.user?.email ? member.user.email : member.email;
-  return splitEmail(email);
-}
-
-function campaignMemberEmail(campaignMemberId: number | undefined) {
-  const member = campaign.value.members?.find((m) => m.id === campaignMemberId);
-  if (!member) {
-    return;
-  }
-  return member.user?.email;
-}
-
 const requestedRemovedMemberId = ref<number | null>(null);
 const removeMemberLoading = ref(false);
 
@@ -220,11 +198,33 @@ async function handleRemoveMember() {
 const inviteLink = computed(() => {
   return `${window.location.origin}/invite?code=${campaign.value.inviteCode}`;
 });
+
+async function handleCreateRelationship() {
+  eventBus.$emit('create-relationship', {
+    relationshipType: ConjurationRelationshipType.CONJURATION,
+    nodeId: selectedCampaignId.value,
+    nodeType: ConjurationRelationshipType.CAMPAIGN,
+  });
+}
+
+async function viewCharacter(character: any) {
+  await router.push({
+    path: `/conjurations/view/${character.id}`,
+    query: { from: route.fullPath },
+  });
+}
+
+function primaryImage(char: any) {
+  if (char.images?.some((i: any) => i.primary && i.uri)) {
+    return char.images.find((i: any) => i.primary)?.uri;
+  }
+  return null;
+}
 </script>
 
 <template>
   <div class="flex justify-between mb-6">
-    <div>Overview</div>
+    <div class="self-center text-xl gradient-text">Campaign Overview</div>
     <div v-if="currentUserRole === CampaignRole.DM" class="flex">
       <router-link to="/campaign/edit" class="button-ghost flex mr-2">
         <PencilSquareIcon class="h-5 w-5 mr-1" />
@@ -452,41 +452,45 @@ const inviteLink = computed(() => {
       </div>
     </div>
     <div v-if="characters?.length" class="mb-8 mt-4 col-span-5">
-      <div class="flex mb-4">
-        <div class="mr-1">Characters</div>
+      <div class="flex gap-2 mb-4">
+        <div class="text-xl gradient-text">Campaign Characters</div>
         <div
-          class="text-xs bg-gradient-to-r from-fuchsia-500 to-violet-500 rounded-full px-2 py-1"
+          class="text-xs bg-gradient-to-r from-fuchsia-500 to-violet-500 rounded-full px-2 py-1 self-center"
         >
           {{ characters.length }}
         </div>
       </div>
-      <div class="flex overflow-x-auto">
+      <div class="flex pb-4 overflow-x-auto">
         <div
           v-for="(char, i) in characters"
           :key="`char_${i}`"
-          class="bg-surface-3 rounded-[25px] p-1 cursor-pointer min-w-[10em] max-w-[15em] mr-6 overflow-hidden"
-          @click="
-            viewingCharacter = char;
-            viewCharacter = true;
-          "
+          class="bg-surface-2 rounded-[12px] p-1 cursor-pointer min-w-[15em] max-w-[15em] mr-6 overflow-hidden"
+          @click="viewCharacter(char)"
         >
           <div class="relative">
             <img
-              :src="char.images?.find((i) => i.primary)?.uri"
+              :src="
+                primaryImage(char) ||
+                '/images/conjurations/player-character-no-image.png'
+              "
               alt="character portrait"
-              class="rounded-[20px]"
+              class="rounded-[12px]"
+              :class="{ 'filter blur-sm': !primaryImage(char) }"
             />
             <div
-              class="absolute top-1 left-1 max-w-[95%] rounded-full bg-white/50 text-black px-1 truncate flex"
+              v-if="!primaryImage(char)"
+              class="absolute top-1/2 left-1/2 -translate-x-1/2 text-neutral-300 text-lg"
+            >
+              No Image
+            </div>
+            <div
+              class="absolute top-1 left-1 max-w-[95%] rounded-full bg-white/50 text-black px-1 truncate flex gap-2"
             >
               <SparklesIcon
-                v-if="
-                  currentUser?.email ===
-                  campaignMemberEmail(char.campaignMemberId)
-                "
+                v-if="currentUser?.email === char.user.email"
                 class="h-5 text-fuchsia-500/75 self-center"
               />
-              {{ campaignMemberName(char.campaignMemberId) }}
+              {{ char.user.username ?? splitEmail(char.user.email) }}
             </div>
           </div>
           <div class="py-1 px-2 text-center truncate">
@@ -495,15 +499,19 @@ const inviteLink = computed(() => {
         </div>
       </div>
     </div>
-    <ModalAlternate :show="viewCharacter" @close="viewCharacter = false">
-      <div class="bg-surface-2 rounded-[20px] md:max-w-[75vw]">
-        <CharacterOverview
-          v-if="viewingCharacter"
-          :character="viewingCharacter"
-          @close="viewCharacter = false"
-        />
+    <div class="col-span-5">
+      <div class="flex gap-2 justify-between mb-2">
+        <div class="text-xl gradient-text">Campaign Relationships</div>
+        <button class="button-gradient" @click="handleCreateRelationship">
+          Add Relationships
+        </button>
       </div>
-    </ModalAlternate>
+      <ViewRelationships
+        v-if="selectedCampaignId"
+        :start-node-id="selectedCampaignId"
+        :start-node-type="ConjurationRelationshipType.CAMPAIGN"
+      />
+    </div>
     <ModalAlternate :show="showInviteModal" @close="showInviteModal = false">
       <div class="w-[95vw] md:w-[50vw] p-6 bg-surface-2 rounded-[20px]">
         <div class="flex justify-end">
