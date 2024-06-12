@@ -384,7 +384,7 @@ const conjurers: Generator[] = [
       'Conjure up fascinating and diverse creatures to enrich your world and add layers of realism and excitement to your adventures!',
     customizationHelpPrompt:
       "Tell us what animal you would like to create, and we'll craft a vivid and dynamic creature to enrich your game world!",
-    imageUri: 'animals.png',
+    imageUri: 'creatures.png',
     formatPrompt:
       '{ "name": "", "description": "", "size": "", "speed": "", "hitPoints": "", "actions": "" }',
     allowsImageGeneration: true,

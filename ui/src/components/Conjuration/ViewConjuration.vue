@@ -385,10 +385,9 @@ async function addToCampaign() {
                   </button>
                 </div>
               </MenuItem>
-              <MenuItem>
+              <MenuItem v-if="currentUserRole === CampaignRole.DM">
                 <div class="menu-item">
                   <button
-                    v-if="currentUserRole === CampaignRole.DM"
                     class="button-text flex gap-2"
                     @click="
                       handleCreateRelationship(
@@ -401,10 +400,9 @@ async function addToCampaign() {
                   </button>
                 </div>
               </MenuItem>
-              <MenuItem>
+              <MenuItem v-if="currentUserRole === CampaignRole.DM">
                 <div class="menu-item">
                   <button
-                    v-if="currentUserRole === CampaignRole.DM"
                     class="button-text flex gap-2"
                     @click="
                       handleCreateRelationship(
@@ -417,10 +415,9 @@ async function addToCampaign() {
                   </button>
                 </div>
               </MenuItem>
-              <MenuItem>
+              <MenuItem v-if="currentUserRole === CampaignRole.DM">
                 <div class="menu-item">
                   <button
-                    v-if="currentUserRole === CampaignRole.DM"
                     class="button-text flex gap-2"
                     @click="
                       handleCreateRelationship(

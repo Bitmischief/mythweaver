@@ -153,7 +153,7 @@ router.post('/remove', [
     const response = await controller.deleteRelationshipByNodeIds(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       req.body,
     );
 

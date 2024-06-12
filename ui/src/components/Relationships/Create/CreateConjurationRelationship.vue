@@ -8,6 +8,7 @@ import { LinkIcon, CheckCircleIcon } from '@heroicons/vue/20/solid';
 import { debounce } from 'lodash';
 import Spinner from '@/components/Core/Spinner.vue';
 import { useEventBus } from '@/lib/events.ts';
+import { mapConjurationType, mapNoImage } from '@/lib/util.ts';
 
 defineEmits(['relationship-created']);
 
@@ -123,35 +124,11 @@ const primaryImageUri = (data: any) => {
 };
 
 function conjurationType(conjuration: Conjuration) {
-  if (conjuration.conjurerCode === 'monsters') {
-    return 'Monster';
-  } else if (conjuration.conjurerCode === 'locations') {
-    return 'Location';
-  } else if (conjuration.conjurerCode === 'characters') {
-    return 'NPC';
-  } else if (conjuration.conjurerCode === 'items') {
-    return 'Magic Item';
-  } else if (conjuration.conjurerCode === 'players') {
-    return 'Character';
-  } else {
-    return '';
-  }
+  return mapConjurationType(conjuration.conjurerCode);
 }
 
 function noImage(conjurerCode: string) {
-  if (conjurerCode === 'monsters') {
-    return '/images/conjurations/monster-no-image.png';
-  } else if (conjurerCode === 'locations') {
-    return '/images/conjurations/location-no-image.png';
-  } else if (conjurerCode === 'characters') {
-    return '/images/conjurations/character-no-image.png';
-  } else if (conjurerCode === 'items') {
-    return '/images/conjurations/item-no-image.png';
-  } else if (conjurerCode === 'players') {
-    return '/images/conjurations/player-character-no-image.png';
-  } else {
-    return '';
-  }
+  return mapNoImage(conjurerCode);
 }
 </script>
 

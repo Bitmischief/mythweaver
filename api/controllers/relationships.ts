@@ -103,7 +103,6 @@ export default class RelationshipController {
             WHEN ec."nextType" = 'CONJURATION' THEN to_jsonb(conj.*)
             WHEN ec."nextType" = 'SESSION' THEN to_jsonb(sess.*)
             WHEN ec."nextType" = 'CAMPAIGN' THEN to_jsonb(camp.*)
-            WHEN ec."nextType" = 'CHARACTER' THEN to_jsonb(character.*)
           END AS entityData
           FROM entity_chain ec
            LEFT JOIN
@@ -112,9 +111,8 @@ export default class RelationshipController {
                     LEFT JOIN (SELECT *
                                FROM images
                                WHERE "primary" = true) i
-                    ON i."conjurationId" = c.id
-                WHERE "conjurerCode" != 'players') conj
-               ON ec."nextType" = 'CONJURATION' AND ec."nextNodeId" = conj.id
+                    ON i."conjurationId" = c.id) conj
+               ON (ec."nextType" = 'CONJURATION' OR ec."nextType" = 'CHARACTER') AND ec."nextNodeId" = conj.id
            LEFT JOIN
                (SELECT s.*, i.uri as "imageUri"
                 FROM sessions s
@@ -125,15 +123,6 @@ export default class RelationshipController {
                ON ec."nextType" = 'SESSION' AND ec."nextNodeId" = sess.id
            LEFT JOIN
                campaigns camp ON ec."nextType" = 'CAMPAIGN' AND ec."nextNodeId" = camp.id
-           LEFT JOIN
-               (SELECT c.*, i.uri as "imageUri"
-                FROM conjurations c
-                     LEFT JOIN (SELECT *
-                                FROM images
-                                WHERE "primary" = true) i
-                     ON i."conjurationId" = c.id
-                WHERE "conjurerCode" = 'players') character
-           ON ec."nextType" = 'CHARACTER' AND ec."nextNodeId" = character.id
           ORDER BY ec.id, ec.depth)
         SELECT * FROM enriched_entities;
       `);

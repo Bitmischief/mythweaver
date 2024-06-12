@@ -85,3 +85,23 @@ export function mapConjurationType(conjurerCode: string) {
       return '';
   }
 }
+
+export function mapNoImage(conjurerCode: string) {
+  if (conjurerCode === 'monsters') {
+    return '/images/conjurations/monster-no-image.png';
+  } else if (conjurerCode === 'locations') {
+    return '/images/conjurations/location-no-image.png';
+  } else if (conjurerCode === 'characters') {
+    return '/images/conjurations/character-no-image.png';
+  } else if (conjurerCode === 'items') {
+    return '/images/conjurations/item-no-image.png';
+  } else if (conjurerCode === 'players') {
+    return '/images/conjurations/player-character-no-image.png';
+  } else if (conjurerCode === 'vehicles') {
+    return '/images/conjurations/vehicles-no-image.png';
+  } else if (conjurerCode === 'creatures') {
+    return '/images/conjurations/creatures-no-image.png';
+  } else {
+    return '';
+  }
+}

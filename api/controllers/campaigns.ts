@@ -132,6 +132,22 @@ export default class CampaignController {
     @Inject() logger: MythWeaverLogger,
     @Route() campaignId = 0,
   ): Promise<Campaign> {
+    const actingUserCampaignMember = await prisma.campaignMember.findUnique({
+      where: {
+        userId_campaignId: {
+          userId,
+          campaignId,
+        },
+      },
+    });
+
+    if (!actingUserCampaignMember) {
+      throw new AppError({
+        httpCode: HttpCode.FORBIDDEN,
+        description: 'You are not a member of this campaign',
+      });
+    }
+
     const campaign = await prisma.campaign.findUnique({
       where: {
         id: campaignId,

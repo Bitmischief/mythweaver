@@ -88,7 +88,20 @@ INSERT INTO "conjuration_relationships" ("previousNodeId", "previousType", "next
     'CHARACTER' as "nextType",
     "userId"
  FROM "conjurations"
- WHERE "conjurerCode" = 'players' AND "dataBackup" IS NOT NULL
+ WHERE "conjurerCode" = 'players' AND "campaignId" IS NOT NULL AND "dataBackup" IS NOT NULL
+);
+
+-- same as before but create the relationship in the opposite direction
+INSERT INTO "conjuration_relationships" ("previousNodeId", "previousType", "nextNodeId", "nextType", "userId")
+(
+ SELECT
+    "campaignId" as "nextNodeId",
+    'CAMPAIGN' as "nextType",
+    id as "previousNodeId",
+    'CHARACTER' as "previousType",
+    "userId"
+ FROM "conjurations"
+ WHERE "conjurerCode" = 'players' AND "campaignId" IS NOT NULL AND "dataBackup" IS NOT NULL
 );
 
 -- update images where "characterId" = id we stored in backupData, set "conjurationId" to conjurations id
