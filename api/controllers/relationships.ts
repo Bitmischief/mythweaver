@@ -100,7 +100,7 @@ export default class RelationshipController {
           SELECT DISTINCT ON (ec.id)
             ec.*,
           CASE
-            WHEN ec."nextType" = 'CONJURATION' THEN to_jsonb(conj.*)
+            WHEN (ec."nextType" = 'CONJURATION' OR ec."nextType" = 'CHARACTER') THEN to_jsonb(conj.*)
             WHEN ec."nextType" = 'SESSION' THEN to_jsonb(sess.*)
             WHEN ec."nextType" = 'CAMPAIGN' THEN to_jsonb(camp.*)
           END AS entityData
