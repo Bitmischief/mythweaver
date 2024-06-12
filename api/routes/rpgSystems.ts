@@ -31,7 +31,7 @@ router.get('/', [
     const response = await controller.getRpgSystems(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       term as string,
       offset as number,
       limit as number,

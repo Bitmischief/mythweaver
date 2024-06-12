@@ -62,7 +62,7 @@ router.get('/', [
     const response = await controller.getSessions(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       campaignId as number,
       offset as number,
       limit as number,
@@ -99,7 +99,7 @@ router.get('/:sessionId', [
     const response = await controller.getSession(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       sessionId as number,
     );
 
@@ -123,7 +123,7 @@ router.post('/', [
     const response = await controller.postSession(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       req.body,
     );
 
@@ -167,7 +167,7 @@ router.patch('/:sessionId', [
     const response = await controller.patchSession(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       sessionId as number,
       req.body,
     );
@@ -191,7 +191,7 @@ router.delete('/:sessionId', [
     await controller.deleteSession(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       sessionId as number,
     );
 
@@ -214,7 +214,7 @@ router.post('/generate-summary', [
     const response = await controller.postGenerateSummary(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       req.body,
     );
 
@@ -237,7 +237,7 @@ router.post('/:sessionId/email-summary', [
     await controller.postSessionSummaryEmail(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       sessionId as number,
     );
 
@@ -262,7 +262,7 @@ router.post('/:sessionId/audio', [
     const response = await controller.postSessionAudio(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       sessionId as number,
       {
         audioName: file?.originalname ?? '',
@@ -290,7 +290,7 @@ router.post('/:sessionId/transcription', [
     await controller.postSessionTranscription(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       requestId as string,
       sessionId as number,
     );
@@ -316,7 +316,7 @@ router.patch('/:sessionId/transcription', [
 
     await controller.patchSessionTranscription(
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       sessionId as number,
       req.body,
     );
@@ -340,7 +340,7 @@ router.post('/:sessionId/recap-transcription', [
     const response = await controller.postRecapTranscription(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       sessionId as number,
     );
 

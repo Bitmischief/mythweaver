@@ -36,7 +36,7 @@ router.get('/', [
     const response = await controller.getGenerators(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       offset as number,
       limit as number,
     );
@@ -64,7 +64,7 @@ router.get('/:generatorCode', [
     const response = await controller.getGenerator(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       generatorCode as string,
     );
 
@@ -87,7 +87,7 @@ router.post('/:generatorCode/generate/quick', [
     const response = await controller.postGeneratorGenerateQuick(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       generatorCode as string,
     );
 
@@ -122,7 +122,7 @@ router.post('/:generatorCode/generate', [
     const response = await controller.postGeneratorGenerate(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       generatorCode as string,
       req.body,
     );
@@ -150,7 +150,7 @@ router.get('/requests/:conjurationRequestId', [
     const response = await controller.getConjurationRequest(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       conjurationRequestId as number,
     );
 
@@ -176,7 +176,7 @@ router.post('/arbitrary', [
     const response = await controller.postGenerateArbitrary(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       req.body,
     );
 
@@ -201,7 +201,7 @@ router.post('/arbitrary/prompt', [
     const response = await controller.postGenerateArbitraryFromPrompt(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       req.body,
     );
 
@@ -226,7 +226,7 @@ router.post('/arbitrary/replace', [
     const response = await controller.postGenerateArbitraryReplacement(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       req.body,
     );
 
@@ -249,7 +249,7 @@ router.post('/magic-link/:magicLink', [
     const response = await controller.postMagicLinkGeneration(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       magicLink,
     );
 

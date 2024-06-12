@@ -1,6 +1,6 @@
 import { ZodObject } from 'zod';
 import { NextFunction, Request, Response } from 'express';
-import { injectRequestId } from './loggingMiddleware';
+import { useLogger } from './loggingMiddleware';
 
 export enum ValidationTypes {
   Body,
@@ -24,7 +24,7 @@ export const useValidateRequest = (
   },
 ) => {
   return async (req: Request, res: Response, next: NextFunction) => {
-    const logger = injectRequestId(req, res);
+    const logger = useLogger();
 
     if (!options) {
       options = {

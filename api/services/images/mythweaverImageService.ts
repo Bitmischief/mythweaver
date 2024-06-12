@@ -17,7 +17,7 @@ export const generateMythWeaverModelImage = async (
     });
   }
 
-  logger.info('Generating image with model: ', model);
+  logger.info(`Generating image with model: ${model?.description}`, model);
 
   const response = await axios.post(model.executionUri, {
     prompt: `${model.promptPrefix} ${request.prompt}`,

@@ -28,7 +28,7 @@ router.get('/', [
     const response = await controller.getImageModels(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       req.query.offset as unknown as number,
       req.query.limit as unknown as number,
     );

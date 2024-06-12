@@ -6,7 +6,7 @@ import {
   ValidationTypes,
 } from '../lib/validationMiddleware';
 import CharacterController from '../controllers/characters';
-import { useLogger } from '../lib/loggingMiddleware';
+import { useInjectLoggingInfo, useLogger } from '../lib/loggingMiddleware';
 
 const router = express.Router();
 
@@ -25,6 +25,7 @@ const postCharactersSchema = z.object({
 router.post('/', [
   checkAuth0Jwt,
   useInjectUserId(),
+  useInjectLoggingInfo(),
   useValidateRequest(postCharactersSchema),
   async (req: Request, res: Response) => {
     const controller = new CharacterController();
@@ -32,7 +33,7 @@ router.post('/', [
     const response = await controller.postCharacter(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       req.body,
     );
     return res.status(201).send(response);
@@ -57,6 +58,7 @@ const patchCharactersSchema = z.object({
 router.patch('/:characterId', [
   checkAuth0Jwt,
   useInjectUserId(),
+  useInjectLoggingInfo(),
   useValidateRequest(patchCharactersSchema),
   useValidateRequest(patchCharacterIdSchema, {
     validationType: ValidationTypes.Route,
@@ -67,7 +69,7 @@ router.patch('/:characterId', [
     const response = await controller.patchCharacter(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       req.params.characterId as unknown as number,
       req.body,
     );
@@ -83,6 +85,7 @@ const deleteCharacterByIdSchema = z.object({
 router.delete('/:characterId', [
   checkAuth0Jwt,
   useInjectUserId(),
+  useInjectLoggingInfo(),
   useValidateRequest(deleteCharacterByIdSchema, {
     validationType: ValidationTypes.Route,
   }),
@@ -92,7 +95,7 @@ router.delete('/:characterId', [
     const response = await controller.deleteCharacter(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       req.params.characterId as unknown as number,
     );
 

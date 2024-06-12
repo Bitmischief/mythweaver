@@ -9,19 +9,13 @@ export const getRequestId = (req: Request, res: Response) =>
   uuidv4();
 
 export const injectRequestId = (req: Request, res: Response) => {
-  const currentLogger = res.locals.logger || logger;
-
   const requestId = getRequestId(req, res);
-
-  res.locals.logger = currentLogger.child({ requestId });
-  return res.locals.logger;
+  logger.child({ requestId });
 };
 
 export const useInjectLoggingInfo = () => {
   return async (req: Request, res: Response, next: NextFunction) => {
-    injectRequestId(req, res);
-
-    res.locals.logger = logger.child({
+    logger.child({
       userId: res.locals.auth?.userId,
       userEmail: res.locals.auth?.email,
       url: req.originalUrl,
@@ -29,10 +23,12 @@ export const useInjectLoggingInfo = () => {
       trackingInfo: res.locals.trackingInfo,
     });
 
+    injectRequestId(req, res);
+
     return next();
   };
 };
 
-export const useLogger = (res: Response): MythWeaverLogger => {
-  return res.locals.logger || logger;
+export const useLogger = (): MythWeaverLogger => {
+  return logger;
 };

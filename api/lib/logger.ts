@@ -9,14 +9,16 @@ export class MythWeaverLogger {
       {
         timestamp: pino.stdTimeFunctions.isoTime,
       },
-      isLocalDevelopment
-        ? undefined
-        : pino.transport({
-            target: '@logtail/pino',
-            options: {
+      pino.transport({
+        target: isLocalDevelopment ? 'pino-pretty' : '@logtail/pino',
+        options: isLocalDevelopment
+          ? {
+              colorize: true,
+            }
+          : {
               sourceToken: process.env.BETTERSTACK_LOGGER_SOURCE_TOKEN,
             },
-          }),
+      }),
     );
   }
 
@@ -24,7 +26,7 @@ export class MythWeaverLogger {
     this.internalLogger.info(
       {
         message,
-        context: extra,
+        message_json: extra,
       },
       message,
     );
@@ -34,17 +36,23 @@ export class MythWeaverLogger {
     this.internalLogger.warn(
       {
         message,
-        context: extra,
+        message_json: extra,
       },
       message,
     );
   }
 
-  public fatal(message: string, extra?: any) {
+  public fatal(message: string, extra?: any, error?: Error | any) {
     this.internalLogger.fatal(
       {
+        error: error
+          ? {
+              message: error.message,
+              stack: error.stack,
+            }
+          : undefined,
         message,
-        context: extra,
+        message_json: extra,
       },
       message,
     );
@@ -60,14 +68,15 @@ export class MythWeaverLogger {
             }
           : undefined,
         message,
-        extra,
+        message_json: extra,
       },
       message,
     );
   }
 
-  public child(context: any) {
-    return this.internalLogger.child(context);
+  public child(bindings: any) {
+    this.internalLogger = this.internalLogger.child(bindings);
+    return this;
   }
 }
 

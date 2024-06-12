@@ -15,7 +15,7 @@ router.get('/:artistId', [
     const response = await controller.getArtist(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      useLogger(res),
+      useLogger(),
       req.params.artistId as unknown as number,
     );
 

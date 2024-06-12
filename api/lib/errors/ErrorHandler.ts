@@ -2,6 +2,7 @@ import { Response } from 'express';
 import { AppError, HttpCode } from './AppError';
 import { AxiosError } from 'axios';
 import logger from '../logger';
+import { useLogger } from '../loggingMiddleware';
 
 class ErrorHandler {
   private isTrustedError(error: Error): boolean {
@@ -37,11 +38,16 @@ class ErrorHandler {
       return;
     }
 
-    logger.fatal('Critical uncaught error', {
-      message: error?.message,
-      description: (error as AppError)?.description,
-      responseData: (error as AxiosError)?.response?.data,
-    });
+    const localLogger = useLogger();
+    localLogger.fatal(
+      `Critical uncaught error: ${error?.message}`,
+      {
+        message: error?.message,
+        description: (error as AppError)?.description,
+        responseData: (error as AxiosError)?.response?.data,
+      },
+      error,
+    );
 
     if (response && response.status) {
       response
