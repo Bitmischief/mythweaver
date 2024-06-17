@@ -370,7 +370,7 @@ const selectedModelIsMythWeaverV1 = computed(() => {
   <template v-if="!conjuring && !upscaling && !done">
     <div
       v-if="showImageCredits || inModal"
-      class="py-4"
+      class="md:pb-4"
       :class="{ 'absolute right-2 top-0': image.uri }"
     >
       <div class="flex justify-end">
@@ -448,7 +448,7 @@ const selectedModelIsMythWeaverV1 = computed(() => {
             <span class="self-center">Back</span>
           </button>
         </div>
-        <div class="grow flex justify-end">
+        <div class="grow flex justify-end px-2">
           <button
             class="flex button-gradient py-2 px-3 disabled:opacity-75"
             type="submit"

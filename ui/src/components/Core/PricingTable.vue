@@ -44,6 +44,7 @@ const proPlanId = computed(() => import.meta.env.VITE_STRIPE_PRO_PLAN_ID);
           '100 images/mo',
           'Image Upscaling',
           'Image Modifications',
+          'Session Audio Recordings',
           'Private Conjurations',
           'Campaign Management',
         ]"
@@ -57,7 +58,6 @@ const proPlanId = computed(() => import.meta.env.VITE_STRIPE_PRO_PLAN_ID);
         :features="[
           '300 images/mo',
           'All Basic features PLUS',
-          'Session Audio Recordings',
           'Session Audio Transcripts',
           'Advanced Conjuration Types',
           '(soon) World Management',

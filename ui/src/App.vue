@@ -32,6 +32,7 @@ import { useAuth0 } from '@auth0/auth0-vue';
 import { reportInitialTrackingData } from '@/lib/tracking.ts';
 import ConjureImage from '@/components/Conjure/ConjureImage.vue';
 import { fbq, rdt } from '@/lib/conversions.ts';
+import UserSignupSource from '@/components/Core/UserSignupSource.vue';
 import { DndProvider } from 'vue3-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { TouchBackend } from 'react-dnd-touch-backend';
@@ -48,6 +49,7 @@ const showPreorderRedemptionModal = ref(false);
 const showUpgradeModal = ref(false);
 const { isLoading, isAuthenticated } = useAuth0();
 const conjureV2 = useLDFlag('conjure-v2');
+const showUserSourceModal = ref(false);
 
 onBeforeMount(async () => {
   if (location.pathname.startsWith('/invite')) {
@@ -88,7 +90,8 @@ onMounted(async () => {
         fbq('track', 'Lead');
         rdt('track', 'SignUp');
         rdt('track', 'Lead');
-        await reportInitialTrackingData();
+
+        showUserSourceModal.value = true;
       }
 
       if (user.preorderRedemptionCoupon) {
@@ -193,6 +196,15 @@ eventBus.$on('show-subscription-modal', () => {
   showUpgradeModal.value = true;
 });
 
+async function finishOnboarding(sourceInfo: {
+  source: string;
+  influencer: string | undefined;
+}) {
+  await reportInitialTrackingData(sourceInfo.source, sourceInfo.influencer);
+  showUserSourceModal.value = false;
+  showSuccess({ message: 'Thank you for taking the time to fill that out!' });
+}
+
 const dndBackend = computed(() => {
   if (isMobile()) {
     return TouchBackend;
@@ -283,7 +295,7 @@ function isMobile() {
 
   <ModalAlternate :show="showCustomizeImageModal" extra-dark>
     <div
-      class="relative pt-8 md:m-6 md:p-6 md:px-12 bg-surface-2 rounded-[20px] min-w-[70vw] text-white mb-12"
+      class="relative pt-2 md:m-6 md:p-6 md:px-12 bg-surface-2 rounded-[20px] min-w-[70vw] max-w-[90vw] text-white mb-12"
     >
       <ConjureImage
         v-if="conjureV2"
@@ -418,6 +430,14 @@ function isMobile() {
       </div>
 
       <PricingTable />
+    </div>
+  </ModalAlternate>
+
+  <ModalAlternate :show="showUserSourceModal" extra-dark>
+    <div
+      class="relative pt-8 md:m-6 md:p-6 md:px-12 bg-surface-2 rounded-[20px] min-w-[70vw] text-white mb-12"
+    >
+      <UserSignupSource @finish-onboarding="finishOnboarding" />
     </div>
   </ModalAlternate>
 

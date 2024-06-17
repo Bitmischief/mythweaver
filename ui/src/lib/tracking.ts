@@ -12,7 +12,7 @@ function getCookie(name: string): string | null {
   return null;
 }
 
-export const reportInitialTrackingData = async () => {
+export const reportInitialTrackingData = async (source: string, influencer: string | undefined) => {
   // Read and parse the marketing_info cookie
   const marketingInfoCookie = getCookie('marketing_info');
   if (marketingInfoCookie) {
@@ -29,6 +29,8 @@ export const reportInitialTrackingData = async () => {
         utm_campaign: marketingInfo.params?.utm_campaign,
         utm_term: marketingInfo.params?.utm_term,
         utm_content: marketingInfo.params?.utm_content,
+        declared_signup_source: source,
+        declared_influencer: influencer,
       });
     } catch (error) {
       console.error('Error parsing marketing_info cookie:', error);

@@ -70,7 +70,7 @@ function getConjurationDescription(conjuration: Conjuration) {
     conjuration?.data?.blocks?.find(
       (b: any) => b.data?.label?.toLowerCase() === 'background',
     )?.data.text ||
-    conjuration?.data?.blocks?.first()?.data.text
+    conjuration?.data?.blocks[0]?.data.text
   );
 }
 
