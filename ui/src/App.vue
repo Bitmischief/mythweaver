@@ -277,7 +277,7 @@ async function finishOnboarding(sourceInfo: {
 
   <ModalAlternate :show="showCustomizeImageModal" extra-dark>
     <div
-      class="relative pt-8 md:m-6 md:p-6 md:px-12 bg-surface-2 rounded-[20px] min-w-[70vw] text-white mb-12"
+      class="relative pt-2 md:m-6 md:p-6 md:px-12 bg-surface-2 rounded-[20px] min-w-[70vw] max-w-[90vw] text-white mb-12"
     >
       <ConjureImage
         v-if="conjureV2"
