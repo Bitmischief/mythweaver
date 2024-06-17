@@ -4,16 +4,54 @@ import { useRoute } from 'vue-router';
 import { BookmarkIcon as BookmarkIconSolid } from '@heroicons/vue/20/solid';
 import { BookmarkIcon as BookmarkIconOutline } from '@heroicons/vue/24/outline';
 import { PlusIcon, ArrowRightIcon } from '@heroicons/vue/24/solid';
-import { computed, ref } from 'vue';
+import { computed, ref, unref } from 'vue';
 import { showError, showSuccess } from '@/lib/notifications.ts';
 import { mapConjurationType, mapNoImage } from '@/lib/util.ts';
+import { useDrag } from 'vue3-dnd';
+import { postMoveCollectionConjuration } from '@/api/collections.ts';
 
 const props = defineProps<{
   data: Conjuration | undefined;
   skeleton?: boolean;
   showSaves?: boolean;
   condensedView?: boolean;
+  draggable?: boolean;
 }>();
+
+const [collect, drag] = useDrag(() => ({
+  type: 'Conjuration',
+  item: () => ({
+    id: props.data?.id,
+    name: props.data?.name,
+    type: 'Conjuration',
+  }),
+  end: async (item, monitor) => {
+    const dropResult = monitor.getDropResult<{
+      id: number;
+      name: string;
+      type: string;
+    }>();
+    if (item && dropResult) {
+      if (
+        item.type === 'Conjuration' &&
+        dropResult.type === 'Collection' &&
+        item.id &&
+        dropResult.id
+      ) {
+        await postMoveCollectionConjuration({
+          conjurationId: item.id,
+          collectionId: dropResult.id,
+        });
+      }
+    }
+  },
+  collect: (monitor) => ({
+    isDragging: monitor.isDragging(),
+    handlerId: monitor.getHandlerId(),
+  }),
+}));
+const isDragging = computed(() => collect.value.isDragging);
+const opacity = computed(() => (unref(isDragging) ? 0.75 : 1));
 
 const conjuration = ref(props.data);
 const route = useRoute();
@@ -80,7 +118,11 @@ const primaryImage = computed(() => {
 </script>
 
 <template>
-  <div v-if="conjuration">
+  <div
+    v-if="conjuration"
+    :ref="draggable ? drag : undefined"
+    :style="{ opacity }"
+  >
     <router-link
       class="h-full flex cursor-pointer rounded-[20px] shadow-xl bg-surface-2 group relative"
       :class="{

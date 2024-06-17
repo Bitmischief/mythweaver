@@ -77,6 +77,7 @@ export default class ConjurationController {
     @Query() search?: string,
     @Query() nodeId?: number,
     @Query() nodeType?: ConjurationRelationshipType,
+    @Query() collectionId?: number,
   ): Promise<GetConjurationsResponse> {
     const conjurerCodes = conjurerCodeString
       ?.split(',')
@@ -92,16 +93,17 @@ export default class ConjurationController {
       });
     }
     if (search) {
-      orClause.push({
-        name: {
-          search: search.replaceAll(/\s/g, ' | '),
-        },
-      });
       const t = search.toLowerCase().split(/\s/g);
-      t.forEach((tag) => {
+      t.forEach((term) => {
+        orClause.push({
+          name: {
+            contains: term,
+            mode: 'insensitive',
+          },
+        });
         orClause.push({
           tags: {
-            has: tag,
+            has: term,
           },
         });
       });
@@ -176,6 +178,15 @@ export default class ConjurationController {
       });
     }
 
+    let collectionConjurations = [] as any[];
+    if (collectionId) {
+      collectionConjurations = await prisma.collectionConjuration.findMany({
+        where: {
+          collectionId: collectionId,
+        },
+      });
+    }
+
     return {
       data: conjurations.map((c) => ({
         ...c,
@@ -192,6 +203,9 @@ export default class ConjurationController {
         imageUri: c.images.find((i: any) => i.primary)?.uri || null,
         imageModelName:
           c.images.find((i: any) => i.primary)?.imageModel?.description || null,
+        inCollection: collectionConjurations.some(
+          (cc) => cc.conjurationId === c.id,
+        ),
       })),
       offset: offset,
       limit: limit,

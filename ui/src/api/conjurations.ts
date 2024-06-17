@@ -26,6 +26,7 @@ export interface Conjuration {
   updatedAt?: string;
   linked?: boolean;
   campaignIds?: number[];
+  inCollection: boolean;
 }
 
 export interface GetConjurationsRequest {
@@ -40,6 +41,7 @@ export interface GetConjurationsRequest {
   search?: string;
   nodeId?: number;
   nodeType?: ConjurationRelationshipType;
+  collectionId?: number;
 }
 
 export const getConjurations = (request: GetConjurationsRequest) => {
@@ -53,6 +55,7 @@ export const getConjurations = (request: GetConjurationsRequest) => {
       stylePreset: request.imageStylePreset,
       nodeId: request.nodeId,
       nodeType: request.nodeType,
+      collectionId: request.collectionId,
     },
   });
 };

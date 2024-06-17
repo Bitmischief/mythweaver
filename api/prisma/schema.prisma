@@ -69,6 +69,7 @@ model User {
   sessionTranscriptions    SessionTranscription[]
   ImageCreditAuditLog      ImageCreditAuditLog[]
   ConjurationRelationships ConjurationRelationships[]
+  Collections              Collections[]
 
   @@map("users")
 }
@@ -98,11 +99,12 @@ model Conjuration {
   imageGenerationFailed Boolean               @default(false)
   prompt                String?
 
-  user               User?               @relation(fields: [userId], references: [id])
-  campaign           Campaign?           @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  conjurationRequest ConjurationRequest? @relation(fields: [conjurationRequestId], references: [id])
-  saves              ConjurationSave[]
-  images             Image[]
+  user                   User?                   @relation(fields: [userId], references: [id])
+  campaign               Campaign?               @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  conjurationRequest     ConjurationRequest?     @relation(fields: [conjurationRequestId], references: [id])
+  saves                  ConjurationSave[]
+  images                 Image[]
+  collectionConjurations CollectionConjuration[]
 
   @@map("conjurations")
 }
@@ -131,6 +133,10 @@ model ConjurationRelationships {
 
   @@index([previousNodeId], name: "conjuration_relationships_previous_node_id")
   @@index([nextNodeId], name: "conjuration_relationships_next_node_id")
+  @@index([nextType], name: "conjuration_relationships_next_type")
+  @@index([previousType], name: "conjuration_relationships_previous_type")
+  @@index([nextType, nextNodeId], name: "conjuration_relationships_next_type_next_node_id")
+  @@index([previousType, previousNodeId], name: "conjuration_relationships_previous_type_previous_node_id")
   @@map("conjuration_relationships")
 }
 
@@ -445,4 +451,32 @@ model ImageModelArtist {
 
   @@id([imageModelId, artistId])
   @@map("image_model_artists")
+}
+
+model Collections {
+  id                 Int       @id @default(autoincrement())
+  createdAt          DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  updatedAt          DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  name               String
+  parentCollectionId Int?
+  userId             Int
+
+  user                   User                    @relation(fields: [userId], references: [id])
+  collectionConjurations CollectionConjuration[]
+
+  @@index([id], name: "collections_id")
+  @@index([parentCollectionId], name: "collections_parent_collection_id")
+  @@map("collections")
+}
+
+model CollectionConjuration {
+  collectionId  Int
+  conjurationId Int
+
+  collection  Collections @relation(fields: [collectionId], references: [id])
+  conjuration Conjuration @relation(fields: [conjurationId], references: [id])
+
+  @@id([collectionId, conjurationId])
+  @@index([collectionId, conjurationId], name: "collection_conjurations_collection_id_conjuration_id")
+  @@map("collection_conjurations")
 }

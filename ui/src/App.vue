@@ -3,7 +3,7 @@ import Navbar from '@/components/Navigation/NavBar.vue';
 import { useAuthStore } from '@/store';
 import NotificationHandler from '@/components/Notifications/NotificationHandler.vue';
 import { useEventBus } from '@/lib/events.ts';
-import { onMounted, onBeforeMount, onUpdated, ref, watch } from 'vue';
+import { onMounted, onBeforeMount, onUpdated, ref, watch, computed } from 'vue';
 import NavBarHeader from '@/components/Navigation/NavBarHeader.vue';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import LightboxRoot from '@/components/LightboxRoot.vue';
@@ -32,6 +32,9 @@ import { useAuth0 } from '@auth0/auth0-vue';
 import { reportInitialTrackingData } from '@/lib/tracking.ts';
 import ConjureImage from '@/components/Conjure/ConjureImage.vue';
 import { fbq, rdt } from '@/lib/conversions.ts';
+import { DndProvider } from 'vue3-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import { TouchBackend } from 'react-dnd-touch-backend';
 
 const ldReady = useLDReady();
 const authStore = useAuthStore();
@@ -189,6 +192,19 @@ async function navigateToPreOrderRedemptionUrl() {
 eventBus.$on('show-subscription-modal', () => {
   showUpgradeModal.value = true;
 });
+
+const dndBackend = computed(() => {
+  if (isMobile()) {
+    return TouchBackend;
+  }
+  return HTML5Backend;
+});
+
+function isMobile() {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent,
+  );
+}
 </script>
 
 <template>
@@ -216,7 +232,9 @@ eventBus.$on('show-subscription-modal', () => {
           height: `${!!authStore.user ? 'calc(100vh - 4.1rem)' : 'auto'}`,
         }"
       >
-        <router-view />
+        <DndProvider :backend="dndBackend">
+          <router-view />
+        </DndProvider>
       </div>
       <div
         v-if="

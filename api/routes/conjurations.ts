@@ -33,6 +33,7 @@ const getConjurationsSchema = z.object({
     ])
     .default(ConjurationRelationshipType.CONJURATION)
     .optional(),
+  collectionId: z.coerce.number().optional(),
 });
 
 const getConjurationRequestSchema = z.object({
@@ -67,6 +68,7 @@ router.get('/', [
       search = undefined,
       nodeId = undefined,
       nodeType = undefined,
+      collectionId = undefined,
     } = req.query;
 
     const response = await controller.getConjurations(
@@ -84,6 +86,7 @@ router.get('/', [
       search as string,
       nodeId as unknown as number,
       nodeType as ConjurationRelationshipType,
+      collectionId as unknown as number,
     );
 
     return res.status(200).send(response);
