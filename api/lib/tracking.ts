@@ -49,6 +49,7 @@ export enum AppEvent {
   DeleteCharacter = 'Delete Character',
   SessionAudioUploaded = 'Session Audio Uploaded',
   NewSubscription = 'New Subscription',
+  UpgradeSubscription = 'Upgrade Subscription',
   PaidSubscription = 'Paid Subscription',
   PreorderSubscriptionRedemption = 'Preorder Subscription Redemption',
   PaidImageCreditPack = 'Paid Image Credit Pack',

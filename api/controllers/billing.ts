@@ -34,6 +34,7 @@ import { setIntercomCustomAttributes } from '../lib/intercom';
 import { modifyImageCreditCount } from '../services/credits';
 import { postToDiscordBillingChannel } from '../services/discord';
 import { AdConversionEvent, reportAdConversionEvent } from '../lib/ads';
+import { differenceInDays } from 'date-fns';
 
 const PRO_PLAN_IMAGE_CREDITS = 300;
 const BASIC_PLAN_IMAGE_CREDITS = 100;
@@ -339,20 +340,27 @@ export default class BillingController {
       event.data.object.items.data[0].price.product as string,
     );
 
+    const trackingString = Object.entries(user.initialTrackingData || {})
+      .map(([key, value]) => `${key}: ${value}`)
+      .join(', ');
+
+    const subscriptionAmount =
+      (event.data.object.items.data[0].price.unit_amount || 0) / 100;
+
+    const daysSinceRegistration = differenceInDays(
+      new Date(),
+      user.createdAt || new Date(),
+    );
+
     if (user.plan === BillingPlan.FREE || user.plan === BillingPlan.TRIAL) {
       track(AppEvent.NewSubscription, user.id, undefined, {
-        amount: event.data.object.items.data[0].price.unit_amount,
+        amount: subscriptionAmount,
+        plan,
+        daysSinceRegistration,
       });
 
-      const subscriptionAmount =
-        (event.data.object.items.data[0].price.unit_amount || 0) / 100;
-
-      const trackingString = Object.entries(user.initialTrackingData || {})
-        .map(([key, value]) => `${key}: ${value}`)
-        .join(', ');
-
       await postToDiscordBillingChannel(
-        `New subscription: ${user.email}! Amount: $${subscriptionAmount}. ${user.initialTrackingData ? `Source: ${trackingString}` : ''}`,
+        `New subscription: ${user.email}! Amount: $${subscriptionAmount}. Days since registration: ${daysSinceRegistration}. ${user.initialTrackingData ? `Source: ${trackingString}` : ''}`,
       );
 
       await reportAdConversionEvent(AdConversionEvent.Purchase, user, {
@@ -360,6 +368,19 @@ export default class BillingController {
           currency: 'USD',
           value: subscriptionAmount,
         },
+      });
+    }
+
+    // if is upgrade
+    if (user.plan === BillingPlan.BASIC && plan === BillingPlan.PRO) {
+      await postToDiscordBillingChannel(
+        `New Upgrade: ${user.email}! Amount: $${subscriptionAmount}. Days since registration: ${daysSinceRegistration}. ${user.initialTrackingData ? `Source: ${trackingString}` : ''}`,
+      );
+
+      track(AppEvent.UpgradeSubscription, user.id, undefined, {
+        amount: subscriptionAmount,
+        plan,
+        daysSinceRegistration,
       });
     }
 
@@ -483,6 +504,7 @@ const processItemPaid = async (
 
   track(AppEvent.RevenueReceived, user.id, undefined, {
     amount: amountPaid,
+    plan: 'CREDIT_PACK',
   });
 };
 
@@ -541,9 +563,11 @@ const processSubscriptionPaid = async (
     amountPaid > 0 || coupon?.percent_off === 100
       ? curCreditCount - prevCreditCount
       : 0;
+
   logger.info('Incrementing image credits for user by', {
     incrementCreditCount,
   });
+
   await modifyImageCreditCount(
     user.id,
     incrementCreditCount,
@@ -558,10 +582,14 @@ const processSubscriptionPaid = async (
 
   track(AppEvent.PaidSubscription, user.id, undefined, {
     amount: amountPaid,
+    interval,
+    plan: plan,
   });
 
   track(AppEvent.RevenueReceived, user.id, undefined, {
     amount: amountPaid,
+    interval,
+    plan: plan,
   });
 };
 

@@ -3,7 +3,7 @@ import Navbar from '@/components/Navigation/NavBar.vue';
 import { useAuthStore } from '@/store';
 import NotificationHandler from '@/components/Notifications/NotificationHandler.vue';
 import { useEventBus } from '@/lib/events.ts';
-import { onMounted, onBeforeMount, onUpdated, ref, watch } from 'vue';
+import { onBeforeMount, onMounted, onUpdated, ref, watch } from 'vue';
 import NavBarHeader from '@/components/Navigation/NavBarHeader.vue';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import LightboxRoot from '@/components/LightboxRoot.vue';
@@ -32,6 +32,7 @@ import { useAuth0 } from '@auth0/auth0-vue';
 import { reportInitialTrackingData } from '@/lib/tracking.ts';
 import ConjureImage from '@/components/Conjure/ConjureImage.vue';
 import { fbq, rdt } from '@/lib/conversions.ts';
+import UserSignupSource from '@/components/Core/UserSignupSource.vue';
 
 const ldReady = useLDReady();
 const authStore = useAuthStore();
@@ -45,6 +46,7 @@ const showPreorderRedemptionModal = ref(false);
 const showUpgradeModal = ref(false);
 const { isLoading, isAuthenticated } = useAuth0();
 const conjureV2 = useLDFlag('conjure-v2');
+const showUserSourceModal = ref(false);
 
 onBeforeMount(async () => {
   if (location.pathname.startsWith('/invite')) {
@@ -85,7 +87,8 @@ onMounted(async () => {
         fbq('track', 'Lead');
         rdt('track', 'SignUp');
         rdt('track', 'Lead');
-        await reportInitialTrackingData();
+
+        showUserSourceModal.value = true;
       }
 
       if (user.preorderRedemptionCoupon) {
@@ -189,6 +192,15 @@ async function navigateToPreOrderRedemptionUrl() {
 eventBus.$on('show-subscription-modal', () => {
   showUpgradeModal.value = true;
 });
+
+async function finishOnboarding(sourceInfo: {
+  source: string;
+  influencer: string | undefined;
+}) {
+  await reportInitialTrackingData(sourceInfo.source, sourceInfo.influencer);
+  showUserSourceModal.value = false;
+  showSuccess({ message: 'Thank you for taking the time to fill that out!' });
+}
 </script>
 
 <template>
@@ -400,6 +412,14 @@ eventBus.$on('show-subscription-modal', () => {
       </div>
 
       <PricingTable />
+    </div>
+  </ModalAlternate>
+
+  <ModalAlternate :show="showUserSourceModal" extra-dark>
+    <div
+      class="relative pt-8 md:m-6 md:p-6 md:px-12 bg-surface-2 rounded-[20px] min-w-[70vw] text-white mb-12"
+    >
+      <UserSignupSource @finish-onboarding="finishOnboarding" />
     </div>
   </ModalAlternate>
 
