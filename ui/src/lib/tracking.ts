@@ -29,13 +29,16 @@ export const reportInitialTrackingData = async (source: string, influencer: stri
         utm_campaign: marketingInfo.params?.utm_campaign,
         utm_term: marketingInfo.params?.utm_term,
         utm_content: marketingInfo.params?.utm_content,
-        declared_signup_source: source,
-        declared_influencer: influencer,
       });
     } catch (error) {
       console.error('Error parsing marketing_info cookie:', error);
     }
   }
+
+  mixpanel.register({
+    declared_signup_source: source,
+    declared_influencer: influencer,
+  });
 
   // Now capture all Mixpanel properties after setting new values
   const mixpanelData: any = {};
