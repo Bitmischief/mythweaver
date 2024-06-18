@@ -62,6 +62,8 @@ export const reportInitialTrackingData = async (source: string, influencer: stri
     '$screen_width',
     '$viewport_height',
     '$viewport_width',
+    'declared_signup_source',
+    'declared_influencer',
   ];
 
   properties.forEach((prop) => {
