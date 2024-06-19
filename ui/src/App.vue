@@ -3,7 +3,7 @@ import Navbar from '@/components/Navigation/NavBar.vue';
 import { useAuthStore } from '@/store';
 import NotificationHandler from '@/components/Notifications/NotificationHandler.vue';
 import { useEventBus } from '@/lib/events.ts';
-import { onBeforeMount, onMounted, onUpdated, ref, watch } from 'vue';
+import { onMounted, onBeforeMount, onUpdated, ref, watch } from 'vue';
 import NavBarHeader from '@/components/Navigation/NavBarHeader.vue';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import LightboxRoot from '@/components/LightboxRoot.vue';
@@ -33,6 +33,10 @@ import { reportInitialTrackingData } from '@/lib/tracking.ts';
 import ConjureImage from '@/components/Conjure/ConjureImage.vue';
 import { fbq, rdt } from '@/lib/conversions.ts';
 import UserSignupSource from '@/components/Core/UserSignupSource.vue';
+import { DndProvider } from 'vue3-dnd';
+
+// @ts-ignore
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
 const ldReady = useLDReady();
 const authStore = useAuthStore();
@@ -217,6 +221,7 @@ async function finishOnboarding(sourceInfo: {
       </div>
 
       <div
+        v-if="!isLoading && isAuthenticated && authStore.user"
         id="view-parent"
         class="flex w-full flex-col overflow-y-auto md:rounded-tr-none"
         :class="{
@@ -228,7 +233,9 @@ async function finishOnboarding(sourceInfo: {
           height: `${!!authStore.user ? 'calc(100vh - 4.1rem)' : 'auto'}`,
         }"
       >
-        <router-view />
+        <DndProvider :backend="HTML5Backend">
+          <router-view />
+        </DndProvider>
       </div>
       <div
         v-if="

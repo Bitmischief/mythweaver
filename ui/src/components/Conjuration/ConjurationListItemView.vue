@@ -4,16 +4,58 @@ import { useRoute } from 'vue-router';
 import { BookmarkIcon as BookmarkIconSolid } from '@heroicons/vue/20/solid';
 import { BookmarkIcon as BookmarkIconOutline } from '@heroicons/vue/24/outline';
 import { PlusIcon, ArrowRightIcon } from '@heroicons/vue/24/solid';
-import { computed, ref } from 'vue';
+import { computed, ref, unref } from 'vue';
 import { showError, showSuccess } from '@/lib/notifications.ts';
 import { mapConjurationType, mapNoImage } from '@/lib/util.ts';
+import { useDrag } from 'vue3-dnd';
+import { postMoveCollectionConjuration } from '@/api/collections.ts';
 
 const props = defineProps<{
   data: Conjuration | undefined;
   skeleton?: boolean;
   showSaves?: boolean;
   condensedView?: boolean;
+  draggable?: boolean;
+  collectionId?: number;
+  highlightText?: string;
 }>();
+
+const [collect, drag] = useDrag(() => ({
+  type: 'Conjuration',
+  item: () => ({
+    id: props.data?.id,
+    name: props.data?.name,
+    type: 'Conjuration',
+    collectionId: props.collectionId,
+  }),
+  end: async (item, monitor) => {
+    const dropResult = monitor.getDropResult<{
+      id: number;
+      name: string;
+      type: string;
+    }>();
+    if (item && dropResult) {
+      if (
+        item.type === 'Conjuration' &&
+        dropResult.type === 'Collection' &&
+        item.id &&
+        dropResult.id
+      ) {
+        if (item.collectionId) {
+          await postMoveCollectionConjuration(item.collectionId, item.id, {
+            collectionId: dropResult.id,
+          });
+        }
+      }
+    }
+  },
+  collect: (monitor) => ({
+    isDragging: monitor.isDragging(),
+    handlerId: monitor.getHandlerId(),
+  }),
+}));
+const isDragging = computed(() => collect.value.isDragging);
+const opacity = computed(() => (unref(isDragging) ? 0.25 : 1));
 
 const conjuration = ref(props.data);
 const route = useRoute();
@@ -77,15 +119,33 @@ const primaryImage = computed(() => {
     }
   }
 });
+
+const conjurationName = computed(() => {
+  if (props.highlightText) {
+    return conjuration.value?.name.replace(
+      new RegExp(props.highlightText, 'gi'),
+      (match) => {
+        return '<mark>' + match + '</mark>';
+      },
+    );
+  }
+  return conjuration.value?.name;
+});
 </script>
 
 <template>
-  <div v-if="conjuration">
+  <div
+    v-if="conjuration"
+    :ref="draggable ? drag : undefined"
+    :style="{ opacity }"
+    class="h-full"
+  >
     <router-link
       class="h-full flex cursor-pointer rounded-[20px] shadow-xl bg-surface-2 group relative"
       :class="{
         'flex-row py-2': condensedView,
         'flex-col justify-end': !condensedView,
+        'active:border border-fuchsia-500': draggable,
       }"
       :to="{
         path: `/conjurations/view/${conjuration.id}`,
@@ -93,7 +153,7 @@ const primaryImage = computed(() => {
       }"
     >
       <div
-        class="relative m-2 grow group-hover:mx-6 transition-all"
+        class="relative m-2 group-hover:mx-6 transition-all"
         :class="{
           'basis-1/3 my-auto': condensedView,
           'basis-1': !condensedView,
@@ -103,12 +163,12 @@ const primaryImage = computed(() => {
           v-if="primaryImage?.uri"
           :src="primaryImage?.uri"
           :alt="conjuration.name"
-          class="rounded-[16px] pointer-events-none"
+          class="rounded-[16px] aspect-square pointer-events-none"
           :class="{ 'blur-sm': !conjuration.images?.length }"
         />
         <div
           v-else-if="primaryImage?.failed"
-          class="w-full flex justify-center h-full bg-gray-900/75"
+          class="w-full flex aspect-square justify-center h-full bg-gray-900/75 rounded-[16px]"
         >
           <div class="self-center text-center text-lg">
             Image Conjuration Timed Out
@@ -116,7 +176,7 @@ const primaryImage = computed(() => {
         </div>
         <div
           v-else-if="primaryImage?.generating"
-          class="w-full flex justify-center h-full bg-gray-900/75"
+          class="w-full flex aspect-square justify-center h-full bg-gray-900/75"
         >
           <div
             class="self-center text-center text-[2rem] gradient-text animate-pulse"
@@ -128,7 +188,7 @@ const primaryImage = computed(() => {
           v-else
           :src="mapNoImage(conjuration.conjurerCode)"
           :alt="conjuration.name"
-          class="rounded-[16px] pointer-events-none"
+          class="rounded-[16px] aspect-square pointer-events-none"
         />
         <div
           class="absolute flex justify-center items-center rounded-full bg-white/50 text-black text-xs font-bold"
@@ -185,16 +245,17 @@ const primaryImage = computed(() => {
       </div>
 
       <div
-        class="flex justify-between px-3 pb-2 rounded-[16px] bg-surface-2 group-hover:grow transition-all"
+        class="flex grow justify-between px-3 pb-2 rounded-[20px] bg-surface-2 group-hover:grow transition-all"
         :class="{
           'basis-1': !condensedView,
           'basis-2/3 pt-2 overflow-hidden': condensedView,
         }"
       >
         <div class="max-w-[100%]">
-          <div class="relative text-md truncate">
-            {{ conjuration.name }}
-          </div>
+          <div
+            v-safe-html="conjurationName"
+            class="relative text-md truncate"
+          ></div>
           <div class="flex flex-wrap max-h-[3.5em] overflow-hidden">
             <div
               v-for="(tag, i) in conjuration.tags"

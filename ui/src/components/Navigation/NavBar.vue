@@ -113,6 +113,18 @@ const loginType = computed(() => {
             <hr class="py-2 mb-2 border-neutral-800 -mx-5" />
             <div
               class="flex px-4 py-2 text-sm text-gray-300 cursor-pointer hover:bg-rounded-purple"
+            >
+              <img
+                src="@/assets/icons/discord_icon_white.svg"
+                alt="support"
+                class="h-4 mr-2 self-center"
+              />
+              <a href="https://discord.gg/vbccbz8Jhp" target="_blank">
+                Join our discord
+              </a>
+            </div>
+            <div
+              class="flex px-4 py-2 text-sm text-gray-300 cursor-pointer hover:bg-rounded-purple"
               @click="intercom.show()"
             >
               <img

@@ -33,4 +33,6 @@ export enum ServerEvent {
   ImageGenerationTimeout = 'image-generation-timeout',
   ImageGenerationError = 'image-generation-error',
   Error = 'error',
+  CollectionConjurationMoved = 'collection-conjuration-moved',
+  CollectionMoved = 'collection-moved',
 }

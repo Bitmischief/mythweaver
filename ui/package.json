@@ -44,9 +44,13 @@
     "mixpanel-browser": "^2.49.0",
     "pinia": "^2.1.7",
     "pusher-js": "^8.3.0",
+    "react-dnd-html5-backend": "^16.0.1",
+    "react-dnd-touch-backend": "^16.0.1",
     "serve": "^14.2.1",
     "vue": "^3.4.15",
-    "vue-router": "^4.3.0"
+    "vue-router": "^4.3.0",
+    "vue-safe-html": "^3.0.1",
+    "vue3-dnd": "^2.1.0"
   },
   "devDependencies": {
     "@headlessui/vue": "^1.7.18",

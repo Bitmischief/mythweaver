@@ -184,7 +184,7 @@ export default class CampaignController {
   ): Promise<Campaign> {
     track(AppEvent.CreateCampaign, userId, trackingInfo);
 
-    return prisma.campaign.create({
+    const campaign = prisma.campaign.create({
       data: {
         ...request,
         userId,
@@ -197,6 +197,15 @@ export default class CampaignController {
         },
       },
     });
+
+    await prisma.collections.create({
+      data: {
+        name: request.name,
+        userId,
+      },
+    });
+
+    return campaign;
   }
 
   @Security('jwt')

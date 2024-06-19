@@ -197,7 +197,7 @@ const emailSummary = async () => {
         <CustomizableImage
           :editable="currentUserRole === CampaignRole.DM"
           :image="primaryImage"
-          class="rounded-md w-full md:w-[20em]"
+          class="rounded-md w-full md:w-[25em]"
           :type="sessionType"
           :linking="{ sessionId: session.id }"
         />
