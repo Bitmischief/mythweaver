@@ -255,9 +255,9 @@ async function changeTab(tabName: string) {
 
 const back = () => {
   if (route.query.from) {
-    return route.query.from.toString();
+    router.push(route.query.from.toString());
   } else {
-    return '/sessions';
+    router.push('/sessions');
   }
 };
 </script>
