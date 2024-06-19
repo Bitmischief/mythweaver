@@ -152,23 +152,34 @@ router.patch('/:collectionId', [
   },
 ]);
 
-const postMoveCollectionConjurationSchema = z.object({
+const postMoveCollectionConjurationRouteSchema = z.object({
+  collectionId: z.coerce.number(),
   conjurationId: z.coerce.number(),
+});
+
+const postMoveCollectionConjurationSchema = z.object({
   collectionId: z.coerce.number(),
 });
 
-router.post('/conjurations/move', [
+router.post('/:collectionId/conjurations/:conjurationId/move', [
   checkAuth0Jwt,
   useInjectUserId(),
   useInjectLoggingInfo(),
+  useValidateRequest(postMoveCollectionConjurationRouteSchema, {
+    validationType: ValidationTypes.Route,
+  }),
   useValidateRequest(postMoveCollectionConjurationSchema),
   async (req: Request, res: Response) => {
     const controller = new CollectionController();
+
+    const { collectionId = 0, conjurationId = 0 } = req.params;
 
     const response = await controller.postMoveCollectionConjuration(
       res.locals.auth.userId,
       res.locals.trackingInfo,
       useLogger(),
+      collectionId as unknown as number,
+      conjurationId as unknown as number,
       req.body,
     );
 
@@ -181,7 +192,7 @@ const postMoveCollectionRouteSchema = z.object({
 });
 
 const postMoveCollectionSchema = z.object({
-  parentCollectionId: z.coerce.number(),
+  parentCollectionId: z.coerce.number().optional(),
 });
 
 router.post('/:collectionId/move', [
@@ -206,6 +217,35 @@ router.post('/:collectionId/move', [
     );
 
     return res.status(200).send(response);
+  },
+]);
+
+const deleteCollectionsConjurationsRouteSchema = z.object({
+  collectionId: z.coerce.number(),
+  conjurationId: z.coerce.number(),
+});
+
+router.delete('/:collectionId/conjurations/:conjurationId', [
+  checkAuth0Jwt,
+  useInjectUserId(),
+  useInjectLoggingInfo(),
+  useValidateRequest(deleteCollectionsConjurationsRouteSchema, {
+    validationType: ValidationTypes.Route,
+  }),
+  async (req: Request, res: Response) => {
+    const controller = new CollectionController();
+
+    const { collectionId = 0, conjurationId = 0 } = req.params;
+
+    await controller.deleteCollectionConjuration(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      useLogger(),
+      collectionId as unknown as number,
+      conjurationId as unknown as number,
+    );
+
+    return res.status(200).send();
   },
 ]);
 

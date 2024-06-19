@@ -3861,6 +3861,11 @@ vue-router@^4.3.0:
   dependencies:
     "@vue/devtools-api" "^6.5.1"
 
+vue-safe-html@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/vue-safe-html/-/vue-safe-html-3.0.1.tgz#b504d0272b9f7e5c7b57e8f01ed66c261a238186"
+  integrity sha512-Qkp78n2bGg0nNowwRVCowGgn79tG/m9iFjltkgUNPs2O7dAMGC5CuDhIyKNx9M4gVaYHs4m+dGgbL6p5IOuI/g==
+
 vue-template-compiler@^2.7.14:
   version "2.7.16"
   resolved "https://registry.npmjs.org/vue-template-compiler/-/vue-template-compiler-2.7.16.tgz"

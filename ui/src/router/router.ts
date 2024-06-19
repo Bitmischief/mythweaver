@@ -204,14 +204,14 @@ const router = createRouter({
     {
       name: 'CONJURE',
       path: '/conjure',
-      beforeEnter: authGuard,
       component: ConjureView,
+      beforeEnter: authGuard,
     },
     {
       name: 'COLLECTIONS',
       path: '/collections',
-      beforeEnter: authGuard,
       component: CollectionsView,
+      beforeEnter: authGuard,
     },
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],

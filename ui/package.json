@@ -49,6 +49,7 @@
     "serve": "^14.2.1",
     "vue": "^3.4.15",
     "vue-router": "^4.3.0",
+    "vue-safe-html": "^3.0.1",
     "vue3-dnd": "^2.1.0"
   },
   "devDependencies": {

@@ -1,7 +1,6 @@
 import { Response } from 'express';
 import { AppError, HttpCode } from './AppError';
 import { AxiosError } from 'axios';
-import logger from '../logger';
 import { useLogger } from '../loggingMiddleware';
 
 class ErrorHandler {

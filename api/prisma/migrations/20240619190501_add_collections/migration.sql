@@ -25,6 +25,12 @@ CREATE INDEX "collections_id" ON "collections"("id");
 CREATE INDEX "collections_parent_collection_id" ON "collections"("parentCollectionId");
 
 -- CreateIndex
+CREATE INDEX "collection_conjurations_collection_id" ON "collection_conjurations"("collectionId");
+
+-- CreateIndex
+CREATE INDEX "collection_conjurations_conjuration_id" ON "collection_conjurations"("conjurationId");
+
+-- CreateIndex
 CREATE INDEX "collection_conjurations_collection_id_conjuration_id" ON "collection_conjurations"("collectionId", "conjurationId");
 
 -- AddForeignKey

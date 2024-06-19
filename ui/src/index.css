@@ -8,22 +8,25 @@
 }
 
 .gradient-border {
-  background: linear-gradient(rgba(23, 23, 23, 0.8), rgba(23, 23, 23, 0.8)) padding-box,
-  linear-gradient(to right, rgba(64, 170, 241, 0.15), rgba(217, 117, 244, 0.15)) border-box;
+  background:
+    linear-gradient(rgba(23, 23, 23, 0.8), rgba(23, 23, 23, 0.8)) padding-box,
+    linear-gradient(to right, rgba(64, 170, 241, 0.15), rgba(217, 117, 244, 0.15)) border-box;
   border-radius: 12px;
   border: 1px solid transparent;
 }
 
 .gradient-border-focused {
-  background: linear-gradient(rgb(23, 23, 23), rgb(23, 23, 23)) padding-box,
-  linear-gradient(to right, rgba(64, 170, 241, 0.3), rgba(217, 117, 244, 0.3)) border-box;
+  background:
+    linear-gradient(rgb(23, 23, 23), rgb(23, 23, 23)) padding-box,
+    linear-gradient(to right, rgba(64, 170, 241, 0.3), rgba(217, 117, 244, 0.3)) border-box;
   border-radius: 5px;
   border: 1px solid transparent;
 }
 
 .gradient-border-no-opacity {
-  background: linear-gradient(rgb(23, 23, 23), rgb(23, 23, 23)) padding-box,
-  linear-gradient(to right, rgba(64, 170, 241, 0.3), rgba(217, 117, 244, 0.3)) border-box;
+  background:
+    linear-gradient(rgb(23, 23, 23), rgb(23, 23, 23)) padding-box,
+    linear-gradient(to right, rgba(64, 170, 241, 0.3), rgba(217, 117, 244, 0.3)) border-box;
   border-radius: 12px;
   border: 1px solid transparent;
 }
@@ -139,6 +142,10 @@ input[type='number'] {
 
   .button-gradient {
     @apply disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-fuchsia-500 to-violet-500 rounded-[12px] text-sm px-4 py-2 hover:cursor-pointer;
+  }
+
+  .button-gradient-red {
+    @apply disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-rose-700 to-red-500 rounded-[12px] text-sm px-4 py-2 hover:cursor-pointer;
   }
 
   .button-text {
@@ -275,5 +282,9 @@ input[type='number'] {
 
   .gradient-text {
     @apply bg-clip-text font-bold text-transparent bg-gradient-to-r from-fuchsia-500 to-blue-400;
+  }
+
+  mark {
+    @apply bg-purple-500/50 text-neutral-200 rounded-[4px];
   }
 }

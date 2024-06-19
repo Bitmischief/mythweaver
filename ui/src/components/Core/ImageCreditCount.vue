@@ -103,7 +103,9 @@ const clickCreditCount = () => {
       </div>
     </div>
 
-    <div v-if="!collapsed" class="text-neutral-400 mx-2">image credits</div>
+    <div v-if="!collapsed" class="text-neutral-400 mx-2 truncate">
+      image credits
+    </div>
   </div>
 
   <ModalAlternate

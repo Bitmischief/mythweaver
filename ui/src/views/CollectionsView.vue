@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref, watch } from 'vue';
 import { getCollections, saveCollection } from '@/api/collections.ts';
 import { showError, showSuccess } from '@/lib/notifications.ts';
 import {
@@ -7,21 +7,27 @@ import {
   SquaresPlusIcon,
   EllipsisHorizontalIcon,
   HomeIcon,
-  ArrowRightEndOnRectangleIcon,
-  FolderMinusIcon,
 } from '@heroicons/vue/24/outline';
 import Menu from '@/components/Core/General/Menu.vue';
 import { MenuButton, MenuItem } from '@headlessui/vue';
 import ModalAlternate from '@/components/ModalAlternate.vue';
-import { XCircleIcon, SparklesIcon } from '@heroicons/vue/24/solid';
+import {
+  XCircleIcon,
+  SparklesIcon,
+  ArrowLeftIcon,
+} from '@heroicons/vue/24/solid';
 import AddConjurationsToCollection from '@/components/Collections/AddConjurationsToCollection.vue';
-import ConjurationListItemView from '@/components/Conjuration/ConjurationListItemView.vue';
 import Collection from '@/components/Collections/Collection.vue';
 import { useWebsocketChannel } from '@/lib/hooks.ts';
 import { ServerEvent } from '@/lib/serverEvents.ts';
 import CollectionHistory from '@/components/Collections/CollectionHistory.vue';
+import { useRoute, useRouter } from 'vue-router';
+import CollectionConjuration from '@/components/Collections/CollectionConjuration.vue';
 
+const loading = ref(true);
 const channel = useWebsocketChannel();
+const router = useRouter();
+const route = useRoute();
 
 const collections = ref<any[]>([]);
 const conjurations = ref<any[]>([]);
@@ -33,7 +39,29 @@ const showAddConjurations = ref(false);
 const newCollectionName = ref('');
 const parentId = ref<number | undefined>();
 
+watch(parentId, async () => {
+  await router.push({
+    query: {
+      history: collectionHistory.value?.length
+        ? JSON.stringify(
+            collectionHistory.value.map((h: any) => ({
+              id: h.id,
+              name: h.name,
+            })),
+          )
+        : undefined,
+    },
+  });
+});
+
 onMounted(async () => {
+  if (route.query?.history?.length) {
+    const history = route.query.history as string;
+    const historyArray = JSON.parse(history);
+    collectionHistory.value = historyArray;
+    parentId.value = historyArray[historyArray.length - 1].id;
+  }
+
   channel.bind(ServerEvent.CollectionConjurationMoved, fetchCollections);
   channel.bind(ServerEvent.CollectionMoved, fetchCollections);
 
@@ -46,6 +74,7 @@ onUnmounted(() => {
 });
 
 const fetchCollections = async () => {
+  loading.value = true;
   try {
     const response = await getCollections(parentId.value);
     collections.value = response.data?.collections || [];
@@ -54,6 +83,8 @@ const fetchCollections = async () => {
     showError({
       message: 'Failed to fetch collections. Please refresh the page.',
     });
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -66,16 +97,16 @@ const addCollection = async () => {
     await fetchCollections();
     showNewCollection.value = false;
     newCollectionName.value = '';
-    showSuccess({ message: 'Collection saved!' });
+    showSuccess({ message: 'Collection created!' });
   } catch {
-    showError({ message: 'Failed to save collection. Please try again.' });
+    showError({ message: 'Failed to create collection. Please try again.' });
   }
 };
 
 const openCollection = async (collection: any) => {
+  collectionHistory.value.push(collection);
   parentId.value = collection.id;
   await fetchCollections();
-  collectionHistory.value.push(collection);
 };
 
 async function clickHistory(collection: any) {
@@ -84,7 +115,7 @@ async function clickHistory(collection: any) {
   );
   collectionHistory.value = collectionHistory.value.slice(0, historyIndex + 1);
 
-  if (collectionHistory.value.length) {
+  if (collectionHistory.value?.length) {
     parentId.value =
       collectionHistory.value[collectionHistory.value.length - 1].id;
   } else {
@@ -97,6 +128,14 @@ async function clickHistory(collection: any) {
 async function clearHistory() {
   collectionHistory.value = [];
   parentId.value = undefined;
+  await fetchCollections();
+}
+
+async function back() {
+  collectionHistory.value.pop();
+  parentId.value = collectionHistory.value?.length
+    ? collectionHistory.value[collectionHistory.value.length - 1].id
+    : undefined;
   await fetchCollections();
 }
 
@@ -114,30 +153,44 @@ async function closeAddConjurations() {
       </div>
     </div>
     <div class="self-center">
-      <Menu>
+      <div class="hidden md:flex gap-2">
+        <div>
+          <button
+            class="button-ghost flex gap-2"
+            @click="showNewCollection = true"
+          >
+            <SquaresPlusIcon class="h-5 w-5" />
+            New Collection
+          </button>
+        </div>
+        <div v-if="parentId">
+          <button
+            class="button-gradient flex gap-2"
+            @click="showAddConjurations = true"
+          >
+            <SparklesIcon class="h-5 w-5" />
+            Add Conjurations
+          </button>
+        </div>
+      </div>
+      <Menu class="md:hidden">
         <MenuButton class="button-ghost-primary">
           <EllipsisHorizontalIcon class="h-6 w-6 text-neutral-300" />
         </MenuButton>
 
         <template #content>
           <div class="relative z-60 bg-surface-3 py-2 rounded-[12px]">
-            <MenuItem>
+            <MenuItem @click="showNewCollection = true">
               <div class="menu-item">
-                <button
-                  class="button-text flex gap-2"
-                  @click="showNewCollection = true"
-                >
+                <button class="button-text flex gap-2">
                   <SquaresPlusIcon class="h-5 w-5" />
                   New Collection
                 </button>
               </div>
             </MenuItem>
-            <MenuItem v-if="parentId">
+            <MenuItem v-if="parentId" @click="showAddConjurations = true">
               <div class="menu-item">
-                <button
-                  class="button-text flex gap-2"
-                  @click="showAddConjurations = true"
-                >
+                <button class="button-text flex gap-2">
                   <SparklesIcon class="h-5 w-5" />
                   Add Conjurations
                 </button>
@@ -149,27 +202,46 @@ async function closeAddConjurations() {
     </div>
   </div>
   <div class="w-full mb-8">
-    <div
-      class="flex shrink py-1 px-2 bg-surface-2 rounded-full mb-4 text-neutral-400 whitespace-nowrap overflow-x-auto"
-    >
-      <div class="flex gap-4 px-2 hover:underline hover:cursor-pointer">
-        <div class="flex gap-2 hover:text-neutral-200" @click="clearHistory">
-          <HomeIcon class="h-5 w-5 self-center" />
-          <div>Home</div>
-        </div>
-        <ArrowRightIcon class="h-5 w-5 self-center" />
+    <div class="flex gap-4 mb-4">
+      <div v-if="collectionHistory.length" class="self-center">
+        <button class="button-primary flex self-center" @click="back">
+          <ArrowLeftIcon class="w-4 mr-1 self-center" />
+          Back
+        </button>
       </div>
       <div
-        v-for="(history, i) in collectionHistory"
-        :key="`history_${i}`"
-        @click="clickHistory(history)"
+        class="grow flex flex-wrap shrink py-1 px-2 bg-surface-2 rounded-[12px] text-neutral-400 whitespace-nowrap self-center"
       >
-        <CollectionHistory :data="history" />
+        <div class="flex" @click="clearHistory">
+          <HomeIcon class="h-5 w-5 self-center" />
+          <CollectionHistory
+            :data="{ id: undefined, name: 'Home' }"
+            droppable
+          />
+          <ArrowRightIcon class="h-5 w-5 ml-2 self-center" />
+        </div>
+        <div
+          v-for="(history, i) in collectionHistory"
+          :key="`history_${i}`"
+          class="flex gap-2"
+          @click="clickHistory(history)"
+        >
+          <CollectionHistory
+            :data="history"
+            :droppable="i !== collectionHistory.length - 1"
+            :class="{ underline: i === collectionHistory.length - 1 }"
+          />
+          <ArrowRightIcon
+            v-if="i !== collectionHistory.length - 1"
+            class="h-5 w-5 self-center"
+          />
+        </div>
       </div>
     </div>
-    {{}}
-    <div class="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-      <template v-if="collections.length">
+    <div
+      class="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+    >
+      <template v-if="collections?.length">
         <div
           v-for="collection in collections"
           :key="`${collection.id}_${collection.placeholders?.length}`"
@@ -181,53 +253,21 @@ async function closeAddConjurations() {
           />
         </div>
       </template>
-      <template v-if="conjurations.length">
+      <template v-if="parentId && conjurations?.length">
         <div
           v-for="conjuration in conjurations"
           :key="conjuration.id"
           class="relative"
         >
-          <div
-            class="cursor-pointer absolute top-3 right-3 rounded-full bg-surface-3 p-1 z-10"
-          >
-            <Menu>
-              <MenuButton class="self-center mx-1 py-1">
-                <EllipsisHorizontalIcon class="h-6 w-6 self-center" />
-              </MenuButton>
-
-              <template #content>
-                <div class="relative z-60 bg-surface-3 py-2 rounded-[12px]">
-                  <MenuItem>
-                    <div class="menu-item">
-                      <button
-                        class="button-text flex gap-2"
-                        @click="showNewCollection = true"
-                      >
-                        <ArrowRightEndOnRectangleIcon class="h-5 w-5" />
-                        Move Conjuration
-                      </button>
-                    </div>
-                  </MenuItem>
-                  <MenuItem>
-                    <div class="menu-item">
-                      <button
-                        class="button-text flex gap-2 text-red-400"
-                        @click="showNewCollection = true"
-                      >
-                        <FolderMinusIcon class="h-5 w-5" />
-                        Remove From Collection
-                      </button>
-                    </div>
-                  </MenuItem>
-                </div>
-              </template>
-            </Menu>
-          </div>
-          <ConjurationListItemView :data="conjuration" draggable />
+          <CollectionConjuration
+            :data="conjuration"
+            :collection-id="parentId"
+            @deleted="fetchCollections"
+          />
         </div>
       </template>
     </div>
-    <div v-if="!collections.length && !conjurations.length">
+    <div v-if="!collections?.length && !conjurations?.length">
       <div class="text-center text-neutral-400">
         <div>No collections or conjurations found.</div>
         <button
@@ -237,7 +277,7 @@ async function closeAddConjurations() {
           Add New Collection
         </button>
         <button
-          v-if="collectionHistory.length"
+          v-if="collectionHistory?.length"
           class="button-ghost mt-2 ml-2"
           @click="showAddConjurations = true"
         >
@@ -276,7 +316,7 @@ async function closeAddConjurations() {
       </div>
     </FormKit>
   </ModalAlternate>
-  <ModalAlternate :show="showAddConjurations" class="">
+  <ModalAlternate v-if="parentId" :show="showAddConjurations">
     <AddConjurationsToCollection
       :collection-id="parentId"
       class="md:max-w-[75vw] h-[90vw]"

@@ -4,21 +4,34 @@ import { showError } from '@/lib/notifications.ts';
 import { Conjuration, getConjurations } from '@/api/conjurations.ts';
 import { debounce } from 'lodash';
 import ConjurationListItemView from '@/components/Conjuration/ConjurationListItemView.vue';
-import { XCircleIcon, CheckCircleIcon } from '@heroicons/vue/24/solid';
+import {
+  XCircleIcon,
+  CheckCircleIcon,
+  PlusCircleIcon,
+} from '@heroicons/vue/24/solid';
 import { saveCollectionConjuration } from '@/api/collections.ts';
 import Spinner from '@/components/Core/Spinner.vue';
+import ConjurationsListFiltering from '@/components/Conjuration/ConjurationsListFiltering.vue';
+import { AdjustmentsVerticalIcon } from '@heroicons/vue/20/solid';
 
 const emit = defineEmits(['close']);
 const props = defineProps<{
   collectionId: number;
 }>();
 
-let loading = ref(false);
-let searchText = ref<string | undefined>('');
-let conjurations = ref<Conjuration[]>([]);
-let loadingConjurations = ref(true);
-let page = ref(0);
-let moreToLoad = ref(true);
+const loading = ref(false);
+const searchText = ref<string | undefined>('');
+const conjurations = ref<Conjuration[]>([]);
+const loadingConjurations = ref(true);
+const page = ref(0);
+const moreToLoad = ref(true);
+const clearFilterKey = ref(1);
+const showFilters = ref(false);
+const defaultFilters = {
+  conjurerCodes: [],
+  tags: [],
+};
+const conjurationsFilterQuery = ref(defaultFilters);
 
 onMounted(async () => {
   try {
@@ -38,6 +51,17 @@ watch(
   }, 1000),
 );
 
+watch(
+  conjurationsFilterQuery,
+  async () => {
+    page.value = 0;
+    await fetchConjurations(false);
+  },
+  {
+    deep: true,
+  },
+);
+
 async function fetchConjurations(concat = true) {
   try {
     loadingConjurations.value = true;
@@ -45,22 +69,22 @@ async function fetchConjurations(concat = true) {
     const search =
       searchText.value !== undefined && searchText.value === ''
         ? undefined
-        : searchText.value;
+        : searchText.value?.trim();
     const response = await getConjurations({
       offset: page.value * pageSize,
       limit: pageSize,
       saved: true,
       search: search,
       collectionId: props.collectionId,
+      tags: conjurationsFilterQuery.value.tags,
+      conjurerCodes: conjurationsFilterQuery.value.conjurerCodes,
     });
     const conjurationResponse = response.data.data;
     moreToLoad.value = !(response.data.data.length < pageSize);
-    if (conjurationResponse.length) {
-      if (concat) {
-        conjurations.value = conjurations.value.concat(conjurationResponse);
-      } else {
-        conjurations.value = conjurationResponse;
-      }
+    if (concat) {
+      conjurations.value = conjurations.value.concat(conjurationResponse);
+    } else {
+      conjurations.value = conjurationResponse;
     }
   } catch (e: any) {
     showError({
@@ -88,29 +112,78 @@ async function loadNextPage() {
   page.value += 1;
   await fetchConjurations();
 }
+
+function handleFiltersUpdated(filters: any) {
+  conjurationsFilterQuery.value = {
+    ...filters,
+  };
+  showFilters.value = false;
+}
+
+const clearFilters = () => {
+  conjurationsFilterQuery.value = defaultFilters;
+  searchText.value = undefined;
+  clearFilterKey.value += 1;
+};
 </script>
 
 <template>
   <div
-    class="bg-surface-2 p-6 min-w-[50vw] max-h-[95vh] overflow-hidden rounded-[20px] flex flex-col"
+    class="relative bg-surface-2 p-6 min-w-[50vw] min-h-[90vh] md:h-1 rounded-[20px] flex flex-col"
   >
+    <ConjurationsListFiltering
+      :key="clearFilterKey"
+      :show="showFilters"
+      @close="showFilters = false"
+      @update-filters="handleFiltersUpdated"
+    />
+
     <div class="flex justify-between mb-4">
       <div class="self-center text-lg">Add Conjurations</div>
       <div class="self-center cursor-pointer" @click="emit('close')">
         <XCircleIcon class="h-6 w-6" />
       </div>
     </div>
-    <div class="mt-2">
+    <div class="mt-2 flex gap-2">
       <FormKit
         v-model="searchText"
         type="text"
         placeholder="Search conjurations"
         autofocus
       />
+      <div class="flex gap-2">
+        <div>
+          <button
+            v-if="
+              JSON.stringify(conjurationsFilterQuery) !==
+              JSON.stringify(defaultFilters)
+            "
+            class="button-ghost-primary"
+            @click="clearFilters"
+          >
+            <span class="text-white text-sm font-normal"> Clear Filters </span>
+          </button>
+        </div>
+        <div>
+          <button
+            class="button-primary flex self-center"
+            @click="showFilters = true"
+          >
+            <AdjustmentsVerticalIcon class="w-5 h-5 mr-2" />
+            <span class="text-white text-sm font-normal">Filters</span>
+          </button>
+        </div>
+      </div>
     </div>
     <div class="grow overflow-y-auto">
+      <div v-if="loadingConjurations" class="flex gap-2 justify-center my-6">
+        <div class="self-center">
+          <Spinner />
+        </div>
+        <div class="text-neutral-300">Loading</div>
+      </div>
       <div
-        class="grid place-items-stretch gap-2 md:gap-5 grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+        class="grid place-items-stretch gap-2 md:gap-5 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
       >
         <div
           v-for="con in conjurations"
@@ -128,13 +201,17 @@ async function loadNextPage() {
               </button>
             </div>
             <div v-else>
-              <button class="button-gradient">Add To Collection</button>
+              <button class="button-gradient flex gap-2">
+                <PlusCircleIcon class="h-5 w-5" />
+                <span>Add To Collection</span>
+              </button>
             </div>
           </div>
           <ConjurationListItemView
-            class="pointer-events-none"
+            class="pointer-events-none h-full"
             :data="con"
             :show-saves="false"
+            :highlight-text="searchText"
           />
         </div>
         <div v-if="moreToLoad" class="text-center col-span-full">
@@ -143,7 +220,9 @@ async function loadNextPage() {
             <Spinner v-else />
           </button>
         </div>
-        <div v-else class="text-center col-span-full">No more results...</div>
+        <div v-else class="text-center col-span-full my-6">
+          No more results...
+        </div>
       </div>
     </div>
   </div>

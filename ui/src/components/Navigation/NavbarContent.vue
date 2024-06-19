@@ -212,7 +212,7 @@ async function navigateToCreateCampaign() {
       <div v-if="!collapsed" class="whitespace-nowrap">Campaign Sessions</div>
     </router-link>
 
-    <div class="text-xs text-gray-500 font-bold mb-3 mt-6">CONJURATIONS</div>
+    <div class="text-xs text-gray-500 font-bold mb-3 mt-6">TOOLS</div>
 
     <router-link
       class="nav-item"
@@ -227,6 +227,8 @@ async function navigateToCreateCampaign() {
       <SquaresPlusIcon class="h-5 mr-2" />
       <div v-if="!collapsed" class="whitespace-nowrap">My Collections</div>
     </router-link>
+
+    <div class="text-xs text-gray-500 font-bold mb-3 mt-6">CONJURATIONS</div>
 
     <router-link
       class="nav-item"

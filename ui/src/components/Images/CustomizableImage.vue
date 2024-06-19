@@ -117,11 +117,60 @@ const alreadyUpscaled = computed(() => {
 
 <template>
   <div class="relative">
-    <div v-if="image.uri" class="image-badge">
-      {{ type }}
+    <div class="relative">
+      <div v-if="image.uri" class="image-badge">
+        {{ type }}
+      </div>
+
+      <div
+        v-if="image.imageModel?.description"
+        class="absolute flex bottom-2 right-2 cursor-pointer bg-neutral-500/50 rounded-[8px]"
+      >
+        <div class="text-neutral-300 text-sm px-2">
+          {{ image.imageModel?.description }}
+        </div>
+      </div>
+
+      <LightboxImage
+        v-if="image.uri"
+        :src="image.uri"
+        :alt="alt"
+        class="rounded-[20px]"
+      />
+      <div v-else class="w-full flex justify-center h-full bg-surface">
+        <div
+          v-if="!image.failed"
+          class="self-center text-center text-[2rem] text-white"
+        >
+          <span v-if="type !== 'Character'" class="animate-pulse"
+            >Conjuring image...</span
+          >
+          <span v-else>No Image</span>
+        </div>
+        <div v-else-if="editable" class="flex my-[150px]">
+          <div class="self-center">
+            <div class="text-center text-xl">Image Conjuration Timed Out</div>
+            <div class="text-center text-lg">
+              {{ imageConjurationFailureReason }}
+            </div>
+            <div class="text-sm text-neutral-500 mb-2">
+              You have not been charged any credits for this image.
+            </div>
+            <div>
+              <button
+                class="button-ghost-white flex mx-auto"
+                @click="showCustomizeImageModal"
+              >
+                Retry Image
+                <ArrowPathIcon class="w-5 ml-2" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div v-if="editable" class="absolute flex gap-2 top-2 right-2">
+    <div v-if="editable" class="mt-2 md:absolute flex gap-2 top-0 right-2">
       <div class="relative group ml-2">
         <button
           v-if="image.uri"
@@ -139,11 +188,11 @@ const alreadyUpscaled = computed(() => {
       </div>
       <button
         type="button"
-        class="flex button-gradient bg-white/50"
+        class="flex grow button-gradient bg-white/50"
         :disabled="!editable"
         @click="showCreateImageModal"
       >
-        <span class="self-center"> Conjure New Image</span>
+        <span class="self-center w-full"> Conjure New Image</span>
       </button>
       <button
         v-if="!image.failed && image.uri"
@@ -166,53 +215,6 @@ const alreadyUpscaled = computed(() => {
         <div class="tooltip-bottom-left hidden group-hover/upscale:block">
           Upscaled
           <div class="tooltip-arrow" />
-        </div>
-      </div>
-    </div>
-
-    <div
-      v-if="image.imageModel?.description"
-      class="absolute flex bottom-2 right-2 cursor-pointer bg-neutral-500/50 rounded-[8px]"
-    >
-      <div class="text-neutral-300 text-sm px-2">
-        {{ image.imageModel?.description }}
-      </div>
-    </div>
-
-    <LightboxImage
-      v-if="image.uri"
-      :src="image.uri"
-      :alt="alt"
-      class="rounded-[20px]"
-    />
-    <div v-else class="w-full flex justify-center h-full bg-surface">
-      <div
-        v-if="!image.failed"
-        class="self-center text-center text-[2rem] text-white"
-      >
-        <span v-if="type !== 'Character'" class="animate-pulse"
-          >Conjuring image...</span
-        >
-        <span v-else>No Image</span>
-      </div>
-      <div v-else-if="editable" class="flex my-[150px]">
-        <div class="self-center">
-          <div class="text-center text-xl">Image Conjuration Timed Out</div>
-          <div class="text-center text-lg">
-            {{ imageConjurationFailureReason }}
-          </div>
-          <div class="text-sm text-neutral-500 mb-2">
-            You have not been charged any credits for this image.
-          </div>
-          <div>
-            <button
-              class="button-ghost-white flex mx-auto"
-              @click="showCustomizeImageModal"
-            >
-              Retry Image
-              <ArrowPathIcon class="w-5 ml-2" />
-            </button>
-          </div>
         </div>
       </div>
     </div>

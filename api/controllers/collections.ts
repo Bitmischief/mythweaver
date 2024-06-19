@@ -15,7 +15,7 @@ import { TrackingInfo } from '../lib/tracking';
 import { MythWeaverLogger } from '../lib/logger';
 import { prisma } from '../lib/providers/prisma';
 import { AppError, HttpCode } from '../lib/errors/AppError';
-import { Conjuration, Image } from '@prisma/client';
+import { Collections, Conjuration, Image } from '@prisma/client';
 import { sendWebsocketMessage, WebSocketEvent } from '../services/websockets';
 
 export interface PostCollectionRequest {
@@ -33,7 +33,6 @@ export interface PostCollectionConjurationRequest {
 
 export interface PostMoveCollectionConjurationRequest {
   collectionId: number;
-  conjurationId: number;
 }
 
 export interface PostMoveCollectionRequest {
@@ -65,6 +64,7 @@ export default class CollectionController {
       include: {
         collectionConjurations: {
           include: {
+            collection: true,
             conjuration: {
               include: {
                 images: {
@@ -92,6 +92,10 @@ export default class CollectionController {
         include: {
           collectionConjurations: true,
           images: {
+            select: {
+              uri: true,
+              primary: true,
+            },
             where: {
               primary: true,
             },
@@ -123,6 +127,23 @@ export default class CollectionController {
     @Inject() logger: MythWeaverLogger,
     @Body() collection: PostCollectionRequest,
   ) {
+    if (collection.parentId) {
+      const parentCollection = await prisma.collections.findFirst({
+        where: {
+          id: collection.parentId,
+          userId: userId,
+        },
+      });
+
+      if (!parentCollection) {
+        throw new AppError({
+          description:
+            'Parent collection not found or you do not have access to it.',
+          httpCode: HttpCode.NOT_FOUND,
+        });
+      }
+    }
+
     logger.info('Creating collection', { userId, collection });
 
     return prisma.collections.create({
@@ -158,12 +179,95 @@ export default class CollectionController {
       });
     }
 
-    logger.info('Deleting collection', { userId, collectionId });
+    const collectionsToDelete = (await prisma.$queryRawUnsafe(`
+      WITH RECURSIVE collection_tree AS (
+        SELECT "id", "name", "parentCollectionId"
+        FROM "collections"
+        WHERE "id" = ${collectionId} AND "userId" = ${userId}
+          UNION ALL
+            SELECT c."id", c."name", c."parentCollectionId"
+            FROM "collections" c
+            INNER JOIN collection_tree ct ON c."parentCollectionId" = ct."id"
+      )
+      SELECT * FROM collection_tree
+    `)) as Collections[];
 
-    await prisma.collections.delete({
+    if (collectionsToDelete && collectionsToDelete.length) {
+      logger.info('Deleting collections', { userId, collectionsToDelete });
+
+      await prisma.collectionConjuration.deleteMany({
+        where: {
+          collectionId: {
+            in: collectionsToDelete.map((c: any) => c.id),
+          },
+        },
+      });
+      await prisma.collections.deleteMany({
+        where: {
+          id: {
+            in: collectionsToDelete.map((c: any) => c.id),
+          },
+          userId: userId,
+        },
+      });
+    }
+  }
+
+  @Security('jwt')
+  @OperationId('deleteCollectionConjuration')
+  @Delete('/:collectionId/conjuration/:conjurationId')
+  public async deleteCollectionConjuration(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
+    @Route() collectionId: number,
+    @Route() conjurationId: number,
+  ) {
+    const collection = await prisma.collections.findUnique({
       where: {
         id: collectionId,
         userId: userId,
+      },
+    });
+
+    if (!collection) {
+      throw new AppError({
+        description:
+          'Collection not found or you do not have access to delete it.',
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    const collectionConjuration = await prisma.collectionConjuration.findUnique(
+      {
+        where: {
+          collectionId_conjurationId: {
+            collectionId: collectionId,
+            conjurationId: conjurationId,
+          },
+        },
+      },
+    );
+
+    if (!collectionConjuration) {
+      throw new AppError({
+        description: 'Collection conjuration not found.',
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    logger.info('Deleting collection conjuration', {
+      userId,
+      collectionId,
+      conjurationId,
+    });
+
+    await prisma.collectionConjuration.delete({
+      where: {
+        collectionId_conjurationId: {
+          collectionId: collectionId,
+          conjurationId: conjurationId,
+        },
       },
     });
   }
@@ -274,17 +378,19 @@ export default class CollectionController {
 
   @Security('jwt')
   @OperationId('postMoveCollectionConjuration')
-  @Post('/conjurations/move')
+  @Post('/:collectionId/conjurations/:conjurationId/move')
   public async postMoveCollectionConjuration(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
     @Inject() logger: MythWeaverLogger,
+    @Route() collectionId: number,
+    @Route() conjurationId: number,
     @Body()
     postMoveCollectionConjurationRequest: PostMoveCollectionConjurationRequest,
   ) {
     const collection = await prisma.collections.findUnique({
       where: {
-        id: postMoveCollectionConjurationRequest.collectionId,
+        id: collectionId,
         userId: userId,
       },
     });
@@ -297,10 +403,22 @@ export default class CollectionController {
       });
     }
 
-    if (!collection.parentCollectionId) {
+    const collectionConjuration = await prisma.collectionConjuration.findUnique(
+      {
+        where: {
+          collectionId_conjurationId: {
+            collectionId: collectionId,
+            conjurationId: conjurationId,
+          },
+        },
+      },
+    );
+
+    if (!collectionConjuration) {
       throw new AppError({
-        description: 'Moving conjurations from this collection is not allowed.',
-        httpCode: HttpCode.BAD_REQUEST,
+        description:
+          'Collection conjuration not found or you do not have access to update it.',
+        httpCode: HttpCode.NOT_FOUND,
       });
     }
 
@@ -311,8 +429,8 @@ export default class CollectionController {
 
     await prisma.collectionConjuration.updateMany({
       where: {
-        collectionId: collection.parentCollectionId,
-        conjurationId: postMoveCollectionConjurationRequest.conjurationId,
+        collectionId: collectionId,
+        conjurationId: conjurationId,
       },
       data: postMoveCollectionConjurationRequest,
     });
@@ -350,19 +468,21 @@ export default class CollectionController {
       });
     }
 
-    const parentCollection = await prisma.collections.findUnique({
-      where: {
-        id: postMoveCollectionRequest.parentCollectionId,
-        userId: userId,
-      },
-    });
-
-    if (!parentCollection) {
-      throw new AppError({
-        description:
-          'Parent collection not found or you do not have access to update it.',
-        httpCode: HttpCode.NOT_FOUND,
+    if (postMoveCollectionRequest.parentCollectionId) {
+      const parentCollection = await prisma.collections.findUnique({
+        where: {
+          id: postMoveCollectionRequest.parentCollectionId,
+          userId: userId,
+        },
       });
+
+      if (!parentCollection) {
+        throw new AppError({
+          description:
+            'Parent collection not found or you do not have access to update it.',
+          httpCode: HttpCode.NOT_FOUND,
+        });
+      }
     }
 
     logger.info('Posting move collection', {
@@ -376,7 +496,8 @@ export default class CollectionController {
         userId: userId,
       },
       data: {
-        parentCollectionId: postMoveCollectionRequest.parentCollectionId,
+        parentCollectionId:
+          postMoveCollectionRequest.parentCollectionId ?? null,
       },
     });
 

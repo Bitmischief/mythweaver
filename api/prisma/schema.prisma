@@ -477,6 +477,8 @@ model CollectionConjuration {
   conjuration Conjuration @relation(fields: [conjurationId], references: [id])
 
   @@id([collectionId, conjurationId])
+  @@index([collectionId], name: "collection_conjurations_collection_id")
+  @@index([conjurationId], name: "collection_conjurations_conjuration_id")
   @@index([collectionId, conjurationId], name: "collection_conjurations_collection_id_conjuration_id")
   @@map("collection_conjurations")
 }

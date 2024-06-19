@@ -15,7 +15,6 @@ export interface PostCollectionConjurationSchema {
 
 export interface PostMoveCollectionConjurationSchema {
   collectionId: number;
-  conjurationId: number;
 }
 
 export interface PostMoveCollectionSchema {
@@ -46,9 +45,14 @@ export const patchCollection = (collectionId: number, collection: PatchCollectio
 };
 
 export const postMoveCollectionConjuration = (
+  collectionId: number,
+  conjurationId: number,
   collectionConjuration: PostMoveCollectionConjurationSchema,
 ) => {
-  return axios.post(`/collections/conjurations/move`, collectionConjuration);
+  return axios.post(
+    `/collections/${collectionId}/conjurations/${conjurationId}/move`,
+    collectionConjuration,
+  );
 };
 
 export const postMoveCollection = (
@@ -56,4 +60,12 @@ export const postMoveCollection = (
   moveCollection: PostMoveCollectionSchema,
 ) => {
   return axios.post(`/collections/${collectionId}/move`, moveCollection);
+};
+
+export const deleteCollection = (collectionId: number) => {
+  return axios.delete(`/collections/${collectionId}`);
+};
+
+export const deleteCollectionConjuration = (collectionId: number, conjurationId: number) => {
+  return axios.delete(`/collections/${collectionId}/conjurations/${conjurationId}`);
 };
