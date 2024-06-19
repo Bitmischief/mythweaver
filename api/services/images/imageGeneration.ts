@@ -197,6 +197,9 @@ const generateImageFromProperProvider = async (
     }
   } catch (err) {
     const e = err as AxiosError;
+
+    logger.error('Received an error generating an image', request, err);
+
     if (e?.response?.status === 400) {
       await sendWebsocketMessage(request.userId, WebSocketEvent.ImageFiltered, {
         description:
