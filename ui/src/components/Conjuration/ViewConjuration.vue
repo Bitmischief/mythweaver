@@ -288,7 +288,9 @@ async function addToCampaign() {
 
 <template>
   <template v-if="conjuration">
-    <div class="flex flex-wrap lg:flex-nowrap gap-4 justify-between mb-6">
+    <div
+      class="flex flex-wrap lg:flex-nowrap gap-4 justify-between mb-1 sticky -top-5 z-10 -m-5 px-5 py-2 bg-surface/75"
+    >
       <div class="flex flex-wrap gap-4 lg:flex-nowrap grow">
         <button class="button-primary flex self-center" @click="routeBack">
           <ArrowLeftIcon class="mr-2 h-4 w-4 self-center" />

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Menu from '@/components/Core/General/Menu.vue';
-import { MenuButton, MenuItem } from '@headlessui/vue';
+import { MenuButton, MenuItems, MenuItem } from '@headlessui/vue';
 import ConjurationListItemView from '@/components/Conjuration/ConjurationListItemView.vue';
 import {
   ArrowRightEndOnRectangleIcon,
@@ -37,43 +37,49 @@ const removeCollectionConjuration = async () => {
 </script>
 
 <template>
-  <div
-    class="cursor-pointer absolute top-3 right-3 rounded-full bg-surface-3 p-1 z-10"
-  >
-    <Menu class="flex">
-      <div class="flex">
-        <MenuButton class="self-center mx-1 py-1">
+  <div class="relative h-full">
+    <Menu class="flex cursor-pointer">
+      <div
+        class="absolute top-3 right-3 flex rounded-full bg-surface-3 p-1 z-10"
+      >
+        <MenuButton class="flex self-center mx-1 py-1">
           <EllipsisHorizontalIcon class="h-6 w-6 self-center" />
         </MenuButton>
       </div>
-
-      <template #content>
-        <div class="relative z-60 bg-surface-3 py-2 rounded-[12px]">
+      <MenuItems>
+        <div
+          class="absolute left-0 right-0 top-14 z-10 bg-surface-3 py-2 rounded-[12px]"
+        >
           <MenuItem @click="showMoveConjuration = true">
             <div class="menu-item">
-              <button class="button-text flex gap-2">
-                <ArrowRightEndOnRectangleIcon class="h-5 w-5" />
+              <div class="button-text flex gap-2">
+                <div class="self-center">
+                  <ArrowRightEndOnRectangleIcon class="h-5 w-5" />
+                </div>
                 Move Conjuration
-              </button>
+              </div>
             </div>
           </MenuItem>
           <MenuItem @click="removeCollectionConjuration">
             <div class="menu-item">
-              <button class="button-text flex gap-2 text-red-400">
-                <MinusCircleIcon class="h-5 w-5" />
+              <div class="button-text flex gap-2 text-red-400">
+                <div class="self-center">
+                  <MinusCircleIcon class="h-5 w-5" />
+                </div>
                 Remove From Collection
-              </button>
+              </div>
             </div>
           </MenuItem>
         </div>
-      </template>
+      </MenuItems>
     </Menu>
+    <ConjurationListItemView
+      :data="conjuration"
+      :collection-id="collectionId"
+      draggable
+      hide-tags
+    />
   </div>
-  <ConjurationListItemView
-    :data="conjuration"
-    :collection-id="collectionId"
-    draggable
-  />
 
   <ModalAlternate :show="showMoveConjuration">
     <ConjurationMove

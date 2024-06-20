@@ -18,6 +18,7 @@ const props = defineProps<{
   draggable?: boolean;
   collectionId?: number;
   highlightText?: string;
+  hideTags?: boolean;
 }>();
 
 const [collect, drag] = useDrag(() => ({
@@ -256,7 +257,10 @@ const conjurationName = computed(() => {
             v-safe-html="conjurationName"
             class="relative text-md truncate"
           ></div>
-          <div class="flex flex-wrap max-h-[3.5em] overflow-hidden">
+          <div
+            v-if="hideTags !== true"
+            class="flex flex-wrap max-h-[3.5em] overflow-hidden"
+          >
             <div
               v-for="(tag, i) in conjuration.tags"
               :key="`${i}_${conjuration.id}_tag`"
@@ -361,8 +365,10 @@ const conjurationName = computed(() => {
           </div>
           <div class="mt-2">
             <div class="flex text-fuchsia-500">
-              View conjuration
-              <ArrowRightIcon class="h-5 w-5 ml-2 self-center" />
+              <div class="self-center truncate">View conjuration</div>
+              <div class="self-center">
+                <ArrowRightIcon class="h-5 w-5 ml-2" />
+              </div>
             </div>
           </div>
         </div>

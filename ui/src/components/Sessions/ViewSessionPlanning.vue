@@ -113,9 +113,6 @@ const planningChanged = (planning: any) => {
           <div class="text-sm text-neutral-500">
             This is where you can plan out your session. Only you can see this.
           </div>
-          <span v-if="unsavedChanges" class="text-xs text-neutral-500">
-            Unsaved Changes
-          </span>
         </div>
         <div
           v-if="currentUserRole === CampaignRole.DM"
@@ -132,6 +129,7 @@ const planningChanged = (planning: any) => {
         :key="'' + readOnly"
         v-model="session.planningJson"
         :read-only="readOnly"
+        :unsaved-changes="unsavedChanges"
         @update:model-value="planningChanged"
         @dblclick="
           readOnly && currentUserRole === CampaignRole.DM

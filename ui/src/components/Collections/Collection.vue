@@ -8,11 +8,13 @@ import {
 import { showError, showSuccess } from '@/lib/notifications.ts';
 import { useDrag, useDrop } from 'vue3-dnd';
 import Menu from '@/components/Core/General/Menu.vue';
-import { MenuButton, MenuItem } from '@headlessui/vue';
+import { MenuButton, MenuItems, MenuItem } from '@headlessui/vue';
 import {
   ArrowRightEndOnRectangleIcon,
   EllipsisHorizontalIcon,
   XCircleIcon,
+  PencilSquareIcon,
+  CheckIcon,
 } from '@heroicons/vue/24/outline';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import CollectionMove from '@/components/Collections/CollectionMove.vue';
@@ -102,38 +104,36 @@ const editCollectionName = () => {
 
 <template>
   <div :ref="drag" :style="{ opacity }" class="relative">
-    <div
-      class="cursor-pointer absolute top-3 right-3 rounded-full bg-surface-3 p-1 z-10"
-    >
-      <Menu class="flex">
-        <div class="flex py-1">
-          <MenuButton class="button-primary px-0 self-center mx-1 py-0">
-            <EllipsisHorizontalIcon class="h-6 w-6 self-center" />
-          </MenuButton>
-        </div>
+    <Menu class="flex cursor-pointer">
+      <div class="absolute top-3 right-3 rounded-full bg-surface-3 p-1 z-10">
+        <MenuButton class="flex self-center mx-1 py-1">
+          <EllipsisHorizontalIcon class="h-6 w-6 self-center" />
+        </MenuButton>
+      </div>
 
-        <template #content>
-          <div class="relative z-60 bg-surface-3 py-2 rounded-[12px]">
-            <MenuItem @click="showMoveCollection = true">
-              <div class="menu-item">
-                <button class="button-text flex gap-2 w-full">
-                  <ArrowRightEndOnRectangleIcon class="h-5 w-5" />
-                  Move Collection
-                </button>
-              </div>
-            </MenuItem>
-            <MenuItem @click="showConfirmDelete = true">
-              <div class="menu-item">
-                <button class="button-text flex gap-2 text-red-400">
-                  <XCircleIcon class="h-5 w-5" />
-                  Delete Collection
-                </button>
-              </div>
-            </MenuItem>
-          </div>
-        </template>
-      </Menu>
-    </div>
+      <MenuItems>
+        <div
+          class="absolute left-0 right-0 top-14 z-10 bg-surface-3 py-2 rounded-[12px]"
+        >
+          <MenuItem @click="showMoveCollection = true">
+            <div class="menu-item">
+              <button class="button-text flex gap-2 w-full">
+                <ArrowRightEndOnRectangleIcon class="h-5 w-5" />
+                Move Collection
+              </button>
+            </div>
+          </MenuItem>
+          <MenuItem @click="showConfirmDelete = true">
+            <div class="menu-item">
+              <button class="button-text flex gap-2 text-red-400">
+                <XCircleIcon class="h-5 w-5" />
+                Delete Collection
+              </button>
+            </div>
+          </MenuItem>
+        </div>
+      </MenuItems>
+    </Menu>
     <div
       :ref="drop"
       class="rounded-[12px] border border-neutral-800 w-full aspect-square grid grid-cols-2 p-1 cursor-pointer"
@@ -162,25 +162,36 @@ const editCollectionName = () => {
         <div class="w-full h-full bg-neutral-800/25 rounded-[8px]"></div>
       </div>
     </div>
-    <div class="relative flex mt-1">
+    <div class="relative flex mt-1 group/editname">
       <div
         v-if="!editingCollectionName"
-        class="text-sm p-2 w-full truncate cursor-pointer hover:bg-purple-800/20 rounded-[12px]"
+        class="text-sm p-2 pr-6 w-full truncate cursor-pointer hover:bg-purple-800/20 rounded-[12px]"
         @click="editCollectionName"
       >
         {{ collection.name }}
       </div>
+      <div
+        v-if="!editingCollectionName"
+        class="hidden group-hover/editname:block hover:bg-purple-800/20 p-2 rounded-full absolute cursor-pointer top-1/2 -translate-y-1/2 right-2 z-10"
+        @click="editCollectionName"
+      >
+        <PencilSquareIcon class="h-5 w-5 text-neutral-400" />
+      </div>
       <FormKit
-        v-if="editingCollectionName"
+        v-show="editingCollectionName"
         v-model="collection.name"
         inner-class="$reset w-full p-1 border-neutral-800"
         input-class="$reset input-secondary"
         type="text"
+        autofocus
         @focusout="updateCollection"
       />
-      <div v-if="editingCollectionName" class="mt-1">
-        <button class="button-gradient py-3" @click="updateCollection">
-          Done
+      <div v-if="editingCollectionName" class="mt-2">
+        <button
+          class="button-gradient rounded-full p-2"
+          @click="updateCollection"
+        >
+          <CheckIcon class="h-5 w-5" />
         </button>
       </div>
     </div>
