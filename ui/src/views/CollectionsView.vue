@@ -23,6 +23,7 @@ import { ServerEvent } from '@/lib/serverEvents.ts';
 import CollectionHistory from '@/components/Collections/CollectionHistory.vue';
 import { useRoute, useRouter } from 'vue-router';
 import CollectionConjuration from '@/components/Collections/CollectionConjuration.vue';
+import Loader from '@/components/Core/Loader.vue';
 
 const loading = ref(true);
 const channel = useWebsocketChannel();
@@ -245,8 +246,15 @@ const parentName = computed(() => {
         </div>
       </div>
     </div>
+    <div v-if="loading" class="py-12 flex justify-center">
+      <div>
+        <Loader />
+        <div class="text-center mt-2">Loading...</div>
+      </div>
+    </div>
     <div
-      class="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+      v-else
+      class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 3xl:grid-cols-7 gap-4"
     >
       <template v-if="collections?.length">
         <div
@@ -261,11 +269,7 @@ const parentName = computed(() => {
         </div>
       </template>
       <template v-if="parentId && conjurations?.length">
-        <div
-          v-for="conjuration in conjurations"
-          :key="conjuration.id"
-          class="relative"
-        >
+        <div v-for="conjuration in conjurations" :key="conjuration.id">
           <CollectionConjuration
             :data="conjuration"
             :collection-id="parentId"
