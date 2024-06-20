@@ -2,8 +2,15 @@
 import { computed, ref, unref } from 'vue';
 import { useDrop } from 'vue3-dnd';
 
+const props = defineProps<{
+  data: any;
+  droppable?: boolean;
+}>();
+
+const collection = ref(props.data);
+
 const [dropCollect, drop] = useDrop(() => ({
-  accept: ['Conjuration', 'Collection'],
+  accept: collection.value?.id ? ['Conjuration', 'Collection'] : ['Collection'],
   drop: () => ({
     id: props.data?.id,
     name: props.data?.name,
@@ -17,13 +24,6 @@ const [dropCollect, drop] = useDrop(() => ({
 const canDrop = computed(() => unref(dropCollect).canDrop);
 const isOver = computed(() => unref(dropCollect).isOver);
 const isActive = computed(() => unref(canDrop) && unref(isOver));
-
-const props = defineProps<{
-  data: any;
-  droppable?: boolean;
-}>();
-
-const collection = ref(props.data);
 </script>
 
 <template>

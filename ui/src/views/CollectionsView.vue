@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { getCollections, saveCollection } from '@/api/collections.ts';
 import { showError, showSuccess } from '@/lib/notifications.ts';
 import {
@@ -143,6 +143,13 @@ async function closeAddConjurations() {
   await fetchCollections();
   showAddConjurations.value = false;
 }
+
+const parentName = computed(() => {
+  if (collectionHistory.value?.length) {
+    return collectionHistory.value[collectionHistory.value.length - 1].name;
+  }
+  return 'Home';
+});
 </script>
 
 <template>
@@ -319,6 +326,7 @@ async function closeAddConjurations() {
   <ModalAlternate v-if="parentId" :show="showAddConjurations">
     <AddConjurationsToCollection
       :collection-id="parentId"
+      :collection-name="parentName"
       class="md:max-w-[75vw] h-[90vw]"
       @close="closeAddConjurations"
     />
