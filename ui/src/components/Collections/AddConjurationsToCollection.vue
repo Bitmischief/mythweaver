@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
-import { showError } from '@/lib/notifications.ts';
+import { showError, showSuccess } from '@/lib/notifications.ts';
 import { Conjuration, getConjurations } from '@/api/conjurations.ts';
 import { debounce } from 'lodash';
 import ConjurationListItemView from '@/components/Conjuration/ConjurationListItemView.vue';
+import { CheckCircleIcon, PlusCircleIcon } from '@heroicons/vue/24/solid';
+import { XCircleIcon } from '@heroicons/vue/24/outline';
 import {
-  XCircleIcon,
-  CheckCircleIcon,
-  PlusCircleIcon,
-} from '@heroicons/vue/24/solid';
-import { saveCollectionConjuration } from '@/api/collections.ts';
+  deleteCollectionConjuration,
+  saveCollectionConjuration,
+} from '@/api/collections.ts';
 import Spinner from '@/components/Core/Spinner.vue';
 import ConjurationsListFiltering from '@/components/Conjuration/ConjurationsListFiltering.vue';
 import { AdjustmentsVerticalIcon } from '@heroicons/vue/20/solid';
@@ -17,6 +17,7 @@ import { AdjustmentsVerticalIcon } from '@heroicons/vue/20/solid';
 const emit = defineEmits(['close']);
 const props = defineProps<{
   collectionId: number;
+  collectionName: string;
 }>();
 
 const loading = ref(false);
@@ -102,9 +103,23 @@ const addToCollection = async (conjuration: Conjuration) => {
     await saveCollectionConjuration(props.collectionId, {
       conjurationId: conjuration.id,
     });
+    showSuccess({ message: 'Conjuration added' });
     conjuration.inCollection = true;
   } catch (e: any) {
     showError({ message: e.message });
+  }
+};
+
+const removeFromCollection = async (conjuration: Conjuration) => {
+  try {
+    await deleteCollectionConjuration(props.collectionId, conjuration.id);
+    conjuration.inCollection = false;
+    showSuccess({ message: 'Conjuration removed from collection' });
+  } catch {
+    showError({
+      message:
+        'Failed to remove conjuration from collection. Please try again.',
+    });
   }
 };
 
@@ -139,9 +154,12 @@ const clearFilters = () => {
     />
 
     <div class="flex justify-between mb-4">
-      <div class="self-center text-lg">Add Conjurations</div>
+      <div class="self-center text-lg">
+        Add Conjurations to
+        <span class="gradient-text">{{ collectionName }}</span>
+      </div>
       <div class="self-center cursor-pointer" @click="emit('close')">
-        <XCircleIcon class="h-6 w-6" />
+        <button class="button-gradient">Done</button>
       </div>
     </div>
     <div class="mt-2 flex gap-2">
@@ -185,23 +203,32 @@ const clearFilters = () => {
       <div
         class="grid place-items-stretch gap-2 md:gap-5 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
       >
-        <div
-          v-for="con in conjurations"
-          :key="con.id"
-          class="relative"
-          @click.once="addToCollection(con)"
-        >
+        <div v-for="con in conjurations" :key="con.id" class="relative">
+          <div
+            v-if="con.inCollection"
+            class="absolute top-4 right-4 z-10 cursor-pointer"
+          >
+            <div
+              class="text-neutral-200 hover:text-neutral-400"
+              @click="removeFromCollection(con)"
+            >
+              <XCircleIcon class="h-8 w-8" />
+            </div>
+          </div>
           <div
             class="absolute z-10 bottom-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-lg whitespace-nowrap"
           >
-            <div v-if="con.inCollection" class="text-green-500 rounded-full">
+            <div v-if="con.inCollection" class="text-center">
               <button class="button-primary flex gap-1" disabled>
                 <CheckCircleIcon class="h-5 w-5" />
-                <span>In Collection</span>
+                <span>Added To Collection</span>
               </button>
             </div>
             <div v-else>
-              <button class="button-gradient flex gap-2">
+              <button
+                class="button-gradient flex gap-2"
+                @click="addToCollection(con)"
+              >
                 <PlusCircleIcon class="h-5 w-5" />
                 <span>Add To Collection</span>
               </button>

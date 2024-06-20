@@ -61,20 +61,41 @@ export default class CollectionController {
       orderBy: {
         name: 'asc',
       },
-      include: {
-        collectionConjurations: {
-          include: {
-            collection: true,
-            conjuration: {
-              include: {
-                images: {
-                  where: {
-                    primary: true,
-                  },
-                },
+    });
+
+    const collectionTree = (await prisma.$queryRawUnsafe(`
+      WITH RECURSIVE collection_tree AS (
+        SELECT "id", "parentCollectionId", "id" as "ultimateParentId"
+        FROM "collections"
+        WHERE ${parentId ? `"parentCollectionId" = ${parentId}` : `"parentCollectionId" IS NULL`} AND "userId" = ${userId}
+          UNION ALL
+            SELECT c."id", c."parentCollectionId", ct."ultimateParentId"
+            FROM "collections" c
+            INNER JOIN collection_tree ct ON c."parentCollectionId" = ct."id"
+      )
+      SELECT * FROM collection_tree
+    `)) as Collections[];
+
+    const collectionConjurations = await prisma.collectionConjuration.findMany({
+      select: {
+        collectionId: true,
+        conjuration: {
+          select: {
+            images: {
+              select: {
+                uri: true,
               },
+              where: {
+                primary: true,
+              },
+              take: 1,
             },
           },
+        },
+      },
+      where: {
+        collectionId: {
+          in: collectionTree.map((c) => c.id),
         },
       },
     });
@@ -86,6 +107,11 @@ export default class CollectionController {
           collectionConjurations: {
             some: {
               collectionId: parentId,
+            },
+          },
+          images: {
+            some: {
+              primary: true,
             },
           },
         },
@@ -106,12 +132,19 @@ export default class CollectionController {
 
     return {
       collections: collections.map((col: any) => {
-        const placeholders = col.collectionConjurations.map(
-          (cc: any) => cc.conjuration.images.find((i: Image) => i.primary)?.uri,
+        const children = collectionTree.filter(
+          (cc: any) => cc.ultimateParentId === col.id,
         );
+        const childConjurations = collectionConjurations
+          .filter((cc: any) =>
+            children.some((c: any) => c.id === cc.collectionId),
+          )
+          .slice(0, 4);
         return {
           ...col,
-          placeholders,
+          placeholders: childConjurations.map(
+            (cc: any) => cc.conjuration.images[0].uri,
+          ),
         };
       }),
       conjurations,
