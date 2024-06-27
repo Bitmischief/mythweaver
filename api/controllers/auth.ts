@@ -12,18 +12,19 @@ import { prisma } from '../lib/providers/prisma';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import jwt from 'jsonwebtoken';
 import { AppEvent, identify, track, TrackingInfo } from '../lib/tracking';
-import CampaignController, { CampaignRole } from './campaigns';
+import CampaignController from './campaigns';
 import mailchimpClient from '../lib/mailchimpMarketing';
 import { lists, Status } from '@mailchimp/mailchimp_marketing';
 import { format } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
-import EmailType = lists.EmailType;
 import { urlPrefix } from '../lib/utils';
 import { sendTransactionalEmail } from '../lib/transactionalEmail';
 import { createCustomer } from '../services/billing';
 import { MythWeaverLogger } from '../lib/logger';
 import { modifyImageCreditCount } from '../services/credits';
 import { ImageCreditChangeType } from '@prisma/client';
+import { createCampaign } from '../dataAccess/campaigns';
+import EmailType = lists.EmailType;
 
 const jwtExpirySeconds = 30 * 60; // 30 minutes
 const jwtRefreshExpirySeconds = 14 * 24 * 60 * 60; // 14 days
@@ -306,21 +307,7 @@ export default class AuthController {
         'Initial credits for signup',
       );
 
-      await prisma.campaign.create({
-        data: {
-          name: 'My Campaign',
-          description: '',
-          rpgSystemCode: 'Dungeons & Dragons',
-          userId: user.id,
-          members: {
-            create: {
-              userId: user.id,
-              role: CampaignRole.DM,
-              joinedAt: new Date(),
-            },
-          },
-        },
-      });
+      await createCampaign({ userId: user.id, name: 'My Campaign' });
 
       const response = (await mailchimpClient.lists.batchListMembers(
         process.env.MAILCHIMP_AUDIENCE_ID as string,

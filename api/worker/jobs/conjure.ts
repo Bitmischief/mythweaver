@@ -13,6 +13,11 @@ import {
 import logger from '../../lib/logger';
 import { sendConjurationCountUpdatedEvent } from '../../lib/planRestrictionHelpers';
 import { nanoid } from 'nanoid';
+import {
+  getCampaign,
+  getCampaignContextConfig,
+} from '../../dataAccess/campaigns';
+import { Message, TextContentBlock } from 'openai/resources/beta/threads';
 
 const openai = getClient();
 
@@ -27,11 +32,7 @@ export const conjure = async (request: ConjureEvent) => {
     });
   }
 
-  const campaign = await prisma.campaign.findUnique({
-    where: {
-      id: request.campaignId,
-    },
-  });
+  const campaign = await getCampaign(request.campaignId);
 
   if (!campaign) {
     throw new AppError({
@@ -39,6 +40,8 @@ export const conjure = async (request: ConjureEvent) => {
       httpCode: HttpCode.BAD_REQUEST,
     });
   }
+
+  const contextConfig = await getCampaignContextConfig(request.campaignId);
 
   const prompt = buildPrompt(
     generator,
@@ -50,24 +53,25 @@ export const conjure = async (request: ConjureEvent) => {
   let conjuration: any = undefined;
 
   do {
-    let response: any;
+    let response: Message | undefined;
 
     try {
-      response = await openai.chat.completions.create({
-        model: 'gpt-4o',
-        messages: [
-          {
-            role: 'system',
-            content:
-              'You are a helpful assistant who is knowledgeable in tabletop roleplaying games.',
-          },
-          {
-            role: 'user',
-            content: prompt,
-          },
-        ],
-        response_format: { type: 'json_object' },
+      const thread = await openai.beta.threads.create();
+
+      await openai.beta.threads.messages.create(thread.id, {
+        content: prompt,
+        role: 'assistant',
       });
+
+      const run = await openai.beta.threads.runs.createAndPoll(thread.id, {
+        assistant_id: contextConfig.assistantId,
+      });
+
+      const messages = await openai.beta.threads.messages.list(thread.id, {
+        run_id: run.id,
+      });
+
+      response = messages.data.pop();
     } catch (err: any) {
       logger.error(
         'Error generating character with openai',
@@ -84,7 +88,8 @@ export const conjure = async (request: ConjureEvent) => {
 
     let generatedJson;
     try {
-      generatedJson = response.choices[0]?.message?.content || '';
+      generatedJson =
+        (response.content[0] as TextContentBlock)?.text?.value || '';
       logger.info('Received json from openai', { generatedJson });
 
       const conjurationString = sanitizeJson(generatedJson);

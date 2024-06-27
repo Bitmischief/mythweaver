@@ -16,6 +16,7 @@ import {
   Campaign,
   CampaignMember,
   ConjurationRelationshipType,
+  ContextType,
 } from '@prisma/client';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
@@ -27,6 +28,8 @@ import {
   getCampaignCharacters,
   getManyRelationships,
 } from '../lib/relationshipsHelper';
+import { createCampaign } from '../dataAccess/campaigns';
+import { indexCampaignContextQueue } from '../worker';
 
 export interface GetCampaignsResponse {
   data: Campaign[];
@@ -36,15 +39,11 @@ export interface GetCampaignsResponse {
 
 export interface PostCampaignRequest {
   name: string;
-  description?: string;
-  rpgSystemCode: string;
 }
 
 export interface PutCampaignRequest {
   name: string;
   description?: string;
-  rpgSystemCode: string;
-  publicAdventureCode?: string;
 }
 
 export interface GetCampaignMembersResponse {
@@ -184,18 +183,9 @@ export default class CampaignController {
   ): Promise<Campaign> {
     track(AppEvent.CreateCampaign, userId, trackingInfo);
 
-    return prisma.campaign.create({
-      data: {
-        ...request,
-        userId,
-        members: {
-          create: {
-            userId,
-            role: CampaignRole.DM,
-            joinedAt: new Date(),
-          },
-        },
-      },
+    return createCampaign({
+      userId,
+      ...request,
     });
   }
 
@@ -231,12 +221,19 @@ export default class CampaignController {
 
     track(AppEvent.UpdateCampaign, userId, trackingInfo);
 
+    if (request.description) {
+      await indexCampaignContextQueue.add({
+        campaignId,
+        eventTargetId: campaignId,
+        type: ContextType.CAMPAIGN,
+      });
+    }
+
     return prisma.campaign.update({
       where: {
         id: campaignId,
       },
       data: {
-        ...campaign,
         ...request,
       },
     });

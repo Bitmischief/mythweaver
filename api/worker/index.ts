@@ -7,6 +7,8 @@ import logger from '../lib/logger';
 import { endTrials } from './jobs/endTrials';
 import { AppError, ErrorType, HttpCode } from '../lib/errors/AppError';
 import { checkImageStatus } from './jobs/imageStatus';
+import { indexCampaignContext } from './jobs/indexCampaignContext';
+import { ReindexCampaignContextEvent } from '../dataAccess/campaigns';
 
 const config = process.env.REDIS_ENDPOINT || '';
 
@@ -127,5 +129,23 @@ checkImageStatusQueue.process(async (job, done) => {
   } catch (err) {
     logger.error('Error processing check image status job!', err);
     done(new Error('Error processing check image status job!'));
+  }
+});
+
+export const indexCampaignContextQueue = new Queue<ReindexCampaignContextEvent>(
+  'index-campaign-context',
+  config,
+);
+
+indexCampaignContextQueue.process(async (job, done) => {
+  logger.info('Processing index campaign context job', job.data);
+
+  try {
+    await indexCampaignContext(job.data);
+    logger.info('Completed processing index campaign context job', job.data);
+    done();
+  } catch (err) {
+    logger.error('Error processing index campaign context job!', err);
+    done(new Error('Error processing index campaign context job!'));
   }
 });

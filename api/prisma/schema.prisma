@@ -180,6 +180,7 @@ model Campaign {
   description         String?
   rpgSystemCode       String
   publicAdventureCode String?
+  openAiConfig        Json?
 
   user         User             @relation(fields: [userId], references: [id])
   sessions     Session[]
@@ -445,4 +446,26 @@ model ImageModelArtist {
 
   @@id([imageModelId, artistId])
   @@map("image_model_artists")
+}
+
+enum ContextType {
+  CAMPAIGN
+  SESSION
+  SESSION_TRANSCRIPTION
+  CONJURATION
+}
+
+model ContextFiles {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+
+  type                 ContextType
+  externalSystemFileId String      @unique
+
+  campaignId    Int
+  sessionId     Int?
+  conjurationId Int?
+
+  @@map("openai_context_files")
 }
