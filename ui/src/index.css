@@ -144,6 +144,10 @@ input[type='number'] {
     @apply disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-fuchsia-500 to-violet-500 rounded-[12px] text-sm px-4 py-2 hover:cursor-pointer;
   }
 
+  .button-gradient-red {
+    @apply disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-rose-700 to-red-500 rounded-[12px] text-sm px-4 py-2 hover:cursor-pointer;
+  }
+
   .button-text {
     @apply disabled:opacity-50 disabled:cursor-not-allowed bg-transparent rounded-[12px] text-sm px-4 py-2 hover:cursor-pointer;
   }
@@ -265,7 +269,6 @@ input[type='number'] {
   }
 
   [type='text']:focus {
-    border-radius: 12px;
     @apply focus:ring-transparent active:ring-transparent border-fuchsia-500;
   }
 
@@ -279,5 +282,9 @@ input[type='number'] {
 
   .gradient-text {
     @apply bg-clip-text font-bold text-transparent bg-gradient-to-r from-fuchsia-500 to-blue-400;
+  }
+
+  mark {
+    @apply bg-purple-500/50 text-neutral-200 rounded-[4px];
   }
 }

@@ -74,14 +74,16 @@ const artistMoneyRaised = computed(() =>
   >
     <div
       v-if="showArtistMoneyRaised"
-      class="hidden md:flex self-center text-neutral-400"
+      class="hidden flex-wrap md:flex gap-2 self-center text-neutral-400"
     >
-      You have raised&nbsp;
-      <span
+      <div>You have raised</div>
+      <div
+        class="gradient-text"
         :class="{ 'animate-ping duration-500': artistContributionsIncreasing }"
-        >${{ artistMoneyRaised }}</span
       >
-      &nbsp;for artists
+        ${{ artistMoneyRaised }}
+      </div>
+      <div>for artists</div>
     </div>
     <div class="flex bg-surface-2">
       <TrialInfo class="self-center" />
@@ -100,7 +102,7 @@ const artistMoneyRaised = computed(() =>
             src="/favicon.png"
             alt="profile picture"
           />
-          <div class="pr-2">
+          <div class="pr-2 truncate">
             {{ username }}
           </div>
         </MenuButton>

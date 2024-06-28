@@ -19,6 +19,7 @@ import {
   ClockIcon,
   StarIcon,
   UsersIcon,
+  SquaresPlusIcon,
 } from '@heroicons/vue/24/outline';
 import { useCurrentUserPlan } from '@/lib/hooks.ts';
 import { BillingPlan } from '@/api/users.ts';
@@ -209,6 +210,22 @@ async function navigateToCreateCampaign() {
     >
       <img src="@/assets/icons/sessions.svg" alt="sessions" class="h-5 mr-2" />
       <div v-if="!collapsed" class="whitespace-nowrap">Campaign Sessions</div>
+    </router-link>
+
+    <div class="text-xs text-gray-500 font-bold mb-3 mt-6">TOOLS</div>
+
+    <router-link
+      class="nav-item"
+      :class="[
+        router.currentRoute.value.fullPath.startsWith('/collections')
+          ? 'default-border-no-opacity'
+          : '',
+      ]"
+      to="/collections"
+      @click="emit('nav-item-selected')"
+    >
+      <SquaresPlusIcon class="h-5 mr-2" />
+      <div v-if="!collapsed" class="whitespace-nowrap">My Collections</div>
     </router-link>
 
     <div class="text-xs text-gray-500 font-bold mb-3 mt-6">CONJURATIONS</div>

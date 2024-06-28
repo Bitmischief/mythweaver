@@ -45,11 +45,13 @@ const props = withDefaults(
     readOnly?: boolean;
     context?: string;
     placeholder?: string;
+    unsavedChanges?: boolean;
   }>(),
   {
     readOnly: false,
     context: 'session',
     placeholder: 'Start planning your session here...',
+    unsavedChanges: false,
   },
 );
 
@@ -166,9 +168,12 @@ onMounted(() => {
     },
   };
 
+  const placeholder = value.value?.blocks?.length
+    ? 'remove'
+    : props.placeholder;
   const e = new EditorJs({
     holder: 'editor',
-    placeholder: props.placeholder,
+    placeholder: placeholder,
     data: value.value,
     minHeight: 100,
     autofocus: false,
@@ -198,6 +203,14 @@ onMounted(() => {
 
 <template>
   <div class="rounded-[12px] bg-surface-2 w-full py-4">
+    <div class="flex justify-end text-sm text-neutral-500 px-6">
+      <div v-if="readOnly">
+        Read Mode
+        <span class="hidden md:inline">(double click to edit)</span>
+        <span class="inline md:hidden">(click "edit" to make changes)</span>
+      </div>
+      <div v-if="unsavedChanges" class="">Unsaved Changes</div>
+    </div>
     <div id="editor" class="w-full"></div>
   </div>
 </template>
@@ -309,6 +322,11 @@ onMounted(() => {
         @media (min-width: 650px) {
           margin: 0 60px;
         }
+
+        [contenteditable]:focus-visible {
+          border: none;
+          outline: none;
+        }
       }
 
       &.ce-block--selected .ce-block__content {
@@ -364,7 +382,7 @@ onMounted(() => {
     }
 
     .ce-inline-tool--active {
-      color: #d946ef;
+      //color: #d946ef;
     }
 
     .ce-inline-toolbar__actions {
@@ -427,6 +445,10 @@ onMounted(() => {
       content: attr(data-placeholder);
       color: #4a4a4a;
     }
+  }
+
+  .ce-block:has(.cdx-block[data-placeholder='remove']) {
+    display: none;
   }
 }
 </style>

@@ -187,6 +187,15 @@ export default class CampaignController {
       userId,
       ...request,
     });
+
+    await prisma.collections.create({
+      data: {
+        name: request.name,
+        userId,
+      },
+    });
+
+    return campaign;
   }
 
   @Security('jwt')

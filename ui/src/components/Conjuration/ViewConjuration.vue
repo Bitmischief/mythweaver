@@ -26,6 +26,7 @@ import {
   EllipsisHorizontalIcon,
   TrashIcon,
   ChatBubbleLeftRightIcon,
+  SquaresPlusIcon,
 } from '@heroicons/vue/24/outline';
 import {
   useCurrentUserId,
@@ -44,6 +45,7 @@ import ModalAlternate from '@/components/ModalAlternate.vue';
 import { Conjurer, getConjurers } from '@/api/generators.ts';
 import Select from '@/components/Core/Forms/Select.vue';
 import { postConjurationRelationship } from '@/api/relationships.ts';
+import ConjurationMove from '@/components/Collections/ConjurationMove.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -55,6 +57,7 @@ const selectedCampaignId = useSelectedCampaignId();
 
 const conjuration = ref<Conjuration | null>(null);
 const privateConjuration = ref(false);
+const showAddToCollection = ref(false);
 
 const conjurationId = computed(() =>
   parseInt(route.params.conjurationId?.toString()),
@@ -285,7 +288,9 @@ async function addToCampaign() {
 
 <template>
   <template v-if="conjuration">
-    <div class="flex flex-wrap lg:flex-nowrap gap-4 justify-between mb-6">
+    <div
+      class="flex flex-wrap lg:flex-nowrap gap-4 justify-between mb-1 sticky -top-5 z-10 -m-5 px-5 py-2 bg-surface/75"
+    >
       <div class="flex flex-wrap gap-4 lg:flex-nowrap grow">
         <button class="button-primary flex self-center" @click="routeBack">
           <ArrowLeftIcon class="mr-2 h-4 w-4 self-center" />
@@ -434,6 +439,17 @@ async function addToCampaign() {
                 <div class="menu-item">
                   <button
                     class="button-text flex gap-2"
+                    @click="showAddToCollection = true"
+                  >
+                    <SquaresPlusIcon class="h-5 w-5" />
+                    Add To Collection
+                  </button>
+                </div>
+              </MenuItem>
+              <MenuItem>
+                <div class="menu-item">
+                  <button
+                    class="button-text flex gap-2"
                     @click="showConvertConjurationTypeModal"
                   >
                     <ArrowsRightLeftIcon class="h-5 w-5" />
@@ -569,6 +585,14 @@ async function addToCampaign() {
           </div>
         </div>
       </div>
+    </ModalAlternate>
+    <ModalAlternate :show="showAddToCollection">
+      <ConjurationMove
+        :data="conjuration"
+        :collection-id="undefined"
+        add-mode
+        @close="showAddToCollection = false"
+      />
     </ModalAlternate>
   </template>
   <div v-else-if="privateConjuration" class="relative w-full h-full">

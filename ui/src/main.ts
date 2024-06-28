@@ -12,6 +12,7 @@ import { LDPlugin } from 'launchdarkly-vue-client-sdk';
 import * as Sentry from '@sentry/vue';
 import { isDevelopment, isLocalDevelopment, isProduction } from '@/lib/util.ts';
 import auth0Client from '@/plugins/auth.ts';
+import VueSafeHTML from 'vue-safe-html';
 
 const app = createApp(App);
 
@@ -64,5 +65,6 @@ Sentry.init({
 });
 
 app.use(auth0Client as any);
+app.use(VueSafeHTML);
 
 app.mount('#app');

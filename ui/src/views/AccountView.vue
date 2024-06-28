@@ -6,9 +6,9 @@ import {
   patchCurrentUser,
   Subscription,
 } from '@/api/users.ts';
-import { UserCircleIcon, CreditCardIcon } from '@heroicons/vue/24/outline';
-import { ref, onMounted, computed } from 'vue';
-import { showSuccess, showError } from '@/lib/notifications';
+import { CreditCardIcon, UserCircleIcon } from '@heroicons/vue/24/outline';
+import { computed, onMounted, ref } from 'vue';
+import { showError, showSuccess } from '@/lib/notifications';
 import { getBillingPortalUrl } from '@/api/billing.ts';
 import Loader from '@/components/Core/Loader.vue';
 import { format } from 'date-fns';
@@ -65,12 +65,10 @@ async function saveChanges() {
   try {
     saveChangesLoading.value = true;
 
-    const req = {
-      ...store.user,
+    await patchCurrentUser({
       username: username.value,
-    };
+    });
 
-    await patchCurrentUser(req);
     await store.loadCurrentUser();
 
     showSuccess({ message: 'Your username has been updated!' });

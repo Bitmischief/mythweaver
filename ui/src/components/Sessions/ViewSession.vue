@@ -255,9 +255,19 @@ async function changeTab(tabName: string) {
 
 const back = () => {
   if (route.query.from) {
-    return route.query.from.toString();
+    router.push(route.query.from.toString());
   } else {
-    return '/sessions';
+    router.push('/sessions');
+  }
+};
+
+const next = () => {
+  if (tab.value === 'plan') {
+    changeTab('transcript');
+  } else if (tab.value === 'transcript') {
+    changeTab('recap');
+  } else if (tab.value === 'recap') {
+    changeTab('overview');
   }
 };
 </script>
@@ -267,7 +277,7 @@ const back = () => {
     <div class="flex flex-wrap justify-between">
       <button class="button-primary flex self-center" @click="back">
         <ArrowLeftIcon class="mr-2 h-4 w-4 self-center" />
-        Back
+        Campaign Sessions
       </button>
 
       <div
@@ -344,82 +354,102 @@ const back = () => {
           </button>
         </div>
       </div>
-      <div
-        v-if="currentUserRole === CampaignRole.DM"
-        class="flex gap-4 justify-end self-center"
-      >
-        <button
-          v-if="!session.completed && session.isOver === false"
-          class="button-ghost self-center"
-          :class="{ 'purple-pulse': pingSessionOverButton }"
-          @click="sessionOver"
+      <div class="flex gap-2">
+        <div
+          v-if="currentUserRole === CampaignRole.DM"
+          class="flex gap-4 justify-end self-center"
         >
-          Mark Session As Over
-        </button>
-        <div class="self-center">
-          <button
-            v-if="session.isOver && !session.completed && tab === 'recap'"
-            class="button-ghost"
-            :class="{ 'purple-pulse': pingSessionCompleteButton }"
-            @click="sessionComplete"
+          <div
+            v-if="!session.completed && session.isOver === false"
+            class="self-center"
           >
-            Mark Session As Complete
-          </button>
+            <button
+              class="button-ghost self-center flex gap-2"
+              :class="{ 'purple-pulse': pingSessionOverButton }"
+              @click="sessionOver"
+            >
+              Mark Session As Over
+              <ArrowRightIcon class="min-w-5 w-5 self-center" />
+            </button>
+          </div>
+          <div
+            v-else-if="session.isOver && !session.completed && tab === 'recap'"
+            class="self-center"
+          >
+            <button
+              class="button-ghost flex"
+              :class="{ 'purple-pulse': pingSessionCompleteButton }"
+              @click="sessionComplete"
+            >
+              Mark Session As Complete
+              <ArrowRightIcon class="min-w-5 w-5 self-center" />
+            </button>
+          </div>
+          <div v-else-if="tab !== 'overview'">
+            <button>
+              <button class="button-ghost flex" @click="next">
+                Next
+                <ArrowRightIcon class="min-w-5 w-5 self-center" />
+              </button>
+            </button>
+          </div>
         </div>
-      </div>
-      <div
-        v-if="currentUserRole === CampaignRole.DM"
-        class="flex gap-4 justify-end absolute top-0 right-0 md:static"
-      >
-        <Menu class="self-center">
-          <MenuButton class="button-primary">
-            <EllipsisVerticalIcon class="h-5" />
-          </MenuButton>
-          <template #content>
-            <div class="relative z-60 bg-surface-3 p-2 rounded-[20px]">
-              <MenuItem
-                v-if="showRelationships && currentUserRole === CampaignRole.DM"
-              >
-                <button
-                  class="w-full rounded-[14px] px-3 py-1 hover:bg-purple-800/20 hover:text-purple-200"
-                  @click="
-                    handleCreateRelationship(
-                      ConjurationRelationshipType.CONJURATION,
-                    )
+        <div
+          v-if="currentUserRole === CampaignRole.DM"
+          class="flex gap-4 justify-end absolute top-0 right-0 md:static"
+        >
+          <Menu class="self-center">
+            <MenuButton class="button-primary">
+              <EllipsisVerticalIcon class="h-5" />
+            </MenuButton>
+            <template #content>
+              <div class="relative z-60 bg-surface-3 p-2 rounded-[20px]">
+                <MenuItem
+                  v-if="
+                    showRelationships && currentUserRole === CampaignRole.DM
                   "
                 >
-                  Link Conjurations
-                </button>
-              </MenuItem>
-              <MenuItem v-if="!session.archived">
-                <button
-                  class="w-full rounded-[14px] px-3 py-1 hover:bg-purple-800/20 hover:text-purple-200"
-                  @click="clickDeleteSession"
-                >
-                  Archive session
-                </button>
-              </MenuItem>
-              <template v-else>
-                <MenuItem>
                   <button
                     class="w-full rounded-[14px] px-3 py-1 hover:bg-purple-800/20 hover:text-purple-200"
-                    @click="clickUnarchiveSession"
+                    @click="
+                      handleCreateRelationship(
+                        ConjurationRelationshipType.CONJURATION,
+                      )
+                    "
                   >
-                    Unarchive session
+                    Link Conjurations
                   </button>
                 </MenuItem>
-                <MenuItem>
+                <MenuItem v-if="!session.archived">
                   <button
                     class="w-full rounded-[14px] px-3 py-1 hover:bg-purple-800/20 hover:text-purple-200"
                     @click="clickDeleteSession"
                   >
-                    Delete session
+                    Archive session
                   </button>
                 </MenuItem>
-              </template>
-            </div>
-          </template>
-        </Menu>
+                <template v-else>
+                  <MenuItem>
+                    <button
+                      class="w-full rounded-[14px] px-3 py-1 hover:bg-purple-800/20 hover:text-purple-200"
+                      @click="clickUnarchiveSession"
+                    >
+                      Unarchive session
+                    </button>
+                  </MenuItem>
+                  <MenuItem>
+                    <button
+                      class="w-full rounded-[14px] px-3 py-1 hover:bg-purple-800/20 hover:text-purple-200"
+                      @click="clickDeleteSession"
+                    >
+                      Delete session
+                    </button>
+                  </MenuItem>
+                </template>
+              </div>
+            </template>
+          </Menu>
+        </div>
       </div>
     </div>
     <div

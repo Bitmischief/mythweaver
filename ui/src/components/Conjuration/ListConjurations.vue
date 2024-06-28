@@ -225,9 +225,9 @@ const clearFilters = () => {
     @update-filters="handleFiltersUpdated"
   />
 
-  <div class="flex w-full justify-between rounded-xl pb-8">
-    <div class="w-full md:flex md:justify-between">
-      <div class="flex justify-center md:justify-start grow">
+  <div class="flex w-full justify-between rounded-xl">
+    <div class="w-full">
+      <div class="flex justify-center md:justify-start grow mb-4">
         <div v-if="conjurationsMineQuery.saved" class="text-xl self-center">
           <span class="gradient-text">My Conjurations</span>
           <span
@@ -243,7 +243,7 @@ const clearFilters = () => {
       </div>
 
       <div
-        class="mt-2 md:mt-0 self-center flex justify-center md:justify-end gap-2 grow flex-wrap md:flex-nowrap"
+        class="my-4 md:mt-0 self-center flex justify-center md:justify-end gap-2 grow flex-wrap md:flex-nowrap"
       >
         <div class="grow">
           <FormKit type="form" :actions="false" @submit="handleFiltersUpdated">

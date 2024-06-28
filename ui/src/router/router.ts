@@ -22,6 +22,7 @@ import AuthenticatedView from '@/views/AuthenticatedView.vue';
 import AccountView from '@/views/AccountView.vue';
 import OverviewCampaign from '@/components/Campaigns/OverviewCampaign.vue';
 import ConjureView from '@/views/ConjureView.vue';
+import CollectionsView from '@/views/CollectionsView.vue';
 import { authGuard } from '@auth0/auth0-vue';
 import { fbq, gtag, rdt } from '@/lib/conversions.ts';
 import { isProduction } from '@/lib/util.ts';
@@ -203,8 +204,14 @@ const router = createRouter({
     {
       name: 'CONJURE',
       path: '/conjure',
-      beforeEnter: authGuard,
       component: ConjureView,
+      beforeEnter: authGuard,
+    },
+    {
+      name: 'COLLECTIONS',
+      path: '/collections',
+      component: CollectionsView,
+      beforeEnter: authGuard,
     },
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
