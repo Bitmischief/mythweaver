@@ -26,6 +26,7 @@ import CollectionsView from '@/views/CollectionsView.vue';
 import { authGuard } from '@auth0/auth0-vue';
 import { fbq, gtag, rdt } from '@/lib/conversions.ts';
 import { isProduction } from '@/lib/util.ts';
+import RelationshipGraphView from '@/views/RelationshipGraphView.vue';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -211,6 +212,12 @@ const router = createRouter({
       name: 'COLLECTIONS',
       path: '/collections',
       component: CollectionsView,
+      beforeEnter: authGuard,
+    },
+    {
+      name: 'RELATIONSHIP GRAPH',
+      path: '/relationships/graph',
+      component: RelationshipGraphView,
       beforeEnter: authGuard,
     },
     { path: '/:pathMatch(.*)*', redirect: '/' },

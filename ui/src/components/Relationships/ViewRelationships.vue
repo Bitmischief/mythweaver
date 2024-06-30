@@ -1,24 +1,10 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue';
 import { ConjurationRelationshipType } from '@/lib/enums.ts';
-import {
-  deleteConjurationRelationship,
-  getConjurationRelationships,
-} from '@/api/relationships.ts';
-import { showError, showSuccess } from '@/lib/notifications.ts';
-import {
-  ArrowDownOnSquareStackIcon,
-  ArrowTopRightOnSquareIcon,
-  ArrowRightIcon,
-  HomeIcon,
-  TrashIcon,
-} from '@heroicons/vue/24/outline';
-import ModalAlternate from '@/components/ModalAlternate.vue';
-import QuickViewConjuration from '@/components/Conjuration/QuickViewConjuration.vue';
-import { mapConjurationType, toPascalCase } from '@/lib/util.ts';
+import { getConjurationRelationships } from '@/api/relationships.ts';
+import { showError } from '@/lib/notifications.ts';
 import { useEventBus } from '@/lib/events.ts';
-import QuickViewSession from '@/components/Sessions/QuickViewSession.vue';
-import { useRoute, useRouter } from 'vue-router';
+import RelationshipRow from '@/components/Relationships/RelationshipRow.vue';
 
 const eventBus = useEventBus();
 const props = defineProps<{
@@ -26,18 +12,12 @@ const props = defineProps<{
   startNodeType: ConjurationRelationshipType;
 }>();
 const relationships = ref<any[]>([]);
-const relationshipHistory = ref<any[]>([]);
-const router = useRouter();
-const route = useRoute();
 
 onMounted(async () => {
-  await fetchRelationships(props.startNodeId, props.startNodeType);
+  await fetchRelationships();
   eventBus.$on('relationship-created', async (nodeInfo: any) => {
-    if (
-      nodeInfo.nodeId === props.startNodeId &&
-      nodeInfo.nodeType === props.startNodeType
-    ) {
-      await fetchRelationships(props.startNodeId, props.startNodeType);
+    if (nodeInfo.conjurationId === props.startNodeId) {
+      await fetchRelationships();
     }
   });
 });
@@ -46,12 +26,12 @@ onUnmounted(() => {
   eventBus.$off('relationship-created');
 });
 
-async function fetchRelationships(
-  nodeId: number,
-  type: ConjurationRelationshipType,
-) {
+async function fetchRelationships() {
   try {
-    const response = await getConjurationRelationships(nodeId, type);
+    const response = await getConjurationRelationships(
+      props.startNodeId,
+      props.startNodeType,
+    );
     relationships.value = response.data.filter((r: any) => r.depth === 1);
   } catch (e: any) {
     showError({
@@ -60,226 +40,19 @@ async function fetchRelationships(
     });
   }
 }
-
-async function clickNode(relationship: any) {
-  relationshipHistory.value.push(relationship);
-  await fetchRelationships(relationship.nextNodeId, relationship.nextType);
-}
-
-async function clickHistory(history: any) {
-  const historyIndex = relationshipHistory.value.findIndex(
-    (h) => h.id === history.id,
-  );
-  relationshipHistory.value = relationshipHistory.value.slice(
-    0,
-    historyIndex + 1,
-  );
-  await fetchRelationships(history.nextNodeId, history.nextType);
-}
-
-async function clearHistory() {
-  relationshipHistory.value = [];
-  await fetchRelationships(props.startNodeId, props.startNodeType);
-}
-
-const currentlyViewingRelationship = ref<any>(null);
-const showViewModal = ref(false);
-
-async function viewNode(relationship: any) {
-  if (relationship.nextType === ConjurationRelationshipType.SESSION) {
-    await router.push({
-      path: `/sessions/${relationship.entitydata.id}`,
-      query: { from: route.fullPath },
-    });
-  } else {
-    await router.push({
-      path: `/conjurations/view/${relationship.entitydata.id}`,
-      query: { from: route.fullPath },
-    });
-  }
-}
-
-async function removeRelationship(relationship: any) {
-  try {
-    await deleteConjurationRelationship(relationship.id);
-    showSuccess({ message: 'Relationship removed.' });
-    await fetchRelationships(
-      relationship.previousNodeId,
-      relationship.previousType,
-    );
-  } catch (e) {
-    showError({
-      message:
-        'Something went wrong removing the relationship. Please try again.',
-    });
-  }
-}
-
-function getBadge(relationship: any) {
-  if (relationship.nextType === ConjurationRelationshipType.CONJURATION) {
-    return mapConjurationType(relationship.entitydata?.conjurerCode);
-  } else {
-    return toPascalCase(relationship.nextType);
-  }
-}
-
-function noImage(relationship: any) {
-  if (relationship.entitydata?.conjurerCode) {
-    const conjurerCode = relationship.entitydata?.conjurerCode;
-    if (conjurerCode === 'monsters') {
-      return '/images/conjurations/monster-no-image.png';
-    } else if (conjurerCode === 'locations') {
-      return '/images/conjurations/location-no-image.png';
-    } else if (conjurerCode === 'characters') {
-      return '/images/conjurations/character-no-image.png';
-    } else if (conjurerCode === 'items') {
-      return '/images/conjurations/item-no-image.png';
-    } else if (conjurerCode === 'players') {
-      return '/images/conjurations/player-character-no-image.png';
-    } else {
-      return '/images/no-image.png';
-    }
-  } else if (relationship.nextType === ConjurationRelationshipType.CAMPAIGN) {
-    return '/images/generators/campaign.png';
-  } else {
-    return null;
-  }
-}
 </script>
 
 <template>
-  <div
-    v-if="relationshipHistory.length"
-    class="flex shrink py-1 px-2 bg-surface-2 rounded-full mb-2 text-neutral-400 whitespace-nowrap overflow-x-auto"
-  >
-    <div class="flex px-2 hover:underline hover:cursor-pointer">
-      <HomeIcon
-        class="h-5 w-5 self-center hover:text-neutral-200"
-        @click="clearHistory"
-      />
-      <ArrowRightIcon class="h-5 w-5 ml-4 self-center" />
-    </div>
-    <div
-      v-for="(history, i) in relationshipHistory"
-      :key="`history_${i}`"
-      class="flex px-2 hover:underline hover:cursor-pointer"
-      @click="clickHistory(history)"
-    >
-      <div class="max-w-[10em] overflow-hidden text-ellipsis">
-        {{ history.entitydata.name }}
-      </div>
-      <ArrowRightIcon class="h-5 w-5 ml-4 self-center" />
-    </div>
-  </div>
-  <div
-    v-if="relationships.length"
-    class="grid gap-4 grid-cols-2 md:grid-cols-4 lg:grid-cols-5"
-  >
+  <div v-if="relationships.length">
     <div
       v-for="relationship in relationships"
       :key="`r_${relationship.id}`"
-      class="bg-surface-2 p-1 rounded-[12px]"
+      class="flex justify-between bg-surface-2 p-1 rounded-[12px] mb-2"
     >
-      <div class="relative">
-        <img
-          :src="
-            relationship.entitydata?.imageUri ||
-            noImage(relationship) ||
-            '/images/no-image.png'
-          "
-          alt="relationship img"
-          class="rounded-[10px]"
-        />
-        <div
-          v-if="!relationship.entitydata?.imageUri && !noImage(relationship)"
-          class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-        >
-          No Image
-        </div>
-        <div
-          class="absolute top-2 left-2 rounded-full bg-white/70 text-black text-sm px-2"
-        >
-          {{ getBadge(relationship) }}
-        </div>
-        <div class="absolute bottom-2 right-0 left-0">
-          <div class="flex justify-between">
-            <div class="relative flex group cursor-pointer sm:mx-2">
-              <TrashIcon
-                class="h-8 w-8"
-                @click="removeRelationship(relationship)"
-              />
-              <div
-                class="absolute -top-10 -left-5 invisible group-hover:visible bg-surface-3 rounded-full whitespace-nowrap px-2 py-1"
-              >
-                Remove Relationship
-              </div>
-            </div>
-            <div
-              v-if="
-                relationship.nextType !== ConjurationRelationshipType.CAMPAIGN
-              "
-              class="relative flex group cursor-pointer sm:mx-2"
-            >
-              <ArrowTopRightOnSquareIcon
-                class="h-8 w-8"
-                @click="viewNode(relationship)"
-              />
-              <div
-                class="absolute -top-10 left-1/2 -translate-x-1/2 invisible group-hover:visible bg-surface-3 rounded-full whitespace-nowrap px-2 py-1"
-              >
-                Open for viewing
-              </div>
-            </div>
-            <div class="relative flex group cursor-pointer sm:mx-2">
-              <ArrowDownOnSquareStackIcon
-                class="h-8 w-8"
-                @click="clickNode(relationship)"
-              />
-              <div
-                class="absolute -top-10 -right-5 invisible group-hover:visible bg-surface-3 rounded-full whitespace-nowrap px-2 py-1"
-              >
-                View relationships
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="text-center">
-        <div
-          class="mt-1 text-lg whitespace-nowrap overflow-hidden text-ellipsis"
-        >
-          {{ relationship.entitydata?.name }}
-        </div>
-      </div>
+      <RelationshipRow :data="relationship" @deleted="fetchRelationships" />
     </div>
   </div>
   <div v-else class="text-center my-10">No Relationships Found</div>
-  <ModalAlternate
-    :show="showViewModal"
-    extra-dark
-    @close="showViewModal = false"
-  >
-    <div
-      class="bg-surface rounded-[12px] w-[90vw] h-[90vh] overflow-y-auto p-6"
-    >
-      <QuickViewConjuration
-        v-if="
-          currentlyViewingRelationship.nextType ===
-          ConjurationRelationshipType.CONJURATION
-        "
-        :conjuration="currentlyViewingRelationship.entitydata"
-        @close="showViewModal = false"
-      />
-      <QuickViewSession
-        v-if="
-          currentlyViewingRelationship.nextType ===
-          ConjurationRelationshipType.SESSION
-        "
-        :session="currentlyViewingRelationship.entitydata"
-        @close="showViewModal = false"
-      />
-    </div>
-  </ModalAlternate>
 </template>
 
 <style scoped></style>

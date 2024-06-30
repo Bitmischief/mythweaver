@@ -21,10 +21,11 @@ export interface PostMoveCollectionSchema {
   parentCollectionId: number;
 }
 
-export const getCollections = (parentId?: number) => {
+export const getCollections = (parentId?: number, campaignId?: number) => {
   return axios.get(`/collections`, {
     params: {
       parentId,
+      campaignId,
     },
   });
 };

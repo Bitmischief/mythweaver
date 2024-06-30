@@ -62,6 +62,7 @@ const [collect, drag] = useDrag(() => ({
 const emit = defineEmits(['updated', 'open']);
 const props = defineProps<{
   data: any;
+  droppable: boolean;
 }>();
 
 const collection = ref(props.data);
@@ -69,7 +70,7 @@ const showMoveCollection = ref(false);
 const showConfirmDelete = ref(false);
 const editingCollectionName = ref(false);
 
-const canDrop = computed(() => unref(dropCollect).canDrop);
+const canDrop = computed(() => props.droppable && unref(dropCollect).canDrop);
 const isOver = computed(() => unref(dropCollect).isOver);
 const isActive = computed(() => unref(canDrop) && unref(isOver));
 const isDragging = computed(() => collect.value.isDragging);
@@ -97,14 +98,20 @@ const handleDeleteCollection = async () => {
   }
 };
 
+const collectionIsEditable = computed(() => {
+  return collection.value.parentCollectionId;
+});
+
 const editCollectionName = () => {
-  editingCollectionName.value = true;
+  if (collectionIsEditable.value) {
+    editingCollectionName.value = true;
+  }
 };
 </script>
 
 <template>
   <div :ref="drag" :style="{ opacity }" class="relative">
-    <Menu class="flex cursor-pointer">
+    <Menu v-if="collectionIsEditable" class="flex cursor-pointer">
       <div class="absolute top-3 right-3 rounded-full bg-surface-3 p-1 z-10">
         <MenuButton class="flex self-center mx-1 py-1">
           <EllipsisHorizontalIcon class="h-6 w-6 self-center" />
@@ -136,7 +143,7 @@ const editCollectionName = () => {
     </Menu>
     <div
       :ref="drop"
-      class="rounded-[12px] border border-neutral-800 w-full aspect-square grid grid-cols-2 p-1 cursor-pointer"
+      class="rounded-[12px] border border-neutral-800 w-full aspect-square grid grid-cols-2 p-1 cursor-pointer hover:bg-purple-800/10"
       :class="{
         'outline outline-fuchsia-500': unref(canDrop),
         'bg-fuchsia-500/75 blur-sm': unref(isActive),
@@ -159,20 +166,27 @@ const editCollectionName = () => {
         :key="`sq_${sq}`"
         class="aspect-square h-full w-full p-1"
       >
-        <div class="w-full h-full bg-neutral-800/25 rounded-[8px]"></div>
+        <div class="w-full h-full bg-surface-2 rounded-[8px]"></div>
       </div>
     </div>
     <div class="relative flex mt-1 group/editname">
       <div
         v-if="!editingCollectionName"
-        class="text-sm p-2 pr-6 w-full truncate cursor-pointer hover:bg-purple-800/20 rounded-[12px]"
+        class="text-sm p-2 pr-6 w-full truncate rounded-[12px]"
+        :class="{
+          'cursor-pointer hover:bg-purple-800/20': collectionIsEditable,
+        }"
         @click="editCollectionName"
       >
         {{ collection.name }}
       </div>
       <div
         v-if="!editingCollectionName"
-        class="hidden group-hover/editname:block hover:bg-purple-800/20 p-2 rounded-full absolute cursor-pointer top-1/2 -translate-y-1/2 right-2 z-10"
+        class="hidden p-2 rounded-full absolute cursor-pointer top-1/2 -translate-y-1/2 right-2 z-10"
+        :class="{
+          'cursor-pointer hover:bg-purple-800/20 group-hover/editname:block':
+            collectionIsEditable,
+        }"
         @click="editCollectionName"
       >
         <PencilSquareIcon class="h-5 w-5 text-neutral-400" />

@@ -23,7 +23,6 @@ import { ServerEvent } from '@/lib/serverEvents.ts';
 import CollectionHistory from '@/components/Collections/CollectionHistory.vue';
 import { useRoute, useRouter } from 'vue-router';
 import CollectionConjuration from '@/components/Collections/CollectionConjuration.vue';
-import Loader from '@/components/Core/Loader.vue';
 
 const loading = ref(true);
 const channel = useWebsocketChannel();
@@ -40,6 +39,10 @@ const showAddConjurations = ref(false);
 const newCollectionName = ref('');
 const parentId = ref<number | undefined>();
 
+const props = defineProps<{
+  campaign?: any;
+}>();
+
 watch(parentId, async () => {
   await router.push({
     query: {
@@ -48,6 +51,7 @@ watch(parentId, async () => {
             collectionHistory.value.map((h: any) => ({
               id: h.id,
               name: h.name,
+              campaign: h.campaignId,
             })),
           )
         : undefined,
@@ -59,14 +63,27 @@ onMounted(async () => {
   if (route.query?.history?.length) {
     const history = route.query.history as string;
     const historyArray = JSON.parse(history);
-    collectionHistory.value = historyArray;
-    parentId.value = historyArray[historyArray.length - 1].id;
+
+    if (props.campaign && historyArray[0].campaignId !== props.campaign.id) {
+      await router.push({
+        query: {
+          history: undefined,
+        },
+      });
+    } else {
+      collectionHistory.value = historyArray;
+      parentId.value = historyArray[historyArray.length - 1].id;
+    }
   }
 
   channel.bind(ServerEvent.CollectionConjurationMoved, fetchCollections);
   channel.bind(ServerEvent.CollectionMoved, fetchCollections);
 
   await fetchCollections();
+
+  if (props.campaign) {
+    await openCollection(collections.value[0]);
+  }
 });
 
 onUnmounted(() => {
@@ -77,7 +94,7 @@ onUnmounted(() => {
 const fetchCollections = async () => {
   loading.value = true;
   try {
-    const response = await getCollections(parentId.value);
+    const response = await getCollections(parentId.value, props.campaign?.id);
     collections.value = response.data?.collections || [];
     conjurations.value = response.data?.conjurations || [];
   } catch {
@@ -149,7 +166,11 @@ const parentName = computed(() => {
   if (collectionHistory.value?.length) {
     return collectionHistory.value[collectionHistory.value.length - 1].name;
   }
-  return 'Home';
+  return 'Campaigns';
+});
+
+const showBack = computed(() => {
+  return props.campaign ? collectionHistory.value.length > 1 : !!parentId.value;
 });
 </script>
 
@@ -157,11 +178,11 @@ const parentName = computed(() => {
   <div class="w-full flex justify-between mb-4">
     <div class="flex md:justify-start grow">
       <div class="text-xl self-center">
-        <span class="gradient-text">My Collections</span>
+        <span class="gradient-text"> My Campaign Collections </span>
       </div>
     </div>
     <div class="self-center">
-      <div class="hidden md:flex gap-2">
+      <div v-if="parentId" class="hidden md:flex gap-2">
         <div>
           <button
             class="button-ghost flex gap-2"
@@ -171,7 +192,7 @@ const parentName = computed(() => {
             New Collection
           </button>
         </div>
-        <div v-if="parentId">
+        <div>
           <button
             class="button-gradient flex gap-2"
             @click="showAddConjurations = true"
@@ -210,8 +231,8 @@ const parentName = computed(() => {
     </div>
   </div>
   <div class="w-full mb-8">
-    <div class="flex gap-4 mb-4">
-      <div v-if="collectionHistory.length" class="self-center">
+    <div class="flex gap-4">
+      <div v-if="showBack" class="self-center">
         <button class="button-primary flex self-center" @click="back">
           <ArrowLeftIcon class="w-4 mr-1 self-center" />
           Back
@@ -220,11 +241,14 @@ const parentName = computed(() => {
       <div
         class="grow flex flex-wrap shrink py-1 px-2 bg-surface-2 rounded-[12px] text-neutral-400 whitespace-nowrap self-center"
       >
-        <div class="flex" @click="clearHistory">
+        <div v-if="!campaign" class="flex" @click="clearHistory">
           <HomeIcon class="h-5 w-5 self-center" />
           <CollectionHistory
-            :data="{ id: undefined, name: 'Home' }"
-            droppable
+            :data="{
+              id: undefined,
+              name: 'Campaigns',
+            }"
+            :droppable="!!campaign"
           />
           <ArrowRightIcon class="h-5 w-5 ml-2 self-center" />
         </div>
@@ -239,22 +263,17 @@ const parentName = computed(() => {
             :droppable="i !== collectionHistory.length - 1"
             :class="{ underline: i === collectionHistory.length - 1 }"
           />
-          <ArrowRightIcon
-            v-if="i !== collectionHistory.length - 1"
-            class="h-5 w-5 self-center"
-          />
+          <ArrowRightIcon class="h-5 w-5 self-center" />
         </div>
       </div>
     </div>
-    <div v-if="loading" class="py-12 flex justify-center">
-      <div>
-        <Loader />
-        <div class="text-center mt-2">Loading...</div>
+    <div v-if="loading" class="w-full mt-2">
+      <div class="h-1.5 w-full bg-surface-3 overflow-hidden rounded-full">
+        <div class="progress w-full h-full bg-gradient left-right"></div>
       </div>
     </div>
     <div
-      v-else
-      class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 3xl:grid-cols-7 gap-4"
+      class="mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 3xl:grid-cols-7 gap-4"
     >
       <template v-if="collections?.length">
         <div
@@ -263,12 +282,13 @@ const parentName = computed(() => {
         >
           <Collection
             :data="collection"
+            :droppable="campaign || !!parentId"
             @open="openCollection(collection)"
             @updated="fetchCollections"
           />
         </div>
       </template>
-      <template v-if="parentId && conjurations?.length">
+      <template v-if="conjurations?.length && parentId">
         <div v-for="conjuration in conjurations" :key="conjuration.id">
           <CollectionConjuration
             :data="conjuration"
@@ -278,17 +298,26 @@ const parentName = computed(() => {
         </div>
       </template>
     </div>
-    <div v-if="!collections?.length && !conjurations?.length">
+    <div v-if="!loading && !collections?.length && !conjurations?.length">
       <div class="text-center text-neutral-400">
-        <div>No collections or conjurations found.</div>
+        <div class="text-lg">No collections or conjurations found.</div>
+        <div v-if="!parentId && !campaign" class="text-neutral-500 text-sm">
+          Create a new campaign to get started using collections.
+          <div class="text-white my-4">
+            <router-link class="button-gradient" to="/campaigns/new"
+              >Create Campaign
+            </router-link>
+          </div>
+        </div>
         <button
+          v-if="parentId"
           class="button-ghost-primary mt-2"
           @click="showNewCollection = true"
         >
           Add New Collection
         </button>
         <button
-          v-if="collectionHistory?.length"
+          v-if="parentId"
           class="button-ghost mt-2 ml-2"
           @click="showAddConjurations = true"
         >

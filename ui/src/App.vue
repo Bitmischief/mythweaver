@@ -13,8 +13,6 @@ import Loader from './components/Core/Loader.vue';
 import { ServerEvent } from '@/lib/serverEvents.ts';
 import { showSuccess } from '@/lib/notifications.ts';
 import { useCurrentUserPlan, useWebsocketChannel } from '@/lib/hooks.ts';
-import { ConjurationRelationshipType } from '@/lib/enums.ts';
-import CreateRelationship from '@/components/Relationships/CreateRelationship.vue';
 import {
   useLDClient,
   useLDFlag,
@@ -37,6 +35,7 @@ import { DndProvider } from 'vue3-dnd';
 
 // @ts-ignore
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import CreateConjurationRelationship from '@/components/Relationships/Create/CreateConjurationRelationship.vue';
 
 const ldReady = useLDReady();
 const authStore = useAuthStore();
@@ -174,9 +173,7 @@ const createRelationshipArgs = ref<CreateRelationshipRequest | undefined>(
 );
 
 export interface CreateRelationshipRequest {
-  relationshipType: ConjurationRelationshipType;
-  nodeId: number;
-  nodeType: ConjurationRelationshipType;
+  conjurationId: number;
 }
 
 eventBus.$on('create-relationship', (args: CreateRelationshipRequest) => {
@@ -311,13 +308,11 @@ async function finishOnboarding(sourceInfo: {
     @close="showCreateRelationshipModal = false"
   >
     <div
-      class="min-w-[40vw] max-w-[90vw] h-[90vh] p-6 bg-surface-2 rounded-[20px] text-neutral-300"
+      class="min-w-[40vw] max-w-[90vw] h-[90vh] p-6 bg-surface-2 rounded-[20px] text-neutral-300 overflow-hidden"
     >
-      <CreateRelationship
+      <CreateConjurationRelationship
         v-if="!!createRelationshipArgs"
-        :relationship-type="createRelationshipArgs.relationshipType"
-        :node-id="createRelationshipArgs?.nodeId"
-        :node-type="createRelationshipArgs?.nodeType"
+        :conjuration-id="createRelationshipArgs?.conjurationId"
         @close="showCreateRelationshipModal = false"
       />
     </div>

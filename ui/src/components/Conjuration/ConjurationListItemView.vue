@@ -154,7 +154,7 @@ const conjurationName = computed(() => {
       }"
     >
       <div
-        class="relative m-2 group-hover:mx-6 transition-all"
+        class="relative m-2 transition-all"
         :class="{
           'basis-1/3 my-auto': condensedView,
           'basis-1': !condensedView,

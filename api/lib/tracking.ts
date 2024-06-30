@@ -64,6 +64,8 @@ export enum AppEvent {
   GetImageModels = 'Get Image Models',
   GetArtist = 'Get Artist',
   ImageTimeout = 'Image Timeout',
+  PostCampaignCampaign = 'Post Campaign Conjuration',
+  DeleteCampaignCampaign = 'Delete Campaign Conjuration',
 }
 
 export interface TrackingInfo {

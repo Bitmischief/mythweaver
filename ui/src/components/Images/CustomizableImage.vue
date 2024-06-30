@@ -171,21 +171,6 @@ const alreadyUpscaled = computed(() => {
     </div>
 
     <div v-if="editable" class="mt-2 md:absolute flex gap-2 top-0 right-2">
-      <div class="relative group ml-2">
-        <button
-          v-if="image.uri"
-          type="button"
-          class="flex button-white bg-white/50"
-          @click="downloadImage(image.uri)"
-        >
-          <ArrowDownTrayIcon class="h-5 w-5" />
-        </button>
-        <div
-          class="absolute mt-2 top-[100%] right-0 hidden group-hover:block whitespace-nowrap px-2 py-1 bg-surface-3 rounded-full"
-        >
-          Download Image
-        </div>
-      </div>
       <button
         type="button"
         class="flex grow button-gradient bg-white/50"
@@ -197,12 +182,27 @@ const alreadyUpscaled = computed(() => {
       <button
         v-if="!image.failed && image.uri"
         type="button"
-        class="flex button-ghost"
+        class="flex button-white bg-white/75"
         :disabled="!editable"
         @click="showCustomizeImageModal"
       >
         <PencilSquareIcon v-if="image.uri" class="h-5" />
       </button>
+      <div class="relative group">
+        <button
+          v-if="image.uri"
+          type="button"
+          class="flex button-white bg-white/75"
+          @click="downloadImage(image.uri)"
+        >
+          <ArrowDownTrayIcon class="h-5 w-5" />
+        </button>
+        <div
+          class="absolute mt-2 top-[100%] right-0 hidden group-hover:block whitespace-nowrap px-2 py-1 bg-surface-3 rounded-full"
+        >
+          Download Image
+        </div>
+      </div>
       <div
         v-if="alreadyUpscaled"
         class="relative ml-2 self-center group/upscale"

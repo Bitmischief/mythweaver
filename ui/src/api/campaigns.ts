@@ -115,3 +115,11 @@ export const acceptCampaignInvite = (inviteCode: string) => {
 export const getCampaignCharacters = (campaignId: number) => {
   return axios.get(`campaigns/${campaignId}/characters`);
 };
+
+export const postCampaignConjuration = (campaignId: number, conjurationId: number) => {
+  return axios.post(`campaigns/${campaignId}/conjurations/${conjurationId}`);
+};
+
+export const deleteCampaignConjuration = (campaignId: number, conjurationId: number) => {
+  return axios.delete(`campaigns/${campaignId}/conjurations/${conjurationId}`);
+};

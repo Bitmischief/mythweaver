@@ -6,6 +6,7 @@ export interface PostRelationshipRequest {
   relatedNodeType: ConjurationRelationshipType;
   comment?: string;
   data?: any;
+  twoWay?: boolean;
 }
 
 export interface DeleteRelationshipRequest {
@@ -13,6 +14,11 @@ export interface DeleteRelationshipRequest {
   previousType: ConjurationRelationshipType;
   nextNodeId: number;
   nextType: ConjurationRelationshipType;
+}
+
+export interface PatchConjurationRelationshipRequest {
+  comment?: string;
+  data?: any;
 }
 
 export const postConjurationRelationship = (
@@ -43,4 +49,15 @@ export const deleteConjurationRelationshipByNodeIds = (
   conjurationRelationship: DeleteRelationshipRequest,
 ) => {
   return axios.post(`/relationships/remove`, conjurationRelationship);
+};
+
+export const patchConjurationRelationship = (
+  relationshipId: number,
+  patchConjurationRelationshipRequest: PatchConjurationRelationshipRequest,
+) => {
+  return axios.patch(`/relationships/${relationshipId}`, patchConjurationRelationshipRequest);
+};
+
+export const getRelationshipGraph = () => {
+  return axios.get(`/relationships/graph`);
 };

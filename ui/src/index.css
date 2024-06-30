@@ -240,7 +240,7 @@ input[type='number'] {
     @apply tooltip-y right-0 translate-x-0 mt-2 top-[100%];
 
     .tooltip-arrow {
-      @apply tooltip-arrow-base bottom-full translate-y-1/2 right-0;
+      @apply tooltip-arrow-base bottom-full translate-y-1/2 right-6;
     }
   }
 
@@ -286,5 +286,25 @@ input[type='number'] {
 
   mark {
     @apply bg-purple-500/50 text-neutral-200 rounded-[4px];
+  }
+}
+
+.progress {
+  animation: progress 1s infinite linear;
+}
+
+.left-right {
+  transform-origin: 0 50%;
+}
+
+@keyframes progress {
+  0% {
+    transform: translateX(0) scaleX(0);
+  }
+  40% {
+    transform: translateX(0) scaleX(0.4);
+  }
+  100% {
+    transform: translateX(100%) scaleX(0.5);
   }
 }

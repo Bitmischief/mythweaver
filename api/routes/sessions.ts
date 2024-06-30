@@ -19,7 +19,6 @@ import {
   useAudioFileUploader,
   useAudioUploadAuthorizer,
 } from '../lib/audioFileMiddleware';
-import { ConjurationRelationshipType } from '@prisma/client';
 
 const router = express.Router();
 
@@ -29,16 +28,6 @@ const getSessionsSchema = z.object({
   limit: z.coerce.number().min(1).default(10).optional(),
   archived: z.coerce.boolean().default(false).optional(),
   search: z.coerce.string().optional(),
-  nodeId: z.coerce.number().optional(),
-  nodeType: z
-    .enum([
-      ConjurationRelationshipType.CAMPAIGN,
-      ConjurationRelationshipType.SESSION,
-      ConjurationRelationshipType.CHARACTER,
-      ConjurationRelationshipType.CONJURATION,
-    ])
-    .default(ConjurationRelationshipType.CONJURATION)
-    .optional(),
 });
 
 router.get('/', [
@@ -51,13 +40,7 @@ router.get('/', [
   async (req: Request, res: Response) => {
     const controller = new SessionController();
 
-    const {
-      campaignId = 0,
-      offset = 0,
-      limit = 10,
-      nodeId = undefined,
-      nodeType = undefined,
-    } = req.query;
+    const { campaignId = 0, offset = 0, limit = 10 } = req.query;
 
     const response = await controller.getSessions(
       res.locals.auth.userId,
@@ -67,8 +50,6 @@ router.get('/', [
       offset as number,
       limit as number,
       req.query.search as string,
-      nodeId as unknown as number,
-      nodeType as ConjurationRelationshipType,
       req.query.archived as unknown as boolean,
     );
 

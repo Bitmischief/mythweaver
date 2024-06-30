@@ -8,7 +8,6 @@ import {
 import CampaignController from '../controllers/campaigns';
 import rateLimit from 'express-rate-limit';
 import { useInjectLoggingInfo, useLogger } from '../lib/loggingMiddleware';
-import { ConjurationRelationshipType } from '@prisma/client';
 
 const router = express.Router();
 
@@ -16,15 +15,6 @@ const getCampaignsSchema = z.object({
   offset: z.coerce.number().default(0).optional(),
   limit: z.coerce.number().min(1).default(10).optional(),
   term: z.string().optional(),
-  nodeId: z.coerce.number().optional(),
-  nodeType: z
-    .enum([
-      ConjurationRelationshipType.CAMPAIGN,
-      ConjurationRelationshipType.SESSION,
-      ConjurationRelationshipType.CHARACTER,
-      ConjurationRelationshipType.CONJURATION,
-    ])
-    .optional(),
 });
 
 router.get('/', [
@@ -37,13 +27,7 @@ router.get('/', [
   async (req: Request, res: Response) => {
     const controller = new CampaignController();
 
-    const {
-      offset = 0,
-      limit = 10,
-      term = undefined,
-      nodeId = undefined,
-      nodeType = undefined,
-    } = req.query;
+    const { offset = 0, limit = 10, term = undefined } = req.query;
 
     const response = await controller.getCampaigns(
       res.locals.auth.userId,
@@ -52,8 +36,6 @@ router.get('/', [
       offset as number,
       limit as number,
       term as string | undefined,
-      nodeId as number | undefined,
-      nodeType as ConjurationRelationshipType | undefined,
     );
 
     return res.status(200).send(response);
@@ -374,6 +356,64 @@ router.get('/:campaignId/characters', [
     );
 
     return res.status(200).send(response);
+  },
+]);
+
+const postCampaignConjurationRouteSchema = z.object({
+  campaignId: z.coerce.number(),
+  conjurationId: z.coerce.number(),
+});
+
+router.post('/:campaignId/conjurations/:conjurationId', [
+  checkAuth0Jwt,
+  useInjectUserId(),
+  useInjectLoggingInfo(),
+  useValidateRequest(postCampaignConjurationRouteSchema, {
+    validationType: ValidationTypes.Route,
+  }),
+  async (req: Request, res: Response) => {
+    const controller = new CampaignController();
+
+    const { campaignId, conjurationId } = req.params;
+
+    const response = await controller.postCampaignConjuration(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      useLogger(),
+      campaignId as unknown as number,
+      conjurationId as unknown as number,
+    );
+
+    return res.status(200).send(response);
+  },
+]);
+
+const deleteCampaignConjurationRouteSchema = z.object({
+  campaignId: z.coerce.number(),
+  conjurationId: z.coerce.number(),
+});
+
+router.delete('/:campaignId/conjurations/:conjurationId', [
+  checkAuth0Jwt,
+  useInjectUserId(),
+  useInjectLoggingInfo(),
+  useValidateRequest(deleteCampaignConjurationRouteSchema, {
+    validationType: ValidationTypes.Route,
+  }),
+  async (req: Request, res: Response) => {
+    const controller = new CampaignController();
+
+    const { campaignId, conjurationId } = req.params;
+
+    await controller.deleteCampaignConjuration(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      useLogger(),
+      campaignId as unknown as number,
+      conjurationId as unknown as number,
+    );
+
+    return res.status(200).send();
   },
 ]);
 

@@ -12,26 +12,12 @@ import RelationshipController from '../controllers/relationships';
 const router = express.Router();
 
 const relationshipsRouteSchema = z.object({
-  type: z.enum([
-    ConjurationRelationshipType.CAMPAIGN,
-    ConjurationRelationshipType.SESSION,
-    ConjurationRelationshipType.CHARACTER,
-    ConjurationRelationshipType.CONJURATION,
-  ]),
+  type: z.enum([ConjurationRelationshipType.CONJURATION]),
   nodeId: z.coerce.number(),
 });
 
 const getRelationshipsSchema = z.object({
-  types: z
-    .array(
-      z.enum([
-        ConjurationRelationshipType.CAMPAIGN,
-        ConjurationRelationshipType.SESSION,
-        ConjurationRelationshipType.CHARACTER,
-        ConjurationRelationshipType.CONJURATION,
-      ]),
-    )
-    .optional(),
+  types: z.array(z.enum([ConjurationRelationshipType.CONJURATION])).optional(),
   depthLimit: z.coerce.number().min(1).max(10).default(5).optional(),
   offset: z.coerce.number().default(0).optional(),
   limit: z.coerce.number().min(1).default(10).optional(),
@@ -65,15 +51,11 @@ router.get('/:type/:nodeId', [
 ]);
 
 const postRelationshipsSchema = z.object({
-  relatedNodeType: z.enum([
-    ConjurationRelationshipType.CAMPAIGN,
-    ConjurationRelationshipType.SESSION,
-    ConjurationRelationshipType.CHARACTER,
-    ConjurationRelationshipType.CONJURATION,
-  ]),
+  relatedNodeType: z.enum([ConjurationRelationshipType.CONJURATION]),
   relatedNodeId: z.coerce.number(),
   comment: z.string().optional().nullable(),
   data: z.any().optional().nullable(),
+  twoWay: z.boolean().default(false),
 });
 
 router.post('/:type/:nodeId', [
@@ -126,18 +108,8 @@ router.delete('/:relationshipId', [
 ]);
 
 const deleteRelationshipsSchema = z.object({
-  previousType: z.enum([
-    ConjurationRelationshipType.CAMPAIGN,
-    ConjurationRelationshipType.SESSION,
-    ConjurationRelationshipType.CHARACTER,
-    ConjurationRelationshipType.CONJURATION,
-  ]),
-  nextType: z.enum([
-    ConjurationRelationshipType.CAMPAIGN,
-    ConjurationRelationshipType.SESSION,
-    ConjurationRelationshipType.CHARACTER,
-    ConjurationRelationshipType.CONJURATION,
-  ]),
+  previousType: z.enum([ConjurationRelationshipType.CONJURATION]),
+  nextType: z.enum([ConjurationRelationshipType.CONJURATION]),
   previousNodeId: z.coerce.number(),
   nextNodeId: z.coerce.number(),
 });
@@ -183,6 +155,33 @@ router.patch('/:relationshipId', [
       useLogger(),
       req.params.relationshipId as unknown as number,
       req.body,
+    );
+
+    return res.status(200).send(response);
+  },
+]);
+
+const getRelationshipGraphSchema = z.object({
+  depthLimit: z.coerce.number().min(1).max(10).default(5).optional(),
+});
+
+router.get('/graph', [
+  checkAuth0Jwt,
+  useInjectUserId(),
+  useInjectLoggingInfo(),
+  useValidateRequest(getRelationshipGraphSchema, {
+    validationType: ValidationTypes.Query,
+  }),
+  async (req: Request, res: Response) => {
+    const controller = new RelationshipController();
+
+    const { depthLimit = 10 } = req.query;
+
+    const response = await controller.getRelationshipGraph(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      useLogger(),
+      depthLimit as unknown as number,
     );
 
     return res.status(200).send(response);
