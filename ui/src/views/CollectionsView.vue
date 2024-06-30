@@ -178,7 +178,7 @@ const showBack = computed(() => {
   <div class="w-full flex justify-between mb-4">
     <div class="flex md:justify-start grow">
       <div class="text-xl self-center">
-        <span class="gradient-text"> My Campaign Collections </span>
+        <span class="gradient-text"> Campaign Collections </span>
       </div>
     </div>
     <div class="self-center">
