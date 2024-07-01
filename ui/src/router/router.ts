@@ -59,6 +59,7 @@ const router = createRouter({
           name: 'LOGIN',
           path: 'login',
           component: LoginView,
+          beforeEnter: authGuard,
         },
         {
           name: 'PREAUTH',

@@ -19,7 +19,14 @@ export const logout = async () => {
   const authStore = useAuthStore();
   await authStore.logout();
   await auth0Client.logout();
-  await auth0Client.loginWithRedirect();
+  await auth0Client.loginWithRedirect({
+    authorizationParams: {
+      screen_hint: 'login',
+    },
+    appState: {
+      target: `/conjure`,
+    },
+  });
 };
 
 export const getAccessToken = async () => {

@@ -569,7 +569,11 @@ function primaryImage(char: any) {
       </ModalAlternate>
     </div>
 
-    <div v-if="campaign.id" :key="campaign.id" class="w-full">
+    <div
+      v-if="campaign.id && currentUserRole === CampaignRole.DM"
+      :key="campaign.id"
+      class="w-full"
+    >
       <CollectionsView :campaign="campaign" />
     </div>
   </div>

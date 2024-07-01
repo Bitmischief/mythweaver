@@ -170,7 +170,7 @@ const alreadyUpscaled = computed(() => {
       </div>
     </div>
 
-    <div v-if="editable" class="mt-2 md:absolute flex gap-2 top-0 right-2">
+    <div v-if="editable" class="mt-2 xl:absolute flex gap-2 top-0 right-2">
       <button
         type="button"
         class="flex grow button-gradient bg-white/50"
