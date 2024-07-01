@@ -307,7 +307,7 @@ function cancelLinking() {
             placeholder="e.g. 'friends with', 'killed by'"
             :help="
               linkComment
-                ? `${linking?.name} ${linkComment} ${conjuration.name}`
+                ? `${conjuration.name} ${linkComment} ${linking?.name}`
                 : ``
             "
           />
