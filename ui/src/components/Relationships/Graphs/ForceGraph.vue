@@ -75,10 +75,11 @@ onMounted(async () => {
         .strength(0.25)
         .distance(500),
     )
+    .force('collide', d3.forceCollide().radius(maxWidth / 1.5))
     .force('charge', d3.forceManyBody().strength(-1000))
     .force(
       'center',
-      d3.forceCenter(svgWidth.value / 2, svgHeight.value / 2).strength(1),
+      d3.forceCenter(viewBoxWidth.value / 2, viewBoxHeight.value / 2),
     );
 
   linkGroup.value = graph.value
@@ -134,37 +135,7 @@ onMounted(async () => {
     .style('fill', 'white')
     .each(wrap);
 
-  simulation.value.nodes(props.data.nodes).on('tick', () => {
-    console.log('tick');
-    bgEls.value
-      .attr('x', (node: any) => node.x)
-      .attr('y', (node: any) => node.y);
-    imgEls.value
-      .attr('x', (node: any) => node.x + padding)
-      .attr('y', (node: any) => node.y + padding);
-    textEls.value
-      .attr('x', (node: any) => node.x)
-      .attr('y', (node: any) => node.y);
-    markerEls.value.attr('d', (link: any) => {
-      if (link.source.x < link.target.x) {
-        return 'M0,-5L10,0L0,5L0,-5';
-      } else {
-        return 'M10,-5L0,0L10,5L10,-5';
-      }
-    });
-    linkEls.value
-      .attr('d', linkArc)
-      .attr('marker-end', (link: any) => {
-        if (link.source.x < link.target.x) {
-          return `url(#arrow-${link.source.id}_${link.target.id})`;
-        }
-      })
-      .attr('marker-start', (link: any) => {
-        if (link.source.x > link.target.x) {
-          return `url(#arrow-${link.source.id}_${link.target.id})`;
-        }
-      });
-  });
+  simulation.value.nodes(props.data.nodes).on('tick', tick);
   simulation.value.force('link').links(props.data.links);
 
   const svg = document.getElementById('#svg');
@@ -210,6 +181,35 @@ function zoomOutListener(e: any) {
   e.preventDefault();
   panZoom.value.zoomOut();
 }
+
+const tick = () => {
+  bgEls.value.attr('x', (node: any) => node.x).attr('y', (node: any) => node.y);
+  imgEls.value
+    .attr('x', (node: any) => node.x + padding)
+    .attr('y', (node: any) => node.y + padding);
+  textEls.value
+    .attr('x', (node: any) => node.x)
+    .attr('y', (node: any) => node.y);
+  markerEls.value.attr('d', (link: any) => {
+    if (link.source.x < link.target.x) {
+      return 'M0,-5L10,0L0,5L0,-5';
+    } else {
+      return 'M10,-5L0,0L10,5L10,-5';
+    }
+  });
+  linkEls.value
+    .attr('d', linkArc)
+    .attr('marker-end', (link: any) => {
+      if (link.source.x < link.target.x) {
+        return `url(#arrow-${link.source.id}_${link.target.id})`;
+      }
+    })
+    .attr('marker-start', (link: any) => {
+      if (link.source.x > link.target.x) {
+        return `url(#arrow-${link.source.id}_${link.target.id})`;
+      }
+    });
+};
 
 function linkArc(d: any) {
   let width = (maxWidth + 2 * padding) / 2;
@@ -259,11 +259,11 @@ function wrap() {
 }
 
 function getNodeOpacity(node: any, neighbors: any) {
-  return neighbors.find((n: any) => n.id === node.id) ? 1 : 0.25;
+  return neighbors.find((n: any) => n.id === node.id) ? 1 : 0.12;
 }
 
 function getLinkOpacity(node: any, link: any) {
-  return link.target.id === node.id || link.source.id === node.id ? 1 : 0.25;
+  return link.target.id === node.id || link.source.id === node.id ? 1 : 0.12;
 }
 
 function getBgColor(node: any, neighbors: any) {
