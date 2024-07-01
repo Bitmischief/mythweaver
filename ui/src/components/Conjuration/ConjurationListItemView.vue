@@ -305,7 +305,7 @@ const conjurationName = computed(() => {
                 'bg-white/50 hover:bg-white/60': !conjuration.saved,
                 'bg-fuchsia-500/90': conjuration.saved,
               }"
-              @click.stop="addConjuration"
+              @click.prevent="addConjuration"
             >
               <div class="flex h-full justify-center text-xs font-bold">
                 <div class="relative self-center">

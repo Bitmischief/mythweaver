@@ -207,18 +207,27 @@ const router = createRouter({
       path: '/conjure',
       component: ConjureView,
       beforeEnter: authGuard,
+      meta: {
+        paidRequired: true,
+      },
     },
     {
       name: 'COLLECTIONS',
       path: '/collections',
       component: CollectionsView,
       beforeEnter: authGuard,
+      meta: {
+        paidRequired: true,
+      },
     },
     {
       name: 'RELATIONSHIP GRAPH',
       path: '/relationships/graph',
       component: RelationshipGraphView,
       beforeEnter: authGuard,
+      meta: {
+        paidRequired: true,
+      },
     },
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
