@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { CAMPAIGN_CREATED_EVENT, useEventBus } from '@/lib/events.ts';
 import { useRouter } from 'vue-router';
 import { useCampaignStore } from '@/store/campaign.store.ts';
@@ -22,16 +22,18 @@ import {
   SquaresPlusIcon,
   ShareIcon,
 } from '@heroicons/vue/24/outline';
-import { useCurrentUserPlan } from '@/lib/hooks.ts';
+import { useCurrentUserId, useCurrentUserPlan } from '@/lib/hooks.ts';
 import { BillingPlan } from '@/api/users.ts';
 
 defineProps<{
   collapsed?: boolean;
 }>();
+
 const router = useRouter();
 const eventBus = useEventBus();
 const campaignStore = useCampaignStore();
 const currentUserPlan = useCurrentUserPlan();
+const currentUserId = useCurrentUserId();
 
 const emit = defineEmits(['nav-item-selected']);
 
@@ -75,6 +77,14 @@ watch(query, async () => {
 async function navigateToCreateCampaign() {
   await router.push('/campaigns/new');
 }
+
+const myCampaigns = computed(() => {
+  return campaigns.value.filter((c: any) => c.userId === currentUserId.value);
+});
+
+const joinedCampaigns = computed(() => {
+  return campaigns.value.filter((c: any) => c.userId !== currentUserId.value);
+});
 </script>
 
 <template>
@@ -120,8 +130,15 @@ async function navigateToCreateCampaign() {
             class="default-border-no-opacity absolute mt-1 max-h-60 max-w-[300px] z-50 overflow-auto rounded-md py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none text-sm"
             :class="{ 'w-auto': collapsed, 'w-full': !collapsed }"
           >
+            <div
+              v-if="myCampaigns.length"
+              class="text-xs text-neutral-500 px-4 pt-2"
+            >
+              <div>My Campaigns</div>
+              <hr class="border-neutral-600" />
+            </div>
             <MenuItem
-              v-for="campaign in campaigns"
+              v-for="campaign in myCampaigns"
               v-slot="{ active }"
               :key="campaign.name"
               :value="campaign.id"
@@ -151,6 +168,47 @@ async function navigateToCreateCampaign() {
                 </span>
               </div>
             </MenuItem>
+            <div
+              v-if="joinedCampaigns.length"
+              class="text-xs text-neutral-500 px-4 pt-2"
+            >
+              <div>Joined Campaigns</div>
+              <hr class="border-neutral-600" />
+            </div>
+            <MenuItem
+              v-for="campaign in joinedCampaigns"
+              v-slot="{ active }"
+              :key="campaign.name"
+              :value="campaign.id"
+              as="template"
+            >
+              <div
+                :class="[
+                  active ? 'bg-purple-800/20 text-purple-200' : 'text-white',
+                  'relative cursor-default select-none py-2 rl-10 pl-4 pr-8',
+                ]"
+                @click="selectedCampaignId = campaign.id"
+              >
+                <span
+                  :class="[
+                    selectedCampaign?.id === campaign.id
+                      ? 'font-medium'
+                      : 'font-normal',
+                    'block truncate',
+                  ]"
+                  >{{ campaign.name }}</span
+                >
+                <span
+                  v-if="selectedCampaign?.id === campaign.id"
+                  class="absolute inset-y-0 right-0 flex items-center pr-4 text-purple-300"
+                >
+                  <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                </span>
+              </div>
+            </MenuItem>
+            <div class="px-4 mt-2">
+              <hr class="border-neutral-600" />
+            </div>
             <MenuItem
               v-slot="{ active }"
               :key="'new_campaign'"
@@ -160,13 +218,14 @@ async function navigateToCreateCampaign() {
               @keyup.enter="navigateToCreateCampaign"
             >
               <div
+                class="button-secondary m-2 justify-between"
                 :class="[
                   active ? 'bg-purple-800/20 text-purple-200' : 'text-white',
                   'relative flex justify-between cursor-default select-none py-2 pl-4',
                 ]"
               >
                 <span> New Campaign </span>
-                <PlusIcon class="mr-4 h-5 w-5 text-white" />
+                <PlusIcon class="h-5 w-5 text-white" />
               </div>
             </MenuItem>
           </MenuItems>

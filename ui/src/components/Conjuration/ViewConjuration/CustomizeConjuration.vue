@@ -270,7 +270,9 @@ async function viewGraph() {
 <template>
   <div v-if="conjuration" class="w-full">
     <div class="lg:flex">
-      <div class="lg:basis-2/5 min-w-0 max-w-[35rem] rounded-md md:mr-6">
+      <div
+        class="lg:basis-2/5 xl:basis-auto min-w-0 min-w-[25rem] max-w-[50rem] rounded-md md:mr-6"
+      >
         <CustomizableImage
           v-if="hasAnyPrimaryImages"
           :key="imageKey"
@@ -388,7 +390,7 @@ async function viewGraph() {
           </div>
         </div>
       </div>
-      <div class="lg:basis-3/5 min-w-0 mt-4 lg:mt-0 lg:ml-4">
+      <div class="lg:basis-3/5 xl:basis-auto grow min-w-0 mt-4 lg:mt-0 lg:ml-4">
         <div
           v-if="editable"
           class="flex gap-2 p-1 rounded-[18px] bg-surface-2 mb-2 border border-surface-3 text-sm"

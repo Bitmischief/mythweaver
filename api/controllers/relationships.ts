@@ -318,7 +318,6 @@ export default class RelationshipController {
                         FROM images
                         WHERE "primary" = true
                     ) i ON i."conjurationId" = c.id
-                WHERE c."userId" = ${userId}
             ) as conj ON cr."previousNodeId" = conj.id OR cr."nextNodeId" = conj.id
         WHERE cr."previousType" = 'CONJURATION' AND cr."nextType" = 'CONJURATION' AND cr."userId" = ${userId}
       `)) as Conjuration[];
