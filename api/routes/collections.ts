@@ -12,6 +12,7 @@ const router = express.Router();
 
 const getCollectionsSchema = z.object({
   parentId: z.coerce.number().optional(),
+  campaignId: z.coerce.number().optional(),
 });
 
 router.get('/', [
@@ -29,6 +30,7 @@ router.get('/', [
       res.locals.trackingInfo,
       useLogger(),
       req.query.parentId as unknown as number,
+      req.query.campaignId as unknown as number,
     );
 
     return res.status(200).send(response);
@@ -37,7 +39,7 @@ router.get('/', [
 
 const postCollectionsSchema = z.object({
   name: z.string(),
-  parentId: z.coerce.number().optional(),
+  parentId: z.coerce.number(),
 });
 
 router.post('/', [
@@ -192,7 +194,7 @@ const postMoveCollectionRouteSchema = z.object({
 });
 
 const postMoveCollectionSchema = z.object({
-  parentCollectionId: z.coerce.number().optional(),
+  parentCollectionId: z.coerce.number(),
 });
 
 router.post('/:collectionId/move', [

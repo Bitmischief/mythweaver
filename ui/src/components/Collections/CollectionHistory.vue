@@ -32,7 +32,7 @@ const isActive = computed(() => unref(canDrop) && unref(isOver));
     class="flex gap-2 hover:underline hover:cursor-pointer"
   >
     <div
-      class="max-w-[10em] overflow-hidden text-ellipsis rounded-[12px] px-2"
+      class="max-w-[15em] overflow-hidden text-ellipsis rounded-[12px] px-2"
       :class="{
         'outline outline-fuchsia-500': droppable && unref(canDrop),
         'bg-fuchsia-500/75 blur-sm': droppable && unref(isActive),

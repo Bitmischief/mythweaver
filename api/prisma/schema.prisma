@@ -105,6 +105,7 @@ model Conjuration {
   saves                  ConjurationSave[]
   images                 Image[]
   collectionConjurations CollectionConjuration[]
+  campaignConjuration    CampaignConjuration[]
 
   @@map("conjurations")
 }
@@ -187,12 +188,14 @@ model Campaign {
   rpgSystemCode       String
   publicAdventureCode String?
 
-  user         User             @relation(fields: [userId], references: [id])
-  sessions     Session[]
-  conjurations Conjuration[]
-  members      CampaignMember[]
-  characters   Character[]
-  inviteCode   String?          @default(dbgenerated("(gen_random_uuid())::text"))
+  user                 User                  @relation(fields: [userId], references: [id])
+  sessions             Session[]
+  conjurations         Conjuration[]
+  members              CampaignMember[]
+  characters           Character[]
+  inviteCode           String?               @default(dbgenerated("(gen_random_uuid())::text"))
+  campaignConjurations CampaignConjuration[]
+  collections          Collections[]
 
   @@map("campaigns")
 }
@@ -460,9 +463,11 @@ model Collections {
   name               String
   parentCollectionId Int?
   userId             Int
+  campaignId         Int
 
   user                   User                    @relation(fields: [userId], references: [id])
   collectionConjurations CollectionConjuration[]
+  campaign               Campaign                @relation(fields: [campaignId], references: [id])
 
   @@index([id], name: "collections_id")
   @@index([parentCollectionId], name: "collections_parent_collection_id")
@@ -481,4 +486,18 @@ model CollectionConjuration {
   @@index([conjurationId], name: "collection_conjurations_conjuration_id")
   @@index([collectionId, conjurationId], name: "collection_conjurations_collection_id_conjuration_id")
   @@map("collection_conjurations")
+}
+
+model CampaignConjuration {
+  campaignId    Int
+  conjurationId Int
+
+  campaign    Campaign    @relation(fields: [campaignId], references: [id])
+  conjuration Conjuration @relation(fields: [conjurationId], references: [id])
+
+  @@id([campaignId, conjurationId])
+  @@index([campaignId], name: "campaign_conjurations_campaign_id")
+  @@index([conjurationId], name: "campaign_conjurations_conjuration_id")
+  @@index([campaignId, conjurationId], name: "campaign_conjurations_campaign_id_conjuration_id")
+  @@map("campaign_conjurations")
 }

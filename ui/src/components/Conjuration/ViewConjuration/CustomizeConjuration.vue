@@ -1,8 +1,13 @@
 <script setup lang="ts">
 import { Conjuration, patchConjuration } from '@/api/conjurations.ts';
 import { computed, onMounted, onUpdated, onUnmounted, ref } from 'vue';
-import { CheckIcon, XMarkIcon, PlusIcon } from '@heroicons/vue/20/solid';
-import { PencilSquareIcon } from '@heroicons/vue/24/outline';
+import {
+  CheckIcon,
+  XMarkIcon,
+  PlusIcon,
+  LinkIcon,
+} from '@heroicons/vue/20/solid';
+import { PencilSquareIcon, ShareIcon } from '@heroicons/vue/24/outline';
 import { remove } from 'lodash';
 import { useEventBus } from '@/lib/events.ts';
 import { showError, showSuccess } from '@/lib/notifications.ts';
@@ -20,6 +25,9 @@ import { BillingPlan } from '@/api/users.ts';
 import { CampaignRole } from '@/api/campaigns.ts';
 import WysiwygEditor from '@/components/Core/WysiwygEditor.vue';
 import { mapConjurationType } from '@/lib/util.ts';
+import { ConjurationRelationshipType } from '@/lib/enums.ts';
+import ViewRelationships from '@/components/Relationships/ViewRelationships.vue';
+import { useRoute, useRouter } from 'vue-router';
 
 const emit = defineEmits(['edit']);
 const props = defineProps<{
@@ -29,6 +37,10 @@ const props = defineProps<{
   readOnly?: boolean;
 }>();
 
+const tab = ref('editor');
+
+const route = useRoute();
+const router = useRouter();
 const eventBus = useEventBus();
 const currentUserId = useCurrentUserId();
 const currentUserRole = useCurrentUserRole();
@@ -234,16 +246,31 @@ function showImageHistoryModal() {
 
 function edit(e: any) {
   emit('edit');
-  setTimeout(() => {
-    e.target.select();
-  }, 100);
+  if (props.readOnly) {
+    setTimeout(() => {
+      e.target.select();
+    }, 100);
+  }
+}
+
+async function handleCreateRelationship() {
+  eventBus.$emit('create-relationship', {
+    conjurationId: props.conjuration.id,
+  });
+}
+
+async function viewGraph() {
+  await router.push({
+    path: '/relationships/graph',
+    query: { from: route.fullPath, source: props.conjuration.id },
+  });
 }
 </script>
 
 <template>
   <div v-if="conjuration" class="w-full">
-    <div class="md:flex">
-      <div class="max-w-[35rem] overflow-hidden rounded-md md:mr-6">
+    <div class="lg:flex">
+      <div class="lg:basis-2/5 min-w-0 max-w-[35rem] rounded-md md:mr-6">
         <CustomizableImage
           v-if="hasAnyPrimaryImages"
           :key="imageKey"
@@ -361,20 +388,71 @@ function edit(e: any) {
           </div>
         </div>
       </div>
-
-      <div class="w-full mt-4 md:mt-0 md:ml-4">
-        <WysiwygEditor
-          :key="'' + readOnly"
-          v-model="editableConjuration.data"
-          :read-only="readOnly"
-          :placeholder="`Add details to your ${conjurationType} here!`"
-          :context="conjurationType"
-          @dblclick="
-            editable && currentUserRole === CampaignRole.DM
-              ? emit('edit')
-              : null
-          "
-        />
+      <div class="lg:basis-3/5 min-w-0 mt-4 lg:mt-0 lg:ml-4">
+        <div
+          v-if="editable"
+          class="flex gap-2 p-1 rounded-[18px] bg-surface-2 mb-2 border border-surface-3 text-sm"
+        >
+          <button
+            class="basis-1/2 self-center font-bold"
+            :class="{
+              'button-secondary text-neutral-200': tab === 'editor',
+              'button-text text-neutral-400 hover:bg-purple-800/25':
+                tab !== 'editor',
+            }"
+            @click="tab = 'editor'"
+          >
+            Conjuration details
+          </button>
+          <button
+            class="basis-1/2 self-center font-bold"
+            :class="{
+              'button-secondary text-neutral-200': tab === 'relationships',
+              'button-text text-neutral-400 hover:bg-purple-800/25':
+                tab !== 'relationships',
+            }"
+            @click="tab = 'relationships'"
+          >
+            Relationships
+          </button>
+        </div>
+        <div v-show="tab === 'editor'">
+          <WysiwygEditor
+            :key="'' + readOnly"
+            v-model="editableConjuration.data"
+            :read-only="readOnly"
+            :editable="editable"
+            :placeholder="`Add details to your ${conjurationType} here!`"
+            :context="conjurationType"
+            @dblclick="
+              editable && currentUserRole === CampaignRole.DM
+                ? emit('edit')
+                : null
+            "
+          />
+        </div>
+        <div v-show="tab === 'relationships'">
+          <div class="flex justify-between mb-2">
+            <div class="self-center text-lg">Relationships</div>
+            <div class="self-center flex gap-2">
+              <button
+                class="button-ghost flex gap-2"
+                @click="handleCreateRelationship"
+              >
+                <LinkIcon class="h-5 w-5" />
+                Add Relationship
+              </button>
+              <button class="button-primary flex gap-2" @click="viewGraph">
+                <ShareIcon class="h-5 w-5" />
+                View Graph
+              </button>
+            </div>
+          </div>
+          <ViewRelationships
+            :start-node-id="conjuration.id"
+            :start-node-type="ConjurationRelationshipType.CONJURATION"
+          />
+        </div>
       </div>
     </div>
   </div>

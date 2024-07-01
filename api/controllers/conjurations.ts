@@ -28,7 +28,7 @@ import {
   validateConjurationCountRestriction,
   sendConjurationCountUpdatedEvent,
 } from '../lib/planRestrictionHelpers';
-import { getCharacterCampaigns } from '../lib/relationshipsHelper';
+import { getCharacterCampaigns } from '../lib/charactersHelper';
 
 interface GetConjurationsResponse {
   data: (Conjuration & { saved: boolean })[];
@@ -170,9 +170,6 @@ export default class ConjurationController {
             {
               nextType: ConjurationRelationshipType.CONJURATION,
             },
-            {
-              nextType: ConjurationRelationshipType.CHARACTER,
-            },
           ],
         },
       });
@@ -196,8 +193,7 @@ export default class ConjurationController {
           ? relationships.some(
               (r) =>
                 r.nextNodeId === c.id &&
-                (r.nextType === ConjurationRelationshipType.CONJURATION ||
-                  r.nextType === ConjurationRelationshipType.CHARACTER),
+                r.nextType === ConjurationRelationshipType.CONJURATION,
             )
           : false,
         imageUri: c.images.find((i: any) => i.primary)?.uri || null,

@@ -12,21 +12,14 @@ import {
   Tags,
 } from 'tsoa';
 import { prisma } from '../lib/providers/prisma';
-import {
-  Campaign,
-  CampaignMember,
-  ConjurationRelationshipType,
-} from '@prisma/client';
+import { Campaign, CampaignMember } from '@prisma/client';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { sendTransactionalEmail } from '../lib/transactionalEmail';
 import { v4 as uuidv4 } from 'uuid';
 import { urlPrefix } from '../lib/utils';
 import { MythWeaverLogger } from '../lib/logger';
-import {
-  getCampaignCharacters,
-  getManyRelationships,
-} from '../lib/relationshipsHelper';
+import { getCampaignCharacters } from '../lib/charactersHelper';
 
 export interface GetCampaignsResponse {
   data: Campaign[];
@@ -75,8 +68,6 @@ export default class CampaignController {
     @Query() offset = 0,
     @Query() limit = 25,
     @Query() term?: string,
-    @Query() nodeId?: number,
-    @Query() nodeType?: ConjurationRelationshipType,
   ): Promise<GetCampaignsResponse> {
     logger.info('Getting campaigns');
 
@@ -98,26 +89,10 @@ export default class CampaignController {
       take: limit,
     });
 
-    let relationships = [] as any[];
-    if (nodeId && nodeType) {
-      relationships = await getManyRelationships(
-        nodeId,
-        nodeType,
-        ConjurationRelationshipType.CAMPAIGN,
-        campaigns.map((c) => c.id),
-        userId,
-      );
-    }
-
     track(AppEvent.GetCampaigns, userId, trackingInfo);
 
     return {
-      data: campaigns.map((c) => ({
-        ...c,
-        linked: relationships.length
-          ? relationships.some((r) => r.nextNodeId === c.id)
-          : false,
-      })),
+      data: campaigns,
       offset: offset,
       limit: limit,
     };
@@ -184,7 +159,7 @@ export default class CampaignController {
   ): Promise<Campaign> {
     track(AppEvent.CreateCampaign, userId, trackingInfo);
 
-    const campaign = prisma.campaign.create({
+    const campaign = await prisma.campaign.create({
       data: {
         ...request,
         userId,
@@ -202,6 +177,7 @@ export default class CampaignController {
       data: {
         name: request.name,
         userId,
+        campaignId: campaign.id,
       },
     });
 
@@ -239,6 +215,16 @@ export default class CampaignController {
     }
 
     track(AppEvent.UpdateCampaign, userId, trackingInfo);
+
+    await prisma.collections.updateMany({
+      where: {
+        campaignId: campaignId,
+        parentCollectionId: null,
+      },
+      data: {
+        name: request.name,
+      },
+    });
 
     return prisma.campaign.update({
       where: {
@@ -650,5 +636,127 @@ export default class CampaignController {
       ...c,
       imageUri: c.images.find((i) => i.primary)?.uri || null,
     }));
+  }
+
+  @Security('jwt')
+  @OperationId('postCampaignConjuration')
+  @Post('/:campaignId/conjurations/:conjurationId')
+  public async postCampaignConjuration(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
+    @Route() campaignId: number,
+    @Route() conjurationId: number,
+  ) {
+    track(AppEvent.PostCampaignCampaign, userId, trackingInfo);
+
+    const campaign = await prisma.campaign.findUnique({
+      where: {
+        id: campaignId,
+        userId: userId,
+      },
+    });
+
+    if (!campaign) {
+      throw new AppError({
+        description: 'Campaign not found or you do not have access to it.',
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    const conjuration = await prisma.conjuration.findUnique({
+      where: {
+        id: conjurationId,
+        userId: userId,
+      },
+    });
+
+    if (!conjuration) {
+      throw new AppError({
+        description: 'Conjuration not found or you do not have access to it.',
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    let campaignConjuration = await prisma.campaignConjuration.findUnique({
+      where: {
+        campaignId_conjurationId: {
+          campaignId,
+          conjurationId,
+        },
+      },
+    });
+
+    if (!campaignConjuration) {
+      campaignConjuration = await prisma.campaignConjuration.create({
+        data: {
+          campaignId,
+          conjurationId,
+        },
+      });
+    }
+
+    return campaignConjuration;
+  }
+
+  @Security('jwt')
+  @OperationId('postCampaignConjuration')
+  @Delete('/:campaignId/conjurations/:conjurationId')
+  public async deleteCampaignConjuration(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
+    @Route() campaignId: number,
+    @Route() conjurationId: number,
+  ) {
+    track(AppEvent.DeleteCampaignCampaign, userId, trackingInfo);
+
+    const campaign = await prisma.campaign.findUnique({
+      where: {
+        id: campaignId,
+        userId: userId,
+      },
+    });
+
+    if (!campaign) {
+      throw new AppError({
+        description: 'Campaign not found or you do not have access to it.',
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    const conjuration = await prisma.conjuration.findUnique({
+      where: {
+        id: conjurationId,
+        userId: userId,
+      },
+    });
+
+    if (!conjuration) {
+      throw new AppError({
+        description: 'Conjuration not found or you do not have access to it.',
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    const campaignConjuration = await prisma.campaignConjuration.findUnique({
+      where: {
+        campaignId_conjurationId: {
+          campaignId,
+          conjurationId,
+        },
+      },
+    });
+
+    if (campaignConjuration) {
+      await prisma.campaignConjuration.delete({
+        where: {
+          campaignId_conjurationId: {
+            campaignId,
+            conjurationId,
+          },
+        },
+      });
+    }
   }
 }
