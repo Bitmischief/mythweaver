@@ -42,13 +42,13 @@ const primaryImageUri = computed(() => {
 
 <template>
   <div
-    class="relative flex cursor-pointer justify-end rounded-[20px] max-h-[10em] shadow-xl bg-surface-2 p-2 group/session"
+    class="relative flex cursor-pointer rounded-[20px] max-h-[10em] shadow-xl bg-surface-2 p-2 group/session"
   >
-    <div class="basis-1/3 my-auto">
+    <div>
       <img
         :src="primaryImageUri || '/images/session_bg_square.png'"
         alt="session image"
-        class="rounded-[16px]"
+        class="rounded-[16px] w-[9em] aspect-square"
       />
     </div>
 
