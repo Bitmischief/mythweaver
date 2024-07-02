@@ -111,7 +111,7 @@ onMounted(async () => {
     .data(props.data.nodes)
     .enter()
     .append('g')
-    .on('click', selectNode);
+    .on('click touchend', selectNode);
 
   bgEls.value = nodeGroup.value
     .append('rect')
