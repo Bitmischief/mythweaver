@@ -26,6 +26,7 @@ import CollectionsView from '@/views/CollectionsView.vue';
 import { authGuard } from '@auth0/auth0-vue';
 import { fbq, gtag, rdt } from '@/lib/conversions.ts';
 import { isProduction } from '@/lib/util.ts';
+import RelationshipGraphView from '@/views/RelationshipGraphView.vue';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -58,6 +59,7 @@ const router = createRouter({
           name: 'LOGIN',
           path: 'login',
           component: LoginView,
+          beforeEnter: authGuard,
         },
         {
           name: 'PREAUTH',
@@ -206,12 +208,27 @@ const router = createRouter({
       path: '/conjure',
       component: ConjureView,
       beforeEnter: authGuard,
+      meta: {
+        paidRequired: true,
+      },
     },
     {
       name: 'COLLECTIONS',
       path: '/collections',
       component: CollectionsView,
       beforeEnter: authGuard,
+      meta: {
+        paidRequired: true,
+      },
+    },
+    {
+      name: 'RELATIONSHIP GRAPH',
+      path: '/relationships/graph',
+      component: RelationshipGraphView,
+      beforeEnter: authGuard,
+      meta: {
+        paidRequired: true,
+      },
     },
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],

@@ -159,7 +159,7 @@ const completedSessions = computed(() => {
         <hr class="border border-neutral-800 grow self-center" />
       </div>
       <div
-        class="grid grid-cols-1 place-items-stretch sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
+        class="grid grid-cols-1 items-stretch sm:grid-cols-2 xl:grid-cols-3 3xl:grid-cols-4 gap-5"
       >
         <router-link
           v-for="(session, i) of planningSessions"
@@ -193,7 +193,7 @@ const completedSessions = computed(() => {
         <hr class="border border-neutral-800 grow self-center" />
       </div>
       <div
-        class="grid grid-cols-1 place-items-stretch sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
+        class="grid grid-cols-1 items-stretch sm:grid-cols-2 xl:grid-cols-3 3xl:grid-cols-4 gap-5"
       >
         <router-link
           v-for="(session, i) of needsRecapSessions"
@@ -223,7 +223,7 @@ const completedSessions = computed(() => {
         <hr class="border border-neutral-800 grow self-center" />
       </div>
       <div
-        class="grid grid-cols-1 items-stretch sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-5"
+        class="grid grid-cols-1 items-stretch sm:grid-cols-2 xl:grid-cols-3 3xl:grid-cols-4 gap-5"
       >
         <router-link
           v-for="(session, i) of completedSessions"

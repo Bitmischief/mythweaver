@@ -25,12 +25,7 @@ const getConjurationsSchema = z.object({
   search: z.coerce.string().optional(),
   nodeId: z.coerce.number().optional(),
   nodeType: z
-    .enum([
-      ConjurationRelationshipType.CAMPAIGN,
-      ConjurationRelationshipType.SESSION,
-      ConjurationRelationshipType.CHARACTER,
-      ConjurationRelationshipType.CONJURATION,
-    ])
+    .enum([ConjurationRelationshipType.CONJURATION])
     .default(ConjurationRelationshipType.CONJURATION)
     .optional(),
   collectionId: z.coerce.number().optional(),

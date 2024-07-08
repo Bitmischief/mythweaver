@@ -2,6 +2,7 @@
 import { computed, onMounted, ref, watch } from 'vue';
 import {
   Conjuration,
+  ConjurationVisibility,
   copyConjuration,
   deleteConjuration,
   getConjuration,
@@ -16,7 +17,6 @@ import {
   ArrowLeftIcon,
   ArrowPathIcon,
   DocumentDuplicateIcon,
-  LinkIcon,
   BookmarkSlashIcon,
   ArrowsRightLeftIcon,
   XCircleIcon,
@@ -30,21 +30,17 @@ import {
 } from '@heroicons/vue/24/outline';
 import {
   useCurrentUserId,
-  useCurrentUserRole,
   useQuickConjure,
   useSelectedCampaignId,
 } from '@/lib/hooks.ts';
 import { showError, showSuccess } from '@/lib/notifications.ts';
 import { MenuButton, MenuItem } from '@headlessui/vue';
 import Menu from '@/components/Core/General/Menu.vue';
-import { ConjurationRelationshipType } from '@/lib/enums.ts';
-import { CampaignRole } from '@/api/campaigns.ts';
-import ViewRelationships from '@/components/Relationships/ViewRelationships.vue';
+import { postCampaignConjuration } from '@/api/campaigns.ts';
 import { AxiosError } from 'axios';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import { Conjurer, getConjurers } from '@/api/generators.ts';
 import Select from '@/components/Core/Forms/Select.vue';
-import { postConjurationRelationship } from '@/api/relationships.ts';
 import ConjurationMove from '@/components/Collections/ConjurationMove.vue';
 
 const route = useRoute();
@@ -52,7 +48,6 @@ const router = useRouter();
 const eventBus = useEventBus();
 const quickConjure = useQuickConjure();
 const currentUserId = useCurrentUserId();
-const currentUserRole = useCurrentUserRole();
 const selectedCampaignId = useSelectedCampaignId();
 
 const conjuration = ref<Conjuration | null>(null);
@@ -192,17 +187,6 @@ async function conjureUsingPrompt() {
   });
 }
 
-async function handleCreateRelationship(type: ConjurationRelationshipType) {
-  eventBus.$emit('create-relationship', {
-    relationshipType: type,
-    nodeId: conjurationId,
-    nodeType:
-      conjuration.value?.conjurerCode === 'players'
-        ? ConjurationRelationshipType.CHARACTER
-        : ConjurationRelationshipType.CONJURATION,
-  });
-}
-
 const readOnly = ref(true);
 
 const isCharacterNotInCampaign = computed(() => {
@@ -267,13 +251,9 @@ async function addToCampaign() {
   if (!selectedCampaignId.value || !conjuration.value) return;
 
   try {
-    await postConjurationRelationship(
+    await postCampaignConjuration(
       selectedCampaignId.value,
-      ConjurationRelationshipType.CAMPAIGN,
-      {
-        relatedNodeId: conjuration.value.id,
-        relatedNodeType: ConjurationRelationshipType.CHARACTER,
-      },
+      conjuration.value.id,
     );
     await loadConjuration();
     showSuccess({ message: 'Character added to campaign!' });
@@ -307,7 +287,10 @@ async function addToCampaign() {
         </div>
 
         <div
-          v-if="!conjuration.saved"
+          v-if="
+            !conjuration.saved &&
+            conjuration.visibility === ConjurationVisibility.Public
+          "
           class="bg-amber-300/10 rounded-[12px] flex py-2 px-4"
         >
           <div class="self-center text-amber-300/75 my-auto">
@@ -363,7 +346,10 @@ async function addToCampaign() {
           <span class="self-center">Copy Conjuration</span>
         </button>
         <button
-          v-if="!conjuration.saved"
+          v-if="
+            !conjuration.saved &&
+            conjuration.visibility === ConjurationVisibility.Public
+          "
           class="button-ghost flex self-center"
           @click="handleSaveConjuration"
         >
@@ -387,51 +373,6 @@ async function addToCampaign() {
                   >
                     <ChatBubbleLeftRightIcon class="h-5 w-5" />
                     Conjure With Same Prompt
-                  </button>
-                </div>
-              </MenuItem>
-              <MenuItem v-if="currentUserRole === CampaignRole.DM">
-                <div class="menu-item">
-                  <button
-                    class="button-text flex gap-2"
-                    @click="
-                      handleCreateRelationship(
-                        ConjurationRelationshipType.CONJURATION,
-                      )
-                    "
-                  >
-                    <LinkIcon class="h-5 w-5" />
-                    Link Conjuration
-                  </button>
-                </div>
-              </MenuItem>
-              <MenuItem v-if="currentUserRole === CampaignRole.DM">
-                <div class="menu-item">
-                  <button
-                    class="button-text flex gap-2"
-                    @click="
-                      handleCreateRelationship(
-                        ConjurationRelationshipType.SESSION,
-                      )
-                    "
-                  >
-                    <LinkIcon class="h-5 w-5" />
-                    Link Sessions
-                  </button>
-                </div>
-              </MenuItem>
-              <MenuItem v-if="currentUserRole === CampaignRole.DM">
-                <div class="menu-item">
-                  <button
-                    class="button-text flex gap-2"
-                    @click="
-                      handleCreateRelationship(
-                        ConjurationRelationshipType.CAMPAIGN,
-                      )
-                    "
-                  >
-                    <LinkIcon class="h-5 w-5" />
-                    Link To Campaign
                   </button>
                 </div>
               </MenuItem>
@@ -492,17 +433,6 @@ async function addToCampaign() {
       :read-only="readOnly"
       @edit="readOnly = false"
     />
-    <div class="mt-4">
-      <div class="text-xl my-2">Related Conjurations</div>
-      <ViewRelationships
-        :start-node-id="conjuration.id"
-        :start-node-type="
-          conjuration.conjurerCode === 'players'
-            ? ConjurationRelationshipType.CHARACTER
-            : ConjurationRelationshipType.CONJURATION
-        "
-      />
-    </div>
     <ModalAlternate :show="confirmDeleteConjuration">
       <div v-if="conjuration" class="bg-surface-3 rounded-[12px] p-6">
         <div class="text-lg text-white">

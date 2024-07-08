@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { HomeIcon } from '@heroicons/vue/24/outline';
-import { CheckCircleIcon } from '@heroicons/vue/20/solid';
 import { postMoveCollection } from '@/api/collections.ts';
 import { showError, showSuccess } from '@/lib/notifications.ts';
 import { ref } from 'vue';
@@ -48,26 +46,6 @@ const moveCollection = async () => {
     </div>
     <hr class="mb-2 border-neutral-600" />
     <div class="overflow-auto pr-2">
-      <div
-        v-if="collection.parentCollectionId !== null"
-        class="p-4 border border-neutral-800 rounded-[12px] flex justify-between grow cursor-pointer mb-4"
-        :class="{
-          'border-fuchsia-500 bg-fuchsia-500/10':
-            selectedMoveLocation && selectedMoveLocation.id === undefined,
-        }"
-        @click="selectedMoveLocation = { id: undefined, name: 'Home' }"
-      >
-        <div class="flex gap-2 text-neutral-300">
-          <HomeIcon class="h-6 w-6" />
-          <div class="truncate">Home</div>
-        </div>
-        <div
-          v-if="selectedMoveLocation && selectedMoveLocation.id === undefined"
-          class="text-violet-500 self-center"
-        >
-          <CheckCircleIcon class="h-6 w-6 self-center" />
-        </div>
-      </div>
       <CollectionMoveTree
         v-model="selectedMoveLocation"
         :collection-id="collection.id"

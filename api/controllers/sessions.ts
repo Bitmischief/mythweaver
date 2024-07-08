@@ -13,11 +13,7 @@ import {
 } from 'tsoa';
 import { prisma } from '../lib/providers/prisma';
 import { AppError, ErrorType, HttpCode } from '../lib/errors/AppError';
-import {
-  BillingPlan,
-  Session,
-  ConjurationRelationshipType,
-} from '@prisma/client';
+import { BillingPlan, Session } from '@prisma/client';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { CampaignRole } from './campaigns';
 import { sendTransactionalEmail } from '../lib/transactionalEmail';
@@ -32,7 +28,6 @@ import { JsonObject } from '@prisma/client/runtime/library';
 import { format } from 'date-fns';
 import { getTranscription } from '../services/dataStorage';
 import { getClient } from '../lib/providers/openai';
-import { getManyRelationships } from '../lib/relationshipsHelper';
 
 interface GetSessionsResponse {
   data: Session[];
@@ -101,8 +96,6 @@ export default class SessionController {
     @Query() offset?: number,
     @Query() limit?: number,
     @Query() search?: string,
-    @Query() nodeId?: number,
-    @Query() nodeType?: ConjurationRelationshipType,
     @Query() archived = false,
   ): Promise<GetSessionsResponse> {
     const sessions = await prisma.session.findMany({
@@ -136,28 +129,10 @@ export default class SessionController {
 
     track(AppEvent.GetSessions, userId, trackingInfo);
 
-    let relationships = [] as any[];
-    if (nodeId && nodeType) {
-      relationships = await getManyRelationships(
-        nodeId,
-        nodeType,
-        ConjurationRelationshipType.SESSION,
-        sessions.map((c: Session) => c.id),
-        userId,
-      );
-    }
-
     return {
       data: sessions.map((s) => ({
         ...s,
         imageUri: s.images.find((i) => i.primary)?.uri || null,
-        linked: relationships.length
-          ? relationships.some(
-              (r) =>
-                r.nextNodeId === s.id &&
-                r.nextType === ConjurationRelationshipType.SESSION,
-            )
-          : false,
       })),
       offset: offset,
       limit: limit,

@@ -154,7 +154,7 @@ const conjurationName = computed(() => {
       }"
     >
       <div
-        class="relative m-2 group-hover:mx-6 transition-all"
+        class="relative m-2 transition-all"
         :class="{
           'basis-1/3 my-auto': condensedView,
           'basis-1': !condensedView,
@@ -305,7 +305,7 @@ const conjurationName = computed(() => {
                 'bg-white/50 hover:bg-white/60': !conjuration.saved,
                 'bg-fuchsia-500/90': conjuration.saved,
               }"
-              @click.stop="addConjuration"
+              @click.prevent="addConjuration"
             >
               <div class="flex h-full justify-center text-xs font-bold">
                 <div class="relative self-center">

@@ -309,6 +309,12 @@ export default class ImageController {
               uri: null,
             },
           },
+          orderBy: {
+            createdAt: 'desc',
+          },
+          include: {
+            imageModel: true,
+          },
         },
       },
     });

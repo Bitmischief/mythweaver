@@ -138,10 +138,9 @@ const addCollection = async () => {
           />
         </div>
       </div>
-      <div class="flex mb-6">
+      <div v-if="parentId" class="flex mb-6">
         <div class="self-center">
           <ArrowUturnLeftIcon
-            v-if="parentId"
             class="h-5 w-5 rotate-180 self-center mr-2 text-neutral-500"
           />
         </div>

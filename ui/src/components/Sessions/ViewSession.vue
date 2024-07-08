@@ -24,18 +24,13 @@ import {
 } from '@/lib/hooks.ts';
 import { useEventBus } from '@/lib/events.ts';
 import { CampaignRole } from '@/api/campaigns.ts';
-import { ConjurationRelationshipType } from '@/lib/enums.ts';
-import { useLDFlag } from 'launchdarkly-vue-client-sdk';
 import ViewSessionPlanning from '@/components/Sessions/ViewSessionPlanning.vue';
-import ViewSessionRelationships from '@/components/Sessions/ViewSessionRelationships.vue';
 import ViewSessionRecap from '@/components/Sessions/ViewSessionRecap.vue';
 import ViewSessionTranscription from '@/components/Sessions/ViewSessionTranscription.vue';
 import ViewSessionSummary from '@/components/Sessions/ViewSessionSummary.vue';
 import { format } from 'date-fns';
 import Spinner from '@/components/Core/Spinner.vue';
 import { BillingPlan } from '@/api/users.ts';
-
-const showRelationships = useLDFlag('relationships', false);
 
 const route = useRoute();
 const router = useRouter();
@@ -169,14 +164,6 @@ async function clickUnarchiveSession() {
   } else {
     showError({ message: 'Failed to unarchive session. Try again soon!' });
   }
-}
-
-async function handleCreateRelationship(type: ConjurationRelationshipType) {
-  eventBus.$emit('create-relationship', {
-    relationshipType: type,
-    nodeId: session.value.id,
-    nodeType: ConjurationRelationshipType.SESSION,
-  });
 }
 
 async function sessionOver() {
@@ -404,22 +391,6 @@ const next = () => {
             </MenuButton>
             <template #content>
               <div class="relative z-60 bg-surface-3 p-2 rounded-[20px]">
-                <MenuItem
-                  v-if="
-                    showRelationships && currentUserRole === CampaignRole.DM
-                  "
-                >
-                  <button
-                    class="w-full rounded-[14px] px-3 py-1 hover:bg-purple-800/20 hover:text-purple-200"
-                    @click="
-                      handleCreateRelationship(
-                        ConjurationRelationshipType.CONJURATION,
-                      )
-                    "
-                  >
-                    Link Conjurations
-                  </button>
-                </MenuItem>
                 <MenuItem v-if="!session.archived">
                   <button
                     class="w-full rounded-[14px] px-3 py-1 hover:bg-purple-800/20 hover:text-purple-200"
@@ -521,37 +492,6 @@ const next = () => {
     <div v-if="tab === 'plan'">
       <div class="mt-4">
         <ViewSessionPlanning />
-      </div>
-      <div class="mt-4 pb-6 mb-12 border border-neutral-800 rounded-[20px] p-4">
-        <div class="flex gap-4 justify-between">
-          <div>Session Relationships</div>
-          <Menu class="self-center">
-            <MenuButton class="button-primary">
-              <EllipsisVerticalIcon class="h-5" />
-            </MenuButton>
-            <template #content>
-              <div class="relative z-60 bg-surface-3 p-2 rounded-[20px]">
-                <MenuItem
-                  v-if="
-                    showRelationships && currentUserRole === CampaignRole.DM
-                  "
-                >
-                  <button
-                    class="w-full rounded-[14px] px-3 py-1 hover:bg-purple-800/20 hover:text-purple-200"
-                    @click="
-                      handleCreateRelationship(
-                        ConjurationRelationshipType.CONJURATION,
-                      )
-                    "
-                  >
-                    Link Conjurations
-                  </button>
-                </MenuItem>
-              </div>
-            </template>
-          </Menu>
-        </div>
-        <ViewSessionRelationships />
       </div>
     </div>
   </div>

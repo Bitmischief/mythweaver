@@ -46,12 +46,14 @@ const props = withDefaults(
     context?: string;
     placeholder?: string;
     unsavedChanges?: boolean;
+    editable?: boolean;
   }>(),
   {
     readOnly: false,
     context: 'session',
     placeholder: 'Start planning your session here...',
     unsavedChanges: false,
+    editable: false,
   },
 );
 
@@ -204,7 +206,7 @@ onMounted(() => {
 <template>
   <div class="rounded-[12px] bg-surface-2 w-full py-4">
     <div class="flex justify-end text-sm text-neutral-500 px-6">
-      <div v-if="readOnly">
+      <div v-if="readOnly && editable">
         Read Mode
         <span class="hidden md:inline">(double click to edit)</span>
         <span class="inline md:hidden">(click "edit" to make changes)</span>

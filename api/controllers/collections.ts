@@ -15,12 +15,12 @@ import { TrackingInfo } from '../lib/tracking';
 import { MythWeaverLogger } from '../lib/logger';
 import { prisma } from '../lib/providers/prisma';
 import { AppError, HttpCode } from '../lib/errors/AppError';
-import { Collections, Conjuration, Image } from '@prisma/client';
+import { Collections, Conjuration } from '@prisma/client';
 import { sendWebsocketMessage, WebSocketEvent } from '../services/websockets';
 
 export interface PostCollectionRequest {
   name: string;
-  parentId?: number;
+  parentId: number;
 }
 
 export interface PatchCollectionRequest {
@@ -50,6 +50,7 @@ export default class CollectionController {
     @Inject() trackingInfo: TrackingInfo,
     @Inject() logger: MythWeaverLogger,
     @Query() parentId?: number,
+    @Query() campaignId?: number,
   ) {
     logger.info('Getting collections', { userId, parentId });
 
@@ -57,6 +58,7 @@ export default class CollectionController {
       where: {
         userId: userId,
         parentCollectionId: parentId ? parentId : { equals: null },
+        campaignId: campaignId ? campaignId : undefined,
       },
       orderBy: {
         name: 'asc',
@@ -160,21 +162,19 @@ export default class CollectionController {
     @Inject() logger: MythWeaverLogger,
     @Body() collection: PostCollectionRequest,
   ) {
-    if (collection.parentId) {
-      const parentCollection = await prisma.collections.findFirst({
-        where: {
-          id: collection.parentId,
-          userId: userId,
-        },
-      });
+    const parentCollection = await prisma.collections.findFirst({
+      where: {
+        id: collection.parentId,
+        userId: userId,
+      },
+    });
 
-      if (!parentCollection) {
-        throw new AppError({
-          description:
-            'Parent collection not found or you do not have access to it.',
-          httpCode: HttpCode.NOT_FOUND,
-        });
-      }
+    if (!parentCollection) {
+      throw new AppError({
+        description:
+          'Parent collection not found or you do not have access to it.',
+        httpCode: HttpCode.NOT_FOUND,
+      });
     }
 
     logger.info('Creating collection', { userId, collection });
@@ -184,6 +184,7 @@ export default class CollectionController {
         name: collection.name,
         parentCollectionId: collection.parentId,
         userId: userId,
+        campaignId: parentCollection.campaignId,
       },
     });
   }
@@ -319,6 +320,9 @@ export default class CollectionController {
       where: {
         id: collectionId,
         userId: userId,
+        parentCollectionId: {
+          not: null,
+        },
       },
     });
 
@@ -501,21 +505,19 @@ export default class CollectionController {
       });
     }
 
-    if (postMoveCollectionRequest.parentCollectionId) {
-      const parentCollection = await prisma.collections.findUnique({
-        where: {
-          id: postMoveCollectionRequest.parentCollectionId,
-          userId: userId,
-        },
-      });
+    const parentCollection = await prisma.collections.findUnique({
+      where: {
+        id: postMoveCollectionRequest.parentCollectionId,
+        userId: userId,
+      },
+    });
 
-      if (!parentCollection) {
-        throw new AppError({
-          description:
-            'Parent collection not found or you do not have access to update it.',
-          httpCode: HttpCode.NOT_FOUND,
-        });
-      }
+    if (!parentCollection) {
+      throw new AppError({
+        description:
+          'Parent collection not found or you do not have access to update it.',
+        httpCode: HttpCode.NOT_FOUND,
+      });
     }
 
     logger.info('Posting move collection', {
@@ -523,14 +525,45 @@ export default class CollectionController {
       postMoveCollectionRequest,
     });
 
+    if (parentCollection.campaignId !== collection.campaignId) {
+      const collectionsToUpdate = (await prisma.$queryRawUnsafe(`
+      WITH RECURSIVE collection_tree AS (
+        SELECT "id", "name", "parentCollectionId"
+        FROM "collections"
+        WHERE "id" = ${collectionId} AND "userId" = ${userId}
+          UNION ALL
+            SELECT c."id", c."name", c."parentCollectionId"
+            FROM "collections" c
+            INNER JOIN collection_tree ct ON c."parentCollectionId" = ct."id"
+      )
+      SELECT * FROM collection_tree
+    `)) as Collections[];
+
+      if (collectionsToUpdate && collectionsToUpdate.length) {
+        logger.info('Updating collections', { userId, collectionsToUpdate });
+
+        await prisma.collections.updateMany({
+          where: {
+            id: {
+              in: collectionsToUpdate.map((c: any) => c.id),
+            },
+            userId: userId,
+          },
+          data: {
+            campaignId: parentCollection.campaignId,
+          },
+        });
+      }
+    }
+
     await prisma.collections.update({
       where: {
         id: collectionId,
         userId: userId,
       },
       data: {
-        parentCollectionId:
-          postMoveCollectionRequest.parentCollectionId ?? null,
+        parentCollectionId: parentCollection.id,
+        campaignId: parentCollection.campaignId,
       },
     });
 

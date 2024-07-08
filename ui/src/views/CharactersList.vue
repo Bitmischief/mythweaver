@@ -8,13 +8,12 @@ import { useRoute, useRouter } from 'vue-router';
 import { XCircleIcon } from '@heroicons/vue/20/solid';
 import { useEventBus } from '@/lib/events.ts';
 import ModalAlternate from '@/components/ModalAlternate.vue';
-import {
-  deleteConjurationRelationshipByNodeIds,
-  postConjurationRelationship,
-} from '@/api/relationships.ts';
-import { ConjurationRelationshipType } from '@/lib/enums.ts';
 import { Conjuration, getConjurations } from '@/api/conjurations.ts';
-import { getCampaign } from '@/api/campaigns.ts';
+import {
+  deleteCampaignConjuration,
+  getCampaign,
+  postCampaignConjuration,
+} from '@/api/campaigns.ts';
 import Spinner from '@/components/Core/Spinner.vue';
 
 const selectedCampaignId = useSelectedCampaignId();
@@ -117,7 +116,9 @@ const loadCharacters = async () => {
       offset: 0,
       limit: 200,
     });
-    characterToEditList.value = response.data.data;
+    characterToEditList.value = response.data.data?.sort((a: any, b: any) =>
+      a.name.localeCompare(b.name),
+    );
   } catch {
     showError({ message: 'Failed to load characters. Please try again.' });
   }
@@ -127,14 +128,7 @@ const loadingAddToCampaign = ref(false);
 const addCharacterToCampaign = async (character: any) => {
   try {
     loadingAddToCampaign.value = true;
-    await postConjurationRelationship(
-      selectedCampaignId.value || 0,
-      ConjurationRelationshipType.CAMPAIGN,
-      {
-        relatedNodeId: character.id,
-        relatedNodeType: ConjurationRelationshipType.CHARACTER,
-      },
-    );
+    await postCampaignConjuration(selectedCampaignId.value || 0, character.id);
     await init();
     await loadCharacters();
     showSuccess({ message: 'Character added to campaign' });
@@ -151,12 +145,10 @@ const loadingRemoveFromCampaign = ref(false);
 const removeCharacterFromCampaign = async (character: any) => {
   try {
     loadingRemoveFromCampaign.value = true;
-    await deleteConjurationRelationshipByNodeIds({
-      previousNodeId: selectedCampaignId.value || 0,
-      previousType: ConjurationRelationshipType.CAMPAIGN,
-      nextNodeId: character.id,
-      nextType: ConjurationRelationshipType.CHARACTER,
-    });
+    await deleteCampaignConjuration(
+      selectedCampaignId.value || 0,
+      character.id,
+    );
     await init();
     showRemoveCharacter.value = false;
     showSuccess({ message: 'Character removed from campaign' });
@@ -321,7 +313,7 @@ function characterDescription(character: Conjuration) {
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div
           v-for="(character, i) in characterToEditList"
-          :key="`char_add_${i}`"
+          :key="`char_add_${i}_${character.id}`"
           class="flex flex-wrap bg-surface-3 rounded-[16px]"
         >
           <div class="basis-1/3 p-2 relative">

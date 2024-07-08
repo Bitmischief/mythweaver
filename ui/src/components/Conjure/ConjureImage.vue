@@ -371,7 +371,7 @@ const selectedModelIsMythWeaverV1 = computed(() => {
     <div
       v-if="showImageCredits || inModal"
       class="md:pb-4"
-      :class="{ 'absolute right-2 top-0': image.uri }"
+      :class="{ 'absolute right-2 top-0 p-4': image.uri }"
     >
       <div class="flex justify-end">
         <div class="self-center">
@@ -759,6 +759,14 @@ const selectedModelIsMythWeaverV1 = computed(() => {
             alt="image"
             class="rounded-[20px] group-hover/image:opacity-50"
           />
+          <div
+            v-if="img.imageModel?.description"
+            class="absolute flex bottom-2 right-2 cursor-pointer bg-neutral-500/50 rounded-[8px]"
+          >
+            <div class="text-neutral-300 text-sm px-2">
+              {{ img.imageModel?.description }}
+            </div>
+          </div>
           <div
             class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 hidden group-hover/image:block"
           >
