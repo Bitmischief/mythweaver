@@ -12,22 +12,13 @@ import {
   Tags,
 } from 'tsoa';
 import { prisma } from '../lib/providers/prisma';
-import {
-  Campaign,
-  CampaignMember,
-  ConjurationRelationshipType,
-  ContextType,
-} from '@prisma/client';
+import { Campaign, CampaignMember, ContextType } from '@prisma/client';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { sendTransactionalEmail } from '../lib/transactionalEmail';
 import { v4 as uuidv4 } from 'uuid';
 import { urlPrefix } from '../lib/utils';
 import { MythWeaverLogger } from '../lib/logger';
-import {
-  getCampaignCharacters,
-  getManyRelationships,
-} from '../lib/relationshipsHelper';
 import { createCampaign } from '../dataAccess/campaigns';
 import { indexCampaignContextQueue } from '../worker';
 import { getCampaignCharacters } from '../lib/charactersHelper';
@@ -166,7 +157,7 @@ export default class CampaignController {
   ): Promise<Campaign> {
     track(AppEvent.CreateCampaign, userId, trackingInfo);
 
-    return createCampaign({
+    const campaign = await createCampaign({
       userId,
       ...request,
     });
