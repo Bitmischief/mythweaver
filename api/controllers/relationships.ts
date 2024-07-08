@@ -84,42 +84,23 @@ export default class RelationshipController {
     });
 
     return prisma.$queryRawUnsafe(`
-        WITH RECURSIVE entity_chain AS (
-          SELECT
-            cr.*,
+        WITH entity_chain AS (
+          SELECT cr.*,
             ARRAY[cr.id] AS visitedRelationships,
             1 depth
           FROM
             conjuration_relationships cr
           WHERE
-            cr."previousNodeId" = ${nodeId} AND cr."previousType" = '${type}' AND cr."nextType" = 'CONJURATION' AND cr."userId" = '${userId}'
-          UNION ALL
-          SELECT
-            ecr.*,
-            ec.visitedRelationships || ecr.id,
-            depth + 1 AS depth
-          FROM
-            conjuration_relationships ecr
-          JOIN
-            entity_chain ec ON ec."nextNodeId" = ecr."previousNodeId" AND ec."nextType" = ecr."previousType"
-          WHERE
-            NOT ecr.id = ANY(ec.visitedRelationships) AND depth < ${depthLimit}
+            cr."previousNodeId" = ${nodeId} AND cr."previousType" = 'CONJURATION' AND cr."nextType" = 'CONJURATION' AND cr."userId" = ${userId}
         ), enriched_entities AS (
-          SELECT DISTINCT ON (ec.id)
-            ec.*,
-          CASE
-            WHEN (ec."nextType" = 'CONJURATION') THEN to_jsonb(conj.*)
-          END AS entityData
-          FROM entity_chain ec
-           LEFT JOIN
-               (SELECT c.*, i.uri as "imageUri"
-                FROM conjurations c
-                    LEFT JOIN (SELECT *
-                               FROM images
-                               WHERE "primary" = true) i
-                    ON i."conjurationId" = c.id) conj
-               ON (ec."nextType" = 'CONJURATION') AND ec."nextNodeId" = conj.id
-          ORDER BY ec.id, ec.depth)
+          SELECT ec.*, to_jsonb(conj.*) || jsonb_build_object('imageUri', i.uri) AS entityData
+            FROM conjurations conj
+                LEFT JOIN (SELECT *
+                           FROM images
+                           WHERE "primary" = true) i
+                ON i."conjurationId" = conj.id
+            INNER JOIN entity_chain ec ON ec."nextNodeId" = conj.id
+          ORDER BY ec."updatedAt" DESC)
         SELECT * FROM enriched_entities;
       `);
   }
