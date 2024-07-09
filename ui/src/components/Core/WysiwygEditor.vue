@@ -170,12 +170,9 @@ onMounted(() => {
     },
   };
 
-  const placeholder = value.value?.blocks?.length
-    ? 'remove'
-    : props.placeholder;
   const e = new EditorJs({
     holder: 'editor',
-    placeholder: placeholder,
+    placeholder: props.placeholder,
     data: value.value,
     minHeight: 100,
     autofocus: false,
@@ -447,10 +444,6 @@ onMounted(() => {
       content: attr(data-placeholder);
       color: #4a4a4a;
     }
-  }
-
-  .ce-block:has(.cdx-block[data-placeholder='remove']) {
-    display: none;
   }
 }
 </style>
