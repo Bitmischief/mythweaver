@@ -5,9 +5,9 @@ import {
 import { prisma } from '../../lib/providers/prisma';
 import { AppError, HttpCode } from '../../lib/errors/AppError';
 import { getClient } from '../../lib/providers/openai';
-import { toFile } from 'openai';
 import { Campaign, ContextType } from '@prisma/client';
 import logger from '../../lib/logger';
+import fs from 'node:fs';
 
 const openai = getClient();
 
@@ -55,13 +55,19 @@ const updateCampaignContext = async (campaign: Campaign) => {
   }
 
   logger.info('Creating and uploading new context file');
+  const filename = `campaign-${campaign.id}.json`;
+  fs.writeFileSync(filename, JSON.stringify(campaign));
+
   const file = await openai.files.create({
-    file: await toFile(
-      new Blob([JSON.stringify(campaign)]),
-      `campaign-${campaign.id}.json`,
-    ),
+    file: fs.createReadStream(filename),
     purpose: 'assistants',
   });
+  fs.unlinkSync(filename);
+
+  await openai.beta.vectorStores.files.createAndPoll(
+    (campaign.openAiConfig as any)?.vectorStoreId,
+    { file_id: file.id },
+  );
 
   await prisma.contextFiles.create({
     data: {

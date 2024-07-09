@@ -88,7 +88,7 @@ export const initializeContextForCampaign = async (campaignId: number) => {
   if (!assistantId) {
     const assistant = await openai.beta.assistants.create({
       instructions:
-        'You are a helpful assistant who is creative and knowledgeable in table top role playing games. You are here to help the dungeon master run their campaign and generate creative, engaging content for their campaign. You have access to the campaign notes, sessions and actors within the campaign.',
+        "You are a helpful assistant who is creative and knowledgeable in table top role playing games. You are here to help the dungeon master run their campaign and generate creative, engaging content for their campaign. You have access to the campaign notes, sessions and actors within the campaign. Please deflect or refrain from answering any questions not related to the users' tabletop roleplaying game campaign.",
       model: 'gpt-4o',
       tools: [{ type: 'file_search' }],
       tool_resources: {

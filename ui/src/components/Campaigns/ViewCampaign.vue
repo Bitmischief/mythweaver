@@ -9,6 +9,10 @@ import { showError, showSuccess } from '@/lib/notifications.ts';
 import { AxiosError } from 'axios';
 import { useRouter } from 'vue-router';
 import { ArrowLeftIcon } from '@heroicons/vue/24/outline';
+import useFileList from '@/compositions/fileList.ts';
+import DragAndDropUploader from '@/components/Core/DragAndDropUploader.vue';
+
+const { files, addFiles, removeFile } = useFileList();
 
 const campaignStore = useCampaignStore();
 const selectedCampaignId = useSelectedCampaignId();
@@ -141,6 +145,13 @@ async function handleDeleteCampaign() {
       placeholder="As ancient evils awaken and long-buried secrets resurface, heroes must rise to restore balance in a world on the brink of chaos..."
       rows="8"
     />
+
+    <div class="mt-12 border-t border-gray-500/25 py-4">
+      <div class="flex">
+        <div class="text-2xl">Campaign Files</div>
+      </div>
+      <DragAndDropUploader />
+    </div>
 
     <div class="mt-12 border-t border-gray-500/25 py-4">
       <div class="flex justify-between">

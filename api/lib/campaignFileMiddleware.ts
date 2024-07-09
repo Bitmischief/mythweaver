@@ -4,38 +4,29 @@ import { AppError, HttpCode } from './errors/AppError';
 import { CampaignRole } from '../controllers/campaigns';
 import { useBuildFileUploader } from './fileUploadMiddleware';
 
-const MAX_AUDIO_FILE_SIZE = 600000000;
-const ACCEPTED_AUDIO_TYPES = ['audio/mpeg'];
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB;
+const ACCEPTED_FILE_TYPES = [
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/pdf',
+];
 
-export const useAudioUploadAuthorizer = () => {
+export const useCampaignFileUploadAuthorizer = () => {
   return async (req: Request, res: Response, next: NextFunction) => {
-    const { sessionId = 0 } = req.params;
-
-    const session = await prisma.session.findUnique({
-      where: {
-        id: sessionId as number,
-      },
-    });
-
-    if (!session) {
-      throw new AppError({
-        description: 'Session not found.',
-        httpCode: HttpCode.NOT_FOUND,
-      });
-    }
+    const campaignId = req.params.campaignId as unknown as number;
 
     const campaignMember = await prisma.campaignMember.findUnique({
       where: {
         userId_campaignId: {
           userId: res.locals.auth.userId,
-          campaignId: session.campaignId,
+          campaignId,
         },
       },
     });
 
     if (!campaignMember || campaignMember.role !== CampaignRole.DM) {
       throw new AppError({
-        description: 'You do not have permission to add audio to this session.',
+        description:
+          'You do not have permission to upload files for this campaign.',
         httpCode: HttpCode.FORBIDDEN,
       });
     }
@@ -44,10 +35,10 @@ export const useAudioUploadAuthorizer = () => {
   };
 };
 
-export const useAudioFileUploader = () => {
+export const useCampaignFileUploader = () => {
   const upload = useBuildFileUploader({
-    maxFileSize: MAX_AUDIO_FILE_SIZE,
-    acceptedFileTypes: ACCEPTED_AUDIO_TYPES,
+    maxFileSize: MAX_FILE_SIZE,
+    acceptedFileTypes: ACCEPTED_FILE_TYPES,
   });
-  return upload.single('audioFile');
+  return upload.single('file');
 };
