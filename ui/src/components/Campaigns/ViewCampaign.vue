@@ -21,6 +21,12 @@ const router = useRouter();
 
 const campaign = ref<Campaign>({} as Campaign);
 
+const campaignFileUploadUrl = computed(
+  () =>
+    import.meta.env.VITE_API_URL +
+    `/campaigns/${selectedCampaignId.value}/files`,
+);
+
 const currentUserRole = computed(() => campaignStore.selectedCampaignRole);
 
 onMounted(async () => {
@@ -150,7 +156,7 @@ async function handleDeleteCampaign() {
       <div class="flex">
         <div class="text-2xl">Campaign Files</div>
       </div>
-      <DragAndDropUploader />
+      <DragAndDropUploader :upload-url="campaignFileUploadUrl" />
     </div>
 
     <div class="mt-12 border-t border-gray-500/25 py-4">

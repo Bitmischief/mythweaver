@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "ContextType" ADD VALUE 'MANUAL_FILE_UPLOAD';

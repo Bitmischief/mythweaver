@@ -10,6 +10,12 @@ export interface ReindexCampaignContextEvent {
   type: ContextType;
   eventTargetId: number;
   campaignId: number;
+  data?: {
+    fileUpload?: {
+      name: string;
+      uri: string;
+    };
+  };
 }
 
 export const getCampaign = async (campaignId: number) => {

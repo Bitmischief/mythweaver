@@ -12,7 +12,13 @@ import {
   Tags,
 } from 'tsoa';
 import { prisma } from '../lib/providers/prisma';
-import { Campaign, CampaignMember, ContextType } from '@prisma/client';
+import {
+  BillingPlan,
+  Campaign,
+  CampaignMember,
+  ContextFiles,
+  ContextType,
+} from '@prisma/client';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { sendTransactionalEmail } from '../lib/transactionalEmail';
@@ -51,6 +57,11 @@ export enum CampaignRole {
 
 export interface InviteMemberRequest {
   email: string;
+}
+
+export interface PostCampaignFileRequest {
+  name: string;
+  uri: string;
 }
 
 @Route('campaigns')
@@ -754,5 +765,46 @@ export default class CampaignController {
         },
       });
     }
+  }
+
+  @Security('jwt')
+  @OperationId('postCampaignFile')
+  @Post('/:campaignId/files')
+  public async postCampaignFiles(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
+    @Route() campaignId: number,
+    @Body() request: PostCampaignFileRequest,
+  ) {
+    const campaignMember = await prisma.campaignMember.findUnique({
+      where: {
+        userId_campaignId: {
+          userId,
+          campaignId,
+        },
+      },
+    });
+
+    if (!campaignMember || campaignMember.role !== CampaignRole.DM) {
+      throw new AppError({
+        description: 'You do not have permission to add audio to this session.',
+        httpCode: HttpCode.FORBIDDEN,
+      });
+    }
+
+    await indexCampaignContextQueue.add({
+      campaignId,
+      eventTargetId: campaignId,
+      type: ContextType.MANUAL_FILE_UPLOAD,
+      data: {
+        fileUpload: {
+          name: request.name,
+          uri: request.uri,
+        },
+      },
+    });
+
+    track(AppEvent.CampaignFileUploaded, userId, trackingInfo);
   }
 }

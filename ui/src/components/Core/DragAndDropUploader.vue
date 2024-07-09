@@ -5,6 +5,10 @@ import DragAndDropZone from '@/components/Core/DragAndDropZone.vue';
 import useFileList from '@/compositions/fileList';
 import createUploader from '@/compositions/fileUploader.ts';
 
+const props = defineProps<{
+  uploadUrl: string;
+}>();
+
 const { files, addFiles, removeFile } = useFileList();
 
 const fileInput = ref<HTMLInputElement | null>(null);
@@ -14,11 +18,12 @@ function onInputChange(e: Event) {
   if (input.files) {
     const fileArray = Array.from(input.files);
     addFiles(fileArray);
+    uploadFiles(files.value);
   }
   input.value = ''; // reset so that selecting the same file again will still cause it to fire this change
 }
 
-const { uploadFiles } = createUploader('YOUR URL HERE');
+const { uploadFiles } = createUploader(props.uploadUrl);
 
 function triggerFileInput() {
   if (fileInput.value) {

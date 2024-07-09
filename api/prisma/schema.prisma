@@ -494,6 +494,7 @@ enum ContextType {
   SESSION
   SESSION_TRANSCRIPTION
   CONJURATION
+  MANUAL_FILE_UPLOAD
 }
 
 model ContextFiles {
