@@ -503,6 +503,7 @@ model ContextFiles {
   updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
 
   type                 ContextType
+  filename             String
   externalSystemFileId String      @unique
 
   campaignId    Int
