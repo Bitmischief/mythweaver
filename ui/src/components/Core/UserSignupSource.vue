@@ -37,6 +37,22 @@ const influencers = ref([
     name: 'PunkRockJenny',
   },
   {
+    id: 'dumbestdnd',
+    name: 'dumbestdnd',
+  },
+  {
+    id: 'tawny',
+    name: 'Tawny Platis',
+  },
+  {
+    id: 'vatara',
+    name: 'Vatara',
+  },
+  {
+    id: 'nerdieststepdad',
+    name: 'Nerdiest Step Dad',
+  },
+  {
     id: 'other',
     name: 'Other',
   },
