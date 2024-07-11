@@ -12,13 +12,7 @@ import {
   Tags,
 } from 'tsoa';
 import { prisma } from '../lib/providers/prisma';
-import {
-  BillingPlan,
-  Campaign,
-  CampaignMember,
-  ContextFiles,
-  ContextType,
-} from '@prisma/client';
+import { Campaign, CampaignMember, ContextType } from '@prisma/client';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { sendTransactionalEmail } from '../lib/transactionalEmail';
@@ -788,7 +782,8 @@ export default class CampaignController {
 
     if (!campaignMember || campaignMember.role !== CampaignRole.DM) {
       throw new AppError({
-        description: 'You do not have permission to add audio to this session.',
+        description:
+          'You do not have permission to add files for this campaign.',
         httpCode: HttpCode.FORBIDDEN,
       });
     }
@@ -806,5 +801,78 @@ export default class CampaignController {
     });
 
     track(AppEvent.CampaignFileUploaded, userId, trackingInfo);
+  }
+
+  @Security('jwt')
+  @OperationId('getCampaignFiles')
+  @Get('/:campaignId/files')
+  public async getCampaignFiles(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
+    @Route() campaignId: number,
+  ) {
+    const campaignMember = await prisma.campaignMember.findUnique({
+      where: {
+        userId_campaignId: {
+          userId,
+          campaignId,
+        },
+      },
+    });
+
+    if (!campaignMember || campaignMember.role !== CampaignRole.DM) {
+      throw new AppError({
+        description:
+          'You do not have permission to get campaign files for this campaign',
+        httpCode: HttpCode.FORBIDDEN,
+      });
+    }
+
+    track(AppEvent.CampaignFileUploaded, userId, trackingInfo);
+
+    return prisma.contextFiles.findMany({
+      where: {
+        campaignId,
+        type: ContextType.MANUAL_FILE_UPLOAD,
+      },
+    });
+  }
+
+  @Security('jwt')
+  @OperationId('deleteCampaignFile')
+  @Delete('/:campaignId/files/:fileId')
+  public async deleteCampaignFile(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
+    @Route() campaignId: number,
+    @Route() fileId: number,
+  ) {
+    const campaignMember = await prisma.campaignMember.findUnique({
+      where: {
+        userId_campaignId: {
+          userId,
+          campaignId,
+        },
+      },
+    });
+
+    if (!campaignMember || campaignMember.role !== CampaignRole.DM) {
+      throw new AppError({
+        description:
+          'You do not have permission to delete campaign files for this campaign',
+        httpCode: HttpCode.FORBIDDEN,
+      });
+    }
+
+    track(AppEvent.CampaignFileDeleted, userId, trackingInfo);
+
+    return prisma.contextFiles.findMany({
+      where: {
+        campaignId,
+        type: ContextType.MANUAL_FILE_UPLOAD,
+      },
+    });
   }
 }

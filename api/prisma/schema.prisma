@@ -504,6 +504,7 @@ model ContextFiles {
 
   type                 ContextType
   filename             String
+  uri                  String?
   externalSystemFileId String      @unique
 
   campaignId    Int

@@ -9,10 +9,8 @@ import { showError, showSuccess } from '@/lib/notifications.ts';
 import { AxiosError } from 'axios';
 import { useRouter } from 'vue-router';
 import { ArrowLeftIcon } from '@heroicons/vue/24/outline';
-import useFileList from '@/compositions/fileList.ts';
 import DragAndDropUploader from '@/components/Core/DragAndDropUploader.vue';
-
-const { files, addFiles, removeFile } = useFileList();
+import CampaignFileList from '@/components/Campaigns/CampaignFileList.vue';
 
 const campaignStore = useCampaignStore();
 const selectedCampaignId = useSelectedCampaignId();
@@ -156,7 +154,9 @@ async function handleDeleteCampaign() {
       <div class="flex">
         <div class="text-2xl">Campaign Files</div>
       </div>
+
       <DragAndDropUploader :upload-url="campaignFileUploadUrl" />
+      <CampaignFileList />
     </div>
 
     <div class="mt-12 border-t border-gray-500/25 py-4">

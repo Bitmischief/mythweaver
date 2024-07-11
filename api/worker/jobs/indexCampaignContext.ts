@@ -8,6 +8,7 @@ import { getClient } from '../../lib/providers/openai';
 import { Campaign, ContextType } from '@prisma/client';
 import logger from '../../lib/logger';
 import fs from 'node:fs';
+import { downloadFile } from '../../lib/utils';
 
 const openai = getClient();
 
@@ -68,8 +69,9 @@ const addManualFileToCampaignContext = async (
   }
 
   logger.info('Creating and uploading new context file');
-  const filename = `campaign-${campaign.id}-manual-${request.data.fileUpload.name}.json`;
-  fs.writeFileSync(filename, JSON.stringify(campaign));
+  const filename = `campaign-${campaign.id}-manual-${request.data.fileUpload.name}`;
+
+  await downloadFile(request.data.fileUpload.uri, filename);
 
   const file = await openai.files.create({
     file: fs.createReadStream(filename),
@@ -86,7 +88,8 @@ const addManualFileToCampaignContext = async (
     data: {
       campaignId: campaign.id,
       externalSystemFileId: file.id,
-      type: ContextType.CAMPAIGN,
+      type: ContextType.MANUAL_FILE_UPLOAD,
+      uri: request.data.fileUpload.uri,
       filename: request.data.fileUpload.name,
     },
   });

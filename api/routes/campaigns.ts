@@ -451,4 +451,50 @@ router.post('/:campaignId/files', [
   },
 ]);
 
+router.get('/:campaignId/files', [
+  checkAuth0Jwt,
+  useInjectUserId(),
+  useInjectLoggingInfo(),
+  useValidateRequest(getCampaignSchema, {
+    validationType: ValidationTypes.Route,
+  }),
+  async (req: Request, res: Response) => {
+    const controller = new CampaignController();
+
+    const campaignId = req.params.campaignId as unknown as number;
+
+    const files = await controller.getCampaignFiles(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      useLogger(),
+      campaignId,
+    );
+
+    return res.status(200).send(files);
+  },
+]);
+
+router.delete('/:campaignId/files/:fileId', [
+  checkAuth0Jwt,
+  useInjectUserId(),
+  useInjectLoggingInfo(),
+  useValidateRequest(getCampaignSchema, {
+    validationType: ValidationTypes.Route,
+  }),
+  async (req: Request, res: Response) => {
+    const controller = new CampaignController();
+
+    const campaignId = req.params.campaignId as unknown as number;
+
+    const files = await controller.getCampaignFiles(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      useLogger(),
+      campaignId,
+    );
+
+    return res.status(200).send(files);
+  },
+]);
+
 export default router;
