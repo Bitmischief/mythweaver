@@ -49,6 +49,10 @@ const influencers = ref([
     name: 'Vatara',
   },
   {
+    id: 'nerdieststepdad',
+    name: 'Nerdiest Step Dad',
+  },
+  {
     id: 'other',
     name: 'Other',
   },
