@@ -51,6 +51,7 @@ export default class CollectionController {
     @Inject() logger: MythWeaverLogger,
     @Query() parentId?: number,
     @Query() campaignId?: number,
+    @Query() conjurationId?: number,
   ) {
     logger.info('Getting collections', { userId, parentId });
 
@@ -132,6 +133,16 @@ export default class CollectionController {
       });
     }
 
+    let conjurationCollections: any[] = [];
+    if (conjurationId) {
+      conjurationCollections = await prisma.collectionConjuration.findMany({
+        where: {
+          conjurationId: conjurationId,
+        },
+        distinct: ['collectionId'],
+      });
+    }
+
     return {
       collections: collections.map((col: any) => {
         const children = collectionTree.filter(
@@ -146,6 +157,9 @@ export default class CollectionController {
           ...col,
           placeholders: childConjurations.map(
             (cc: any) => cc.conjuration.images[0].uri,
+          ),
+          containsConjuration: conjurationCollections.some(
+            (cc: any) => cc.collectionId === col.id,
           ),
         };
       }),

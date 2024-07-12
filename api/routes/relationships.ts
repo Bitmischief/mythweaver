@@ -162,7 +162,7 @@ router.patch('/:relationshipId', [
 ]);
 
 const getRelationshipGraphSchema = z.object({
-  depthLimit: z.coerce.number().min(1).max(10).default(5).optional(),
+  campaignId: z.coerce.number().optional(),
 });
 
 router.get('/graph', [
@@ -175,13 +175,13 @@ router.get('/graph', [
   async (req: Request, res: Response) => {
     const controller = new RelationshipController();
 
-    const { depthLimit = 10 } = req.query;
+    const { campaignId = undefined } = req.query;
 
     const response = await controller.getRelationshipGraph(
       res.locals.auth.userId,
       res.locals.trackingInfo,
       useLogger(),
-      depthLimit as unknown as number,
+      campaignId as unknown as number,
     );
 
     return res.status(200).send(response);

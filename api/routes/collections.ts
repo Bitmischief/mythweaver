@@ -13,6 +13,7 @@ const router = express.Router();
 const getCollectionsSchema = z.object({
   parentId: z.coerce.number().optional(),
   campaignId: z.coerce.number().optional(),
+  conjurationId: z.coerce.number().optional(),
 });
 
 router.get('/', [
@@ -31,6 +32,7 @@ router.get('/', [
       useLogger(),
       req.query.parentId as unknown as number,
       req.query.campaignId as unknown as number,
+      req.query.conjurationId as unknown as number,
     );
 
     return res.status(200).send(response);

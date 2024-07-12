@@ -4,7 +4,6 @@ import CampaignsView from '@/views/CampaignsView.vue';
 import ListCampaigns from '@/components/Campaigns/ListCampaigns.vue';
 import NewCampaign from '@/components/Campaigns/NewCampaign.vue';
 import ConjuringView from '@/views/ConjuringView.vue';
-import ListConjurers from '@/components/Conjuration/ListConjurers.vue';
 import ViewConjurer from '@/components/Conjuration/ViewConjurer.vue';
 import ViewCampaign from '@/components/Campaigns/ViewCampaign.vue';
 import SessionsView from '@/views/SessionsView.vue';
@@ -143,14 +142,6 @@ const router = createRouter({
               },
             },
             {
-              path: 'new',
-              component: ListConjurers,
-              beforeEnter: authGuard,
-              meta: {
-                paidRequired: true,
-              },
-            },
-            {
               path: 'conjure/:summonerCode',
               component: ViewConjurer,
               beforeEnter: authGuard,
@@ -202,6 +193,10 @@ const router = createRouter({
           beforeEnter: authGuard,
         },
       ],
+    },
+    {
+      path: '/conjurations/new',
+      redirect: '/conjure',
     },
     {
       name: 'CONJURE',

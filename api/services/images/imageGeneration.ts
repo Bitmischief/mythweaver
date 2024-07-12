@@ -137,11 +137,12 @@ const generateSingleImage = async (
     },
   });
 
-  await sendWebsocketMessage(
-    request.userId,
-    WebSocketEvent.ImageCreated,
-    updatedImage,
-  );
+  await sendWebsocketMessage(request.userId, WebSocketEvent.ImageCreated, {
+    image: updatedImage,
+    context: {
+      ...request.linking,
+    },
+  });
 
   return updatedImage;
 };

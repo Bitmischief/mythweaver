@@ -268,11 +268,12 @@ export default class ImageController {
       },
     });
 
-    await sendWebsocketMessage(
-      userId,
-      WebSocketEvent.PrimaryImageSet,
-      updatedImages,
-    );
+    await sendWebsocketMessage(userId, WebSocketEvent.PrimaryImageSet, {
+      images: updatedImages,
+      context: {
+        conjurationId: image.conjurationId,
+      },
+    });
   }
 
   @Security('jwt')

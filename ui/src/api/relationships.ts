@@ -58,6 +58,10 @@ export const patchConjurationRelationship = (
   return axios.patch(`/relationships/${relationshipId}`, patchConjurationRelationshipRequest);
 };
 
-export const getRelationshipGraph = () => {
-  return axios.get(`/relationships/graph`);
+export const getRelationshipGraph = (campaignId?: number) => {
+  return axios.get(`/relationships/graph`, {
+    params: {
+      campaignId,
+    },
+  });
 };

@@ -7,17 +7,12 @@ import { onMounted, onBeforeMount, onUpdated, ref, watch } from 'vue';
 import NavBarHeader from '@/components/Navigation/NavBarHeader.vue';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import LightboxRoot from '@/components/LightboxRoot.vue';
-import CustomizeConjurationImage from '@/components/Conjuration/ViewConjuration/CustomizeConjurationImage.vue';
 import { useIntercom } from '@homebaseai/vue3-intercom';
 import Loader from './components/Core/Loader.vue';
 import { ServerEvent } from '@/lib/serverEvents.ts';
 import { showSuccess } from '@/lib/notifications.ts';
 import { useCurrentUserPlan, useWebsocketChannel } from '@/lib/hooks.ts';
-import {
-  useLDClient,
-  useLDFlag,
-  useLDReady,
-} from 'launchdarkly-vue-client-sdk';
+import { useLDClient, useLDReady } from 'launchdarkly-vue-client-sdk';
 import UpgradeContainer from '@/components/Core/Billing/UpgradeContainer.vue';
 import mixpanel from 'mixpanel-browser';
 import { getRedeemPreOrderUrl } from '@/api/billing.ts';
@@ -48,7 +43,6 @@ const route = useRoute();
 const showPreorderRedemptionModal = ref(false);
 const showUpgradeModal = ref(false);
 const { isLoading, isAuthenticated } = useAuth0();
-const conjureV2 = useLDFlag('conjure-v2');
 const showUserSourceModal = ref(false);
 
 onBeforeMount(async () => {
@@ -284,18 +278,10 @@ async function finishOnboarding(sourceInfo: {
       class="relative pt-2 md:m-6 md:p-6 md:px-12 bg-surface-2 rounded-[20px] min-w-[70vw] max-w-[90vw] text-white mb-12"
     >
       <ConjureImage
-        v-if="conjureV2"
         :image="customizeImageArgs?.image"
         :linking="customizeImageArgs?.linking"
         :history-mode="customizeImageArgs?.historyMode"
         :show-image-credits="customizeImageArgs?.showImageCredits"
-        in-modal
-        @cancel="showCustomizeImageModal = false"
-      />
-      <CustomizeConjurationImage
-        v-else
-        :image="customizeImageArgs?.image"
-        :linking="customizeImageArgs?.linking"
         in-modal
         @cancel="showCustomizeImageModal = false"
       />

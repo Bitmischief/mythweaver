@@ -73,7 +73,11 @@ export const upscaleImage = async (userId: number, imageId: number) => {
     updatedImage,
   );
 
-  await sendWebsocketMessage(userId, WebSocketEvent.ImageUpscalingDone, {});
+  await sendWebsocketMessage(
+    userId,
+    WebSocketEvent.ImageUpscalingDone,
+    updatedImage,
+  );
 
   await modifyImageCreditCount(
     user.id,

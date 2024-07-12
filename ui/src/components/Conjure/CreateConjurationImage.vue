@@ -27,10 +27,12 @@ onMounted(() => {
   channel.bind(ServerEvent.PrimaryImageSet, primaryImageSetHandler);
 });
 
-async function primaryImageSetHandler() {
-  showSuccess({ message: 'Successfully saved conjuration image!' });
-  await saveConjuration(conjuration.value.id);
-  await viewConjuration();
+async function primaryImageSetHandler(data: any) {
+  if (data.context?.conjurationId === conjuration.value.id) {
+    showSuccess({ message: 'Successfully saved conjuration image!' });
+    await saveConjuration(conjuration.value.id);
+    await viewConjuration();
+  }
 }
 
 onUnmounted(() => {
