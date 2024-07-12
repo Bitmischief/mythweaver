@@ -127,3 +127,7 @@ export const deleteCampaignConjuration = (campaignId: number, conjurationId: num
 export const getCampaignFiles = (campaignId: number) => {
   return axios.get(`/campaigns/${campaignId}/files`);
 };
+
+export const deleteCampaignFile = (campaignId: number, fileId: number) => {
+  return axios.delete(`/campaigns/${campaignId}/files/${fileId}`);
+};

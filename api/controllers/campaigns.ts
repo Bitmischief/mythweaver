@@ -22,6 +22,9 @@ import { MythWeaverLogger } from '../lib/logger';
 import { createCampaign } from '../dataAccess/campaigns';
 import { indexCampaignContextQueue } from '../worker';
 import { getCampaignCharacters } from '../lib/charactersHelper';
+import { getClient } from '../lib/providers/openai';
+
+const openai = getClient();
 
 export interface GetCampaignsResponse {
   data: Campaign[];
@@ -868,10 +871,24 @@ export default class CampaignController {
 
     track(AppEvent.CampaignFileDeleted, userId, trackingInfo);
 
-    return prisma.contextFiles.findMany({
+    const contextFile = await prisma.contextFiles.findUnique({
       where: {
-        campaignId,
-        type: ContextType.MANUAL_FILE_UPLOAD,
+        id: fileId,
+      },
+    });
+
+    if (!contextFile) {
+      throw new AppError({
+        description: 'File not found.',
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    await openai.files.del(contextFile.externalSystemFileId);
+
+    await prisma.contextFiles.delete({
+      where: {
+        id: fileId,
       },
     });
   }

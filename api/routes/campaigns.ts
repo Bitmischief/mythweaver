@@ -474,26 +474,30 @@ router.get('/:campaignId/files', [
   },
 ]);
 
+const deleteCampaignFileSchema = z.object({
+  campaignId: z.coerce.number().default(0),
+  fileId: z.coerce.number().default(0),
+});
+
 router.delete('/:campaignId/files/:fileId', [
   checkAuth0Jwt,
   useInjectUserId(),
   useInjectLoggingInfo(),
-  useValidateRequest(getCampaignSchema, {
+  useValidateRequest(deleteCampaignFileSchema, {
     validationType: ValidationTypes.Route,
   }),
   async (req: Request, res: Response) => {
     const controller = new CampaignController();
 
-    const campaignId = req.params.campaignId as unknown as number;
-
-    const files = await controller.getCampaignFiles(
+    await controller.deleteCampaignFile(
       res.locals.auth.userId,
       res.locals.trackingInfo,
       useLogger(),
-      campaignId,
+      req.params.campaignId as unknown as number,
+      req.params.fileId as unknown as number,
     );
 
-    return res.status(200).send(files);
+    return res.status(200).send();
   },
 ]);
 

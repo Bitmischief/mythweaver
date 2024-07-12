@@ -4,6 +4,11 @@ import { prisma } from './providers/prisma';
 import { AppError, HttpCode } from './errors/AppError';
 import logger from './logger';
 
+console.log(
+  'received intercom access token',
+  process.env.INTERCOM_ACCESS_TOKEN,
+);
+
 const intercomClient = new Client({
   tokenAuth: { token: process.env.INTERCOM_ACCESS_TOKEN || '' },
 });
