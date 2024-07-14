@@ -50,6 +50,7 @@ const moveCollection = async () => {
         v-model="selectedMoveLocation"
         :collection-id="collection.id"
         :parent-id="undefined"
+        :conjuration-id="undefined"
       />
     </div>
     <div class="flex gap-4 mt-4">
