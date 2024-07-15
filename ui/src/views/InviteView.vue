@@ -84,6 +84,10 @@ function characterDescription(character: any) {
     )?.data.text
   );
 }
+
+const anyCharacters = computed(() => {
+  return invite?.value?.members.some((m) => m.character.length > 0);
+});
 </script>
 
 <template>
@@ -92,7 +96,11 @@ function characterDescription(character: any) {
       v-if="invite && !authStore.tokens"
       class="w-[90vw] md:w-[50vw] p-6 bg-neutral-900 rounded-[20px]"
     >
-      <img src="/images/logo-horizontal-2.svg" class="h-16 w-auto mx-auto" />
+      <img
+        src="/images/logo-horizontal-2.svg"
+        alt="mythweaver logo"
+        class="h-16 w-auto mx-auto"
+      />
 
       <div class="mt-6 text-center text-white text-2xl">
         You've been invited to join
@@ -131,11 +139,10 @@ function characterDescription(character: any) {
       </div>
       <div v-else class="text-center">
         <button class="button-gradient text-lg py-4" @click="register">
-          Create An Account
+          Create A Free MythWeaver Account
         </button>
       </div>
-
-      <div v-if="invite.members.length" class="mt-6 w-full">
+      <div v-if="anyCharacters" class="mt-6 w-full">
         <div class="flex w-full">
           <div class="grow self-center px-2">
             <hr class="border-neutral-700" />

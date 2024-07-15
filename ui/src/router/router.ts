@@ -12,8 +12,6 @@ import ListSessions from '@/components/Sessions/ListSessions.vue';
 import ListConjurations from '@/components/Conjuration/ListConjurations.vue';
 import ViewConjuration from '@/components/Conjuration/ViewConjuration.vue';
 import InviteView from '@/views/InviteView.vue';
-import PreAuthView from '@/views/PreAuthView.vue';
-import EarlyAccessView from '@/views/EarlyAccessView.vue';
 import CharactersList from '@/views/CharactersList.vue';
 import CharactersView from '@/views/CharactersView.vue';
 import CharactersNew from '@/components/Characters/NewCharacter.vue';
@@ -51,6 +49,10 @@ const router = createRouter({
       redirect: '/account-settings',
     },
     {
+      path: '/conjurations/new',
+      redirect: '/conjure',
+    },
+    {
       name: 'AUTH',
       path: '/auth',
       children: [
@@ -58,22 +60,17 @@ const router = createRouter({
           name: 'LOGIN',
           path: 'login',
           component: LoginView,
-          beforeEnter: authGuard,
-        },
-        {
-          name: 'PREAUTH',
-          path: 'preauth',
-          component: PreAuthView,
-        },
-        {
-          name: 'EARLY_ACCESS',
-          path: 'earlyaccess',
-          component: EarlyAccessView,
+          meta: {
+            noAuth: true,
+          },
         },
         {
           name: 'INVITE',
           path: 'invite',
           component: InviteView,
+          meta: {
+            noAuth: true,
+          },
         },
       ],
     },
@@ -193,10 +190,6 @@ const router = createRouter({
           beforeEnter: authGuard,
         },
       ],
-    },
-    {
-      path: '/conjurations/new',
-      redirect: '/conjure',
     },
     {
       name: 'CONJURE',

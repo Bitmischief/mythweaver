@@ -12,7 +12,6 @@ import Loader from './components/Core/Loader.vue';
 import { ServerEvent } from '@/lib/serverEvents.ts';
 import { showSuccess } from '@/lib/notifications.ts';
 import { useCurrentUserPlan, useWebsocketChannel } from '@/lib/hooks.ts';
-import { useLDClient, useLDReady } from 'launchdarkly-vue-client-sdk';
 import UpgradeContainer from '@/components/Core/Billing/UpgradeContainer.vue';
 import mixpanel from 'mixpanel-browser';
 import { getRedeemPreOrderUrl } from '@/api/billing.ts';
@@ -32,11 +31,9 @@ import { DndProvider } from 'vue3-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import CreateConjurationRelationship from '@/components/Relationships/Create/CreateConjurationRelationship.vue';
 
-const ldReady = useLDReady();
 const authStore = useAuthStore();
 const eventBus = useEventBus();
 const intercom = useIntercom();
-const ldClient = useLDClient();
 const currentUserPlan = useCurrentUserPlan();
 const route = useRoute();
 
@@ -66,16 +63,6 @@ onMounted(async () => {
     const user = useAuthStore().user;
 
     if (user) {
-      await ldClient.identify({
-        kind: 'user',
-        key: user.id.toString(),
-        email: user.email,
-        name: user.username,
-        custom: {
-          plan: user.plan,
-        },
-      });
-
       mixpanel.init(import.meta.env.VITE_MIXPANEL_TOKEN as string);
 
       mixpanel.alias(user.id.toString());
@@ -233,7 +220,7 @@ async function finishOnboarding(sourceInfo: {
           !isLoading &&
           isAuthenticated &&
           authStore.user &&
-          !(authStore.isLoading || showLoading || !ldReady) &&
+          !(authStore.isLoading || showLoading) &&
           route.meta.paidRequired &&
           currentUserPlan === BillingPlan.Free
         "
@@ -257,11 +244,14 @@ async function finishOnboarding(sourceInfo: {
           </button>
         </div>
       </div>
+      <div v-else-if="!isLoading && route.meta.noAuth">
+        <router-view></router-view>
+      </div>
     </div>
     <NotificationHandler />
 
     <div
-      v-if="isLoading || authStore.isLoading || showLoading || !ldReady"
+      v-if="isLoading || authStore.isLoading || showLoading"
       class="absolute w-full h-full bg-surface opacity-95"
     >
       <div class="flex justify-center items-center w-full h-full">
