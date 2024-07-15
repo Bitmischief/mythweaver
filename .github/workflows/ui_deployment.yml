@@ -44,19 +44,21 @@ jobs:
           echo VITE_AUTH0_CLIENT_ID=${{ secrets.AUTH0_CLIENT_ID }} >> .env
           echo VERSION=${{ github.ref_name }} >> .env
 
+      - name: Set container image name
+        run: echo "CONTAINER_IMAGE_NAME=${{ secrets.REGISTRY_NAME }}/mythweaver-ui:$(echo $GITHUB_SHA | head -c7)_${{ inputs.environmentName }}_$(echo $GITHUB_RUN_ATTEMPT)" >> $GITHUB_ENV
+
       - name: Build container image
-        run: docker build -t ${{ secrets.REGISTRY_NAME }}/mythweaver-ui:$(echo $GITHUB_SHA | head -c7)_$(echo $GITHUB_RUN_ATTEMPT) -f .docker/Dockerfile.ui .
+        run: docker build -t ${{ env.CONTAINER_IMAGE_NAME }} -f .docker/Dockerfile.ui .
 
       - name: Log in to DockerHub Container Registry with short-lived credentials
         run: docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_TOKEN }}
 
       - name: Push image to DigitalOcean Container Registry
-        run: docker push ${{ secrets.REGISTRY_NAME }}/mythweaver-ui:$(echo $GITHUB_SHA | head -c7)_$(echo $GITHUB_RUN_ATTEMPT)
+        run: docker push ${{ env.CONTAINER_IMAGE_NAME }}
 
       - name: Update deployment file
         run: >
-          TAG=$(echo $GITHUB_SHA | head -c7)_$(echo $GITHUB_RUN_ATTEMPT) && 
-          sed -i 's|<IMAGE>|${{ secrets.REGISTRY_NAME }}/mythweaver-ui:'${TAG}'|' $GITHUB_WORKSPACE/.k8s/ui-deployment.yml
+          sed -i 's|<IMAGE>|${{ env.CONTAINER_IMAGE_NAME }}|' $GITHUB_WORKSPACE/.k8s/ui-deployment.yml
 
       - name: Save DigitalOcean kubeconfig with short-lived credentials
         run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 ${{ secrets.CLUSTER_NAME }}
