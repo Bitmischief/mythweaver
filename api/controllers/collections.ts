@@ -534,6 +534,17 @@ export default class CollectionController {
       });
     }
 
+    if (
+      !collection.parentCollectionId &&
+      !parentCollection.parentCollectionId
+    ) {
+      throw new AppError({
+        description:
+          'Cannot move root campaign collection into another campaign collection.',
+        httpCode: HttpCode.BAD_REQUEST,
+      });
+    }
+
     logger.info('Posting move collection', {
       userId,
       postMoveCollectionRequest,
