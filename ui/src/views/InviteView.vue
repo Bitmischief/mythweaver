@@ -56,6 +56,17 @@ const acceptInvite = async () => {
   }
 };
 
+const login = async () => {
+  await loginWithRedirect({
+    authorizationParams: {
+      screen_hint: 'login',
+    },
+    appState: {
+      target: `/auth/invite?code=${inviteCode.value}`,
+    },
+  });
+};
+
 const register = async () => {
   await loginWithRedirect({
     authorizationParams: {
@@ -138,7 +149,11 @@ const anyCharacters = computed(() => {
         </button>
       </div>
       <div v-else class="text-center">
-        <button class="button-gradient text-lg py-4" @click="register">
+        <button class="button-gradient text-lg py-2" @click="login">
+          Log In
+        </button>
+        <div class="text-neutral-500 text-lg">Or</div>
+        <button class="button-gradient text-lg py-2" @click="register">
           Create A Free MythWeaver Account
         </button>
       </div>
