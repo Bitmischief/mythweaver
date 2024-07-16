@@ -192,15 +192,6 @@ const conjurationName = computed(() => {
           class="rounded-[16px] aspect-square pointer-events-none"
         />
         <div
-          class="absolute flex justify-center items-center rounded-full bg-white/50 text-black text-xs font-bold"
-          :class="{
-            'left-1 top-1 h-4 px-2': condensedView,
-            'left-2 top-2 h-6 px-4': !condensedView,
-          }"
-        >
-          {{ conjurationType(conjuration) }}
-        </div>
-        <div
           v-if="showBookmarkIcon"
           class="absolute text-white/75 group/bookmark"
           :class="{
@@ -261,6 +252,11 @@ const conjurationName = computed(() => {
             v-if="hideTags !== true"
             class="flex flex-wrap max-h-[3.5em] overflow-hidden"
           >
+            <div class="tag bg-white/75 text-black flex group group-hover:pr-2">
+              <span class="self-center">
+                {{ conjurationType(conjuration) }}
+              </span>
+            </div>
             <div
               v-for="(tag, i) in conjuration.tags"
               :key="`${i}_${conjuration.id}_tag`"

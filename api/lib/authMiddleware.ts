@@ -112,7 +112,7 @@ const createNewUser = async (res: Response, email: string, logger: any) => {
     'Initial credits for signup',
   );
 
-  await prisma.campaign.create({
+  const campaign = await prisma.campaign.create({
     data: {
       name: 'My Campaign',
       description: '',
@@ -125,6 +125,14 @@ const createNewUser = async (res: Response, email: string, logger: any) => {
           joinedAt: new Date(),
         },
       },
+    },
+  });
+
+  await prisma.collections.create({
+    data: {
+      campaignId: campaign.id,
+      name: campaign.name,
+      userId: user.id,
     },
   });
 

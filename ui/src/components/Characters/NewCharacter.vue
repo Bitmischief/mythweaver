@@ -32,9 +32,9 @@ onMounted(async () => {
   channel.bind(ServerEvent.PrimaryImageSet, primaryImageSetHandler);
 });
 
-function primaryImageSetHandler(data: any[]) {
+function primaryImageSetHandler(data: any) {
   setTimeout(() => {
-    character.value.images = data;
+    character.value.images = data.images;
     step.value++;
   }, 50);
 }

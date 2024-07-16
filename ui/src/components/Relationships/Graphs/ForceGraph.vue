@@ -396,6 +396,12 @@ const viewConjuration = () => {
           Outgoing Relationships
         </div>
       </div>
+      <div
+        v-if="!data.nodes.length"
+        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-neutral-500"
+      >
+        No Relationships
+      </div>
     </div>
   </div>
 </template>

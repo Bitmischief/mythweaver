@@ -14,6 +14,7 @@ const props = defineProps<{
   modelValue: any;
   collectionId: number | undefined;
   parentId: number | undefined;
+  conjurationId: number | undefined;
 }>();
 
 const emit = defineEmits(['update:modelValue']);
@@ -36,7 +37,11 @@ onMounted(async () => {
 const fetchCollections = async () => {
   loading.value = true;
   try {
-    const response = await getCollections(props.parentId);
+    const response = await getCollections(
+      props.parentId,
+      undefined,
+      props.conjurationId,
+    );
     return (
       response.data?.collections?.filter(
         (c: any) => c.id !== props.collectionId,
@@ -120,8 +125,12 @@ const addCollection = async () => {
               </div>
             </div>
             <div
-              v-if="value?.id === col.id"
-              class="text-violet-500 self-center"
+              v-if="value?.id === col.id || col.containsConjuration"
+              class="self-center"
+              :class="{
+                'text-violet-500': value?.id === col.id,
+                'text-neutral-500': col.containsConjuration,
+              }"
             >
               <CheckCircleIcon class="h-6 w-6 self-center" />
             </div>
@@ -135,6 +144,7 @@ const addCollection = async () => {
             v-model="value"
             :collection-id="props.collectionId"
             :parent-id="col.id"
+            :conjuration-id="props.conjurationId"
           />
         </div>
       </div>

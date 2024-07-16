@@ -18,6 +18,7 @@
   overflow: hidden;
   z-index: 5;
 }
+
 .loader:before,
 .loader:after {
   content: '';
@@ -29,6 +30,7 @@
   background-color: rgba(#050712, 0.4);
   animation: wave 5s linear infinite;
 }
+
 .loader:before {
   width: 100%;
   height: 100%;

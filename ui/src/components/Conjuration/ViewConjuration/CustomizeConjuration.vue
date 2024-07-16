@@ -97,16 +97,20 @@ function imageCreatedHandler(image: any) {
   }
 }
 
-function primaryImageSetHandler(data: any[]) {
-  editableConjuration.value.images = data;
-  imageKey.value++;
-  showSuccess({ message: 'Image saved' });
+function primaryImageSetHandler(data: any) {
+  if (data.context?.conjurationId === editableConjuration.value.id) {
+    editableConjuration.value.images = data.images;
+    imageKey.value++;
+    showSuccess({ message: 'Image saved' });
+  }
 }
 
 function imageUpscaledHandler(data: any) {
-  editableConjuration.value.images = [{ ...data }];
-  imageKey.value++;
-  showSuccess({ message: 'Image upscaled' });
+  if (data.id === primaryImage.value?.id) {
+    editableConjuration.value.images = [{ ...data }];
+    imageKey.value++;
+    showSuccess({ message: 'Image upscaled' });
+  }
 }
 
 function imageFilteredHandler() {
@@ -339,6 +343,9 @@ async function viewGraph() {
         <div class="mt-5 px-1 flex flex-wrap">
           <div class="text-xs text-neutral-400">TAGS</div>
           <div class="flex flex-wrap">
+            <div class="tag bg-white/75 text-black flex group group-hover:pr-2">
+              <span class="self-center">{{ conjurationType }}</span>
+            </div>
             <div
               v-for="tag of editableConjuration.tags"
               :key="`${editableConjuration.id}-${tag}`"

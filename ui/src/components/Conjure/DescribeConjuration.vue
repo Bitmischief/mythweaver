@@ -87,16 +87,20 @@ function handleBeginConjuring(data: { conjurationRequestId: number }) {
 }
 
 function conjurationCreatedHandler(data: any) {
-  value.value = data;
-  emit('next');
-  generating.value = false;
+  if (conjurationRequestId.value === data.conjurationRequestId) {
+    value.value = data;
+    emit('next');
+    generating.value = false;
+  }
 }
 
-function conjurationErrorHandler() {
-  generating.value = false;
-  showError({
-    message: `There was a server error creating your ${props.generator.name}. Please try again, or reach out to support if the problem persists.`,
-  });
+function conjurationErrorHandler(data: any) {
+  if (conjurationRequestId.value === data.conjurationRequestId) {
+    generating.value = false;
+    showError({
+      message: `There was a server error creating your ${props.generator.name}. Please try again, or reach out to support if the problem persists.`,
+    });
+  }
 }
 
 onUnmounted(() => {

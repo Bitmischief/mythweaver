@@ -56,6 +56,17 @@ const acceptInvite = async () => {
   }
 };
 
+const login = async () => {
+  await loginWithRedirect({
+    authorizationParams: {
+      screen_hint: 'login',
+    },
+    appState: {
+      target: `/auth/invite?code=${inviteCode.value}`,
+    },
+  });
+};
+
 const register = async () => {
   await loginWithRedirect({
     authorizationParams: {
@@ -84,6 +95,10 @@ function characterDescription(character: any) {
     )?.data.text
   );
 }
+
+const anyCharacters = computed(() => {
+  return invite?.value?.members.some((m) => m.character.length > 0);
+});
 </script>
 
 <template>
@@ -92,7 +107,11 @@ function characterDescription(character: any) {
       v-if="invite && !authStore.tokens"
       class="w-[90vw] md:w-[50vw] p-6 bg-neutral-900 rounded-[20px]"
     >
-      <img src="/images/logo-horizontal-2.svg" class="h-16 w-auto mx-auto" />
+      <img
+        src="/images/logo-horizontal-2.svg"
+        alt="mythweaver logo"
+        class="h-16 w-auto mx-auto"
+      />
 
       <div class="mt-6 text-center text-white text-2xl">
         You've been invited to join
@@ -130,12 +149,15 @@ function characterDescription(character: any) {
         </button>
       </div>
       <div v-else class="text-center">
-        <button class="button-gradient text-lg py-4" @click="register">
-          Create An Account
+        <button class="button-gradient text-lg py-2" @click="login">
+          Log In
+        </button>
+        <div class="text-neutral-500 text-lg">Or</div>
+        <button class="button-gradient text-lg py-2" @click="register">
+          Create A Free MythWeaver Account
         </button>
       </div>
-
-      <div v-if="invite.members.length" class="mt-6 w-full">
+      <div v-if="anyCharacters" class="mt-6 w-full">
         <div class="flex w-full">
           <div class="grow self-center px-2">
             <hr class="border-neutral-700" />

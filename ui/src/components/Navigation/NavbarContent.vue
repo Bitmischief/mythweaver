@@ -88,7 +88,7 @@ const joinedCampaigns = computed(() => {
 </script>
 
 <template>
-  <div class="flex w-full flex-col mt-4">
+  <div class="flex w-full flex-col my-4">
     <router-link
       class="button-gradient flex justify-center text-white"
       to="/conjure"

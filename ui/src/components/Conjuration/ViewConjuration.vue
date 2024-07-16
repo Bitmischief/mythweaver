@@ -470,7 +470,10 @@ async function addToCampaign() {
       >
         <div class="flex gap-6 justify-between">
           <div class="text-lg self-center">Change Conjuration Type</div>
-          <div class="self-center" @click="showConvertConjurationType = false">
+          <div
+            class="self-center cursor-pointer"
+            @click="showConvertConjurationType = false"
+          >
             <XCircleIcon class="h-6 w-6" />
           </div>
         </div>

@@ -66,10 +66,15 @@ const moveConjuration = async () => {
         v-model="selectedMoveLocation"
         :collection-id="undefined"
         :parent-id="undefined"
+        :conjuration-id="conjuration.id"
       />
     </div>
     <div
-      v-if="selectedMoveLocation && selectedMoveLocation.id === collectionId"
+      v-if="
+        selectedMoveLocation &&
+        (selectedMoveLocation.containsConjuration ||
+          selectedMoveLocation.id === collectionId)
+      "
       class="text-sm text-neutral-500 mx-2 mt-4"
     >
       {{ conjuration.name }} is already in this collection.
@@ -87,7 +92,9 @@ const moveConjuration = async () => {
       <button
         class="button-gradient basis-1/2"
         :disabled="
-          !selectedMoveLocation || selectedMoveLocation.id === collectionId
+          !selectedMoveLocation ||
+          selectedMoveLocation.containsConjuration ||
+          selectedMoveLocation.id === collectionId
         "
         @click="moveConjuration"
       >
