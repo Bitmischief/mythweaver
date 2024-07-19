@@ -108,7 +108,7 @@ const artistMoneyRaised = computed(() =>
         </MenuButton>
 
         <template #content>
-          <div class="relative z-60 bg-surface-3 p-2 rounded-[20px]">
+          <div class="relative z-50 bg-surface-3 p-2 rounded-[20px]">
             <MenuItem class="mb-2">
               <router-link to="/account-settings">
                 <div

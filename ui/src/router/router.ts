@@ -4,7 +4,6 @@ import CampaignsView from '@/views/CampaignsView.vue';
 import ListCampaigns from '@/components/Campaigns/ListCampaigns.vue';
 import NewCampaign from '@/components/Campaigns/NewCampaign.vue';
 import ConjuringView from '@/views/ConjuringView.vue';
-import ListConjurers from '@/components/Conjuration/ListConjurers.vue';
 import ViewConjurer from '@/components/Conjuration/ViewConjurer.vue';
 import ViewCampaign from '@/components/Campaigns/ViewCampaign.vue';
 import SessionsView from '@/views/SessionsView.vue';
@@ -13,8 +12,6 @@ import ListSessions from '@/components/Sessions/ListSessions.vue';
 import ListConjurations from '@/components/Conjuration/ListConjurations.vue';
 import ViewConjuration from '@/components/Conjuration/ViewConjuration.vue';
 import InviteView from '@/views/InviteView.vue';
-import PreAuthView from '@/views/PreAuthView.vue';
-import EarlyAccessView from '@/views/EarlyAccessView.vue';
 import CharactersList from '@/views/CharactersList.vue';
 import CharactersView from '@/views/CharactersView.vue';
 import CharactersNew from '@/components/Characters/NewCharacter.vue';
@@ -52,6 +49,10 @@ const router = createRouter({
       redirect: '/account-settings',
     },
     {
+      path: '/conjurations/new',
+      redirect: '/conjure',
+    },
+    {
       name: 'AUTH',
       path: '/auth',
       children: [
@@ -59,22 +60,17 @@ const router = createRouter({
           name: 'LOGIN',
           path: 'login',
           component: LoginView,
-          beforeEnter: authGuard,
-        },
-        {
-          name: 'PREAUTH',
-          path: 'preauth',
-          component: PreAuthView,
-        },
-        {
-          name: 'EARLY_ACCESS',
-          path: 'earlyaccess',
-          component: EarlyAccessView,
+          meta: {
+            noAuth: true,
+          },
         },
         {
           name: 'INVITE',
           path: 'invite',
           component: InviteView,
+          meta: {
+            noAuth: true,
+          },
         },
       ],
     },
@@ -137,14 +133,6 @@ const router = createRouter({
             {
               path: 'view/:conjurationId',
               component: ViewConjuration,
-              beforeEnter: authGuard,
-              meta: {
-                paidRequired: true,
-              },
-            },
-            {
-              path: 'new',
-              component: ListConjurers,
               beforeEnter: authGuard,
               meta: {
                 paidRequired: true,

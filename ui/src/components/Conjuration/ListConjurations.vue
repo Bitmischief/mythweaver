@@ -47,6 +47,7 @@ const images = [
 const currentUserPlan = useCurrentUserPlan();
 
 const pagingDone = ref(false);
+const pageLoading = ref(false);
 const conjurations = ref<Conjuration[]>([]);
 const showFilters = ref(false);
 const loading = ref(false);
@@ -160,6 +161,8 @@ const pageConjurations = debounce(() => {
 async function loadConjurations(append = false) {
   if (pagingDone.value || currentUserPlan.value === BillingPlan.Free) return;
 
+  pageLoading.value = true;
+
   const conjurationsResponse = await getConjurations({
     ...conjurationsQuery.value,
   });
@@ -173,6 +176,8 @@ async function loadConjurations(append = false) {
   if (conjurationsResponse.data.data.length === 0) {
     pagingDone.value = true;
   }
+
+  pageLoading.value = false;
 }
 
 function handleFiltersUpdated(filters: any) {
@@ -309,6 +314,27 @@ const clearFilters = () => {
 
   <div v-if="currentUserPlan !== BillingPlan.Free">
     <div
+      v-if="!conjurations.length && loading"
+      class="grid place-items-stretch gap-2 md:gap-5 animate-pulse"
+      :class="{
+        'grid-cols-1 md:grid-cols-2 xl:grid-cols-3': viewType === 'list',
+        'grid-cols-2 md:grid-cols-3 lg:grid-cols-4': viewType === 'grid',
+      }"
+    >
+      <div
+        v-for="n in 12"
+        :key="`sk_${n}`"
+        class="rounded-[24px] bg-surface-2 p-2"
+      >
+        <div class="w-full rounded-[18px] aspect-square bg-surface-3"></div>
+        <div class="w-full rounded-full bg-surface-3 mt-2 h-[1.5em]"></div>
+        <div class="flex gap-2">
+          <div class="rounded-full bg-surface-3 mt-2 h-[1.5em] w-[20%]"></div>
+          <div class="rounded-full bg-surface-3 mt-2 h-[1.5em] w-[20%]"></div>
+        </div>
+      </div>
+    </div>
+    <div
       v-if="!conjurations.length && conjurationsMineQuery.saved && !loading"
       class="flex justify-center h-full"
     >
@@ -350,7 +376,11 @@ const clearFilters = () => {
         @remove-conjuration="handleConjurationChange"
       />
     </div>
-
+    <div v-if="pageLoading" class="my-12 pb-12 w-full">
+      <div class="text-center text-xl text-gray-500 divider animate-pulse">
+        Loading More...
+      </div>
+    </div>
     <div v-if="conjurations.length && pagingDone" class="my-12 pb-12 w-full">
       <div class="text-center text-xl text-gray-500 divider">
         No more conjurations to show!

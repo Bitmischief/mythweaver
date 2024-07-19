@@ -278,20 +278,39 @@ export default class RelationshipController {
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
     @Inject() logger: MythWeaverLogger,
-    @Query() depthLimit?: number,
+    @Query() campaignId?: number,
   ): Promise<{
     nodes: Conjuration[];
     links: GraphLinkResponse[];
   }> {
     logger.info('Fetching relationship graph', {
       userId,
-      depthLimit,
+      campaignId,
     });
 
-    const nodes = (await prisma.$queryRawUnsafe(`
+    let conjurationIds: any[] = [];
+    if (campaignId) {
+      conjurationIds = await prisma.collectionConjuration.findMany({
+        select: {
+          conjurationId: true,
+        },
+        distinct: ['conjurationId'],
+        where: {
+          collection: {
+            campaignId: campaignId,
+          },
+        },
+      });
+    }
+
+    let nodes: Conjuration[] = [];
+    let links: GraphLinkResponse[] = [];
+
+    if (!campaignId || (campaignId && conjurationIds.length)) {
+      nodes = (await prisma.$queryRawUnsafe(`
         SELECT DISTINCT ON (conj.id) conj.*
         FROM conjuration_relationships cr
-            LEFT JOIN (
+            INNER JOIN (
                 SELECT c.*, i.uri as "imageUri"
                 FROM conjurations c
                     LEFT JOIN (
@@ -299,15 +318,24 @@ export default class RelationshipController {
                         FROM images
                         WHERE "primary" = true
                     ) i ON i."conjurationId" = c.id
+                ${campaignId ? `WHERE c.id IN (${conjurationIds.map((c) => c.conjurationId).join(',')})` : ''}
             ) as conj ON cr."previousNodeId" = conj.id OR cr."nextNodeId" = conj.id
         WHERE cr."previousType" = 'CONJURATION' AND cr."nextType" = 'CONJURATION' AND cr."userId" = ${userId}
       `)) as Conjuration[];
 
-    const links = (await prisma.$queryRawUnsafe(`
+      links = (await prisma.$queryRawUnsafe(`
         SELECT cr."previousNodeId" as source, cr."nextNodeId" as target, cr.comment as label
         FROM conjuration_relationships cr
-        WHERE cr."previousType" = 'CONJURATION' AND cr."nextType" = 'CONJURATION' AND cr."userId" = ${userId}
+        WHERE cr."previousType" = 'CONJURATION' AND 
+              cr."nextType" = 'CONJURATION' AND
+              cr."userId" = ${userId} 
+              ${
+                campaignId
+                  ? `AND cr."previousNodeId" IN (${conjurationIds.map((c) => c.conjurationId).join(',')}) AND cr."nextNodeId" IN (${conjurationIds.map((c) => c.conjurationId).join(',')})`
+                  : ''
+              }
       `)) as GraphLinkResponse[];
+    }
 
     return {
       nodes: nodes,

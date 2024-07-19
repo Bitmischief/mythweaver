@@ -118,10 +118,6 @@ const alreadyUpscaled = computed(() => {
 <template>
   <div class="relative">
     <div class="relative">
-      <div v-if="image.uri" class="image-badge">
-        {{ type }}
-      </div>
-
       <div
         v-if="image.imageModel?.description"
         class="absolute flex bottom-2 right-2 cursor-pointer bg-neutral-500/50 rounded-[8px]"

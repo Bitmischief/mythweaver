@@ -309,6 +309,14 @@ export default class AuthController {
 
       await createCampaign({ userId: user.id, name: 'My Campaign' });
 
+      await prisma.collections.create({
+        data: {
+          campaignId: campaign.id,
+          name: campaign.name,
+          userId: user.id,
+        },
+      });
+
       const response = (await mailchimpClient.lists.batchListMembers(
         process.env.MAILCHIMP_AUDIENCE_ID as string,
         {

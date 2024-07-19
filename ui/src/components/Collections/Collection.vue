@@ -5,7 +5,7 @@ import {
   patchCollection,
   postMoveCollection,
 } from '@/api/collections.ts';
-import { showError, showSuccess } from '@/lib/notifications.ts';
+import { showError, showSuccess, showInfo } from '@/lib/notifications.ts';
 import { useDrag, useDrop } from 'vue3-dnd';
 import Menu from '@/components/Core/General/Menu.vue';
 import { MenuButton, MenuItems, MenuItem } from '@headlessui/vue';
@@ -50,7 +50,13 @@ const [collect, drag] = useDrag(() => ({
       dropResult?.type === 'Collection' &&
       item.id !== dropResult.id
     ) {
-      await postMoveCollection(item.id, { parentCollectionId: dropResult.id });
+      try {
+        await postMoveCollection(item.id, {
+          parentCollectionId: dropResult.id,
+        });
+      } catch (e: any) {
+        showInfo({ message: e.response.data.message });
+      }
     }
   },
   collect: (monitor) => ({

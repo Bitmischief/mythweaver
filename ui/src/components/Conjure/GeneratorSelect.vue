@@ -68,6 +68,7 @@ const proOnly = (gen: Conjurer) => {
         'relative proOnly': proOnly(gens),
         'relative group/experimental': !proOnly(gens) && gens.experimental,
       }"
+      @mouseover="!proOnly(gens) ? (value = gens) : null"
       @click="
         !proOnly(gens)
           ? (value = gens)

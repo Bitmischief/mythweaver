@@ -146,25 +146,29 @@ function regenerate() {
 }
 
 function imageCreatedHandler(data: any) {
-  images.value.push(data);
-  conjuring.value = false;
-  loading.value = false;
-  if (selectedImg.value === null) {
-    selectedImg.value = data;
+  if (checkWebsocketContext(data)) {
+    images.value.push(data.image);
+    conjuring.value = false;
+    loading.value = false;
+    if (selectedImg.value === null) {
+      selectedImg.value = data.image;
+    }
   }
 }
 
-function imageFilteredHandler() {
-  showError({
-    message:
-      'The returned image did not pass our NSFW content filter. Please rephrase your prompt to avoid NSFW content, and try again.',
-  });
-  imageFiltered.value = true;
-  count.value--;
+function imageFilteredHandler(data: any) {
+  if (checkWebsocketContext(data)) {
+    showError({
+      message:
+        'The returned image did not pass our NSFW content filter. Please rephrase your prompt to avoid NSFW content, and try again.',
+    });
+    imageFiltered.value = true;
+    count.value--;
 
-  if (count.value === 0) {
-    conjuring.value = false;
-    loading.value = false;
+    if (count.value === 0) {
+      conjuring.value = false;
+      loading.value = false;
+    }
   }
 }
 
@@ -220,38 +224,58 @@ function imagePromptRephrasedHandler(prompt: string) {
 }
 
 function imageErrorHandler(data: any) {
-  showError({
-    message: data.message,
-  });
-  imageError.value = true;
-  conjuring.value = false;
-  upscaling.value = false;
-}
-
-function imageUpscaledHandler(data: any) {
-  selectedImg.value = data;
-  upscaling.value = false;
-  if (props.inModal) {
-    eventBus.$emit('toggle-customize-image-modal');
+  if (checkWebsocketContext(data)) {
+    showError({
+      message: data.message,
+    });
+    imageError.value = true;
+    conjuring.value = false;
+    upscaling.value = false;
   }
 }
 
-function imageUpscalingDoneHandler() {
-  loading.value = true;
-  showSuccess({ message: 'Image successfully upscaled!' });
+function imageUpscaledHandler(data: any) {
+  if (data.id === props.image.id) {
+    selectedImg.value = data;
+    upscaling.value = false;
+    if (props.inModal) {
+      eventBus.$emit('toggle-customize-image-modal');
+    }
+  }
+}
+
+function imageUpscalingDoneHandler(data: any) {
+  if (data.id === props.image.id) {
+    loading.value = true;
+    showSuccess({ message: 'Image successfully upscaled!' });
+  }
 }
 
 const imageTimeouts = ref(0);
 
-function imageGenerationTimeoutHandler() {
-  imageTimeouts.value += 1;
-  if (imageTimeouts.value === count.value) {
-    imageErrorMessage.value =
-      'The image generation was taking longer than normal so the request was cancelled. You have not been charged any image credits. This issue could be due to a high traffic or a temporary provider outage. Please try again.';
-    imageError.value = true;
-    conjuring.value = false;
-    upscaling.value = false;
-    imageTimeouts.value = 0;
+function imageGenerationTimeoutHandler(data: any) {
+  if (checkWebsocketContext(data)) {
+    imageTimeouts.value += 1;
+    if (imageTimeouts.value === count.value) {
+      imageErrorMessage.value =
+        'The image generation was taking longer than normal so the request was cancelled. You have not been charged any image credits. This issue could be due to a high traffic or a temporary provider outage. Please try again.';
+      imageError.value = true;
+      conjuring.value = false;
+      upscaling.value = false;
+      imageTimeouts.value = 0;
+    }
+  }
+}
+
+function checkWebsocketContext(data: any) {
+  if (props.linking?.conjurationId) {
+    return data.context?.conjurationId === props.linking?.conjurationId;
+  } else if (props.linking?.sessionId) {
+    return data.context?.sessionId === props.linking?.sessionId;
+  } else if (props.linking?.characterId) {
+    return data.context?.characterId === props.linking?.characterId;
+  } else {
+    return true;
   }
 }
 

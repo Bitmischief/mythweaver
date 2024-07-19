@@ -198,7 +198,7 @@ export class GeneratorController {
     }
 
     if (!user.earlyAccessExempt) {
-      if (user.imageCredits < request.count) {
+      if (request.type !== 'text' && user.imageCredits < request.count) {
         throw new AppError({
           description:
             'You do not have enough image credits to generate this many images. Please try with fewer images, or buy more credits.',
@@ -206,8 +206,6 @@ export class GeneratorController {
         });
       }
     }
-
-    await validateConjurationCountRestriction(userId);
 
     track(AppEvent.Conjure, userId, trackingInfo);
 

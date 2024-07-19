@@ -112,21 +112,25 @@ onMounted(async () => {
 });
 
 function imageCreatedHandler(data: any) {
-  images.value.push(data);
-  conjuring.value = false;
-  loading.value = false;
-  if (selectedImg.value === null) {
-    selectedImg.value = data;
+  if (data.context?.conjurationId === props.linking?.conjurationId) {
+    images.value.push(data);
+    conjuring.value = false;
+    loading.value = false;
+    if (selectedImg.value === null) {
+      selectedImg.value = data;
+    }
   }
 }
 
-function imageFilteredHandler() {
-  showError({
-    message:
-      'The generated image was filtered out by our content moderation system. Please try again.',
-  });
-  imageFiltered.value = true;
-  conjuring.value = false;
+function imageFilteredHandler(data: any) {
+  if (data.context?.conjurationId === props.linking?.conjurationId) {
+    showError({
+      message:
+        'The generated image was filtered out by our content moderation system. Please try again.',
+    });
+    imageFiltered.value = true;
+    conjuring.value = false;
+  }
 }
 
 onUnmounted(() => {
@@ -158,25 +162,31 @@ function imagePromptRephrasedHandler(prompt: string) {
 }
 
 function imageErrorHandler(data: any) {
-  showError({
-    message: data.message,
-  });
-  imageError.value = true;
-  conjuring.value = false;
-  upscaling.value = false;
-}
-
-function imageUpscaledHandler(data: any) {
-  selectedImg.value = data;
-  upscaling.value = false;
-  if (props.inModal) {
-    eventBus.$emit('toggle-customize-image-modal');
+  if (data.context?.conjurationId === props.linking?.conjurationId) {
+    showError({
+      message: data.message,
+    });
+    imageError.value = true;
+    conjuring.value = false;
+    upscaling.value = false;
   }
 }
 
-function imageUpscalingDoneHandler() {
-  loading.value = true;
-  showSuccess({ message: 'Image successfully upscaled!' });
+function imageUpscaledHandler(data: any) {
+  if (data.id === props.image.id) {
+    selectedImg.value = data;
+    upscaling.value = false;
+    if (props.inModal) {
+      eventBus.$emit('toggle-customize-image-modal');
+    }
+  }
+}
+
+function imageUpscalingDoneHandler(data: any) {
+  if (data.id === props.image.id) {
+    loading.value = true;
+    showSuccess({ message: 'Image successfully upscaled!' });
+  }
 }
 
 async function conjure() {

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
-import { useLDFlag } from 'launchdarkly-vue-client-sdk';
 import { onMounted, ref, watch } from 'vue';
 import MeteorShower from '@/components/Core/MeteorShower.vue';
 import GeneratorSelect from '@/components/Conjure/GeneratorSelect.vue';
@@ -11,7 +10,6 @@ import EditConjurationDetails from '@/components/Conjure/EditConjurationDetails.
 import CreateConjurationImage from '@/components/Conjure/CreateConjurationImage.vue';
 
 const current = ref<'generator' | 'conjure' | 'edit' | 'image'>('generator');
-const conjureV2 = useLDFlag('conjure-v2');
 const router = useRouter();
 const route = useRoute();
 
@@ -20,12 +18,14 @@ const generators = ref<Conjurer[]>([]);
 const conjuration = ref<Conjuration>();
 const defaultPrompt = ref('');
 
-watch(conjureV2, () => {
-  checkConjureV2();
+watch(route, () => {
+  if (route.fullPath === '/conjure') {
+    current.value = 'generator';
+    defaultPrompt.value = '';
+  }
 });
 
 onMounted(async () => {
-  checkConjureV2();
   await loadGenerators();
 
   if (route.query.code) {
@@ -46,12 +46,6 @@ onMounted(async () => {
     current.value = 'generator';
   }
 });
-
-const checkConjureV2 = () => {
-  if (conjureV2.value === false) {
-    router.push({ path: 'conjurations/new', query: route.query });
-  }
-};
 
 const back = () => {
   switch (current.value) {

@@ -659,7 +659,11 @@ export default class CampaignController {
     const campaign = await prisma.campaign.findUnique({
       where: {
         id: campaignId,
-        userId: userId,
+        members: {
+          some: {
+            userId,
+          },
+        },
       },
     });
 
@@ -706,7 +710,7 @@ export default class CampaignController {
   }
 
   @Security('jwt')
-  @OperationId('postCampaignConjuration')
+  @OperationId('deleteCampaignConjuration')
   @Delete('/:campaignId/conjurations/:conjurationId')
   public async deleteCampaignConjuration(
     @Inject() userId: number,
@@ -720,7 +724,11 @@ export default class CampaignController {
     const campaign = await prisma.campaign.findUnique({
       where: {
         id: campaignId,
-        userId: userId,
+        members: {
+          some: {
+            userId,
+          },
+        },
       },
     });
 

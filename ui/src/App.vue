@@ -7,17 +7,11 @@ import { onMounted, onBeforeMount, onUpdated, ref, watch } from 'vue';
 import NavBarHeader from '@/components/Navigation/NavBarHeader.vue';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import LightboxRoot from '@/components/LightboxRoot.vue';
-import CustomizeConjurationImage from '@/components/Conjuration/ViewConjuration/CustomizeConjurationImage.vue';
 import { useIntercom } from '@homebaseai/vue3-intercom';
 import Loader from './components/Core/Loader.vue';
 import { ServerEvent } from '@/lib/serverEvents.ts';
 import { showSuccess } from '@/lib/notifications.ts';
 import { useCurrentUserPlan, useWebsocketChannel } from '@/lib/hooks.ts';
-import {
-  useLDClient,
-  useLDFlag,
-  useLDReady,
-} from 'launchdarkly-vue-client-sdk';
 import UpgradeContainer from '@/components/Core/Billing/UpgradeContainer.vue';
 import mixpanel from 'mixpanel-browser';
 import { getRedeemPreOrderUrl } from '@/api/billing.ts';
@@ -37,18 +31,15 @@ import { DndProvider } from 'vue3-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import CreateConjurationRelationship from '@/components/Relationships/Create/CreateConjurationRelationship.vue';
 
-const ldReady = useLDReady();
 const authStore = useAuthStore();
 const eventBus = useEventBus();
 const intercom = useIntercom();
-const ldClient = useLDClient();
 const currentUserPlan = useCurrentUserPlan();
 const route = useRoute();
 
 const showPreorderRedemptionModal = ref(false);
 const showUpgradeModal = ref(false);
 const { isLoading, isAuthenticated } = useAuth0();
-const conjureV2 = useLDFlag('conjure-v2');
 const showUserSourceModal = ref(false);
 
 onBeforeMount(async () => {
@@ -72,16 +63,6 @@ onMounted(async () => {
     const user = useAuthStore().user;
 
     if (user) {
-      await ldClient.identify({
-        kind: 'user',
-        key: user.id.toString(),
-        email: user.email,
-        name: user.username,
-        custom: {
-          plan: user.plan,
-        },
-      });
-
       mixpanel.init(import.meta.env.VITE_MIXPANEL_TOKEN as string);
 
       mixpanel.alias(user.id.toString());
@@ -212,7 +193,7 @@ async function finishOnboarding(sourceInfo: {
         v-if="!!authStore.user"
         class="hidden md:flex border-b border-zinc-900"
       >
-        <div class="w-full bg-surface-2 z-10 h-[4rem] flex">
+        <div class="w-full bg-surface-2 z-20 h-[4rem] flex">
           <NavBarHeader />
         </div>
       </div>
@@ -239,7 +220,7 @@ async function finishOnboarding(sourceInfo: {
           !isLoading &&
           isAuthenticated &&
           authStore.user &&
-          !(authStore.isLoading || showLoading || !ldReady) &&
+          !(authStore.isLoading || showLoading) &&
           route.meta.paidRequired &&
           currentUserPlan === BillingPlan.Free
         "
@@ -263,11 +244,14 @@ async function finishOnboarding(sourceInfo: {
           </button>
         </div>
       </div>
+      <div v-else-if="!isLoading && route.meta.noAuth">
+        <router-view></router-view>
+      </div>
     </div>
     <NotificationHandler />
 
     <div
-      v-if="isLoading || authStore.isLoading || showLoading || !ldReady"
+      v-if="isLoading || authStore.isLoading || showLoading"
       class="absolute w-full h-full bg-surface opacity-95"
     >
       <div class="flex justify-center items-center w-full h-full">
@@ -284,18 +268,10 @@ async function finishOnboarding(sourceInfo: {
       class="relative pt-2 md:m-6 md:p-6 md:px-12 bg-surface-2 rounded-[20px] min-w-[70vw] max-w-[90vw] text-white mb-12"
     >
       <ConjureImage
-        v-if="conjureV2"
         :image="customizeImageArgs?.image"
         :linking="customizeImageArgs?.linking"
         :history-mode="customizeImageArgs?.historyMode"
         :show-image-credits="customizeImageArgs?.showImageCredits"
-        in-modal
-        @cancel="showCustomizeImageModal = false"
-      />
-      <CustomizeConjurationImage
-        v-else
-        :image="customizeImageArgs?.image"
-        :linking="customizeImageArgs?.linking"
         in-modal
         @cancel="showCustomizeImageModal = false"
       />
