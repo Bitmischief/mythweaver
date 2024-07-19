@@ -37,6 +37,8 @@ export enum WebSocketEvent {
   ImageFiltered = 'image-filtered',
   CollectionConjurationMoved = 'collection-conjuration-moved',
   CollectionMoved = 'collection-moved',
+  CampaignFileUploaded = 'campaign-file-uploaded',
+  CampaignFileProcessed = 'campaign-file-processed',
 }
 
 export interface WebSocketContext {

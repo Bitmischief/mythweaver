@@ -8,6 +8,7 @@ export default function useFileList() {
     const newUploadableFiles = [...newFiles]
       .map((file) => new UploadableFile(file))
       .filter((file) => !fileExists(file.id));
+
     files.value = files.value.concat(newUploadableFiles);
   }
 

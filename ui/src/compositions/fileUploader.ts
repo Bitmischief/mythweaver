@@ -6,17 +6,23 @@ export async function uploadFile(file: UploadableFile, url: string): Promise<Axi
   const formData = new FormData();
   formData.append('file', file.file);
 
-  // track status and upload file
-  file.status = 'loading';
   const response = await axios.post(url, formData);
 
-  // change status to indicate the success of the upload request
-  file.status = response.status === 200 ? 'success' : 'error';
+  if (response.status === 422) {
+    const overwrite = confirm(
+      'A file with this filename already exists, do you want to overwrite it?',
+    );
+
+    if (overwrite) {
+      formData.append('force', 'true');
+      await axios.post(`${url}`, formData);
+    }
+  }
 
   return response;
 }
 
-export function uploadFiles(files: UploadableFile[], url: string): Promise<Response[]> {
+export function uploadFiles(files: UploadableFile[], url: string): Promise<AxiosResponse[]> {
   return Promise.all(files.map((file) => uploadFile(file, url)));
 }
 

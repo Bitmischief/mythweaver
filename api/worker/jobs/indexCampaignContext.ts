@@ -9,6 +9,10 @@ import { Campaign, ContextType } from '@prisma/client';
 import logger from '../../lib/logger';
 import fs from 'node:fs';
 import { downloadFile } from '../../lib/utils';
+import {
+  sendWebsocketMessage,
+  WebSocketEvent,
+} from '../../services/websockets';
 
 const openai = getClient();
 
@@ -34,6 +38,7 @@ export const indexCampaignContext = async (
     await updateCampaignContext(campaign);
   } else if (request.type === ContextType.MANUAL_FILE_UPLOAD) {
     await addManualFileToCampaignContext(campaign, request);
+  } else if (request.type === ContextType.SESSION) {
   }
 };
 
@@ -93,6 +98,15 @@ const addManualFileToCampaignContext = async (
       filename: request.data.fileUpload.name,
     },
   });
+
+  await sendWebsocketMessage(
+    campaign.userId,
+    WebSocketEvent.CampaignFileProcessed,
+    {
+      campaignId: request.campaignId,
+      filename: request.data.fileUpload.name,
+    },
+  );
 };
 
 const updateCampaignContext = async (campaign: Campaign) => {

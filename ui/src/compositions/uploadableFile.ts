@@ -2,7 +2,7 @@ export class UploadableFile {
   file: File;
   id: string;
   url: string;
-  status: 'loading' | 'success' | 'error' | null;
+  status: 'loading' | 'uploaded' | 'success' | 'error' | null;
 
   constructor(file: File) {
     this.file = file;

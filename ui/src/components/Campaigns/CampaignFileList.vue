@@ -1,16 +1,37 @@
 <script lang="ts" setup>
 import { deleteCampaignFile, getCampaignFiles } from '@/api/campaigns.ts';
-import { useSelectedCampaignId } from '@/lib/hooks.ts';
-import { onMounted, ref } from 'vue';
+import { useSelectedCampaignId, useWebsocketChannel } from '@/lib/hooks.ts';
+import { onMounted, onUnmounted, ref } from 'vue';
 import { TrashIcon } from '@heroicons/vue/24/solid';
 import { showError } from '@/lib/notifications.ts';
+import { ServerEvent } from '@/lib/serverEvents.ts';
 
 const campaignId = useSelectedCampaignId();
+const channel = useWebsocketChannel();
 const files = ref([]);
 
 onMounted(async () => {
   await loadCampaignFiles();
 });
+
+onMounted(() => {
+  channel.bind(ServerEvent.CampaignFileProcessed, handleFileProcessed);
+});
+
+onUnmounted(() => {
+  channel.bind(ServerEvent.CampaignFileProcessed, handleFileProcessed);
+});
+
+async function handleFileProcessed(request: {
+  campaignId: number;
+  filename: string;
+}) {
+  if (request.campaignId !== campaignId.value) {
+    return;
+  }
+
+  await loadCampaignFiles();
+}
 
 async function loadCampaignFiles() {
   const getFilesResponse = await getCampaignFiles(campaignId.value || 0);
@@ -40,14 +61,13 @@ async function tryDeleteCampaignFile(fileId: number) {
 </script>
 
 <template>
-  <div v-if="files.length">
-    <h2 class="text-lg font-semibold mb-4">Files</h2>
+  <div v-if="files.length" class="mt-4">
     <ul class="space-y-2">
       <div v-for="file in files" :key="file.id">
-        <div class="text-neutral-700 rounded-md bg-neutral-300 p-3 w-fit flex">
+        <div class="text-neutral-300 rounded-md bg-neutral-800 p-3 w-fit flex">
           <div>{{ file.filename }}</div>
           <button
-            class="ml-4 text-red-600"
+            class="ml-4 text-red-500"
             @click="tryDeleteCampaignFile(file.id)"
           >
             <TrashIcon class="w-5 h-5" />

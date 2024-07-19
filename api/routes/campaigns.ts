@@ -444,6 +444,7 @@ router.post('/:campaignId/files', [
       {
         name: file?.originalname ?? '',
         uri: file?.location ?? '',
+        force: req.body.force ?? false,
       },
     );
 

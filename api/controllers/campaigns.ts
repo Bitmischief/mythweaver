@@ -23,6 +23,7 @@ import { createCampaign } from '../dataAccess/campaigns';
 import { indexCampaignContextQueue } from '../worker';
 import { getCampaignCharacters } from '../lib/charactersHelper';
 import { getClient } from '../lib/providers/openai';
+import { sendWebsocketMessage, WebSocketEvent } from '../services/websockets';
 
 const openai = getClient();
 
@@ -59,6 +60,7 @@ export interface InviteMemberRequest {
 export interface PostCampaignFileRequest {
   name: string;
   uri: string;
+  force: boolean;
 }
 
 @Route('campaigns')
@@ -791,6 +793,23 @@ export default class CampaignController {
       });
     }
 
+    const existingContextFileWithSameName = await prisma.contextFiles.findFirst(
+      {
+        where: {
+          campaignId,
+          type: ContextType.MANUAL_FILE_UPLOAD,
+          filename: request.name,
+        },
+      },
+    );
+
+    if (existingContextFileWithSameName && !request.force) {
+      throw new AppError({
+        description: 'A file with that name already exists.',
+        httpCode: HttpCode.UNPROCESSABLE_ENTITY,
+      });
+    }
+
     await indexCampaignContextQueue.add({
       campaignId,
       eventTargetId: campaignId,
@@ -801,6 +820,11 @@ export default class CampaignController {
           uri: request.uri,
         },
       },
+    });
+
+    await sendWebsocketMessage(userId, WebSocketEvent.CampaignFileUploaded, {
+      campaignId,
+      filename: request.name,
     });
 
     track(AppEvent.CampaignFileUploaded, userId, trackingInfo);

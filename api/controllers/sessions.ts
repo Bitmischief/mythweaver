@@ -13,7 +13,7 @@ import {
 } from 'tsoa';
 import { prisma } from '../lib/providers/prisma';
 import { AppError, ErrorType, HttpCode } from '../lib/errors/AppError';
-import { BillingPlan, Session } from '@prisma/client';
+import { BillingPlan, ContextType, Session } from '@prisma/client';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { CampaignRole } from './campaigns';
 import { sendTransactionalEmail } from '../lib/transactionalEmail';
@@ -28,6 +28,7 @@ import { JsonObject } from '@prisma/client/runtime/library';
 import { format } from 'date-fns';
 import { getTranscription } from '../services/dataStorage';
 import { getClient } from '../lib/providers/openai';
+import { indexCampaignContextQueue } from '../worker';
 
 interface GetSessionsResponse {
   data: Session[];
@@ -224,6 +225,18 @@ export default class SessionController {
       data: {
         userId,
         ...request,
+      },
+    });
+
+    await indexCampaignContextQueue.add({
+      campaignId,
+      eventTargetId: campaignId,
+      type: ContextType.SESSION,
+      data: {
+        fileUpload: {
+          name: request.name,
+          uri: request.uri,
+        },
       },
     });
 
