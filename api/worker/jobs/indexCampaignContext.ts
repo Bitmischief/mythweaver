@@ -93,6 +93,9 @@ const updateSessionContext = async (
     where: {
       id: sessionId,
     },
+    include: {
+      sessionTranscription: true,
+    },
   });
 
   const filename = `campaign-${campaign.id}-session-${sessionId}.json`;

@@ -28,6 +28,7 @@ import { JsonObject } from '@prisma/client/runtime/library';
 import { format } from 'date-fns';
 import { getTranscription } from '../services/dataStorage';
 import { getClient } from '../lib/providers/openai';
+import { indexSessionContext } from '../dataAccess/sessions';
 
 interface GetSessionsResponse {
   data: Session[];
@@ -392,6 +393,8 @@ export default class SessionController {
           },
         });
       }
+
+      await indexSessionContext(session.campaignId, sessionId);
     }
 
     track(AppEvent.RecapSessionTranscription, userId, trackingInfo);
@@ -672,6 +675,8 @@ export default class SessionController {
         data: data,
       });
     }
+
+    await indexSessionContext(session.campaignId, sessionId);
 
     return;
   }
