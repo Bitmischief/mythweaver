@@ -307,7 +307,10 @@ export default class AuthController {
         'Initial credits for signup',
       );
 
-      await createCampaign({ userId: user.id, name: 'My Campaign' });
+      const campaign = await createCampaign({
+        userId: user.id,
+        name: 'My Campaign',
+      });
 
       await prisma.collections.create({
         data: {
