@@ -6,7 +6,7 @@ export async function uploadFile(file: UploadableFile, url: string): Promise<Axi
   const formData = new FormData();
   formData.append('file', file.file);
 
-  const response = await axios.post(url, formData);
+  const response = await axios.post(url, formData, { validateStatus: () => true });
 
   if (response.status === 422) {
     const overwrite = confirm(

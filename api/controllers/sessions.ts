@@ -228,20 +228,10 @@ export default class SessionController {
       },
     });
 
-    await indexCampaignContextQueue.add({
-      campaignId,
-      eventTargetId: campaignId,
-      type: ContextType.SESSION,
-      data: {
-        fileUpload: {
-          name: request.name,
-          uri: request.uri,
-        },
-      },
-    });
-
     track(AppEvent.UpdateSession, userId, trackingInfo);
     await sendWebsocketMessage(userId, WebSocketEvent.SessionUpdated, {});
+
+    await indexSessionContext(session.campaignId, sessionId);
 
     return session;
   }
@@ -261,6 +251,8 @@ export default class SessionController {
       logger,
       sessionId,
     );
+
+    // @TODO: delete session context file
 
     if (!session.archived) {
       await prisma.session.update({
@@ -756,3 +748,11 @@ export default class SessionController {
     return;
   }
 }
+
+const indexSessionContext = async (campaignId: number, sessionId: number) => {
+  await indexCampaignContextQueue.add({
+    campaignId: session.campaignId,
+    eventTargetId: sessionId,
+    type: ContextType.SESSION,
+  });
+};

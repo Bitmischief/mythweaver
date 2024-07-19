@@ -2,7 +2,6 @@ import axios from 'axios';
 import { getAccessToken, logout } from '@/plugins/auth';
 
 axios.defaults.baseURL = import.meta.env.VITE_API_URL;
-axios.defaults.validateStatus = () => true;
 
 axios.interceptors.request.use(
   async (config) => {
