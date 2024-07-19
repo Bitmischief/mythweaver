@@ -6,26 +6,26 @@ import { getClient } from '../lib/providers/openai';
 
 const openai = getClient();
 
-export const indexSessionContext = async (
+export const indexConjurationContext = async (
   campaignId: number,
-  sessionId: number,
+  conjurationId: number,
 ) => {
   await indexCampaignContextQueue.add({
     campaignId: campaignId,
-    eventTargetId: sessionId,
-    type: ContextType.SESSION,
+    eventTargetId: conjurationId,
+    type: ContextType.CONJURATION,
   });
 };
 
-export const deleteSessionContext = async (
+export const deleteConjurationContext = async (
   campaignId: number,
-  sessionId: number,
+  conjurationId: number,
 ) => {
   const contextFile = await prisma.contextFiles.findFirst({
     where: {
-      type: ContextType.SESSION,
-      campaignId: campaignId,
-      sessionId: sessionId,
+      type: ContextType.CONJURATION,
+      campaignId,
+      conjurationId,
     },
   });
 

@@ -40,6 +40,8 @@ export const indexCampaignContext = async (
     await addManualFileToCampaignContext(campaign, request);
   } else if (request.type === ContextType.SESSION) {
     await updateSessionContext(campaign, request.eventTargetId, request);
+  } else if (request.type === ContextType.CONJURATION) {
+    await updateConjurationContext(campaign, request.eventTargetId, request);
   }
 };
 
@@ -98,14 +100,66 @@ const updateSessionContext = async (
     },
   });
 
+  if (!session) {
+    throw new AppError({
+      description: 'Session not found.',
+      httpCode: HttpCode.BAD_REQUEST,
+    });
+  }
+
   const filename = `campaign-${campaign.id}-session-${sessionId}.json`;
   fs.writeFileSync(filename, JSON.stringify(session));
 
-  await indexFile(campaign, filename, filename, request.type, {
-    campaignId: campaign.id,
-    type: request.type,
+  await indexFile(
+    campaign,
     filename,
+    filename,
+    request.type,
+    {
+      campaignId: campaign.id,
+      type: request.type,
+      filename,
+    },
+    sessionId,
+  );
+};
+
+const updateConjurationContext = async (
+  campaign: Campaign,
+  conjurationId: number,
+  request: ReindexCampaignContextEvent,
+) => {
+  logger.info('Creating and uploading new session context file');
+
+  const conjuration = await prisma.conjuration.findUnique({
+    where: {
+      id: conjurationId,
+    },
   });
+
+  if (!conjuration) {
+    throw new AppError({
+      description: 'Conjuration not found.',
+      httpCode: HttpCode.BAD_REQUEST,
+    });
+  }
+
+  const filename = `campaign-${campaign.id}-conjuration-${conjuration.id}.json`;
+  fs.writeFileSync(filename, JSON.stringify(conjuration));
+
+  await indexFile(
+    campaign,
+    filename,
+    filename,
+    request.type,
+    {
+      campaignId: campaign.id,
+      type: request.type,
+      filename,
+    },
+    undefined,
+    conjurationId,
+  );
 };
 
 const updateCampaignContext = async (
@@ -128,6 +182,8 @@ const indexFile = async (
   filename: string,
   type: ContextType,
   contextFileQuery: Prisma.ContextFilesWhereInput,
+  sessionId: number | undefined = undefined,
+  conjurationId: number | undefined = undefined,
 ) => {
   const existingContextFile = await prisma.contextFiles.findFirst({
     where: contextFileQuery,
@@ -137,6 +193,7 @@ const indexFile = async (
     logger.info('Deleting existing context file', {
       fileId: existingContextFile.externalSystemFileId,
     });
+
     await openai.files.del(existingContextFile.externalSystemFileId);
     await prisma.contextFiles.delete({
       where: {
@@ -163,6 +220,8 @@ const indexFile = async (
       type,
       filename,
       uri: fileUri,
+      sessionId,
+      conjurationId,
     },
   });
 };

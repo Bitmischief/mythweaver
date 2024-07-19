@@ -28,7 +28,12 @@ import { JsonObject } from '@prisma/client/runtime/library';
 import { format } from 'date-fns';
 import { getTranscription } from '../services/dataStorage';
 import { getClient } from '../lib/providers/openai';
-import { indexSessionContext } from '../dataAccess/sessions';
+import {
+  deleteSessionContext,
+  indexSessionContext,
+} from '../dataAccess/sessions';
+
+const openai = getClient();
 
 interface GetSessionsResponse {
   data: Session[];
@@ -252,8 +257,6 @@ export default class SessionController {
       sessionId,
     );
 
-    // @TODO: delete session context file
-
     if (!session.archived) {
       await prisma.session.update({
         where: {
@@ -270,6 +273,9 @@ export default class SessionController {
           id: sessionId,
         },
       });
+
+      await deleteSessionContext(session.campaignId, sessionId);
+
       track(AppEvent.DeleteSession, userId, trackingInfo);
     }
 
