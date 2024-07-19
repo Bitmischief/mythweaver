@@ -6,12 +6,12 @@ import { auth } from 'express-oauth2-jwt-bearer';
 import { createCustomer } from '../services/billing';
 import { modifyImageCreditCount } from '../services/credits';
 import { ImageCreditChangeType } from '@prisma/client';
-import { CampaignRole } from '../controllers/campaigns';
 import mailchimpClient from './mailchimpMarketing';
 import { lists, Status } from '@mailchimp/mailchimp_marketing';
 import { format } from 'date-fns';
 import { AppEvent, track } from './tracking';
 import { AdConversionEvent, reportAdConversionEvent } from './ads';
+import { createCampaign } from '../dataAccess/campaigns';
 import EmailType = lists.EmailType;
 
 export const checkAuth0Jwt = auth({
@@ -112,20 +112,9 @@ const createNewUser = async (res: Response, email: string, logger: any) => {
     'Initial credits for signup',
   );
 
-  const campaign = await prisma.campaign.create({
-    data: {
-      name: 'My Campaign',
-      description: '',
-      rpgSystemCode: 'Dungeons & Dragons',
-      userId: user.id,
-      members: {
-        create: {
-          userId: user.id,
-          role: CampaignRole.DM,
-          joinedAt: new Date(),
-        },
-      },
-    },
+  const campaign = await createCampaign({
+    userId: user.id,
+    name: 'My Campaign',
   });
 
   await prisma.collections.create({

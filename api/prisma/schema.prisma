@@ -187,6 +187,7 @@ model Campaign {
   description         String?
   rpgSystemCode       String
   publicAdventureCode String?
+  openAiConfig        Json?
 
   user                 User                  @relation(fields: [userId], references: [id])
   sessions             Session[]
@@ -486,6 +487,31 @@ model CollectionConjuration {
   @@index([conjurationId], name: "collection_conjurations_conjuration_id")
   @@index([collectionId, conjurationId], name: "collection_conjurations_collection_id_conjuration_id")
   @@map("collection_conjurations")
+}
+
+enum ContextType {
+  CAMPAIGN
+  SESSION
+  SESSION_TRANSCRIPTION
+  CONJURATION
+  MANUAL_FILE_UPLOAD
+}
+
+model ContextFiles {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+
+  type                 ContextType
+  filename             String
+  uri                  String?
+  externalSystemFileId String      @unique
+
+  campaignId    Int
+  sessionId     Int?
+  conjurationId Int?
+
+  @@map("openai_context_files")
 }
 
 model CampaignConjuration {

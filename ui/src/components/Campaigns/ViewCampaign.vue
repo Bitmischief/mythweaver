@@ -9,6 +9,8 @@ import { showError, showSuccess } from '@/lib/notifications.ts';
 import { AxiosError } from 'axios';
 import { useRouter } from 'vue-router';
 import { ArrowLeftIcon } from '@heroicons/vue/24/outline';
+import DragAndDropUploader from '@/components/Core/DragAndDropUploader.vue';
+import CampaignFileList from '@/components/Campaigns/CampaignFileList.vue';
 
 const campaignStore = useCampaignStore();
 const selectedCampaignId = useSelectedCampaignId();
@@ -16,6 +18,12 @@ const eventBus = useEventBus();
 const router = useRouter();
 
 const campaign = ref<Campaign>({} as Campaign);
+
+const campaignFileUploadUrl = computed(
+  () =>
+    import.meta.env.VITE_API_URL +
+    `/campaigns/${selectedCampaignId.value}/files`,
+);
 
 const currentUserRole = computed(() => campaignStore.selectedCampaignRole);
 
@@ -114,93 +122,118 @@ async function handleDeleteCampaign() {
       </div>
     </div>
 
-    <div class="mt-6 text-gray-400 text-sm ml-1 mb-1">Campaign Name</div>
+    <div class="md:flex md:gap-8 w-full justify-between">
+      <div class="md:w-[60%]">
+        <div class="mt-6 text-gray-400 text-sm ml-1 mb-1">Campaign Name</div>
 
-    <input
-      v-model="campaign.name"
-      :readonly="currentUserRole !== CampaignRole.DM"
-      class="input-primary"
-      placeholder="Flight of the Valkyries"
-    />
+        <input
+          v-model="campaign.name"
+          :readonly="currentUserRole !== CampaignRole.DM"
+          class="input-primary"
+          placeholder="Flight of the Valkyries"
+        />
 
-    <div class="mt-8 text-gray-400 text-sm ml-1 mb-1">Roleplaying System</div>
+        <div class="mt-8 text-gray-400 text-sm ml-1 mb-1">
+          Roleplaying System
+        </div>
 
-    <input
-      v-model="campaign.rpgSystemCode"
-      :readonly="currentUserRole !== CampaignRole.DM"
-      class="input-primary"
-      placeholder="Bogs & Bullywugs"
-    />
+        <input
+          v-model="campaign.rpgSystemCode"
+          :readonly="currentUserRole !== CampaignRole.DM"
+          class="input-primary"
+          placeholder="Bogs & Bullywugs"
+        />
 
-    <div class="mt-6 text-gray-400 text-sm ml-1 mb-1">Campaign Description</div>
+        <div class="mt-6 text-gray-400 text-sm ml-1 mb-1">
+          Campaign Description
+        </div>
 
-    <textarea
-      v-model="campaign.description"
-      :readonly="currentUserRole !== CampaignRole.DM"
-      class="input-primary"
-      placeholder="As ancient evils awaken and long-buried secrets resurface, heroes must rise to restore balance in a world on the brink of chaos..."
-      rows="8"
-    />
+        <textarea
+          v-model="campaign.description"
+          :readonly="currentUserRole !== CampaignRole.DM"
+          class="input-primary"
+          placeholder="As ancient evils awaken and long-buried secrets resurface, heroes must rise to restore balance in a world on the brink of chaos..."
+          rows="8"
+        />
 
-    <div class="mt-12 border-t border-gray-500/25 py-4">
-      <div class="flex justify-between">
-        <div class="text-2xl">Party Members</div>
-      </div>
+        <div class="mt-6 flex justify-between">
+          <div class="text-2xl">Party Members</div>
+        </div>
 
-      <div class="mt-6">
-        <div
-          v-for="member of campaign.members"
-          :key="member.id"
-          class="bg-surface-2 mb-2 rounded-xl p-3"
-        >
-          <div class="flex justify-between group">
-            <div>
-              <div
-                class="text-lg"
-                :class="{
-                  'text-gray-300': member.user,
-                  'text-blue-300': !member.user,
-                }"
-              >
-                {{ member.user ? member.user.email : member.email }}
+        <div class="mt-6">
+          <div
+            v-for="member of campaign.members"
+            :key="member.id"
+            class="bg-surface-2 mb-2 rounded-xl p-3"
+          >
+            <div class="flex justify-between group">
+              <div>
+                <div
+                  class="text-lg"
+                  :class="{
+                    'text-gray-300': member.user,
+                    'text-blue-300': !member.user,
+                  }"
+                >
+                  {{ member.user ? member.user.email : member.email }}
+                </div>
+
+                <div
+                  class="text-sm"
+                  :class="{
+                    'text-gray-500': member.user,
+                    'text-blue-300': !member.user,
+                  }"
+                >
+                  {{
+                    member.user
+                      ? member.role === 1
+                        ? 'Dungeon Master'
+                        : 'Player'
+                      : 'Invited'
+                  }}
+                </div>
               </div>
 
-              <div
-                class="text-sm"
-                :class="{
-                  'text-gray-500': member.user,
-                  'text-blue-300': !member.user,
-                }"
-              >
-                {{
-                  member.user
-                    ? member.role === 1
-                      ? 'Dungeon Master'
-                      : 'Player'
-                    : 'Invited'
-                }}
-              </div>
-            </div>
-
-            <div class="flex">
-              <div
-                class="text-sm text-gray-500 self-center"
-                :class="{
-                  'text-gray-300': member.user,
-                  'text-blue-300': !member.user,
-                }"
-              >
-                {{ member.user ? 'Joined' : 'Invited' }} on
-                {{
-                  format(
-                    new Date(member.user ? member.joinedAt : member.createdAt),
-                    'MMMM d, yyyy',
-                  )
-                }}
+              <div class="flex">
+                <div
+                  class="text-sm text-gray-500 self-center"
+                  :class="{
+                    'text-gray-300': member.user,
+                    'text-blue-300': !member.user,
+                  }"
+                >
+                  {{ member.user ? 'Joined' : 'Invited' }} on
+                  {{
+                    format(
+                      new Date(
+                        member.user ? member.joinedAt : member.createdAt,
+                      ),
+                      'MMMM d, yyyy',
+                    )
+                  }}
+                </div>
               </div>
             </div>
           </div>
         </div>
+      </div>
+
+      <div class="mt-6 md:mt-0 md:w-[40%]">
+        <div class="">
+          <div class="text-2xl">Campaign Files</div>
+          <div class="text-gray-400 text-sm self-center">
+            Upload files here for MythWeaver to use as context for your
+            campaign. This will help MythWeaver generate more accurate and
+            relevant content for your campaign.
+          </div>
+        </div>
+
+        <CampaignFileList />
+        <DragAndDropUploader
+          :upload-url="campaignFileUploadUrl"
+          :drag-and-drop-enabled="false"
+        />
       </div>
     </div>
   </div>

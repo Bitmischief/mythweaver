@@ -66,6 +66,9 @@ export enum AppEvent {
   ImageTimeout = 'Image Timeout',
   PostCampaignCampaign = 'Post Campaign Conjuration',
   DeleteCampaignCampaign = 'Delete Campaign Conjuration',
+  CampaignFileUploaded = 'Campaign File Uploaded',
+  CampaignFileDeleted = 'Campaign File Deleted',
+  GetCampaignFiles = 'Get Campaign Files',
 }
 
 export interface TrackingInfo {

@@ -17,6 +17,10 @@ import { prisma } from '../lib/providers/prisma';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import { Collections, Conjuration } from '@prisma/client';
 import { sendWebsocketMessage, WebSocketEvent } from '../services/websockets';
+import {
+  deleteConjurationContext,
+  indexConjurationContext,
+} from '../dataAccess/conjurations';
 
 export interface PostCollectionRequest {
   name: string;
@@ -112,11 +116,11 @@ export default class CollectionController {
               collectionId: parentId,
             },
           },
-          images: {
-            some: {
-              primary: true,
-            },
-          },
+          // images: {
+          //   some: {
+          //     primary: true,
+          //   },
+          // },
         },
         include: {
           collectionConjurations: true,
@@ -155,9 +159,9 @@ export default class CollectionController {
           .slice(0, 4);
         return {
           ...col,
-          placeholders: childConjurations.map(
-            (cc: any) => cc.conjuration.images[0].uri,
-          ),
+          placeholders: childConjurations
+            .map((cc: any) => cc.conjuration.images[0]?.uri)
+            .filter((uri: any) => !!uri),
           containsConjuration: conjurationCollections.some(
             (cc: any) => cc.collectionId === col.id,
           ),
@@ -310,6 +314,8 @@ export default class CollectionController {
       conjurationId,
     });
 
+    await deleteConjurationContext(collection.campaignId, conjurationId);
+
     await prisma.collectionConjuration.delete({
       where: {
         collectionId_conjurationId: {
@@ -419,12 +425,19 @@ export default class CollectionController {
       collectionConjurationRequest,
     });
 
-    return prisma.collectionConjuration.create({
+    const newCollectionCojuration = await prisma.collectionConjuration.create({
       data: {
         collectionId: collectionId,
         conjurationId: collectionConjurationRequest.conjurationId,
       },
     });
+
+    await indexConjurationContext(
+      collection.campaignId,
+      collectionConjurationRequest.conjurationId,
+    );
+
+    return newCollectionCojuration;
   }
 
   @Security('jwt')
@@ -439,17 +452,32 @@ export default class CollectionController {
     @Body()
     postMoveCollectionConjurationRequest: PostMoveCollectionConjurationRequest,
   ) {
-    const collection = await prisma.collections.findUnique({
+    const fromCollection = await prisma.collections.findUnique({
       where: {
         id: collectionId,
         userId: userId,
       },
     });
 
-    if (!collection) {
+    if (!fromCollection) {
       throw new AppError({
         description:
-          'Collection not found or you do not have access to update it.',
+          'From collection not found or you do not have access to update it.',
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    const toCollection = await prisma.collections.findUnique({
+      where: {
+        id: postMoveCollectionConjurationRequest.collectionId,
+        userId: userId,
+      },
+    });
+
+    if (!toCollection) {
+      throw new AppError({
+        description:
+          'To collection not found or you do not have access to update it.',
         httpCode: HttpCode.NOT_FOUND,
       });
     }
@@ -485,6 +513,13 @@ export default class CollectionController {
       },
       data: postMoveCollectionConjurationRequest,
     });
+
+    await deleteConjurationContext(fromCollection.campaignId, conjurationId);
+
+    await indexConjurationContext(
+      toCollection.campaignId,
+      postMoveCollectionConjurationRequest.collectionId,
+    );
 
     await sendWebsocketMessage(
       userId,

@@ -8,6 +8,10 @@ import {
 import CampaignController from '../controllers/campaigns';
 import rateLimit from 'express-rate-limit';
 import { useInjectLoggingInfo, useLogger } from '../lib/loggingMiddleware';
+import {
+  useCampaignFileUploadAuthorizer,
+  useCampaignFileUploader,
+} from '../lib/campaignFileMiddleware';
 
 const router = express.Router();
 
@@ -411,6 +415,87 @@ router.delete('/:campaignId/conjurations/:conjurationId', [
       useLogger(),
       campaignId as unknown as number,
       conjurationId as unknown as number,
+    );
+
+    return res.status(200).send();
+  },
+]);
+
+router.post('/:campaignId/files', [
+  checkAuth0Jwt,
+  useInjectUserId(),
+  useInjectLoggingInfo(),
+  useValidateRequest(getCampaignSchema, {
+    validationType: ValidationTypes.Route,
+  }),
+  useCampaignFileUploadAuthorizer(),
+  useCampaignFileUploader(),
+  async (req: Request, res: Response) => {
+    const controller = new CampaignController();
+
+    const file = req.file as any;
+    const campaignId = req.params.campaignId as unknown as number;
+
+    await controller.postCampaignFiles(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      useLogger(),
+      campaignId,
+      {
+        name: file?.originalname ?? '',
+        uri: file?.location ?? '',
+        force: req.body.force ?? false,
+      },
+    );
+
+    return res.status(200).send();
+  },
+]);
+
+router.get('/:campaignId/files', [
+  checkAuth0Jwt,
+  useInjectUserId(),
+  useInjectLoggingInfo(),
+  useValidateRequest(getCampaignSchema, {
+    validationType: ValidationTypes.Route,
+  }),
+  async (req: Request, res: Response) => {
+    const controller = new CampaignController();
+
+    const campaignId = req.params.campaignId as unknown as number;
+
+    const files = await controller.getCampaignFiles(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      useLogger(),
+      campaignId,
+    );
+
+    return res.status(200).send(files);
+  },
+]);
+
+const deleteCampaignFileSchema = z.object({
+  campaignId: z.coerce.number().default(0),
+  fileId: z.coerce.number().default(0),
+});
+
+router.delete('/:campaignId/files/:fileId', [
+  checkAuth0Jwt,
+  useInjectUserId(),
+  useInjectLoggingInfo(),
+  useValidateRequest(deleteCampaignFileSchema, {
+    validationType: ValidationTypes.Route,
+  }),
+  async (req: Request, res: Response) => {
+    const controller = new CampaignController();
+
+    await controller.deleteCampaignFile(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      useLogger(),
+      req.params.campaignId as unknown as number,
+      req.params.fileId as unknown as number,
     );
 
     return res.status(200).send();

@@ -12,14 +12,20 @@ import {
   Tags,
 } from 'tsoa';
 import { prisma } from '../lib/providers/prisma';
-import { Campaign, CampaignMember } from '@prisma/client';
+import { Campaign, CampaignMember, ContextType } from '@prisma/client';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { sendTransactionalEmail } from '../lib/transactionalEmail';
 import { v4 as uuidv4 } from 'uuid';
 import { urlPrefix } from '../lib/utils';
 import { MythWeaverLogger } from '../lib/logger';
+import { createCampaign } from '../dataAccess/campaigns';
+import { indexCampaignContextQueue } from '../worker';
 import { getCampaignCharacters } from '../lib/charactersHelper';
+import { getClient } from '../lib/providers/openai';
+import { sendWebsocketMessage, WebSocketEvent } from '../services/websockets';
+
+const openai = getClient();
 
 export interface GetCampaignsResponse {
   data: Campaign[];
@@ -29,15 +35,11 @@ export interface GetCampaignsResponse {
 
 export interface PostCampaignRequest {
   name: string;
-  description?: string;
-  rpgSystemCode: string;
 }
 
 export interface PutCampaignRequest {
   name: string;
   description?: string;
-  rpgSystemCode: string;
-  publicAdventureCode?: string;
 }
 
 export interface GetCampaignMembersResponse {
@@ -53,6 +55,12 @@ export enum CampaignRole {
 
 export interface InviteMemberRequest {
   email: string;
+}
+
+export interface PostCampaignFileRequest {
+  name: string;
+  uri: string;
+  force: boolean;
 }
 
 @Route('campaigns')
@@ -159,18 +167,9 @@ export default class CampaignController {
   ): Promise<Campaign> {
     track(AppEvent.CreateCampaign, userId, trackingInfo);
 
-    const campaign = await prisma.campaign.create({
-      data: {
-        ...request,
-        userId,
-        members: {
-          create: {
-            userId,
-            role: CampaignRole.DM,
-            joinedAt: new Date(),
-          },
-        },
-      },
+    const campaign = await createCampaign({
+      userId,
+      ...request,
     });
 
     await prisma.collections.create({
@@ -216,6 +215,14 @@ export default class CampaignController {
 
     track(AppEvent.UpdateCampaign, userId, trackingInfo);
 
+    if (request.description) {
+      await indexCampaignContextQueue.add({
+        campaignId,
+        eventTargetId: campaignId,
+        type: ContextType.CAMPAIGN,
+      });
+    }
+
     await prisma.collections.updateMany({
       where: {
         campaignId: campaignId,
@@ -231,7 +238,6 @@ export default class CampaignController {
         id: campaignId,
       },
       data: {
-        ...campaign,
         ...request,
       },
     });
@@ -766,5 +772,156 @@ export default class CampaignController {
         },
       });
     }
+  }
+
+  @Security('jwt')
+  @OperationId('postCampaignFile')
+  @Post('/:campaignId/files')
+  public async postCampaignFiles(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
+    @Route() campaignId: number,
+    @Body() request: PostCampaignFileRequest,
+  ) {
+    const campaignMember = await prisma.campaignMember.findUnique({
+      where: {
+        userId_campaignId: {
+          userId,
+          campaignId,
+        },
+      },
+    });
+
+    if (!campaignMember || campaignMember.role !== CampaignRole.DM) {
+      throw new AppError({
+        description:
+          'You do not have permission to add files for this campaign.',
+        httpCode: HttpCode.FORBIDDEN,
+      });
+    }
+
+    const existingContextFileWithSameName = await prisma.contextFiles.findFirst(
+      {
+        where: {
+          campaignId,
+          type: ContextType.MANUAL_FILE_UPLOAD,
+          filename: request.name,
+        },
+      },
+    );
+
+    if (existingContextFileWithSameName && !request.force) {
+      throw new AppError({
+        description: 'A file with that name already exists.',
+        httpCode: HttpCode.UNPROCESSABLE_ENTITY,
+      });
+    }
+
+    await indexCampaignContextQueue.add({
+      campaignId,
+      eventTargetId: campaignId,
+      type: ContextType.MANUAL_FILE_UPLOAD,
+      data: {
+        fileUpload: {
+          name: request.name,
+          uri: request.uri,
+        },
+      },
+    });
+
+    await sendWebsocketMessage(userId, WebSocketEvent.CampaignFileUploaded, {
+      campaignId,
+      filename: request.name,
+    });
+
+    track(AppEvent.CampaignFileUploaded, userId, trackingInfo);
+  }
+
+  @Security('jwt')
+  @OperationId('getCampaignFiles')
+  @Get('/:campaignId/files')
+  public async getCampaignFiles(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
+    @Route() campaignId: number,
+  ) {
+    const campaignMember = await prisma.campaignMember.findUnique({
+      where: {
+        userId_campaignId: {
+          userId,
+          campaignId,
+        },
+      },
+    });
+
+    if (!campaignMember || campaignMember.role !== CampaignRole.DM) {
+      throw new AppError({
+        description:
+          'You do not have permission to get campaign files for this campaign',
+        httpCode: HttpCode.FORBIDDEN,
+      });
+    }
+
+    track(AppEvent.CampaignFileUploaded, userId, trackingInfo);
+
+    return prisma.contextFiles.findMany({
+      where: {
+        campaignId,
+        type: ContextType.MANUAL_FILE_UPLOAD,
+      },
+    });
+  }
+
+  @Security('jwt')
+  @OperationId('deleteCampaignFile')
+  @Delete('/:campaignId/files/:fileId')
+  public async deleteCampaignFile(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
+    @Route() campaignId: number,
+    @Route() fileId: number,
+  ) {
+    const campaignMember = await prisma.campaignMember.findUnique({
+      where: {
+        userId_campaignId: {
+          userId,
+          campaignId,
+        },
+      },
+    });
+
+    if (!campaignMember || campaignMember.role !== CampaignRole.DM) {
+      throw new AppError({
+        description:
+          'You do not have permission to delete campaign files for this campaign',
+        httpCode: HttpCode.FORBIDDEN,
+      });
+    }
+
+    track(AppEvent.CampaignFileDeleted, userId, trackingInfo);
+
+    const contextFile = await prisma.contextFiles.findUnique({
+      where: {
+        id: fileId,
+      },
+    });
+
+    if (!contextFile) {
+      throw new AppError({
+        description: 'File not found.',
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    await openai.files.del(contextFile.externalSystemFileId);
+
+    await prisma.contextFiles.delete({
+      where: {
+        id: fileId,
+      },
+    });
   }
 }
