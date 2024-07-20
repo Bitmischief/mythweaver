@@ -18,8 +18,7 @@ services:
     #      - nodemodules:/app/node_modules
     environment:
       DATABASE_URL: "postgresql://postgres:postgres@db:5432/postgres?schema=public"
-      REDIS_ENDPOINT: "redis"
-      REDIS_PORT: 6379
+      REDIS_ENDPOINT: "redis://redis:6379"
 
   db:
     image: postgres:14.1-alpine
