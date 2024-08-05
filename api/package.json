@@ -47,7 +47,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.554.0",
-    "@launchdarkly/node-server-sdk": "^9.0.1",
+    "@launchdarkly/node-server-sdk": "^9.5.0",
     "@launchdarkly/openfeature-node-server": "^0.5.0",
     "@logtail/pino": "^0.4.21",
     "@mailchimp/mailchimp_marketing": "^3.0.80",
