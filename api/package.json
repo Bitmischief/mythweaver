@@ -54,7 +54,7 @@
     "@mailchimp/mailchimp_transactional": "^1.0.59",
     "@openfeature/server-sdk": "^1.6.3",
     "@prisma/client": "^5.15.1",
-    "@sentry/node": "^7.110.0",
+    "@sentry/node": "^8.26.0",
     "@sentry/profiling-node": "^7.107.0",
     "async-await-retry": "^2.1.0",
     "auth0": "^4.3.1",
