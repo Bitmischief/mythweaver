@@ -12,8 +12,6 @@ const props = defineProps<{
   dragAndDropEnabled: boolean;
 }>();
 
-const emit = defineEmits(['file-processed']);
-
 const { files, addFiles, removeFile } = useFileList();
 const campaignId = useSelectedCampaignId();
 
