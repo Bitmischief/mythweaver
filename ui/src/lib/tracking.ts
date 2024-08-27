@@ -65,7 +65,7 @@ export const reportInitialTrackingData = async (source: string, influencer: stri
     'declared_signup_source',
     'declared_influencer',
   ];
- 
+
   properties.forEach((prop) => {
     mixpanelData[prop] = mixpanel.get_property(prop);
   });
