@@ -8,7 +8,7 @@ import { ServerEvent } from '@/lib/serverEvents.ts';
 
 const campaignId = useSelectedCampaignId();
 const channel = useWebsocketChannel();
-const files = ref([]);
+const files = ref<any[]>([]);
 
 onMounted(async () => {
   await loadCampaignFiles();
