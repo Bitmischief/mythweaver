@@ -92,6 +92,7 @@ export default class CampaignController {
               mode: 'insensitive',
             }
           : undefined,
+        deleted: false,
       },
       skip: offset,
       take: limit,
@@ -122,12 +123,22 @@ export default class CampaignController {
           campaignId,
         },
       },
+      include: {
+        campaign: true,
+      },
     });
 
     if (!actingUserCampaignMember) {
       throw new AppError({
         httpCode: HttpCode.FORBIDDEN,
-        description: 'You are not a member of this campaign',
+        description: 'You are not a member of this campaign.',
+      });
+    }
+
+    if (actingUserCampaignMember.campaign.deleted) {
+      throw new AppError({
+        httpCode: HttpCode.FORBIDDEN,
+        description: 'This campaign has been deleted.',
       });
     }
 
@@ -274,9 +285,12 @@ export default class CampaignController {
 
     track(AppEvent.DeleteCampaign, userId, trackingInfo);
 
-    await prisma.campaign.delete({
+    await prisma.campaign.update({
       where: {
         id: campaignId,
+      },
+      data: {
+        deleted: true,
       },
     });
   }
@@ -523,6 +537,7 @@ export default class CampaignController {
     const campaign = await prisma.campaign.findFirst({
       where: {
         inviteCode,
+        deleted: false,
       },
       include: {
         members: {

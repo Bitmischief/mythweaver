@@ -182,6 +182,7 @@ model Campaign {
   createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
   updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
   userId    Int
+  deleted   Boolean   @default(false)
 
   name                String
   description         String?
