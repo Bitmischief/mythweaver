@@ -10,7 +10,7 @@ services:
   api:
     build:
       context: .
-      dockerfile: ./.docker/Dockerfile.api
+      dockerfile: ./.docker/Dockerfile.api.dev
     ports:
       - "8000:8000"
     #    volumes:

@@ -12,6 +12,7 @@ FROM node:20-alpine AS server
 WORKDIR /app
 COPY api/package*.json ./
 COPY api/yarn.lock ./
+COPY api/.env ./
 RUN yarn install --production
 
 COPY api/prisma/schema.prisma ./
