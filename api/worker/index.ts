@@ -9,6 +9,8 @@ import { AppError, ErrorType, HttpCode } from '../lib/errors/AppError';
 import { checkImageStatus } from './jobs/imageStatus';
 import { indexCampaignContext } from './jobs/indexCampaignContext';
 import { ReindexCampaignContextEvent } from '../dataAccess/campaigns';
+import { transcribeSession } from './jobs/transcribeSession';
+import { TranscribeSessionEvent } from '../dataAccess/sessions';
 
 const config = process.env.REDIS_ENDPOINT || '';
 
@@ -147,5 +149,23 @@ indexCampaignContextQueue.process(async (job, done) => {
   } catch (err) {
     logger.error('Error processing index campaign context job!', err);
     done(new Error('Error processing index campaign context job!'));
+  }
+});
+
+export const sessionTranscriptionQueue = new Queue<TranscribeSessionEvent>(
+  'index-campaign-context',
+  config,
+);
+
+sessionTranscriptionQueue.process(async (job, done) => {
+  logger.info('Processing session transcript context job', job.data);
+
+  try {
+    await transcribeSession(job.data);
+    logger.info('Completed processing session transcript job', job.data);
+    done();
+  } catch (err) {
+    logger.error('Error processing session transcript job!', err);
+    done(new Error('Error processing session transcript job!'));
   }
 });

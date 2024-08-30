@@ -6,6 +6,10 @@ import { getClient } from '../lib/providers/openai';
 
 const openai = getClient();
 
+export interface TranscribeSessionEvent {
+  sessionId: number;
+}
+
 export const indexSessionContext = async (
   campaignId: number,
   sessionId: number,

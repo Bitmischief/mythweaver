@@ -180,29 +180,6 @@ router.delete('/:sessionId', [
   },
 ]);
 
-const postGenerateSummarySchema = z.object({
-  recap: z.string().max(15000),
-});
-
-router.post('/generate-summary', [
-  checkAuth0Jwt,
-  useInjectUserId(),
-  useInjectLoggingInfo(),
-  useValidateRequest(postGenerateSummarySchema),
-  async (req: Request, res: Response) => {
-    const controller = new SessionController();
-
-    const response = await controller.postGenerateSummary(
-      res.locals.auth.userId,
-      res.locals.trackingInfo,
-      useLogger(),
-      req.body,
-    );
-
-    return res.status(200).send(response);
-  },
-]);
-
 router.post('/:sessionId/email-summary', [
   checkAuth0Jwt,
   useInjectUserId(),
@@ -277,55 +254,6 @@ router.post('/:sessionId/transcription', [
     );
 
     return res.status(200).send();
-  },
-]);
-
-router.patch('/:sessionId/transcription', [
-  useAuthenticateServiceRequest(),
-  useInjectLoggingInfo(),
-  useValidateRequest(getSessionSchema, {
-    validationType: ValidationTypes.Route,
-  }),
-  useValidateRequest(patchSessionTranscriptionSchema, {
-    validationType: ValidationTypes.Body,
-    logRequest: false,
-  }),
-  async (req: Request, res: Response) => {
-    const controller = new SessionController();
-
-    const { sessionId = 0 } = req.params;
-
-    await controller.patchSessionTranscription(
-      res.locals.trackingInfo,
-      useLogger(),
-      sessionId as number,
-      req.body,
-    );
-
-    return res.status(200).send();
-  },
-]);
-
-router.post('/:sessionId/recap-transcription', [
-  checkAuth0Jwt,
-  useInjectUserId(),
-  useInjectLoggingInfo(),
-  useValidateRequest(getSessionSchema, {
-    validationType: ValidationTypes.Route,
-  }),
-  async (req: Request, res: Response) => {
-    const controller = new SessionController();
-
-    const { sessionId = 0 } = req.params;
-
-    const response = await controller.postRecapTranscription(
-      res.locals.auth.userId,
-      res.locals.trackingInfo,
-      useLogger(),
-      sessionId as number,
-    );
-
-    return res.status(200).send(response);
   },
 ]);
 

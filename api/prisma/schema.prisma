@@ -213,17 +213,19 @@ model Session {
   archived   Boolean   @default(false)
   isOver     Boolean   @default(false)
 
-  summary      String?
-  transcript   String?
-  planning     String?
-  recap        String?
-  imageUri     String?
-  suggestions  String?
-  name         String?
-  audioName    String?
-  audioUri     String?
-  planningJson Json?
-  date         DateTime? @db.Timestamptz(6)
+  summary                  String?
+  transcript               Json?
+  transcriptSpeakerMapping Json?
+  transcriptExternalId     String?
+  planning                 String?
+  recap                    String?
+  imageUri                 String?
+  suggestions              String?
+  name                     String?
+  audioName                String?
+  audioUri                 String?
+  planningJson             Json?
+  date                     DateTime? @db.Timestamptz(6)
 
   suggestedName        String?
   suggestedSummary     String?

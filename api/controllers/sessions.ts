@@ -32,6 +32,7 @@ import {
   deleteSessionContext,
   indexSessionContext,
 } from '../dataAccess/sessions';
+import { sessionTranscriptionQueue } from '../worker';
 
 const openai = getClient();
 
@@ -283,132 +284,6 @@ export default class SessionController {
   }
 
   @Security('jwt')
-  @OperationId('generateSummary')
-  @Post('/generate-summary')
-  public async postGenerateSummary(
-    @Inject() userId: number,
-    @Inject() trackingInfo: TrackingInfo,
-    @Inject() logger: MythWeaverLogger,
-    @Body() request: PostCompleteSessionRequest,
-  ): Promise<any> {
-    const openai = getClient();
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4o',
-      messages: [
-        {
-          role: 'system',
-          content:
-            'You are a helpful assistant who is knowledgeable in dungeons and dragons.',
-        },
-        {
-          role: 'user',
-          content: `Please summarize the ttrpg session that just happened, that has the following details:
-          ${request?.recap}.
-          Please return only text, do not include any other formatting.
-          Please make the length of the summary proportional to the length of the recap,
-          ensuring you include the most important highlights from the recap.`,
-        },
-      ],
-    });
-
-    const gptResponse = response.choices[0]?.message?.content;
-    logger.info('Received raw response from openai', gptResponse);
-
-    return gptResponse;
-  }
-
-  @Security('jwt')
-  @OperationId('recapTranscription')
-  @Post('/:sessionId/recap-transcription')
-  public async postRecapTranscription(
-    @Inject() userId: number,
-    @Inject() trackingInfo: TrackingInfo,
-    @Inject() logger: MythWeaverLogger,
-    @Route() sessionId: number,
-  ): Promise<Session> {
-    let session = await prisma.session.findUnique({
-      where: {
-        id: sessionId,
-      },
-      include: {
-        sessionTranscription: true,
-        images: {
-          where: {
-            primary: true,
-          },
-        },
-      },
-    });
-
-    if (!session) {
-      throw new AppError({
-        description: 'Session not found.',
-        httpCode: HttpCode.NOT_FOUND,
-      });
-    }
-
-    if (session.userId !== null && session.userId !== userId) {
-      throw new AppError({
-        description: 'You do not have access to this session.',
-        httpCode: HttpCode.FORBIDDEN,
-      });
-    }
-
-    const campaignMember = await prisma.campaignMember.findUnique({
-      where: {
-        userId_campaignId: {
-          userId,
-          campaignId: session.campaignId,
-        },
-      },
-    });
-
-    if (!campaignMember || campaignMember.role !== CampaignRole.DM) {
-      throw new AppError({
-        description: 'You do not have permission to complete this session.',
-        httpCode: HttpCode.FORBIDDEN,
-      });
-    }
-
-    if (!session.sessionTranscription) {
-      throw new AppError({
-        description: 'Transcript not found.',
-        httpCode: HttpCode.NOT_FOUND,
-      });
-    }
-
-    if (session.sessionTranscription.transcription) {
-      const transcription = session.sessionTranscription
-        .transcription as JsonObject;
-      const recap = await recapTranscription(transcription.text as string);
-      if (recap) {
-        session = await prisma.session.update({
-          where: {
-            id: sessionId,
-          },
-          data: {
-            suggestedRecap: recap,
-          },
-          include: {
-            sessionTranscription: true,
-            images: {
-              where: {
-                primary: true,
-              },
-            },
-          },
-        });
-      }
-
-      await indexSessionContext(session.campaignId, sessionId);
-    }
-
-    track(AppEvent.RecapSessionTranscription, userId, trackingInfo);
-
-    return session;
-  }
-
-  @Security('jwt')
   @OperationId('emailSummary')
   @Post('/:sessionId/email-summary')
   public async postSessionSummaryEmail(
@@ -580,6 +455,10 @@ export default class SessionController {
 
     track(AppEvent.SessionAudioUploaded, userId, trackingInfo);
 
+    await sessionTranscriptionQueue.add({
+      sessionId: sessionId,
+    });
+
     return {
       audioName: request.audioName,
       audioUri: request.audioUri,
@@ -649,112 +528,8 @@ export default class SessionController {
       });
     }
 
-    const response = await transcribeSessionAudio({
-      userId: userId,
-      sessionId: session.id,
-      audioUri: session.audioUri,
-      requestId: requestId,
-    });
-
-    const sessionTranscription = await prisma.sessionTranscription.findUnique({
-      where: {
-        sessionId: sessionId,
-      },
-    });
-
-    const data = {
-      userId: userId,
+    await sessionTranscriptionQueue.add({
       sessionId: sessionId,
-      callId: response?.data.call_id,
-      status: TranscriptionStatus.PROCESSING,
-    };
-
-    if (!sessionTranscription) {
-      await prisma.sessionTranscription.create({
-        data: data,
-      });
-    } else {
-      await prisma.sessionTranscription.update({
-        where: {
-          sessionId: sessionId,
-        },
-        data: data,
-      });
-    }
-
-    await indexSessionContext(session.campaignId, sessionId);
-
-    return;
-  }
-
-  @Security('service_token')
-  @OperationId('patchSessionTranscription')
-  @Patch('/:sessionId/transcription')
-  public async patchSessionTranscription(
-    @Inject() trackingInfo: TrackingInfo,
-    @Inject() logger: MythWeaverLogger,
-    @Route() sessionId: number,
-    @Body() request: PatchSessionTranscriptionRequest,
-  ): Promise<void> {
-    logger.info('Transcription upload request for sessionId: ', sessionId);
-
-    const sessionTranscription = await prisma.sessionTranscription.findFirst({
-      where: {
-        sessionId: sessionId,
-      },
     });
-
-    if (!sessionTranscription) {
-      throw new AppError({
-        description: 'Session transcription not found.',
-        httpCode: HttpCode.NOT_FOUND,
-      });
-    }
-
-    const transcription = await getTranscription(sessionId);
-
-    await prisma.sessionTranscription.update({
-      where: {
-        sessionId: sessionId,
-      },
-      data: {
-        status: request.status,
-        transcription: transcription,
-      },
-    });
-
-    if (request.status === TranscriptionStatus.COMPLETED) {
-      track(
-        AppEvent.SessionTranscriptionCompleted,
-        sessionTranscription.userId,
-        trackingInfo,
-      );
-      await sendWebsocketMessage(
-        sessionTranscription.userId,
-        WebSocketEvent.TranscriptionComplete,
-        sessionId,
-      );
-    } else if (request.status === TranscriptionStatus.FAILED) {
-      track(
-        AppEvent.SessionTranscriptionFailed,
-        sessionTranscription.userId,
-        trackingInfo,
-      );
-
-      throw new AppError({
-        description: 'There was an error transcribing your session.',
-        httpCode: HttpCode.INTERNAL_SERVER_ERROR,
-        websocket: {
-          userId: sessionTranscription.userId,
-          errorCode: ErrorType.TranscriptionError,
-          context: {
-            userId: sessionTranscription.userId,
-            sessionId: sessionId,
-          },
-        },
-      });
-    }
-
-    return;
   }
 }
