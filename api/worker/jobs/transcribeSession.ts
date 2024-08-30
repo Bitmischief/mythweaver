@@ -38,7 +38,7 @@ export const transcribeSession = async (request: TranscribeSessionEvent) => {
   await retry(async () => {
     // Request parameters
     const data = {
-      audio: session.audioUri || '',
+      audio: `https://${session.audioUri}` || '',
       speaker_labels: true,
       auto_highlights: true,
     };
