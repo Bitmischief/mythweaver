@@ -8,6 +8,7 @@ const openai = getClient();
 
 export interface TranscribeSessionEvent {
   sessionId: number;
+  userId: number;
 }
 
 export const indexSessionContext = async (

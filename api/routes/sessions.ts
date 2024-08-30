@@ -1,9 +1,5 @@
 import express, { Request, Response } from 'express';
-import {
-  checkAuth0Jwt,
-  useAuthenticateServiceRequest,
-  useInjectUserId,
-} from '../lib/authMiddleware';
+import { checkAuth0Jwt, useInjectUserId } from '../lib/authMiddleware';
 import { z } from 'zod';
 import {
   useValidateRequest,
@@ -250,6 +246,29 @@ router.post('/:sessionId/transcription', [
       res.locals.trackingInfo,
       useLogger(),
       requestId as string,
+      sessionId as number,
+    );
+
+    return res.status(200).send();
+  },
+]);
+
+router.delete('/:sessionId/audio', [
+  checkAuth0Jwt,
+  useInjectUserId(),
+  useInjectLoggingInfo(),
+  useValidateRequest(getSessionSchema, {
+    validationType: ValidationTypes.Route,
+  }),
+  async (req: Request, res: Response) => {
+    const controller = new SessionController();
+
+    const { sessionId = 0 } = req.params;
+
+    await controller.deleteSessionAudio(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      useLogger(),
       sessionId as number,
     );
 

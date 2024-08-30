@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import {
+  deleteSessionAudio,
   getSession,
   postTranscriptionRequest,
   SessionBase,
@@ -14,7 +15,7 @@ import {
 } from '@/lib/hooks.ts';
 import AudioPlayback from '@/components/Core/General/AudioPlayback.vue';
 import { showError, showSuccess } from '@/lib/notifications.ts';
-import { MicrophoneIcon } from '@heroicons/vue/20/solid';
+import { MicrophoneIcon, TrashIcon } from '@heroicons/vue/20/solid';
 import { ArrowUpIcon } from '@heroicons/vue/24/outline';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import AudioUpload from '@/components/Core/Forms/AudioUpload.vue';
@@ -242,6 +243,23 @@ const transcriptionSegments = computed(() => {
   }
   return [];
 });
+
+async function tryDeleteSessionAudio() {
+  const deleteAudio = confirm(
+    "Are you sure you want to delete this session's audio? This will also delete any associated transcripts.",
+  );
+
+  if (!deleteAudio) {
+    return;
+  }
+
+  if (session.value.audioUri) {
+    session.value.audioUri = '';
+    session.value.audioName = '';
+
+    await deleteSessionAudio(session.value.id);
+  }
+}
 </script>
 
 <template>
@@ -258,16 +276,25 @@ const transcriptionSegments = computed(() => {
       Upload Audio
     </div>
     <div class="bg-surface rounded-[18px] flex justify-start p-4">
-      <AudioPlayback
-        v-if="session.audioUri"
-        class="self-center"
-        :audio-name="session.audioName"
-        :audio-uri="session.audioUri"
-        :start="startSeconds"
-        :has-transcription="!!session.sessionTranscription?.transcription"
-        @seek="setCurrentAudioTime"
-        @jump="jumpToCurrent"
-      />
+      <div v-if="session.audioUri" class="flex justify-start w-full">
+        <AudioPlayback
+          class="self-center"
+          :audio-name="session.audioName"
+          :audio-uri="session.audioUri"
+          :start="startSeconds"
+          :has-transcription="!!session.sessionTranscription?.transcription"
+          @seek="setCurrentAudioTime"
+          @jump="jumpToCurrent"
+        />
+
+        <button
+          class="button-primary ml-2 h-12 self-center group hover:bg-neutral-900"
+          @click="tryDeleteSessionAudio"
+        >
+          <TrashIcon class="w-4 h-4 group-hover:text-red-500" />
+        </button>
+      </div>
+
       <div
         v-else-if="currentUserRole === CampaignRole.DM && !readOnly"
         class="button-ghost flex mr-2"
@@ -280,7 +307,7 @@ const transcriptionSegments = computed(() => {
     </div>
 
     <div id="transcription-title" class="underline text-lg p-4 pb-0">
-      Transcription
+      Transcript
     </div>
     <div v-if="session.sessionTranscription?.transcription" class="p-4">
       <div

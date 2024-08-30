@@ -368,7 +368,7 @@ const next = () => {
               :class="{ 'purple-pulse': pingSessionCompleteButton }"
               @click="sessionComplete"
             >
-              Mark Session As Complete
+              Complete Session
               <ArrowRightIcon class="min-w-5 w-5 self-center" />
             </button>
           </div>
@@ -376,7 +376,7 @@ const next = () => {
             <button>
               <button class="button-ghost flex" @click="next">
                 Next
-                <ArrowRightIcon class="min-w-5 w-5 self-center" />
+                <ArrowRightIcon class="min-w-5 ml-2 w-5 self-center" />
               </button>
             </button>
           </div>

@@ -213,26 +213,19 @@ model Session {
   archived   Boolean   @default(false)
   isOver     Boolean   @default(false)
 
-  summary                  String?
-  transcript               Json?
-  transcriptSpeakerMapping Json?
-  transcriptExternalId     String?
-  planning                 String?
-  recap                    String?
-  imageUri                 String?
-  suggestions              String?
-  name                     String?
-  audioName                String?
-  audioUri                 String?
-  planningJson             Json?
-  date                     DateTime? @db.Timestamptz(6)
+  summary      String?
+  planning     String?
+  recap        String?
+  imageUri     String?
+  name         String?
+  audioName    String?
+  audioUri     String?
+  planningJson Json?
+  date         DateTime? @db.Timestamptz(6)
 
-  suggestedName        String?
-  suggestedSummary     String?
-  suggestedSuggestions String?
-  suggestedImagePrompt String?
-  suggestedImageUri    String?
-  suggestedRecap       String?
+  suggestedName    String?
+  suggestedSummary String?
+  suggestedRecap   String?
 
   user                 User                  @relation(fields: [userId], references: [id])
   campaign             Campaign              @relation(fields: [campaignId], references: [id], onDelete: Cascade)
@@ -356,15 +349,25 @@ model MagicLink {
   @@map("magic_links")
 }
 
+enum TranscriptStatus {
+  PROCESSING
+  COMPLETE
+  FAILED
+}
+
 model SessionTranscription {
   createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
   updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
 
-  sessionId     Int     @id @unique
-  userId        Int
-  callId        String?
-  status        String?
-  transcription Json?
+  sessionId                Int              @id @unique
+  userId                   Int
+  callId                   String?
+  status                   String?
+  status_new               TranscriptStatus
+  transcription            Json?
+  transcript               Json?
+  transcriptSpeakerMapping Json?
+  transcriptExternalId     String?
 
   user    User?    @relation(fields: [userId], references: [id])
   session Session? @relation(fields: [sessionId], references: [id])

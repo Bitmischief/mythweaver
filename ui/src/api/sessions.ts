@@ -128,3 +128,7 @@ export const postSessionAudio = (sessionId: number, request: FormData) => {
 export const postTranscriptionRequest = (sessionId: number) => {
   return axios.post(`/sessions/${sessionId}/transcription`);
 };
+
+export const deleteSessionAudio = (sessionId: number) => {
+  return axios.delete(`/sessions/${sessionId}/audio`);
+};

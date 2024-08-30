@@ -12,7 +12,7 @@ import {
   Tags,
 } from 'tsoa';
 import { prisma } from '../lib/providers/prisma';
-import { AppError, ErrorType, HttpCode } from '../lib/errors/AppError';
+import { AppError, HttpCode } from '../lib/errors/AppError';
 import { BillingPlan, Session } from '@prisma/client';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { CampaignRole } from './campaigns';
@@ -20,13 +20,7 @@ import { sendTransactionalEmail } from '../lib/transactionalEmail';
 import { urlPrefix } from '../lib/utils';
 import { sendWebsocketMessage, WebSocketEvent } from '../services/websockets';
 import { MythWeaverLogger } from '../lib/logger';
-import {
-  recapTranscription,
-  transcribeSessionAudio,
-} from '../services/transcription';
-import { JsonObject } from '@prisma/client/runtime/library';
 import { format } from 'date-fns';
-import { getTranscription } from '../services/dataStorage';
 import { getClient } from '../lib/providers/openai';
 import {
   deleteSessionContext,
@@ -60,10 +54,6 @@ interface PatchSessionRequest {
   completed?: boolean;
 }
 
-interface PostCompleteSessionRequest {
-  recap: string;
-}
-
 interface PostSessionAudioRequest {
   audioName: string;
   audioUri: string;
@@ -72,10 +62,6 @@ interface PostSessionAudioRequest {
 interface PostSessionAudioResponse {
   audioName: string;
   audioUri: string;
-}
-
-interface PatchSessionTranscriptionRequest {
-  status: TranscriptionStatus;
 }
 
 export enum SessionStatus {
@@ -456,7 +442,8 @@ export default class SessionController {
     track(AppEvent.SessionAudioUploaded, userId, trackingInfo);
 
     await sessionTranscriptionQueue.add({
-      sessionId: sessionId,
+      sessionId,
+      userId,
     });
 
     return {
@@ -530,6 +517,57 @@ export default class SessionController {
 
     await sessionTranscriptionQueue.add({
       sessionId: sessionId,
+      userId,
+    });
+  }
+
+  @Security('jwt')
+  @OperationId('deleteSessionAudio')
+  @Delete('/:sessionId/audio')
+  public async deleteSessionAudio(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
+    @Route() sessionId: number,
+  ) {
+    const session = await this.getSession(
+      userId,
+      trackingInfo,
+      logger,
+      sessionId,
+    );
+
+    const campaignMember = await prisma.campaignMember.findUnique({
+      where: {
+        userId_campaignId: {
+          userId,
+          campaignId: session.campaignId,
+        },
+      },
+    });
+
+    if (!campaignMember || campaignMember.role !== CampaignRole.DM) {
+      throw new AppError({
+        description:
+          'You do not have permission to delete audio from this session.',
+        httpCode: HttpCode.FORBIDDEN,
+      });
+    }
+
+    await prisma.session.update({
+      where: {
+        id: sessionId,
+      },
+      data: {
+        audioName: null,
+        audioUri: null,
+      },
+    });
+
+    await prisma.sessionTranscription.deleteMany({
+      where: {
+        sessionId: sessionId,
+      },
     });
   }
 }
