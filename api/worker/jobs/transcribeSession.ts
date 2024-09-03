@@ -85,6 +85,7 @@ export const transcribeSession = async (request: TranscribeSessionEvent) => {
       await processCompletedTranscript(sessionId, userId, transcript.id);
     });
   } catch (error) {
+    logger.error('Encountered an error transcribing session audio.', {}, error);
     await prisma.sessionTranscription.update({
       where: {
         sessionId: sessionId,
@@ -124,13 +125,21 @@ const processCompletedTranscript = async (
     prompt: summaryPrompt,
   });
 
+  const { sentences } = await client.transcripts.sentences(transcript.id);
+  const { paragraphs } = await client.transcripts.paragraphs(transcript.id);
+
   await prisma.sessionTranscription.update({
     where: {
       sessionId,
     },
     data: {
       status_new: TranscriptStatus.COMPLETE,
-      transcript: transcript.utterances as any,
+      transcript: {
+        ...transcript,
+        utterances: undefined,
+        sentences,
+        paragraphs,
+      },
       transcriptExternalId: transcript.id,
     },
   });

@@ -260,6 +260,17 @@ async function tryDeleteSessionAudio() {
     await deleteSessionAudio(session.value.id);
   }
 }
+
+function getMostCommonSpeaker(sentence: any) {
+  const mostCommonSpeaker = sentence.words.reduce((acc: any, word: any) => {
+    acc[word.speaker] = (acc[word.speaker] || 0) + 1;
+    return acc;
+  }, {});
+
+  return Object.keys(mostCommonSpeaker).reduce((a, b) =>
+    mostCommonSpeaker[a] > mostCommonSpeaker[b] ? a : b,
+  );
+}
 </script>
 
 <template>
@@ -338,6 +349,29 @@ async function tryDeleteSessionAudio() {
           <button class="button-gradient" @click="collapsed = false">
             Show {{ hiddenSegmentCount }} more lines
           </button>
+        </div>
+      </div>
+    </div>
+    <div v-else-if="session.sessionTranscription?.transcript" class="p-4">
+      <div
+        v-for="(s, i) in session.sessionTranscription?.transcript?.sentences"
+        :key="`seg_${i}`"
+        class="text-neutral-300 group hover:cursor-pointer flex mb-4"
+        @click="startSeconds = s.start / 1000"
+      >
+        <div
+          class="text-xs mt-1 text-neutral-500 group-hover:text-violet-500 mr-4"
+        >
+          {{ getTimestamp(s.start / 1000) }}
+        </div>
+        <div class="mr-4">Speaker {{ getMostCommonSpeaker(s) }}</div>
+        <div
+          class="group-hover:text-violet-500"
+          :class="{
+            'text-fuchsia-500 audio-read': s.start / 1000 <= currentAudioTime,
+          }"
+        >
+          {{ s.text }}
         </div>
       </div>
     </div>

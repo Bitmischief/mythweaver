@@ -435,7 +435,10 @@ export default class SessionController {
       },
       data: {
         audioName: request.audioName,
-        audioUri: request.audioUri,
+        audioUri:
+          request.audioUri.indexOf('https://') === -1
+            ? `https://${request.audioUri}`
+            : request.audioUri,
       },
     });
 
