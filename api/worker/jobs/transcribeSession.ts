@@ -7,7 +7,7 @@ import {
   sendWebsocketMessage,
   WebSocketEvent,
 } from '../../services/websockets';
-import { TranscriptStatus } from '@prisma/client';
+import { Session, TranscriptStatus } from '@prisma/client';
 import logger from '../../lib/logger';
 import { SpeechModel } from 'assemblyai/src/types/openapi.generated';
 import { sleep } from 'openai/core';
@@ -39,62 +39,87 @@ export const transcribeSession = async (request: TranscribeSessionEvent) => {
     });
   }
 
-  try {
-    await retry(async () => {
-      const sessionTranscript = await createOrUpdateSessionTranscriptRecord(
-        sessionId,
-        userId,
+  await retry(async () => {
+    try {
+      await processSessionTranscription(userId, session);
+    } catch (error) {
+      logger.error(
+        'Encountered an error transcribing session audio.',
+        {},
+        error,
       );
-
-      if (!sessionTranscript) {
-        logger.info('Session transcript already processed or processing.');
-        return;
-      }
-
-      // Request parameters
-      const data = {
-        audio: session.audioUri || '',
-        speaker_labels: true,
-        auto_highlights: true,
-        speech_model: 'nano' as SpeechModel,
-      };
-
-      let transcript: Transcript;
-      try {
-        transcript = await client.transcripts.transcribe(data);
-      } catch (error) {
-        logger.error('Error transcribing session audio.', {}, error);
-        throw new AppError({
-          description: 'Error transcribing session audio.',
-          httpCode: HttpCode.INTERNAL_SERVER_ERROR,
-        });
-      }
-
       await prisma.sessionTranscription.update({
         where: {
-          sessionId: sessionTranscript.sessionId,
+          sessionId: sessionId,
         },
         data: {
-          status_new: TranscriptStatus.PROCESSING,
-          transcriptExternalId: transcript.id,
+          status_new: TranscriptStatus.FAILED,
         },
       });
+    }
+  });
+};
 
-      await pollForTranscript(transcript.id);
+const processSessionTranscription = async (
+  userId: number,
+  session: Session,
+) => {
+  const sessionTranscript = await createOrUpdateSessionTranscriptRecord(
+    session.id,
+    userId,
+  );
 
-      await processCompletedTranscript(sessionId, userId, transcript.id);
-    });
-  } catch (error) {
-    logger.error('Encountered an error transcribing session audio.', {}, error);
-    await prisma.sessionTranscription.update({
-      where: {
-        sessionId: sessionId,
-      },
-      data: {
-        status_new: TranscriptStatus.FAILED,
-      },
+  if (!sessionTranscript) {
+    logger.info('Session transcript already processed or processing.');
+    return;
+  }
+
+  if (!session.audioUri) {
+    throw new AppError({
+      description: 'Session audio not found.',
+      httpCode: HttpCode.NOT_FOUND,
     });
   }
+
+  // Request parameters
+  const data = {
+    audio:
+      session.audioUri?.indexOf('https') === -1
+        ? `https://${session.audioUri}`
+        : session.audioUri,
+    speaker_labels: true,
+    auto_highlights: true,
+    speech_model: 'nano' as SpeechModel,
+  };
+
+  let transcript: Transcript;
+  try {
+    transcript = await client.transcripts.transcribe(data);
+  } catch (error) {
+    logger.error('Error transcribing session audio.', {}, error);
+    throw new AppError({
+      description: 'Error transcribing session audio.',
+      httpCode: HttpCode.INTERNAL_SERVER_ERROR,
+    });
+  }
+
+  await prisma.sessionTranscription.update({
+    where: {
+      sessionId: sessionTranscript.sessionId,
+    },
+    data: {
+      status_new: TranscriptStatus.PROCESSING,
+      transcriptExternalId: transcript.id,
+    },
+  });
+
+  await sendWebsocketMessage(userId, WebSocketEvent.TranscriptionStarted, {
+    sessionId: session.id,
+  });
+
+  await pollForTranscript(transcript.id);
+
+  await processCompletedTranscript(session.id, userId, transcript.id);
 };
 
 const processCompletedTranscript = async (
@@ -111,18 +136,24 @@ const processCompletedTranscript = async (
     });
   }
 
-  const recapPrompt = 'Provide an 8-12 sentence recap of the transcript.';
+  const recapPrompt =
+    "Provide a thorough recap of the transcript. For every 30 minutes of audio, there should be at least a paragraph in the recap to summarize. Respond with just the summary and don't include a preamble or introduction.";
 
   const { response: recap } = await client.lemur.task({
     transcript_ids: [transcript.id],
     prompt: recapPrompt,
+    context: 'This is a tabletop roleplaying game session',
+    final_model: 'anthropic/claude-3-5-sonnet',
   });
 
-  const summaryPrompt = 'Provide a 4 sentence summary of the transcript.';
+  const summaryPrompt =
+    "Provide an 8 sentence summary of the transcript. Respond with just the summary and don't include a preamble or introduction.";
 
   const { response: summary } = await client.lemur.task({
     transcript_ids: [transcript.id],
     prompt: summaryPrompt,
+    context: 'This is a tabletop roleplaying game session',
+    final_model: 'anthropic/claude-3-5-sonnet',
   });
 
   const { sentences } = await client.transcripts.sentences(transcript.id);
@@ -149,15 +180,19 @@ const processCompletedTranscript = async (
       id: sessionId,
     },
     data: {
-      summary,
-      recap,
+      summary: summary.replace(
+        'Here is an 8 sentence summary of the transcript: ',
+        '',
+      ),
+      recap: recap.replace(
+        '\n Here is a thorough recap of the transcript:\n\n',
+        '',
+      ),
     },
   });
 
-  await sendWebsocketMessage(userId, WebSocketEvent.SessionTranscriptCreated, {
+  await sendWebsocketMessage(userId, WebSocketEvent.TranscriptionComplete, {
     sessionId: sessionId,
-    transcript: transcript.utterances,
-    summary: summary,
   });
 };
 

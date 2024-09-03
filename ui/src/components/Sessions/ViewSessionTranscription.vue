@@ -9,12 +9,13 @@ import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import {
   showUpgradeModal,
+  useCurrentUserPlan,
   useHasValidPlan,
   useUnsavedChangesWarning,
   useWebsocketChannel,
 } from '@/lib/hooks.ts';
 import AudioPlayback from '@/components/Core/General/AudioPlayback.vue';
-import { showError, showSuccess } from '@/lib/notifications.ts';
+import { showError } from '@/lib/notifications.ts';
 import { MicrophoneIcon, TrashIcon } from '@heroicons/vue/20/solid';
 import { ArrowUpIcon } from '@heroicons/vue/24/outline';
 import ModalAlternate from '@/components/ModalAlternate.vue';
@@ -62,9 +63,10 @@ async function init() {
   );
   originalSession.value = response.data as SessionBase;
   session.value = { ...originalSession.value };
+
   if (
     response.data.sessionTranscription !== null &&
-    response.data.sessionTranscription.status === 'PROCESSING'
+    response.data.sessionTranscription.status_new === 'PROCESSING'
   ) {
     loadingTranscribeSession.value = true;
   }
@@ -77,11 +79,6 @@ async function init() {
 }
 
 async function transcriptionStartedHandler() {
-  showSuccess({
-    message: 'Session transcription is in progress!',
-    context:
-      'This process can take 10-20 minutes depending on the length of your session.',
-  });
   loadingTranscribeSession.value = true;
 
   await init();
@@ -131,6 +128,10 @@ function handleAudioUpload(payload: { audioUri: string; audioName: string }) {
     ...payload,
   };
   showUploadAudioModal.value = false;
+
+  if (useCurrentUserPlan().value === BillingPlan.Pro) {
+    loadingTranscribeSession.value = true;
+  }
 }
 
 const loadingTranscribeSession = ref(false);
@@ -364,7 +365,7 @@ function getMostCommonSpeaker(sentence: any) {
         >
           {{ getTimestamp(s.start / 1000) }}
         </div>
-        <div class="mr-4">Speaker {{ getMostCommonSpeaker(s) }}</div>
+        <!--        <div class="mr-4">Speaker {{ getMostCommonSpeaker(s) }}</div>-->
         <div
           class="group-hover:text-violet-500"
           :class="{
@@ -398,8 +399,8 @@ function getMostCommonSpeaker(sentence: any) {
         v-if="loadingTranscribeSession"
         class="text-xs text-neutral-400 mt-2"
       >
-        Your transcription is loading, please note this process can take 10-20
-        minutes for a 2-4 hour long session.
+        Your session is being transcribed, you can leave this page! Please note
+        this process can take 10-20 minutes for a 2-4 hour long session.
       </div>
       <div
         v-if="session.sessionTranscription?.status === 'FAILED'"

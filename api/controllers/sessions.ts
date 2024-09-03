@@ -444,10 +444,12 @@ export default class SessionController {
 
     track(AppEvent.SessionAudioUploaded, userId, trackingInfo);
 
-    await sessionTranscriptionQueue.add({
-      sessionId,
-      userId,
-    });
+    if (user.plan === BillingPlan.PRO) {
+      await sessionTranscriptionQueue.add({
+        sessionId,
+        userId,
+      });
+    }
 
     return {
       audioName: request.audioName,
