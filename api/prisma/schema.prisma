@@ -363,7 +363,7 @@ model SessionTranscription {
   userId                   Int
   callId                   String?
   status                   String?
-  status_new               TranscriptStatus
+  status_new               TranscriptStatus @default(COMPLETE)
   transcription            Json?
   transcript               Json?
   transcriptSpeakerMapping Json?
