@@ -1,7 +1,6 @@
 import Queue from 'bull';
 import { processTags } from './jobs/processTags';
 import { conjure } from './jobs/conjure';
-import { completeSession } from './jobs/completeSession';
 import { ImageStylePreset } from '../controllers/images';
 import logger from '../lib/logger';
 import { endTrials } from './jobs/endTrials';
@@ -9,6 +8,8 @@ import { AppError, ErrorType, HttpCode } from '../lib/errors/AppError';
 import { checkImageStatus } from './jobs/imageStatus';
 import { indexCampaignContext } from './jobs/indexCampaignContext';
 import { ReindexCampaignContextEvent } from '../dataAccess/campaigns';
+import { transcribeSession } from './jobs/transcribeSession';
+import { TranscribeSessionEvent } from '../dataAccess/sessions';
 
 const config = process.env.REDIS_ENDPOINT || '';
 
@@ -79,29 +80,6 @@ conjureQueue.process(async (job, done) => {
   }
 });
 
-export interface CompleteSessionEvent {
-  userId: number;
-  sessionId: number;
-}
-
-export const completeSessionQueue = new Queue<CompleteSessionEvent>(
-  'complete-session',
-  config,
-);
-
-completeSessionQueue.process(async (job, done) => {
-  logger.info('Processing complete session job', job.data);
-
-  try {
-    await completeSession(job.data);
-    logger.info('Completed processing conjure job', job.data);
-    done();
-  } catch (err) {
-    logger.error('Error processing conjure job!', err);
-    done(new Error('Error processing conjure job!'));
-  }
-});
-
 export const endTrialQueue = new Queue('end-trial', config);
 
 endTrialQueue.process(async (job, done) => {
@@ -147,5 +125,23 @@ indexCampaignContextQueue.process(async (job, done) => {
   } catch (err) {
     logger.error('Error processing index campaign context job!', err);
     done(new Error('Error processing index campaign context job!'));
+  }
+});
+
+export const sessionTranscriptionQueue = new Queue<TranscribeSessionEvent>(
+  'transcribe-session',
+  config,
+);
+
+sessionTranscriptionQueue.process(async (job, done) => {
+  logger.info('Processing session transcript context job', job.data);
+
+  try {
+    await transcribeSession(job.data);
+    logger.info('Completed processing session transcript job', job.data);
+    done();
+  } catch (err) {
+    logger.error('Error processing session transcript job!', err);
+    done(new Error('Error processing session transcript job!'));
   }
 });

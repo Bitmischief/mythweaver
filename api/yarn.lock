@@ -2545,6 +2545,13 @@ arraybuffer.prototype.slice@^1.0.3:
     is-array-buffer "^3.0.4"
     is-shared-array-buffer "^1.0.2"
 
+assemblyai@^4.7.0:
+  version "4.7.0"
+  resolved "https://registry.yarnpkg.com/assemblyai/-/assemblyai-4.7.0.tgz#852670f9a24d540b1b56d298eed26bc4f75df4c4"
+  integrity sha512-m0GGgb9StJMYJns9bUrMtz+WlrcM8jNiYnhlSalz5tGgu9XUThxjOs6bWXxPNsD/0BjXp4VijMEvwmue3Q85mQ==
+  dependencies:
+    ws "^8.17.1"
+
 async-await-retry@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/async-await-retry/-/async-await-retry-2.1.0.tgz#c5a595654a0c32d159801ae8ea1e461efb74fcc9"
@@ -6905,6 +6912,11 @@ write-file-atomic@^4.0.2:
   dependencies:
     imurmurhash "^0.1.4"
     signal-exit "^3.0.7"
+
+ws@^8.17.1:
+  version "8.18.0"
+  resolved "https://registry.yarnpkg.com/ws/-/ws-8.18.0.tgz#0d7505a6eafe2b0e712d232b42279f53bc289bbc"
+  integrity sha512-8VbfWfHLbbwu3+N6OKsOMpBdT4kXPDDB9cJk2bJ6mh9ucxdlnNvH1e+roYkKmN9Nxw2yjz7VzeO9oOz2zJ04Pw==
 
 xtend@^4.0.0:
   version "4.0.2"

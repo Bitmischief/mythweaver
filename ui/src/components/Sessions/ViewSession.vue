@@ -31,6 +31,7 @@ import ViewSessionSummary from '@/components/Sessions/ViewSessionSummary.vue';
 import { format } from 'date-fns';
 import Spinner from '@/components/Core/Spinner.vue';
 import { BillingPlan } from '@/api/users.ts';
+import { sleep } from '@/lib/util.ts';
 
 const route = useRoute();
 const router = useRouter();
@@ -46,6 +47,7 @@ const sessionId = computed(() => parseInt(route.params.sessionId.toString()));
 const sessionDate = ref();
 const tab = ref();
 const showAudio = ref(false);
+const proceedPastRecap = ref(false);
 
 onMounted(async () => {
   eventBus.$on('session-processing', (payload: { recap: string }) => {
@@ -187,6 +189,8 @@ async function sessionOver() {
 
 async function sessionComplete() {
   try {
+    proceedPastRecap.value = true;
+    await sleep(1000);
     await patchSession({
       id: session.value.id,
       completed: true,
@@ -355,7 +359,7 @@ const next = () => {
               :class="{ 'purple-pulse': pingSessionOverButton }"
               @click="sessionOver"
             >
-              Mark Session As Over
+              Next
               <ArrowRightIcon class="min-w-5 w-5 self-center" />
             </button>
           </div>
@@ -368,7 +372,7 @@ const next = () => {
               :class="{ 'purple-pulse': pingSessionCompleteButton }"
               @click="sessionComplete"
             >
-              Mark Session As Complete
+              Next
               <ArrowRightIcon class="min-w-5 w-5 self-center" />
             </button>
           </div>
@@ -376,7 +380,7 @@ const next = () => {
             <button>
               <button class="button-ghost flex" @click="next">
                 Next
-                <ArrowRightIcon class="min-w-5 w-5 self-center" />
+                <ArrowRightIcon class="min-w-5 ml-2 w-5 self-center" />
               </button>
             </button>
           </div>
@@ -486,7 +490,7 @@ const next = () => {
         <div class="text-sm text-neutral-400 mb-2">
           Add a recap of the session. This will be visible to your players.
         </div>
-        <ViewSessionRecap />
+        <ViewSessionRecap :proceed-past-recap="proceedPastRecap" />
       </div>
     </div>
     <div v-if="tab === 'plan'">

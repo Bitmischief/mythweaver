@@ -24,9 +24,7 @@ export interface SessionBase {
   suggestedName?: string | undefined;
   suggestedSummary?: string | undefined;
   suggestedTranscript?: string | undefined;
-  suggestedImageUri?: string | undefined;
   suggestedSuggestions?: string | undefined;
-  suggestedImagePrompt?: string | undefined;
   suggestedRecap?: string | undefined;
   audioName?: string | undefined;
   audioUri?: string | undefined;
@@ -67,9 +65,7 @@ export interface PatchSessionRequest {
   suggestedName?: string | undefined;
   suggestedSummary?: string | undefined;
   suggestedTranscript?: string | undefined;
-  suggestedImageUri?: string | undefined;
   suggestedSuggestions?: string | undefined;
-  suggestedImagePrompt?: string | undefined;
   suggestedRecap?: string | undefined;
 }
 
@@ -127,4 +123,8 @@ export const postSessionAudio = (sessionId: number, request: FormData) => {
 
 export const postTranscriptionRequest = (sessionId: number) => {
   return axios.post(`/sessions/${sessionId}/transcription`);
+};
+
+export const deleteSessionAudio = (sessionId: number) => {
+  return axios.delete(`/sessions/${sessionId}/audio`);
 };

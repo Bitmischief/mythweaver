@@ -12,7 +12,7 @@ import {
   Tags,
 } from 'tsoa';
 import { prisma } from '../lib/providers/prisma';
-import { AppError, ErrorType, HttpCode } from '../lib/errors/AppError';
+import { AppError, HttpCode } from '../lib/errors/AppError';
 import { BillingPlan, Session } from '@prisma/client';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { CampaignRole } from './campaigns';
@@ -20,18 +20,17 @@ import { sendTransactionalEmail } from '../lib/transactionalEmail';
 import { urlPrefix } from '../lib/utils';
 import { sendWebsocketMessage, WebSocketEvent } from '../services/websockets';
 import { MythWeaverLogger } from '../lib/logger';
-import {
-  recapTranscription,
-  transcribeSessionAudio,
-} from '../services/transcription';
-import { JsonObject } from '@prisma/client/runtime/library';
 import { format } from 'date-fns';
-import { getTranscription } from '../services/dataStorage';
 import { getClient } from '../lib/providers/openai';
 import {
   deleteSessionContext,
   indexSessionContext,
 } from '../dataAccess/sessions';
+import { sessionTranscriptionQueue } from '../worker';
+
+interface PostCompleteSessionRequest {
+  recap: string;
+}
 
 const openai = getClient();
 
@@ -59,10 +58,6 @@ interface PatchSessionRequest {
   completed?: boolean;
 }
 
-interface PostCompleteSessionRequest {
-  recap: string;
-}
-
 interface PostSessionAudioRequest {
   audioName: string;
   audioUri: string;
@@ -71,10 +66,6 @@ interface PostSessionAudioRequest {
 interface PostSessionAudioResponse {
   audioName: string;
   audioUri: string;
-}
-
-interface PatchSessionTranscriptionRequest {
-  status: TranscriptionStatus;
 }
 
 export enum SessionStatus {
@@ -228,7 +219,6 @@ export default class SessionController {
         id: sessionId,
       },
       data: {
-        userId,
         ...request,
       },
     });
@@ -280,132 +270,6 @@ export default class SessionController {
     }
 
     return true;
-  }
-
-  @Security('jwt')
-  @OperationId('generateSummary')
-  @Post('/generate-summary')
-  public async postGenerateSummary(
-    @Inject() userId: number,
-    @Inject() trackingInfo: TrackingInfo,
-    @Inject() logger: MythWeaverLogger,
-    @Body() request: PostCompleteSessionRequest,
-  ): Promise<any> {
-    const openai = getClient();
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4o',
-      messages: [
-        {
-          role: 'system',
-          content:
-            'You are a helpful assistant who is knowledgeable in dungeons and dragons.',
-        },
-        {
-          role: 'user',
-          content: `Please summarize the ttrpg session that just happened, that has the following details:
-          ${request?.recap}.
-          Please return only text, do not include any other formatting.
-          Please make the length of the summary proportional to the length of the recap,
-          ensuring you include the most important highlights from the recap.`,
-        },
-      ],
-    });
-
-    const gptResponse = response.choices[0]?.message?.content;
-    logger.info('Received raw response from openai', gptResponse);
-
-    return gptResponse;
-  }
-
-  @Security('jwt')
-  @OperationId('recapTranscription')
-  @Post('/:sessionId/recap-transcription')
-  public async postRecapTranscription(
-    @Inject() userId: number,
-    @Inject() trackingInfo: TrackingInfo,
-    @Inject() logger: MythWeaverLogger,
-    @Route() sessionId: number,
-  ): Promise<Session> {
-    let session = await prisma.session.findUnique({
-      where: {
-        id: sessionId,
-      },
-      include: {
-        sessionTranscription: true,
-        images: {
-          where: {
-            primary: true,
-          },
-        },
-      },
-    });
-
-    if (!session) {
-      throw new AppError({
-        description: 'Session not found.',
-        httpCode: HttpCode.NOT_FOUND,
-      });
-    }
-
-    if (session.userId !== null && session.userId !== userId) {
-      throw new AppError({
-        description: 'You do not have access to this session.',
-        httpCode: HttpCode.FORBIDDEN,
-      });
-    }
-
-    const campaignMember = await prisma.campaignMember.findUnique({
-      where: {
-        userId_campaignId: {
-          userId,
-          campaignId: session.campaignId,
-        },
-      },
-    });
-
-    if (!campaignMember || campaignMember.role !== CampaignRole.DM) {
-      throw new AppError({
-        description: 'You do not have permission to complete this session.',
-        httpCode: HttpCode.FORBIDDEN,
-      });
-    }
-
-    if (!session.sessionTranscription) {
-      throw new AppError({
-        description: 'Transcript not found.',
-        httpCode: HttpCode.NOT_FOUND,
-      });
-    }
-
-    if (session.sessionTranscription.transcription) {
-      const transcription = session.sessionTranscription
-        .transcription as JsonObject;
-      const recap = await recapTranscription(transcription.text as string);
-      if (recap) {
-        session = await prisma.session.update({
-          where: {
-            id: sessionId,
-          },
-          data: {
-            suggestedRecap: recap,
-          },
-          include: {
-            sessionTranscription: true,
-            images: {
-              where: {
-                primary: true,
-              },
-            },
-          },
-        });
-      }
-
-      await indexSessionContext(session.campaignId, sessionId);
-    }
-
-    track(AppEvent.RecapSessionTranscription, userId, trackingInfo);
-
-    return session;
   }
 
   @Security('jwt')
@@ -574,11 +438,21 @@ export default class SessionController {
       },
       data: {
         audioName: request.audioName,
-        audioUri: request.audioUri,
+        audioUri:
+          request.audioUri.indexOf('https://') === -1
+            ? `https://${request.audioUri}`
+            : request.audioUri,
       },
     });
 
     track(AppEvent.SessionAudioUploaded, userId, trackingInfo);
+
+    if (user.plan === BillingPlan.PRO) {
+      await sessionTranscriptionQueue.add({
+        sessionId,
+        userId,
+      });
+    }
 
     return {
       audioName: request.audioName,
@@ -649,112 +523,94 @@ export default class SessionController {
       });
     }
 
-    const response = await transcribeSessionAudio({
-      userId: userId,
-      sessionId: session.id,
-      audioUri: session.audioUri,
-      requestId: requestId,
-    });
-
-    const sessionTranscription = await prisma.sessionTranscription.findUnique({
-      where: {
-        sessionId: sessionId,
-      },
-    });
-
-    const data = {
-      userId: userId,
+    await sessionTranscriptionQueue.add({
       sessionId: sessionId,
-      callId: response?.data.call_id,
-      status: TranscriptionStatus.PROCESSING,
-    };
-
-    if (!sessionTranscription) {
-      await prisma.sessionTranscription.create({
-        data: data,
-      });
-    } else {
-      await prisma.sessionTranscription.update({
-        where: {
-          sessionId: sessionId,
-        },
-        data: data,
-      });
-    }
-
-    await indexSessionContext(session.campaignId, sessionId);
-
-    return;
+      userId,
+    });
   }
 
-  @Security('service_token')
-  @OperationId('patchSessionTranscription')
-  @Patch('/:sessionId/transcription')
-  public async patchSessionTranscription(
+  @Security('jwt')
+  @OperationId('deleteSessionAudio')
+  @Delete('/:sessionId/audio')
+  public async deleteSessionAudio(
+    @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
     @Inject() logger: MythWeaverLogger,
     @Route() sessionId: number,
-    @Body() request: PatchSessionTranscriptionRequest,
-  ): Promise<void> {
-    logger.info('Transcription upload request for sessionId: ', sessionId);
+  ) {
+    const session = await this.getSession(
+      userId,
+      trackingInfo,
+      logger,
+      sessionId,
+    );
 
-    const sessionTranscription = await prisma.sessionTranscription.findFirst({
+    const campaignMember = await prisma.campaignMember.findUnique({
       where: {
-        sessionId: sessionId,
+        userId_campaignId: {
+          userId,
+          campaignId: session.campaignId,
+        },
       },
     });
 
-    if (!sessionTranscription) {
+    if (!campaignMember || campaignMember.role !== CampaignRole.DM) {
       throw new AppError({
-        description: 'Session transcription not found.',
-        httpCode: HttpCode.NOT_FOUND,
+        description:
+          'You do not have permission to delete audio from this session.',
+        httpCode: HttpCode.FORBIDDEN,
       });
     }
 
-    const transcription = await getTranscription(sessionId);
-
-    await prisma.sessionTranscription.update({
+    await prisma.session.update({
       where: {
-        sessionId: sessionId,
+        id: sessionId,
       },
       data: {
-        status: request.status,
-        transcription: transcription,
+        audioName: null,
+        audioUri: null,
       },
     });
 
-    if (request.status === TranscriptionStatus.COMPLETED) {
-      track(
-        AppEvent.SessionTranscriptionCompleted,
-        sessionTranscription.userId,
-        trackingInfo,
-      );
-      await sendWebsocketMessage(
-        sessionTranscription.userId,
-        WebSocketEvent.TranscriptionComplete,
-        sessionId,
-      );
-    } else if (request.status === TranscriptionStatus.FAILED) {
-      track(
-        AppEvent.SessionTranscriptionFailed,
-        sessionTranscription.userId,
-        trackingInfo,
-      );
+    await prisma.sessionTranscription.deleteMany({
+      where: {
+        sessionId: sessionId,
+      },
+    });
+  }
 
-      throw new AppError({
-        description: 'There was an error transcribing your session.',
-        httpCode: HttpCode.INTERNAL_SERVER_ERROR,
-        websocket: {
-          userId: sessionTranscription.userId,
-          errorCode: ErrorType.TranscriptionError,
-          context: {
-            userId: sessionTranscription.userId,
-            sessionId: sessionId,
-          },
+  @Security('jwt')
+  @OperationId('generateSummary')
+  @Post('/generate-summary')
+  public async postGenerateSummary(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
+    @Body() request: PostCompleteSessionRequest,
+  ): Promise<any> {
+    const openai = getClient();
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      messages: [
+        {
+          role: 'system',
+          content:
+            'You are a helpful assistant who is knowledgeable in dungeons and dragons.',
         },
-      });
-    }
+        {
+          role: 'user',
+          content: `Provide an 8 sentence summary of the recap provided here:
+          ${request?.recap}.
+          Please return only text, do not include any other formatting.
+          Please make the length of the summary proportional to the length of the recap,
+          ensuring you include the most important highlights from the recap.`,
+        },
+      ],
+    });
 
-    return;
+    const gptResponse = response.choices[0]?.message?.content;
+    logger.info('Received raw response from openai', gptResponse);
+
+    return gptResponse;
   }
 }

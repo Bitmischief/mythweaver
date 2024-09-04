@@ -61,9 +61,6 @@ let origPlanning: any; // used to check for unsaved changes
 const readOnly = ref(false);
 const unsavedChanges = ref(false);
 
-const toggleReadOnly = () => {
-  readOnly.value = !readOnly.value;
-};
 const planningChanged = (planning: any) => {
   // eslint-disable-next-line
   const { time: originalTime, ...original } = origPlanning ?? { time: null };
@@ -77,6 +74,16 @@ const planningChanged = (planning: any) => {
 <template>
   <div v-if="session">
     <FormKit type="form" :actions="false" @submit="clickSaveSession">
+      <div class="w-full flex justify-end">
+        <div
+          v-if="currentUserRole === CampaignRole.DM"
+          class="shrink self-center"
+        >
+          <button type="submit" class="button-gradient self-center">
+            Save Changes
+          </button>
+        </div>
+      </div>
       <div class="md:mt-6 flex flex-wrap md:flex-nowrap gap-4 mb-4">
         <div class="grow">
           <FormKit
@@ -96,14 +103,6 @@ const planningChanged = (planning: any) => {
             validation-visibility="live"
           />
         </div>
-        <div
-          v-if="currentUserRole === CampaignRole.DM"
-          class="shrink self-center"
-        >
-          <button type="submit" class="button-gradient self-center">
-            Save
-          </button>
-        </div>
       </div>
     </FormKit>
     <div class="mt-4 pb-6 mb-6 border border-neutral-800 rounded-[20px] p-4">
@@ -118,11 +117,11 @@ const planningChanged = (planning: any) => {
           v-if="currentUserRole === CampaignRole.DM"
           class="flex gap-2 grow justify-end"
         >
-          <div>
-            <button class="button-ghost self-center" @click="toggleReadOnly">
-              {{ readOnly ? 'Edit Mode' : 'Read Mode' }}
-            </button>
-          </div>
+          <!--          <div>-->
+          <!--            <button class="button-ghost self-center" @click="toggleReadOnly">-->
+          <!--              {{ readOnly ? 'Edit Mode' : 'Read Mode' }}-->
+          <!--            </button>-->
+          <!--          </div>-->
         </div>
       </div>
       <WysiwygEditor

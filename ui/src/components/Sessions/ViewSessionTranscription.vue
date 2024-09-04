@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import {
+  deleteSessionAudio,
   getSession,
   postTranscriptionRequest,
   SessionBase,
@@ -8,13 +9,14 @@ import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import {
   showUpgradeModal,
+  useCurrentUserPlan,
   useHasValidPlan,
   useUnsavedChangesWarning,
   useWebsocketChannel,
 } from '@/lib/hooks.ts';
 import AudioPlayback from '@/components/Core/General/AudioPlayback.vue';
-import { showError, showSuccess } from '@/lib/notifications.ts';
-import { MicrophoneIcon } from '@heroicons/vue/20/solid';
+import { showError } from '@/lib/notifications.ts';
+import { MicrophoneIcon, TrashIcon } from '@heroicons/vue/20/solid';
 import { ArrowUpIcon } from '@heroicons/vue/24/outline';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import AudioUpload from '@/components/Core/Forms/AudioUpload.vue';
@@ -61,9 +63,10 @@ async function init() {
   );
   originalSession.value = response.data as SessionBase;
   session.value = { ...originalSession.value };
+
   if (
     response.data.sessionTranscription !== null &&
-    response.data.sessionTranscription.status === 'PROCESSING'
+    response.data.sessionTranscription.status_new === 'PROCESSING'
   ) {
     loadingTranscribeSession.value = true;
   }
@@ -76,11 +79,6 @@ async function init() {
 }
 
 async function transcriptionStartedHandler() {
-  showSuccess({
-    message: 'Session transcription is in progress!',
-    context:
-      'This process can take 10-20 minutes depending on the length of your session.',
-  });
   loadingTranscribeSession.value = true;
 
   await init();
@@ -130,6 +128,10 @@ function handleAudioUpload(payload: { audioUri: string; audioName: string }) {
     ...payload,
   };
   showUploadAudioModal.value = false;
+
+  if (useCurrentUserPlan().value === BillingPlan.Pro) {
+    loadingTranscribeSession.value = true;
+  }
 }
 
 const loadingTranscribeSession = ref(false);
@@ -242,6 +244,34 @@ const transcriptionSegments = computed(() => {
   }
   return [];
 });
+
+async function tryDeleteSessionAudio() {
+  const deleteAudio = confirm(
+    "Are you sure you want to delete this session's audio? This will also delete any associated transcripts.",
+  );
+
+  if (!deleteAudio) {
+    return;
+  }
+
+  if (session.value.audioUri) {
+    session.value.audioUri = '';
+    session.value.audioName = '';
+
+    await deleteSessionAudio(session.value.id);
+  }
+}
+
+// function getMostCommonSpeaker(sentence: any) {
+//   const mostCommonSpeaker = sentence.words.reduce((acc: any, word: any) => {
+//     acc[word.speaker] = (acc[word.speaker] || 0) + 1;
+//     return acc;
+//   }, {});
+//
+//   return Object.keys(mostCommonSpeaker).reduce((a, b) =>
+//     mostCommonSpeaker[a] > mostCommonSpeaker[b] ? a : b,
+//   );
+// }
 </script>
 
 <template>
@@ -258,16 +288,25 @@ const transcriptionSegments = computed(() => {
       Upload Audio
     </div>
     <div class="bg-surface rounded-[18px] flex justify-start p-4">
-      <AudioPlayback
-        v-if="session.audioUri"
-        class="self-center"
-        :audio-name="session.audioName"
-        :audio-uri="session.audioUri"
-        :start="startSeconds"
-        :has-transcription="!!session.sessionTranscription?.transcription"
-        @seek="setCurrentAudioTime"
-        @jump="jumpToCurrent"
-      />
+      <div v-if="session.audioUri" class="flex justify-start w-full">
+        <AudioPlayback
+          class="self-center"
+          :audio-name="session.audioName"
+          :audio-uri="session.audioUri"
+          :start="startSeconds"
+          :has-transcription="!!session.sessionTranscription?.transcription"
+          @seek="setCurrentAudioTime"
+          @jump="jumpToCurrent"
+        />
+
+        <button
+          class="button-primary ml-2 h-12 self-center group hover:bg-neutral-900"
+          @click="tryDeleteSessionAudio"
+        >
+          <TrashIcon class="w-4 h-4 group-hover:text-red-500" />
+        </button>
+      </div>
+
       <div
         v-else-if="currentUserRole === CampaignRole.DM && !readOnly"
         class="button-ghost flex mr-2"
@@ -280,7 +319,7 @@ const transcriptionSegments = computed(() => {
     </div>
 
     <div id="transcription-title" class="underline text-lg p-4 pb-0">
-      Transcription
+      Transcript
     </div>
     <div v-if="session.sessionTranscription?.transcription" class="p-4">
       <div
@@ -314,6 +353,29 @@ const transcriptionSegments = computed(() => {
         </div>
       </div>
     </div>
+    <div v-else-if="session.sessionTranscription?.transcript" class="p-4">
+      <div
+        v-for="(s, i) in session.sessionTranscription?.transcript?.sentences"
+        :key="`seg_${i}`"
+        class="text-neutral-300 group hover:cursor-pointer flex mb-4"
+        @click="startSeconds = s.start / 1000"
+      >
+        <div
+          class="text-xs mt-1 text-neutral-500 group-hover:text-violet-500 mr-4"
+        >
+          {{ getTimestamp(s.start / 1000) }}
+        </div>
+        <!--        <div class="mr-4">Speaker {{ getMostCommonSpeaker(s) }}</div>-->
+        <div
+          class="group-hover:text-violet-500"
+          :class="{
+            'text-fuchsia-500 audio-read': s.start / 1000 <= currentAudioTime,
+          }"
+        >
+          {{ s.text }}
+        </div>
+      </div>
+    </div>
     <div
       v-else-if="currentUserRole === CampaignRole.DM && !readOnly"
       class="p-4"
@@ -337,8 +399,8 @@ const transcriptionSegments = computed(() => {
         v-if="loadingTranscribeSession"
         class="text-xs text-neutral-400 mt-2"
       >
-        Your transcription is loading, please note this process can take 10-20
-        minutes for a 2-4 hour long session.
+        Your session is being transcribed, you can leave this page! Please note
+        this process can take 10-20 minutes for a 2-4 hour long session.
       </div>
       <div
         v-if="session.sessionTranscription?.status === 'FAILED'"

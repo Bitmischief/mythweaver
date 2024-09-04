@@ -13,12 +13,10 @@ import { useCurrentUserRole, useWebsocketChannel } from '@/lib/hooks.ts';
 import { useEventBus } from '@/lib/events.ts';
 import { CampaignRole } from '@/api/campaigns.ts';
 import { showError, showInfo, showSuccess } from '@/lib/notifications.ts';
-import CustomizableImage from '@/components/Images/CustomizableImage.vue';
 import ViewSessionTranscription from '@/components/Sessions/ViewSessionTranscription.vue';
 import { format } from 'date-fns';
-import { generateArbitraryProperty } from '@/lib/generation.ts';
 import Spinner from '@/components/Core/Spinner.vue';
-import { SparklesIcon, ArrowPathIcon } from '@heroicons/vue/24/solid';
+import { ArrowPathIcon } from '@heroicons/vue/24/solid';
 import { EnvelopeIcon, EnvelopeOpenIcon } from '@heroicons/vue/24/outline';
 
 const route = useRoute();
@@ -28,7 +26,6 @@ const currentUserRole = useCurrentUserRole();
 
 const session = ref<SessionBase>({} as SessionBase);
 
-const sessionSuggestedImagePrompt = ref('');
 const sessionId = computed(() => parseInt(route.params.sessionId.toString()));
 
 onMounted(async () => {
@@ -56,26 +53,12 @@ async function init() {
   const response = await getSession(sessionId.value);
 
   session.value = response.data as SessionBase;
-  sessionSuggestedImagePrompt.value = session.value.suggestedImagePrompt || '';
 }
-
-const sessionType = computed(() => {
-  if (session.value.completed) {
-    return 'Completed';
-  } else if (session.value.archived) {
-    return 'Archived';
-  } else if (session.value.planning || session.value.recap) {
-    return 'In Progress';
-  } else {
-    return 'Upcoming';
-  }
-});
 
 async function saveSession(updated?: string) {
   const putSessionResponse = await patchSession({
     id: session.value.id,
     campaignId: session.value.campaignId,
-    suggestedImagePrompt: sessionSuggestedImagePrompt.value,
     summary: session.value.summary,
   });
 
@@ -92,37 +75,6 @@ const sessionDate = computed(() => {
   return session.value && session.value.date
     ? format(session.value.date, 'MMM dd, yyyy @ h:mm a')
     : 'TBD';
-});
-
-const loadingImageModal = ref(false);
-
-async function showCustomizeImageModal() {
-  loadingImageModal.value = true;
-  if (!session.value.suggestedImagePrompt && session.value.recap) {
-    sessionSuggestedImagePrompt.value = await generateArbitraryProperty({
-      propertyName: 'aiImagePrompt',
-      context: 'TTRPG session',
-      background: session.value.recap,
-    });
-    await saveSession();
-  }
-
-  eventBus.$emit('toggle-customize-image-modal', {
-    image: {
-      prompt: sessionSuggestedImagePrompt.value,
-    },
-    linking: {
-      sessionId: session.value.id,
-    },
-  });
-  loadingImageModal.value = false;
-}
-
-const primaryImage = computed(() => {
-  if (session.value.images?.length) {
-    return session.value.images.find((i) => i.primary);
-  }
-  return undefined;
 });
 
 const summaryLoading = ref(false);
@@ -171,37 +123,6 @@ const emailSummary = async () => {
     <div
       class="flex gap-4 mt-4 flex-wrap lg:flex-nowrap justify-center items-stretch"
     >
-      <div v-if="!primaryImage">
-        <div
-          class="relative flex h-full align-middle border border-surface-3 rounded-[12px] p-4"
-        >
-          <button
-            :disabled="loadingImageModal"
-            class="whitespace-nowrap button-ghost hover:button-gradient hover:text-neutral-200 group/ssnbtn"
-            @click="showCustomizeImageModal"
-          >
-            <span v-if="!loadingImageModal" class="flex">
-              <SparklesIcon
-                class="h-5 w-5 mr-2 rotate-180 group-hover/ssnbtn:rotate-0 transition-all"
-              />
-              <span>Add Session Image</span>
-            </span>
-            <span v-else class="flex">
-              <Spinner class="w-5 h-5 mr-2" />
-              <span>Generating suggested prompt...</span>
-            </span>
-          </button>
-        </div>
-      </div>
-      <div v-else>
-        <CustomizableImage
-          :editable="currentUserRole === CampaignRole.DM"
-          :image="primaryImage"
-          class="rounded-md w-full md:w-[25em]"
-          :type="sessionType"
-          :linking="{ sessionId: session.id }"
-        />
-      </div>
       <div class="grow">
         <div class="bg-surface-2 h-full rounded-[8px] p-4">
           <div class="flex align-center justify-between text-xl mb-2">
