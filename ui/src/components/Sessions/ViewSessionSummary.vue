@@ -26,7 +26,6 @@ const currentUserRole = useCurrentUserRole();
 
 const session = ref<SessionBase>({} as SessionBase);
 
-const sessionSuggestedImagePrompt = ref('');
 const sessionId = computed(() => parseInt(route.params.sessionId.toString()));
 
 onMounted(async () => {
@@ -56,18 +55,6 @@ async function init() {
   session.value = response.data as SessionBase;
 }
 
-const sessionType = computed(() => {
-  if (session.value.completed) {
-    return 'Completed';
-  } else if (session.value.archived) {
-    return 'Archived';
-  } else if (session.value.planning || session.value.recap) {
-    return 'In Progress';
-  } else {
-    return 'Upcoming';
-  }
-});
-
 async function saveSession(updated?: string) {
   const putSessionResponse = await patchSession({
     id: session.value.id,
@@ -88,29 +75,6 @@ const sessionDate = computed(() => {
   return session.value && session.value.date
     ? format(session.value.date, 'MMM dd, yyyy @ h:mm a')
     : 'TBD';
-});
-
-const loadingImageModal = ref(false);
-
-async function showCustomizeImageModal() {
-  loadingImageModal.value = true;
-
-  eventBus.$emit('toggle-customize-image-modal', {
-    image: {
-      prompt: sessionSuggestedImagePrompt.value,
-    },
-    linking: {
-      sessionId: session.value.id,
-    },
-  });
-  loadingImageModal.value = false;
-}
-
-const primaryImage = computed(() => {
-  if (session.value.images?.length) {
-    return session.value.images.find((i) => i.primary);
-  }
-  return undefined;
 });
 
 const summaryLoading = ref(false);

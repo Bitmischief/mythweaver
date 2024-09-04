@@ -262,16 +262,16 @@ async function tryDeleteSessionAudio() {
   }
 }
 
-function getMostCommonSpeaker(sentence: any) {
-  const mostCommonSpeaker = sentence.words.reduce((acc: any, word: any) => {
-    acc[word.speaker] = (acc[word.speaker] || 0) + 1;
-    return acc;
-  }, {});
-
-  return Object.keys(mostCommonSpeaker).reduce((a, b) =>
-    mostCommonSpeaker[a] > mostCommonSpeaker[b] ? a : b,
-  );
-}
+// function getMostCommonSpeaker(sentence: any) {
+//   const mostCommonSpeaker = sentence.words.reduce((acc: any, word: any) => {
+//     acc[word.speaker] = (acc[word.speaker] || 0) + 1;
+//     return acc;
+//   }, {});
+//
+//   return Object.keys(mostCommonSpeaker).reduce((a, b) =>
+//     mostCommonSpeaker[a] > mostCommonSpeaker[b] ? a : b,
+//   );
+// }
 </script>
 
 <template>
