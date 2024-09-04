@@ -13,6 +13,10 @@ import { CampaignRole } from '@/api/campaigns.ts';
 import { BarsArrowUpIcon } from '@heroicons/vue/24/solid';
 import { isEqual } from 'lodash';
 
+const props = defineProps<{
+  proceedPastRecap: boolean;
+}>();
+
 const route = useRoute();
 const currentUserRole = useCurrentUserRole();
 
@@ -26,6 +30,15 @@ onMounted(async () => {
   await init();
 });
 
+watch(
+  () => props.proceedPastRecap,
+  async (newVal) => {
+    if (newVal) {
+      await saveRecap();
+    }
+  },
+);
+
 async function init() {
   const response = await getSession(
     parseInt(route.params.sessionId.toString()),
@@ -36,6 +49,7 @@ async function init() {
 }
 
 const recapLoading = ref(false);
+
 async function generateRecap() {
   if (!session.value.sessionTranscription) {
     showError({
@@ -133,15 +147,6 @@ async function saveRecap() {
     </div>
 
     <div class="flex gap-4">
-      <div>
-        <FormKit
-          v-if="currentUserRole === CampaignRole.DM && !session.archived"
-          type="submit"
-          label="Save"
-          input-class="$reset button-gradient"
-          :disabled="processing || !unsavedChanges"
-        />
-      </div>
       <div class="relative group/recap">
         <FormKit
           v-if="currentUserRole === CampaignRole.DM && !session.archived"

@@ -28,6 +28,10 @@ import {
 } from '../dataAccess/sessions';
 import { sessionTranscriptionQueue } from '../worker';
 
+interface PostCompleteSessionRequest {
+  recap: string;
+}
+
 const openai = getClient();
 
 interface GetSessionsResponse {
@@ -215,7 +219,6 @@ export default class SessionController {
         id: sessionId,
       },
       data: {
-        userId,
         ...request,
       },
     });
@@ -574,5 +577,40 @@ export default class SessionController {
         sessionId: sessionId,
       },
     });
+  }
+
+  @Security('jwt')
+  @OperationId('generateSummary')
+  @Post('/generate-summary')
+  public async postGenerateSummary(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
+    @Body() request: PostCompleteSessionRequest,
+  ): Promise<any> {
+    const openai = getClient();
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      messages: [
+        {
+          role: 'system',
+          content:
+            'You are a helpful assistant who is knowledgeable in dungeons and dragons.',
+        },
+        {
+          role: 'user',
+          content: `Provide an 8 sentence summary of the recap provided here:
+          ${request?.recap}.
+          Please return only text, do not include any other formatting.
+          Please make the length of the summary proportional to the length of the recap,
+          ensuring you include the most important highlights from the recap.`,
+        },
+      ],
+    });
+
+    const gptResponse = response.choices[0]?.message?.content;
+    logger.info('Received raw response from openai', gptResponse);
+
+    return gptResponse;
   }
 }

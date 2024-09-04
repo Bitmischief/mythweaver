@@ -121,8 +121,6 @@ const patchSessionsSchema = z.object({
   suggestedName: z.string().nullable().optional(),
   suggestedSummary: z.string().nullable().optional(),
   suggestedSuggestions: z.string().nullable().optional(),
-  suggestedImageUri: z.string().nullable().optional(),
-  suggestedImagePrompt: z.string().nullable().optional(),
   date: z.coerce.date().nullable().optional(),
   isOver: z.boolean().nullable().optional(),
   completed: z.boolean().nullable().optional(),
@@ -273,6 +271,29 @@ router.delete('/:sessionId/audio', [
     );
 
     return res.status(200).send();
+  },
+]);
+
+const postGenerateSummarySchema = z.object({
+  recap: z.string().max(15000),
+});
+
+router.post('/generate-summary', [
+  checkAuth0Jwt,
+  useInjectUserId(),
+  useInjectLoggingInfo(),
+  useValidateRequest(postGenerateSummarySchema),
+  async (req: Request, res: Response) => {
+    const controller = new SessionController();
+
+    const response = await controller.postGenerateSummary(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      useLogger(),
+      req.body,
+    );
+
+    return res.status(200).send(response);
   },
 ]);
 
