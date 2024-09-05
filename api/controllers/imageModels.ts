@@ -1,7 +1,7 @@
 import { Get, Inject, OperationId, Query, Route, Security, Tags } from 'tsoa';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
+import { MythWeaverLogger } from '../lib/logger';
 import { GetGeneratorsResponse } from './generators';
-import { getImageModels } from '../dataAccess/imageModels';
 import { prisma } from '../lib/providers/prisma';
 
 @Route('models/images')
@@ -17,7 +17,17 @@ export class ImageModelController {
     @Query() offset = 0,
     @Query() limit = 50,
   ): Promise<GetGeneratorsResponse> {
-    const models = await getImageModels(offset, limit);
+    const models = await prisma.imageModel.findMany({
+      include: {
+        artists: {
+          select: {
+            artist: true,
+          },
+        },
+      },
+      skip: offset,
+      take: limit,
+    });
 
     track(AppEvent.GetImageModels, userId, trackingInfo);
 
@@ -28,4 +38,3 @@ export class ImageModelController {
     };
   }
 }
-
