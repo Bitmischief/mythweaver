@@ -1,8 +1,8 @@
+import { prisma } from '../lib/providers/prisma';
 import { CampaignRole } from '../controllers/campaigns';
 import { getClient } from '../lib/providers/openai';
 import logger from '../lib/logger';
 import { ContextType } from '@prisma/client';
-import { findCampaignById, createCampaign as createCampaignInDb, updateCampaign } from '../dataAccess/campaigns';
 
 const openai = getClient();
 
@@ -40,11 +40,20 @@ export const createCampaign = async (request: {
   userId: number;
   name: string;
 }) => {
-  const campaign = await createCampaignInDb({
-    name: request.name,
-    description: '',
-    rpgSystemCode: 'Dungeons & Dragons',
-    userId: request.userId,
+  const campaign = await prisma.campaign.create({
+    data: {
+      name: request.name,
+      description: '',
+      rpgSystemCode: 'Dungeons & Dragons',
+      userId: request.userId,
+      members: {
+        create: {
+          userId: request.userId,
+          role: CampaignRole.DM,
+          joinedAt: new Date(),
+        },
+      },
+    },
   });
 
   await initializeContextForCampaign(campaign.id);
@@ -55,7 +64,11 @@ export const createCampaign = async (request: {
 export const initializeContextForCampaign = async (campaignId: number) => {
   logger.info('Initializing context settings for campaign', { campaignId });
 
-  const campaign = await findCampaignById(campaignId);
+  const campaign = await prisma.campaign.findUnique({
+    where: {
+      id: campaignId,
+    },
+  });
 
   if (!campaign) {
     throw new Error('Campaign not found');
@@ -100,12 +113,14 @@ export const initializeContextForCampaign = async (campaignId: number) => {
     threadId = thread.id;
   }
 
-  return updateCampaign(campaign.id, {
-    openAiConfig: {
-      assistantId: assistantId,
-      threadId: threadId,
-      vectorStoreId: vectorStoreId,
+  return prisma.campaign.update({
+    where: { id: campaign.id },
+    data: {
+      openAiConfig: {
+        assistantId: assistantId,
+        threadId: threadId,
+        vectorStoreId: vectorStoreId,
+      },
     },
   });
 };
-

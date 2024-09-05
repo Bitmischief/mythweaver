@@ -19,7 +19,7 @@ import { sendTransactionalEmail } from '../lib/transactionalEmail';
 import { v4 as uuidv4 } from 'uuid';
 import { urlPrefix } from '../lib/utils';
 import { MythWeaverLogger } from '../lib/logger';
-import { createCampaign, findCampaignById, updateCampaign, deleteCampaign } from '../dataAccess/campaigns';
+import { createCampaign } from '../dataAccess/campaigns';
 import { indexCampaignContextQueue } from '../worker';
 import { getCampaignCharacters } from '../lib/charactersHelper';
 import { getClient } from '../lib/providers/openai';
@@ -79,7 +79,24 @@ export default class CampaignController {
   ): Promise<GetCampaignsResponse> {
     logger.info('Getting campaigns');
 
-    const campaigns = await findCampaignsByUserId(userId, term, offset, limit);
+    const campaigns = await prisma.campaign.findMany({
+      where: {
+        members: {
+          some: {
+            userId,
+          },
+        },
+        name: term
+          ? {
+              contains: term,
+              mode: 'insensitive',
+            }
+          : undefined,
+        deleted: false,
+      },
+      skip: offset,
+      take: limit,
+    });
 
     track(AppEvent.GetCampaigns, userId, trackingInfo);
 
@@ -125,7 +142,18 @@ export default class CampaignController {
       });
     }
 
-    const campaign = await findCampaignById(campaignId);
+    const campaign = await prisma.campaign.findUnique({
+      where: {
+        id: campaignId,
+      },
+      include: {
+        members: {
+          include: {
+            user: true,
+          },
+        },
+      },
+    });
 
     if (!campaign) {
       throw new AppError({
@@ -216,7 +244,14 @@ export default class CampaignController {
       },
     });
 
-    return updateCampaign(campaignId, request);
+    return prisma.campaign.update({
+      where: {
+        id: campaignId,
+      },
+      data: {
+        ...request,
+      },
+    });
   }
 
   @Security('jwt')
@@ -250,7 +285,14 @@ export default class CampaignController {
 
     track(AppEvent.DeleteCampaign, userId, trackingInfo);
 
-    await deleteCampaign(campaignId);
+    await prisma.campaign.update({
+      where: {
+        id: campaignId,
+      },
+      data: {
+        deleted: true,
+      },
+    });
   }
 
   @Security('jwt')
@@ -898,4 +940,3 @@ export default class CampaignController {
     });
   }
 }
-
