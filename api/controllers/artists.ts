@@ -1,8 +1,8 @@
 import { Get, Inject, OperationId, Route, Security, Tags } from 'tsoa';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { MythWeaverLogger } from '../lib/logger';
-import { prisma } from '../lib/providers/prisma';
 import { Artist } from '@prisma/client';
+import { getArtistById } from '../dataAccess/artists';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 
 @Route('artists/:artistId')
@@ -17,11 +17,7 @@ export class ArtistController {
     @Inject() logger: MythWeaverLogger,
     @Route() artistId: number,
   ): Promise<Artist> {
-    const artist = await prisma.artist.findUnique({
-      where: {
-        id: artistId,
-      },
-    });
+    const artist = await getArtistById(artistId);
 
     track(AppEvent.GetArtist, userId, trackingInfo);
 
@@ -35,3 +31,4 @@ export class ArtistController {
     return artist;
   }
 }
+
