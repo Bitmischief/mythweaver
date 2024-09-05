@@ -10,8 +10,8 @@ import {
   Post,
   Body,
 } from 'tsoa';
-import { ConjurationVisibility } from '@prisma/client';
-import { findConjurationById, findCampaignById, findUserById, createConjurationRequest, updateUserImageCredits, findMagicLinkByToken, updateMagicLink } from '../dataAccess/generators';
+import { prisma } from '../lib/providers/prisma';
+import { Conjuration, ConjurationVisibility } from '@prisma/client';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import conjurers, { Generator, getGenerator } from '../data/conjurers';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
@@ -104,7 +104,23 @@ export class GeneratorController {
     @Inject() logger: MythWeaverLogger,
     @Path() code: string,
   ): Promise<Conjuration | null> {
-    const validIdObjects = await findConjurationById(code, userId);
+    const validIdObjects = await prisma.conjuration.findMany({
+      where: {
+        conjurerCode: code,
+        visibility: ConjurationVisibility.PUBLIC,
+        NOT: {
+          userId,
+        },
+      },
+      select: {
+        id: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      skip: 0,
+      take: 1000,
+    });
     const validIds = validIdObjects.map((obj) => obj.id);
 
     let randomConjuration: Conjuration | null = null;
@@ -116,7 +132,11 @@ export class GeneratorController {
       const idx = Math.floor(Math.random() * (validIds.length + 1));
 
       try {
-        randomConjuration = await findConjurationById(validIds[idx]);
+        randomConjuration = await prisma.conjuration.findUnique({
+          where: {
+            id: validIds[idx],
+          },
+        });
       } catch {
         logger.warn('Failed to get random conjuration', {
           idx,
@@ -142,7 +162,11 @@ export class GeneratorController {
     @Path() code: string,
     @Body() request: PostGeneratorGenerate,
   ): Promise<any> {
-    const campaign = await findCampaignById(request.campaignId);
+    const campaign = await prisma.campaign.findUnique({
+      where: {
+        id: request.campaignId,
+      },
+    });
 
     if (!campaign) {
       throw new AppError({
@@ -160,7 +184,11 @@ export class GeneratorController {
       });
     }
 
-    const user = await findUserById(userId);
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
 
     if (!user) {
       throw new AppError({
@@ -181,7 +209,20 @@ export class GeneratorController {
 
     track(AppEvent.Conjure, userId, trackingInfo);
 
-    const conjurationRequest = await createConjurationRequest(userId, request, code);
+    const conjurationRequest = await prisma.conjurationRequest.create({
+      data: {
+        userId,
+        campaignId: request.campaignId,
+        generatorCode: code,
+        count: request.count,
+        args: [request.customArg || request.prompt || ''],
+        imageStylePreset: request.imageStylePreset,
+        imagePrompt: request.imagePrompt,
+        imageNegativePrompt: request.imageNegativePrompt,
+        prompt: request.prompt,
+        // todo: add type to conjuration request
+      },
+    });
 
     await conjureQueue.add({
       count: request.count,
@@ -212,7 +253,19 @@ export class GeneratorController {
   ): Promise<any> {
     track(AppEvent.GetConjurationRequests, userId, trackingInfo);
 
-    return findConjurationById(conjurationRequestId, userId);
+    return prisma.conjurationRequest.findUnique({
+      where: {
+        id: conjurationRequestId,
+        userId,
+      },
+      include: {
+        conjurations: {
+          orderBy: {
+            createdAt: 'asc',
+          },
+        },
+      },
+    });
   }
 
   @Post('/arbitrary')
@@ -371,7 +424,12 @@ export class GeneratorController {
     @Inject() logger: MythWeaverLogger,
     @Route() token: string,
   ): Promise<any> {
-    const magicLink = await findMagicLinkByToken(token, userId);
+    const magicLink = await prisma.magicLink.findUnique({
+      where: {
+        token: token,
+        userId: userId,
+      },
+    });
 
     if (!magicLink) {
       throw new AppError({
@@ -408,7 +466,14 @@ export class GeneratorController {
     }
 
     if (user.imageCredits < 1) {
-      await updateUserImageCredits(userId, 1);
+      await prisma.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          imageCredits: 1,
+        },
+      });
     }
 
     const campaign = await prisma.campaign.findFirst({
@@ -452,11 +517,18 @@ export class GeneratorController {
       imageNegativePrompt: '',
     });
 
-    await updateMagicLink(token, userId, conjurationRequest.id);
+    await prisma.magicLink.update({
+      where: {
+        token: token,
+        userId: userId,
+      },
+      data: {
+        conjurationRequestId: conjurationRequest.id,
+      },
+    });
 
     return {
       conjurationRequestId: conjurationRequest.id,
     };
   }
 }
-
