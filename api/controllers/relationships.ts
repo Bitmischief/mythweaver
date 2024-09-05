@@ -20,8 +20,15 @@ import {
   ConjurationRelationshipType,
   Session,
 } from '@prisma/client';
-import { prisma } from '../lib/providers/prisma';
 import { AppError, HttpCode } from '../lib/errors/AppError';
+import {
+  getRelationshipsFromDB,
+  createRelationshipInDB,
+  deleteRelationshipInDB,
+  deleteRelationshipByNodeIdsInDB,
+  updateRelationshipInDB,
+  getRelationshipGraphFromDB,
+} from '../dataAccess/relationships';
 
 export interface RelationshipResponse {
   id: number;
@@ -83,26 +90,7 @@ export default class RelationshipController {
       depthLimit,
     });
 
-    return prisma.$queryRawUnsafe(`
-        WITH entity_chain AS (
-          SELECT cr.*,
-            ARRAY[cr.id] AS visitedRelationships,
-            1 depth
-          FROM
-            conjuration_relationships cr
-          WHERE
-            cr."previousNodeId" = ${nodeId} AND cr."previousType" = 'CONJURATION' AND cr."nextType" = 'CONJURATION' AND cr."userId" = ${userId}
-        ), enriched_entities AS (
-          SELECT ec.*, to_jsonb(conj.*) || jsonb_build_object('imageUri', i.uri) AS entityData
-            FROM conjurations conj
-                LEFT JOIN (SELECT *
-                           FROM images
-                           WHERE "primary" = true) i
-                ON i."conjurationId" = conj.id
-            INNER JOIN entity_chain ec ON ec."nextNodeId" = conj.id
-          ORDER BY ec."updatedAt" DESC)
-        SELECT * FROM enriched_entities;
-      `);
+    return getRelationshipsFromDB(userId, type, nodeId, filterTypes, depthLimit);
   }
 
   @Security('jwt')
@@ -123,54 +111,7 @@ export default class RelationshipController {
       body,
     });
 
-    const existingCount = await prisma.conjurationRelationships.count({
-      where: {
-        previousNodeId: nodeId,
-        previousType: type,
-        nextNodeId: body.relatedNodeId,
-        nextType: body.relatedNodeType,
-        userId: userId,
-      },
-    });
-
-    if (existingCount === 0) {
-      await prisma.conjurationRelationships.create({
-        data: {
-          previousNodeId: nodeId,
-          previousType: type,
-          nextNodeId: body.relatedNodeId,
-          nextType: body.relatedNodeType,
-          comment: body.comment,
-          data: body.data,
-          userId: userId,
-        },
-      });
-    }
-
-    if (body.twoWay) {
-      const reverseCount = await prisma.conjurationRelationships.count({
-        where: {
-          previousNodeId: body.relatedNodeId,
-          previousType: body.relatedNodeType,
-          nextNodeId: nodeId,
-          nextType: type,
-          userId: userId,
-        },
-      });
-      if (reverseCount === 0) {
-        await prisma.conjurationRelationships.create({
-          data: {
-            previousNodeId: body.relatedNodeId,
-            previousType: body.relatedNodeType,
-            nextNodeId: nodeId,
-            nextType: type,
-            comment: body.comment,
-            data: body.data,
-            userId: userId,
-          },
-        });
-      }
-    }
+    await createRelationshipInDB(userId, type, nodeId, body);
   }
 
   @Security('jwt')
@@ -182,29 +123,7 @@ export default class RelationshipController {
     @Inject() logger: MythWeaverLogger,
     @Route() relationshipId: number,
   ) {
-    const relationship = await prisma.conjurationRelationships.findUnique({
-      where: {
-        id: relationshipId,
-        userId: userId,
-      },
-    });
-
-    if (!relationship) {
-      throw new AppError({
-        description: 'Relationship not found or you do not have access to it.',
-        httpCode: HttpCode.FORBIDDEN,
-      });
-    }
-
-    logger.info('Deleting relationship', {
-      userId,
-    });
-
-    await prisma.conjurationRelationships.delete({
-      where: {
-        id: relationshipId,
-      },
-    });
+    await deleteRelationshipInDB(userId, relationshipId, logger);
   }
 
   @Security('jwt')
@@ -221,14 +140,7 @@ export default class RelationshipController {
       relationshipData,
     });
 
-    await prisma.conjurationRelationships.deleteMany({
-      where: {
-        previousNodeId: relationshipData.previousNodeId,
-        previousType: relationshipData.previousType,
-        nextNodeId: relationshipData.nextNodeId,
-        nextType: relationshipData.nextType,
-      },
-    });
+    await deleteRelationshipByNodeIdsInDB(userId, relationshipData, logger);
   }
 
   @Security('jwt')
@@ -241,34 +153,7 @@ export default class RelationshipController {
     @Route() relationshipId: number,
     @Body() request: PatchRelationshipRequest,
   ) {
-    const relationship = await prisma.conjurationRelationships.findUnique({
-      where: {
-        id: relationshipId,
-        userId: userId,
-      },
-    });
-
-    if (!relationship) {
-      throw new AppError({
-        description: 'Relationship not found or you do not have access to it.',
-        httpCode: HttpCode.FORBIDDEN,
-      });
-    }
-
-    logger.info('Updating relationship', {
-      relationshipId,
-      userId,
-      request,
-    });
-
-    await prisma.conjurationRelationships.update({
-      where: {
-        id: relationshipId,
-      },
-      data: {
-        ...request,
-      },
-    });
+    await updateRelationshipInDB(userId, relationshipId, request, logger);
   }
 
   @Security('jwt')
@@ -288,58 +173,7 @@ export default class RelationshipController {
       campaignId,
     });
 
-    let conjurationIds: any[] = [];
-    if (campaignId) {
-      conjurationIds = await prisma.collectionConjuration.findMany({
-        select: {
-          conjurationId: true,
-        },
-        distinct: ['conjurationId'],
-        where: {
-          collection: {
-            campaignId: campaignId,
-          },
-        },
-      });
-    }
-
-    let nodes: Conjuration[] = [];
-    let links: GraphLinkResponse[] = [];
-
-    if (!campaignId || (campaignId && conjurationIds.length)) {
-      nodes = (await prisma.$queryRawUnsafe(`
-        SELECT DISTINCT ON (conj.id) conj.*
-        FROM conjuration_relationships cr
-            INNER JOIN (
-                SELECT c.*, i.uri as "imageUri"
-                FROM conjurations c
-                    LEFT JOIN (
-                        SELECT *
-                        FROM images
-                        WHERE "primary" = true
-                    ) i ON i."conjurationId" = c.id
-                ${campaignId ? `WHERE c.id IN (${conjurationIds.map((c) => c.conjurationId).join(',')})` : ''}
-            ) as conj ON cr."previousNodeId" = conj.id OR cr."nextNodeId" = conj.id
-        WHERE cr."previousType" = 'CONJURATION' AND cr."nextType" = 'CONJURATION' AND cr."userId" = ${userId}
-      `)) as Conjuration[];
-
-      links = (await prisma.$queryRawUnsafe(`
-        SELECT cr."previousNodeId" as source, cr."nextNodeId" as target, cr.comment as label
-        FROM conjuration_relationships cr
-        WHERE cr."previousType" = 'CONJURATION' AND 
-              cr."nextType" = 'CONJURATION' AND
-              cr."userId" = ${userId} 
-              ${
-                campaignId
-                  ? `AND cr."previousNodeId" IN (${conjurationIds.map((c) => c.conjurationId).join(',')}) AND cr."nextNodeId" IN (${conjurationIds.map((c) => c.conjurationId).join(',')})`
-                  : ''
-              }
-      `)) as GraphLinkResponse[];
-    }
-
-    return {
-      nodes: nodes,
-      links: links,
-    };
+    return getRelationshipGraphFromDB(userId, campaignId, logger);
   }
 }
+
