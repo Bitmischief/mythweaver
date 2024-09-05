@@ -13,9 +13,21 @@ import {
 } from 'tsoa';
 import { TrackingInfo } from '../lib/tracking';
 import { MythWeaverLogger } from '../lib/logger';
-import { prisma } from '../lib/providers/prisma';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import { Collections, Conjuration } from '@prisma/client';
+import {
+  findCollections,
+  findCollectionTree,
+  findCollectionConjurations,
+  findConjurations,
+  findConjurationCollections,
+  createCollection,
+  deleteCollections,
+  deleteCollectionConjurations,
+  updateCollection,
+  createCollectionConjuration,
+  updateCollectionConjuration,
+} from '../dataAccess/collections';
 import { sendWebsocketMessage, WebSocketEvent } from '../services/websockets';
 import {
   deleteConjurationContext,
@@ -59,92 +71,20 @@ export default class CollectionController {
   ) {
     logger.info('Getting collections', { userId, parentId });
 
-    const collections = await prisma.collections.findMany({
-      where: {
-        userId: userId,
-        parentCollectionId: parentId ? parentId : { equals: null },
-        campaignId: campaignId ? campaignId : undefined,
-      },
-      orderBy: {
-        name: 'asc',
-      },
-    });
+    const collections = await findCollections(userId, parentId, campaignId);
 
-    const collectionTree = (await prisma.$queryRawUnsafe(`
-      WITH RECURSIVE collection_tree AS (
-        SELECT "id", "parentCollectionId", "id" as "ultimateParentId"
-        FROM "collections"
-        WHERE ${parentId ? `"parentCollectionId" = ${parentId}` : `"parentCollectionId" IS NULL`} AND "userId" = ${userId}
-          UNION ALL
-            SELECT c."id", c."parentCollectionId", ct."ultimateParentId"
-            FROM "collections" c
-            INNER JOIN collection_tree ct ON c."parentCollectionId" = ct."id"
-      )
-      SELECT * FROM collection_tree
-    `)) as Collections[];
+    const collectionTree = await findCollectionTree(userId, parentId);
 
-    const collectionConjurations = await prisma.collectionConjuration.findMany({
-      select: {
-        collectionId: true,
-        conjuration: {
-          select: {
-            images: {
-              select: {
-                uri: true,
-              },
-              where: {
-                primary: true,
-              },
-              take: 1,
-            },
-          },
-        },
-      },
-      where: {
-        collectionId: {
-          in: collectionTree.map((c) => c.id),
-        },
-      },
-    });
+    const collectionConjurations = await findCollectionConjurations(collectionTree);
 
     let conjurations: Conjuration[] = [];
     if (parentId) {
-      conjurations = await prisma.conjuration.findMany({
-        where: {
-          collectionConjurations: {
-            some: {
-              collectionId: parentId,
-            },
-          },
-          // images: {
-          //   some: {
-          //     primary: true,
-          //   },
-          // },
-        },
-        include: {
-          collectionConjurations: true,
-          images: {
-            select: {
-              uri: true,
-              primary: true,
-            },
-            where: {
-              primary: true,
-            },
-          },
-        },
-      });
+      conjurations = await findConjurations(parentId);
     }
 
     let conjurationCollections: any[] = [];
     if (conjurationId) {
-      conjurationCollections = await prisma.collectionConjuration.findMany({
-        where: {
-          conjurationId: conjurationId,
-        },
-        distinct: ['collectionId'],
-      });
+      conjurationCollections = await findConjurationCollections(conjurationId);
     }
 
     return {
@@ -180,12 +120,7 @@ export default class CollectionController {
     @Inject() logger: MythWeaverLogger,
     @Body() collection: PostCollectionRequest,
   ) {
-    const parentCollection = await prisma.collections.findFirst({
-      where: {
-        id: collection.parentId,
-        userId: userId,
-      },
-    });
+    const parentCollection = await findCollections(userId, collection.parentId);
 
     if (!parentCollection) {
       throw new AppError({
@@ -197,14 +132,7 @@ export default class CollectionController {
 
     logger.info('Creating collection', { userId, collection });
 
-    return prisma.collections.create({
-      data: {
-        name: collection.name,
-        parentCollectionId: collection.parentId,
-        userId: userId,
-        campaignId: parentCollection.campaignId,
-      },
-    });
+    return createCollection(collection, userId, parentCollection.campaignId);
   }
 
   @Security('jwt')
@@ -216,12 +144,7 @@ export default class CollectionController {
     @Inject() logger: MythWeaverLogger,
     @Route() collectionId: number,
   ) {
-    const collection = await prisma.collections.findUnique({
-      where: {
-        id: collectionId,
-        userId: userId,
-      },
-    });
+    const collection = await findCollections(userId, collectionId);
 
     if (!collection) {
       throw new AppError({
@@ -231,37 +154,13 @@ export default class CollectionController {
       });
     }
 
-    const collectionsToDelete = (await prisma.$queryRawUnsafe(`
-      WITH RECURSIVE collection_tree AS (
-        SELECT "id", "name", "parentCollectionId"
-        FROM "collections"
-        WHERE "id" = ${collectionId} AND "userId" = ${userId}
-          UNION ALL
-            SELECT c."id", c."name", c."parentCollectionId"
-            FROM "collections" c
-            INNER JOIN collection_tree ct ON c."parentCollectionId" = ct."id"
-      )
-      SELECT * FROM collection_tree
-    `)) as Collections[];
+    const collectionsToDelete = await findCollectionTree(userId, collectionId);
 
     if (collectionsToDelete && collectionsToDelete.length) {
       logger.info('Deleting collections', { userId, collectionsToDelete });
 
-      await prisma.collectionConjuration.deleteMany({
-        where: {
-          collectionId: {
-            in: collectionsToDelete.map((c: any) => c.id),
-          },
-        },
-      });
-      await prisma.collections.deleteMany({
-        where: {
-          id: {
-            in: collectionsToDelete.map((c: any) => c.id),
-          },
-          userId: userId,
-        },
-      });
+      await deleteCollectionConjurations(collectionsToDelete);
+      await deleteCollections(collectionsToDelete, userId);
     }
   }
 
@@ -275,12 +174,7 @@ export default class CollectionController {
     @Route() collectionId: number,
     @Route() conjurationId: number,
   ) {
-    const collection = await prisma.collections.findUnique({
-      where: {
-        id: collectionId,
-        userId: userId,
-      },
-    });
+    const collection = await findCollections(userId, collectionId);
 
     if (!collection) {
       throw new AppError({
@@ -290,16 +184,7 @@ export default class CollectionController {
       });
     }
 
-    const collectionConjuration = await prisma.collectionConjuration.findUnique(
-      {
-        where: {
-          collectionId_conjurationId: {
-            collectionId: collectionId,
-            conjurationId: conjurationId,
-          },
-        },
-      },
-    );
+    const collectionConjuration = await findCollectionConjurations(collectionId, conjurationId);
 
     if (!collectionConjuration) {
       throw new AppError({
@@ -316,14 +201,7 @@ export default class CollectionController {
 
     await deleteConjurationContext(collection.campaignId, conjurationId);
 
-    await prisma.collectionConjuration.delete({
-      where: {
-        collectionId_conjurationId: {
-          collectionId: collectionId,
-          conjurationId: conjurationId,
-        },
-      },
-    });
+    await deleteCollectionConjurations(collectionId, conjurationId);
   }
 
   @Security('jwt')
@@ -336,15 +214,7 @@ export default class CollectionController {
     @Route() collectionId: number,
     @Body() patchCollectionRequest: PatchCollectionRequest,
   ) {
-    const collection = await prisma.collections.findUnique({
-      where: {
-        id: collectionId,
-        userId: userId,
-        parentCollectionId: {
-          not: null,
-        },
-      },
-    });
+    const collection = await findCollections(userId, collectionId, true);
 
     if (!collection) {
       throw new AppError({
@@ -360,13 +230,7 @@ export default class CollectionController {
       patchCollectionRequest,
     });
 
-    await prisma.collections.update({
-      where: {
-        id: collectionId,
-        userId: userId,
-      },
-      data: patchCollectionRequest,
-    });
+    await updateCollection(collectionId, userId, patchCollectionRequest);
   }
 
   @Security('jwt')
@@ -379,12 +243,7 @@ export default class CollectionController {
     @Route() collectionId: number,
     @Body() collectionConjurationRequest: PostCollectionConjurationRequest,
   ) {
-    const collection = await prisma.collections.findUnique({
-      where: {
-        id: collectionId,
-        userId: userId,
-      },
-    });
+    const collection = await findCollections(userId, collectionId);
 
     if (!collection) {
       throw new AppError({
@@ -394,12 +253,7 @@ export default class CollectionController {
       });
     }
 
-    const conjuration = await prisma.conjuration.findUnique({
-      where: {
-        id: collectionConjurationRequest.conjurationId,
-        userId: userId,
-      },
-    });
+    const conjuration = await findConjurations(collectionConjurationRequest.conjurationId, userId);
 
     if (!conjuration) {
       throw new AppError({
@@ -408,12 +262,7 @@ export default class CollectionController {
       });
     }
 
-    const collectionConjuration = await prisma.collectionConjuration.findFirst({
-      where: {
-        collectionId: collectionId,
-        conjurationId: collectionConjurationRequest.conjurationId,
-      },
-    });
+    const collectionConjuration = await findCollectionConjurations(collectionId, collectionConjurationRequest.conjurationId);
 
     if (collectionConjuration) {
       return collectionConjuration;
@@ -425,12 +274,7 @@ export default class CollectionController {
       collectionConjurationRequest,
     });
 
-    const newCollectionCojuration = await prisma.collectionConjuration.create({
-      data: {
-        collectionId: collectionId,
-        conjurationId: collectionConjurationRequest.conjurationId,
-      },
-    });
+    const newCollectionCojuration = await createCollectionConjuration(collectionId, collectionConjurationRequest.conjurationId);
 
     await indexConjurationContext(
       collection.campaignId,
@@ -452,12 +296,7 @@ export default class CollectionController {
     @Body()
     postMoveCollectionConjurationRequest: PostMoveCollectionConjurationRequest,
   ) {
-    const fromCollection = await prisma.collections.findUnique({
-      where: {
-        id: collectionId,
-        userId: userId,
-      },
-    });
+    const fromCollection = await findCollections(userId, collectionId);
 
     if (!fromCollection) {
       throw new AppError({
@@ -467,12 +306,7 @@ export default class CollectionController {
       });
     }
 
-    const toCollection = await prisma.collections.findUnique({
-      where: {
-        id: postMoveCollectionConjurationRequest.collectionId,
-        userId: userId,
-      },
-    });
+    const toCollection = await findCollections(userId, postMoveCollectionConjurationRequest.collectionId);
 
     if (!toCollection) {
       throw new AppError({
@@ -482,16 +316,7 @@ export default class CollectionController {
       });
     }
 
-    const collectionConjuration = await prisma.collectionConjuration.findUnique(
-      {
-        where: {
-          collectionId_conjurationId: {
-            collectionId: collectionId,
-            conjurationId: conjurationId,
-          },
-        },
-      },
-    );
+    const collectionConjuration = await findCollectionConjurations(collectionId, conjurationId);
 
     if (!collectionConjuration) {
       throw new AppError({
@@ -506,13 +331,7 @@ export default class CollectionController {
       postMoveCollectionConjurationRequest,
     });
 
-    await prisma.collectionConjuration.updateMany({
-      where: {
-        collectionId: collectionId,
-        conjurationId: conjurationId,
-      },
-      data: postMoveCollectionConjurationRequest,
-    });
+    await updateCollectionConjuration(collectionId, conjurationId, postMoveCollectionConjurationRequest);
 
     await deleteConjurationContext(fromCollection.campaignId, conjurationId);
 
@@ -539,12 +358,7 @@ export default class CollectionController {
     @Body()
     postMoveCollectionRequest: PostMoveCollectionRequest,
   ) {
-    const collection = await prisma.collections.findUnique({
-      where: {
-        id: collectionId,
-        userId: userId,
-      },
-    });
+    const collection = await findCollections(userId, collectionId);
 
     if (!collection) {
       throw new AppError({
@@ -554,12 +368,7 @@ export default class CollectionController {
       });
     }
 
-    const parentCollection = await prisma.collections.findUnique({
-      where: {
-        id: postMoveCollectionRequest.parentCollectionId,
-        userId: userId,
-      },
-    });
+    const parentCollection = await findCollections(userId, postMoveCollectionRequest.parentCollectionId);
 
     if (!parentCollection) {
       throw new AppError({
@@ -586,47 +395,21 @@ export default class CollectionController {
     });
 
     if (parentCollection.campaignId !== collection.campaignId) {
-      const collectionsToUpdate = (await prisma.$queryRawUnsafe(`
-      WITH RECURSIVE collection_tree AS (
-        SELECT "id", "name", "parentCollectionId"
-        FROM "collections"
-        WHERE "id" = ${collectionId} AND "userId" = ${userId}
-          UNION ALL
-            SELECT c."id", c."name", c."parentCollectionId"
-            FROM "collections" c
-            INNER JOIN collection_tree ct ON c."parentCollectionId" = ct."id"
-      )
-      SELECT * FROM collection_tree
-    `)) as Collections[];
+      const collectionsToUpdate = await findCollectionTree(userId, collectionId);
 
       if (collectionsToUpdate && collectionsToUpdate.length) {
         logger.info('Updating collections', { userId, collectionsToUpdate });
 
-        await prisma.collections.updateMany({
-          where: {
-            id: {
-              in: collectionsToUpdate.map((c: any) => c.id),
-            },
-            userId: userId,
-          },
-          data: {
-            campaignId: parentCollection.campaignId,
-          },
-        });
+        await updateCollection(collectionsToUpdate, parentCollection.campaignId);
       }
     }
 
-    await prisma.collections.update({
-      where: {
-        id: collectionId,
-        userId: userId,
-      },
-      data: {
-        parentCollectionId: parentCollection.id,
-        campaignId: parentCollection.campaignId,
-      },
+    await updateCollection(collectionId, userId, {
+      parentCollectionId: parentCollection.id,
+      campaignId: parentCollection.campaignId,
     });
 
     await sendWebsocketMessage(userId, WebSocketEvent.CollectionMoved, {});
   }
 }
+
