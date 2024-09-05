@@ -12,6 +12,7 @@ import {
   Tags,
 } from 'tsoa';
 import { prisma } from '../lib/providers/prisma';
+import { fetchConjurationById, deleteConjurationById, updateConjurationById } from '../dataAccess/conjurations';
 import {
   Conjuration,
   ConjurationRelationshipType,
@@ -219,23 +220,7 @@ export default class ConjurationController {
   ): Promise<
     Conjuration & { saves: undefined; saved: boolean; campaignIds: number[] }
   > {
-    const conjuration = await prisma.conjuration.findUnique({
-      where: {
-        id: conjurationId,
-      },
-      include: {
-        saves: {
-          where: {
-            userId,
-          },
-        },
-        images: {
-          include: {
-            imageModel: true,
-          },
-        },
-      },
-    });
+    const conjuration = await fetchConjurationById(conjurationId);
 
     if (!conjuration) {
       throw new AppError({
@@ -393,14 +378,9 @@ export default class ConjurationController {
 
     track(AppEvent.UpdateConjuration, userId, trackingInfo);
 
-    const updatedConjuration = prisma.conjuration.update({
-      where: {
-        id: conjurationId,
-      },
-      data: {
-        userId,
-        ...request,
-      },
+    const updatedConjuration = updateConjurationById(conjurationId, {
+      userId,
+      ...request,
     });
 
     await processTagsQueue.add({
@@ -471,11 +451,7 @@ export default class ConjurationController {
       },
     });
 
-    await prisma.conjuration.delete({
-      where: {
-        id: conjurationId,
-      },
-    });
+    await deleteConjurationById(conjurationId);
 
     track(AppEvent.DeleteConjuration, userId, trackingInfo);
     await sendConjurationCountUpdatedEvent(userId);
@@ -696,3 +672,4 @@ export default class ConjurationController {
     });
   }
 }
+
