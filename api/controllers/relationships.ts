@@ -90,7 +90,7 @@ export default class RelationshipController {
       depthLimit,
     });
 
-    return getRelationshipsFromDB(userId, type, nodeId, filterTypes, depthLimit);
+    return getRelationshipsFromDB(type, nodeId, filterTypes, depthLimit);
   }
 
   @Security('jwt')
@@ -111,7 +111,7 @@ export default class RelationshipController {
       body,
     });
 
-    await createRelationshipInDB(userId, type, nodeId, body);
+    await createRelationshipInDB({ userId, type, nodeId, ...body });
   }
 
   @Security('jwt')
@@ -123,7 +123,7 @@ export default class RelationshipController {
     @Inject() logger: MythWeaverLogger,
     @Route() relationshipId: number,
   ) {
-    await deleteRelationshipInDB(userId, relationshipId, logger);
+    await deleteRelationshipInDB(relationshipId);
   }
 
   @Security('jwt')
@@ -140,7 +140,7 @@ export default class RelationshipController {
       relationshipData,
     });
 
-    await deleteRelationshipByNodeIdsInDB(userId, relationshipData, logger);
+    await deleteRelationshipByNodeIdsInDB(relationshipData.previousNodeId, relationshipData.nextNodeId);
   }
 
   @Security('jwt')
@@ -153,7 +153,7 @@ export default class RelationshipController {
     @Route() relationshipId: number,
     @Body() request: PatchRelationshipRequest,
   ) {
-    await updateRelationshipInDB(userId, relationshipId, request, logger);
+    await updateRelationshipInDB(relationshipId, request);
   }
 
   @Security('jwt')
@@ -173,7 +173,7 @@ export default class RelationshipController {
       campaignId,
     });
 
-    return getRelationshipGraphFromDB(userId, campaignId, logger);
+    return getRelationshipGraphFromDB();
   }
 }
 
