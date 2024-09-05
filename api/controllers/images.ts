@@ -11,8 +11,8 @@ import {
 } from 'tsoa';
 import { TrackingInfo } from '../lib/tracking';
 import { generateImage } from '../services/images/imageGeneration';
-import { prisma } from '../lib/providers/prisma';
 import { AppError, HttpCode } from '../lib/errors/AppError';
+import { findUserById, findImageByIdAndUserId, updateImageConjurationId, updatePrimaryImage, findConjurationWithImages } from '../dataAccess/images';
 import { MythWeaverLogger } from '../lib/logger';
 import { sendWebsocketMessage, WebSocketEvent } from '../services/websockets';
 import { upscaleImage } from '../services/images/upscalingService';
@@ -59,11 +59,7 @@ export default class ImageController {
       count = request.count;
     }
 
-    const user = await prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
-    });
+    const user = await findUserById(userId);
 
     if (!user) {
       throw new AppError({
@@ -121,12 +117,7 @@ export default class ImageController {
       });
     }
 
-    const image = await prisma.image.findUnique({
-      where: {
-        id: imageId,
-        userId: userId,
-      },
-    });
+    const image = await findImageByIdAndUserId(imageId, userId);
 
     if (!image) {
       throw new AppError({
@@ -135,14 +126,7 @@ export default class ImageController {
       });
     }
 
-    await prisma.image.update({
-      where: {
-        id: imageId,
-      },
-      data: {
-        conjurationId: request.conjurationId,
-      },
-    });
+    await updateImageConjurationId(imageId, request.conjurationId);
   }
 
   @Security('jwt')
@@ -237,36 +221,7 @@ export default class ImageController {
       });
     }
 
-    await prisma.image.updateMany({
-      where: {
-        userId: userId,
-        conjurationId: image.conjurationId,
-        sessionId: image.sessionId,
-        characterId: image.characterId,
-      },
-      data: {
-        primary: false,
-      },
-    });
-
-    await prisma.image.update({
-      where: {
-        id: imageId,
-      },
-      data: {
-        primary: true,
-      },
-    });
-
-    const updatedImages = await prisma.image.findMany({
-      where: {
-        userId: userId,
-        conjurationId: image.conjurationId,
-        sessionId: image.sessionId,
-        characterId: image.characterId,
-        primary: true,
-      },
-    });
+    const updatedImages = await updatePrimaryImage(userId, imageId, image.conjurationId, image.sessionId, image.characterId);
 
     await sendWebsocketMessage(userId, WebSocketEvent.PrimaryImageSet, {
       images: updatedImages,
@@ -298,27 +253,7 @@ export default class ImageController {
       });
     }
 
-    const conjuration = await prisma.conjuration.findUnique({
-      where: {
-        id: conjurationId,
-        userId: userId,
-      },
-      include: {
-        images: {
-          where: {
-            NOT: {
-              uri: null,
-            },
-          },
-          orderBy: {
-            createdAt: 'desc',
-          },
-          include: {
-            imageModel: true,
-          },
-        },
-      },
-    });
+    const conjuration = await findConjurationWithImages(conjurationId, userId);
 
     if (!conjuration) {
       throw new AppError({
@@ -330,3 +265,4 @@ export default class ImageController {
     return conjuration.images;
   }
 }
+
