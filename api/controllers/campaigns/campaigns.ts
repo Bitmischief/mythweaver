@@ -19,11 +19,23 @@ import { sendTransactionalEmail } from '../lib/transactionalEmail';
 import { v4 as uuidv4 } from 'uuid';
 import { urlPrefix } from '../lib/utils';
 import { MythWeaverLogger } from '../lib/logger';
-import { createCampaign } from '../dataAccess/campaigns';
+import {
+  createCampaign,
+  deleteCampaign,
+  getCampaign,
+  getCampaignForUser,
+  getCampaignMembers,
+  getCampaignsForUser,
+  updateCampaign,
+} from '../dataAccess/campaigns';
 import { indexCampaignContextQueue } from '../worker';
 import { getCampaignCharacters } from '../lib/charactersHelper';
 import { getClient } from '../lib/providers/openai';
 import { sendWebsocketMessage, WebSocketEvent } from '../services/websockets';
+import {
+  createCollection,
+  updateCollectionForCampaign,
+} from '../dataAccess/collections';
 
 const openai = getClient();
 
@@ -79,24 +91,7 @@ export default class CampaignController {
   ): Promise<GetCampaignsResponse> {
     logger.info('Getting campaigns');
 
-    const campaigns = await prisma.campaign.findMany({
-      where: {
-        members: {
-          some: {
-            userId,
-          },
-        },
-        name: term
-          ? {
-              contains: term,
-              mode: 'insensitive',
-            }
-          : undefined,
-        deleted: false,
-      },
-      skip: offset,
-      take: limit,
-    });
+    const campaigns = await getCampaignsForUser(userId, term, offset, limit);
 
     track(AppEvent.GetCampaigns, userId, trackingInfo);
 
@@ -116,44 +111,21 @@ export default class CampaignController {
     @Inject() logger: MythWeaverLogger,
     @Route() campaignId = 0,
   ): Promise<Campaign> {
-    const actingUserCampaignMember = await prisma.campaignMember.findUnique({
-      where: {
-        userId_campaignId: {
-          userId,
-          campaignId,
-        },
-      },
-      include: {
-        campaign: true,
-      },
-    });
+    const campaign = await getCampaignForUser(userId, campaignId);
 
-    if (!actingUserCampaignMember) {
+    if (!campaign) {
       throw new AppError({
-        httpCode: HttpCode.FORBIDDEN,
-        description: 'You are not a member of this campaign.',
+        description: "Campaign not found, or you don't have access!",
+        httpCode: HttpCode.NOT_FOUND,
       });
     }
 
-    if (actingUserCampaignMember.campaign.deleted) {
+    if (campaign.deleted) {
       throw new AppError({
         httpCode: HttpCode.FORBIDDEN,
         description: 'This campaign has been deleted.',
       });
     }
-
-    const campaign = await prisma.campaign.findUnique({
-      where: {
-        id: campaignId,
-      },
-      include: {
-        members: {
-          include: {
-            user: true,
-          },
-        },
-      },
-    });
 
     if (!campaign) {
       throw new AppError({
@@ -183,12 +155,10 @@ export default class CampaignController {
       ...request,
     });
 
-    await prisma.collections.create({
-      data: {
-        name: request.name,
-        userId,
-        campaignId: campaign.id,
-      },
+    await createCollection({
+      name: request.name,
+      userId,
+      campaignId: campaign.id,
     });
 
     return campaign;
@@ -204,11 +174,7 @@ export default class CampaignController {
     @Route() campaignId = 0,
     @Body() request: PutCampaignRequest,
   ): Promise<Campaign> {
-    const campaign = await prisma.campaign.findUnique({
-      where: {
-        id: campaignId,
-      },
-    });
+    const campaign = await getCampaign(campaignId);
 
     if (!campaign) {
       throw new AppError({
@@ -234,24 +200,9 @@ export default class CampaignController {
       });
     }
 
-    await prisma.collections.updateMany({
-      where: {
-        campaignId: campaignId,
-        parentCollectionId: null,
-      },
-      data: {
-        name: request.name,
-      },
-    });
+    await updateCollectionForCampaign(campaignId, { ...request });
 
-    return prisma.campaign.update({
-      where: {
-        id: campaignId,
-      },
-      data: {
-        ...request,
-      },
-    });
+    return updateCampaign(campaignId, request);
   }
 
   @Security('jwt')
@@ -263,11 +214,7 @@ export default class CampaignController {
     @Inject() logger: MythWeaverLogger,
     @Route() campaignId: number,
   ): Promise<void> {
-    const campaign = await prisma.campaign.findUnique({
-      where: {
-        id: campaignId,
-      },
-    });
+    const campaign = await getCampaign(campaignId);
 
     if (!campaign) {
       throw new AppError({
@@ -285,14 +232,7 @@ export default class CampaignController {
 
     track(AppEvent.DeleteCampaign, userId, trackingInfo);
 
-    await prisma.campaign.update({
-      where: {
-        id: campaignId,
-      },
-      data: {
-        deleted: true,
-      },
-    });
+    await deleteCampaign(campaignId);
   }
 
   @Security('jwt')
@@ -306,33 +246,16 @@ export default class CampaignController {
     @Query() offset = 0,
     @Query() limit = 25,
   ): Promise<GetCampaignMembersResponse> {
-    const user = await prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
-      include: {
-        campaignMemberships: {
-          where: {
-            campaignId,
-          },
-        },
-      },
-    });
+    const campaign = await getCampaignForUser(userId, campaignId);
 
-    if (!user || !user.campaignMemberships.length) {
+    if (!campaign) {
       throw new AppError({
-        description: 'You do not have access to this campaign.',
-        httpCode: HttpCode.FORBIDDEN,
+        description: "Campaign not found, or you don't have access!",
+        httpCode: HttpCode.NOT_FOUND,
       });
     }
 
-    const campaignMembers = await prisma.campaignMember.findMany({
-      where: {
-        campaignId,
-      },
-      skip: offset,
-      take: limit,
-    });
+    const campaignMembers = await getCampaignMembers(campaignId, offset, limit);
 
     track(AppEvent.GetCampaignMembers, userId, trackingInfo);
 
@@ -353,14 +276,7 @@ export default class CampaignController {
     @Route() campaignId = 0,
     @Body() request: InviteMemberRequest,
   ): Promise<any> {
-    const campaign = await prisma.campaign.findUnique({
-      where: {
-        id: campaignId,
-      },
-      include: {
-        members: true,
-      },
-    });
+    const campaign = await getCampaign(campaignId);
 
     if (!campaign) {
       throw new AppError({
@@ -369,7 +285,9 @@ export default class CampaignController {
       });
     }
 
-    const currentMember = campaign.members.find((m) => m.userId === userId);
+    const campaignMembers = await getCampaignMembers(campaignId, 0, 1000);
+
+    const currentMember = campaignMembers.find((m) => m.userId === userId);
     if (!currentMember || currentMember.role !== CampaignRole.DM) {
       throw new AppError({
         description: 'You do not have permissions to invite members.',
@@ -377,7 +295,7 @@ export default class CampaignController {
       });
     }
 
-    if (campaign.members.find((m) => m.email === request.email)) {
+    if (campaignMembers.find((m) => m.email === request.email)) {
       throw new AppError({
         description: 'User is already a member of this campaign.',
         httpCode: HttpCode.CONFLICT,
