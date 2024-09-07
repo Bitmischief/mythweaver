@@ -1,39 +1,95 @@
 import { prisma } from '../lib/providers/prisma';
-import { CampaignRole } from '../controllers/campaigns';
+import { CampaignRole } from '../controllers/campaigns/campaigns';
 import { getClient } from '../lib/providers/openai';
 import logger from '../lib/logger';
-import { ContextType } from '@prisma/client';
+import { ContextType, Prisma } from '@prisma/client';
+import { AppError, HttpCode } from '../lib/errors/AppError';
 
 const openai = getClient();
 
-export interface ReindexCampaignContextEvent {
-  type: ContextType;
-  eventTargetId: number;
-  campaignId: number;
-  data?: {
-    fileUpload?: {
-      name: string;
-      uri: string;
-    };
-  };
-}
-
-export const getCampaign = async (campaignId: number) => {
-  return initializeContextForCampaign(campaignId);
-};
-
-export const getCampaignContextConfig = async (campaignId: number) => {
-  const campaign = await getCampaign(campaignId);
+export const getCampaign = async (
+  campaignId: number,
+  include: Prisma.CampaignInclude | undefined = undefined,
+) => {
+  const campaign = await prisma.campaign.findUnique({
+    where: {
+      id: campaignId,
+    },
+    include,
+  });
 
   if (!campaign) {
-    throw new Error('Campaign not found');
+    throw new AppError({
+      description: 'Campaign not found.',
+      httpCode: HttpCode.BAD_REQUEST,
+    });
   }
 
-  return {
-    assistantId: (campaign.openAiConfig as any).assistantId,
-    threadId: (campaign.openAiConfig as any)?.threadId,
-    vectorStoreId: (campaign.openAiConfig as any)?.vectorStoreId,
-  };
+  await initializeContextForCampaign(campaignId);
+
+  return campaign;
+};
+
+export const getCampaignForUser = async (
+  userId: number,
+  campaignId: number,
+  include: Prisma.CampaignInclude | undefined = undefined,
+) => {
+  const response = await prisma.campaignMember.findUnique({
+    where: {
+      userId_campaignId: {
+        userId,
+        campaignId,
+      },
+    },
+    include: {
+      campaign: {
+        include,
+      },
+    },
+  });
+
+  return response?.campaign;
+};
+
+export const getCampaignsForUser = async (
+  userId: number,
+  term: string | undefined,
+  offset: number,
+  limit: number,
+) => {
+  return prisma.campaign.findMany({
+    where: {
+      members: {
+        some: {
+          userId,
+        },
+      },
+      name: term
+        ? {
+            contains: term,
+            mode: 'insensitive',
+          }
+        : undefined,
+      deleted: false,
+    },
+    skip: offset,
+    take: limit,
+  });
+};
+
+export const getCampaignMembers = async (
+  campaignId: number,
+  offset: number,
+  limit: number,
+) => {
+  return prisma.campaignMember.findMany({
+    where: {
+      campaignId,
+    },
+    skip: offset,
+    take: limit,
+  });
 };
 
 export const createCampaign = async (request: {
@@ -59,6 +115,60 @@ export const createCampaign = async (request: {
   await initializeContextForCampaign(campaign.id);
 
   return campaign;
+};
+
+export const updateCampaign = async (
+  campaignId: number,
+  request: {
+    name?: string;
+    description?: string;
+  },
+) => {
+  return prisma.campaign.update({
+    where: {
+      id: campaignId,
+    },
+    data: {
+      ...request,
+    },
+  });
+};
+
+export const deleteCampaign = async (campaignId: number) => {
+  return prisma.campaign.update({
+    where: {
+      id: campaignId,
+    },
+    data: {
+      deleted: true,
+    },
+  });
+};
+
+export interface ReindexCampaignContextEvent {
+  type: ContextType;
+  eventTargetId: number;
+  campaignId: number;
+  data?: {
+    fileUpload?: {
+      name: string;
+      uri: string;
+    };
+  };
+}
+
+export const getCampaignContextConfig = async (campaignId: number) => {
+  const campaign = await getCampaign(campaignId);
+
+  if (!campaign) {
+    throw new Error('Campaign not found');
+  }
+
+  return {
+    assistantId: (campaign.openAiConfig as any).assistantId,
+    threadId: (campaign.openAiConfig as any)?.threadId,
+    vectorStoreId: (campaign.openAiConfig as any)?.vectorStoreId,
+  };
 };
 
 export const initializeContextForCampaign = async (campaignId: number) => {

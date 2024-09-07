@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { prisma } from './providers/prisma';
 import { AppError, HttpCode } from './errors/AppError';
-import { CampaignRole } from '../controllers/campaigns';
+import { CampaignRole } from '../controllers/campaigns/campaigns';
 import { useBuildFileUploader } from './fileUploadMiddleware';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB;

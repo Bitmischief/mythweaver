@@ -12,7 +12,7 @@ import { prisma } from '../lib/providers/prisma';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import jwt from 'jsonwebtoken';
 import { AppEvent, identify, track, TrackingInfo } from '../lib/tracking';
-import CampaignController from './campaigns';
+import CampaignController from './campaigns/campaigns';
 import mailchimpClient from '../lib/mailchimpMarketing';
 import { lists, Status } from '@mailchimp/mailchimp_marketing';
 import { format } from 'date-fns';

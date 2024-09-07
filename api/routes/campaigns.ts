@@ -5,7 +5,8 @@ import {
   useValidateRequest,
   ValidationTypes,
 } from '../lib/validationMiddleware';
-import CampaignController from '../controllers/campaigns';
+import CampaignController from '../controllers/campaigns/campaigns';
+import CampaignMemberController from '../controllers/campaigns/members';
 import rateLimit from 'express-rate-limit';
 import { useInjectLoggingInfo, useLogger } from '../lib/loggingMiddleware';
 import {
@@ -179,7 +180,7 @@ router.get('/:campaignId/members', [
     validationType: ValidationTypes.Query,
   }),
   async (req: Request, res: Response) => {
-    const controller = new CampaignController();
+    const controller = new CampaignMemberController();
 
     const { offset = 0, limit = 10 } = req.query;
 
@@ -215,7 +216,7 @@ router.post('/:campaignId/members', [
     validationType: ValidationTypes.Body,
   }),
   async (req: Request, res: Response) => {
-    const controller = new CampaignController();
+    const controller = new CampaignMemberController();
 
     const response = await controller.inviteCampaignMember(
       res.locals.auth.userId,
@@ -242,7 +243,7 @@ router.delete('/:campaignId/members/:memberId', [
     validationType: ValidationTypes.Route,
   }),
   async (req: Request, res: Response) => {
-    const controller = new CampaignController();
+    const controller = new CampaignMemberController();
 
     const response = await controller.deleteCampaignMember(
       res.locals.auth.userId,
@@ -260,7 +261,7 @@ const getInviteRouteSchema = z.object({
   inviteCode: z.string(),
 });
 
-router.get('/invites/:inviteCode', [
+router.get('/:campaignId/members/invites/:inviteCode', [
   useValidateRequest(getInviteRouteSchema, {
     validationType: ValidationTypes.Route,
   }),
@@ -274,7 +275,7 @@ router.get('/invites/:inviteCode', [
     },
   }),
   async (req: Request, res: Response) => {
-    const controller = new CampaignController();
+    const controller = new CampaignMemberController();
 
     const response = await controller.getInvite(
       res.locals.trackingInfo,
@@ -290,7 +291,7 @@ const postAcceptInviteRouteSchema = z.object({
   inviteCode: z.string(),
 });
 
-router.post('/invites/:inviteCode', [
+router.post('/:campaignId/members/invites/:inviteCode', [
   checkAuth0Jwt,
   useInjectUserId(),
   useInjectLoggingInfo(),
@@ -298,7 +299,7 @@ router.post('/invites/:inviteCode', [
     validationType: ValidationTypes.Route,
   }),
   async (req: Request, res: Response) => {
-    const controller = new CampaignController();
+    const controller = new CampaignMemberController();
 
     const response = await controller.acceptInvite(
       res.locals.auth.userId,
