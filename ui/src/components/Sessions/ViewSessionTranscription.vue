@@ -388,7 +388,7 @@ async function tryDeleteSessionAudio() {
       >
         <div v-if="loadingTranscribeSession" class="flex">
           <Spinner />
-          Transcribing session...
+          <span class="ml-2">Transcribing session...</span>
         </div>
         <div v-else>Transcribe session</div>
       </button>

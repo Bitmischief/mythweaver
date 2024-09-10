@@ -1,6 +1,6 @@
 import { AssemblyAI, Transcript } from 'assemblyai';
 import retry from 'async-await-retry';
-import { TranscribeSessionEvent } from '../../dataAccess/sessions';
+import { TranscribeSessionEvent, getSession } from '../../dataAccess/sessions';
 import { prisma } from '../../lib/providers/prisma';
 import { AppError, HttpCode } from '../../lib/errors/AppError';
 import {
@@ -11,6 +11,8 @@ import { Session, TranscriptStatus } from '@prisma/client';
 import logger from '../../lib/logger';
 import { SpeechModel } from 'assemblyai/src/types/openapi.generated';
 import { sleep } from 'openai/core';
+import { ProcessedTranscript } from '../../dataAccess/transcript';
+import { generateText } from '../../services/textGeneration';
 
 const client = new AssemblyAI({
   apiKey: process.env.ASSEMBLYAI_API_KEY as string,
@@ -119,10 +121,16 @@ const processSessionTranscription = async (
 
   await pollForTranscript(transcript.id);
 
-  await processCompletedTranscript(session.id, userId, transcript.id);
+  await processCompletedTranscript(
+    session.campaignId,
+    session.id,
+    userId,
+    transcript.id,
+  );
 };
 
 const processCompletedTranscript = async (
+  campaignId: number,
   sessionId: number,
   userId: number,
   transcriptId: string,
@@ -159,18 +167,21 @@ const processCompletedTranscript = async (
   const { sentences } = await client.transcripts.sentences(transcript.id);
   const { paragraphs } = await client.transcripts.paragraphs(transcript.id);
 
+  let fullTranscript: ProcessedTranscript = {
+    sentences,
+    paragraphs,
+    recap,
+    summary,
+  };
+
+  fullTranscript = await postprocessTranscript(campaignId, fullTranscript);
+
   await prisma.sessionTranscription.update({
     where: {
       sessionId,
     },
     data: {
-      status_new: TranscriptStatus.COMPLETE,
-      transcript: {
-        ...transcript,
-        utterances: undefined,
-        sentences,
-        paragraphs,
-      },
+      transcript: fullTranscript as any,
       transcriptExternalId: transcript.id,
     },
   });
@@ -180,20 +191,42 @@ const processCompletedTranscript = async (
       id: sessionId,
     },
     data: {
-      summary: summary.replace(
-        'Here is an 8 sentence summary of the transcript: ',
-        '',
-      ),
-      recap: recap.replace(
-        '\n Here is a thorough recap of the transcript:\n\n',
-        '',
-      ),
+      summary: fullTranscript.summary,
+      recap: fullTranscript.recap,
     },
   });
 
   await sendWebsocketMessage(userId, WebSocketEvent.TranscriptionComplete, {
     sessionId: sessionId,
   });
+};
+
+const postprocessTranscript = async (
+  campaignId: number,
+  transcript: ProcessedTranscript,
+) => {
+  const updatedSummary = await generateText(
+    campaignId,
+    `Review the provided tabletop roleplaying game 
+  session summary and look for any misspelt character names, location names or other names of specific content in my 
+  game that might be misspelt. Respond with just the summary and don't include a preamble or introduction. If there are 
+  no corrections to be made, please return the summary as is. Here is the original summary. 'Summary': ${transcript.summary}`,
+  );
+
+  const updatedRecap = await generateText(
+    campaignId,
+    `Review the provided tabletop roleplaying game 
+  session recap and look for any misspelt character names, location names or other names of specific content in my 
+  game that might be misspelt. Respond with just the summary and don't include a preamble or introduction. If there are 
+  no corrections to be made, please return the recap as is. Here is the 
+  original recap. 'Recap': ${transcript.recap}`,
+  );
+
+  return {
+    ...transcript,
+    summary: updatedSummary,
+    recap: updatedRecap,
+  };
 };
 
 const pollForTranscript = async (transcriptId: string) => {
@@ -223,6 +256,15 @@ const createOrUpdateSessionTranscriptRecord = async (
     },
   });
 
+  const session = await getSession(sessionId);
+
+  if (!session) {
+    throw new AppError({
+      description: 'Session not found.',
+      httpCode: HttpCode.NOT_FOUND,
+    });
+  }
+
   if (sessionTranscript?.status_new === TranscriptStatus.COMPLETE) {
     logger.info('This session transcript is already completed, aborting.');
     return;
@@ -236,7 +278,12 @@ const createOrUpdateSessionTranscriptRecord = async (
 
       if (transcript.status === 'completed' || transcript.status === 'error') {
         logger.info('Found completed transcript for this session.');
-        await processCompletedTranscript(sessionId, userId, transcript.id);
+        await processCompletedTranscript(
+          session.campaignId,
+          sessionId,
+          userId,
+          transcript.id,
+        );
         return;
       }
     }

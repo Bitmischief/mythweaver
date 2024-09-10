@@ -5,7 +5,6 @@ import { sanitizeJson, trimPlural } from '../../lib/utils';
 import { generateImage } from '../../services/images/imageGeneration';
 import { prisma } from '../../lib/providers/prisma';
 import { ConjureEvent, processTagsQueue } from '../index';
-import { getClient } from '../../lib/providers/openai';
 import {
   sendWebsocketMessage,
   WebSocketEvent,
@@ -13,13 +12,8 @@ import {
 import logger from '../../lib/logger';
 import { sendConjurationCountUpdatedEvent } from '../../lib/planRestrictionHelpers';
 import { nanoid } from 'nanoid';
-import {
-  getCampaign,
-  getCampaignContextConfig,
-} from '../../dataAccess/campaigns';
-import { Message, TextContentBlock } from 'openai/resources/beta/threads';
-
-const openai = getClient();
+import { generateText } from '../../services/textGeneration';
+import { getCampaign } from '../../dataAccess/campaigns';
 
 export const conjure = async (request: ConjureEvent) => {
   const generator = getGenerator(request.generatorCode);
@@ -32,46 +26,19 @@ export const conjure = async (request: ConjureEvent) => {
     });
   }
 
-  const campaign = await getCampaign(request.campaignId);
-
-  if (!campaign) {
-    throw new AppError({
-      description: 'Campaign not found.',
-      httpCode: HttpCode.BAD_REQUEST,
-    });
-  }
-
-  const contextConfig = await getCampaignContextConfig(request.campaignId);
-
-  const prompt = buildPrompt(
+  const prompt = await buildPrompt(
     generator,
-    campaign,
+    request.campaignId,
     request.arg,
     request.imagePrompt,
   );
 
   let conjuration: any = undefined;
+  let generatedJson = '';
 
   do {
-    let response: Message | undefined;
-
     try {
-      const thread = await openai.beta.threads.create();
-
-      await openai.beta.threads.messages.create(thread.id, {
-        content: prompt,
-        role: 'assistant',
-      });
-
-      const run = await openai.beta.threads.runs.createAndPoll(thread.id, {
-        assistant_id: contextConfig.assistantId,
-      });
-
-      const messages = await openai.beta.threads.messages.list(thread.id, {
-        run_id: run.id,
-      });
-
-      response = messages.data.pop();
+      generatedJson = await generateText(request.campaignId, prompt);
     } catch (err: any) {
       logger.error(
         'Error generating character with openai',
@@ -79,17 +46,7 @@ export const conjure = async (request: ConjureEvent) => {
       );
     }
 
-    if (!response) {
-      throw new AppError({
-        description: 'Error generating character.',
-        httpCode: HttpCode.INTERNAL_SERVER_ERROR,
-      });
-    }
-
-    let generatedJson;
     try {
-      generatedJson =
-        (response.content[0] as TextContentBlock)?.text?.value || '';
       logger.info('Received json from openai', { generatedJson });
 
       const conjurationString = sanitizeJson(generatedJson);
@@ -230,12 +187,14 @@ const formatDataForEditorJs = (conjuration: any, generator: any) => {
   };
 };
 
-const buildPrompt = (
+const buildPrompt = async (
   generator: Generator,
-  campaign?: Campaign | undefined,
+  campaignId: number,
   customArg?: string | undefined,
   imagePrompt?: string | undefined,
 ) => {
+  const campaign = await getCampaign(campaignId);
+
   let prompt = `Please help me flesh out an idea for a ${trimPlural(
     generator.name.toLowerCase(),
   )}`;

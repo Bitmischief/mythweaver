@@ -11,6 +11,14 @@ export interface TranscribeSessionEvent {
   userId: number;
 }
 
+export const getSession = async (sessionId: number) => {
+  return prisma.session.findUnique({
+    where: {
+      id: sessionId,
+    },
+  });
+};
+
 export const indexSessionContext = async (
   campaignId: number,
   sessionId: number,
