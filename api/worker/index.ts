@@ -10,6 +10,7 @@ import { indexCampaignContext } from './jobs/indexCampaignContext';
 import { ReindexCampaignContextEvent } from '../dataAccess/campaigns';
 import { transcribeSession } from './jobs/transcribeSession';
 import { TranscribeSessionEvent } from '../dataAccess/sessions';
+import { processCampaignContextSync } from './jobs/campaignContextSync';
 
 const config = process.env.REDIS_ENDPOINT || '';
 
@@ -143,5 +144,23 @@ sessionTranscriptionQueue.process(async (job, done) => {
   } catch (err) {
     logger.error('Error processing session transcript job!', err);
     done(new Error('Error processing session transcript job!'));
+  }
+});
+
+export const campaignContextQueue = new Queue('campaign-context-sync', config);
+
+campaignContextQueue.process(async (job, done) => {
+  logger.info('Processing campaign context sync queue job');
+
+  try {
+    await processCampaignContextSync();
+    logger.info(
+      'Completed processing campaign context sync queue job',
+      job.data,
+    );
+    done();
+  } catch (err) {
+    logger.error('Error processing campaign context sync queue job!', err);
+    done(new Error('Error processing campaign context sync queue job!'));
   }
 });
