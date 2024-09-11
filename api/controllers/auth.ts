@@ -13,9 +13,6 @@ import { AppError, HttpCode } from '../lib/errors/AppError';
 import jwt from 'jsonwebtoken';
 import { AppEvent, identify, track, TrackingInfo } from '../lib/tracking';
 import CampaignController from './campaigns';
-import mailchimpClient from '../lib/mailchimpMarketing';
-import { lists, Status } from '@mailchimp/mailchimp_marketing';
-import { format } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 import { urlPrefix } from '../lib/utils';
 import { sendTransactionalEmail } from '../lib/transactionalEmail';
@@ -24,7 +21,7 @@ import { MythWeaverLogger } from '../lib/logger';
 import { modifyImageCreditCount } from '../services/credits';
 import { ImageCreditChangeType } from '@prisma/client';
 import { createCampaign } from '../dataAccess/campaigns';
-import EmailType = lists.EmailType;
+import { addEmailToMailingList } from '../services/email';
 
 const jwtExpirySeconds = 30 * 60; // 30 minutes
 const jwtRefreshExpirySeconds = 14 * 24 * 60 * 60; // 14 days
@@ -133,26 +130,7 @@ export default class AuthController {
         'Initial credits for signup',
       );
 
-      const response = (await mailchimpClient.lists.batchListMembers(
-        process.env.MAILCHIMP_AUDIENCE_ID as string,
-        {
-          members: [
-            {
-              email_address: email.toLowerCase(),
-              email_type: 'html' as EmailType,
-              status: 'subscribed' as Status,
-              ip_opt: trackingInfo?.ip,
-              ip_signup: trackingInfo?.ip,
-              timestamp_signup: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
-              timestamp_opt: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
-            },
-          ],
-        },
-      )) as any;
-
-      if (response?.errors?.length > 0) {
-        logger.warn('Received errors from Mailchimp', response.errors);
-      }
+      await addEmailToMailingList(email, trackingInfo.ip);
 
       track(AppEvent.Registered, user.id, trackingInfo, { email });
     }
@@ -320,26 +298,7 @@ export default class AuthController {
         },
       });
 
-      const response = (await mailchimpClient.lists.batchListMembers(
-        process.env.MAILCHIMP_AUDIENCE_ID as string,
-        {
-          members: [
-            {
-              email_address: email,
-              email_type: 'html' as EmailType,
-              status: 'subscribed' as Status,
-              ip_opt: trackingInfo?.ip,
-              ip_signup: trackingInfo?.ip,
-              timestamp_signup: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
-              timestamp_opt: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
-            },
-          ],
-        },
-      )) as any;
-
-      if (response?.errors?.length > 0) {
-        logger.warn('Received errors from Mailchimp', response.errors);
-      }
+      await addEmailToMailingList(email, trackingInfo.ip);
 
       track(AppEvent.Registered, user.id, trackingInfo, {
         email,

@@ -6,13 +6,10 @@ import { auth } from 'express-oauth2-jwt-bearer';
 import { createCustomer } from '../services/billing';
 import { modifyImageCreditCount } from '../services/credits';
 import { ImageCreditChangeType } from '@prisma/client';
-import mailchimpClient from './mailchimpMarketing';
-import { lists, Status } from '@mailchimp/mailchimp_marketing';
-import { format } from 'date-fns';
 import { AppEvent, track } from './tracking';
 import { AdConversionEvent, reportAdConversionEvent } from './ads';
 import { createCampaign } from '../dataAccess/campaigns';
-import EmailType = lists.EmailType;
+import { addEmailToMailingList } from '../services/email';
 
 export const checkAuth0Jwt = auth({
   audience: process.env.API_URL,
@@ -125,26 +122,7 @@ const createNewUser = async (res: Response, email: string, logger: any) => {
     },
   });
 
-  const response = (await mailchimpClient.lists.batchListMembers(
-    process.env.MAILCHIMP_AUDIENCE_ID as string,
-    {
-      members: [
-        {
-          email_address: email,
-          email_type: 'html' as EmailType,
-          status: 'subscribed' as Status,
-          ip_opt: res.locals.trackingInfo?.ip,
-          ip_signup: res.locals.trackingInfo?.ip,
-          timestamp_signup: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
-          timestamp_opt: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
-        },
-      ],
-    },
-  )) as any;
-
-  if (response?.errors?.length > 0) {
-    logger.warn('Received errors from Mailchimp', response.errors);
-  }
+  await addEmailToMailingList(email);
 
   track(AppEvent.Registered, user.id, res.locals.trackingInfo, {
     email,
