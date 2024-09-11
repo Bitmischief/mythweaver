@@ -16,11 +16,10 @@ import { AppError, HttpCode } from '../lib/errors/AppError';
 import { BillingPlan, Session } from '@prisma/client';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { CampaignRole } from './campaigns';
-import { sendTransactionalEmail } from '../lib/transactionalEmail';
+import { sendTransactionalEmail } from '../services/internal/email';
 import { urlPrefix } from '../lib/utils';
 import { sendWebsocketMessage, WebSocketEvent } from '../services/websockets';
 import { MythWeaverLogger } from '../lib/logger';
-import { format } from 'date-fns';
 import { getClient } from '../lib/providers/openai';
 import {
   deleteSessionContext,
@@ -334,47 +333,23 @@ export default class SessionController {
 
     for (const member of campaign.members) {
       const email = member.user?.email;
-      await sendTransactionalEmail(
-        'post-session',
-        `MythWeaver Session Recap: ${
-          session.date
-            ? format(session.date, 'MMM d, yyyy @ h:mm a')
-            : campaign.name
-        }`,
-        email || '',
-        [
-          {
-            name: 'CHARACTER_NAME',
-            content: member.user?.username || '',
-          },
-          {
-            name: 'CAMPAIGN_NAME',
-            content: campaign.name,
-          },
-          {
-            name: 'SESSION_NAME',
-            content: session.name || '',
-          },
-          {
-            name: 'SESSION_DATE',
-            content: session.date
-              ? format(session.date, 'MMM d, yyyy @ h:mm a')
-              : 'TBD',
-          },
-          {
-            name: 'SUMMARY',
-            content: session.summary || '',
-          },
-          {
-            name: 'SESSION_URL',
-            content: `${urlPrefix}/sessions/${session?.id}#overview`,
-          },
-          {
-            name: 'SESSION_IMAGE_URI',
-            content: session.images.find((i) => i.primary)?.uri || '',
-          },
-        ],
-      );
+
+      if (!email) continue;
+
+      await sendTransactionalEmail(email, 'campaign-post-session', [
+        {
+          key: 'CAMPAIGN',
+          value: campaign.name,
+        },
+        {
+          key: 'SESSION_URL',
+          value: `${urlPrefix}/sessions/${session?.id}#overview`,
+        },
+        {
+          key: 'SUMMARY',
+          value: session.summary || '',
+        },
+      ]);
     }
   }
 

@@ -1,27 +1,14 @@
-import {
-  Body,
-  Inject,
-  OperationId,
-  Post,
-  Route,
-  Security,
-  SuccessResponse,
-  Tags,
-} from 'tsoa';
+import { Body, Inject, Post, Route, SuccessResponse, Tags } from 'tsoa';
 import { prisma } from '../lib/providers/prisma';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import jwt from 'jsonwebtoken';
 import { AppEvent, identify, track, TrackingInfo } from '../lib/tracking';
 import CampaignController from './campaigns';
-import { v4 as uuidv4 } from 'uuid';
-import { urlPrefix } from '../lib/utils';
-import { sendTransactionalEmail } from '../lib/transactionalEmail';
 import { createCustomer } from '../services/billing';
 import { MythWeaverLogger } from '../lib/logger';
 import { modifyImageCreditCount } from '../services/credits';
 import { ImageCreditChangeType } from '@prisma/client';
-import { createCampaign } from '../dataAccess/campaigns';
-import { addEmailToMailingList } from '../services/email';
+import { addEmailToMailingList } from '../services/internal/email';
 
 const jwtExpirySeconds = 30 * 60; // 30 minutes
 const jwtRefreshExpirySeconds = 14 * 24 * 60 * 60; // 14 days
@@ -130,7 +117,7 @@ export default class AuthController {
         'Initial credits for signup',
       );
 
-      await addEmailToMailingList(email, trackingInfo.ip);
+      await addEmailToMailingList(email);
 
       track(AppEvent.Registered, user.id, trackingInfo, { email });
     }
@@ -239,98 +226,6 @@ export default class AuthController {
     track(AppEvent.SessionRefreshed, userId, trackingInfo);
 
     return await this.issueTokens(userId, logger);
-  }
-
-  @Security('jwt')
-  @OperationId('postMagicLink')
-  @Post('/magic-link')
-  public async postMagicLink(
-    @Inject() trackingInfo: TrackingInfo,
-    @Body() request: MagicLinkRequest,
-    @Inject() logger: MythWeaverLogger,
-  ): Promise<any> {
-    const email = request.email.toLowerCase();
-    logger.info('Received magic link request for email', email);
-
-    let user = await prisma.user.findUnique({
-      where: {
-        email,
-      },
-    });
-
-    const isNewUser = !user;
-
-    if (!user) {
-      logger.info('Creating new user for email', email);
-
-      const earlyAccessEnd = new Date();
-      earlyAccessEnd.setHours(new Date().getHours() + 24 * 7);
-
-      const stripeCustomerId = await createCustomer(email);
-
-      user = await prisma.user.create({
-        data: {
-          email: email,
-          trialEndsAt: earlyAccessEnd,
-          billingCustomerId: stripeCustomerId,
-          imageCredits: 0,
-          username: await buildUniqueUsername(email.toLowerCase()),
-        },
-      });
-
-      await modifyImageCreditCount(
-        user.id,
-        10,
-        ImageCreditChangeType.TRIAL,
-        'Initial credits for signup',
-      );
-
-      const campaign = await createCampaign({
-        userId: user.id,
-        name: 'My Campaign',
-      });
-
-      await prisma.collections.create({
-        data: {
-          campaignId: campaign.id,
-          name: campaign.name,
-          userId: user.id,
-        },
-      });
-
-      await addEmailToMailingList(email, trackingInfo.ip);
-
-      track(AppEvent.Registered, user.id, trackingInfo, {
-        email,
-      });
-    }
-
-    const token = uuidv4();
-    const expiresAt = new Date();
-    expiresAt.setHours(new Date().getHours() + 1);
-
-    await prisma.magicLink.create({
-      data: {
-        userId: user.id,
-        token,
-        expiresAt,
-        inviteCode: request.inviteCode,
-        signupConjurationPrompt: isNewUser
-          ? request.conjurationPrompt
-          : undefined,
-      },
-    });
-
-    logger.info('Created magic link', { token, expiresAt, userId: user.id });
-
-    const link = `${urlPrefix}/auth/magic-link?t=${token}`;
-
-    await sendTransactionalEmail('magic-link', `Log into MythWeaver`, email, [
-      {
-        name: 'LINK',
-        content: link,
-      },
-    ]);
   }
 
   private async issueTokens(userId: number, logger: MythWeaverLogger) {

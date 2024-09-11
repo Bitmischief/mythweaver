@@ -15,7 +15,7 @@ import { prisma } from '../lib/providers/prisma';
 import { Campaign, CampaignMember, ContextType } from '@prisma/client';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
-import { sendTransactionalEmail } from '../lib/transactionalEmail';
+import { sendTransactionalEmail } from '../services/internal/email';
 import { v4 as uuidv4 } from 'uuid';
 import { urlPrefix } from '../lib/utils';
 import { MythWeaverLogger } from '../lib/logger';
@@ -395,21 +395,16 @@ export default class CampaignController {
       },
     });
 
-    await sendTransactionalEmail(
-      'campaign-invite',
-      `Join the ${campaign.name} campaign on MythWeaver!`,
-      request.email,
-      [
-        {
-          name: 'SENDER_CAMPAIGN',
-          content: campaign.name,
-        },
-        {
-          name: 'INVITE_URL',
-          content: `${urlPrefix}/invite?c=${inviteCode}`,
-        },
-      ],
-    );
+    await sendTransactionalEmail(request.email, 'campaign-invite', [
+      {
+        key: 'SENDER_CAMPAIGN',
+        value: campaign.name,
+      },
+      {
+        key: 'INVITE_URL',
+        value: `${urlPrefix}/invite?c=${inviteCode}`,
+      },
+    ]);
   }
 
   @Security('jwt')

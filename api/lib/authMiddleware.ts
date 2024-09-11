@@ -9,7 +9,7 @@ import { ImageCreditChangeType } from '@prisma/client';
 import { AppEvent, track } from './tracking';
 import { AdConversionEvent, reportAdConversionEvent } from './ads';
 import { createCampaign } from '../dataAccess/campaigns';
-import { addEmailToMailingList } from '../services/email';
+import { addEmailToMailingList } from '../services/internal/email';
 
 export const checkAuth0Jwt = auth({
   audience: process.env.API_URL,

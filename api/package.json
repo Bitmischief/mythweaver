@@ -21,8 +21,6 @@
     "@types/express": "^4.17.21",
     "@types/jest": "^29.5.12",
     "@types/jsonwebtoken": "^9.0.6",
-    "@types/mailchimp__mailchimp_marketing": "^3.0.19",
-    "@types/mailchimp__mailchimp_transactional": "^1.0.9",
     "@types/md5": "^2.3.5",
     "@types/morgan": "^1.9.9",
     "@types/node": "^20.11.24",
@@ -48,8 +46,6 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.554.0",
     "@logtail/pino": "^0.4.21",
-    "@mailchimp/mailchimp_marketing": "^3.0.80",
-    "@mailchimp/mailchimp_transactional": "^1.0.59",
     "@openfeature/server-sdk": "^1.6.3",
     "@prisma/client": "^5.15.1",
     "@sentry/node": "^7.110.0",
