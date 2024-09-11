@@ -5,9 +5,6 @@ import { computed } from 'vue';
 import LightboxImage from '@/components/LightboxImage.vue';
 import { ArrowLeftIcon } from '@heroicons/vue/24/solid';
 import ConjureImage from '@/App.vue';
-import { useLDFlag } from 'launchdarkly-vue-client-sdk';
-
-const conjureV2 = useLDFlag('conjure-v2');
 
 const props = defineProps<{
   modelValue: Character;

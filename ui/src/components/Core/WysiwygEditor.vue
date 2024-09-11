@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
-import { useLDFlag } from 'launchdarkly-vue-client-sdk';
 import EditorJs from '@editorjs/editorjs';
 
 // @ts-ignore
@@ -37,7 +36,7 @@ import GenerationBlock from '@/plugins/generation-block/generation-block';
 // @ts-ignore
 import InlineGeneration from '@/plugins/inline-generation/inline-generation';
 
-const showInlineTextGeneration = useLDFlag('inline-text-generation', false);
+const showInlineTextGeneration = ref(true);
 const emit = defineEmits(['update:modelValue']);
 const props = withDefaults(
   defineProps<{

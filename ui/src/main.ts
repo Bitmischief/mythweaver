@@ -8,7 +8,6 @@ import router from '@/router/router.ts';
 import { createPinia } from 'pinia';
 import '@/api/api.ts';
 import VueIntercom from '@homebaseai/vue3-intercom';
-import { LDPlugin } from 'launchdarkly-vue-client-sdk';
 import * as Sentry from '@sentry/vue';
 import { isDevelopment, isLocalDevelopment, isProduction } from '@/lib/util.ts';
 import auth0Client from '@/plugins/auth.ts';
@@ -22,7 +21,6 @@ app.use(plugin, defaultConfig(config()));
 
 app.use(createPinia());
 app.use(router);
-app.use(LDPlugin, { clientSideID: import.meta.env.VITE_LAUNCH_DARKLY_CLIENT_ID });
 
 Sentry.init({
   app,

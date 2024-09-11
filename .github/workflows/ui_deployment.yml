@@ -37,7 +37,6 @@ jobs:
           echo VITE_STRIPE_BASIC_PLAN_ID=${{ secrets.STRIPE_BASIC_MO_PRICE_ID }} >> .env
           echo VITE_STRIPE_PRO_PLAN_ID=${{ secrets.STRIPE_PRO_MO_PRICE_ID }} >> .env
           echo VITE_STRIPE_100_IMAGE_CREDITS_ID=${{ secrets.STRIPE_100_IMAGE_CREDITS_PRICE_ID }} >> .env
-          echo VITE_LAUNCH_DARKLY_CLIENT_ID=${{ secrets.LAUNCH_DARKLY_CLIENT_ID }} >> .env
           echo VITE_SENTRY_DSN=${{ secrets.UI_SENTRY_DSN }} >> .env
           echo VITE_MIXPANEL_TOKEN=${{ secrets.MIXPANEL_TOKEN }} >> .env
           echo VITE_AUTH0_DOMAIN=${{ secrets.AUTH0_DOMAIN }} >> .env

@@ -118,8 +118,6 @@ spec:
               value: <SENTRY_DSN>
             - name: VERSION
               value: <VERSION>
-            - name: LAUNCH_DARKLY_SDK_KEY
-              value: <LAUNCH_DARKLY_SDK_KEY>
             - name: ISSUER_BASE_URL
               value: <ISSUER_BASE_URL>
             - name: FACEBOOK_CONVERSIONS_ACCESS_TOKEN

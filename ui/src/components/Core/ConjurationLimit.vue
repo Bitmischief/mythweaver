@@ -3,13 +3,11 @@ import { useAuthStore } from '@/store';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useWebsocketChannel } from '@/lib/hooks.ts';
 import { ServerEvent } from '@/lib/serverEvents.ts';
-import { useLDFlag } from 'launchdarkly-vue-client-sdk';
 import { FreeTierConjurationLimit } from '@/lib/consts.ts';
 import { useEventBus } from '@/lib/events.ts';
 
 const channel = useWebsocketChannel();
 const authStore = useAuthStore();
-const showConjurationLimit = useLDFlag('free-tier-conjuration-limit', false);
 const eventBus = useEventBus();
 
 const earlyAccessExempt = computed(() => authStore.user?.earlyAccessExempt);

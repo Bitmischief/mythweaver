@@ -324,8 +324,7 @@ import { AxiosError } from 'axios';
 import { useAuthStore } from '@/store';
 import { BillingPlan } from '@/api/users.ts';
 import { FreeTierConjurationLimit } from '@/lib/consts.ts';
-import { useLDFlag } from 'launchdarkly-vue-client-sdk';
-import { LockClosedIcon, BeakerIcon } from '@heroicons/vue/24/outline';
+import { BeakerIcon, LockClosedIcon } from '@heroicons/vue/24/outline';
 
 const route = useRoute();
 const router = useRouter();
@@ -336,7 +335,7 @@ const promptOptionsTab = ref(promptOptions.value[0]);
 const generator = ref<Conjurer>();
 const channel = useWebsocketChannel();
 const authStore = useAuthStore();
-const showConjurationLimit = useLDFlag('free-tier-conjuration-limit', false);
+const showConjurationLimit = ref(true);
 const currentUserPlan = useCurrentUserPlan();
 
 onMounted(async () => {
