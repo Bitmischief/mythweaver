@@ -80,7 +80,3 @@ export const postGenerateArbitraryReplacement = (
 ) => {
   return axios.post(`/generators/arbitrary/replace`, request);
 };
-
-export const postMagicLinkGeneration = (magicLink: string) => {
-  return axios.post(`/generators/magic-link/${magicLink}`);
-};

@@ -1,14 +1,14 @@
 import {
-  Get,
-  Route,
-  Tags,
-  Query,
-  Path,
-  Inject,
-  Security,
-  OperationId,
-  Post,
   Body,
+  Get,
+  Inject,
+  OperationId,
+  Path,
+  Post,
+  Query,
+  Route,
+  Security,
+  Tags,
 } from 'tsoa';
 import { prisma } from '../lib/providers/prisma';
 import { Conjuration, ConjurationVisibility } from '@prisma/client';
@@ -20,7 +20,6 @@ import { sanitizeJson } from '../lib/utils';
 import { getClient } from '../lib/providers/openai';
 import { ImageStylePreset } from './images';
 import { MythWeaverLogger } from '../lib/logger';
-import { validateConjurationCountRestriction } from '../lib/planRestrictionHelpers';
 
 export interface GetGeneratorsResponse {
   data: any[];
@@ -413,122 +412,5 @@ export class GeneratorController {
     logger.info('Received sanitized json', gptJson);
 
     return gptJson;
-  }
-
-  @Security('jwt')
-  @OperationId('postMagicLinkGeneration')
-  @Post('/magic-link/:token')
-  public async postMagicLinkGeneration(
-    @Inject() userId: number,
-    @Inject() trackingInfo: TrackingInfo,
-    @Inject() logger: MythWeaverLogger,
-    @Route() token: string,
-  ): Promise<any> {
-    const magicLink = await prisma.magicLink.findUnique({
-      where: {
-        token: token,
-        userId: userId,
-      },
-    });
-
-    if (!magicLink) {
-      throw new AppError({
-        httpCode: HttpCode.BAD_REQUEST,
-        description: 'Unable to properly verify provided credentials',
-      });
-    }
-
-    if (!magicLink.signupConjurationPrompt) {
-      throw new AppError({
-        httpCode: HttpCode.BAD_REQUEST,
-        description:
-          'The provided magic link does not have any associated conjuration prompt',
-      });
-    }
-
-    if (magicLink.conjurationRequestId) {
-      return {
-        conjurationRequestId: magicLink.conjurationRequestId,
-      };
-    }
-
-    const user = await prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
-    });
-
-    if (!user) {
-      throw new AppError({
-        description: 'User not found.',
-        httpCode: HttpCode.BAD_REQUEST,
-      });
-    }
-
-    if (user.imageCredits < 1) {
-      await prisma.user.update({
-        where: {
-          id: userId,
-        },
-        data: {
-          imageCredits: 1,
-        },
-      });
-    }
-
-    const campaign = await prisma.campaign.findFirst({
-      where: {
-        userId: userId,
-      },
-    });
-
-    if (!campaign) {
-      throw new AppError({
-        description: 'Campaign not found.',
-        httpCode: HttpCode.BAD_REQUEST,
-      });
-    }
-
-    track(AppEvent.Conjure, userId, trackingInfo);
-
-    const conjurationRequest = await prisma.conjurationRequest.create({
-      data: {
-        userId,
-        campaignId: campaign.id,
-        generatorCode: 'characters',
-        count: 1,
-        args: [magicLink.signupConjurationPrompt],
-        imageStylePreset: ImageStylePreset.FANTASY_ART,
-        imagePrompt: '',
-        imageNegativePrompt: '',
-        prompt: magicLink.signupConjurationPrompt,
-      },
-    });
-
-    await conjureQueue.add({
-      count: 1,
-      campaignId: campaign.id,
-      generatorCode: 'characters',
-      arg: magicLink.signupConjurationPrompt,
-      conjurationRequestId: conjurationRequest.id,
-      userId,
-      imageStylePreset: ImageStylePreset.FANTASY_ART,
-      imagePrompt: '',
-      imageNegativePrompt: '',
-    });
-
-    await prisma.magicLink.update({
-      where: {
-        token: token,
-        userId: userId,
-      },
-      data: {
-        conjurationRequestId: conjurationRequest.id,
-      },
-    });
-
-    return {
-      conjurationRequestId: conjurationRequest.id,
-    };
   }
 }

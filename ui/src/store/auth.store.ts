@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { postToken, postRefresh } from '@/api/auth.ts';
+import { postRefresh, postToken } from '@/api/auth.ts';
 import router from '@/router/router.ts';
 import { showError } from '@/lib/notifications.ts';
 import { BillingPlan, getCurrentUser, User } from '@/api/users.ts';
@@ -77,12 +77,9 @@ export const useAuthStore = defineStore({
 
         await this.loadCurrentUser();
 
-        if (response.data.signupConjurationPrompt) {
-          await router.push(`/magic-link/conjure?t=${credential}`);
-        } else {
-          // redirect to previous url or default to home page
-          await router.push(this.returnUrl || '/');
-        }
+        // redirect to previous url or default to home page
+        await router.push(this.returnUrl || '/');
+
         return true;
       } catch (err: any) {
         if (err.response.status === 403) {

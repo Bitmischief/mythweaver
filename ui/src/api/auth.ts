@@ -17,10 +17,3 @@ export const postRefresh = (refreshToken: string) => {
     refreshToken,
   });
 };
-
-export const postMagicLink = (email: string, inviteCode: string | undefined) => {
-  return axios.post('/auth/magic-link', {
-    email,
-    inviteCode,
-  });
-};
