@@ -37,6 +37,7 @@ onMounted(async () => {
     await router.push('/campaigns/new');
   }
 
+  // init
   await init();
 
   eventBus.$on('campaign-selected', async () => {
