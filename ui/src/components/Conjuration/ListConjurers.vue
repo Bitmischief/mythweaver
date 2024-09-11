@@ -124,7 +124,7 @@
             </div>
 
             <div
-              v-if="showConjurationLimit && conjurationLimitReached"
+              v-if="conjurationLimitReached"
               class="text-xs text-amber-300 px-2"
             >
               You have reached your conjuration limit for the FREE plan. You
@@ -335,7 +335,6 @@ const promptOptionsTab = ref(promptOptions.value[0]);
 const generator = ref<Conjurer>();
 const channel = useWebsocketChannel();
 const authStore = useAuthStore();
-const showConjurationLimit = ref(true);
 const currentUserPlan = useCurrentUserPlan();
 
 onMounted(async () => {

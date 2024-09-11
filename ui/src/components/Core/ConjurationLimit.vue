@@ -64,7 +64,7 @@ const showConjurationCount = computed(() => {
 
 <template>
   <div
-    v-if="showConjurationLimit && showConjurationCount"
+    v-if="showConjurationCount"
     class="flex items-center border border-zinc-800 bg-surface-3 rounded-[25px] p-1 cursor-pointer"
     @click="eventBus.$emit('show-subscription-modal')"
   >

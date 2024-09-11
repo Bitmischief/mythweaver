@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import CustomizeConjurationImage from '@/components/Conjuration/ViewConjuration/CustomizeConjurationImage.vue';
 import { Character } from '@/api/characters.ts';
 import { computed } from 'vue';
 import LightboxImage from '@/components/LightboxImage.vue';
@@ -45,14 +44,6 @@ const value = computed({
       </div>
       <div v-else class="shrink">
         <ConjureImage
-          v-if="conjureV2"
-          :image="{ prompt: value.looks }"
-          :linking="{ characterId: value.id }"
-          cancel-button-text-override="Back"
-          @cancel="emit('back')"
-        />
-        <CustomizeConjurationImage
-          v-else
           :image="{ prompt: value.looks }"
           :linking="{ characterId: value.id }"
           cancel-button-text-override="Back"
