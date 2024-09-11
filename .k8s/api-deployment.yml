@@ -126,6 +126,8 @@ spec:
               value: "<FACEBOOK_CONVERSIONS_PIXEL_ID>"
             - name: TRANSCRIPTION_BUCKET
               value: <TRANSCRIPTION_BUCKET>
+            - name: ASSEMBLYAI_API_KEY
+              value: <ASSEMBLYAI_API_KEY>
           readinessProbe:
             httpGet:
               path: /docs
