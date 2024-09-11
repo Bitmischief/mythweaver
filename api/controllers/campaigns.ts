@@ -499,6 +499,7 @@ export default class CampaignController {
     const campaignCharacters = await getCampaignCharacters(campaign.id);
 
     return {
+      campaignId: campaign.id,
       campaignName: campaign.name,
       invitingEmail: campaign.user.email,
       members: campaign.members

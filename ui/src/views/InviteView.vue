@@ -45,6 +45,7 @@ const acceptInvite = async () => {
     await acceptCampaignInvite(inviteCode.value);
     showSuccess({ message: 'Campaign invite accepted!' });
     await campaignStore.loadCampaigns();
+    await campaignStore.selectCampaign(invite.value?.campaignId);
     await router.push('/characters');
   } catch (err) {
     showError({

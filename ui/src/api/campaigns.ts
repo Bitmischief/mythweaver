@@ -57,8 +57,9 @@ export interface PutCampaignRequest {
 }
 
 export interface CampaignInvite {
-  invitingEmail: string;
+  campaignId: number;
   campaignName: string;
+  invitingEmail: string;
   members: [
     {
       email: string;
