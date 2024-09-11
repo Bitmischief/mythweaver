@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export const addEmailToMailingList = async (email: string) => {
-  await axios.post(`${process.env.API_URL}/email-list`, {
+  await axios.post(`${process.env.API_URL}/email-signups/email-list`, {
     email,
     list: 'app',
   });
@@ -15,7 +15,7 @@ export const sendTransactionalEmail = async (
     value: any;
   }[],
 ) => {
-  await axios.post(`${process.env.API_URL}/email-list`, {
+  await axios.post(`${process.env.API_URL}/email-signups/transactional`, {
     email,
     template,
     params,
