@@ -9,9 +9,9 @@ import {
 } from '@/api/images.ts';
 import { useEventBus } from '@/lib/events.ts';
 import {
+  ArrowPathIcon,
   ArrowsPointingOutIcon,
   XCircleIcon,
-  ArrowPathIcon,
 } from '@heroicons/vue/20/solid';
 import { showError, showSuccess } from '@/lib/notifications.ts';
 import { useWebsocketChannel } from '@/lib/hooks.ts';
@@ -21,6 +21,7 @@ import Loader from '@/components/Core/Loader.vue';
 import { AxiosError } from 'axios';
 import ImageCreditCount from '@/components/Core/ImageCreditCount.vue';
 import { useAuthStore } from '@/store';
+import Inpainting from '@/components/Images/Inpainting.vue';
 
 const authStore = useAuthStore();
 
@@ -90,6 +91,7 @@ const rephrasedPrompt = ref('');
 const loading = ref(false);
 const count = ref(1);
 const useSeed = ref(false);
+const edit = ref(false);
 const tab = ref(props.image.uri ? 'upscale' : 'customize');
 const imageHistory = ref<any[]>([]);
 
@@ -554,6 +556,9 @@ const savePrimaryImage = async (image: any) => {
           <ArrowPathIcon class="w-5 mr-1" />
           Regenerate
         </button>
+        <button class="button-primary mr-2 flex" @click="edit = true">
+          Edit
+        </button>
         <button
           class="button-ghost"
           :class="{
@@ -566,23 +571,6 @@ const savePrimaryImage = async (image: any) => {
             {{ saveButtonTextOverride ? saveButtonTextOverride : 'Save Image' }}
           </span>
         </button>
-      </div>
-    </div>
-
-    <div
-      v-if="imagePromptRephrased"
-      class="bg-fuchsia-500/10 w-fit mx-auto mb-6 p-4 rounded-md mt-10"
-    >
-      <div class="text-xl text-neutral-400">
-        We rephrased your prompt to make it more likely to generate an image.
-      </div>
-      <div class="mt-2 text-lg text-left text-neutral-100">
-        <span class="font-bold text-neutral-400">Original:</span>
-        {{ editablePrompt }}
-      </div>
-      <div class="text-lg text-left text-neutral-100">
-        <span class="font-bold text-neutral-400">Rephrased:</span>
-        {{ rephrasedPrompt }}
       </div>
     </div>
 
@@ -638,6 +626,9 @@ const savePrimaryImage = async (image: any) => {
             "
           />
         </div>
+      </div>
+      <div v-if="edit">
+        <Inpainting image-src="image.uri" />
       </div>
 
       <div

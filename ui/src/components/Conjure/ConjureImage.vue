@@ -9,12 +9,12 @@ import {
 } from '@/api/images.ts';
 import { useEventBus } from '@/lib/events.ts';
 import {
-  ArrowsPointingOutIcon,
-  XCircleIcon,
   ArrowPathIcon,
-  ChevronRightIcon,
   ArrowRightIcon,
+  ArrowsPointingOutIcon,
   CheckIcon,
+  ChevronRightIcon,
+  XCircleIcon,
 } from '@heroicons/vue/20/solid';
 import { showError, showSuccess } from '@/lib/notifications.ts';
 import { useWebsocketChannel } from '@/lib/hooks.ts';
@@ -26,6 +26,7 @@ import ImageCreditCount from '@/components/Core/ImageCreditCount.vue';
 import { useAuthStore } from '@/store';
 import { getImageModels } from '@/api/imageModels.ts';
 import { ArrowLeftIcon } from '@heroicons/vue/24/solid';
+import Inpainting from '@/components/Images/Inpainting.vue';
 
 const authStore = useAuthStore();
 
@@ -81,6 +82,7 @@ const editablePrompt = ref(props.image.prompt);
 const editableNegativePrompt = ref(props.image.negativePrompt);
 const editableStylePreset = ref(props.image.stylePreset);
 const editableImageModelId = ref(props.image.modelId);
+const edit = ref(false);
 const imagePresetStyles = ref([
   { code: 'fantasy-art', name: 'Fantasy Art (Default)' },
   { code: 'digital-art', name: 'Digital Art' },
@@ -848,6 +850,9 @@ const selectedModelIsMythWeaverV1 = computed(() => {
             Regenerate
           </button>
         </div>
+        <button class="button-primary mr-2 flex" @click="edit = true">
+          Edit
+        </button>
         <div class="self-center">
           <button
             class="button-ghost"
@@ -923,6 +928,9 @@ const selectedModelIsMythWeaverV1 = computed(() => {
             "
           />
         </div>
+      </div>
+      <div v-if="edit">
+        <Inpainting :image-src="selectedImg.uri || ''" />
       </div>
       <div
         v-for="placeholder of count - images.length"
