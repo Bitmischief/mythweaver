@@ -120,6 +120,8 @@ spec:
               value: <TRANSCRIPTION_BUCKET>
             - name: ASSEMBLYAI_API_KEY
               value: <ASSEMBLYAI_API_KEY>
+            - name: INTERNAL_EMAIL_SERVICE_TOKEN
+              value: <INTERNAL_EMAIL_SERVICE_TOKEN>
           readinessProbe:
             httpGet:
               path: /docs

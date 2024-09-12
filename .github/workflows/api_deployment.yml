@@ -85,6 +85,7 @@ jobs:
           sed -i 's|<FACEBOOK_CONVERSIONS_PIXEL_ID>|${{ secrets.FACEBOOK_CONVERSIONS_PIXEL_ID }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           sed -i 's|<TRANSCRIPTION_BUCKET>|${{ secrets.TRANSCRIPTION_BUCKET }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           sed -i 's|<ASSEMBLYAI_API_KEY>|${{ secrets.ASSEMBLYAI_API_KEY }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<INTERNAL_EMAIL_SERVICE_TOKEN>|${{ secrets.INTERNAL_EMAIL_SERVICE_TOKEN }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           cat $GITHUB_WORKSPACE/.k8s/api-deployment.yml
 
       - name: Save DigitalOcean kubeconfig with short-lived credentials
