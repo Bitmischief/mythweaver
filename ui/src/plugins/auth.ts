@@ -8,7 +8,7 @@ const auth0Client: Auth0Plugin = createAuth0({
   clientId: import.meta.env.VITE_AUTH0_CLIENT_ID,
   authorizationParams: {
     redirect_uri: `${window.location.origin}/auth/login`,
-    audience: API_URL,
+    audience: import.meta.env.VITE_API_URL,
   },
   useRefreshTokens: true,
   cacheLocation: 'localstorage',
