@@ -44,6 +44,7 @@ class ErrorHandler {
         message: error?.message,
         description: (error as AppError)?.description,
         responseData: (error as AxiosError)?.response?.data,
+        uri: (error as AxiosError)?.request.uri,
       },
       error,
     );
