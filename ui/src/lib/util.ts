@@ -109,3 +109,5 @@ export function mapNoImage(conjurerCode: string) {
 export async function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+export const API_URL = `${import.meta.env.VITE_API_URL}/core`;

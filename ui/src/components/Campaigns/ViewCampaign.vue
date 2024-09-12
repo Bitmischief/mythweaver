@@ -11,6 +11,7 @@ import { useRouter } from 'vue-router';
 import { ArrowLeftIcon } from '@heroicons/vue/24/outline';
 import DragAndDropUploader from '@/components/Core/DragAndDropUploader.vue';
 import CampaignFileList from '@/components/Campaigns/CampaignFileList.vue';
+import { API_URL } from '@/lib/util.ts';
 
 const campaignStore = useCampaignStore();
 const selectedCampaignId = useSelectedCampaignId();
@@ -20,9 +21,7 @@ const router = useRouter();
 const campaign = ref<Campaign>({} as Campaign);
 
 const campaignFileUploadUrl = computed(
-  () =>
-    import.meta.env.VITE_API_URL +
-    `/campaigns/${selectedCampaignId.value}/files`,
+  () => `${API_URL}/campaigns/${selectedCampaignId.value}/files`,
 );
 
 const currentUserRole = computed(() => campaignStore.selectedCampaignRole);

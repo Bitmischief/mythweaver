@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { getAccessToken, logout } from '@/plugins/auth';
+import { API_URL } from '@/lib/util.ts';
 
-axios.defaults.baseURL = import.meta.env.VITE_API_URL;
+axios.defaults.baseURL = API_URL;
 
 axios.interceptors.request.use(
   async (config) => {
