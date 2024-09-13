@@ -10,7 +10,7 @@ import { indexCampaignContext } from './jobs/indexCampaignContext';
 import { ReindexCampaignContextEvent } from '../dataAccess/campaigns';
 import { transcribeSession } from './jobs/transcribeSession';
 import { TranscribeSessionEvent } from '../dataAccess/sessions';
-import { processCampaignContextSync } from './jobs/campaignContextSync';
+import { processDailyCampaignContextSync } from './jobs/dailyCampaignContextSync';
 
 const config = process.env.REDIS_ENDPOINT || '';
 
@@ -147,20 +147,26 @@ sessionTranscriptionQueue.process(async (job, done) => {
   }
 });
 
-export const campaignContextQueue = new Queue('campaign-context-sync', config);
+export const dailyCampaignContextQueue = new Queue(
+  'campaign-context-sync',
+  config,
+);
 
-campaignContextQueue.process(async (job, done) => {
-  logger.info('Processing campaign context sync queue job');
+dailyCampaignContextQueue.process(async (job, done) => {
+  logger.info('Processing daily campaign context sync queue job');
 
   try {
-    await processCampaignContextSync();
+    await processDailyCampaignContextSync();
     logger.info(
-      'Completed processing campaign context sync queue job',
+      'Completed processing daily campaign context sync queue job',
       job.data,
     );
     done();
   } catch (err) {
-    logger.error('Error processing campaign context sync queue job!', err);
-    done(new Error('Error processing campaign context sync queue job!'));
+    logger.error(
+      'Error processing daily campaign context sync queue job!',
+      err,
+    );
+    done(new Error('Error processing daily campaign context sync queue job!'));
   }
 });

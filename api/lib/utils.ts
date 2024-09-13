@@ -115,3 +115,29 @@ export const downloadFile = async (
     throw error;
   }
 };
+
+type ChunkProcessor<T> = (item: T) => Promise<void>;
+
+export const processInChunks = async <T>(
+  chunkSize: number,
+  queryFunction: (skip: number, take: number) => Promise<T[]>,
+  processChunkItem: ChunkProcessor<T>,
+): Promise<void> => {
+  let skip = 0;
+  let items: T[] = [];
+
+  do {
+    console.log('Fetching batch of items', skip, chunkSize);
+    items = await queryFunction(skip, chunkSize);
+
+    for (const item of items) {
+      await processChunkItem(item);
+    }
+
+    console.log(
+      `Processed batch of items: ${items.map((i: any) => i.id).join(', ')}`,
+    );
+    skip += chunkSize;
+    console.log('Skip set to', skip, 'items.length', items.length);
+  } while (items.length > 0);
+};

@@ -1,5 +1,8 @@
 import pino, { Logger } from 'pino';
 import { isLocalDevelopment } from './utils';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export class MythWeaverLogger {
   public internalLogger: Logger;
