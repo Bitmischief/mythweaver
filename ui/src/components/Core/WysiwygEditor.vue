@@ -1,40 +1,22 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
-import EditorJs from '@editorjs/editorjs';
-
-// @ts-ignore
-import Header from '@editorjs/header';
-// @ts-ignore
-import NestedList from '@editorjs/nested-list';
-// @ts-ignore
-import Delimiter from '@editorjs/delimiter';
-// @ts-ignore
-import Checklist from '@editorjs/checklist';
-// @ts-ignore
-import Table from '@editorjs/table';
-// @ts-ignore
-import Paragraph from '@editorjs/paragraph';
-// @ts-ignore
-import DragDrop from 'editorjs-drag-drop';
-// @ts-ignore
-import Undo from 'editorjs-undo';
-// @ts-ignore
-import MermaidTool from 'editorjs-mermaid';
-
-// @ts-ignore
-import Marker from '@editorjs/marker';
-// @ts-ignore
-import Strikethrough from '@sotaproject/strikethrough';
-// @ts-ignore
-import Underline from '@editorjs/underline';
-
-// @ts-ignore
-import AlignmentTuneTool from 'editorjs-text-alignment-blocktune';
-
-// @ts-ignore
-import GenerationBlock from '@/plugins/generation-block/generation-block';
-// @ts-ignore
-import InlineGeneration from '@/plugins/inline-generation/inline-generation';
+import EditorJs from '@editorjs/editorjs'; // @ts-ignore
+import Header from '@editorjs/header'; // @ts-ignore
+import NestedList from '@editorjs/nested-list'; // @ts-ignore
+import Delimiter from '@editorjs/delimiter'; // @ts-ignore
+import Checklist from '@editorjs/checklist'; // @ts-ignore
+import Table from '@editorjs/table'; // @ts-ignore
+import Paragraph from '@editorjs/paragraph'; // @ts-ignore
+import DragDrop from 'editorjs-drag-drop'; // @ts-ignore
+import Undo from 'editorjs-undo'; // @ts-ignore
+import MermaidTool from 'editorjs-mermaid'; // @ts-ignore
+import Marker from '@editorjs/marker'; // @ts-ignore
+import Strikethrough from '@sotaproject/strikethrough'; // @ts-ignore
+import Underline from '@editorjs/underline'; // @ts-ignore
+import AlignmentTuneTool from 'editorjs-text-alignment-blocktune'; // @ts-ignore
+import GenerationBlock from '@/plugins/generation-block/generation-block'; // @ts-ignore
+import InlineGeneration from '@/plugins/inline-generation/inline-generation'; // @ts-ignore
+import MentionTool from '@/plugins/mention/mention';
 
 const showInlineTextGeneration = ref(true);
 const emit = defineEmits(['update:modelValue']);
@@ -87,6 +69,18 @@ onMounted(() => {
 
   tools = {
     ...tools,
+    mention: {
+      class: MentionTool,
+      shortcut: '@', // triggers the mention dialog
+      inlineToolbar: true,
+      config: {
+        users: [
+          {
+            name: 'Austin Zurfluh',
+          },
+        ],
+      },
+    },
     marker: {
       class: Marker,
       shortcut: 'ALT+M',

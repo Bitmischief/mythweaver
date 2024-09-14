@@ -1,0 +1,23 @@
+.mention {
+  background-color: #e8f0fe;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+.mention-suggestions {
+  position: absolute;
+  background-color: #171717;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  width: 200px;
+  z-index: 1000;
+}
+
+.mention-suggestions div {
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.mention-suggestions div:hover {
+  background-color: #272727;
+}
