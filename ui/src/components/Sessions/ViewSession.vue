@@ -377,11 +377,9 @@ const next = () => {
             </button>
           </div>
           <div v-else-if="tab !== 'overview'">
-            <button>
-              <button class="button-ghost flex" @click="next">
-                Next
-                <ArrowRightIcon class="min-w-5 ml-2 w-5 self-center" />
-              </button>
+            <button class="button-ghost flex" @click="next">
+              Next
+              <ArrowRightIcon class="min-w-5 ml-2 w-5 self-center" />
             </button>
           </div>
         </div>

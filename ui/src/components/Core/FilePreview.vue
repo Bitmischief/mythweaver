@@ -7,7 +7,6 @@
 </template>
 
 <script lang="ts" setup>
-import { defineEmits, defineProps } from 'vue';
 import { UploadableFile } from '@/compositions/uploadableFile.ts';
 
 defineProps<{
