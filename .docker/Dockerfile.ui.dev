@@ -1,8 +1,18 @@
+# Stage 1: Build the Vue.js app
 FROM node:lts-alpine as builder
 
 WORKDIR /app
 COPY ui ./
-RUN yarn install
+RUN yarn install && yarn run build
 
-EXPOSE 3000
-CMD ["yarn", "run", "dev", "--host"]
+# Stage 2: Serve with Nginx
+FROM nginx:alpine
+
+# Replace default Nginx configuration file with custom one
+COPY ./ui/default-dev.conf /etc/nginx/conf.d/
+
+# Copy .htpasswd file for basic auth
+COPY ./ui/.htpasswd /etc/nginx/.htpasswd
+
+# Copy the built Vue.js app
+COPY --from=builder /app/dist /usr/share/nginx/html

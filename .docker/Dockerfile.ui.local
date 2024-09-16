@@ -1,0 +1,8 @@
+FROM node:lts-alpine as builder
+
+WORKDIR /app
+COPY ui ./
+RUN yarn install
+
+EXPOSE 3000
+CMD ["yarn", "run", "dev", "--host"]
