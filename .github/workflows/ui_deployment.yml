@@ -46,13 +46,21 @@ jobs:
       - name: Set container image name
         run: echo "CONTAINER_IMAGE_NAME=${{ secrets.REGISTRY_NAME }}/mythweaver-ui:$(echo $GITHUB_SHA | head -c7)_${{ inputs.environmentName }}_$(echo $GITHUB_RUN_ATTEMPT)" >> $GITHUB_ENV
 
+      - name: Set Dockerfile path
+        run: |
+          if [ "${{ inputs.environmentName }}" = "production" ]; then
+            echo "DOCKERFILE_PATH=.docker/Dockerfile.ui" >> $GITHUB_ENV
+          else
+            echo "DOCKERFILE_PATH=.docker/Dockerfile.ui.dev" >> $GITHUB_ENV
+          fi
+
       - name: Generate .htpasswd file
         run: |
           sudo apt-get update && sudo apt-get install -y apache2-utils
           htpasswd -cb ./ui/.htpasswd mythweaver ${{ secrets.DEV_UI_BASIC_AUTH_PASSWORD }}
 
       - name: Build container image
-        run: docker build -t ${{ env.CONTAINER_IMAGE_NAME }} -f .docker/Dockerfile.ui.dev .
+        run: docker build -t ${{ env.CONTAINER_IMAGE_NAME }} -f ${{ env.DOCKERFILE_PATH }} .
 
       - name: Log in to DockerHub Container Registry with short-lived credentials
         run: docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_TOKEN }}
