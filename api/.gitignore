@@ -3,3 +3,5 @@ public
 .env
 public/data/*.png
 .yarn
+# Sentry Config File
+.sentryclirc

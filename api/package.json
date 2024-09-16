@@ -7,10 +7,11 @@
     "dev": "concurrently \"nodemon\" \"nodemon -x tsoa spec\"",
     "swagger": "tsoa spec",
     "start": "node build/index.js",
-    "build": "tsc",
+    "build": "tsc && yarn sentry:sourcemaps",
     "test": "jest",
     "validate": "eslint . --ext ts && prettier . --check \"**/*.ts\"",
-    "repair": "eslint . --ext ts --fix && prettier . --write \"**/*.ts\""
+    "repair": "eslint . --ext ts --fix && prettier . --write \"**/*.ts\"",
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org mythweaver --project mythweaver-api build && sentry-cli sourcemaps upload --org mythweaver --project mythweaver-api build"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
@@ -48,8 +49,12 @@
     "@logtail/pino": "^0.4.21",
     "@openfeature/server-sdk": "^1.6.3",
     "@prisma/client": "^5.15.1",
+    "@sentry/cli": "^2.36.1",
+    "@sentry/integrations": "^7.114.0",
     "@sentry/node": "^8.30.0",
-    "@sentry/profiling-node": "^7.107.0",
+    "@sentry/profiling-node": "^8.30.0",
+    "@sentry/types": "^8.30.0",
+    "@sentry/vite-plugin": "^2.22.4",
     "assemblyai": "^4.7.0",
     "async-await-retry": "^2.1.0",
     "auth0": "^4.3.1",

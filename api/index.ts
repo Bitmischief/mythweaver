@@ -21,7 +21,6 @@ import { isLocalDevelopment, isProduction } from './lib/utils';
 import * as Sentry from '@sentry/node';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import { dailyCampaignContextQueue, endTrialQueue } from './worker';
-import { AppError } from './lib/errors/AppError';
 
 dotenv.config();
 
@@ -31,13 +30,7 @@ const app: Application = express();
 
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
-  integrations: [
-    // enable HTTP calls tracing
-    new Sentry.Integrations.Http({ tracing: true }),
-    // enable Express.js middleware tracing
-    new Sentry.Integrations.Express({ app }),
-    nodeProfilingIntegration(),
-  ],
+  integrations: [nodeProfilingIntegration],
   environment: isProduction
     ? 'production'
     : isLocalDevelopment
@@ -56,12 +49,6 @@ Sentry.init({
     return event;
   },
 });
-
-// The request handler must be the first middleware on the app
-app.use(Sentry.Handlers.requestHandler());
-
-// TracingHandler creates a trace for every incoming request
-app.use(Sentry.Handlers.tracingHandler());
 
 app.use(cors());
 app.options('*', cors());
@@ -123,17 +110,8 @@ app.use(
   }),
 );
 
-// The error handler must be registered before any other error middleware and after all controllers
-app.use(
-  Sentry.Handlers.errorHandler({
-    shouldHandleError(error: any) {
-      if (error instanceof AppError) {
-        return false;
-      }
-      return true;
-    },
-  }),
-);
+// The error handler must be registered before any other error middleware and after all controller
+Sentry.setupExpressErrorHandler(app);
 
 const errorHandlerMiddleware: ErrorRequestHandler = (
   err: any,
