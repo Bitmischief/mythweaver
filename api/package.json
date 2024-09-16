@@ -48,7 +48,7 @@
     "@logtail/pino": "^0.4.21",
     "@openfeature/server-sdk": "^1.6.3",
     "@prisma/client": "^5.15.1",
-    "@sentry/node": "^7.110.0",
+    "@sentry/node": "^8.30.0",
     "@sentry/profiling-node": "^7.107.0",
     "assemblyai": "^4.7.0",
     "async-await-retry": "^2.1.0",
