@@ -50,11 +50,14 @@ jobs:
         run: |
           if [ "${{ inputs.environmentName }}" = "production" ]; then
             echo "DOCKERFILE_PATH=.docker/Dockerfile.ui" >> $GITHUB_ENV
+            echo "SKIP_HTPASSWD=true" >> $GITHUB_ENV
           else
             echo "DOCKERFILE_PATH=.docker/Dockerfile.ui.dev" >> $GITHUB_ENV
+            echo "SKIP_HTPASSWD=false" >> $GITHUB_ENV
           fi
 
       - name: Generate .htpasswd file
+        if: env.SKIP_HTPASSWD != 'true'
         run: |
           sudo apt-get update && sudo apt-get install -y apache2-utils
           htpasswd -cb ./ui/.htpasswd mythweaver ${{ secrets.DEV_UI_BASIC_AUTH_PASSWORD }}
