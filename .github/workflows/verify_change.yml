@@ -9,6 +9,8 @@ jobs:
         uses: actions/checkout@main
 
       - name: Build, lint & test
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: |
           cd api 
           yarn install
