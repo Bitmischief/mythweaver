@@ -75,9 +75,11 @@ async function handleSaveCampaign() {
 async function handleDeleteCampaign() {
   try {
     if (selectedCampaignId.value) {
-      await campaignStore.deleteCampaign(selectedCampaignId.value);
-      showSuccess({ message: 'Campaign deleted!' });
-      await router.push('/campaign/overview');
+      if (confirm('Are you sure you want to delete this campaign?')) {
+        await campaignStore.deleteCampaign(selectedCampaignId.value);
+        showSuccess({ message: 'Campaign deleted!' });
+        await router.push('/campaign/overview');
+      }
     }
   } catch (e) {
     await campaignStore.getCampaigns();
