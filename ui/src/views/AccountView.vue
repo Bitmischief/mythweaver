@@ -18,7 +18,6 @@ import { XCircleIcon } from '@heroicons/vue/24/solid';
 import PlanBadge from '@/components/Core/PlanBadge.vue';
 import { AxiosError } from 'axios';
 import { useEventBus } from '@/lib/events.ts';
-import { connectToDiscord } from '@/api/integrations.ts';
 
 defineEmits(['show-subscription-modal']);
 
@@ -80,15 +79,6 @@ async function saveChanges() {
     });
   } finally {
     saveChangesLoading.value = false;
-  }
-}
-
-async function connectDiscord() {
-  try {
-    const response = await connectToDiscord();
-    window.location.href = response.data.url;
-  } catch (error) {
-    showError({ message: 'Failed to connect Discord account. Please try again.' });
   }
 }
 </script>
@@ -330,6 +320,29 @@ async function connectDiscord() {
               </div>
             </div>
           </template>
+        </div>
+        <div v-if="tab === 'connected'">
+          <div class="text-lg mb-2">Connected Accounts</div>
+          <div class="p-4 rounded-[12px] bg-surface-2 border border-surface-3">
+            <div class="text-lg">Discord Connection</div>
+            <div class="text-sm text-neutral-500 mt-2 mb-4">
+              Connect your Discord account to access additional features and integrations.
+            </div>
+            <div class="flex items-center">
+              <img src="/assets/icons/discord_icon.svg" alt="Discord" class="w-8 h-8 mr-2" />
+              <span v-if="user.discordHandle" class="text-green-500">
+                Connected: {{ user.discordHandle }}
+              </span>
+              <span v-else class="text-yellow-500">Not connected</span>
+            </div>
+            <button
+              v-if="!user.discordHandle"
+              class="button-primary mt-4"
+              @click="connectDiscord"
+            >
+              Connect Discord
+            </button>
+          </div>
         </div>
       </div>
     </div>
