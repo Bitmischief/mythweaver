@@ -55,4 +55,8 @@ import collectionsRoutes from './collections';
 
 router.use(`/collections`, collectionsRoutes);
 
+import integrationRoutes from './integrations';
+
+router.use(`/integrations`, integrationRoutes);
+
 export default router;

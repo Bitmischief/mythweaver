@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express';
-import { checkAuth0Jwt, useInjectUserId } from '../lib/authMiddleware';
+import { checkAuth0Jwt, useAuthenticateRequest, useInjectUserId } from '../lib/authMiddleware';
 import { z } from 'zod';
 import {
   useValidateRequest,
@@ -22,7 +22,7 @@ const getCampaignsSchema = z.object({
 });
 
 router.get('/', [
-  checkAuth0Jwt,
+  useAuthenticateRequest(),
   useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(getCampaignsSchema, {

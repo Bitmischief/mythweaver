@@ -59,6 +59,11 @@ export const useInjectUserId = () => {
   return async (req: Request, res: Response, next: NextFunction) => {
     const logger = useLogger();
 
+    if (res.locals.auth?.email) {
+      logger.info('Auth context already injected');
+      return next();
+    }
+
     const token = req.auth?.token || '';
     const jwt = jwtDecode(token) as any;
 
@@ -145,3 +150,74 @@ const buildUniqueUsername = async (email: string) => {
     ? username + Math.floor(Math.random() * 1000)
     : username;
 };
+
+export const useAuthenticateRequest = () => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    const logger = useLogger();
+
+    try {
+      // Check for Auth0 JWT
+      if (req.headers.authorization?.startsWith('Bearer ')) {
+        return checkAuth0Jwt(req, res, next);
+      }
+
+      // Check for service token
+      const serviceToken = req.headers['x-mw-token'];
+      if (serviceToken) {
+        const result = await expressServiceAuthentication(req, res);
+        if (result) {
+          return next();
+        }
+      }
+
+      // Check for user token
+      const userToken = req.headers['x-user-token'];
+      if (userToken) {
+        const result = await authenticateUserToken(req, res, userToken as string);
+        if (result) {
+          return next();
+        }
+      }
+
+      logger.error('Returning 401 for request', req);
+      return res.status(401).send();
+    } catch (err) {
+      logger.error('Error authorizing request', req.headers, err);
+      return res.status(401).send();
+    }
+  };
+};
+
+async function authenticateUserToken(
+  req: Request,
+  res: Response,
+  token: string
+): Promise<boolean> {
+  const logger = useLogger();
+
+  const userToken = await prisma.userToken.findUnique({
+    where: { token },
+    include: { user: true },
+  });
+
+  if (!userToken) {
+    logger.error('Invalid user token');
+    return false;
+  }
+
+  if (userToken.expiresAt && userToken.expiresAt < new Date()) {
+    logger.error('Expired user token');
+    return false;
+  }
+
+  // You can add additional checks for scopes here if needed
+
+  res.locals.auth = {
+    userId: userToken.user.id,
+    email: userToken.user.email,
+    user: userToken.user,
+    scopes: userToken.scopes,
+  };
+
+  return true;
+}

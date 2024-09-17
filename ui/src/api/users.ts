@@ -22,6 +22,7 @@ export interface User {
   initialTrackingData: any;
   amountSupportingArtistsUsd: number;
   onboarded: boolean;
+  discordHandle: string;
 }
 
 export interface Subscription {

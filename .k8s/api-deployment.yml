@@ -98,8 +98,6 @@ spec:
               value: <BETTERSTACK_LOGGER_SOURCE_TOKEN>
             - name: X_SERVICE_TOKEN
               value: <X_SERVICE_TOKEN>
-            - name: TRANSCRIPTION_SERVICE_DOMAIN
-              value: <TRANSCRIPTION_SERVICE_DOMAIN>
             - name: INTERCOM_ACCESS_TOKEN
               value: <INTERCOM_ACCESS_TOKEN>
             - name: STRIPE_IMAGE_PACK_100_PRODUCT_ID
