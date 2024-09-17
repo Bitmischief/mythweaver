@@ -18,6 +18,8 @@ import { XCircleIcon } from '@heroicons/vue/24/solid';
 import PlanBadge from '@/components/Core/PlanBadge.vue';
 import { AxiosError } from 'axios';
 import { useEventBus } from '@/lib/events.ts';
+import { connectToDiscord, disconnectFromDiscord } from '@/api/integrations';
+import { useRoute } from 'vue-router';
 
 defineEmits(['show-subscription-modal']);
 
@@ -25,6 +27,7 @@ const eventBus = useEventBus();
 const store = useAuthStore();
 const user = computed(() => store.user);
 const tab = ref('billing');
+const route = useRoute();
 
 const username = ref('');
 const billingLoading = ref(false);
@@ -50,6 +53,18 @@ async function clickBilling() {
 
 onMounted(async () => {
   username.value = user.value?.username ?? '';
+
+  const { tab: tabParam } = route.query;
+
+  if (!!tabParam) {
+    tab.value = tabParam as string;
+  }
+
+  const discordConnected = route.query.discordConnected === 'true';
+  
+  if (discordConnected) {
+    showSuccess({ message: 'Discord account connected successfully!' });
+  }
 
   const subscriptionResponse = await getCurrentSubscription();
   subscription.value = subscriptionResponse.data;
@@ -79,6 +94,25 @@ async function saveChanges() {
     });
   } finally {
     saveChangesLoading.value = false;
+  }
+}
+
+async function connectDiscord() {
+  try {
+    const response = await connectToDiscord();
+    window.location.href = response.data.redirectUri;
+  } catch (error) {
+    showError({ message: 'Failed to connect Discord account. Please try again.' });
+  }
+}
+
+async function disconnectDiscord() {
+  try {
+    await disconnectFromDiscord();
+    await store.loadCurrentUser();
+    showSuccess({ message: 'Discord account disconnected successfully.' });
+  } catch (error) {
+    showError({ message: 'Failed to disconnect Discord account. Please try again.' });
   }
 }
 </script>
@@ -116,11 +150,11 @@ async function saveChanges() {
           <div
             class="text-sm flex mb-2 py-1 px-2 rounded-[8px]"
             :class="{
-              'bg-surface-3 text-neutral-300': tab === 'connected',
+              'bg-surface-3 text-neutral-300': tab === 'connections',
               'hover:bg-purple-800/20 text-neutral-500 cursor-pointer':
-                tab !== 'connected',
+                tab !== 'connections',
             }"
-            @click="tab = 'connected'"
+            @click="tab = 'connections'"
           >
             <LinkIcon class="h-6 mr-1" />
             <div class="self-center text-sm">Connected Accounts</div>
@@ -321,7 +355,7 @@ async function saveChanges() {
             </div>
           </template>
         </div>
-        <div v-if="tab === 'connected'">
+        <div v-if="tab === 'connections'">
           <div class="text-lg mb-2">Connected Accounts</div>
           <div class="p-4 rounded-[12px] bg-surface-2 border border-surface-3">
             <div class="text-lg">Discord Connection</div>
@@ -329,7 +363,7 @@ async function saveChanges() {
               Connect your Discord account to access additional features and integrations.
             </div>
             <div class="flex items-center">
-              <img src="/assets/icons/discord_icon.svg" alt="Discord" class="w-8 h-8 mr-2" />
+              <img src="@/assets/icons/discord_icon.svg" alt="Discord" class="w-8 h-8 mr-2" />
               <span v-if="user.discordHandle" class="text-green-500">
                 Connected: {{ user.discordHandle }}
               </span>
@@ -341,6 +375,13 @@ async function saveChanges() {
               @click="connectDiscord"
             >
               Connect Discord
+            </button>
+            <button
+              v-else
+              class="button-ghost-white mt-4"
+              @click="disconnectDiscord"
+            >
+              Disconnect Discord
             </button>
           </div>
         </div>

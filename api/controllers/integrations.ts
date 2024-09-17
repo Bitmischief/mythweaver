@@ -2,6 +2,8 @@ import { Inject } from 'tsoa';
 import { prisma } from '../lib/providers/prisma';
 import { MythWeaverLogger } from '../lib/logger';
 import axios from 'axios';
+import { TokenType } from '@prisma/client';
+import { v4 as uuidv4 } from 'uuid';
 
 export default class IntegrationsController {
   public async getDiscordConnectUrl(
@@ -49,17 +51,6 @@ export default class IntegrationsController {
 
     const { username: discordHandle } = userResponse.data;
 
-    await this.updateDiscordConnection(userId, logger, discordHandle);
-
-    return `${process.env.APP_URL}/user/settings?discordConnected=true`;
-  }
-
-  public async updateDiscordConnection(
-    userId: number,
-    logger: MythWeaverLogger,
-    discordHandle: string,
-  ) {
-    logger.info('Updating Discord connection', { userId, discordHandle });
 
     await prisma.user.update({
       where: {
@@ -70,6 +61,67 @@ export default class IntegrationsController {
       }
     });
 
-    logger.info('Successfully updated Discord handle');
+    return `${process.env.APP_URL}/account-settings?tab=connections&discordConnected=true`;
+  }
+
+  public async disconnectDiscord(
+    @Inject() userId: number,
+    @Inject() logger: MythWeaverLogger
+  ) {
+    logger.info('Disconnecting Discord account', { userId });
+
+    await prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        discordHandle: null,
+      }
+    });
+
+    logger.info('Successfully disconnected Discord account');
+  }
+
+  public async getUserTokenForDiscordHandle(
+    @Inject() discordHandle: string,
+    @Inject() logger: MythWeaverLogger
+  ) {
+    logger.info('Getting user token for Discord handle', { discordHandle });
+
+    const user = await prisma.user.findFirst({
+      where: {
+        discordHandle: discordHandle,
+      },
+    });
+
+    if (!user) {
+      logger.info('User not found for Discord handle', { discordHandle });
+      return null;
+    }
+
+    let userToken = await prisma.userToken.findFirst({
+      where: {
+        userId: user.id,
+        type: TokenType.DISCORD,
+      },
+    });
+
+    if (!userToken) {
+      logger.info('Token not found for user, creating new token', { userId: user.id });
+      userToken = await prisma.userToken.create({
+        data: {
+          userId: user.id,
+          type: TokenType.DISCORD,
+          token: this.generateToken(), // Implement this method to generate a unique token
+        },
+      });
+    }
+
+    return userToken.token;
+  }
+
+  private generateToken(): string {
+    const uuid = uuidv4();
+    return Buffer.from(uuid).toString('base64');
   }
 }

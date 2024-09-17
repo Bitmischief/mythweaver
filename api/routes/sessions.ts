@@ -27,7 +27,7 @@ const getSessionsSchema = z.object({
 });
 
 router.get('/', [
-  checkAuth0Jwt,
+  useAuthenticateRequest(),
   useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(getSessionsSchema, {

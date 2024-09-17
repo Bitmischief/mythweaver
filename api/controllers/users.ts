@@ -14,7 +14,7 @@ import { AppError, HttpCode } from '../lib/errors/AppError';
 import { AppEvent, identify, track, TrackingInfo } from '../lib/tracking';
 import { MythWeaverLogger } from '../lib/logger';
 import { modifyImageCreditCount } from '../services/credits';
-import { getSubscriptionForCustomer } from '../services/billing';
+import { createCustomer, getSubscriptionForCustomer } from '../services/billing';
 
 interface PatchUserRequest {
   campaignId?: number;
@@ -199,8 +199,12 @@ export default class UserController {
       });
     }
 
+    if (!user.billingCustomerId) {
+      user.billingCustomerId = await createCustomer(user.email);
+    }
+
     const subscription = await getSubscriptionForCustomer(
-      user.billingCustomerId || '',
+      user.billingCustomerId,
     );
 
     if (!subscription) {

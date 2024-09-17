@@ -536,11 +536,16 @@ model CampaignConjuration {
   @@map("campaign_conjurations")
 }
 
+enum TokenType {
+  DISCORD
+}
+
 model UserToken {
   id        Int       @id @default(autoincrement())
   createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
   updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
   token     String    @unique
+  type      TokenType @default(DISCORD)
   userId    Int
   scopes    String[]
   expiresAt DateTime?
