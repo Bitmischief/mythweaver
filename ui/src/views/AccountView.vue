@@ -6,7 +6,7 @@ import {
   patchCurrentUser,
   Subscription,
 } from '@/api/users.ts';
-import { CreditCardIcon, UserCircleIcon } from '@heroicons/vue/24/outline';
+import { CreditCardIcon, UserCircleIcon, LinkIcon } from '@heroicons/vue/24/outline';
 import { computed, onMounted, ref } from 'vue';
 import { showError, showSuccess } from '@/lib/notifications';
 import { getBillingPortalUrl } from '@/api/billing.ts';
@@ -18,6 +18,7 @@ import { XCircleIcon } from '@heroicons/vue/24/solid';
 import PlanBadge from '@/components/Core/PlanBadge.vue';
 import { AxiosError } from 'axios';
 import { useEventBus } from '@/lib/events.ts';
+import { connectToDiscord } from '@/api/integrations.ts';
 
 defineEmits(['show-subscription-modal']);
 
@@ -81,6 +82,15 @@ async function saveChanges() {
     saveChangesLoading.value = false;
   }
 }
+
+async function connectDiscord() {
+  try {
+    const response = await connectToDiscord();
+    window.location.href = response.data.url;
+  } catch (error) {
+    showError({ message: 'Failed to connect Discord account. Please try again.' });
+  }
+}
 </script>
 
 <template>
@@ -112,6 +122,18 @@ async function saveChanges() {
           >
             <UserCircleIcon class="h-6 mr-1" />
             <div class="self-center text-sm">Profile Settings</div>
+          </div>
+          <div
+            class="text-sm flex mb-2 py-1 px-2 rounded-[8px]"
+            :class="{
+              'bg-surface-3 text-neutral-300': tab === 'connected',
+              'hover:bg-purple-800/20 text-neutral-500 cursor-pointer':
+                tab !== 'connected',
+            }"
+            @click="tab = 'connected'"
+          >
+            <LinkIcon class="h-6 mr-1" />
+            <div class="self-center text-sm">Connected Accounts</div>
           </div>
         </div>
       </div>
