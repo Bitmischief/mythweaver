@@ -266,4 +266,23 @@ export default class UserController {
       `Requested by support`,
     );
   }
+
+  public async updateDiscordConnection(
+    @Inject() userId: number,
+    @Inject() logger: MythWeaverLogger,
+    @Inject() discordHandle: string,
+  ) {
+    logger.info('Received discord connection update request', { userId, discordHandle });
+
+    await prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        discordHandle,
+      }
+    });
+
+    logger.info('Successfully updated discord handle');
+  }
 }

@@ -53,6 +53,7 @@ model User {
   preorderRedemptionStripePriceId String?
   amountSupportingArtistsUsd      Float           @default(0)
   onboarded                       Boolean         @default(false)
+  discordHandle                   String?
 
   initialTrackingData Json?
 
@@ -70,6 +71,7 @@ model User {
   ImageCreditAuditLog      ImageCreditAuditLog[]
   ConjurationRelationships ConjurationRelationships[]
   Collections              Collections[]
+  userTokens               UserToken[]
 
   @@map("users")
 }
@@ -532,4 +534,18 @@ model CampaignConjuration {
   @@index([conjurationId], name: "campaign_conjurations_conjuration_id")
   @@index([campaignId, conjurationId], name: "campaign_conjurations_campaign_id_conjuration_id")
   @@map("campaign_conjurations")
+}
+
+model UserToken {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  updatedAt DateTime? @default(dbgenerated("(now() AT TIME ZONE 'utc'::text)")) @db.Timestamptz(6)
+  token     String    @unique
+  userId    Int
+  scopes    String[]
+  expiresAt DateTime?
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("user_tokens")
 }
