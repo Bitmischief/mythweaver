@@ -84,7 +84,7 @@ router.get('/discord/user/:discordHandle', [
       );
 
       if (response) {
-        res.status(200).json({ response });
+        res.status(200).json(response);
       } else {
         res.status(404).json({ message: 'User not found' });
       }
