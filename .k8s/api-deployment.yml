@@ -103,7 +103,7 @@ spec:
             - name: STRIPE_IMAGE_PACK_100_PRODUCT_ID
               value: <STRIPE_IMAGE_PACK_100_PRODUCT_ID>
             - name: DISCORD_CLIENT_ID
-              value: <DISCORD_CLIENT_ID>
+              value: "<DISCORD_CLIENT_ID>"
             - name: DISCORD_CLIENT_SECRET
               value: <DISCORD_CLIENT_SECRET>
             - name: DISCORD_REDIRECT_URI
