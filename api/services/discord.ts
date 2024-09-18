@@ -1,6 +1,6 @@
 import axios from 'axios';
 import logger from '../lib/logger';
-import { isProduction } from '../lib/utils';
+import { isProduction } from '../lib/environments';
 
 export const postToDiscordBillingChannel = async (message: string) => {
   if (!isProduction) return;

@@ -1,5 +1,5 @@
 import { Client, Operators } from 'intercom-client';
-import { isLocalDevelopment } from './utils';
+import { isLocalDevelopment } from './environments';
 import { prisma } from './providers/prisma';
 import { AppError, HttpCode } from './errors/AppError';
 import logger from './logger';

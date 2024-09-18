@@ -1,4 +1,4 @@
-import { isLocalDevelopment } from '../lib/utils';
+import { isLocalDevelopment } from '../lib/environments';
 import fs from 'node:fs';
 import {
   GetObjectCommand,

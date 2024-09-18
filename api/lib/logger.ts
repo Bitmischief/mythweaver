@@ -1,5 +1,5 @@
 import pino, { Logger } from 'pino';
-import { isLocalDevelopment } from './utils';
+import { isLocalDevelopment } from './environments';
 import dotenv from 'dotenv';
 
 dotenv.config();

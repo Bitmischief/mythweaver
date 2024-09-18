@@ -1,11 +1,6 @@
 import axios from 'axios';
 import fs from 'node:fs';
-
-export const isProduction = process.env.API_URL === 'https://api.mythweaver.co';
-export const isDevelopment =
-  process.env.API_URL === 'https://dev-api.mythweaver.co';
-export const isLocalDevelopment =
-  process.env.API_URL === 'http://localhost:8000';
+import logger from './logger';
 
 export function shuffle<T>(array: T[]): T[] {
   let currentIndex = array.length,
@@ -127,17 +122,17 @@ export const processInChunks = async <T>(
   let items: T[] = [];
 
   do {
-    console.log('Fetching batch of items', skip, chunkSize);
+    logger.info(`Fetching batch of items ${skip}, ${chunkSize}`);
     items = await queryFunction(skip, chunkSize);
 
     for (const item of items) {
       await processChunkItem(item);
     }
 
-    console.log(
+    logger.info(
       `Processed batch of items: ${items.map((i: any) => i.id).join(', ')}`,
     );
     skip += chunkSize;
-    console.log('Skip set to', skip, 'items.length', items.length);
+    logger.info(`Skip set to ${skip}, items.length: ${items.length}`);
   } while (items.length > 0);
 };

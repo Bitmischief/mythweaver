@@ -1,7 +1,7 @@
 import { User } from '@prisma/client';
 import { reportMetaAdConversionEvent } from './meta';
 import logger from '../logger';
-import { isProduction } from '../utils';
+import { isProduction } from '../environments';
 
 export enum AdConversionEvent {
   Lead = 'lead',
