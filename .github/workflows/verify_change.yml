@@ -16,7 +16,7 @@ jobs:
           yarn install
           yarn global add @sentry/cli
           sentry-cli login --auth-token $SENTRY_AUTH_TOKEN
-          yarn run build 
+          yarn run build:withsourcemaps
           yarn run validate 
           yarn run test
 
