@@ -218,6 +218,8 @@ const processCompletedTranscript = async (
 
   await sendWebsocketMessage(userId, WebSocketEvent.TranscriptionComplete, {
     sessionId: sessionId,
+    summary: fullTranscript.summary,
+    recap: fullTranscript.recap,
   });
 };
 
