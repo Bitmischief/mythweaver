@@ -11,6 +11,7 @@ import PlanBadge from '@/components/Core/PlanBadge.vue';
 import { Cog6ToothIcon } from '@heroicons/vue/24/outline';
 import ConjurationLimit from '@/components/Core/ConjurationLimit.vue';
 import { useAuth0 } from '@auth0/auth0-vue';
+import UpdateChecker from '@/components/Core/UpdateChecker.vue';
 
 const authStore = useAuthStore();
 const showPanel = ref(false);
@@ -105,6 +106,7 @@ const loginType = computed(() => {
         </div>
 
         <TrialInfo class="self-center md:hidden mt-2" />
+        <UpdateChecker />
 
         <div class="hidden w-full h-full md:flex md:flex-col justify-between">
           <NavbarContent :collapsed="collapsed" />

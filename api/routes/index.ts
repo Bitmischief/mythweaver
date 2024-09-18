@@ -59,4 +59,8 @@ import integrationRoutes from './integrations';
 
 router.use(`/integrations`, integrationRoutes);
 
+import versionRoutes from './version';
+
+router.use(`/version`, versionRoutes);
+
 export default router;

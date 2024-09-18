@@ -9,6 +9,7 @@ import ConjurationLimit from '@/components/Core/ConjurationLimit.vue';
 import { useAuth0 } from '@auth0/auth0-vue';
 import { ServerEvent } from '@/lib/serverEvents.ts';
 import { useWebsocketChannel } from '@/lib/hooks.ts';
+import UpdateChecker from '@/components/Core/UpdateChecker.vue';
 
 const authStore = useAuthStore();
 const auth0 = useAuth0();
@@ -90,6 +91,7 @@ const artistMoneyRaised = computed(() =>
       <div class="self-center mr-5">
         <ConjurationLimit v-if="authStore.user" />
       </div>
+      <UpdateChecker />
       <div class="self-center mr-5">
         <ImageCreditCount v-if="authStore.user" />
       </div>

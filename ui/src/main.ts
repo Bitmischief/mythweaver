@@ -26,7 +26,7 @@ Sentry.init({
   app,
   dsn: import.meta.env.VITE_SENTRY_DSN,
   environment: isProduction ? 'production' : isDevelopment ? 'development' : 'local',
-  release: import.meta.env.VERSION,
+  release: import.meta.env.VITE_VERSION,
   integrations: [
     Sentry.browserTracingIntegration(),
     Sentry.replayIntegration({

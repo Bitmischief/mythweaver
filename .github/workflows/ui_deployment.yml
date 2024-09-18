@@ -41,7 +41,7 @@ jobs:
           echo VITE_MIXPANEL_TOKEN=${{ secrets.MIXPANEL_TOKEN }} >> .env
           echo VITE_AUTH0_DOMAIN=${{ secrets.AUTH0_DOMAIN }} >> .env
           echo VITE_AUTH0_CLIENT_ID=${{ secrets.AUTH0_CLIENT_ID }} >> .env
-          echo VERSION=${{ github.ref_name }} >> .env
+          echo VITE_VERSION=${{ github.ref_name }} >> .env
 
       - name: Set container image name
         run: echo "CONTAINER_IMAGE_NAME=${{ secrets.REGISTRY_NAME }}/mythweaver-ui:$(echo $GITHUB_SHA | head -c7)_${{ inputs.environmentName }}_$(echo $GITHUB_RUN_ATTEMPT)" >> $GITHUB_ENV
