@@ -228,6 +228,7 @@ model Session {
   suggestedName    String?
   suggestedSummary String?
   suggestedRecap   String?
+  suggestedImagePrompt String?
 
   user                 User                  @relation(fields: [userId], references: [id])
   campaign             Campaign              @relation(fields: [campaignId], references: [id], onDelete: Cascade)

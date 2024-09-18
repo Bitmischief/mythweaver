@@ -25,6 +25,7 @@ export interface SessionBase {
   suggestedSummary?: string | undefined;
   suggestedTranscript?: string | undefined;
   suggestedSuggestions?: string | undefined;
+  suggestedImagePrompt?: string | undefined;
   suggestedRecap?: string | undefined;
   audioName?: string | undefined;
   audioUri?: string | undefined;
@@ -67,6 +68,7 @@ export interface PatchSessionRequest {
   suggestedTranscript?: string | undefined;
   suggestedSuggestions?: string | undefined;
   suggestedRecap?: string | undefined;
+  suggestedImagePrompt?: string | undefined;
 }
 
 export interface PostGenerateSummaryRequest {
