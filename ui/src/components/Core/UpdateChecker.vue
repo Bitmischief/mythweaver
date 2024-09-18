@@ -13,13 +13,24 @@ onMounted(() => {
   setInterval(checkForUpdates, 5 * 60 * 1000);
 });
 
+function compareVersions(v1: string, v2: string): number {
+  const parts1 = v1.split('.').map(Number);
+  const parts2 = v2.split('.').map(Number);
+
+  for (let i = 0; i < 3; i++) {
+    if (parts1[i] > parts2[i]) return 1;
+    if (parts1[i] < parts2[i]) return -1;
+  }
+  return 0;
+}
+
 async function checkForUpdates() {
   try {
     const response = await getVersion();
     const { version: latestVersion } = response.data;
     const currentVersion = import.meta.env.VITE_VERSION;
 
-    showUpdateButton.value = latestVersion !== currentVersion;
+    showUpdateButton.value = compareVersions(latestVersion, currentVersion) > 0;
   } catch (error) {
     console.error('Failed to check for updates:', error);
   }
