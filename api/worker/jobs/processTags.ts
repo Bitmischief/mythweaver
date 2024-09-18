@@ -1,5 +1,28 @@
+import Queue from 'bull';
 import { prisma } from '../../lib/providers/prisma';
 import logger from '../../lib/logger';
+import { config } from '../config';
+
+export interface ProcessTagsEvent {
+  conjurationIds: number[];
+}
+
+export const processTagsQueue = new Queue<ProcessTagsEvent>(
+  'process-tags',
+  config,
+);
+
+processTagsQueue.process(async (job, done) => {
+  logger.info('Processing tags job', job.data);
+
+  try {
+    await processTags(job.data.conjurationIds);
+  } catch (err) {
+    logger.error('Error processing generated image job!', err);
+  }
+
+  done();
+});
 
 export const processTags = async (conjurationIds: number[]) => {
   for (const conjurationId of conjurationIds) {

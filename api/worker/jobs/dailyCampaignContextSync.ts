@@ -1,8 +1,34 @@
+import Queue from 'bull';
 import { Campaign, Conjuration, ContextType, Session } from '@prisma/client';
 import { prisma } from '../../lib/providers/prisma';
 import { indexCampaignContext } from './indexCampaignContext';
 import { processInChunks } from '../../lib/utils';
 import logger from '../../lib/logger';
+import { config } from '../config';
+
+export const dailyCampaignContextQueue = new Queue(
+  'campaign-context-sync',
+  config,
+);
+
+dailyCampaignContextQueue.process(async (job, done) => {
+  logger.info('Processing daily campaign context sync queue job');
+
+  try {
+    await processDailyCampaignContextSync();
+    logger.info(
+      'Completed processing daily campaign context sync queue job',
+      job.data,
+    );
+    done();
+  } catch (err) {
+    logger.error(
+      'Error processing daily campaign context sync queue job!',
+      err,
+    );
+    done(new Error('Error processing daily campaign context sync queue job!'));
+  }
+});
 
 export const processDailyCampaignContextSync = async () => {
   await processInChunks<Campaign>(

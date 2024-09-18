@@ -1,3 +1,4 @@
+import Queue from 'bull';
 import {
   initializeContextForCampaign,
   ReindexCampaignContextEvent,
@@ -13,8 +14,27 @@ import {
   sendWebsocketMessage,
   WebSocketEvent,
 } from '../../services/websockets';
+import { config } from '../config';
 
 const openai = getClient();
+
+export const indexCampaignContextQueue = new Queue<ReindexCampaignContextEvent>(
+  'index-campaign-context',
+  config,
+);
+
+indexCampaignContextQueue.process(async (job, done) => {
+  logger.info('Processing index campaign context job', job.data);
+
+  try {
+    await indexCampaignContext(job.data);
+    logger.info('Completed processing index campaign context job', job.data);
+    done();
+  } catch (err) {
+    logger.error('Error processing index campaign context job!', err);
+    done(new Error('Error processing index campaign context job!'));
+  }
+});
 
 export const indexCampaignContext = async (
   request: ReindexCampaignContextEvent,

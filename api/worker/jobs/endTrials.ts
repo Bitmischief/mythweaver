@@ -1,6 +1,23 @@
+import Queue from 'bull';
 import { prisma } from '../../lib/providers/prisma';
 import { BillingPlan, User } from '@prisma/client';
 import logger from '../../lib/logger';
+import { config } from '../config';
+
+export const endTrialQueue = new Queue('end-trial', config);
+
+endTrialQueue.process(async (job, done) => {
+  logger.info('Processing end trial job');
+
+  try {
+    await endTrials();
+    logger.info('Completed processing end trials job');
+    done();
+  } catch (err) {
+    logger.error('Error processing end trials job!', err);
+    done(new Error('Error processing end trials job!'));
+  }
+});
 
 export const endTrials = async () => {
   logger.info('Processing end trial job');
