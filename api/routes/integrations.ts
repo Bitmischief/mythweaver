@@ -78,13 +78,13 @@ router.get('/discord/user/:discordHandle', [
   async (req: Request, res: Response) => {
     const controller = new IntegrationsController();
     try {
-      const token = await controller.getUserTokenForDiscordHandle(
+      const response = await controller.getUserTokenForDiscordHandle(
         req.params.discordHandle,
         useLogger(),
       );
 
-      if (token) {
-        res.status(200).json({ token });
+      if (response) {
+        res.status(200).json({ response });
       } else {
         res.status(404).json({ message: 'User not found' });
       }

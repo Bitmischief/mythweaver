@@ -119,7 +119,11 @@ export default class IntegrationsController {
       });
     }
 
-    return userToken.token;
+    return {
+      token: userToken.token,
+      userId: user.id,
+      discordHandle,
+    };
   }
 
   private generateToken(): string {
