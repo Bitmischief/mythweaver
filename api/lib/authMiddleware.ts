@@ -173,7 +173,11 @@ export const useAuthenticateRequest = () => {
       // Check for user token
       const userToken = req.headers['x-user-token'];
       if (userToken) {
-        const result = await authenticateUserToken(req, res, userToken as string);
+        const result = await authenticateUserToken(
+          req,
+          res,
+          userToken as string,
+        );
         if (result) {
           return next();
         }
@@ -191,7 +195,7 @@ export const useAuthenticateRequest = () => {
 async function authenticateUserToken(
   req: Request,
   res: Response,
-  token: string
+  token: string,
 ): Promise<boolean> {
   const logger = useLogger();
 

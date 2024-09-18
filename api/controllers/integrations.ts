@@ -8,25 +8,26 @@ import { v4 as uuidv4 } from 'uuid';
 export default class IntegrationsController {
   public async getDiscordConnectUrl(
     @Inject() userId: number,
-    @Inject() logger: MythWeaverLogger
+    @Inject() logger: MythWeaverLogger,
   ) {
     logger.info('Generating Discord connect URL', { userId });
     const state = Buffer.from(JSON.stringify({ userId })).toString('base64');
     return {
-      redirectUri: `https://discord.com/api/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT_ID}&redirect_uri=${process.env.DISCORD_REDIRECT_URI}&response_type=code&scope=identify&state=${state}`
+      redirectUri: `https://discord.com/api/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT_ID}&redirect_uri=${process.env.DISCORD_REDIRECT_URI}&response_type=code&scope=identify&state=${state}`,
     };
   }
 
   public async handleDiscordCallback(
     @Inject() code: string,
     @Inject() state: string,
-    @Inject() logger: MythWeaverLogger
+    @Inject() logger: MythWeaverLogger,
   ) {
     logger.info('Handling Discord callback', { code, state });
 
     const { userId } = JSON.parse(Buffer.from(state, 'base64').toString());
 
-    const tokenResponse = await axios.post('https://discord.com/api/oauth2/token', 
+    const tokenResponse = await axios.post(
+      'https://discord.com/api/oauth2/token',
       new URLSearchParams({
         client_id: process.env.DISCORD_CLIENT_ID!,
         client_secret: process.env.DISCORD_CLIENT_SECRET!,
@@ -38,7 +39,7 @@ export default class IntegrationsController {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
-      }
+      },
     );
 
     const { access_token } = tokenResponse.data;
@@ -51,14 +52,13 @@ export default class IntegrationsController {
 
     const { username: discordHandle } = userResponse.data;
 
-
     await prisma.user.update({
       where: {
         id: userId,
       },
       data: {
         discordHandle,
-      }
+      },
     });
 
     return `${process.env.APP_URL}/account-settings?tab=connections&discordConnected=true`;
@@ -66,7 +66,7 @@ export default class IntegrationsController {
 
   public async disconnectDiscord(
     @Inject() userId: number,
-    @Inject() logger: MythWeaverLogger
+    @Inject() logger: MythWeaverLogger,
   ) {
     logger.info('Disconnecting Discord account', { userId });
 
@@ -76,7 +76,7 @@ export default class IntegrationsController {
       },
       data: {
         discordHandle: null,
-      }
+      },
     });
 
     logger.info('Successfully disconnected Discord account');
@@ -84,7 +84,7 @@ export default class IntegrationsController {
 
   public async getUserTokenForDiscordHandle(
     @Inject() discordHandle: string,
-    @Inject() logger: MythWeaverLogger
+    @Inject() logger: MythWeaverLogger,
   ) {
     logger.info('Getting user token for Discord handle', { discordHandle });
 
@@ -107,7 +107,9 @@ export default class IntegrationsController {
     });
 
     if (!userToken) {
-      logger.info('Token not found for user, creating new token', { userId: user.id });
+      logger.info('Token not found for user, creating new token', {
+        userId: user.id,
+      });
       userToken = await prisma.userToken.create({
         data: {
           userId: user.id,

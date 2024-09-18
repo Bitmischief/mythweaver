@@ -14,7 +14,10 @@ import { AppError, HttpCode } from '../lib/errors/AppError';
 import { AppEvent, identify, track, TrackingInfo } from '../lib/tracking';
 import { MythWeaverLogger } from '../lib/logger';
 import { modifyImageCreditCount } from '../services/credits';
-import { createCustomer, getSubscriptionForCustomer } from '../services/billing';
+import {
+  createCustomer,
+  getSubscriptionForCustomer,
+} from '../services/billing';
 
 interface PatchUserRequest {
   campaignId?: number;

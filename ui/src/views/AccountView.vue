@@ -6,7 +6,11 @@ import {
   patchCurrentUser,
   Subscription,
 } from '@/api/users.ts';
-import { CreditCardIcon, UserCircleIcon, LinkIcon } from '@heroicons/vue/24/outline';
+import {
+  CreditCardIcon,
+  UserCircleIcon,
+  LinkIcon,
+} from '@heroicons/vue/24/outline';
 import { computed, onMounted, ref } from 'vue';
 import { showError, showSuccess } from '@/lib/notifications';
 import { getBillingPortalUrl } from '@/api/billing.ts';
@@ -56,12 +60,12 @@ onMounted(async () => {
 
   const { tab: tabParam } = route.query;
 
-  if (!!tabParam) {
+  if (tabParam) {
     tab.value = tabParam as string;
   }
 
   const discordConnected = route.query.discordConnected === 'true';
-  
+
   if (discordConnected) {
     showSuccess({ message: 'Discord account connected successfully!' });
   }
@@ -102,7 +106,9 @@ async function connectDiscord() {
     const response = await connectToDiscord();
     window.location.href = response.data.redirectUri;
   } catch (error) {
-    showError({ message: 'Failed to connect Discord account. Please try again.' });
+    showError({
+      message: 'Failed to connect Discord account. Please try again.',
+    });
   }
 }
 
@@ -112,7 +118,9 @@ async function disconnectDiscord() {
     await store.loadCurrentUser();
     showSuccess({ message: 'Discord account disconnected successfully.' });
   } catch (error) {
-    showError({ message: 'Failed to disconnect Discord account. Please try again.' });
+    showError({
+      message: 'Failed to disconnect Discord account. Please try again.',
+    });
   }
 }
 </script>
@@ -360,10 +368,15 @@ async function disconnectDiscord() {
           <div class="p-4 rounded-[12px] bg-surface-2 border border-surface-3">
             <div class="text-lg">Discord Connection</div>
             <div class="text-sm text-neutral-500 mt-2 mb-4">
-              Connect your Discord account to access additional features and integrations.
+              Connect your Discord account to access additional features and
+              integrations.
             </div>
             <div class="flex items-center">
-              <img src="@/assets/icons/discord_icon.svg" alt="Discord" class="w-8 h-8 mr-2" />
+              <img
+                src="@/assets/icons/discord_icon.svg"
+                alt="Discord"
+                class="w-8 h-8 mr-2"
+              />
               <span v-if="user.discordHandle" class="text-green-500">
                 Connected: {{ user.discordHandle }}
               </span>
