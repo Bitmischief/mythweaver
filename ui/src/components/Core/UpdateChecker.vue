@@ -42,8 +42,7 @@ function refreshPage() {
 </script>
 
 <template>
-  <Tooltip
-  v-if="showUpdateButton" :text="tooltipText">
+  <Tooltip v-if="showUpdateButton" :text="tooltipText">
     <button
       class="flex items-center text-neutral-400 mr-2 border border-neutral-700 animate-pulse rounded-lg h-10 self-center px-4"
       @click="refreshPage"

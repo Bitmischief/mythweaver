@@ -28,7 +28,7 @@ const positionClasses = computed(() => {
     <div
       :class="[
         'absolute px-3 py-1 bg-neutral-800 text-neutral-200 text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap',
-        positionClasses
+        positionClasses,
       ]"
     >
       {{ text }}
