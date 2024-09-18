@@ -423,7 +423,7 @@ export default class SessionController {
     await prisma.sessionTranscription.delete({
       where: {
         sessionId,
-      }
+      },
     });
 
     track(AppEvent.SessionAudioUploaded, userId, trackingInfo);
