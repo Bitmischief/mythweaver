@@ -12,6 +12,7 @@ import { Cog6ToothIcon } from '@heroicons/vue/24/outline';
 import ConjurationLimit from '@/components/Core/ConjurationLimit.vue';
 import { useAuth0 } from '@auth0/auth0-vue';
 import UpdateChecker from '@/components/Core/UpdateChecker.vue';
+import Tooltip from '../Core/Tooltip.vue';
 
 const authStore = useAuthStore();
 const showPanel = ref(false);
@@ -67,6 +68,8 @@ const loginType = computed(() => {
           ? 'Facebook'
           : 'Email';
 });
+
+const appVersion = computed(() => import.meta.env.VITE_VERSION);
 </script>
 
 <template>
@@ -80,16 +83,20 @@ const loginType = computed(() => {
       <div class="h-full">
         <div class="flex justify-between">
           <div class="flex">
-            <img
-              src="/images/logo-horizontal-2.svg"
-              alt="mythweaver logo"
-              class="hidden md:block h-10 w-auto mr-auto mt-1 mb-1 self-center"
-            />
-            <img
-              src="/favicon.png"
-              alt="mythweaver icon"
-              class="md:hidden h-10 w-auto mr-auto mt-1 mb-1 self-center"
-            />
+            <Tooltip :text="`MythWeaver ${appVersion}`" position="bottom">
+              <img
+                src="/images/logo-horizontal-2.svg"
+                alt="mythweaver logo"
+                class="hidden md:block h-10 w-auto mr-auto mt-1 mb-1 self-center"
+              />
+            </Tooltip>
+            <Tooltip :text="`MythWeaver ${appVersion}`">
+              <img
+                src="/favicon.png"
+                alt="mythweaver icon"
+                class="md:hidden h-10 w-auto mr-auto mt-1 mb-1 self-center"
+              />
+            </Tooltip>
             <PlanBadge />
           </div>
 

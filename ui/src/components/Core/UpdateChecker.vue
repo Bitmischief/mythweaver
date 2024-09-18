@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { ArrowDownTrayIcon } from '@heroicons/vue/24/solid';
 import { getVersion } from '@/api/versioning';
+import Tooltip from './Tooltip.vue';
 
 const showUpdateButton = ref(false);
 const tooltipText = 'Click to refresh the page and get the latest updates';
@@ -30,26 +31,14 @@ function refreshPage() {
 </script>
 
 <template>
-  <div class="relative group self-center">
+  <Tooltip
+  v-if="showUpdateButton" :text="tooltipText">
     <button
-      v-if="showUpdateButton"
       class="flex items-center text-neutral-400 mr-2 border border-neutral-700 animate-pulse rounded-lg h-10 self-center px-4"
-      :title="tooltipText"
       @click="refreshPage"
     >
       <ArrowDownTrayIcon class="h-4 w-4 mr-1" />
       Update Available
     </button>
-    <div
-      class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-neutral-800 text-neutral-200 text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap"
-    >
-      {{ tooltipText }}
-    </div>
-  </div>
+  </Tooltip>
 </template>
-
-<style scoped>
-.group:hover .absolute {
-  display: block;
-}
-</style>
