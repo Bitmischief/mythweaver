@@ -76,6 +76,9 @@ jobs:
           sed -i 's|<MAX_REPLICAS>|${{ vars.MAX_REPLICAS }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           sed -i 's|<X_SERVICE_TOKEN>|${{ secrets.X_SERVICE_TOKEN }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           sed -i 's|<INTERCOM_ACCESS_TOKEN>|${{ secrets.INTERCOM_ACCESS_TOKEN }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<DISCORD_CLIENT_ID>|${{ vars.DISCORD_CLIENT_ID }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<DISCORD_CLIENT_SECRET>|${{ secrets.DISCORD_CLIENT_SECRET }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<DISCORD_REDIRECT_URI>|${{ vars.DISCORD_REDIRECT_URI }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           sed -i 's|<DISCORD_BILLING_WEBHOOK>|${{ secrets.DISCORD_BILLING_WEBHOOK }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           sed -i 's|<SENTRY_DSN>|${{ secrets.API_SENTRY_DSN }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           sed -i 's|<VERSION>|${{ github.ref_name }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml

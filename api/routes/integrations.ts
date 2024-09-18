@@ -82,10 +82,11 @@ router.get('/discord/user/:discordHandle', [
         req.params.discordHandle,
         useLogger(),
       );
+
       if (token) {
         res.status(200).json({ token });
       } else {
-        res.status(404).json({ message: 'User or token not found' });
+        res.status(404).json({ message: 'User not found' });
       }
     } catch (error) {
       useLogger().error(
