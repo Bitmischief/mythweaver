@@ -1,10 +1,10 @@
+import Queue from 'bull';
 import { Generator, getGenerator } from '../../data/conjurers';
 import { BillingPlan, Campaign, ConjurationVisibility } from '@prisma/client';
-import { AppError, HttpCode } from '../../lib/errors/AppError';
+import { AppError, ErrorType, HttpCode } from '../../lib/errors/AppError';
 import { sanitizeJson, trimPlural } from '../../lib/utils';
 import { generateImage } from '../../services/images/imageGeneration';
 import { prisma } from '../../lib/providers/prisma';
-import { ConjureEvent, processTagsQueue } from '../index';
 import {
   sendWebsocketMessage,
   WebSocketEvent,
@@ -14,6 +14,55 @@ import { sendConjurationCountUpdatedEvent } from '../../lib/planRestrictionHelpe
 import { nanoid } from 'nanoid';
 import { generateText } from '../../services/textGeneration';
 import { getCampaign } from '../../dataAccess/campaigns';
+import { config } from '../config';
+import { ImageStylePreset } from '../../controllers/images';
+import { processTagsQueue } from './processTags';
+
+export interface ConjureEvent {
+  userId: number;
+  conjurationRequestId: number;
+  campaignId: number;
+  generatorCode: string;
+  count: number;
+  arg?: string | undefined;
+  imageStylePreset?: ImageStylePreset;
+  imagePrompt?: string | undefined;
+  imageNegativePrompt?: string | undefined;
+  type?: string;
+}
+
+export const conjureQueue = new Queue<ConjureEvent>('conjuring', config);
+
+conjureQueue.process(async (job, done) => {
+  logger.info('Processing conjure job', job.data);
+
+  const jobPromises = [];
+
+  for (let i = 0; i < job.data.count; i++) {
+    const promise = conjure(job.data);
+    jobPromises.push(promise);
+  }
+
+  try {
+    await Promise.all(jobPromises);
+    logger.info('Completed processing conjure job', job.data);
+    done();
+  } catch (err) {
+    logger.error('Error processing conjure job!', err);
+
+    done(
+      new AppError({
+        description:
+          'There was an error generating your conjuration. Please try again.',
+        httpCode: HttpCode.INTERNAL_SERVER_ERROR,
+        websocket: {
+          userId: job.data.userId,
+          errorCode: ErrorType.ConjurationError,
+        },
+      }),
+    );
+  }
+});
 
 export const conjure = async (request: ConjureEvent) => {
   const generator = getGenerator(request.generatorCode);

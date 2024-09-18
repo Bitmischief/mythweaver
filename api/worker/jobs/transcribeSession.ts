@@ -1,3 +1,4 @@
+import Queue from 'bull';
 import { AssemblyAI, Transcript } from 'assemblyai';
 import retry from 'async-await-retry';
 import { TranscribeSessionEvent, getSession } from '../../dataAccess/sessions';
@@ -13,9 +14,28 @@ import { SpeechModel } from 'assemblyai/src/types/openapi.generated';
 import { sleep } from 'openai/core';
 import { ProcessedTranscript } from '../../dataAccess/transcript';
 import { generateText } from '../../services/textGeneration';
+import { config } from '../config';
 
 const client = new AssemblyAI({
   apiKey: process.env.ASSEMBLYAI_API_KEY as string,
+});
+
+export const sessionTranscriptionQueue = new Queue<TranscribeSessionEvent>(
+  'transcribe-session',
+  config,
+);
+
+sessionTranscriptionQueue.process(async (job, done) => {
+  logger.info('Processing session transcript context job', job.data);
+
+  try {
+    await transcribeSession(job.data);
+    logger.info('Completed processing session transcript job', job.data);
+    done();
+  } catch (err) {
+    logger.error('Error processing session transcript job!', err);
+    done(new Error('Error processing session transcript job!'));
+  }
 });
 
 export const transcribeSession = async (request: TranscribeSessionEvent) => {
