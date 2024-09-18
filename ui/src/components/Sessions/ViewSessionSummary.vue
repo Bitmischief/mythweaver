@@ -166,7 +166,6 @@ const primaryImage = computed(() => {
   }
   return undefined;
 });
-
 </script>
 
 <template>
