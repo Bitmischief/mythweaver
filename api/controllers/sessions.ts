@@ -421,11 +421,19 @@ export default class SessionController {
       },
     });
 
-    await prisma.sessionTranscription.delete({
+    const existingTranscription = await prisma.sessionTranscription.findUnique({
       where: {
         sessionId,
       },
     });
+
+    if (existingTranscription) {
+      await prisma.sessionTranscription.delete({
+        where: {
+          sessionId,
+        },
+      });
+    }
 
     track(AppEvent.SessionAudioUploaded, userId, trackingInfo);
 
@@ -561,24 +569,11 @@ export default class SessionController {
     });
 
     if (existingTranscription) {
-      try {
-        await prisma.sessionTranscription.delete({
-          where: {
-            sessionId,
-          },
-        });
-      } catch (err) {
-        if (err instanceof PrismaClientKnownRequestError) {
-          // Handle the known Prisma error
-          logger.warn(
-            'Known Prisma error occurred while deleting transcription',
-            { error: err, sessionId },
-          );
-        } else {
-          // Re-throw other errors
-          throw err;
-        }
-      }
+      await prisma.sessionTranscription.delete({
+        where: {
+          sessionId,
+        },
+      });
     }
   }
 
