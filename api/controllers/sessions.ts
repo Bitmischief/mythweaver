@@ -553,11 +553,19 @@ export default class SessionController {
       },
     });
 
-    await prisma.sessionTranscription.deleteMany({
+    const existingTranscription = await prisma.sessionTranscription.findUnique({
       where: {
-        sessionId: sessionId,
+        sessionId,
       },
     });
+
+    if (existingTranscription) {
+      await prisma.sessionTranscription.delete({
+        where: {
+          sessionId,
+        },
+      });
+    }
   }
 
   @Security('jwt')
