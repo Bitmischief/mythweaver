@@ -570,7 +570,10 @@ export default class SessionController {
       } catch (err) {
         if (err instanceof PrismaClientKnownRequestError) {
           // Handle the known Prisma error
-          logger.warn('Known Prisma error occurred while deleting transcription', { error: err, sessionId });
+          logger.warn(
+            'Known Prisma error occurred while deleting transcription',
+            { error: err, sessionId },
+          );
         } else {
           // Re-throw other errors
           throw err;
