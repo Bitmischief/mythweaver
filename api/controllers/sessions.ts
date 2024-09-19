@@ -26,6 +26,7 @@ import {
   indexSessionContext,
 } from '../dataAccess/sessions';
 import { sessionTranscriptionQueue } from '../worker';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 interface PostCompleteSessionRequest {
   recap: string;
@@ -560,11 +561,21 @@ export default class SessionController {
     });
 
     if (existingTranscription) {
-      await prisma.sessionTranscription.delete({
-        where: {
-          sessionId,
-        },
-      });
+      try {
+        await prisma.sessionTranscription.delete({
+          where: {
+            sessionId,
+          },
+        });
+      } catch (err) {
+        if (err instanceof PrismaClientKnownRequestError) {
+          // Handle the known Prisma error
+          logger.warn('Known Prisma error occurred while deleting transcription', { error: err, sessionId });
+        } else {
+          // Re-throw other errors
+          throw err;
+        }
+      }
     }
   }
 
