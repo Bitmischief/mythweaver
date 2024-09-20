@@ -231,17 +231,17 @@ const postprocessTranscript = async (
     campaignId,
     `Review the provided tabletop roleplaying game 
   session summary and look for any misspelt character names, location names or other names of specific content in my 
-  game that might be misspelt. Respond with just the summary and don't include a preamble or introduction. If there are 
-  no corrections to be made, please return the summary as is. Here is the original summary. 'Summary': ${transcript.summary}`,
+  game that might be misspelt. Respond with just the summary and don't include a preamble, introduction, or the corrections made.. If there are 
+  no corrections to be made, please return the summary as is. Here is the original summary: ${transcript.summary}`,
   );
 
   const updatedRecap = await generateText(
     campaignId,
     `Review the provided tabletop roleplaying game 
   session recap and look for any misspelt character names, location names or other names of specific content in my 
-  game that might be misspelt. Respond with just the summary and don't include a preamble or introduction. If there are 
+  game that might be misspelt. Respond with just the recap and don't include a preamble, introduction, or the corrections made. If there are 
   no corrections to be made, please return the recap as is. Here is the 
-  original recap. 'Recap': ${transcript.recap}`,
+  original recap: ${transcript.recap}`,
   );
 
   return {
