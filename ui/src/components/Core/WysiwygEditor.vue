@@ -310,7 +310,7 @@ onMounted(() => {
   }
 
   .ce-popover__container {
-    padding-top:2px;
+    padding-top: 2px;
     padding-bottom: 2px;
   }
 

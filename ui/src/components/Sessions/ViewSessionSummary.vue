@@ -143,7 +143,8 @@ async function showCustomizeImageModal() {
   if (!session.value.suggestedImagePrompt && session.value.recap) {
     sessionSuggestedImagePrompt.value = await generateArbitraryProperty({
       propertyName: 'aiImagePrompt',
-      context: 'TTRPG session',
+      context:
+        'This is a recap of a tabletop roleplaying session. Choose the most pivotal scene from the session and describe that, in less than 500 characters. Return just a prompt used to generate AI images in a system like Stable Diffusion.',
       background: session.value.recap,
     });
     await saveSession();
