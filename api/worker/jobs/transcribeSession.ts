@@ -203,6 +203,8 @@ const processCompletedTranscript = async (
     data: {
       transcript: fullTranscript as any,
       transcriptExternalId: transcript.id,
+      sentences,
+      paragraphs,
     },
   });
 

@@ -157,7 +157,6 @@ export default class SessionController {
         },
       },
       include: {
-        sessionTranscription: true,
         images: {
           where: {
             primary: true,
@@ -610,5 +609,39 @@ export default class SessionController {
     logger.info('Received raw response from openai', gptResponse);
 
     return gptResponse;
+  }
+
+  @Security('jwt')
+  @OperationId('getTranscript')
+  @Get('/:sessionId/transcript')
+  public async getTranscript(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
+    @Route() sessionId: number,
+  ): Promise<any> {
+    const session = await this.getSession(userId, trackingInfo, logger, sessionId);
+
+    if (!session) {
+      throw new AppError({
+        description: 'Session not found.',
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    const transcript = await prisma.sessionTranscription.findUnique({ 
+      where: {
+        sessionId,
+      },
+    });
+
+    if (!transcript) {
+      throw new AppError({
+        description: 'Transcript not found.',
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    return transcript;
   }
 }
