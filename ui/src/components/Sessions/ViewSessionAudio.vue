@@ -13,6 +13,7 @@ import { BillingPlan } from '@/api/users.ts';
 defineProps<{
   currentUserRole: CampaignRole;
   readOnly: boolean;
+  currentTime: number;
 }>();
 
 const route = useRoute();
@@ -95,7 +96,7 @@ const clickUploadAudio = () => {
         class="self-center"
         :audio-name="session?.audioName"
         :audio-uri="session?.audioUri"
-        :start="startSeconds"
+        :start="currentTime"
         :has-transcription="!!session?.sessionTranscription?.transcription"
         @seek="$emit('seek', $event)"
       />

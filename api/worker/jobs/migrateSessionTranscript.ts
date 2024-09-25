@@ -2,7 +2,7 @@ import Queue from 'bull';
 import { config } from '../config';
 import logger from '../../lib/logger';
 import { prisma } from '../../lib/providers/prisma';
-import { Prisma } from '@prisma/client';
+import { Prisma, SessionTranscription } from '@prisma/client';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface MigrateSessionTranscriptionEvent {}
@@ -28,11 +28,20 @@ migrateSessionTranscriptionQueue.process(async (job, done) => {
 async function migrateSessionTranscriptionSentences() {
   const batchSize = 100;
   let processedCount = 0;
+  let lastProcessedId: number | null = null;
 
   // eslint-disable-next-line no-constant-condition
   while (true) {
-    const sessionTranscriptions = await prisma.sessionTranscription.findMany({
+    const sessionTranscriptions: SessionTranscription[] = await prisma.sessionTranscription.findMany({
       take: batchSize,
+      where: {
+        sessionId: {
+          gt: lastProcessedId ?? undefined,
+        },
+      },
+      orderBy: {
+        sessionId: 'asc',
+      },
     });
 
     if (sessionTranscriptions.length === 0) {
@@ -64,6 +73,7 @@ async function migrateSessionTranscriptionSentences() {
       });
 
       processedCount++;
+      lastProcessedId = transcription.sessionId;
       logger.info(`Migrated data for SessionTranscription with sessionId: ${transcription.sessionId}`);
     }
 

@@ -5,7 +5,7 @@ import {
   SessionBase,
 SessionTranscript,
 } from '@/api/sessions.ts';
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import {
   showUpgradeModal,
@@ -51,7 +51,6 @@ onMounted(async () => {
 });
 
 const sessionLoading = ref(true);
-const collapsed = ref(true);
 const transcript = ref<SessionTranscript | null>(null);
 
 async function init() {
@@ -171,8 +170,7 @@ function getTimestamp(seconds: number) {
   return hs + ':' + ms + ':' + ss;
 }
 
-const startSeconds = ref(0);
-const currentAudioTime = ref(-1);
+const currentAudioTime = ref(0);
 
 const setCurrentAudioTime = (time: number) => {
   currentAudioTime.value = time;
@@ -189,47 +187,16 @@ const scrollToTop = () => {
     ?.scrollIntoView({ behavior: 'smooth' });
 };
 
-const previewSegmentCount = 10;
+// Add this new function to handle transcript line clicks
+const handleTranscriptClick = (startTime: number) => {
+  const timeInSeconds = transcript.value?.sentences ? startTime / 1000 : startTime;
+  setCurrentAudioTime(timeInSeconds);
+  // Emit an event to update the audio player
+  emit('seek', timeInSeconds);
+};
 
-const hiddenSegmentCount = computed(() => {
-  if (collapsed.value && transcript.value) {
-    return (
-      transcript.value.transcript.segments.length -
-      transcriptionSegments.value.length
-    );
-  }
-  return 0;
-});
-
-const transcriptionSegments = computed(() => {
-  if (transcript.value) {
-    if (collapsed.value) {
-      // return first 25 segments
-      const sliceTo = Math.min(
-        previewSegmentCount,
-        transcript.value.transcript.segments.length,
-      );
-      return transcript.value.transcript.segments.slice(
-        0,
-        sliceTo,
-      );
-    } else {
-      return transcript.value.transcript.segments;
-    }
-  }
-  return [];
-});
-
-// function getMostCommonSpeaker(sentence: any) {
-//   const mostCommonSpeaker = sentence.words.reduce((acc: any, word: any) => {
-//     acc[word.speaker] = (acc[word.speaker] || 0) + 1;
-//     return acc;
-//   }, {});
-//
-//   return Object.keys(mostCommonSpeaker).reduce((a, b) =>
-//     mostCommonSpeaker[a] > mostCommonSpeaker[b] ? a : b,
-//   );
-// }
+// Add this emit declaration
+const emit = defineEmits(['seek']);
 </script>
 
 <template>
@@ -247,9 +214,10 @@ const transcriptionSegments = computed(() => {
     </div>
 
     <SessionAudio
-      :session="session"
+      v-if="currentUserRole"
       :current-user-role="currentUserRole"
       :read-only="readOnly"
+      :current-time="currentAudioTime"
       @update:session="session = $event"
       @audio-uploaded="loadingTranscribeSession = useCurrentUserPlan().value === BillingPlan.Pro"
       @seek="setCurrentAudioTime"
@@ -258,58 +226,25 @@ const transcriptionSegments = computed(() => {
     <div id="transcription-title" class="underline text-lg p-4 pb-0">
       Transcript
     </div>
-    <div v-if="transcript === null" class="p-4">
+    <div v-if="transcript === null && !loadingTranscribeSession" class="p-4">
       No transcription is available for this session yet.
     </div>
-    <div v-else-if="transcript?.transcript" class="p-4">
+    <div class="p-4" v-if="transcript && !loadingTranscribeSession">
       <div
-        v-for="(s, i) in transcriptionSegments"
+        v-for="(s, i) in (transcript?.sentences || transcript?.transcript?.segments)"
         :key="`seg_${i}`"
         class="text-neutral-300 group hover:cursor-pointer flex mb-4"
-        @click="startSeconds = s.start"
+        @click="handleTranscriptClick(s.start)"
       >
         <div
           class="text-xs mt-1 text-neutral-500 group-hover:text-violet-500 mr-4"
         >
-          {{ getTimestamp(s.start) }}
+          {{ getTimestamp((transcript?.sentences ? s.start / 1000 : s.start)) }}
         </div>
         <div
           class="group-hover:text-violet-500"
           :class="{
-            'text-fuchsia-500 audio-read': s.start <= currentAudioTime,
-          }"
-        >
-          {{ s.text }}
-        </div>
-      </div>
-      <div
-        v-if="collapsed || hiddenSegmentCount > 0"
-        class="flex justify-center"
-      >
-        <div>
-          <button class="button-gradient" @click="collapsed = false">
-            Show {{ hiddenSegmentCount }} more lines
-          </button>
-        </div>
-      </div>
-    </div>
-    <div v-else-if="transcript?.transcript" class="p-4">
-      <div
-        v-for="(s, i) in transcript?.transcript?.sentences"
-        :key="`seg_${i}`"
-        class="text-neutral-300 group hover:cursor-pointer flex mb-4"
-        @click="startSeconds = s.start / 1000"
-      >
-        <div
-          class="text-xs mt-1 text-neutral-500 group-hover:text-violet-500 mr-4"
-        >
-          {{ getTimestamp(s.start / 1000) }}
-        </div>
-        <!--        <div class="mr-4">Speaker {{ getMostCommonSpeaker(s) }}</div>-->
-        <div
-          class="group-hover:text-violet-500"
-          :class="{
-            'text-fuchsia-500 audio-read': s.start / 1000 <= currentAudioTime,
+            'text-fuchsia-500': (transcript?.sentences ? s.start / 1000 : s.start) <= currentAudioTime,
           }"
         >
           {{ s.text }}
@@ -317,7 +252,7 @@ const transcriptionSegments = computed(() => {
       </div>
     </div>
     <div
-      v-else-if="currentUserRole === CampaignRole.DM && !readOnly"
+      v-if="currentUserRole === CampaignRole.DM && !readOnly"
       class="p-4"
     >
       <button
@@ -332,9 +267,6 @@ const transcriptionSegments = computed(() => {
         </div>
         <div v-else>Transcribe session</div>
       </button>
-      <div v-else class="text-center text-sm text-neutral-400">
-        Upload a recording of your session for MythWeaver to transcribe.
-      </div>
       <div
         v-if="loadingTranscribeSession"
         class="text-xs text-neutral-400 mt-2"
@@ -372,23 +304,3 @@ const transcriptionSegments = computed(() => {
     </button>
   </div>
 </template>
-
-<style>
-audio {
-  width: 100%;
-  margin-bottom: 2rem;
-}
-
-audio::-webkit-media-controls-panel {
-  background: linear-gradient(
-    to right,
-    rgb(135, 27, 164, 0.75),
-    rgba(217, 117, 244, 0.75),
-    rgba(64, 170, 241, 0.75)
-  );
-}
-
-input[type='file'] {
-  display: none;
-}
-</style>
