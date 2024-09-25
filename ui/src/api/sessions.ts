@@ -34,6 +34,14 @@ export interface SessionBase {
   images?: any[] | [];
 }
 
+export interface SessionTranscript {
+  sessionId: number;
+  status_new: 'PROCESSING' | 'COMPLETE';
+  paragraphs: any[];
+  sentences: any[];
+  transcript: any;
+}
+
 export interface GetSessionsRequest {
   offset?: number;
   limit?: number;
@@ -129,4 +137,8 @@ export const postTranscriptionRequest = (sessionId: number) => {
 
 export const deleteSessionAudio = (sessionId: number) => {
   return axios.delete(`/sessions/${sessionId}/audio`);
+};
+
+export const getSessionTranscript = (sessionId: number) => {
+  return axios.get(`/sessions/${sessionId}/transcript`);
 };

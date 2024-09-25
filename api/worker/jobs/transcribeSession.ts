@@ -8,7 +8,7 @@ import {
   sendWebsocketMessage,
   WebSocketEvent,
 } from '../../services/websockets';
-import { Session, TranscriptStatus } from '@prisma/client';
+import { Prisma, Session, TranscriptStatus } from '@prisma/client';
 import logger from '../../lib/logger';
 import { SpeechModel } from 'assemblyai/src/types/openapi.generated';
 import { sleep } from 'openai/core';
@@ -201,8 +201,11 @@ const processCompletedTranscript = async (
       sessionId,
     },
     data: {
-      transcript: fullTranscript as any,
+      transcript: Prisma.DbNull,
       transcriptExternalId: transcript.id,
+      status_new: TranscriptStatus.COMPLETE,
+      sentences,
+      paragraphs,
     },
   });
 

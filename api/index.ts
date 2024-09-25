@@ -20,7 +20,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { isLocalDevelopment, isProduction } from './lib/environments';
 import * as Sentry from '@sentry/node';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
-import { dailyCampaignContextQueue, endTrialQueue } from './worker';
+import { dailyCampaignContextQueue, endTrialQueue, migrateSessionTranscriptionQueue } from './worker';
 
 dotenv.config();
 
@@ -139,6 +139,12 @@ app.listen(PORT, async () => {
 
   await dailyCampaignContextQueue.add({}, { repeat: { cron: '0 7 * * *' } });
   logger.info('Daily campaign context sync job scheduled');
+
+  await dailyCampaignContextQueue.add({}, { repeat: { cron: '0 7 * * *' } });
+  logger.info('Daily campaign context sync job scheduled');
+
+  await migrateSessionTranscriptionQueue.add({}, { repeat: { cron: '0 7 * * *' } });
+  logger.info('Migrate Session Transcript job scheduled');
 });
 
 process.on('unhandledRejection', (reason: Error | any) => {
