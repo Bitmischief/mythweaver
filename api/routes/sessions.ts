@@ -301,4 +301,25 @@ router.post('/generate-summary', [
   },
 ]);
 
+router.get('/:sessionId/transcript', [
+  checkAuth0Jwt,
+  useInjectUserId(),
+  useInjectLoggingInfo(),
+  useValidateRequest(getSessionSchema, {
+    validationType: ValidationTypes.Route,
+  }),
+  async (req: Request, res: Response) => {
+    const controller = new SessionController();
+
+    const response = await controller.getTranscript(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      useLogger(),
+      req.params.sessionId as unknown as number,
+    );
+
+    return res.status(200).send(response);
+  },
+]);
+
 export default router;

@@ -108,7 +108,7 @@ const generateSummary = async () => {
     const summaryResponse = await postGenerateSummary({
       recap: session.value.recap,
     });
-    console.log(summaryResponse);
+
     session.value.summary = summaryResponse.data;
     await saveSession('summary');
   } catch {

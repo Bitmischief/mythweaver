@@ -11,7 +11,10 @@ interface DownloadYoutubeAudioEvent {
   sessionId: number;
 }
 
-export const youtubeAudioDownloaderQueue = new Queue<DownloadYoutubeAudioEvent>('youtube-audio-downloader', config);
+export const youtubeAudioDownloaderQueue = new Queue<DownloadYoutubeAudioEvent>(
+  'youtube-audio-downloader',
+  config,
+);
 
 youtubeAudioDownloaderQueue.process(async (job, done) => {
   logger.info('Processing YouTube audio download job', job.data);
@@ -26,7 +29,10 @@ youtubeAudioDownloaderQueue.process(async (job, done) => {
   }
 });
 
-async function downloadYoutubeAudio({ youtubeUrl, sessionId }: DownloadYoutubeAudioEvent) {
+async function downloadYoutubeAudio({
+  youtubeUrl,
+  sessionId,
+}: DownloadYoutubeAudioEvent) {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
   await page.goto(youtubeUrl);
@@ -36,7 +42,7 @@ async function downloadYoutubeAudio({ youtubeUrl, sessionId }: DownloadYoutubeAu
 
   const videoInfo = await ytdl.getInfo(youtubeUrl);
   const audioFormats = ytdl.filterFormats(videoInfo.formats, 'audioonly');
-  
+
   if (audioFormats.length === 0) {
     throw new Error('No audio formats available for this video');
   }

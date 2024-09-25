@@ -369,6 +369,8 @@ model SessionTranscription {
   status_new               TranscriptStatus @default(COMPLETE)
   transcription            Json?
   transcript               Json?
+  paragraphs               Json?
+  sentences                Json?
   transcriptSpeakerMapping Json?
   transcriptExternalId     String?
 
