@@ -5,6 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import { prisma } from '../../lib/providers/prisma';
 import logger from '../../lib/logger';
+import { config } from '../config';
 
 interface DownloadYoutubeAudioEvent {
   youtubeUrl: string;
