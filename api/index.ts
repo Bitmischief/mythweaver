@@ -65,9 +65,11 @@ try {
   console.log('Initializing express');
   const app: Application = express();
   
+  console.log('Initializing cors');
   app.use(cors());
   app.options('*', cors());
   
+  console.log('Initializing json body parser');
   app.use(
     express.json({
       verify(req: http.IncomingMessage, res: http.ServerResponse, buf: Buffer) {
@@ -76,8 +78,9 @@ try {
       limit: '5mb',
     }),
   );
-  
+
   if (!isLocalDevelopment) {
+    console.log('Initializing pino');
     app.use(
       pinoHTTP({
         logger: logger.internalLogger,
@@ -97,9 +100,11 @@ try {
     );
   }
   
+  console.log('Initializing static file middleware');
   app.use(express.static('public'));
   
   // Create the rate limit rule
+  console.log('Initializing api request limiter');
   const apiRequestLimiter = rateLimit({
     windowMs: 1 * 60 * 1000, // 1 minute
     max: 120, // limit each IP to 120 requests per windowMs
@@ -113,8 +118,10 @@ try {
   app.use(apiRequestLimiter);
   app.set('trust proxy', 1); // trust first proxy
   
+  console.log('Initializing routes');
   app.use(Router);
   
+  console.log('Initializing swagger');
   app.use(
     '/docs',
     swaggerUi.serve,
@@ -124,8 +131,8 @@ try {
       },
     }),
   );
-  
-  // The error handler must be registered before any other error middleware and after all controller
+
+  console.log('Initializing sentry error handler');
   Sentry.setupExpressErrorHandler(app);
   
   const errorHandlerMiddleware: ErrorRequestHandler = (
@@ -147,13 +154,13 @@ try {
   app.use(errorHandlerMiddleware);
   
   app.listen(PORT, async () => {
-    logger.info(`Server is running on port ${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
   
     await endTrialQueue.add({}, { repeat: { cron: '* * * * *' } });
-    logger.info('End trial job scheduled');
+    console.log('End trial job scheduled');
   
     await dailyCampaignContextQueue.add({}, { repeat: { cron: '0 7 * * *' } });
-    logger.info('Daily campaign context sync job scheduled');
+    console.log('Daily campaign context sync job scheduled');
   
     await migrateSessionTranscriptionQueue.add({});
   
@@ -161,17 +168,17 @@ try {
       {},
       { repeat: { cron: '0 7 * * *' } },
     );
-    logger.info('Migrate Session Transcript job scheduled');
+    console.log('Migrate Session Transcript job scheduled');
   });
   
   process.on('unhandledRejection', (reason: Error | any) => {
-    logger.error(`Unhandled Rejection: ${reason.message || reason}`);
+    console.error(`Unhandled Rejection: ${reason.message || reason}`);
   
     throw new Error(reason.message || reason);
   });
   
   process.on('uncaughtException', (error: Error) => {
-    logger.error(`Uncaught Exception: ${error.message}`);
+    console.error(`Uncaught Exception: ${error.message}`);
   
     errorHandler.handleError(error);
   });
