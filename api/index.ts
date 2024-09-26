@@ -147,13 +147,13 @@ app.listen(PORT, async () => {
   await dailyCampaignContextQueue.add({}, { repeat: { cron: '0 7 * * *' } });
   logger.info('Daily campaign context sync job scheduled');
 
-  await migrateSessionTranscriptionQueue.add({});
+  // await migrateSessionTranscriptionQueue.add({});
 
-  await migrateSessionTranscriptionQueue.add(
-    {},
-    { repeat: { cron: '0 7 * * *' } },
-  );
-  logger.info('Migrate Session Transcript job scheduled');
+  // await migrateSessionTranscriptionQueue.add(
+  //   {},
+  //   { repeat: { cron: '0 7 * * *' } },
+  // );
+  // logger.info('Migrate Session Transcript job scheduled');
 });
 
 process.on('unhandledRejection', (reason: Error | any) => {
