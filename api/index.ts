@@ -43,15 +43,15 @@ try {
       if (isLocalDevelopment) {
         return null;
       }
-  
+
       return event;
     },
   });
   console.log('Sentry initialized');
-} catch(err) {
+} catch (err) {
   console.error('Error initializing Sentry', err);
 }
-  
+
 // these imports have to live below sentry init for it to work properly for some reason
 import express, {
   Application,
@@ -64,11 +64,11 @@ import express, {
 try {
   console.log('Initializing express');
   const app: Application = express();
-  
+
   console.log('Initializing cors');
   app.use(cors());
   app.options('*', cors());
-  
+
   console.log('Initializing json body parser');
   app.use(
     express.json({
@@ -99,10 +99,10 @@ try {
       }),
     );
   }
-  
+
   console.log('Initializing static file middleware');
   app.use(express.static('public'));
-  
+
   // Create the rate limit rule
   console.log('Initializing api request limiter');
   const apiRequestLimiter = rateLimit({
@@ -114,13 +114,13 @@ try {
       });
     },
   });
-  
+
   app.use(apiRequestLimiter);
   app.set('trust proxy', 1); // trust first proxy
-  
+
   console.log('Initializing routes');
   app.use(Router);
-  
+
   console.log('Initializing swagger');
   app.use(
     '/docs',
@@ -134,7 +134,7 @@ try {
 
   console.log('Initializing sentry error handler');
   Sentry.setupExpressErrorHandler(app);
-  
+
   const errorHandlerMiddleware: ErrorRequestHandler = (
     err: any,
     req: Request,
@@ -150,38 +150,38 @@ try {
     );
     errorHandler.handleError(err, res);
   };
-  
+
   app.use(errorHandlerMiddleware);
-  
+
   app.listen(PORT, async () => {
     console.log(`Server is running on port ${PORT}`);
-  
+
     await endTrialQueue.add({}, { repeat: { cron: '* * * * *' } });
     console.log('End trial job scheduled');
-  
+
     await dailyCampaignContextQueue.add({}, { repeat: { cron: '0 7 * * *' } });
     console.log('Daily campaign context sync job scheduled');
-  
+
     await migrateSessionTranscriptionQueue.add({});
-  
+
     await migrateSessionTranscriptionQueue.add(
       {},
       { repeat: { cron: '0 7 * * *' } },
     );
     console.log('Migrate Session Transcript job scheduled');
   });
-  
+
   process.on('unhandledRejection', (reason: Error | any) => {
     console.error(`Unhandled Rejection: ${reason.message || reason}`);
-  
+
     throw new Error(reason.message || reason);
   });
-  
+
   process.on('uncaughtException', (error: Error) => {
     console.error(`Uncaught Exception: ${error.message}`);
-  
+
     errorHandler.handleError(error);
   });
-} catch(err) {
+} catch (err) {
   console.error('Error initializing app', err);
 }
