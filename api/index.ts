@@ -156,18 +156,54 @@ try {
   app.listen(PORT, async () => {
     console.log(`Server is running on port ${PORT}`);
 
-    await endTrialQueue.add({}, { repeat: { cron: '* * * * *' } });
-    console.log('End trial job scheduled');
+    // End trial job
+    const existingEndTrialJob = await endTrialQueue.getRepeatableJobs();
+    if (!existingEndTrialJob.some((job) => job.id === 'end-trial-job')) {
+      await endTrialQueue.add(
+        {},
+        {
+          repeat: { cron: '* * * * *' },
+          jobId: 'end-trial-job',
+        },
+      );
+      console.log('End trial job scheduled');
+    } else {
+      console.log('End trial job already scheduled');
+    }
 
-    await dailyCampaignContextQueue.add({}, { repeat: { cron: '0 7 * * *' } });
-    console.log('Daily campaign context sync job scheduled');
+    // Daily campaign context job
+    const existingDailyCampaignJob =
+      await dailyCampaignContextQueue.getRepeatableJobs();
+    if (
+      !existingDailyCampaignJob.some(
+        (job) => job.id === 'daily-campaign-context-job',
+      )
+    ) {
+      await dailyCampaignContextQueue.add(
+        {},
+        {
+          repeat: { cron: '0 7 * * *' },
+          jobId: 'daily-campaign-context-job',
+        },
+      );
+      console.log('Daily campaign context sync job scheduled');
+    } else {
+      console.log('Daily campaign context sync job already scheduled');
+    }
 
-    await migrateSessionTranscriptionQueue.add({});
-
-    await migrateSessionTranscriptionQueue.add(
-      {},
-      { repeat: { cron: '0 7 * * *' } },
+    const migrateSessionTranscriptJobId = 'migrate-session-transcript-one-off';
+    const existingMigrateSessionJob = await dailyCampaignContextQueue.getJob(
+      migrateSessionTranscriptJobId,
     );
+
+    if (!existingMigrateSessionJob) {
+      await migrateSessionTranscriptionQueue.add(
+        {},
+        {
+          jobId: migrateSessionTranscriptJobId,
+        },
+      );
+    }
     console.log('Migrate Session Transcript job scheduled');
   });
 
