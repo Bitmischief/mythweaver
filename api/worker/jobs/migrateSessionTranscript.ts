@@ -3,6 +3,7 @@ import { config } from '../config';
 import logger from '../../lib/logger';
 import { prisma } from '../../lib/providers/prisma';
 import { Prisma, SessionTranscription } from '@prisma/client';
+import { processInChunks } from '../../lib/utils';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface MigrateSessionTranscriptionEvent {}
@@ -27,30 +28,19 @@ migrateSessionTranscriptionQueue.process(async (job, done) => {
 });
 
 async function migrateSessionTranscriptionSentences() {
-  const batchSize = 100;
   let processedCount = 0;
-  let lastProcessedId: number | null = null;
 
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
-    const sessionTranscriptions: SessionTranscription[] =
-      await prisma.sessionTranscription.findMany({
-        take: batchSize,
-        where: {
-          sessionId: {
-            gt: lastProcessedId ?? undefined,
-          },
-        },
+  await processInChunks<SessionTranscription>(
+    5,
+    (skip, take) =>
+      prisma.sessionTranscription.findMany({
+        skip,
+        take,
         orderBy: {
           sessionId: 'asc',
         },
-      });
-
-    if (sessionTranscriptions.length === 0) {
-      break;
-    }
-
-    for (const transcription of sessionTranscriptions) {
+      }),
+    async (transcription) => {
       const updateData: Prisma.SessionTranscriptionUpdateInput = {
         transcript: transcription.transcription as any,
         transcription: Prisma.DbNull,
@@ -75,14 +65,11 @@ async function migrateSessionTranscriptionSentences() {
       });
 
       processedCount++;
-      lastProcessedId = transcription.sessionId;
       logger.info(
         `Migrated data for SessionTranscription with sessionId: ${transcription.sessionId}`,
       );
-    }
-
-    logger.info(`Processed ${processedCount} records so far`);
-  }
+    },
+  );
 
   logger.info(
     `Migration completed. Total records processed: ${processedCount}`,
