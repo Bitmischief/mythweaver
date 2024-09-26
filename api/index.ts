@@ -1,11 +1,4 @@
 import dotenv from 'dotenv';
-import express, {
-  Application,
-  ErrorRequestHandler,
-  NextFunction,
-  Request,
-  Response,
-} from 'express';
 import swaggerUi from 'swagger-ui-express';
 import Router from './routes';
 import { errorHandler } from './lib/errors/ErrorHandler';
@@ -30,8 +23,6 @@ dotenv.config();
 
 const PORT = process.env.PORT || 8000;
 
-const app: Application = express();
-
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
   integrations: [nodeProfilingIntegration],
@@ -53,6 +44,16 @@ Sentry.init({
     return event;
   },
 });
+
+// these imports have to live below sentry init for it to work properly for some reason
+import express, {
+  Application,
+  ErrorRequestHandler,
+  NextFunction,
+  Request,
+  Response,
+} from 'express';
+const app: Application = express();
 
 app.use(cors());
 app.options('*', cors());

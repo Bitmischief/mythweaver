@@ -53,6 +53,25 @@ onMounted(async () => {
 const sessionLoading = ref(true);
 const transcript = ref<SessionTranscript | null>(null);
 
+// Add these new refs
+const showFullTranscript = ref(false);
+const maxInitialLines = 50;
+
+// Add this computed property
+const visibleTranscript = computed(() => {
+  if (!transcript.value) return [];
+  const segments =
+    transcript.value.sentences || transcript.value.transcript?.segments || [];
+  return showFullTranscript.value
+    ? segments
+    : segments.slice(0, maxInitialLines);
+});
+
+// Add this method to toggle full transcript visibility
+const toggleFullTranscript = () => {
+  showFullTranscript.value = !showFullTranscript.value;
+};
+
 async function init() {
   await loadTranscript();
 
@@ -235,10 +254,9 @@ const emit = defineEmits(['seek']);
     <div v-if="transcript === null && !loadingTranscribeSession" class="p-4">
       No transcription is available for this session yet.
     </div>
-    <div v-if="transcript && !loadingTranscribeSession" class="p-4">
+    <div v-else-if="transcript && !loadingTranscribeSession" class="p-4">
       <div
-        v-for="(s, i) in transcript?.sentences ||
-        transcript?.transcript?.segments"
+        v-for="(s, i) in visibleTranscript"
         :key="`seg_${i}`"
         class="text-neutral-300 group hover:cursor-pointer flex mb-4"
         @click="handleTranscriptClick(s.start)"
@@ -259,8 +277,22 @@ const emit = defineEmits(['seek']);
           {{ s.text }}
         </div>
       </div>
+
+      <button
+        v-if="
+          (transcript?.sentences || transcript?.transcript?.segments || [])
+            .length > maxInitialLines
+        "
+        class="mt-4 px-4 py-2 bg-violet-600 text-white rounded hover:bg-violet-700 transition-colors"
+        @click="toggleFullTranscript"
+      >
+        {{ showFullTranscript ? 'Show Less' : 'Show Full Transcript' }}
+      </button>
     </div>
-    <div v-if="currentUserRole === CampaignRole.DM && !readOnly" class="p-4">
+    <div
+      v-else-if="currentUserRole === CampaignRole.DM && !readOnly"
+      class="p-4"
+    >
       <button
         v-if="session.audioUri"
         class="button-gradient mr-2"
