@@ -5,7 +5,6 @@ import { checkImageStatusQueue } from './jobs/imageStatus';
 import { indexCampaignContextQueue } from './jobs/indexCampaignContext';
 import { sessionTranscriptionQueue } from './jobs/transcribeSession';
 import { dailyCampaignContextQueue } from './jobs/dailyCampaignContextSync';
-import { migrateSessionTranscriptionQueue } from './jobs/migrateSessionTranscript';
 
 export {
   processTagsQueue,
@@ -15,5 +14,4 @@ export {
   indexCampaignContextQueue,
   sessionTranscriptionQueue,
   dailyCampaignContextQueue,
-  migrateSessionTranscriptionQueue,
 };

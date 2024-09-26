@@ -83,7 +83,7 @@
     "pino": "^8.18.0",
     "pino-http": "^9.0.0",
     "pino-pretty": "^11.2.2",
-    "puppeteer": "^23.4.0",
+    "puppeteer": "^23.4.1",
     "pusher": "^5.2.0",
     "stripe": "^14.21.0",
     "swagger-ui-express": "^5.0.0",

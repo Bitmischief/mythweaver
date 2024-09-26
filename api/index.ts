@@ -13,11 +13,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { isLocalDevelopment, isProduction } from './lib/environments';
 import * as Sentry from '@sentry/node';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
-import {
-  dailyCampaignContextQueue,
-  endTrialQueue,
-  migrateSessionTranscriptionQueue,
-} from './worker';
+import { dailyCampaignContextQueue, endTrialQueue } from './worker';
 
 console.log('Initializing env vars');
 dotenv.config();
@@ -190,21 +186,6 @@ try {
     } else {
       console.log('Daily campaign context sync job already scheduled');
     }
-
-    const migrateSessionTranscriptJobId = 'migrate-session-transcript-one-off';
-    const existingMigrateSessionJob = await dailyCampaignContextQueue.getJob(
-      migrateSessionTranscriptJobId,
-    );
-
-    if (!existingMigrateSessionJob) {
-      await migrateSessionTranscriptionQueue.add(
-        {},
-        {
-          jobId: migrateSessionTranscriptJobId,
-        },
-      );
-    }
-    console.log('Migrate Session Transcript job scheduled');
   });
 
   process.on('unhandledRejection', (reason: Error | any) => {

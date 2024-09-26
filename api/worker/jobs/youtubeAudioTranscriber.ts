@@ -66,7 +66,7 @@ async function downloadYoutubeAudio({
 
         resolve();
       })
-      .on('error', (error) => {
+      .on('error', (error: Error) => {
         reject(error);
       });
   });
