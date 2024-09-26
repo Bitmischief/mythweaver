@@ -13,7 +13,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { isLocalDevelopment, isProduction } from './lib/environments';
 import * as Sentry from '@sentry/node';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
-import { dailyCampaignContextQueue, endTrialQueue, retranscribeSessionsQueue } from './worker';
+import {
+  dailyCampaignContextQueue,
+  endTrialQueue,
+  retranscribeSessionsQueue,
+} from './worker';
 
 console.log('Initializing env vars');
 dotenv.config();
