@@ -128,7 +128,7 @@ spec:
               value: <INTERNAL_EMAIL_SERVICE_TOKEN>
           readinessProbe:
             httpGet:
-              path: /docs
+              path: /version
               port: 8000
 ---
 apiVersion: autoscaling/v2
