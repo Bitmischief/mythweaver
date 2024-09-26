@@ -19,32 +19,39 @@ import {
   migrateSessionTranscriptionQueue,
 } from './worker';
 
+console.log('Initializing env vars');
 dotenv.config();
 
 const PORT = process.env.PORT || 8000;
 
-Sentry.init({
-  dsn: process.env.SENTRY_DSN,
-  integrations: [nodeProfilingIntegration],
-  environment: isProduction
-    ? 'production'
-    : isLocalDevelopment
-      ? 'local'
-      : 'development',
-  release: process.env.VERSION,
-  // Performance Monitoring
-  tracesSampleRate: isProduction ? 0.1 : 1.0, //  Capture 100% of the transactions
-  // Set sampling rate for profiling - this is relative to tracesSampleRate
-  profilesSampleRate: 1.0,
-  beforeSend(event) {
-    if (isLocalDevelopment) {
-      return null;
-    }
-
-    return event;
-  },
-});
-
+try {
+  console.log('Initializing sentry');
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    integrations: [nodeProfilingIntegration],
+    environment: isProduction
+      ? 'production'
+      : isLocalDevelopment
+        ? 'local'
+        : 'development',
+    release: process.env.VERSION,
+    // Performance Monitoring
+    tracesSampleRate: isProduction ? 0.1 : 1.0, //  Capture 100% of the transactions
+    // Set sampling rate for profiling - this is relative to tracesSampleRate
+    profilesSampleRate: 1.0,
+    beforeSend(event) {
+      if (isLocalDevelopment) {
+        return null;
+      }
+  
+      return event;
+    },
+  });
+  console.log('Sentry initialized');
+} catch(err) {
+  console.error('Error initializing Sentry', err);
+}
+  
 // these imports have to live below sentry init for it to work properly for some reason
 import express, {
   Application,
@@ -53,118 +60,121 @@ import express, {
   Request,
   Response,
 } from 'express';
-const app: Application = express();
 
-app.use(cors());
-app.options('*', cors());
-
-app.use(
-  express.json({
-    verify(req: http.IncomingMessage, res: http.ServerResponse, buf: Buffer) {
-      (req as any).rawBody = buf;
-    },
-    limit: '5mb',
-  }),
-);
-
-if (!isLocalDevelopment) {
+try {
+  console.log('Initializing express');
+  const app: Application = express();
+  
+  app.use(cors());
+  app.options('*', cors());
+  
   app.use(
-    pinoHTTP({
-      logger: logger.internalLogger,
-      genReqId: function (req, res) {
-        const existingID = req.id ?? req.headers['x-request-id'];
-        if (existingID) return existingID;
-        const id = uuidv4();
-        res.setHeader('X-Request-Id', id);
-        return id;
+    express.json({
+      verify(req: http.IncomingMessage, res: http.ServerResponse, buf: Buffer) {
+        (req as any).rawBody = buf;
       },
-      customProps: function (req, res) {
-        return {
-          requestId: getRequestId(req, res),
-        };
+      limit: '5mb',
+    }),
+  );
+  
+  if (!isLocalDevelopment) {
+    app.use(
+      pinoHTTP({
+        logger: logger.internalLogger,
+        genReqId: function (req, res) {
+          const existingID = req.id ?? req.headers['x-request-id'];
+          if (existingID) return existingID;
+          const id = uuidv4();
+          res.setHeader('X-Request-Id', id);
+          return id;
+        },
+        customProps: function (req, res) {
+          return {
+            requestId: getRequestId(req, res),
+          };
+        },
+      }),
+    );
+  }
+  
+  app.use(express.static('public'));
+  
+  // Create the rate limit rule
+  const apiRequestLimiter = rateLimit({
+    windowMs: 1 * 60 * 1000, // 1 minute
+    max: 120, // limit each IP to 120 requests per windowMs
+    handler: function (req, res /*next*/) {
+      return res.status(429).json({
+        error: 'You sent too many requests. Please wait a while then try again',
+      });
+    },
+  });
+  
+  app.use(apiRequestLimiter);
+  app.set('trust proxy', 1); // trust first proxy
+  
+  app.use(Router);
+  
+  app.use(
+    '/docs',
+    swaggerUi.serve,
+    swaggerUi.setup(undefined, {
+      swaggerOptions: {
+        url: '/swagger.json',
       },
     }),
   );
+  
+  // The error handler must be registered before any other error middleware and after all controller
+  Sentry.setupExpressErrorHandler(app);
+  
+  const errorHandlerMiddleware: ErrorRequestHandler = (
+    err: any,
+    req: Request,
+    res: Response,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    next: NextFunction,
+  ) => {
+    const localLogger = useLogger();
+    localLogger.error(
+      `Error handler middleware: ${err?.message}`,
+      { req, res },
+      err,
+    );
+    errorHandler.handleError(err, res);
+  };
+  
+  app.use(errorHandlerMiddleware);
+  
+  app.listen(PORT, async () => {
+    logger.info(`Server is running on port ${PORT}`);
+  
+    await endTrialQueue.add({}, { repeat: { cron: '* * * * *' } });
+    logger.info('End trial job scheduled');
+  
+    await dailyCampaignContextQueue.add({}, { repeat: { cron: '0 7 * * *' } });
+    logger.info('Daily campaign context sync job scheduled');
+  
+    await migrateSessionTranscriptionQueue.add({});
+  
+    await migrateSessionTranscriptionQueue.add(
+      {},
+      { repeat: { cron: '0 7 * * *' } },
+    );
+    logger.info('Migrate Session Transcript job scheduled');
+  });
+  
+  process.on('unhandledRejection', (reason: Error | any) => {
+    logger.error(`Unhandled Rejection: ${reason.message || reason}`);
+  
+    throw new Error(reason.message || reason);
+  });
+  
+  process.on('uncaughtException', (error: Error) => {
+    logger.error(`Uncaught Exception: ${error.message}`);
+  
+    errorHandler.handleError(error);
+  });
+} catch(err) {
+  console.error('Error initializing app', err);
 }
-
-app.use(express.static('public'));
-
-// Create the rate limit rule
-const apiRequestLimiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 1 minute
-  max: 120, // limit each IP to 120 requests per windowMs
-  handler: function (req, res /*next*/) {
-    return res.status(429).json({
-      error: 'You sent too many requests. Please wait a while then try again',
-    });
-  },
-});
-
-app.use(apiRequestLimiter);
-app.set('trust proxy', 1); // trust first proxy
-
-app.use(Router);
-
-app.use(
-  '/docs',
-  swaggerUi.serve,
-  swaggerUi.setup(undefined, {
-    swaggerOptions: {
-      url: '/swagger.json',
-    },
-  }),
-);
-
-// The error handler must be registered before any other error middleware and after all controller
-Sentry.setupExpressErrorHandler(app);
-
-const errorHandlerMiddleware: ErrorRequestHandler = (
-  err: any,
-  req: Request,
-  res: Response,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  next: NextFunction,
-) => {
-  const localLogger = useLogger();
-  localLogger.error(
-    `Error handler middleware: ${err?.message}`,
-    { req, res },
-    err,
-  );
-  errorHandler.handleError(err, res);
-};
-
-app.use(errorHandlerMiddleware);
-
-app.listen(PORT, async () => {
-  logger.info(`Server is running on port ${PORT}`);
-
-  await endTrialQueue.add({}, { repeat: { cron: '* * * * *' } });
-  logger.info('End trial job scheduled');
-
-  await dailyCampaignContextQueue.add({}, { repeat: { cron: '0 7 * * *' } });
-  logger.info('Daily campaign context sync job scheduled');
-
-  await dailyCampaignContextQueue.add({}, { repeat: { cron: '0 7 * * *' } });
-  logger.info('Daily campaign context sync job scheduled');
-
-  await migrateSessionTranscriptionQueue.add({});
-
-  await migrateSessionTranscriptionQueue.add(
-    {},
-    { repeat: { cron: '0 7 * * *' } },
-  );
-  logger.info('Migrate Session Transcript job scheduled');
-});
-
-process.on('unhandledRejection', (reason: Error | any) => {
-  logger.error(`Unhandled Rejection: ${reason.message || reason}`);
-
-  throw new Error(reason.message || reason);
-});
-
-process.on('uncaughtException', (error: Error) => {
-  logger.error(`Uncaught Exception: ${error.message}`);
-
-  errorHandler.handleError(error);
-});
