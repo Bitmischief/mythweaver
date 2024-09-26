@@ -4,7 +4,7 @@ import logger from '../../lib/logger';
 import { config } from '../config';
 import { sessionTranscriptionQueue } from './transcribeSession';
 import { processInChunks } from '../../lib/utils';
-import { Prisma } from '@prisma/client';
+import { BillingPlan, Prisma } from '@prisma/client';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface RetranscribeSessionsEvent {}
@@ -35,6 +35,9 @@ const retranscribeSessions = async () => {
         where: {
           audioUri: {
             not: null,
+          },
+          user: {
+            plan: BillingPlan.PRO,
           },
         },
         skip,
