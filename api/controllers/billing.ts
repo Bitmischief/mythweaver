@@ -34,6 +34,7 @@ import { modifyImageCreditCount } from '../services/credits';
 import { postToDiscordBillingChannel } from '../services/discord';
 import { AdConversionEvent, reportAdConversionEvent } from '../lib/ads';
 import { differenceInDays } from 'date-fns';
+import { EmailTemplates, sendTransactionalEmail } from '../services/internal/email';
 
 const PRO_PLAN_IMAGE_CREDITS = 300;
 const BASIC_PLAN_IMAGE_CREDITS = 100;
@@ -345,6 +346,26 @@ export default class BillingController {
             value: subscriptionAmount,
           },
         });
+
+        const latestCampaignForUser = await prisma.campaign.findFirst({
+          where: {
+            userId: user.id,
+          },
+          orderBy: {
+            createdAt: 'desc',
+          }
+        });
+
+        await sendTransactionalEmail(user.email, EmailTemplates.SUBSCRIBER_WELCOME, [
+          { 
+            key: 'PLAN', 
+            value: plan 
+          },
+          {
+            key: 'CAMPAIGN',
+            value: latestCampaignForUser?.name || 'awesome',
+          }
+        ]);
       }
 
       // if is upgrade

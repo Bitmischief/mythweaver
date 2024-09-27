@@ -15,7 +15,7 @@ import { prisma } from '../lib/providers/prisma';
 import { Campaign, CampaignMember, ContextType } from '@prisma/client';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
-import { sendTransactionalEmail } from '../services/internal/email';
+import { EmailTemplates, sendTransactionalEmail } from '../services/internal/email';
 import { v4 as uuidv4 } from 'uuid';
 import { urlPrefix } from '../lib/utils';
 import { MythWeaverLogger } from '../lib/logger';
@@ -395,7 +395,7 @@ export default class CampaignController {
       },
     });
 
-    await sendTransactionalEmail(request.email, 'campaign-invite', [
+    await sendTransactionalEmail(request.email, EmailTemplates.CAMPAIGN_INVITE, [
       {
         key: 'SENDER_CAMPAIGN',
         value: campaign.name,
