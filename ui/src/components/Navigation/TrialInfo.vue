@@ -19,7 +19,7 @@ const earlyAccessEnds = () => {
     const now = new Date();
 
     return trialEndsAt.value
-      ? `Trial ends in ${formatDistance(now, cutoff)}`
+      ? `You will downgrade to our free plan in ${formatDistance(now, cutoff)}`
       : '';
   }
 };
@@ -27,7 +27,7 @@ const earlyAccessEnds = () => {
 
 <template>
   <div v-if="plan === BillingPlan.Trial" class="flex justify-center">
-    <div class="self-center flex md:mr-6 text-sm text-neutral-400">
+    <div class="self-center flex text-sm text-neutral-400">
       <div class="self-center">
         <span class="text-neutral-300 font-bold italic">
           {{ earlyAccessEnds() }}

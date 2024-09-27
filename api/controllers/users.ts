@@ -42,9 +42,7 @@ interface GetUserResponse {
   updatedAt?: Date;
   email: string;
 
-  earlyAccessCutoffAt: Date;
   trialEndsAt?: Date;
-  earlyAccessExempt: boolean;
   billingCustomerId?: string;
   subscriptionPaidThrough?: Date;
   plan: string;
@@ -200,10 +198,6 @@ export default class UserController {
         description: 'User not found.',
         httpCode: HttpCode.NOT_FOUND,
       });
-    }
-
-    if (!user.billingCustomerId) {
-      user.billingCustomerId = await createCustomer(user.email);
     }
 
     const subscription = await getSubscriptionForCustomer(

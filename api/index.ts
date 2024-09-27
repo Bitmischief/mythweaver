@@ -16,7 +16,8 @@ import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import {
   dailyCampaignContextQueue,
   endTrialQueue,
-  retranscribeSessionsQueue,
+  subscriptionPlanUpdateQueue,
+  expiredSubscriptionCheckQueue,
 } from './worker';
 
 console.log('Initializing env vars');
@@ -191,20 +192,46 @@ try {
       console.log('Daily campaign context sync job already scheduled');
     }
 
-    // Retranscribe job
-    const retranscribeJobId = 'retranscribe-v2';
-    const existingRetranscribeJob =
-      await retranscribeSessionsQueue.getJob(retranscribeJobId);
-    if (!existingRetranscribeJob) {
-      await retranscribeSessionsQueue.add(
+    // Expired subscription check job
+    const expiredSubscriptionCheckJobId = 'expired-subscription-check-job';
+    const existingExpiredSubscriptionCheckJob =
+      await expiredSubscriptionCheckQueue.getRepeatableJobs();
+    if (
+      !existingExpiredSubscriptionCheckJob.some(
+        (job) => job.id === expiredSubscriptionCheckJobId,
+      )
+    ) {
+      await expiredSubscriptionCheckQueue.add(
         {},
         {
-          jobId: retranscribeJobId,
+          repeat: { cron: '0 6 * * *' },
+          jobId: expiredSubscriptionCheckJobId,
         },
       );
-      console.log('Retranscribe job scheduled');
+      console.log('Daily expired subscription check job scheduled');
     } else {
-      console.log('Retranscribe job already scheduled');
+      console.log('Daily expired subscription check job already scheduled');
+    }
+
+    // Subscription Plan Change job
+    const subscriptionPlanUpdateJobId = 'subscription-plan-update-job';
+    const existingSubscriptionPlanUpdateJob =
+      await subscriptionPlanUpdateQueue.getRepeatableJobs();
+    if (
+      !existingSubscriptionPlanUpdateJob.some(
+        (job) => job.id === subscriptionPlanUpdateJobId,
+      )
+    ) {
+      await subscriptionPlanUpdateQueue.add(
+        {},
+        {
+          repeat: { cron: '0 * * * *' }, // Run every hour at the start of the hour
+          jobId: subscriptionPlanUpdateJobId,
+        },
+      );
+      console.log('Hourly subscription plan update job scheduled');
+    } else {
+      console.log('Hourly subscription plan update job already scheduled');
     }
   });
 

@@ -10,8 +10,6 @@ const channel = useWebsocketChannel();
 const authStore = useAuthStore();
 const eventBus = useEventBus();
 
-const earlyAccessExempt = computed(() => authStore.user?.earlyAccessExempt);
-
 defineProps<{
   collapsed?: boolean;
 }>();
@@ -76,14 +74,7 @@ const showConjurationCount = computed(() => {
       <div
         class="relative h-[2em] bg-surface rounded-full p-1 text-center text-neutral-400 font-bold px-2 overflow-hidden"
       >
-        <img
-          v-if="earlyAccessExempt"
-          src="@/assets/icons/infinity.png"
-          alt="infinity"
-          class="h-full mx-auto pb-[2px]"
-        />
         <div
-          v-else
           :class="{
             '-translate-y-6 duration-500 ease-out transition-transform':
               conjurationsIncreasing,

@@ -226,7 +226,7 @@ async function disconnectDiscord() {
                   <div>Mythweaver</div>
                   <PlanBadge />
                 </div>
-                <div v-if="!user.earlyAccessExempt" class="mt-6 w-full">
+                <div class="mt-6 w-full">
                   <button
                     v-if="user.plan && user.plan !== 'FREE'"
                     class="button-ghost-white mr-2"
@@ -250,17 +250,7 @@ async function disconnectDiscord() {
               >
                 <div class="text-sm text-neutral-400">Image Credit Count</div>
                 <div class="text-3xl flex">
-                  <span
-                    v-if="user.earlyAccessExempt"
-                    class="text-bold self-center mr-2"
-                  >
-                    <img
-                      src="@/assets/icons/infinity-lg.png"
-                      alt="infinity"
-                      class="h-14"
-                    />
-                  </span>
-                  <span v-else class="text-bold text-4xl">
+                  <span class="text-bold text-4xl">
                     {{ user.imageCredits }}
                   </span>
                   <span class="text-lg text-neutral-400 pt-1 px-1 self-center">
@@ -268,7 +258,7 @@ async function disconnectDiscord() {
                   </span>
                 </div>
 
-                <div v-if="!user.earlyAccessExempt" class="mt-6 w-full">
+                <div class="mt-6 w-full">
                   <button
                     v-if="user.plan"
                     class="button-ghost-white mr-2"
@@ -288,13 +278,7 @@ async function disconnectDiscord() {
             >
               <div class="text-lg">Billing Information</div>
               <div
-                v-if="user.earlyAccessExempt"
-                class="text-sm text-neutral-500 my-2"
-              >
-                You are currently in early access
-              </div>
-              <div
-                v-else-if="user.subscriptionPaidThrough"
+                v-if="user.subscriptionPaidThrough"
                 class="flex justify-between"
               >
                 <div class="text-sm text-neutral-500 my-2">
