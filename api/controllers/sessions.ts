@@ -16,7 +16,10 @@ import { AppError, HttpCode } from '../lib/errors/AppError';
 import { BillingPlan, Session } from '@prisma/client';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { CampaignRole } from './campaigns';
-import { sendTransactionalEmail } from '../services/internal/email';
+import {
+  EmailTemplates,
+  sendTransactionalEmail,
+} from '../services/internal/email';
 import { urlPrefix } from '../lib/utils';
 import { sendWebsocketMessage, WebSocketEvent } from '../services/websockets';
 import { MythWeaverLogger } from '../lib/logger';
@@ -333,20 +336,24 @@ export default class SessionController {
 
       if (!email) continue;
 
-      await sendTransactionalEmail(email, 'campaign-post-session', [
-        {
-          key: 'CAMPAIGN',
-          value: campaign.name,
-        },
-        {
-          key: 'SESSION_URL',
-          value: `${urlPrefix}/sessions/${session?.id}#overview`,
-        },
-        {
-          key: 'SUMMARY',
-          value: session.summary || '',
-        },
-      ]);
+      await sendTransactionalEmail(
+        email,
+        EmailTemplates.CAMPAIGN_POST_SESSION,
+        [
+          {
+            key: 'CAMPAIGN',
+            value: campaign.name,
+          },
+          {
+            key: 'SESSION_URL',
+            value: `${urlPrefix}/sessions/${session?.id}#overview`,
+          },
+          {
+            key: 'SUMMARY',
+            value: session.summary || '',
+          },
+        ],
+      );
     }
   }
 

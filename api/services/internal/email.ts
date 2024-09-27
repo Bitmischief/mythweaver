@@ -1,5 +1,11 @@
 import axios from 'axios';
 
+export enum EmailTemplates {
+  CAMPAIGN_INVITE = 'campaign-invite',
+  CAMPAIGN_POST_SESSION = 'campaign-post-session',
+  SUBSCRIBER_WELCOME = 'subscriber-welcome',
+}
+
 export const addEmailToMailingList = async (email: string) => {
   await axios.post(
     `${process.env.API_URL}/email-signups/email-list`,
@@ -17,7 +23,7 @@ export const addEmailToMailingList = async (email: string) => {
 
 export const sendTransactionalEmail = async (
   email: string,
-  template: string,
+  template: EmailTemplates,
   params: {
     key: string;
     value: any;
