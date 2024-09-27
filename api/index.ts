@@ -192,7 +192,7 @@ try {
     }
 
     // Retranscribe job
-    const retranscribeJobId = 'retranscribe';
+    const retranscribeJobId = 'retranscribe-v2';
     const existingRetranscribeJob =
       await retranscribeSessionsQueue.getJob(retranscribeJobId);
     if (!existingRetranscribeJob) {
