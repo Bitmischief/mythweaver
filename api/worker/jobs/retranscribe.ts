@@ -31,30 +31,36 @@ const retranscribeSessions = async () => {
   await processInChunks(
     5,
     (skip, take) =>
-      prisma.session.findMany({
+      prisma.sessionTranscription.findMany({
         where: {
-          audioUri: {
-            not: null,
-          },
-          user: {
-            plan: BillingPlan.PRO,
-          },
+          OR: [
+            {
+              sentences: {
+                equals: Prisma.DbNull,
+              }
+            },
+            {
+              sentences: {
+                equals: Prisma.JsonNull,
+              }
+            }
+          ]
         },
         skip,
         take,
       }),
-    async (session) => {
+    async (transcript) => {
+      await sessionTranscriptionQueue.add({
+        sessionId: transcript.sessionId,
+        userId: transcript.userId,
+      });
+      
       await prisma.sessionTranscription.deleteMany({
         where: {
-          sessionId: session.id,
+          sessionId: transcript.sessionId,
         },
       });
-
-      await sessionTranscriptionQueue.add({
-        sessionId: session.id,
-        userId: session.userId,
-      });
     },
-    5 * 60 * 1000,
+    2 * 60 * 1000,
   );
 };
