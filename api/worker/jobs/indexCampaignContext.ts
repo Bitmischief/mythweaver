@@ -9,7 +9,7 @@ import { getClient } from '../../lib/providers/openai';
 import { Campaign, ContextType, Prisma } from '@prisma/client';
 import logger from '../../lib/logger';
 import fs from 'node:fs';
-import { downloadFile } from '../../lib/utils';
+import { downloadFile, sleep } from '../../lib/utils';
 import {
   sendWebsocketMessage,
   WebSocketEvent,
@@ -226,6 +226,8 @@ const indexFile = async (
     file: fs.createReadStream(filename),
     purpose: 'assistants',
   });
+
+  await sleep(250);
   fs.unlinkSync(filename);
 
   await openai.beta.vectorStores.files.createAndPoll(
