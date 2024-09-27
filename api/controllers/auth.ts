@@ -29,12 +29,6 @@ interface RefreshRequest {
   refreshToken: string;
 }
 
-interface MagicLinkRequest {
-  email: string;
-  inviteCode?: string | undefined;
-  conjurationPrompt?: string | undefined;
-}
-
 @Route('auth')
 @Tags('Auth')
 export default class AuthController {

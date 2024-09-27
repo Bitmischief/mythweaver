@@ -42,9 +42,7 @@ interface GetUserResponse {
   updatedAt?: Date;
   email: string;
 
-  earlyAccessCutoffAt: Date;
   trialEndsAt?: Date;
-  earlyAccessExempt: boolean;
   billingCustomerId?: string;
   subscriptionPaidThrough?: Date;
   plan: string;

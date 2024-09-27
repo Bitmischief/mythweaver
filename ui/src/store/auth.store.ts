@@ -44,7 +44,6 @@ export const useAuthStore = defineStore({
         if (
           this.user &&
           this.user.plan === BillingPlan.Free &&
-          !this.user.earlyAccessExempt &&
           this.user.trialEndsAt &&
           Date.parse(this.user?.trialEndsAt) < Date.now()
         ) {

@@ -200,13 +200,8 @@ export default class BillingController {
     try {
       if (event.type === 'checkout.session.completed') {
         await this.processCheckoutSessionCompletedEvent(event, logger);
-      } else if (
-        event.type === 'customer.subscription.deleted' ||
-        event.type === 'customer.subscription.resumed'
-      ) {
+      } else if (event.type === 'customer.subscription.deleted') {
         await this.processSubscriptionDeletedOrResumedEvent(event);
-      } else if (event.type === 'customer.subscription.paused') {
-        await this.processSubscriptionPausedEvent(event);
       } else if (event.type === 'customer.subscription.updated') {
         await this.processSubscriptionUpdatedEvent(event);
       } else if (event.type === 'invoice.paid') {
@@ -272,6 +267,7 @@ export default class BillingController {
       },
       data: {
         subscriptionPaidThrough: planRenewalDate,
+        pendingPlanChange: BillingPlan.FREE,
       },
     });
 
@@ -352,47 +348,63 @@ export default class BillingController {
       user.createdAt || new Date(),
     );
 
-    if (user.plan === BillingPlan.FREE || user.plan === BillingPlan.TRIAL) {
-      track(AppEvent.NewSubscription, user.id, undefined, {
-        amount: subscriptionAmount,
-        plan,
-        daysSinceRegistration,
+    // if downgrade
+    if (
+      user.plan === BillingPlan.PRO &&
+      (plan === BillingPlan.BASIC || plan === BillingPlan.FREE)
+    ) {
+      await prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          pendingPlanChange: plan,
+          subscriptionPaidThrough: subscriptionEnd,
+        },
       });
+    } else {
+      if (user.plan === BillingPlan.FREE || user.plan === BillingPlan.TRIAL) {
+        track(AppEvent.NewSubscription, user.id, undefined, {
+          amount: subscriptionAmount,
+          plan,
+          daysSinceRegistration,
+        });
 
-      await postToDiscordBillingChannel(
-        `New subscription: ${user.email}! Amount: $${subscriptionAmount}. Days since registration: ${daysSinceRegistration}. ${user.initialTrackingData ? `Source: ${trackingString}` : ''}`,
-      );
+        await postToDiscordBillingChannel(
+          `New subscription: ${user.email}! Amount: $${subscriptionAmount}. Days since registration: ${daysSinceRegistration}. ${user.initialTrackingData ? `Source: ${trackingString}` : ''}`,
+        );
 
-      await reportAdConversionEvent(AdConversionEvent.Purchase, user, {
-        purchase: {
-          currency: 'USD',
-          value: subscriptionAmount,
+        await reportAdConversionEvent(AdConversionEvent.Purchase, user, {
+          purchase: {
+            currency: 'USD',
+            value: subscriptionAmount,
+          },
+        });
+      }
+
+      // if is upgrade
+      if (user.plan === BillingPlan.BASIC && plan === BillingPlan.PRO) {
+        await postToDiscordBillingChannel(
+          `New Upgrade: ${user.email}! Amount: $${subscriptionAmount}. Days since registration: ${daysSinceRegistration}. ${user.initialTrackingData ? `Source: ${trackingString}` : ''}`,
+        );
+
+        track(AppEvent.UpgradeSubscription, user.id, undefined, {
+          amount: subscriptionAmount,
+          plan,
+          daysSinceRegistration,
+        });
+      }
+
+      await prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          subscriptionPaidThrough: subscriptionEnd,
+          plan,
         },
       });
     }
-
-    // if is upgrade
-    if (user.plan === BillingPlan.BASIC && plan === BillingPlan.PRO) {
-      await postToDiscordBillingChannel(
-        `New Upgrade: ${user.email}! Amount: $${subscriptionAmount}. Days since registration: ${daysSinceRegistration}. ${user.initialTrackingData ? `Source: ${trackingString}` : ''}`,
-      );
-
-      track(AppEvent.UpgradeSubscription, user.id, undefined, {
-        amount: subscriptionAmount,
-        plan,
-        daysSinceRegistration,
-      });
-    }
-
-    await prisma.user.update({
-      where: {
-        id: user.id,
-      },
-      data: {
-        subscriptionPaidThrough: subscriptionEnd,
-        plan,
-      },
-    });
 
     await setIntercomCustomAttributes(user.id, {
       'Plan Renewal Date': subscriptionEnd,

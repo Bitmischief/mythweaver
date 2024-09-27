@@ -26,13 +26,10 @@ import {
   indexSessionContext,
 } from '../dataAccess/sessions';
 import { sessionTranscriptionQueue } from '../worker';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 interface PostCompleteSessionRequest {
   recap: string;
 }
-
-const openai = getClient();
 
 interface GetSessionsResponse {
   data: Session[];

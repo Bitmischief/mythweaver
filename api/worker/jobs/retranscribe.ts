@@ -4,7 +4,7 @@ import logger from '../../lib/logger';
 import { config } from '../config';
 import { sessionTranscriptionQueue } from './transcribeSession';
 import { processInChunks } from '../../lib/utils';
-import { BillingPlan, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface RetranscribeSessionsEvent {}
@@ -37,14 +37,14 @@ const retranscribeSessions = async () => {
             {
               sentences: {
                 equals: Prisma.DbNull,
-              }
+              },
             },
             {
               sentences: {
                 equals: Prisma.JsonNull,
-              }
-            }
-          ]
+              },
+            },
+          ],
         },
         skip,
         take,
@@ -54,7 +54,7 @@ const retranscribeSessions = async () => {
         sessionId: transcript.sessionId,
         userId: transcript.userId,
       });
-      
+
       await prisma.sessionTranscription.deleteMany({
         where: {
           sessionId: transcript.sessionId,

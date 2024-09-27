@@ -13,7 +13,6 @@ export interface User {
   username: string;
   createdAt: string;
   trialEndsAt: string;
-  earlyAccessExempt: boolean;
   plan: BillingPlan;
   subscriptionPaidThrough: string;
   imageCredits: number;

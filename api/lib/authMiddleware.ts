@@ -22,7 +22,7 @@ export const useAuthenticateServiceRequest = () => {
     const logger = useLogger();
 
     try {
-      const result = await expressServiceAuthentication(req, res);
+      const result = await expressServiceAuthentication(req);
 
       if (!result) {
         logger.error('Returning 401 for request', req);
@@ -39,7 +39,6 @@ export const useAuthenticateServiceRequest = () => {
 
 export async function expressServiceAuthentication(
   req: Request,
-  res: Response,
 ): Promise<boolean> {
   const logger = useLogger();
 
@@ -78,7 +77,7 @@ export const useInjectUserId = () => {
     });
 
     if (!user) {
-      user = await createNewUser(res, jwt.email, logger);
+      user = await createNewUser(res, jwt.email);
     }
 
     res.locals.auth = {
@@ -91,7 +90,7 @@ export const useInjectUserId = () => {
   };
 };
 
-const createNewUser = async (res: Response, email: string, logger: any) => {
+const createNewUser = async (res: Response, email: string) => {
   const earlyAccessEnd = new Date();
   earlyAccessEnd.setHours(new Date().getHours() + 24 * 7);
 
@@ -164,7 +163,7 @@ export const useAuthenticateRequest = () => {
       // Check for service token
       const serviceToken = req.headers['x-mw-token'];
       if (serviceToken) {
-        const result = await expressServiceAuthentication(req, res);
+        const result = await expressServiceAuthentication(req);
         if (result) {
           return next();
         }

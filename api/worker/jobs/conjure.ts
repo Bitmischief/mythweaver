@@ -1,6 +1,6 @@
 import Queue from 'bull';
 import { Generator, getGenerator } from '../../data/conjurers';
-import { BillingPlan, Campaign, ConjurationVisibility } from '@prisma/client';
+import { BillingPlan, ConjurationVisibility } from '@prisma/client';
 import { AppError, ErrorType, HttpCode } from '../../lib/errors/AppError';
 import { sanitizeJson, trimPlural } from '../../lib/utils';
 import { generateImage } from '../../services/images/imageGeneration';

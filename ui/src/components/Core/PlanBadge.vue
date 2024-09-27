@@ -21,8 +21,6 @@ const plan = computed(() => props.planOverride || user.value?.plan);
     v-if="user"
     class="self-center mx-2 text-white px-2 skew-x-[-20deg] rounded-tl-[5px] rounded-br-[5px] cursor-pointer"
     :class="{
-      'bg-gradient-to-r from-orange-500 to-orange-600 ':
-        !planOverride && user.earlyAccessExempt,
       'bg-slate-500': plan === BillingPlan.Free,
       'bg-gradient-to-r from-fuchsia-500 to-violet-500':
         plan === BillingPlan.Basic,
@@ -31,6 +29,6 @@ const plan = computed(() => props.planOverride || user.value?.plan);
     }"
     @click="eventBus.$emit('show-subscription-modal')"
   >
-    {{ user.earlyAccessExempt ? 'EA' : plan }}
+    {{ plan }}
   </div>
 </template>

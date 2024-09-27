@@ -16,10 +16,6 @@ const getGeneratorsSchema = z.object({
   limit: z.coerce.number().min(1).default(10).optional(),
 });
 
-const postGenerateMagicLinkSchema = z.object({
-  magicLink: z.string().uuid(),
-});
-
 router.get('/', [
   checkAuth0Jwt,
   useInjectUserId(),

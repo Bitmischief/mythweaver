@@ -12,7 +12,6 @@ import { BillingPlan } from '@/api/users.ts';
 const channel = useWebsocketChannel();
 const authStore = useAuthStore();
 
-const earlyAccessExempt = computed(() => authStore.user?.earlyAccessExempt);
 const imageCredit100PackPriceId = computed(
   () => import.meta.env.VITE_STRIPE_100_IMAGE_CREDITS_ID,
 );
@@ -65,7 +64,7 @@ const credits = computed(() => {
 });
 
 const clickCreditCount = () => {
-  if (authStore.user && !authStore.user.earlyAccessExempt) {
+  if (authStore.user) {
     showBuyImageCreditsModal.value = true;
   }
 };
@@ -84,14 +83,7 @@ const clickCreditCount = () => {
       <div
         class="relative h-[2em] bg-surface rounded-full p-1 text-center text-fuchsia-500 font-bold px-2 overflow-hidden"
       >
-        <img
-          v-if="earlyAccessExempt"
-          src="@/assets/icons/infinity.png"
-          alt="infinity"
-          class="h-full mx-auto pb-[2px]"
-        />
         <div
-          v-else
           :class="{
             '-translate-y-6 duration-500 ease-out transition-transform':
               creditsReducing,

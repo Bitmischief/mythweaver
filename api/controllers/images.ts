@@ -72,14 +72,12 @@ export default class ImageController {
       });
     }
 
-    if (!user.earlyAccessExempt) {
-      if (user.imageCredits < count) {
-        throw new AppError({
-          description:
-            'You do not have enough image credits to generate this many images. Please try with fewer images, or buy more credits.',
-          httpCode: HttpCode.BAD_REQUEST,
-        });
-      }
+    if (user.imageCredits < count) {
+      throw new AppError({
+        description:
+          'You do not have enough image credits to generate this many images. Please try with fewer images, or buy more credits.',
+        httpCode: HttpCode.BAD_REQUEST,
+      });
     }
 
     try {
@@ -188,14 +186,12 @@ export default class ImageController {
       });
     }
 
-    if (!user.earlyAccessExempt) {
-      if (user.imageCredits < 1) {
-        throw new AppError({
-          description:
-            'You do not have enough image credits to upscale this image.',
-          httpCode: HttpCode.BAD_REQUEST,
-        });
-      }
+    if (user.imageCredits < 1) {
+      throw new AppError({
+        description:
+          'You do not have enough image credits to upscale this image.',
+        httpCode: HttpCode.BAD_REQUEST,
+      });
     }
 
     upscaleImage(userId, imageId);

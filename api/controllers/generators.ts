@@ -196,14 +196,12 @@ export class GeneratorController {
       });
     }
 
-    if (!user.earlyAccessExempt) {
-      if (request.type !== 'text' && user.imageCredits < request.count) {
-        throw new AppError({
-          description:
-            'You do not have enough image credits to generate this many images. Please try with fewer images, or buy more credits.',
-          httpCode: HttpCode.BAD_REQUEST,
-        });
-      }
+    if (request.type !== 'text' && user.imageCredits < request.count) {
+      throw new AppError({
+        description:
+          'You do not have enough image credits to generate this many images. Please try with fewer images, or buy more credits.',
+        httpCode: HttpCode.BAD_REQUEST,
+      });
     }
 
     track(AppEvent.Conjure, userId, trackingInfo);

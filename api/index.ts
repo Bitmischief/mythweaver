@@ -60,6 +60,7 @@ import express, {
   Request,
   Response,
 } from 'express';
+import { expiredSubscriptionCheckQueue } from './worker/jobs/expiredSubscriptionCheck';
 
 try {
   console.log('Initializing express');
@@ -191,20 +192,25 @@ try {
       console.log('Daily campaign context sync job already scheduled');
     }
 
-    // Retranscribe job
-    const retranscribeJobId = 'retranscribe-v2';
-    const existingRetranscribeJob =
-      await retranscribeSessionsQueue.getJob(retranscribeJobId);
-    if (!existingRetranscribeJob) {
-      await retranscribeSessionsQueue.add(
+    // Daily campaign context job
+    const expiredSubscriptionCheckJobId = 'expired-subscription-check-job';
+    const existingExpiredSubscriptionCheckJob =
+      await expiredSubscriptionCheckQueue.getRepeatableJobs();
+    if (
+      !existingExpiredSubscriptionCheckJob.some(
+        (job) => job.id === expiredSubscriptionCheckJobId,
+      )
+    ) {
+      await expiredSubscriptionCheckQueue.add(
         {},
         {
-          jobId: retranscribeJobId,
+          repeat: { cron: '0 6 * * *' },
+          jobId: expiredSubscriptionCheckJobId,
         },
       );
-      console.log('Retranscribe job scheduled');
+      console.log('Daily expired subscription check job scheduled');
     } else {
-      console.log('Retranscribe job already scheduled');
+      console.log('Daily expired subscription check job already scheduled');
     }
   });
 

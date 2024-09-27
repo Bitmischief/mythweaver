@@ -61,10 +61,6 @@ const getSessionSchema = z.object({
   sessionId: z.coerce.number().default(0),
 });
 
-const patchSessionTranscriptionSchema = z.object({
-  status: z.string(),
-});
-
 router.get('/:sessionId', [
   checkAuth0Jwt,
   useInjectUserId(),
