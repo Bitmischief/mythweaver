@@ -9,10 +9,8 @@ import { processInChunks } from '../../lib/utils';
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface SubscriptionPlanUpdateEvent {}
 
-export const subscriptionPlanUpdateQueue = new Queue<SubscriptionPlanUpdateEvent>(
-  'subscription-plan-update',
-  config,
-);
+export const subscriptionPlanUpdateQueue =
+  new Queue<SubscriptionPlanUpdateEvent>('subscription-plan-update', config);
 
 subscriptionPlanUpdateQueue.process(async (job, done) => {
   logger.info('Processing nightly subscription plan update job');
@@ -34,8 +32,7 @@ const updateSubscriptionPlans = async () => {
     10,
     (skip: number, take: number) =>
       prisma.user.findMany({
-        where: 
-        {
+        where: {
           pendingPlanChangeEffectiveDate: {
             lte: currentDate,
           },
@@ -48,7 +45,9 @@ const updateSubscriptionPlans = async () => {
       }),
     async (user: User) => {
       if (!user.pendingPlanChange) {
-        logger.error('Somehow received a user without a pending plan change, returning');
+        logger.error(
+          'Somehow received a user without a pending plan change, returning',
+        );
         return;
       }
 

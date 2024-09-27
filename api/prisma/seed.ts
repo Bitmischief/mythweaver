@@ -12,7 +12,7 @@ import { createCustomer } from '../services/billing';
       billingCustomerId: await createCustomer(email),
     },
   ];
-  
+
   const imageModels = [
     {
       id: 1,
