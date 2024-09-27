@@ -88,12 +88,12 @@ const artistMoneyRaised = computed(() =>
     </div>
     <div class="flex bg-surface-2">
       <TrialInfo class="self-center" />
-      <div class="self-center mr-5">
-        <ConjurationLimit v-if="authStore.user" />
+      <div v-if="authStore.user" class="self-center mr-5">
+        <ConjurationLimit />
       </div>
       <UpdateChecker />
-      <div class="self-center mr-5">
-        <ImageCreditCount v-if="authStore.user" />
+      <div v-if="authStore.user" class="self-center mr-5">
+        <ImageCreditCount />
       </div>
       <Menu class="self-center">
         <MenuButton

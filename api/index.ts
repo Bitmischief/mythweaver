@@ -16,7 +16,8 @@ import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import {
   dailyCampaignContextQueue,
   endTrialQueue,
-  retranscribeSessionsQueue,
+  subscriptionPlanUpdateQueue,
+  expiredSubscriptionCheckQueue,
 } from './worker';
 
 console.log('Initializing env vars');
@@ -60,7 +61,6 @@ import express, {
   Request,
   Response,
 } from 'express';
-import { expiredSubscriptionCheckQueue } from './worker/jobs/expiredSubscriptionCheck';
 
 try {
   console.log('Initializing express');
@@ -192,7 +192,7 @@ try {
       console.log('Daily campaign context sync job already scheduled');
     }
 
-    // Daily campaign context job
+    // Expired subscription check job
     const expiredSubscriptionCheckJobId = 'expired-subscription-check-job';
     const existingExpiredSubscriptionCheckJob =
       await expiredSubscriptionCheckQueue.getRepeatableJobs();
@@ -211,6 +211,27 @@ try {
       console.log('Daily expired subscription check job scheduled');
     } else {
       console.log('Daily expired subscription check job already scheduled');
+    }
+
+    // Subscription Plan Change job
+    const subscriptionPlanUpdateJobId = 'subscription-plan-update-job';
+    const existingSubscriptionPlanUpdateJob =
+      await subscriptionPlanUpdateQueue.getRepeatableJobs();
+    if (
+      !existingSubscriptionPlanUpdateJob.some(
+        (job) => job.id === subscriptionPlanUpdateJobId,
+      )
+    ) {
+      await subscriptionPlanUpdateQueue.add(
+        {},
+        {
+          repeat: { cron: '0 * * * *' }, // Run every hour at the start of the hour
+          jobId: subscriptionPlanUpdateJobId,
+        },
+      );
+      console.log('Hourly subscription plan update job scheduled');
+    } else {
+      console.log('Hourly subscription plan update job already scheduled');
     }
   });
 

@@ -12,7 +12,6 @@ import { prisma } from '../lib/providers/prisma';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import {
-  createCustomer,
   getBillingPortalUrl,
   GetBillingPortalUrlRequest,
   getCheckoutUrl,
@@ -69,18 +68,6 @@ export default class BillingController {
       });
     }
 
-    if (!user.billingCustomerId) {
-      user.billingCustomerId = await createCustomer(user.email);
-      await prisma.user.update({
-        where: {
-          id: user.id,
-        },
-        data: {
-          billingCustomerId: user.billingCustomerId,
-        },
-      });
-    }
-
     return await getCheckoutUrl(
       user.billingCustomerId,
       body.priceId,
@@ -120,18 +107,6 @@ export default class BillingController {
       });
     }
 
-    if (!user.billingCustomerId) {
-      user.billingCustomerId = await createCustomer(user.email);
-      await prisma.user.update({
-        where: {
-          id: user.id,
-        },
-        data: {
-          billingCustomerId: user.billingCustomerId,
-        },
-      });
-    }
-
     return await getPreorderRedemptionSessionUrl(
       user.billingCustomerId,
       user.preorderRedemptionStripePriceId,
@@ -158,18 +133,6 @@ export default class BillingController {
       throw new AppError({
         description: 'User not found',
         httpCode: HttpCode.NOT_FOUND,
-      });
-    }
-
-    if (!user.billingCustomerId) {
-      user.billingCustomerId = await createCustomer(user.email);
-      await prisma.user.update({
-        where: {
-          id: user.id,
-        },
-        data: {
-          billingCustomerId: user.billingCustomerId,
-        },
       });
     }
 
@@ -201,7 +164,7 @@ export default class BillingController {
       if (event.type === 'checkout.session.completed') {
         await this.processCheckoutSessionCompletedEvent(event, logger);
       } else if (event.type === 'customer.subscription.deleted') {
-        await this.processSubscriptionDeletedOrResumedEvent(event);
+        await this.processSubscriptionDeletedEvent(event);
       } else if (event.type === 'customer.subscription.updated') {
         await this.processSubscriptionUpdatedEvent(event);
       } else if (event.type === 'invoice.paid') {
@@ -241,7 +204,7 @@ export default class BillingController {
     }
   }
 
-  private async processSubscriptionDeletedOrResumedEvent(
+  private async processSubscriptionDeletedEvent(
     event:
       | Stripe.CustomerSubscriptionDeletedEvent
       | Stripe.CustomerSubscriptionResumedEvent,
@@ -259,20 +222,21 @@ export default class BillingController {
       });
     }
 
-    const planRenewalDate = new Date(event.data.object.current_period_end);
+    const periodEnd = new Date(event.data.object.current_period_end);
 
     await prisma.user.update({
       where: {
         id: user.id,
       },
       data: {
-        subscriptionPaidThrough: planRenewalDate,
+        subscriptionPaidThrough: periodEnd,
         pendingPlanChange: BillingPlan.FREE,
+        pendingPlanChangeEffectiveDate: periodEnd,
       },
     });
 
     await setIntercomCustomAttributes(user.id, {
-      'Plan Renewal Date': planRenewalDate,
+      'Plan Renewal Date': periodEnd,
     });
   }
 
@@ -359,6 +323,7 @@ export default class BillingController {
         },
         data: {
           pendingPlanChange: plan,
+          pendingPlanChangeEffectiveDate: subscriptionEnd,
           subscriptionPaidThrough: subscriptionEnd,
         },
       });

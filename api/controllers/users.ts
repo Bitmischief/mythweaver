@@ -200,10 +200,6 @@ export default class UserController {
       });
     }
 
-    if (!user.billingCustomerId) {
-      user.billingCustomerId = await createCustomer(user.email);
-    }
-
     const subscription = await getSubscriptionForCustomer(
       user.billingCustomerId,
     );

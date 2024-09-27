@@ -5,7 +5,8 @@ import { checkImageStatusQueue } from './jobs/imageStatus';
 import { indexCampaignContextQueue } from './jobs/indexCampaignContext';
 import { sessionTranscriptionQueue } from './jobs/transcribeSession';
 import { dailyCampaignContextQueue } from './jobs/dailyCampaignContextSync';
-import { retranscribeSessionsQueue } from './jobs/retranscribe';
+import { expiredSubscriptionCheckQueue } from './jobs/expiredSubscriptionCheck';
+import { subscriptionPlanUpdateQueue } from './jobs/subscriptionPlanUpdate';
 
 export {
   processTagsQueue,
@@ -15,5 +16,6 @@ export {
   indexCampaignContextQueue,
   sessionTranscriptionQueue,
   dailyCampaignContextQueue,
-  retranscribeSessionsQueue,
+  expiredSubscriptionCheckQueue,
+  subscriptionPlanUpdateQueue,
 };

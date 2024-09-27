@@ -40,7 +40,7 @@ model User {
   email     String    @unique
 
   trialEndsAt                     DateTime?
-  billingCustomerId               String?
+  billingCustomerId               String
   subscriptionPaidThrough         DateTime?
   plan                            BillingPlan     @default(TRIAL)
   planInterval                    BillingInterval @default(MONTHLY)
@@ -53,6 +53,7 @@ model User {
   onboarded                       Boolean         @default(false)
   discordHandle                   String?
   pendingPlanChange               BillingPlan?
+  pendingPlanChangeEffectiveDate  DateTime?
 
   initialTrackingData Json?
 
