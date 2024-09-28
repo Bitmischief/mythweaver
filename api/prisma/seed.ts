@@ -1,5 +1,4 @@
 import { prisma } from '../lib/providers/prisma';
-import { createCustomer } from '../services/billing';
 
 (async () => {
   const email = process.env.LOCAL_DEV_USER_EMAIL || 'austin@mythweaver.co';
@@ -9,7 +8,7 @@ import { createCustomer } from '../services/billing';
       id: 1,
       email,
       username: 'bitmischief',
-      billingCustomerId: await createCustomer(email),
+      billingCustomerId: 'abc123',
     },
   ];
 
