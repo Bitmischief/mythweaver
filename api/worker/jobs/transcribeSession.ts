@@ -15,6 +15,10 @@ import { sleep } from 'openai/core';
 import { ProcessedTranscript } from '../../dataAccess/transcript';
 import { generateText } from '../../services/textGeneration';
 import { config } from '../config';
+import {
+  recapTranscript,
+  summarizeTranscript,
+} from '../../services/transcription';
 
 const client = new AssemblyAI({
   apiKey: process.env.ASSEMBLYAI_API_KEY as string,
@@ -70,6 +74,7 @@ export const transcribeSession = async (request: TranscribeSessionEvent) => {
         {},
         error,
       );
+
       await prisma.sessionTranscription.update({
         where: {
           sessionId: sessionId,
@@ -164,25 +169,15 @@ const processCompletedTranscript = async (
     });
   }
 
-  const recapPrompt =
-    "Provide a thorough recap of the transcript. For every 30 minutes of audio, there should be at least a paragraph in the recap to summarize. Respond with just the summary and don't include a preamble or introduction.";
+  if (!transcript.id) {
+    throw new AppError({
+      description: '',
+      httpCode: HttpCode.INTERNAL_SERVER_ERROR,
+    });
+  }
 
-  const { response: recap } = await client.lemur.task({
-    transcript_ids: [transcript.id],
-    prompt: recapPrompt,
-    context: 'This is a tabletop roleplaying game session',
-    final_model: 'anthropic/claude-3-5-sonnet',
-  });
-
-  const summaryPrompt =
-    "Provide an 8 sentence summary of the transcript. Respond with just the summary and don't include a preamble or introduction.";
-
-  const { response: summary } = await client.lemur.task({
-    transcript_ids: [transcript.id],
-    prompt: summaryPrompt,
-    context: 'This is a tabletop roleplaying game session',
-    final_model: 'anthropic/claude-3-5-sonnet',
-  });
+  const recap = await recapTranscript(transcript.id);
+  const summary = await summarizeTranscript(transcript.id);
 
   const { sentences } = await client.transcripts.sentences(transcript.id);
   const { paragraphs } = await client.transcripts.paragraphs(transcript.id);

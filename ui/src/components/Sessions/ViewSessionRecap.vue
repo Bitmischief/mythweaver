@@ -1,9 +1,11 @@
 <script lang="ts" setup>
 import {
   getSession,
+  getSessionTranscript,
   patchSession,
   postRecapTranscription,
   SessionBase,
+  SessionTranscript,
 } from '@/api/sessions.ts';
 import { onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
@@ -22,6 +24,7 @@ const currentUserRole = useCurrentUserRole();
 
 const originalSession = ref<SessionBase>({} as SessionBase);
 const session = ref<SessionBase>({} as SessionBase);
+const transcript = ref<SessionTranscript>({} as SessionTranscript);
 const processing = ref(false);
 
 useUnsavedChangesWarning(originalSession, session);
@@ -44,14 +47,21 @@ async function init() {
     parseInt(route.params.sessionId.toString()),
   );
   originalSession.value = response.data as SessionBase;
+
   session.value = { ...originalSession.value };
   processing.value = session.value.processing;
+
+  const transcriptResponse = await getSessionTranscript(
+    parseInt(route.params.sessionId.toString()),
+  );
+
+  transcript.value = transcriptResponse.data as SessionTranscript;
 }
 
 const recapLoading = ref(false);
 
 async function generateRecap() {
-  if (!session.value.sessionTranscription) {
+  if (!transcript.value) {
     showError({
       message: 'A session transcription is required to use this feature.',
     });
@@ -61,7 +71,7 @@ async function generateRecap() {
   try {
     recapLoading.value = true;
     const response = await postRecapTranscription(session.value.id);
-    session.value = response.data as SessionBase;
+    session.value.suggestedRecap = response.data.recap;
   } catch (e) {
     showError({ message: 'Failed to generate a recap. Please try again.' });
   } finally {
@@ -71,6 +81,7 @@ async function generateRecap() {
 
 function copySuggestedRecap() {
   session.value.recap = session.value.suggestedRecap;
+  session.value.suggestedRecap = '';
 }
 
 const unsavedChanges = ref(false);
@@ -89,6 +100,7 @@ async function saveRecap() {
     id: session.value.id,
     campaignId: session.value.campaignId,
     recap: session.value.recap,
+    suggestedRecap: session.value.suggestedRecap,
   });
 
   if (putSessionResponse.status === 200) {
@@ -147,6 +159,15 @@ async function saveRecap() {
     </div>
 
     <div class="flex gap-4">
+      <div>
+        <FormKit
+          v-if="currentUserRole === CampaignRole.DM && !session.archived"
+          type="submit"
+          label="Save"
+          input-class="$reset button-gradient"
+          :disabled="processing || !unsavedChanges"
+        />
+      </div>
       <div class="relative group/recap">
         <FormKit
           v-if="currentUserRole === CampaignRole.DM && !session.archived"
@@ -158,10 +179,10 @@ async function saveRecap() {
           "
           :input-class="`$reset button-ghost ${recapLoading ? 'animate-pulse' : ''}`"
           outer-class="mb-0"
-          :disabled="processing || !session.sessionTranscription"
+          :disabled="processing || !transcript"
           @click="generateRecap"
         />
-        <div class="tooltip-top group-hover/recap:block">
+        <div v-if="!transcript" class="tooltip-top group-hover/recap:block">
           A session transcript is required to use this feature.
           <div class="tooltip-arrow" />
         </div>

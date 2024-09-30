@@ -120,6 +120,7 @@ const patchSessionsSchema = z.object({
   suggestions: z.string().nullable().optional(),
   suggestedName: z.string().nullable().optional(),
   suggestedSummary: z.string().nullable().optional(),
+  suggestedRecap: z.string().nullable().optional(),
   suggestedSuggestions: z.string().nullable().optional(),
   date: z.coerce.date().nullable().optional(),
   isOver: z.boolean().nullable().optional(),
@@ -312,6 +313,29 @@ router.get('/:sessionId/transcript', [
       res.locals.trackingInfo,
       useLogger(),
       req.params.sessionId as unknown as number,
+    );
+
+    return res.status(200).send(response);
+  },
+]);
+
+router.post('/:sessionId/recap-transcription', [
+  checkAuth0Jwt,
+  useInjectUserId(),
+  useInjectLoggingInfo(),
+  useValidateRequest(getSessionSchema, {
+    validationType: ValidationTypes.Route,
+  }),
+  async (req: Request, res: Response) => {
+    const controller = new SessionController();
+
+    const { sessionId = 0 } = req.params;
+
+    const response = await controller.postRecapTranscription(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      useLogger(),
+      sessionId as number,
     );
 
     return res.status(200).send(response);

@@ -29,6 +29,7 @@ import {
   indexSessionContext,
 } from '../dataAccess/sessions';
 import { sessionTranscriptionQueue } from '../worker';
+import { recapTranscript } from '../services/transcription';
 
 interface PostCompleteSessionRequest {
   recap: string;
@@ -652,5 +653,92 @@ export default class SessionController {
     }
 
     return transcript;
+  }
+
+  @Security('jwt')
+  @OperationId('recapTranscription')
+  @Post('/:sessionId/recap-transcription')
+  public async postRecapTranscription(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
+    @Route() sessionId: number,
+  ) {
+    const session = await prisma.session.findUnique({
+      where: {
+        id: sessionId,
+      },
+      include: {
+        sessionTranscription: true,
+        images: {
+          where: {
+            primary: true,
+          },
+        },
+      },
+    });
+
+    if (!session) {
+      throw new AppError({
+        description: 'Session not found.',
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    if (session.userId !== null && session.userId !== userId) {
+      throw new AppError({
+        description: 'You do not have access to this session.',
+        httpCode: HttpCode.FORBIDDEN,
+      });
+    }
+
+    const campaignMember = await prisma.campaignMember.findUnique({
+      where: {
+        userId_campaignId: {
+          userId,
+          campaignId: session.campaignId,
+        },
+      },
+    });
+
+    if (!campaignMember || campaignMember.role !== CampaignRole.DM) {
+      throw new AppError({
+        description: 'You do not have permission to complete this session.',
+        httpCode: HttpCode.FORBIDDEN,
+      });
+    }
+
+    if (!session.sessionTranscription) {
+      throw new AppError({
+        description: 'Transcript not found.',
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    if (!session.sessionTranscription.transcriptExternalId) {
+      throw new AppError({
+        description: 'Transcript has no external id',
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    const recap = await recapTranscript(
+      session.sessionTranscription.transcriptExternalId,
+    );
+
+    await prisma.session.update({
+      where: {
+        id: session.id,
+      },
+      data: {
+        suggestedRecap: recap,
+      },
+    });
+
+    track(AppEvent.RecapSessionTranscription, userId, trackingInfo);
+
+    return {
+      recap,
+    };
   }
 }
