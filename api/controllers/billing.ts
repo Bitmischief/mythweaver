@@ -359,20 +359,24 @@ export default class BillingController {
           },
         });
 
-        await sendTransactionalEmail(
-          user.email,
-          EmailTemplates.SUBSCRIBER_WELCOME,
-          [
-            {
-              key: 'PLAN',
-              value: plan,
-            },
-            {
-              key: 'CAMPAIGN',
-              value: latestCampaignForUser?.name || 'awesome',
-            },
-          ],
-        );
+        try {
+          await sendTransactionalEmail(
+            user.email,
+            EmailTemplates.SUBSCRIBER_WELCOME,
+            [
+              {
+                key: 'PLAN',
+                value: plan,
+              },
+              {
+                key: 'CAMPAIGN',
+                value: latestCampaignForUser?.name || 'awesome',
+              },
+            ],
+          );
+        } catch(err) {
+          logger.error('Error sending subscriber welcome email', {}, err);
+        }
       }
 
       // if is upgrade
