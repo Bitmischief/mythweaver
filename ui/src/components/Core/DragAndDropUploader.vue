@@ -97,6 +97,7 @@ async function handleFileProcessed(request: {
         <button class="button-ghost-primary mx-auto" @click="triggerFileInput">
           Click to Upload Files
         </button>
+        <div class="text-neutral-500 text-small">(file size limit: 100MB)</div>
       </div>
     </div>
 
@@ -106,7 +107,7 @@ async function handleFileProcessed(request: {
       class="hidden"
       type="file"
       multiple
-      accept=".pdf, .docx, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/pdf"
+      accept=".pdf, .docx, .txt, application/text, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/pdf"
       @change="onInputChange"
     />
 
@@ -129,7 +130,7 @@ async function handleFileProcessed(request: {
       class="hidden"
       type="file"
       multiple
-      accept=".pdf, .docx, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/pdf"
+      accept=".pdf, .docx, .txt, application/text, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/pdf"
       @change="onInputChange"
     />
 
@@ -139,6 +140,7 @@ async function handleFileProcessed(request: {
     >
       Click to Upload Files
     </button>
+    <div class="text-neutral-500 text-small">(file size limit: 100MB)</div>
 
     <div v-if="files.length" class="w-full mt-4">
       <div class="text-md text-neutral-300">

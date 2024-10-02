@@ -4,7 +4,7 @@ import { AppError, HttpCode } from './errors/AppError';
 import { CampaignRole } from '../controllers/campaigns';
 import { useBuildFileUploader } from './fileUploadMiddleware';
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB;
+const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB;
 const ACCEPTED_FILE_TYPES = [
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   'application/pdf',

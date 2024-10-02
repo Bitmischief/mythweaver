@@ -76,32 +76,52 @@ const addManualFileToCampaignContext = async (
     });
   }
 
-  logger.info('Creating and uploading new context file');
-  const fileUri = `campaign-${campaign.id}-manual-${request.data.fileUpload.name}`;
+  logger.info('Creating and uploading new manual upload context file');
+  const internalFilename = `campaign-${campaign.id}-manual-${request.data.fileUpload.name}`;
 
-  await downloadFile(request.data.fileUpload.uri, fileUri);
+  try {
+    await downloadFile(request.data.fileUpload.uri, internalFilename);
 
-  await indexFile(
-    campaign,
-    request.data.fileUpload.uri,
-    request.data.fileUpload.name,
-    request.type,
-    {
+    await indexFile(
+      campaign,
+      request.data.fileUpload.uri,
+      request.data.fileUpload.name,
+      internalFilename,
+      request.type,
+      {
+        campaignId: campaign.id,
+        type: request.type,
+        uri: request.data.fileUpload.uri,
+        filename: request.data?.fileUpload?.name,
+      },
+    );
+
+    await sendWebsocketMessage(
+      campaign.userId,
+      WebSocketEvent.CampaignFileProcessed,
+      {
+        campaignId: request.campaignId,
+        filename: request.data.fileUpload.name,
+      },
+    );
+  } catch (error) {
+    logger.error('Error processing file upload', {
       campaignId: campaign.id,
-      type: request.type,
-      uri: request.data.fileUpload.uri,
-      filename: request.data?.fileUpload?.name,
-    },
-  );
-
-  await sendWebsocketMessage(
-    campaign.userId,
-    WebSocketEvent.CampaignFileProcessed,
-    {
-      campaignId: request.campaignId,
       filename: request.data.fileUpload.name,
-    },
-  );
+      error,
+    }, error);
+    throw new AppError({
+      description: 'Failed to process uploaded file.',
+      httpCode: HttpCode.INTERNAL_SERVER_ERROR,
+    });
+  } finally {
+    // Clean up the downloaded file if it exists
+    try {
+      fs.unlinkSync(internalFilename);
+    } catch (unlinkError) {
+      // Ignore errors if the file doesn't exist
+    }
+  }
 };
 
 const updateSessionContext = async (
@@ -132,6 +152,7 @@ const updateSessionContext = async (
 
   await indexFile(
     campaign,
+    filename,
     filename,
     filename,
     request.type,
@@ -171,6 +192,7 @@ const updateConjurationContext = async (
     campaign,
     filename,
     filename,
+    filename,
     request.type,
     {
       campaignId: campaign.id,
@@ -190,7 +212,7 @@ const updateCampaignContext = async (
   const filename = `campaign-${campaign.id}.json`;
   fs.writeFileSync(filename, JSON.stringify(campaign));
 
-  await indexFile(campaign, filename, filename, request.type, {
+  await indexFile(campaign, filename, filename, filename, request.type, {
     campaignId: campaign.id,
     type: ContextType.CAMPAIGN,
   });
@@ -200,6 +222,7 @@ const indexFile = async (
   campaign: Campaign,
   fileUri: string,
   filename: string,
+  internalFilename: string,
   type: ContextType,
   contextFileQuery: Prisma.ContextFilesWhereInput,
   sessionId: number | undefined = undefined,
@@ -223,12 +246,12 @@ const indexFile = async (
   }
 
   const file = await openai.files.create({
-    file: fs.createReadStream(filename),
+    file: fs.createReadStream(internalFilename),
     purpose: 'assistants',
   });
 
   await sleep(250);
-  fs.unlinkSync(filename);
+  fs.unlinkSync(internalFilename);
 
   await openai.beta.vectorStores.files.createAndPoll(
     (campaign.openAiConfig as any)?.vectorStoreId,
