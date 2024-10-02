@@ -374,7 +374,7 @@ export default class BillingController {
               },
             ],
           );
-        } catch(err) {
+        } catch (err) {
           logger.error('Error sending subscriber welcome email', {}, err);
         }
       }

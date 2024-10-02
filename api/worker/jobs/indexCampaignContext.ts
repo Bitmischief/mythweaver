@@ -105,11 +105,15 @@ const addManualFileToCampaignContext = async (
       },
     );
   } catch (error) {
-    logger.error('Error processing file upload', {
-      campaignId: campaign.id,
-      filename: request.data.fileUpload.name,
+    logger.error(
+      'Error processing file upload',
+      {
+        campaignId: campaign.id,
+        filename: request.data.fileUpload.name,
+        error,
+      },
       error,
-    }, error);
+    );
     throw new AppError({
       description: 'Failed to process uploaded file.',
       httpCode: HttpCode.INTERNAL_SERVER_ERROR,
