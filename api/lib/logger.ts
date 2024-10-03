@@ -16,12 +16,12 @@ export class MythWeaverLogger {
               colorize: true,
             },
           })
-        : {
+        : pino.transport({
             target: '@logtail/pino',
             options: {
               sourceToken: process.env.BETTERSTACK_LOGGER_SOURCE_TOKEN,
             },
-          };
+          });
 
     this.internalLogger = pino(
       {
