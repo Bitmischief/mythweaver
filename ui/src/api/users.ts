@@ -22,6 +22,8 @@ export interface User {
   amountSupportingArtistsUsd: number;
   onboarded: boolean;
   discordHandle: string;
+  pendingPlanChange: BillingPlan | undefined;
+  pendingPlanChangeEffectiveDate: Date | undefined;
 }
 
 export interface Subscription {

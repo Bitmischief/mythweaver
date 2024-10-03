@@ -281,7 +281,59 @@ async function disconnectDiscord() {
                 v-if="user.subscriptionPaidThrough"
                 class="flex justify-between"
               >
-                <div class="text-sm text-neutral-500 my-2">
+                <div
+                  v-if="
+                    !!user.pendingPlanChange &&
+                    user.pendingPlanChange !== BillingPlan.Free
+                  "
+                  class="text-sm text-neutral-500 my-2"
+                >
+                  Your
+                  <span class="text-neutral-200">
+                    {{ user.plan }}
+                  </span>
+                  plan will be downgraded to
+                  <span class="text-neutral-200">
+                    {{ user.pendingPlanChange }}
+                  </span>
+                  on
+                  <span
+                    v-if="user.pendingPlanChangeEffectiveDate"
+                    class="text-neutral-200"
+                  >
+                    {{
+                      format(
+                        user.pendingPlanChangeEffectiveDate,
+                        'MMM dd, yyyy',
+                      )
+                    }}
+                  </span>
+                </div>
+                <div
+                  v-else-if="
+                    !!user.pendingPlanChange &&
+                    user.pendingPlanChange === BillingPlan.Free
+                  "
+                  class="text-sm text-neutral-500 my-2"
+                >
+                  Your
+                  <span class="text-neutral-200">
+                    {{ user.plan }}
+                  </span>
+                  plan will cancelled on
+                  <span
+                    v-if="user.pendingPlanChangeEffectiveDate"
+                    class="text-neutral-200"
+                  >
+                    {{
+                      format(
+                        user.pendingPlanChangeEffectiveDate,
+                        'MMM dd, yyyy',
+                      )
+                    }}
+                  </span>
+                </div>
+                <div v-else class="text-sm text-neutral-500 my-2">
                   Your
                   <span class="text-neutral-200">
                     {{ user.plan }}
