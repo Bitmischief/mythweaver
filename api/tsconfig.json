@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "types": ["express"],
     "sourceMap": true,
     "target": "es2022",
     "module": "commonjs",
@@ -15,5 +16,9 @@
     // from generated source code references.
     // This improves issue grouping in Sentry.
     "sourceRoot": "/"
-  }
+  },
+  "include": [
+    "./**/*.ts",
+    "./types/**/*"
+  ]
 }

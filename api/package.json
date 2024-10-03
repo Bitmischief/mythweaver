@@ -59,6 +59,7 @@
     "assemblyai": "^4.7.0",
     "async-await-retry": "^2.1.0",
     "auth0": "^4.3.1",
+    "awilix": "^11.0.0",
     "axios": "^1.6.1",
     "body-parser": "^1.20.3",
     "bull": "^4.12.2",

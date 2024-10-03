@@ -14,10 +14,7 @@ import { AppError, HttpCode } from '../lib/errors/AppError';
 import { AppEvent, identify, track, TrackingInfo } from '../lib/tracking';
 import { MythWeaverLogger } from '../lib/logger';
 import { modifyImageCreditCount } from '../services/credits';
-import {
-  createCustomer,
-  getSubscriptionForCustomer,
-} from '../services/billing';
+import { StripeProvider } from '../providers/stripe';
 
 interface PatchUserRequest {
   campaignId?: number;
@@ -200,7 +197,8 @@ export default class UserController {
       });
     }
 
-    const subscription = await getSubscriptionForCustomer(
+    const stripeProvider = new StripeProvider();
+    const subscription = await stripeProvider.getSubscriptionForCustomer(
       user.billingCustomerId,
     );
 
@@ -223,7 +221,7 @@ export default class UserController {
       isPreOrder,
       preOrderValidUntil:
         isPreOrder && subscription.discount
-          ? new Date(subscription.discount?.end * 1000)
+          ? new Date(subscription.discount?.end || 0 * 1000)
           : undefined,
       isLifetimePreOrder: subscription.discount && !subscription.discount.end,
       subscriptionRenewalDate: subscription.current_period_end

@@ -3,7 +3,7 @@ import express from 'express';
 
 const router = express.Router();
 
-import billingRoutes from './billing';
+import billingRoutes from '../modules/billing/billing.routes';
 
 router.use(`/billing`, billingRoutes);
 
