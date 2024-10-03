@@ -93,7 +93,9 @@ export default class BillingController {
   @SuccessResponse('200', 'Success')
   public async getPortalUrl(
     @Inject() userId: number,
-    @Query() request: GetBillingPortalUrlRequest
+    @Query() upgrade?: boolean,
+    @Query() newPlanPriceId?: string,
+    @Query() redirectUri?: string
   ): Promise<string> {
     try {
       const user = await prisma.user.findUnique({
@@ -108,6 +110,12 @@ export default class BillingController {
           httpCode: HttpCode.INTERNAL_SERVER_ERROR,
         })
       }
+
+      const request: GetBillingPortalUrlRequest = {
+        upgrade,
+        newPlanPriceId,
+        redirectUri
+      };
 
       return await this.billingService.getBillingPortalUrl(user.billingCustomerId, request);
     } catch (error) {

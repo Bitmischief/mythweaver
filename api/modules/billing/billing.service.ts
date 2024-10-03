@@ -12,9 +12,14 @@ import { AppError, HttpCode } from '../../lib/errors/AppError';
 import { EmailTemplates, sendTransactionalEmail } from '../../services/internal/email';
 import { StripeProvider } from '../../providers/stripe';
 import Stripe from 'stripe';
+import { BillingDataProvider } from './billing.dataprovider';
 
 export class BillingService {
-  constructor(private logger: MythWeaverLogger, private stripeProvider: StripeProvider) {}
+  constructor(
+    private logger: MythWeaverLogger,
+    private stripeProvider: StripeProvider,
+    private billingDataProvider: BillingDataProvider
+  ) {}
 
   public async getCheckoutUrl(billingCustomerId: string, priceId: string, subscription: boolean): Promise<string> {
     return this.stripeProvider.getCheckoutUrl(billingCustomerId, priceId, subscription);
@@ -36,40 +41,41 @@ export class BillingService {
   }
 
   async processWebhookEvent(event: Stripe.Event): Promise<void> {
-    const existingStripeEvent = await prisma.processedStripeEvents.findUnique({
-      where: { eventId: event.id },
-    });
+    const existingStripeEvent = await this.billingDataProvider.findProcessedStripeEvent(event.id);
 
     if (existingStripeEvent) {
       this.logger.info(`Already processed stripe event ${event.id}, ignoring.`);
       return;
     }
 
-    const stripeEventLog = await prisma.processedStripeEvents.create({
-      data: { eventId: event.id, data: event as any },
-    });
+    const stripeEventLog = await this.billingDataProvider.createProcessedStripeEvent(event.id, event as any);
 
     try {
-      switch (event.type) {
-        case 'checkout.session.completed':
-          await this.processCheckoutSessionCompletedEvent(event);
-          break;
-        case 'customer.subscription.deleted':
-          await this.processSubscriptionDeletedEvent(event);
-          break;
-        case 'customer.subscription.updated':
-          await this.processSubscriptionUpdatedEvent(event);
-          break;
-        case 'invoice.paid':
-          await this.processInvoicePaidEvent(event);
-          break;
-        default:
-          this.logger.info(`Unhandled event type: ${event.type}`);
-      }
+      await this.handleStripeEvent(event);
     } catch (err) {
       this.logger.error('Error processing stripe event', { error: err });
-      await prisma.processedStripeEvents.delete({ where: { id: stripeEventLog.id } });
+      await this.billingDataProvider.deleteProcessedStripeEvent(stripeEventLog.id);
       throw err;
+    }
+  }
+
+  private async handleStripeEvent(event: Stripe.Event): Promise<void> {
+    switch (event.type) {
+      case 'checkout.session.completed':
+        await this.processCheckoutSessionCompletedEvent(event as Stripe.CheckoutSessionCompletedEvent);
+        break;
+      case 'customer.subscription.deleted':
+      case 'customer.subscription.resumed':
+        await this.processSubscriptionDeletedOrResumedEvent(event as Stripe.CustomerSubscriptionDeletedEvent | Stripe.CustomerSubscriptionResumedEvent);
+        break;
+      case 'customer.subscription.updated':
+        await this.processSubscriptionUpdatedEvent(event as Stripe.CustomerSubscriptionUpdatedEvent);
+        break;
+      case 'invoice.paid':
+        await this.processInvoicePaidEvent(event as Stripe.InvoicePaidEvent);
+        break;
+      default:
+        this.logger.info(`Unhandled event type: ${event.type}`);
     }
   }
 
@@ -81,43 +87,48 @@ export class BillingService {
       throw new AppError({
         description: "Unable to fetch session line items, aborting!",
         httpCode: HttpCode.INTERNAL_SERVER_ERROR,
-      })
+      });
     }
 
-    const imageCreditPack100 = lineItems.data.find(
-      (d) => d.price?.product === process.env.STRIPE_IMAGE_PACK_100_PRODUCT_ID
-    );
+    const imageCreditPack100 = this.findImageCreditPack(lineItems);
 
     if (imageCreditPack100) {
       await this.processItemPaid(
         session.customer as string,
         imageCreditPack100.price?.product as string,
-        session.amount_total || 0 / 100,
+        this.calculateAmountInDollars(session.amount_total),
         imageCreditPack100.quantity || 0
       );
     }
   }
 
-  private async processSubscriptionDeletedEvent(
+  private findImageCreditPack(lineItems: Stripe.ApiList<Stripe.LineItem>): Stripe.LineItem | undefined {
+    return lineItems.data.find(
+      (d) => d.price?.product === process.env.STRIPE_IMAGE_PACK_100_PRODUCT_ID
+    );
+  }
+
+  private calculateAmountInDollars(amountInCents: number | null): number {
+    return (amountInCents || 0) / 100;
+  }
+
+  private async processSubscriptionDeletedOrResumedEvent(
     event: Stripe.CustomerSubscriptionDeletedEvent | Stripe.CustomerSubscriptionResumedEvent
   ): Promise<void> {
-    const user = await this.getUserByBillingCustomerId(event.data.object.customer as string);
+    const user = await this.billingDataProvider.getUserByBillingCustomerId(event.data.object.customer as string);
     const periodEnd = new Date(event.data.object.current_period_end * 1000);
 
-    await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        subscriptionPaidThrough: periodEnd,
-        pendingPlanChange: BillingPlan.FREE,
-        pendingPlanChangeEffectiveDate: periodEnd,
-      },
+    await this.billingDataProvider.updateUserSubscription(user.id, {
+      subscriptionPaidThrough: periodEnd,
+      pendingPlanChange: BillingPlan.FREE,
+      pendingPlanChangeEffectiveDate: periodEnd,
     });
 
     await setIntercomCustomAttributes(user.id, { 'Plan Renewal Date': periodEnd });
   }
 
   private async processSubscriptionUpdatedEvent(event: Stripe.CustomerSubscriptionUpdatedEvent): Promise<void> {
-    const user = await this.getUserByBillingCustomerId(event.data.object.customer as string);
+    const user = await this.billingDataProvider.getUserByBillingCustomerId(event.data.object.customer as string);
 
     if (event.data.object.status !== 'active') {
       this.logger.info('Subscription status is not active, ignoring this webhook.', {
@@ -155,7 +166,7 @@ export class BillingService {
         const subscriptionProductId = curSubscription?.plan?.product as string;
 
         if (subscriptionProductId) {
-          const user = await this.getUserByBillingCustomerId(event.data.object.customer as string);
+          const user = await this.billingDataProvider.getUserByBillingCustomerId(event.data.object.customer as string);
 
           if (event.data.object.discount?.coupon.id === user.preorderRedemptionCoupon) {
             await this.processPreorderRedemption(user, event.data.object.subscription as string, curSubscription?.plan?.product as string);
@@ -181,7 +192,7 @@ export class BillingService {
     amountPaid: number,
     qty: number
   ): Promise<void> {
-    const user = await this.getUserByBillingCustomerId(billingCustomerId);
+    const user = await this.billingDataProvider.getUserByBillingCustomerId(billingCustomerId);
     const creditCount = this.getImageCreditCountForProductId(productId);
 
     await modifyImageCreditCount(
@@ -220,9 +231,9 @@ export class BillingService {
     const curCreditCount = this.getCreditCountForPlan(plan, interval);
     const prevCreditCount = prevPlan && amountPaid > 0 ? this.getCreditCountForPlan(prevPlan, prevInterval || BillingInterval.MONTHLY) : 0;
 
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { planInterval: interval, trialEndsAt: null },
+    await this.billingDataProvider.updateUserSubscription(user.id, {
+      planInterval: interval,
+      trialEndsAt: null,
     });
 
     const incrementCreditCount =
@@ -254,13 +265,10 @@ export class BillingService {
   }
 
   private async handleDowngrade(user: User, plan: BillingPlan, subscriptionEnd: Date): Promise<void> {
-    await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        pendingPlanChange: plan,
-        pendingPlanChangeEffectiveDate: subscriptionEnd,
-        subscriptionPaidThrough: subscriptionEnd,
-      },
+    await this.billingDataProvider.updateUserSubscription(user.id, {
+      pendingPlanChange: plan,
+      pendingPlanChangeEffectiveDate: subscriptionEnd,
+      subscriptionPaidThrough: subscriptionEnd,
     });
   }
 
@@ -277,9 +285,9 @@ export class BillingService {
       await this.handleUpgrade(user, plan, subscriptionEnd, subscriptionAmount, daysSinceRegistration);
     }
 
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { subscriptionPaidThrough: subscriptionEnd, plan },
+    await this.billingDataProvider.updateUserSubscription(user.id, {
+      subscriptionPaidThrough: subscriptionEnd,
+      plan,
     });
   }
 
@@ -330,31 +338,15 @@ export class BillingService {
     const subscriptionEnd = new Date(subscription.current_period_end * 1000);
     const plan = this.stripeProvider.getPlanForProductId(productId);
 
-    await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        preorderRedemptionCoupon: null,
-        preorderRedemptionStripePriceId: null,
-        trialEndsAt: null,
-        plan,
-        subscriptionPaidThrough: subscriptionEnd,
-      },
+    await this.billingDataProvider.updateUserSubscription(user.id, {
+      preorderRedemptionCoupon: null,
+      preorderRedemptionStripePriceId: null,
+      trialEndsAt: null,
+      plan,
+      subscriptionPaidThrough: subscriptionEnd,
     });
 
     track(AppEvent.PreorderSubscriptionRedemption, user.id);
-  }
-
-  private async getUserByBillingCustomerId(billingCustomerId: string): Promise<User> {
-    const user = await prisma.user.findFirst({ where: { billingCustomerId } });
-
-    if (!user) {
-      throw new AppError({
-        description: 'User not found',
-        httpCode: HttpCode.BAD_REQUEST,
-      });
-    }
-
-    return user;
   }
 
   private getPlanForProductId(productId: string): BillingPlan {
@@ -393,10 +385,7 @@ export class BillingService {
   }
 
   private async sendSubscriberWelcomeEmail(user: User, plan: BillingPlan): Promise<void> {
-    const latestCampaignForUser = await prisma.campaign.findFirst({
-      where: { userId: user.id },
-      orderBy: { createdAt: 'desc' },
-    });
+    const latestCampaignForUser = await this.billingDataProvider.getLatestCampaignForUser(user.id);
 
     try {
       await sendTransactionalEmail(user.email, EmailTemplates.SUBSCRIBER_WELCOME, [

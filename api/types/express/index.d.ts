@@ -5,6 +5,3 @@ declare module 'express-serve-static-core' {
     container: AwilixContainer;
   }
 }
-
-// This empty export is necessary to make this a module
-export {};

@@ -176,6 +176,8 @@ export class StripeProvider {
       return 100;
     }
 
+    logger.error('Unknown product id', { productId: process.env.STRIPE_IMAGE_PACK_100_PRODUCT_ID });
+
     throw new AppError({
       description: 'Unknown product id',
       httpCode: HttpCode.BAD_REQUEST,

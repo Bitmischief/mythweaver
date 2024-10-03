@@ -5,4 +5,5 @@ module.exports = {
   testTimeout: 30 * 1000,
   collectCoverage: true,
   coverageReporters: ['text', 'cobertura'],
+  testPathIgnorePatterns: ['/node_modules/', '/build/'],
 };

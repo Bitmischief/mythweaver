@@ -6,6 +6,7 @@ import { useInjectLoggingInfo } from '../../lib/loggingMiddleware';
 import { useValidateRequest, ValidationTypes } from '../../lib/validationMiddleware';
 import BillingController from './billing.controller';
 import { injectDependencies } from './billing.dependencies';
+import { StripeProvider } from '../../providers/stripe';
 
 const router = express.Router();
 
@@ -37,7 +38,8 @@ router.get('/redeem-preorder-url', [
   useInjectLoggingInfo(),
   injectDependencies,
   async (req: Request, res: Response) => {
-    const response = await res.locals.controller.getRedeemPreOrderUrl(
+    const controller = req.container.resolve<BillingController>('billingController');
+    const response = await controller.getRedeemPreOrderUrl(
       res.locals.auth.userId,
       res.locals.trackingInfo,
     );
@@ -60,9 +62,12 @@ router.get('/portal-url', [
   }),
   injectDependencies,
   async (req: Request, res: Response) => {
-    const response = await res.locals.controller.getPortalUrl(
+    const controller = req.container.resolve<BillingController>('billingController');
+    const response = await controller.getPortalUrl(
       res.locals.auth.userId,
-      req.query,
+      req.query.upgrade as unknown as boolean,
+      req.query.newPlanPriceId as unknown as string,
+      req.query.redirectUri as unknown as string,
     );
     return res.status(200).send(response);
   },
@@ -73,9 +78,13 @@ router.post('/webhook', [
   bodyParser.raw({ type: 'application/json' }),
   injectDependencies,
   async (req: Request, res: Response) => {
+    const controller = req.container.resolve<BillingController>('billingController');
+    const stripeProvider = req.container.resolve<StripeProvider>('stripeProvider');
+
     const sig = req.headers['stripe-signature'];
-    const event = await res.locals.stripeProvider.validateEvent((req as any).rawBody, sig as string);
-    await res.locals.controller.processWebhook(event);
+    const event = await stripeProvider.validateEvent((req as any).rawBody, sig as string);
+
+    await controller.processWebhook(event);
     res.status(200).send();
   },
 ]);
