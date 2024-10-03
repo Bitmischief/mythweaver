@@ -4,15 +4,22 @@ import { prisma } from './providers/prisma';
 import { AppError, HttpCode } from './errors/AppError';
 import logger from './logger';
 
-const intercomClient = new Client({
-  tokenAuth: { token: process.env.INTERCOM_ACCESS_TOKEN || '' },
-});
+const createIntercomClient = () => {
+  if (process.env.NODE_ENV === 'test' || !process.env.INTERCOM_ACCESS_TOKEN) {
+    return null;
+  }
+  return new Client({
+    tokenAuth: { token: process.env.INTERCOM_ACCESS_TOKEN },
+  });
+};
+
+export const intercomClient = createIntercomClient();
 
 export const setIntercomCustomAttributes = async (
   userId: number,
   attributes: any,
 ) => {
-  if (isLocalDevelopment) {
+  if (isLocalDevelopment || !intercomClient) {
     return;
   }
 

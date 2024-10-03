@@ -4,6 +4,7 @@ import { StripeProvider } from '../../../api/providers/stripe';
 import { BillingDataProvider } from '../../../api/modules/billing/billing.dataprovider';
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import Stripe from 'stripe';
+import '../../lib/intercom';
 
 describe('BillingService', () => {
   let billingService: BillingService;
