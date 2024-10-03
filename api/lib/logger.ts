@@ -8,21 +8,20 @@ export class MythWeaverLogger {
   public internalLogger: Logger;
 
   constructor() {
-    const transport = isLocalDevelopment
-      ? pino.transport({
-          target: 'pino-pretty',
-          options: {
-            colorize: true,
-          },
-        })
-      : process.env.BETTERSTACK_LOGGER_SOURCE_TOKEN
-        ? {
+    const transport =
+      isLocalDevelopment || !process.env.BETTERSTACK_LOGGER_SOURCE_TOKEN
+        ? pino.transport({
+            target: 'pino-pretty',
+            options: {
+              colorize: true,
+            },
+          })
+        : {
             target: '@logtail/pino',
             options: {
               sourceToken: process.env.BETTERSTACK_LOGGER_SOURCE_TOKEN,
             },
-          }
-        : { target: 'pino/file', options: { destination: 1 } };
+          };
 
     this.internalLogger = pino(
       {
