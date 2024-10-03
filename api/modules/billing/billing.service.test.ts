@@ -1,10 +1,10 @@
-import { BillingService } from '../../../api/modules/billing/billing.service';
-import { MythWeaverLogger } from '../../../api/lib/logger';
-import { StripeProvider } from '../../../api/providers/stripe';
-import { BillingDataProvider } from '../../../api/modules/billing/billing.dataprovider';
+import { BillingService } from '@/modules/billing/billing.service';
+import { MythWeaverLogger } from '@/lib/logger';
+import { StripeProvider } from '@/providers/stripe';
+import { BillingDataProvider } from '@/modules/billing/billing.dataprovider';
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import Stripe from 'stripe';
-import '../../lib/intercom';
+import '@/lib/intercom';
 
 describe('BillingService', () => {
   let billingService: BillingService;

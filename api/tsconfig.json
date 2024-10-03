@@ -17,6 +17,11 @@
     // This improves issue grouping in Sentry.
     "sourceRoot": "/",
 
-    "typeRoots": ["./types"]
-  }
+    "typeRoots": ["./types"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "include": ["**/*.*.ts", "**/*.js"]
 }

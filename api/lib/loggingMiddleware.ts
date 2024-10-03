@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 export const getRequestId = (req: Request, res: Response) =>
   (res.getHeader('x-request-id') as string) ||
-  (req.id as string) ||
+  ((req as any).id as string) ||
   (req.headers['x-request-id'] as string) ||
   uuidv4();
 
