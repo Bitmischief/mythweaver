@@ -37,7 +37,7 @@ export const useBuildFileUploader = (opts: FileUploadSettings) => {
       if (!opts.acceptedFileTypes.includes(file.mimetype)) {
         return cb(
           new Error(
-            `Only ${opts.acceptedFileTypes.join(', ')} formats allowed!`,
+            `Provided file type of ${file.mimetype}, but only ${opts.acceptedFileTypes.join(', ')} formats are allowed!`,
           ),
         );
       }

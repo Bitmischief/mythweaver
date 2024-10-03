@@ -3,13 +3,13 @@ import { NextFunction, Request, Response } from 'express';
 import { prisma } from './providers/prisma';
 import { useLogger } from './loggingMiddleware';
 import { auth } from 'express-oauth2-jwt-bearer';
-import { createCustomer } from '../services/billing';
 import { modifyImageCreditCount } from '../services/credits';
 import { ImageCreditChangeType } from '@prisma/client';
 import { AppEvent, track } from './tracking';
 import { AdConversionEvent, reportAdConversionEvent } from './ads';
 import { createCampaign } from '../dataAccess/campaigns';
 import { addEmailToMailingList } from '../services/internal/email';
+import { StripeProvider } from '../providers/stripe';
 
 export const checkAuth0Jwt = auth({
   audience: process.env.API_URL,
@@ -94,7 +94,8 @@ const createNewUser = async (res: Response, email: string) => {
   const earlyAccessEnd = new Date();
   earlyAccessEnd.setHours(new Date().getHours() + 24 * 7);
 
-  const stripeCustomerId = await createCustomer(email);
+  const stripeProvider = new StripeProvider();
+  const stripeCustomerId = await stripeProvider.createCustomer(email);
 
   const user = await prisma.user.create({
     data: {

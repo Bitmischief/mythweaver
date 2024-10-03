@@ -8,6 +8,9 @@ const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB;
 const ACCEPTED_FILE_TYPES = [
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   'application/pdf',
+  'text/plain',
+  'text/markdown',
+  'text/x-markdown',
 ];
 
 export const useCampaignFileUploadAuthorizer = () => {

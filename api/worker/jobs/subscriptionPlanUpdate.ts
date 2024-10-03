@@ -2,8 +2,7 @@ import Queue from 'bull';
 import { prisma } from '../../lib/providers/prisma';
 import logger from '../../lib/logger';
 import { config } from '../config';
-import { BillingPlan, User } from '@prisma/client';
-import { differenceInDays } from 'date-fns';
+import { User } from '@prisma/client';
 import { processInChunks } from '../../lib/utils';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
