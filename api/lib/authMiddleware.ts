@@ -225,4 +225,3 @@ async function authenticateUserToken(
 
   return true;
 }
-

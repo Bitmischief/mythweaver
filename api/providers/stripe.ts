@@ -74,18 +74,21 @@ export class StripeProvider {
 
     if (!session.url) {
       throw new AppError({
-        description: "Failed to generate checkout url!",
+        description: 'Failed to generate checkout url!',
         httpCode: HttpCode.INTERNAL_SERVER_ERROR,
-      })
+      });
     }
 
     return session.url;
   }
 
   async getSessionLineItems(sessionId: string) {
-    const { line_items } = await this.stripe.checkout.sessions.retrieve(sessionId, {
-      expand: ['line_items'],
-    });
+    const { line_items } = await this.stripe.checkout.sessions.retrieve(
+      sessionId,
+      {
+        expand: ['line_items'],
+      },
+    );
 
     return line_items;
   }
@@ -94,7 +97,10 @@ export class StripeProvider {
     customerId: string,
     request: GetBillingPortalUrlRequest,
   ): Promise<string> {
-    logger.info('Getting billing portal url for stripe customer id', customerId);
+    logger.info(
+      'Getting billing portal url for stripe customer id',
+      customerId,
+    );
 
     let subscription: Stripe.Subscription | undefined = undefined;
 
@@ -155,12 +161,16 @@ export class StripeProvider {
     try {
       if (!endpointSecret) {
         throw new AppError({
-          description: "Missing Stripe endpoint secret!",
+          description: 'Missing Stripe endpoint secret!',
           httpCode: HttpCode.INTERNAL_SERVER_ERROR,
-        })
+        });
       }
 
-      event = this.stripe.webhooks.constructEvent(payload, signature, endpointSecret);
+      event = this.stripe.webhooks.constructEvent(
+        payload,
+        signature,
+        endpointSecret,
+      );
     } catch (err: any) {
       throw new AppError({
         description: `Webhook Error: ${err.message}`,
@@ -176,7 +186,9 @@ export class StripeProvider {
       return 100;
     }
 
-    logger.error('Unknown product id', { productId: process.env.STRIPE_IMAGE_PACK_100_PRODUCT_ID });
+    logger.error('Unknown product id', {
+      productId: process.env.STRIPE_IMAGE_PACK_100_PRODUCT_ID,
+    });
 
     throw new AppError({
       description: 'Unknown product id',
@@ -193,7 +205,9 @@ export class StripeProvider {
   }
 
   getBillingIntervalForStripePlan(plan: Stripe.Plan): BillingInterval {
-    return plan.interval === 'month' ? BillingInterval.MONTHLY : BillingInterval.YEARLY;
+    return plan.interval === 'month'
+      ? BillingInterval.MONTHLY
+      : BillingInterval.YEARLY;
   }
 
   getCreditCountForPlan(plan: BillingPlan, interval: BillingInterval): number {
@@ -234,9 +248,9 @@ export class StripeProvider {
 
     if (!session.url) {
       throw new AppError({
-        description: "Failed to generate checkout url!",
+        description: 'Failed to generate checkout url!',
         httpCode: HttpCode.INTERNAL_SERVER_ERROR,
-      })
+      });
     }
 
     return session.url;

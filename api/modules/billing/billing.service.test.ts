@@ -28,19 +28,25 @@ describe('BillingService', () => {
     billingService = new BillingService(
       mockLogger,
       mockStripeProvider,
-      mockBillingDataProvider
+      mockBillingDataProvider,
     );
   });
 
   describe('processWebhookEvent', () => {
     it('should ignore already processed events', async () => {
       const mockEvent = { id: 'evt_123' } as Stripe.Event;
-      mockBillingDataProvider.findProcessedStripeEvent.mockResolvedValue({} as any);
+      mockBillingDataProvider.findProcessedStripeEvent.mockResolvedValue(
+        {} as any,
+      );
 
       await billingService.processWebhookEvent(mockEvent);
 
-      expect(mockLogger.info).toHaveBeenCalledWith(expect.stringContaining('Already processed'));
-      expect(mockBillingDataProvider.createProcessedStripeEvent).not.toHaveBeenCalled();
+      expect(mockLogger.info).toHaveBeenCalledWith(
+        expect.stringContaining('Already processed'),
+      );
+      expect(
+        mockBillingDataProvider.createProcessedStripeEvent,
+      ).not.toHaveBeenCalled();
     });
 
     it('should process new checkout.session.completed events', async () => {
@@ -57,7 +63,9 @@ describe('BillingService', () => {
       } as Stripe.CheckoutSessionCompletedEvent;
 
       mockBillingDataProvider.findProcessedStripeEvent.mockResolvedValue(null);
-      mockBillingDataProvider.createProcessedStripeEvent.mockResolvedValue({} as any);
+      mockBillingDataProvider.createProcessedStripeEvent.mockResolvedValue(
+        {} as any,
+      );
       mockStripeProvider.getSessionLineItems.mockResolvedValue({
         data: [
           {
@@ -67,7 +75,9 @@ describe('BillingService', () => {
         ],
       } as any);
 
-      const processItemPaidSpy = jest.spyOn(billingService as any, 'processItemPaid').mockResolvedValue(undefined);
+      const processItemPaidSpy = jest
+        .spyOn(billingService as any, 'processItemPaid')
+        .mockResolvedValue(undefined);
 
       await billingService.processWebhookEvent(mockEvent);
 
@@ -87,13 +97,24 @@ describe('BillingService', () => {
       } as Stripe.CheckoutSessionCompletedEvent;
 
       mockBillingDataProvider.findProcessedStripeEvent.mockResolvedValue(null);
-      mockBillingDataProvider.createProcessedStripeEvent.mockResolvedValue({ id: 'log_123' } as any);
-      mockStripeProvider.getSessionLineItems.mockRejectedValue(new Error('API error'));
+      mockBillingDataProvider.createProcessedStripeEvent.mockResolvedValue({
+        id: 'log_123',
+      } as any);
+      mockStripeProvider.getSessionLineItems.mockRejectedValue(
+        new Error('API error'),
+      );
 
-      await expect(billingService.processWebhookEvent(mockEvent)).rejects.toThrow('API error');
+      await expect(
+        billingService.processWebhookEvent(mockEvent),
+      ).rejects.toThrow('API error');
 
-      expect(mockLogger.error).toHaveBeenCalledWith('Error processing stripe event', expect.any(Object));
-      expect(mockBillingDataProvider.deleteProcessedStripeEvent).toHaveBeenCalledWith('log_123');
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        'Error processing stripe event',
+        expect.any(Object),
+      );
+      expect(
+        mockBillingDataProvider.deleteProcessedStripeEvent,
+      ).toHaveBeenCalledWith('log_123');
     });
   });
 });

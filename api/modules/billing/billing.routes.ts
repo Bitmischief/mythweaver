@@ -3,7 +3,10 @@ import bodyParser from 'body-parser';
 import { z } from 'zod';
 import { checkAuth0Jwt, useInjectUserId } from '../../lib/authMiddleware';
 import { useInjectLoggingInfo } from '../../lib/loggingMiddleware';
-import { useValidateRequest, ValidationTypes } from '../../lib/validationMiddleware';
+import {
+  useValidateRequest,
+  ValidationTypes,
+} from '../../lib/validationMiddleware';
 import BillingController from './billing.controller';
 import { injectDependencies } from './billing.dependencies';
 import { StripeProvider } from '../../providers/stripe';
@@ -22,11 +25,12 @@ router.post('/checkout-url', [
   useValidateRequest(postCheckoutUrlSchema),
   injectDependencies,
   async (req: Request, res: Response) => {
-    const controller = req.container.resolve<BillingController>('billingController');
+    const controller =
+      req.container.resolve<BillingController>('billingController');
     const response = await controller.getCheckoutUrl(
       res.locals.auth.userId,
       res.locals.trackingInfo,
-      req.body
+      req.body,
     );
     return res.status(200).send(response);
   },
@@ -38,7 +42,8 @@ router.get('/redeem-preorder-url', [
   useInjectLoggingInfo(),
   injectDependencies,
   async (req: Request, res: Response) => {
-    const controller = req.container.resolve<BillingController>('billingController');
+    const controller =
+      req.container.resolve<BillingController>('billingController');
     const response = await controller.getRedeemPreOrderUrl(
       res.locals.auth.userId,
       res.locals.trackingInfo,
@@ -62,7 +67,8 @@ router.get('/portal-url', [
   }),
   injectDependencies,
   async (req: Request, res: Response) => {
-    const controller = req.container.resolve<BillingController>('billingController');
+    const controller =
+      req.container.resolve<BillingController>('billingController');
     const response = await controller.getPortalUrl(
       res.locals.auth.userId,
       req.query.upgrade as unknown as boolean,
@@ -78,11 +84,16 @@ router.post('/webhook', [
   bodyParser.raw({ type: 'application/json' }),
   injectDependencies,
   async (req: Request, res: Response) => {
-    const controller = req.container.resolve<BillingController>('billingController');
-    const stripeProvider = req.container.resolve<StripeProvider>('stripeProvider');
+    const controller =
+      req.container.resolve<BillingController>('billingController');
+    const stripeProvider =
+      req.container.resolve<StripeProvider>('stripeProvider');
 
     const sig = req.headers['stripe-signature'];
-    const event = await stripeProvider.validateEvent((req as any).rawBody, sig as string);
+    const event = await stripeProvider.validateEvent(
+      (req as any).rawBody,
+      sig as string,
+    );
 
     await controller.processWebhook(event);
     res.status(200).send();

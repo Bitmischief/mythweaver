@@ -1,4 +1,9 @@
-import { BillingInterval, BillingPlan, ImageCreditChangeType, User } from '@prisma/client';
+import {
+  BillingInterval,
+  BillingPlan,
+  ImageCreditChangeType,
+  User,
+} from '@prisma/client';
 import { differenceInDays } from 'date-fns';
 import { MythWeaverLogger } from '../../lib/logger';
 import { prisma } from '../../lib/providers/prisma';
@@ -9,7 +14,10 @@ import { AppEvent, track } from '../../lib/tracking';
 import { AdConversionEvent, reportAdConversionEvent } from '../../lib/ads';
 import { postToDiscordBillingChannel } from '../../services/discord';
 import { AppError, HttpCode } from '../../lib/errors/AppError';
-import { EmailTemplates, sendTransactionalEmail } from '../../services/internal/email';
+import {
+  EmailTemplates,
+  sendTransactionalEmail,
+} from '../../services/internal/email';
 import { StripeProvider } from '../../providers/stripe';
 import Stripe from 'stripe';
 import { BillingDataProvider } from './billing.dataprovider';
@@ -18,43 +26,62 @@ export class BillingService {
   constructor(
     private logger: MythWeaverLogger,
     private stripeProvider: StripeProvider,
-    private billingDataProvider: BillingDataProvider
+    private billingDataProvider: BillingDataProvider,
   ) {}
 
-  public async getCheckoutUrl(billingCustomerId: string, priceId: string, subscription: boolean): Promise<string> {
-    return this.stripeProvider.getCheckoutUrl(billingCustomerId, priceId, subscription);
+  public async getCheckoutUrl(
+    billingCustomerId: string,
+    priceId: string,
+    subscription: boolean,
+  ): Promise<string> {
+    return this.stripeProvider.getCheckoutUrl(
+      billingCustomerId,
+      priceId,
+      subscription,
+    );
   }
 
   async getPreorderRedemptionSessionUrl(
     customerId: string,
     priceId: string,
-    coupon: string
+    coupon: string,
   ): Promise<string> {
-    return this.stripeProvider.getPreorderRedemptionSessionUrl(customerId, priceId, coupon);
+    return this.stripeProvider.getPreorderRedemptionSessionUrl(
+      customerId,
+      priceId,
+      coupon,
+    );
   }
 
   async getBillingPortalUrl(
     billingCustomerId: string,
-    request: GetBillingPortalUrlRequest
+    request: GetBillingPortalUrlRequest,
   ): Promise<string> {
     return this.stripeProvider.getBillingPortalUrl(billingCustomerId, request);
   }
 
   async processWebhookEvent(event: Stripe.Event): Promise<void> {
-    const existingStripeEvent = await this.billingDataProvider.findProcessedStripeEvent(event.id);
+    const existingStripeEvent =
+      await this.billingDataProvider.findProcessedStripeEvent(event.id);
 
     if (existingStripeEvent) {
       this.logger.info(`Already processed stripe event ${event.id}, ignoring.`);
       return;
     }
 
-    const stripeEventLog = await this.billingDataProvider.createProcessedStripeEvent(event.id, event as any);
+    const stripeEventLog =
+      await this.billingDataProvider.createProcessedStripeEvent(
+        event.id,
+        event as any,
+      );
 
     try {
       await this.handleStripeEvent(event);
     } catch (err) {
       this.logger.error('Error processing stripe event', { error: err });
-      await this.billingDataProvider.deleteProcessedStripeEvent(stripeEventLog.id);
+      await this.billingDataProvider.deleteProcessedStripeEvent(
+        stripeEventLog.id,
+      );
       throw err;
     }
   }
@@ -62,14 +89,22 @@ export class BillingService {
   private async handleStripeEvent(event: Stripe.Event): Promise<void> {
     switch (event.type) {
       case 'checkout.session.completed':
-        await this.processCheckoutSessionCompletedEvent(event as Stripe.CheckoutSessionCompletedEvent);
+        await this.processCheckoutSessionCompletedEvent(
+          event as Stripe.CheckoutSessionCompletedEvent,
+        );
         break;
       case 'customer.subscription.deleted':
       case 'customer.subscription.resumed':
-        await this.processSubscriptionDeletedOrResumedEvent(event as Stripe.CustomerSubscriptionDeletedEvent | Stripe.CustomerSubscriptionResumedEvent);
+        await this.processSubscriptionDeletedOrResumedEvent(
+          event as
+            | Stripe.CustomerSubscriptionDeletedEvent
+            | Stripe.CustomerSubscriptionResumedEvent,
+        );
         break;
       case 'customer.subscription.updated':
-        await this.processSubscriptionUpdatedEvent(event as Stripe.CustomerSubscriptionUpdatedEvent);
+        await this.processSubscriptionUpdatedEvent(
+          event as Stripe.CustomerSubscriptionUpdatedEvent,
+        );
         break;
       case 'invoice.paid':
         await this.processInvoicePaidEvent(event as Stripe.InvoicePaidEvent);
@@ -79,13 +114,15 @@ export class BillingService {
     }
   }
 
-  private async processCheckoutSessionCompletedEvent(event: Stripe.CheckoutSessionCompletedEvent): Promise<void> {
+  private async processCheckoutSessionCompletedEvent(
+    event: Stripe.CheckoutSessionCompletedEvent,
+  ): Promise<void> {
     const session = event.data.object;
     const lineItems = await this.stripeProvider.getSessionLineItems(session.id);
 
     if (!lineItems) {
       throw new AppError({
-        description: "Unable to fetch session line items, aborting!",
+        description: 'Unable to fetch session line items, aborting!',
         httpCode: HttpCode.INTERNAL_SERVER_ERROR,
       });
     }
@@ -97,14 +134,16 @@ export class BillingService {
         session.customer as string,
         imageCreditPack100.price?.product as string,
         this.calculateAmountInDollars(session.amount_total),
-        imageCreditPack100.quantity || 0
+        imageCreditPack100.quantity || 0,
       );
     }
   }
 
-  private findImageCreditPack(lineItems: Stripe.ApiList<Stripe.LineItem>): Stripe.LineItem | undefined {
+  private findImageCreditPack(
+    lineItems: Stripe.ApiList<Stripe.LineItem>,
+  ): Stripe.LineItem | undefined {
     return lineItems.data.find(
-      (d) => d.price?.product === process.env.STRIPE_IMAGE_PACK_100_PRODUCT_ID
+      (d) => d.price?.product === process.env.STRIPE_IMAGE_PACK_100_PRODUCT_ID,
     );
   }
 
@@ -113,9 +152,13 @@ export class BillingService {
   }
 
   private async processSubscriptionDeletedOrResumedEvent(
-    event: Stripe.CustomerSubscriptionDeletedEvent | Stripe.CustomerSubscriptionResumedEvent
+    event:
+      | Stripe.CustomerSubscriptionDeletedEvent
+      | Stripe.CustomerSubscriptionResumedEvent,
   ): Promise<void> {
-    const user = await this.billingDataProvider.getUserByBillingCustomerId(event.data.object.customer as string);
+    const user = await this.billingDataProvider.getUserByBillingCustomerId(
+      event.data.object.customer as string,
+    );
     const periodEnd = new Date(event.data.object.current_period_end * 1000);
 
     await this.billingDataProvider.updateUserSubscription(user.id, {
@@ -124,28 +167,54 @@ export class BillingService {
       pendingPlanChangeEffectiveDate: periodEnd,
     });
 
-    await setIntercomCustomAttributes(user.id, { 'Plan Renewal Date': periodEnd });
+    await setIntercomCustomAttributes(user.id, {
+      'Plan Renewal Date': periodEnd,
+    });
   }
 
-  private async processSubscriptionUpdatedEvent(event: Stripe.CustomerSubscriptionUpdatedEvent): Promise<void> {
-    const user = await this.billingDataProvider.getUserByBillingCustomerId(event.data.object.customer as string);
+  private async processSubscriptionUpdatedEvent(
+    event: Stripe.CustomerSubscriptionUpdatedEvent,
+  ): Promise<void> {
+    const user = await this.billingDataProvider.getUserByBillingCustomerId(
+      event.data.object.customer as string,
+    );
 
     if (event.data.object.status !== 'active') {
-      this.logger.info('Subscription status is not active, ignoring this webhook.', {
-        status: event.data.object.status,
-      });
+      this.logger.info(
+        'Subscription status is not active, ignoring this webhook.',
+        {
+          status: event.data.object.status,
+        },
+      );
       return;
     }
 
-    const subscriptionEnd = new Date(event.data.object.current_period_end * 1000);
-    const plan = this.getPlanForProductId(event.data.object.items.data[0].price.product as string);
-    const subscriptionAmount = (event.data.object.items.data[0].price.unit_amount || 0) / 100;
-    const daysSinceRegistration = differenceInDays(new Date(), user.createdAt || new Date());
+    const subscriptionEnd = new Date(
+      event.data.object.current_period_end * 1000,
+    );
+    const plan = this.getPlanForProductId(
+      event.data.object.items.data[0].price.product as string,
+    );
+    const subscriptionAmount =
+      (event.data.object.items.data[0].price.unit_amount || 0) / 100;
+    const daysSinceRegistration = differenceInDays(
+      new Date(),
+      user.createdAt || new Date(),
+    );
 
-    if (user.plan === BillingPlan.PRO && (plan === BillingPlan.BASIC || plan === BillingPlan.FREE)) {
+    if (
+      user.plan === BillingPlan.PRO &&
+      (plan === BillingPlan.BASIC || plan === BillingPlan.FREE)
+    ) {
       await this.handleDowngrade(user, plan, subscriptionEnd);
     } else {
-      await this.handleUpgradeOrNewSubscription(user, plan, subscriptionEnd, subscriptionAmount, daysSinceRegistration);
+      await this.handleUpgradeOrNewSubscription(
+        user,
+        plan,
+        subscriptionEnd,
+        subscriptionAmount,
+        daysSinceRegistration,
+      );
     }
 
     await setIntercomCustomAttributes(user.id, {
@@ -154,7 +223,9 @@ export class BillingService {
     });
   }
 
-  private async processInvoicePaidEvent(event: Stripe.InvoicePaidEvent): Promise<void> {
+  private async processInvoicePaidEvent(
+    event: Stripe.InvoicePaidEvent,
+  ): Promise<void> {
     if (event.data.object.status === 'paid') {
       const lines = event.data.object.lines.data;
       const subscriptionLines = lines.filter((l) => l.subscription !== null);
@@ -166,10 +237,20 @@ export class BillingService {
         const subscriptionProductId = curSubscription?.plan?.product as string;
 
         if (subscriptionProductId) {
-          const user = await this.billingDataProvider.getUserByBillingCustomerId(event.data.object.customer as string);
+          const user =
+            await this.billingDataProvider.getUserByBillingCustomerId(
+              event.data.object.customer as string,
+            );
 
-          if (event.data.object.discount?.coupon.id === user.preorderRedemptionCoupon) {
-            await this.processPreorderRedemption(user, event.data.object.subscription as string, curSubscription?.plan?.product as string);
+          if (
+            event.data.object.discount?.coupon.id ===
+            user.preorderRedemptionCoupon
+          ) {
+            await this.processPreorderRedemption(
+              user,
+              event.data.object.subscription as string,
+              curSubscription?.plan?.product as string,
+            );
           } else {
             await this.processSubscriptionPaid(
               user,
@@ -178,7 +259,7 @@ export class BillingService {
               event.data.object.amount_paid / 100,
               (prevSubscription?.plan?.product as string) ?? null,
               (prevSubscription?.plan as Stripe.Plan) ?? null,
-              event.data.object.discount?.coupon
+              event.data.object.discount?.coupon,
             );
           }
         }
@@ -190,16 +271,19 @@ export class BillingService {
     billingCustomerId: string,
     productId: string,
     amountPaid: number,
-    qty: number
+    qty: number,
   ): Promise<void> {
-    const user = await this.billingDataProvider.getUserByBillingCustomerId(billingCustomerId);
+    const user =
+      await this.billingDataProvider.getUserByBillingCustomerId(
+        billingCustomerId,
+      );
     const creditCount = this.getImageCreditCountForProductId(productId);
 
     await modifyImageCreditCount(
       user.id,
       creditCount * qty,
       ImageCreditChangeType.PURCHASE,
-      `Purchased ${qty} of ${creditCount} image credit packs`
+      `Purchased ${qty} of ${creditCount} image credit packs`,
     );
 
     track(AppEvent.PaidImageCreditPack, user.id, undefined, {
@@ -213,7 +297,6 @@ export class BillingService {
     });
   }
 
-
   private async processSubscriptionPaid(
     user: User,
     productId: string,
@@ -221,15 +304,25 @@ export class BillingService {
     amountPaid: number,
     prevProductId: string | null,
     prevStripePlan: Stripe.Plan | null,
-    coupon: Stripe.Coupon | undefined
+    coupon: Stripe.Coupon | undefined,
   ): Promise<void> {
     const plan = this.getPlanForProductId(productId);
-    const prevPlan = prevProductId ? this.getPlanForProductId(prevProductId) : null;
+    const prevPlan = prevProductId
+      ? this.getPlanForProductId(prevProductId)
+      : null;
     const interval = this.getBillingIntervalForStripePlan(stripePlan);
-    const prevInterval = prevStripePlan ? this.getBillingIntervalForStripePlan(prevStripePlan) : null;
+    const prevInterval = prevStripePlan
+      ? this.getBillingIntervalForStripePlan(prevStripePlan)
+      : null;
 
     const curCreditCount = this.getCreditCountForPlan(plan, interval);
-    const prevCreditCount = prevPlan && amountPaid > 0 ? this.getCreditCountForPlan(prevPlan, prevInterval || BillingInterval.MONTHLY) : 0;
+    const prevCreditCount =
+      prevPlan && amountPaid > 0
+        ? this.getCreditCountForPlan(
+            prevPlan,
+            prevInterval || BillingInterval.MONTHLY,
+          )
+        : 0;
 
     await this.billingDataProvider.updateUserSubscription(user.id, {
       planInterval: interval,
@@ -237,13 +330,15 @@ export class BillingService {
     });
 
     const incrementCreditCount =
-      amountPaid > 0 || coupon?.percent_off === 100 ? curCreditCount - prevCreditCount : 0;
+      amountPaid > 0 || coupon?.percent_off === 100
+        ? curCreditCount - prevCreditCount
+        : 0;
 
     await modifyImageCreditCount(
       user.id,
       incrementCreditCount,
       ImageCreditChangeType.SUBSCRIPTION,
-      `${plan} plan`
+      `${plan} plan`,
     );
 
     await setIntercomCustomAttributes(user.id, {
@@ -264,7 +359,11 @@ export class BillingService {
     });
   }
 
-  private async handleDowngrade(user: User, plan: BillingPlan, subscriptionEnd: Date): Promise<void> {
+  private async handleDowngrade(
+    user: User,
+    plan: BillingPlan,
+    subscriptionEnd: Date,
+  ): Promise<void> {
     await this.billingDataProvider.updateUserSubscription(user.id, {
       pendingPlanChange: plan,
       pendingPlanChangeEffectiveDate: subscriptionEnd,
@@ -277,12 +376,24 @@ export class BillingService {
     plan: BillingPlan,
     subscriptionEnd: Date,
     subscriptionAmount: number,
-    daysSinceRegistration: number
+    daysSinceRegistration: number,
   ): Promise<void> {
     if (user.plan === BillingPlan.FREE || user.plan === BillingPlan.TRIAL) {
-      await this.handleNewSubscription(user, plan, subscriptionEnd, subscriptionAmount, daysSinceRegistration);
+      await this.handleNewSubscription(
+        user,
+        plan,
+        subscriptionEnd,
+        subscriptionAmount,
+        daysSinceRegistration,
+      );
     } else if (user.plan === BillingPlan.BASIC && plan === BillingPlan.PRO) {
-      await this.handleUpgrade(user, plan, subscriptionEnd, subscriptionAmount, daysSinceRegistration);
+      await this.handleUpgrade(
+        user,
+        plan,
+        subscriptionEnd,
+        subscriptionAmount,
+        daysSinceRegistration,
+      );
     }
 
     await this.billingDataProvider.updateUserSubscription(user.id, {
@@ -296,7 +407,7 @@ export class BillingService {
     plan: BillingPlan,
     subscriptionEnd: Date,
     subscriptionAmount: number,
-    daysSinceRegistration: number
+    daysSinceRegistration: number,
   ): Promise<void> {
     track(AppEvent.NewSubscription, user.id, undefined, {
       amount: subscriptionAmount,
@@ -304,7 +415,11 @@ export class BillingService {
       daysSinceRegistration,
     });
 
-    await this.sendNewSubscriptionNotifications(user, subscriptionAmount, daysSinceRegistration);
+    await this.sendNewSubscriptionNotifications(
+      user,
+      subscriptionAmount,
+      daysSinceRegistration,
+    );
 
     await reportAdConversionEvent(AdConversionEvent.Purchase, user, {
       purchase: { currency: 'USD', value: subscriptionAmount },
@@ -318,12 +433,14 @@ export class BillingService {
     plan: BillingPlan,
     subscriptionEnd: Date,
     subscriptionAmount: number,
-    daysSinceRegistration: number
+    daysSinceRegistration: number,
   ): Promise<void> {
     await postToDiscordBillingChannel(
       `New Upgrade: ${user.email}! Amount: $${subscriptionAmount}. Days since registration: ${daysSinceRegistration}. ${
-        user.initialTrackingData ? `Source: ${this.getTrackingString(user.initialTrackingData)}` : ''
-      }`
+        user.initialTrackingData
+          ? `Source: ${this.getTrackingString(user.initialTrackingData)}`
+          : ''
+      }`,
     );
 
     track(AppEvent.UpgradeSubscription, user.id, undefined, {
@@ -333,8 +450,13 @@ export class BillingService {
     });
   }
 
-  private async processPreorderRedemption(user: User, subscriptionId: string, productId: string): Promise<void> {
-    const subscription = await this.stripeProvider.getSubscription(subscriptionId);
+  private async processPreorderRedemption(
+    user: User,
+    subscriptionId: string,
+    productId: string,
+  ): Promise<void> {
+    const subscription =
+      await this.stripeProvider.getSubscription(subscriptionId);
     const subscriptionEnd = new Date(subscription.current_period_end * 1000);
     const plan = this.stripeProvider.getPlanForProductId(productId);
 
@@ -354,14 +476,19 @@ export class BillingService {
   }
 
   private getBillingIntervalForStripePlan(plan: Stripe.Plan): BillingInterval {
-    return plan.interval === 'month' ? BillingInterval.MONTHLY : BillingInterval.YEARLY;
+    return plan.interval === 'month'
+      ? BillingInterval.MONTHLY
+      : BillingInterval.YEARLY;
   }
 
   private getImageCreditCountForProductId(productId: string): number {
     return this.stripeProvider.getImageCreditCountForProductId(productId);
   }
 
-  private getCreditCountForPlan(plan: BillingPlan, interval: BillingInterval): number {
+  private getCreditCountForPlan(
+    plan: BillingPlan,
+    interval: BillingInterval,
+  ): number {
     let creditCount = plan === BillingPlan.PRO ? 300 : 100;
     if (interval === BillingInterval.YEARLY) {
       creditCount *= 12;
@@ -375,23 +502,37 @@ export class BillingService {
       .join(', ');
   }
 
-  private async sendNewSubscriptionNotifications(user: User, subscriptionAmount: number, daysSinceRegistration: number): Promise<void> {
-    const trackingString = this.getTrackingString(user.initialTrackingData || {});
+  private async sendNewSubscriptionNotifications(
+    user: User,
+    subscriptionAmount: number,
+    daysSinceRegistration: number,
+  ): Promise<void> {
+    const trackingString = this.getTrackingString(
+      user.initialTrackingData || {},
+    );
     await postToDiscordBillingChannel(
       `New subscription: ${user.email}! Amount: $${subscriptionAmount}. Days since registration: ${daysSinceRegistration}. ${
         user.initialTrackingData ? `Source: ${trackingString}` : ''
-      }`
+      }`,
     );
   }
 
-  private async sendSubscriberWelcomeEmail(user: User, plan: BillingPlan): Promise<void> {
-    const latestCampaignForUser = await this.billingDataProvider.getLatestCampaignForUser(user.id);
+  private async sendSubscriberWelcomeEmail(
+    user: User,
+    plan: BillingPlan,
+  ): Promise<void> {
+    const latestCampaignForUser =
+      await this.billingDataProvider.getLatestCampaignForUser(user.id);
 
     try {
-      await sendTransactionalEmail(user.email, EmailTemplates.SUBSCRIBER_WELCOME, [
-        { key: 'PLAN', value: plan },
-        { key: 'CAMPAIGN', value: latestCampaignForUser?.name || 'awesome' },
-      ]);
+      await sendTransactionalEmail(
+        user.email,
+        EmailTemplates.SUBSCRIBER_WELCOME,
+        [
+          { key: 'PLAN', value: plan },
+          { key: 'CAMPAIGN', value: latestCampaignForUser?.name || 'awesome' },
+        ],
+      );
     } catch (err) {
       this.logger.error('Error sending subscriber welcome email', {}, err);
     }

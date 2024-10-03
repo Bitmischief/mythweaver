@@ -17,7 +17,8 @@ const campaignId = useSelectedCampaignId();
 
 const fileInput = ref<HTMLInputElement | null>(null);
 
-const acceptedFileTypes = '.pdf, .docx, .txt, .md, application/text, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/pdf';
+const acceptedFileTypes =
+  '.pdf, .docx, .txt, .md, application/text, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/pdf';
 
 function onInputChange(e: Event) {
   const input = e.target as HTMLInputElement;
