@@ -6,7 +6,6 @@ import {
 } from '@prisma/client';
 import { differenceInDays } from 'date-fns';
 import { MythWeaverLogger } from '../../lib/logger';
-import { prisma } from '../../lib/providers/prisma';
 import { GetBillingPortalUrlRequest } from './billing.interface';
 import { setIntercomCustomAttributes } from '../../lib/intercom';
 import { modifyImageCreditCount } from '../../services/credits';
