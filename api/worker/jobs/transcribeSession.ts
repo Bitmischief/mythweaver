@@ -182,14 +182,14 @@ const processCompletedTranscript = async (
   const { sentences } = await client.transcripts.sentences(transcript.id);
   const { paragraphs } = await client.transcripts.paragraphs(transcript.id);
 
-  let fullTranscript: ProcessedTranscript = {
+  const fullTranscript: ProcessedTranscript = {
     sentences,
     paragraphs,
     recap,
     summary,
   };
 
-  fullTranscript = await postprocessTranscript(campaignId, fullTranscript);
+  // fullTranscript = await postprocessTranscript(campaignId, fullTranscript);
 
   await prisma.sessionTranscription.update({
     where: {
