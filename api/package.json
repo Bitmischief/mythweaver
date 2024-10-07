@@ -69,7 +69,7 @@
     "express": "^4.21.0",
     "express-async-errors": "^3.1.1",
     "express-oauth2-jwt-bearer": "^1.6.0",
-    "express-rate-limit": "^7.2.0",
+    "express-rate-limit": "^7.4.1",
     "intercom-client": "^5.0.0",
     "js-sha256": "^0.11.0",
     "jsonwebtoken": "^9.0.2",
