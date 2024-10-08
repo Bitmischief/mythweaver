@@ -139,6 +139,8 @@ const generateSingleImage = async (
 
   await sendWebsocketMessage(request.userId, WebSocketEvent.ImageCreated, {
     image: updatedImage,
+    modelId: image.modelId,
+    imageId: image.id,
     context: {
       ...request.linking,
     },
