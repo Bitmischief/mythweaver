@@ -35,7 +35,7 @@ import charactersRoutes from './characters';
 
 router.use(`/characters`, charactersRoutes);
 
-import imagesRoutes from './images';
+import imagesRoutes from '../modules/images/images.routes';
 
 router.use(`/images`, imagesRoutes);
 

@@ -7,9 +7,9 @@ import {
 } from '../lib/validationMiddleware';
 import ConjurationController from '../controllers/conjurations';
 import { useInjectLoggingInfo, useLogger } from '../lib/loggingMiddleware';
-import { ImageStylePreset } from '../controllers/images';
 import { ConjurationRelationshipType } from '@prisma/client';
 import conjurers from '../data/conjurers';
+import { ImageStylePreset } from '@/modules/images/images.interface';
 
 const router = express.Router();
 

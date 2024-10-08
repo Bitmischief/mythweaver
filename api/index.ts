@@ -19,6 +19,7 @@ import {
   subscriptionPlanUpdateQueue,
   expiredSubscriptionCheckQueue,
 } from './worker';
+import imagesRouter from './modules/images/images.routes';
 
 console.log('Initializing env vars');
 dotenv.config();

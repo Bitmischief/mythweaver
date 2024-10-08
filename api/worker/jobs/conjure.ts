@@ -3,20 +3,16 @@ import { Generator, getGenerator } from '../../data/conjurers';
 import { BillingPlan, ConjurationVisibility } from '@prisma/client';
 import { AppError, ErrorType, HttpCode } from '../../lib/errors/AppError';
 import { sanitizeJson, trimPlural } from '../../lib/utils';
-import { generateImage } from '../../services/images/imageGeneration';
 import { prisma } from '../../lib/providers/prisma';
 import {
   sendWebsocketMessage,
   WebSocketEvent,
 } from '../../services/websockets';
 import logger from '../../lib/logger';
-import { sendConjurationCountUpdatedEvent } from '../../lib/planRestrictionHelpers';
 import { nanoid } from 'nanoid';
 import { generateText } from '../../services/textGeneration';
 import { getCampaign } from '../../dataAccess/campaigns';
 import { config } from '../config';
-import { ImageStylePreset } from '../../controllers/images';
-import { processTagsQueue } from './processTags';
 
 export interface ConjureEvent {
   userId: number;
@@ -25,9 +21,6 @@ export interface ConjureEvent {
   generatorCode: string;
   count: number;
   arg?: string | undefined;
-  imageStylePreset?: ImageStylePreset;
-  imagePrompt?: string | undefined;
-  imageNegativePrompt?: string | undefined;
   type?: string;
 }
 
@@ -75,12 +68,7 @@ export const conjure = async (request: ConjureEvent) => {
     });
   }
 
-  const prompt = await buildPrompt(
-    generator,
-    request.campaignId,
-    request.arg,
-    request.imagePrompt,
-  );
+  const prompt = await buildPrompt(generator, request.campaignId, request.arg);
 
   let conjuration: any = undefined;
   let generatedJson = '';
@@ -133,7 +121,6 @@ export const conjure = async (request: ConjureEvent) => {
           ? ConjurationVisibility.PUBLIC
           : ConjurationVisibility.PRIVATE,
       data: editorJsFormattedData,
-      imageAIPrompt: request.imagePrompt || conjuration.imageAIPrompt,
       imageUri: conjuration.imageUri,
       conjurerCode: generator.code || '',
       tags: [
@@ -152,57 +139,6 @@ export const conjure = async (request: ConjureEvent) => {
     WebSocketEvent.ConjurationCreated,
     createdConjuration,
   );
-
-  if (type === 'image-text') {
-    await sendConjurationCountUpdatedEvent(request.userId);
-
-    const imagePrompt = request.imagePrompt?.length
-      ? request.imagePrompt
-      : conjuration.imageAIPrompt;
-
-    const images = await generateImage({
-      userId: request.userId,
-      prompt: imagePrompt,
-      count: 1,
-      negativePrompt: request.imageNegativePrompt,
-      stylePreset: request.imageStylePreset,
-      linking: {
-        conjurationId: createdConjuration.id,
-      },
-      forceImagePrimary: true,
-    });
-
-    if (!images) {
-      await prisma.conjuration.update({
-        where: {
-          id: createdConjuration.id,
-        },
-        data: {
-          imageGenerationFailed: true,
-        },
-      });
-
-      throw new AppError({
-        description: 'Error generating image.',
-        httpCode: HttpCode.INTERNAL_SERVER_ERROR,
-      });
-    }
-
-    conjuration.imageUri = images[0]?.uri;
-
-    await prisma.conjuration.update({
-      where: {
-        id: createdConjuration.id,
-      },
-      data: {
-        imageUri: conjuration.imageUri,
-      },
-    });
-
-    await processTagsQueue.add({
-      conjurationIds: [createdConjuration.id],
-    });
-  }
 };
 
 const formatDataForEditorJs = (conjuration: any, generator: any) => {

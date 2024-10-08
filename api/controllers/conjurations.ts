@@ -22,13 +22,13 @@ import {
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { processTagsQueue } from '../worker';
-import { ImageStylePreset } from './images';
 import { MythWeaverLogger } from '../lib/logger';
 import {
   validateConjurationCountRestriction,
   sendConjurationCountUpdatedEvent,
 } from '../lib/planRestrictionHelpers';
 import { getCharacterCampaigns } from '../lib/charactersHelper';
+import { ImageStylePreset } from '../modules/images/images.interface';
 
 interface GetConjurationsResponse {
   data: (Conjuration & { saved: boolean })[];

@@ -140,7 +140,6 @@ onUnmounted(() => {
   channel.unbind(ServerEvent.ImagePromptRephrased, imagePromptRephrasedHandler);
   channel.unbind(ServerEvent.ImageError, imageErrorHandler);
   channel.unbind(ServerEvent.ImageUpscaled, imageUpscaledHandler);
-  channel.unbind(ServerEvent.ImageUpscalingDone, imageUpscalingDoneHandler);
 });
 
 async function fetchImageHistory() {
@@ -173,19 +172,13 @@ function imageErrorHandler(data: any) {
 }
 
 function imageUpscaledHandler(data: any) {
-  if (data.id === props.image.id) {
+  console.log('image upscale debug', data, props);
+  if (data.imageId === props.image.id) {
     selectedImg.value = data;
     upscaling.value = false;
     if (props.inModal) {
       eventBus.$emit('toggle-customize-image-modal');
     }
-  }
-}
-
-function imageUpscalingDoneHandler(data: any) {
-  if (data.id === props.image.id) {
-    loading.value = true;
-    showSuccess({ message: 'Image successfully upscaled!' });
   }
 }
 

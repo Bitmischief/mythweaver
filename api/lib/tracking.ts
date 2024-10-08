@@ -70,6 +70,7 @@ export enum AppEvent {
   CampaignFileDeleted = 'Campaign File Deleted',
   GetCampaignFiles = 'Get Campaign Files',
   GetUserImageGallery = 'Get User Image Gallery',
+  EraseImagePortion = 'Erase Image Portion',
 }
 
 export interface TrackingInfo {

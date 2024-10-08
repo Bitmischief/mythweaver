@@ -19,7 +19,6 @@ export enum ServerEvent {
   ImagePromptRephrased = 'image-prompt-rephrased',
   ImageError = 'image-error',
   ImageGenerationDone = 'image-generation-done',
-  ImageUpscalingDone = 'image-upscaling-done',
   SessionUpdated = 'session-updated',
   SessionCompleted = 'session-completed',
   SessionImageUpdated = 'session-image-updated',

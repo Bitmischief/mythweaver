@@ -121,7 +121,6 @@ onMounted(async () => {
   channel.bind(ServerEvent.ImagePromptRephrased, imagePromptRephrasedHandler);
   channel.bind(ServerEvent.ImageError, imageErrorHandler);
   channel.bind(ServerEvent.ImageUpscaled, imageUpscaledHandler);
-  channel.bind(ServerEvent.ImageUpscalingDone, imageUpscalingDoneHandler);
   channel.bind(
     ServerEvent.ImageGenerationTimeout,
     imageGenerationTimeoutHandler,
@@ -235,19 +234,12 @@ function imageErrorHandler(data: any) {
 }
 
 function imageUpscaledHandler(data: any) {
-  if (data.id === props.image.id) {
+  if (data.imageId === props.image.id) {
     selectedImg.value = data;
     upscaling.value = false;
     if (props.inModal) {
       eventBus.$emit('toggle-customize-image-modal');
     }
-  }
-}
-
-function imageUpscalingDoneHandler(data: any) {
-  if (data.id === props.image.id) {
-    loading.value = true;
-    showSuccess({ message: 'Image successfully upscaled!' });
   }
 }
 

@@ -18,7 +18,6 @@ import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { conjureQueue } from '../worker';
 import { sanitizeJson } from '../lib/utils';
 import { getClient } from '../lib/providers/openai';
-import { ImageStylePreset } from './images';
 import { MythWeaverLogger } from '../lib/logger';
 
 export interface GetGeneratorsResponse {
@@ -32,9 +31,6 @@ export interface PostGeneratorGenerate {
   count: number;
   customArg?: string;
   prompt?: string;
-  imageStylePreset?: ImageStylePreset;
-  imagePrompt?: string;
-  imageNegativePrompt?: string;
   type?: string;
 }
 
@@ -213,11 +209,7 @@ export class GeneratorController {
         generatorCode: code,
         count: request.count,
         args: [request.customArg || request.prompt || ''],
-        imageStylePreset: request.imageStylePreset,
-        imagePrompt: request.imagePrompt,
-        imageNegativePrompt: request.imageNegativePrompt,
         prompt: request.prompt,
-        // todo: add type to conjuration request
       },
     });
 
@@ -228,9 +220,6 @@ export class GeneratorController {
       arg: request.customArg || request.prompt || '',
       conjurationRequestId: conjurationRequest.id,
       userId,
-      imageStylePreset: request.imageStylePreset,
-      imagePrompt: request.imagePrompt,
-      imageNegativePrompt: request.imageNegativePrompt,
       type: request.type,
     });
 
