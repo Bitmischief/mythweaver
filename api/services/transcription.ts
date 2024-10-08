@@ -5,8 +5,9 @@ const client = new AssemblyAI({
 });
 
 export const recapTranscript = async (transcriptId: string) => {
-  const recapPrompt = `Provide a thorough recap of the transcript. For every 10 minutes of audio, 
-    there should be at least a paragraph in the recap to summarize. Respond with 
+  const recapPrompt = `Provide a thorough recap of the transcript. The transcript is for my tabletop roleplaying game. 
+    Please ensure to provide proper fantasy race names, character names or other general roleplaying terminology. 
+    For every 10 minutes of audio, there should be at least a paragraph in the recap to summarize. Respond with 
     just the recap and don't include a preamble or introduction.`;
 
   const { response: recap } = await client.lemur.task({
@@ -20,8 +21,10 @@ export const recapTranscript = async (transcriptId: string) => {
 };
 
 export const summarizeTranscript = async (transcriptId: string) => {
-  const summaryPrompt = `Provide an 8 sentence summary of the transcript. Respond 
-    with just the summary and don't include a preamble or introduction.`;
+  const summaryPrompt = `Provide an 8-12 sentence summary of the transcript. The transcript is for my tabletop roleplaying game. 
+    Please ensure to provide proper fantasy race names, character names or other general roleplaying terminology. 
+    Please include all elements relevant to the plot points in my world.
+    Respond with just the recap and don't include a preamble or introduction.`;
 
   const { response: summary } = await client.lemur.task({
     transcript_ids: [transcriptId],

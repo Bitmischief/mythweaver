@@ -41,3 +41,7 @@ export const patchPrimaryImage = async (imageId: number) => {
 export const getConjurationImageHistory = async (conjurationId: number) => {
   return axios.get(`/images/conjurations/${conjurationId}/history`);
 };
+
+export const getUserImageGallery = (offset = 0, limit = 50) => {
+  return axios.get(`/images/gallery`, { params: { offset, limit } });
+};

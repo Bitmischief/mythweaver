@@ -154,4 +154,31 @@ router.get('/conjurations/:conjurationId/history', [
   },
 ]);
 
+const getUserImagesSchema = z.object({
+  offset: z.coerce.number().default(0).optional(),
+  limit: z.coerce.number().min(1).default(50).optional(),
+});
+
+router.get('/gallery', [
+  checkAuth0Jwt,
+  useInjectUserId(),
+  useInjectLoggingInfo(),
+  useValidateRequest(getUserImagesSchema, {
+    validationType: ValidationTypes.Query,
+  }),
+  async (req: Request, res: Response) => {
+    const controller = new ImageController();
+
+    const response = await controller.getUserImages(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      useLogger(),
+      req.query.offset as unknown as number,
+      req.query.limit as unknown as number,
+    );
+
+    return res.status(200).send(response);
+  },
+]);
+
 export default router;

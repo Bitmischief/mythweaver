@@ -24,6 +24,7 @@ import { authGuard } from '@auth0/auth0-vue';
 import { fbq, gtag, rdt } from '@/lib/conversions.ts';
 import { isProduction } from '@/lib/util.ts';
 import RelationshipGraphView from '@/views/RelationshipGraphView.vue';
+import ImageGalleryView from '@/views/ImageGalleryView.vue';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -217,6 +218,12 @@ const router = createRouter({
       meta: {
         paidRequired: true,
       },
+    },
+    {
+      path: '/image-gallery',
+      name: 'ImageGallery',
+      component: ImageGalleryView,
+      beforeEnter: authGuard,
     },
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],

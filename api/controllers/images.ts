@@ -8,8 +8,9 @@ import {
   Route,
   Security,
   Tags,
+  Query,
 } from 'tsoa';
-import { TrackingInfo } from '../lib/tracking';
+import { AppEvent, track, TrackingInfo } from '../lib/tracking';
 import { generateImage } from '../services/images/imageGeneration';
 import { prisma } from '../lib/providers/prisma';
 import { AppError, HttpCode } from '../lib/errors/AppError';
@@ -324,5 +325,41 @@ export default class ImageController {
     }
 
     return conjuration.images;
+  }
+
+  @Security('jwt')
+  @OperationId('getUserImages')
+  @Get('/gallery')
+  public async getUserImages(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Inject() logger: MythWeaverLogger,
+    @Query() offset = 0,
+    @Query() limit = 50,
+  ): Promise<{ images: Image[]; total: number }> {
+    const [images, total] = await Promise.all([
+      prisma.image.findMany({
+        where: {
+          userId: userId,
+          uri: { not: null },
+        },
+        orderBy: { createdAt: 'desc' },
+        skip: offset,
+        take: limit,
+        include: {
+          imageModel: true,
+        },
+      }),
+      prisma.image.count({
+        where: {
+          userId: userId,
+          uri: { not: null },
+        },
+      }),
+    ]);
+
+    track(AppEvent.GetUserImageGallery, userId, trackingInfo);
+
+    return { images, total };
   }
 }

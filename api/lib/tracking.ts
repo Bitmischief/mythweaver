@@ -69,6 +69,7 @@ export enum AppEvent {
   CampaignFileUploaded = 'Campaign File Uploaded',
   CampaignFileDeleted = 'Campaign File Deleted',
   GetCampaignFiles = 'Get Campaign Files',
+  GetUserImageGallery = 'Get User Image Gallery',
 }
 
 export interface TrackingInfo {

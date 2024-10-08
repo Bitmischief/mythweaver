@@ -182,14 +182,14 @@ const processCompletedTranscript = async (
   const { sentences } = await client.transcripts.sentences(transcript.id);
   const { paragraphs } = await client.transcripts.paragraphs(transcript.id);
 
-  const fullTranscript: ProcessedTranscript = {
+  let fullTranscript: ProcessedTranscript = {
     sentences,
     paragraphs,
     recap,
     summary,
   };
 
-  // fullTranscript = await postprocessTranscript(campaignId, fullTranscript);
+  fullTranscript = await postprocessTranscript(campaignId, fullTranscript);
 
   await prisma.sessionTranscription.update({
     where: {
@@ -227,19 +227,22 @@ const postprocessTranscript = async (
 ) => {
   const updatedSummary = await generateText(
     campaignId,
-    `Review the provided tabletop roleplaying game 
-  session summary and look for any misspelt character names, location names or other names of specific content in my 
-  game that might be misspelt. Respond with just the summary and don't include a preamble, introduction, or the corrections made.. If there are 
-  no corrections to be made, please return the summary as is. Here is the original summary: ${transcript.summary}`,
+    `You are a helpful assistant. Your task is to correct any spelling discrepancies in the transcribed text from a tabletop roleplaying game. 
+    Make sure that the names of any common roleplaying game terms, fictional race names, etc are corrected. 
+    Only add necessary punctuation such as periods, commas, and capitalization, and use only the context provided.
+    Respond with just the summary and don't include a preamble, introduction, or the corrections made. If there are 
+    no corrections to be made, please return the summary as is. Here is the 
+    original summary: ${transcript.summary}`,
   );
 
   const updatedRecap = await generateText(
     campaignId,
-    `Review the provided tabletop roleplaying game 
-  session recap and look for any misspelt character names, location names or other names of specific content in my 
-  game that might be misspelt. Respond with just the recap and don't include a preamble, introduction, or the corrections made. If there are 
-  no corrections to be made, please return the recap as is. Here is the 
-  original recap: ${transcript.recap}`,
+    `You are a helpful assistant. Your task is to correct any spelling discrepancies in the transcribed text from a tabletop roleplaying game. 
+    Make sure that the names of any common roleplaying game terms, fictional race names, etc are corrected. 
+    Only add necessary punctuation such as periods, commas, and capitalization, and use only the context provided.
+    Respond with just the recap and don't include a preamble, introduction, or the corrections made. If there are 
+    no corrections to be made, please return the recap as is. Here is the 
+    original recap: ${transcript.recap}`,
   );
 
   return {

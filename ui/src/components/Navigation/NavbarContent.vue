@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch, computed } from 'vue';
 import { CAMPAIGN_CREATED_EVENT, useEventBus } from '@/lib/events.ts';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useCampaignStore } from '@/store/campaign.store.ts';
 import { storeToRefs } from 'pinia';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
@@ -24,12 +24,16 @@ import {
 } from '@heroicons/vue/24/outline';
 import { useCurrentUserId, useCurrentUserPlan } from '@/lib/hooks.ts';
 import { BillingPlan } from '@/api/users.ts';
+import { useNewGalleryEnabled } from '@/composables/useNewGalleryEnabled';
 
-defineProps<{
+const { isNewGalleryEnabled } = useNewGalleryEnabled();
+
+const props = defineProps<{
   collapsed?: boolean;
 }>();
 
 const router = useRouter();
+const route = useRoute();
 const eventBus = useEventBus();
 const campaignStore = useCampaignStore();
 const currentUserPlan = useCurrentUserPlan();
@@ -85,6 +89,8 @@ const myCampaigns = computed(() => {
 const joinedCampaigns = computed(() => {
   return campaigns.value.filter((c: any) => c.userId !== currentUserId.value);
 });
+
+const isActive = (path: string) => computed(() => route.fullPath.startsWith(path));
 </script>
 
 <template>
@@ -235,7 +241,7 @@ const joinedCampaigns = computed(() => {
     <router-link
       class="nav-item"
       :class="[
-        router.currentRoute.value.fullPath.startsWith('/campaign/overview')
+        route.fullPath.startsWith('/campaign/overview')
           ? 'default-border-no-opacity'
           : '',
       ]"
@@ -248,7 +254,7 @@ const joinedCampaigns = computed(() => {
     <router-link
       class="nav-item"
       :class="[
-        router.currentRoute.value.path.startsWith('/characters')
+        route.path.startsWith('/characters')
           ? 'default-border-no-opacity'
           : '',
       ]"
@@ -261,7 +267,7 @@ const joinedCampaigns = computed(() => {
     <router-link
       class="nav-item"
       :class="[
-        router.currentRoute.value.path.startsWith('/sessions')
+        route.path.startsWith('/sessions')
           ? 'default-border-no-opacity'
           : '',
       ]"
@@ -277,7 +283,7 @@ const joinedCampaigns = computed(() => {
     <router-link
       class="nav-item"
       :class="[
-        router.currentRoute.value.fullPath.startsWith('/conjurations#saved')
+        route.fullPath.startsWith('/conjurations#saved')
           ? 'default-border-no-opacity'
           : '',
       ]"
@@ -291,7 +297,7 @@ const joinedCampaigns = computed(() => {
     <router-link
       class="nav-item"
       :class="[
-        router.currentRoute.value.fullPath.startsWith('/conjurations#history')
+        route.fullPath.startsWith('/conjurations#history')
           ? 'default-border-no-opacity'
           : '',
       ]"
@@ -305,28 +311,25 @@ const joinedCampaigns = computed(() => {
     </router-link>
 
     <router-link
+      v-if="isNewGalleryEnabled"
       class="nav-item"
       :class="[
-        router.currentRoute.value.fullPath.startsWith('/conjurations#gallery')
+        route.fullPath.startsWith('/image-gallery')
           ? 'default-border-no-opacity'
           : '',
       ]"
-      to="/conjurations#gallery"
+      to="/image-gallery"
       @click="emit('nav-item-selected')"
     >
       <PhotoIcon class="h-5 mr-2" />
-      <div v-if="!collapsed" class="whitespace-nowrap">Public Gallery</div>
+      <div v-if="!collapsed" class="whitespace-nowrap">Image Gallery</div>
     </router-link>
 
     <div class="text-xs text-gray-500 font-bold mb-3 mt-6">TOOLS</div>
 
     <router-link
       class="nav-item"
-      :class="[
-        router.currentRoute.value.fullPath.startsWith('/collections')
-          ? 'default-border-no-opacity'
-          : '',
-      ]"
+      :class="{ 'default-border-no-opacity': isActive('/collections') }"
       to="/collections"
       @click="emit('nav-item-selected')"
     >
@@ -336,11 +339,7 @@ const joinedCampaigns = computed(() => {
 
     <router-link
       class="nav-item"
-      :class="[
-        router.currentRoute.value.fullPath.startsWith('/relationships')
-          ? 'default-border-no-opacity'
-          : '',
-      ]"
+      :class="{ 'default-border-no-opacity': isActive('/relationships') }"
       to="/relationships/graph"
       @click="emit('nav-item-selected')"
     >
@@ -348,6 +347,17 @@ const joinedCampaigns = computed(() => {
       <div v-if="!collapsed" class="whitespace-nowrap">
         Relationship Visualizer
       </div>
+    </router-link>
+
+    <router-link
+      v-if="isNewGalleryEnabled"
+      class="nav-item"
+      :class="{ 'default-border-no-opacity': isActive('/image-gallery') }"
+      to="/image-gallery"
+      @click="emit('nav-item-selected')"
+    >
+      <PhotoIcon class="h-5 mr-2" />
+      <div v-if="!collapsed" class="whitespace-nowrap">Image Gallery</div>
     </router-link>
   </div>
   <div v-if="currentUserPlan !== BillingPlan.Pro" class="mt-auto">
