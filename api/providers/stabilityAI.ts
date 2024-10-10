@@ -78,7 +78,7 @@ export class StabilityAIProvider {
     };
   }
 
-  async eraseImagePortion(imageUri: string, maskUri: string): Promise<string> {
+  async eraseImagePortion(imageUri: string, maskBuffer: Buffer): Promise<string> {
     let imagePath: string | null = null;
     let maskPath: string | null = null;
 
@@ -91,10 +91,8 @@ export class StabilityAIProvider {
       imagePath = path.join(tempDir, `image_${Date.now()}.jpg`);
       maskPath = path.join(tempDir, `mask_${Date.now()}.png`);
 
-      const imageBuffer = Buffer.from(imageUri.split(',')[1], 'base64');
-      fs.writeFileSync(imagePath, imageBuffer);
-
-      const maskBuffer = Buffer.from(maskUri.split(',')[1], 'base64');
+      const imageBuffer = await axios.get(imageUri, { responseType: 'arraybuffer' });
+      fs.writeFileSync(imagePath, imageBuffer.data);
       fs.writeFileSync(maskPath, maskBuffer);
 
       const formData = new FormData();
@@ -103,7 +101,7 @@ export class StabilityAIProvider {
       formData.append('output_format', 'jpeg');
 
       const response = await axios.post(
-        `{this.apiHost}/v2beta/stable-image/edit/erase`,
+        `${this.apiHost}/v2beta/stable-image/edit/erase`,
         formData,
         {
           headers: {
@@ -114,12 +112,10 @@ export class StabilityAIProvider {
           responseType: 'arraybuffer',
         },
       );
-
-      if (response.status === 200) {
-        return `data:image/jpeg;base64,${Buffer.from(response.data).toString('base64')}`;
-      } else {
-        throw new Error(`${response.status}: ${response.data.toString()}`);
-      }
+      
+      const imageId = uuidv4();
+      const base64 = Buffer.from(response.data).toString('base64');
+      return await saveImage(imageId, base64);
     } finally {
       if (imagePath && fs.existsSync(imagePath)) {
         fs.unlinkSync(imagePath);
@@ -171,5 +167,82 @@ export class StabilityAIProvider {
         httpCode: HttpCode.INTERNAL_SERVER_ERROR,
       });
     }
+  }
+
+  async inpaintImage(imageData: Buffer, maskData: Buffer, prompt: string, negativePrompt?: string, seed?: number): Promise<string> {
+    const formData = new FormData();
+    formData.append('image', imageData, { filename: 'image.png' });
+    formData.append('mask', maskData, { filename: 'mask.png' });
+    formData.append('prompt', prompt);
+    if (negativePrompt) formData.append('negative_prompt', negativePrompt);
+    if (seed) formData.append('seed', seed.toString());
+
+    const response = await axios.post(
+      `${this.apiHost}/v2beta/stable-image/edit/inpaint`,
+      formData,
+      {
+        headers: {
+          ...formData.getHeaders(),
+          Authorization: `Bearer ${this.apiKey}`,
+          Accept: 'image/*',
+        },
+        responseType: 'arraybuffer',
+      },
+    );
+      
+    const imageId = uuidv4();
+    const base64 = Buffer.from(response.data).toString('base64');
+    return await saveImage(imageId, base64);
+  }
+
+  async outpaintImage(imageData: Buffer, left: number, right: number, up: number, down: number, prompt?: string, creativity?: number, seed?: number): Promise<string> {
+    const formData = new FormData();
+    formData.append('image', imageData, { filename: 'image.png' });
+    formData.append('left', left.toString());
+    formData.append('right', right.toString());
+    formData.append('up', up.toString());
+    formData.append('down', down.toString());
+    if (prompt) formData.append('prompt', prompt);
+    if (creativity) formData.append('creativity', creativity.toString());
+    if (seed) formData.append('seed', seed.toString());
+
+    const response = await axios.post(
+      `${this.apiHost}/v2beta/stable-image/edit/outpaint`,
+      formData,
+      {
+        headers: {
+          ...formData.getHeaders(),
+          Authorization: `Bearer ${this.apiKey}`,
+          Accept: 'image/*',
+        },
+        responseType: 'arraybuffer',
+      },
+    );
+      
+    const imageId = uuidv4();
+    const base64 = Buffer.from(response.data).toString('base64');
+    return await saveImage(imageId, base64);
+  }
+
+  async removeBackground(imageData: Buffer): Promise<string> {
+    const formData = new FormData();
+    formData.append('image', imageData, { filename: 'image.png' });
+
+    const response = await axios.post(
+      `${this.apiHost}/v2beta/stable-image/edit/remove-background`,
+      formData,
+      {
+        headers: {
+          ...formData.getHeaders(),
+          Authorization: `Bearer ${this.apiKey}`,
+          Accept: 'image/*',
+        },
+        responseType: 'arraybuffer',
+      },
+    );
+      
+    const imageId = uuidv4();
+    const base64 = Buffer.from(response.data).toString('base64');
+    return await saveImage(imageId, base64);
   }
 }

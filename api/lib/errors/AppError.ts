@@ -18,8 +18,12 @@ export enum HttpCode {
 export enum ErrorType {
   ImageGenerationError = 'image-generation-error',
   ImageUpscaleError = 'image-upscale-error',
+  ImageInpaintError = 'image-inpaint-error',
+  ImageOutpaintError = 'image-outpaint-error',
+  ImageBackgroundRemovalError = 'image-background-removal-error',
   ConjurationError = 'conjuration-error',
   TranscriptionError = 'transcription-error',
+  ImageEraseError = 'image-erase-error',
 }
 
 export interface AppErrorArgs {

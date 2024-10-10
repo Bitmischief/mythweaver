@@ -40,6 +40,9 @@ export enum WebSocketEvent {
   CollectionMoved = 'collection-moved',
   CampaignFileUploaded = 'campaign-file-uploaded',
   CampaignFileProcessed = 'campaign-file-processed',
+  ImageEdited = 'image-edited',
+  ModelGenerationStarted = 'MODEL_GENERATION_STARTED',
+  ModelGenerationCompleted = 'MODEL_GENERATION_COMPLETED',
 }
 
 export interface WebSocketContext {

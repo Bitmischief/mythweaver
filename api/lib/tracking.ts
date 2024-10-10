@@ -71,6 +71,7 @@ export enum AppEvent {
   GetCampaignFiles = 'Get Campaign Files',
   GetUserImageGallery = 'Get User Image Gallery',
   EraseImagePortion = 'Erase Image Portion',
+  Generate3DModel = 'GENERATE_3D_MODEL',
 }
 
 export interface TrackingInfo {

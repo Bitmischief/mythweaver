@@ -17,9 +17,12 @@ import {
   PostImageRequest,
   PatchImageConjurationIdRequest,
   ImageStylePreset,
+  ImageEditRequest,
+  ImageOutpaintRequest,
 } from './images.interface';
 import { AppError, HttpCode } from '../../lib/errors/AppError';
 import { Image } from '@prisma/client';
+import { Express } from 'express';
 
 @Route('images')
 @Tags('Images')
@@ -105,5 +108,63 @@ export class ImagesController {
     );
     track(AppEvent.GetUserImageGallery, userId, trackingInfo);
     return result;
+  }
+
+  @Security('jwt')
+  @OperationId('inpaintImage')
+  @Post('/:imageId/inpaint')
+  public async postImageInpaint(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Route() imageId: number,
+    @Body() request: ImageEditRequest & { maskFile: Express.Multer.File },
+  ): Promise<Image> {
+    return await this.imagesService.inpaintImage(userId, imageId, request);
+  }
+
+  @Security('jwt')
+  @OperationId('outpaintImage')
+  @Post('/:imageId/outpaint')
+  public async postImageOutpaint(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Route() imageId: number,
+    @Body() request: ImageOutpaintRequest,
+  ): Promise<Image> {
+    return await this.imagesService.outpaintImage(userId, imageId, request);
+  }
+
+  @Security('jwt')
+  @OperationId('removeBackground')
+  @Post('/:imageId/remove-background')
+  public async postRemoveBackground(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Route() imageId: number,
+  ): Promise<void> {
+    await this.imagesService.removeBackground(userId, imageId);
+  }
+
+  @Security('jwt')
+  @OperationId('eraseImagePortion')
+  @Post('/:imageId/erase')
+  public async eraseImagePortion(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Route() imageId: number,
+    @Body() maskFile: Express.Multer.File,
+  ): Promise<Image> {
+    return await this.imagesService.eraseImagePortion(userId, imageId, maskFile);
+  }
+
+  @Security('jwt')
+  @OperationId('getImageById')
+  @Get('/:imageId')
+  public async getImageById(
+    @Inject() userId: number | undefined,
+    @Inject() trackingInfo: TrackingInfo,
+    @Route() imageId: number,
+  ): Promise<Image> {
+    return this.imagesService.getImageById(userId, imageId);
   }
 }

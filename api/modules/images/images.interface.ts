@@ -50,3 +50,26 @@ export interface GetUserImagesResponse {
   images: Image[];
   total: number;
 }
+
+export interface ImageEditRequest {
+  prompt: string;
+  negativePrompt?: string;
+  seed?: number;
+}
+
+export interface ImageOutpaintRequest {
+  left: number;
+  right: number;
+  up: number;
+  down: number;
+  prompt?: string;
+  creativity?: number;
+  seed?: number;
+}
+
+// Add this new interface
+export interface ImageEdit {
+  dateCreated: string;
+  type: 'original' | 'smart_erase' | 'inpainting' | 'outpainting' | 'background_removal';
+  uri: string;
+}

@@ -3,11 +3,10 @@ import { Image, User, Conjuration } from '@prisma/client';
 import { AppError, HttpCode } from '../../lib/errors/AppError';
 
 export class ImagesDataProvider {
-  async findImage(imageId: number, userId: number): Promise<Image | null> {
+  async findImage(imageId: number): Promise<Image | null> {
     return prisma.image.findUnique({
       where: {
         id: imageId,
-        userId: userId,
       },
     });
   }

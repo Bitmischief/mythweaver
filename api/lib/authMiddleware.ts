@@ -63,6 +63,10 @@ export const useInjectUserId = () => {
       return next();
     }
 
+    if (!req.auth?.token) {
+      return next();
+    }
+
     const token = req.auth?.token || '';
     const jwt = jwtDecode(token) as any;
 

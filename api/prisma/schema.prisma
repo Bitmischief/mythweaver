@@ -324,6 +324,8 @@ model Image {
   characterId   Int?
   modelId       Int?
 
+  edits         Json?
+
   user        User         @relation(fields: [userId], references: [id])
   conjuration Conjuration? @relation(fields: [conjurationId], references: [id], onDelete: SetNull)
   session     Session?     @relation(fields: [sessionId], references: [id], onDelete: SetNull)
