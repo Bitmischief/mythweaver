@@ -16,7 +16,7 @@ import {
   ArrowRightIcon,
   CheckIcon,
 } from '@heroicons/vue/20/solid';
-import { showError, showSuccess } from '@/lib/notifications.ts';
+import { showError } from '@/lib/notifications.ts';
 import { useWebsocketChannel } from '@/lib/hooks.ts';
 import { ServerEvent } from '@/lib/serverEvents.ts';
 import Select from '@/components/Core/Forms/Select.vue';
@@ -178,7 +178,6 @@ onUnmounted(() => {
   channel.unbind(ServerEvent.ImagePromptRephrased, imagePromptRephrasedHandler);
   channel.unbind(ServerEvent.ImageError, imageErrorHandler);
   channel.unbind(ServerEvent.ImageUpscaled, imageUpscaledHandler);
-  channel.unbind(ServerEvent.ImageUpscalingDone, imageUpscalingDoneHandler);
   channel.unbind(
     ServerEvent.ImageGenerationTimeout,
     imageGenerationTimeoutHandler,

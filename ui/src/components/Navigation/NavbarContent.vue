@@ -28,7 +28,7 @@ import { useNewGalleryEnabled } from '@/composables/useNewGalleryEnabled';
 
 const { isNewGalleryEnabled } = useNewGalleryEnabled();
 
-const props = defineProps<{
+defineProps<{
   collapsed?: boolean;
 }>();
 
@@ -90,7 +90,8 @@ const joinedCampaigns = computed(() => {
   return campaigns.value.filter((c: any) => c.userId !== currentUserId.value);
 });
 
-const isActive = (path: string) => computed(() => route.fullPath.startsWith(path));
+const isActive = (path: string) =>
+  computed(() => route.fullPath.startsWith(path));
 </script>
 
 <template>
@@ -254,9 +255,7 @@ const isActive = (path: string) => computed(() => route.fullPath.startsWith(path
     <router-link
       class="nav-item"
       :class="[
-        route.path.startsWith('/characters')
-          ? 'default-border-no-opacity'
-          : '',
+        route.path.startsWith('/characters') ? 'default-border-no-opacity' : '',
       ]"
       to="/characters"
       @click="emit('nav-item-selected')"
@@ -267,9 +266,7 @@ const isActive = (path: string) => computed(() => route.fullPath.startsWith(path
     <router-link
       class="nav-item"
       :class="[
-        route.path.startsWith('/sessions')
-          ? 'default-border-no-opacity'
-          : '',
+        route.path.startsWith('/sessions') ? 'default-border-no-opacity' : '',
       ]"
       to="/sessions"
       @click="emit('nav-item-selected')"

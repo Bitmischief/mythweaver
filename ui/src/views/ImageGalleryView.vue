@@ -4,16 +4,7 @@ import { getUserImageGallery } from '@/api/images';
 import Loader from '@/components/Core/Loader.vue';
 import LightboxImage from '@/components/LightboxImage.vue';
 import { useNewGalleryEnabled } from '@/composables/useNewGalleryEnabled';
-
-interface Image {
-  id: string;
-  uri: string;
-  prompt: string;
-  imageModel: {
-    description: string;
-  };
-  createdAt: string;
-}
+import { Image } from '@/api/images';
 
 const images = ref<Image[]>([]);
 const loading = ref(false);
@@ -53,22 +44,37 @@ onMounted(() => {
         <span class="gradient-text">My Images</span>
       </h1>
     </div>
-    <div v-if="isNewGalleryEnabled" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+    <div
+      v-if="isNewGalleryEnabled"
+      class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6"
+    >
       <div v-for="image in images" :key="image.id" class="relative group">
         <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden">
           <LightboxImage :src="image.uri" :alt="image.prompt">
             <div class="space-y-4">
               <div>
-                <h3 class="font-bold text-gray-700 dark:text-gray-300 mb-1">Model:</h3>
-                <p class="text-gray-600 dark:text-gray-400">{{ image.imageModel.description }}</p>
+                <h3 class="font-bold text-gray-700 dark:text-gray-300 mb-1">
+                  Model:
+                </h3>
+                <p class="text-gray-600 dark:text-gray-400">
+                  {{ image.imageModel.description }}
+                </p>
               </div>
               <div>
-                <h3 class="font-bold text-gray-700 dark:text-gray-300 mb-1">Created At:</h3>
-                <p class="text-gray-600 dark:text-gray-400">{{ new Date(image.createdAt).toLocaleString() }}</p>
+                <h3 class="font-bold text-gray-700 dark:text-gray-300 mb-1">
+                  Created At:
+                </h3>
+                <p class="text-gray-600 dark:text-gray-400">
+                  {{ new Date(image.createdAt).toLocaleString() }}
+                </p>
               </div>
               <div>
-                <h3 class="font-bold text-gray-700 dark:text-gray-300 mb-1">Prompt:</h3>
-                <p class="text-gray-600 dark:text-gray-400">{{ image.prompt }}</p>
+                <h3 class="font-bold text-gray-700 dark:text-gray-300 mb-1">
+                  Prompt:
+                </h3>
+                <p class="text-gray-600 dark:text-gray-400">
+                  {{ image.prompt }}
+                </p>
               </div>
             </div>
           </LightboxImage>
@@ -85,7 +91,9 @@ onMounted(() => {
       <Loader />
     </div>
     <div v-if="hasMore" class="text-center mt-8">
-      <button @click="loadMore" class="button-primary px-6 py-2 rounded-full">Load More</button>
+      <button class="button-primary px-6 py-2 rounded-full" @click="loadMore">
+        Load More
+      </button>
     </div>
   </div>
 </template>

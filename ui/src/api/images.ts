@@ -1,5 +1,15 @@
 import axios from 'axios';
 
+export interface Image {
+  id: string;
+  uri: string;
+  prompt: string;
+  imageModel: {
+    description: string;
+  };
+  createdAt: string;
+}
+
 export const conjureImage = async (
   prompt: string,
   negativePrompt?: string,

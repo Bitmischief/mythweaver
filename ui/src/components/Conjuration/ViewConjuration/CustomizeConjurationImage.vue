@@ -13,7 +13,7 @@ import {
   XCircleIcon,
   ArrowPathIcon,
 } from '@heroicons/vue/20/solid';
-import { showError, showSuccess } from '@/lib/notifications.ts';
+import { showError } from '@/lib/notifications.ts';
 import { useWebsocketChannel } from '@/lib/hooks.ts';
 import { ServerEvent } from '@/lib/serverEvents.ts';
 import Select from '@/components/Core/Forms/Select.vue';
@@ -106,7 +106,6 @@ onMounted(async () => {
   channel.bind(ServerEvent.ImagePromptRephrased, imagePromptRephrasedHandler);
   channel.bind(ServerEvent.ImageError, imageErrorHandler);
   channel.bind(ServerEvent.ImageUpscaled, imageUpscaledHandler);
-  channel.bind(ServerEvent.ImageUpscalingDone, imageUpscalingDoneHandler);
 
   await fetchImageHistory();
 });
