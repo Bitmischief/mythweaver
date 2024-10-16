@@ -78,7 +78,10 @@ export class StabilityAIProvider {
     };
   }
 
-  async eraseImagePortion(imageUri: string, maskBuffer: Buffer): Promise<string> {
+  async eraseImagePortion(
+    imageUri: string,
+    maskBuffer: Buffer,
+  ): Promise<string> {
     let imagePath: string | null = null;
     let maskPath: string | null = null;
 
@@ -91,7 +94,9 @@ export class StabilityAIProvider {
       imagePath = path.join(tempDir, `image_${Date.now()}.jpg`);
       maskPath = path.join(tempDir, `mask_${Date.now()}.png`);
 
-      const imageBuffer = await axios.get(imageUri, { responseType: 'arraybuffer' });
+      const imageBuffer = await axios.get(imageUri, {
+        responseType: 'arraybuffer',
+      });
       fs.writeFileSync(imagePath, imageBuffer.data);
       fs.writeFileSync(maskPath, maskBuffer);
 
@@ -112,7 +117,7 @@ export class StabilityAIProvider {
           responseType: 'arraybuffer',
         },
       );
-      
+
       const imageId = uuidv4();
       const base64 = Buffer.from(response.data).toString('base64');
       return await saveImage(imageId, base64);
@@ -169,7 +174,13 @@ export class StabilityAIProvider {
     }
   }
 
-  async inpaintImage(imageData: Buffer, maskData: Buffer, prompt: string, negativePrompt?: string, seed?: number): Promise<string> {
+  async inpaintImage(
+    imageData: Buffer,
+    maskData: Buffer,
+    prompt: string,
+    negativePrompt?: string,
+    seed?: number,
+  ): Promise<string> {
     const formData = new FormData();
     formData.append('image', imageData, { filename: 'image.png' });
     formData.append('mask', maskData, { filename: 'mask.png' });
@@ -189,13 +200,22 @@ export class StabilityAIProvider {
         responseType: 'arraybuffer',
       },
     );
-      
+
     const imageId = uuidv4();
     const base64 = Buffer.from(response.data).toString('base64');
     return await saveImage(imageId, base64);
   }
 
-  async outpaintImage(imageData: Buffer, left: number, right: number, up: number, down: number, prompt?: string, creativity?: number, seed?: number): Promise<string> {
+  async outpaintImage(
+    imageData: Buffer,
+    left: number,
+    right: number,
+    up: number,
+    down: number,
+    prompt?: string,
+    creativity?: number,
+    seed?: number,
+  ): Promise<string> {
     const formData = new FormData();
     formData.append('image', imageData, { filename: 'image.png' });
     formData.append('left', left.toString());
@@ -218,7 +238,7 @@ export class StabilityAIProvider {
         responseType: 'arraybuffer',
       },
     );
-      
+
     const imageId = uuidv4();
     const base64 = Buffer.from(response.data).toString('base64');
     return await saveImage(imageId, base64);
@@ -240,7 +260,7 @@ export class StabilityAIProvider {
         responseType: 'arraybuffer',
       },
     );
-      
+
     const imageId = uuidv4();
     const base64 = Buffer.from(response.data).toString('base64');
     return await saveImage(imageId, base64);

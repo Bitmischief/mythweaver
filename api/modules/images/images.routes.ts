@@ -1,6 +1,10 @@
 import express, { Request, Response } from 'express';
 import { z } from 'zod';
-import { checkAuth0Jwt, useAuthenticateRequest, useInjectUserId } from '../../lib/authMiddleware';
+import {
+  checkAuth0Jwt,
+  useAuthenticateRequest,
+  useInjectUserId,
+} from '../../lib/authMiddleware';
 import { useInjectLoggingInfo } from '../../lib/loggingMiddleware';
 import {
   useValidateRequest,
@@ -189,7 +193,8 @@ router.post('/:imageId/inpaint', [
   useValidateRequest(postInpaintSchema),
   injectDependencies,
   async (req: Request, res: Response) => {
-    const controller = req.container.resolve<ImagesController>('imagesController');
+    const controller =
+      req.container.resolve<ImagesController>('imagesController');
     const response = await controller.postImageInpaint(
       res.locals.auth.userId,
       res.locals.trackingInfo,
@@ -223,7 +228,8 @@ router.post('/:imageId/outpaint', [
   useValidateRequest(postOutpaintSchema),
   injectDependencies,
   async (req: Request, res: Response) => {
-    const controller = req.container.resolve<ImagesController>('imagesController');
+    const controller =
+      req.container.resolve<ImagesController>('imagesController');
     const response = await controller.postImageOutpaint(
       res.locals.auth.userId,
       res.locals.trackingInfo,
@@ -243,7 +249,8 @@ router.post('/:imageId/remove-background', [
   }),
   injectDependencies,
   async (req: Request, res: Response) => {
-    const controller = req.container.resolve<ImagesController>('imagesController');
+    const controller =
+      req.container.resolve<ImagesController>('imagesController');
     await controller.postRemoveBackground(
       res.locals.auth.userId,
       res.locals.trackingInfo,
@@ -263,7 +270,8 @@ router.post('/:imageId/erase', [
   upload.single('mask'),
   injectDependencies,
   async (req: Request, res: Response) => {
-    const controller = req.container.resolve<ImagesController>('imagesController');
+    const controller =
+      req.container.resolve<ImagesController>('imagesController');
     const response = await controller.eraseImagePortion(
       res.locals.auth.userId,
       res.locals.trackingInfo,
@@ -287,7 +295,8 @@ router.get('/:imageId', [
   }),
   injectDependencies,
   async (req: Request, res: Response) => {
-    const controller = req.container.resolve<ImagesController>('imagesController');
+    const controller =
+      req.container.resolve<ImagesController>('imagesController');
     const response = await controller.getImageById(
       res.locals?.auth?.userId,
       res.locals.trackingInfo,

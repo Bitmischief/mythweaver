@@ -70,6 +70,11 @@ export interface ImageOutpaintRequest {
 // Add this new interface
 export interface ImageEdit {
   dateCreated: string;
-  type: 'original' | 'smart_erase' | 'inpainting' | 'outpainting' | 'background_removal';
+  type:
+    | 'original'
+    | 'smart_erase'
+    | 'inpainting'
+    | 'outpainting'
+    | 'background_removal';
   uri: string;
 }

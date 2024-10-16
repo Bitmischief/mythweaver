@@ -615,7 +615,7 @@ export default class ConjurationController {
             id: undefined,
             userId: userId,
             conjurationId: conjuration.id,
-            edits: {}
+            edits: {},
           },
         });
       }

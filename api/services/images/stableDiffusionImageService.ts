@@ -10,7 +10,7 @@ import {
   ImageUpscaleRequest,
   ImageUpscaleResponse,
 } from './models';
-import { ImageStylePreset } from '../../controllers/images';
+import { ImageStylePreset } from '@/modules/images/images.interface';
 
 const apiHost = process.env.API_HOST ?? 'https://api.stability.ai';
 const engineId = 'stable-diffusion-v1-6';

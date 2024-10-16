@@ -103,9 +103,9 @@ export class ImagesService {
 
     if (userId !== image.userId) {
       throw new AppError({
-        description: "You are not the owner of this image",
+        description: 'You are not the owner of this image',
         httpCode: HttpCode.UNAUTHORIZED,
-      })
+      });
     }
 
     await this.imagesDataProvider.updateImage(imageId, {
@@ -134,9 +134,9 @@ export class ImagesService {
 
     if (userId !== image.userId) {
       throw new AppError({
-        description: "You are not the owner of this image",
+        description: 'You are not the owner of this image',
         httpCode: HttpCode.UNAUTHORIZED,
-      })
+      });
     }
 
     if (!image.uri) {
@@ -219,9 +219,9 @@ export class ImagesService {
 
     if (userId !== image.userId) {
       throw new AppError({
-        description: "You are not the owner of this image",
+        description: 'You are not the owner of this image',
         httpCode: HttpCode.UNAUTHORIZED,
-      })
+      });
     }
 
     await this.imagesDataProvider.updateManyImages(
@@ -327,7 +327,11 @@ export class ImagesService {
       return;
     }
 
-    const updatedImage = await this.updateImage(image.id, 'original', imageGenerationResponse.uri);
+    const updatedImage = await this.updateImage(
+      image.id,
+      'original',
+      imageGenerationResponse.uri,
+    );
 
     await sendWebsocketMessage(request.userId, WebSocketEvent.ImageCreated, {
       image: updatedImage,
@@ -401,9 +405,7 @@ export class ImagesService {
     }
 
     if (request.imageId) {
-      const image = await this.imagesDataProvider.findImage(
-        request.imageId,
-      );
+      const image = await this.imagesDataProvider.findImage(request.imageId);
       if (image?.failed) {
         return;
       }
@@ -455,7 +457,11 @@ export class ImagesService {
     return imageGenerationResponse;
   }
 
-  async inpaintImage(userId: number, imageId: number, request: ImageEditRequest & { maskFile: Express.Multer.File }): Promise<Image> {
+  async inpaintImage(
+    userId: number,
+    imageId: number,
+    request: ImageEditRequest & { maskFile: Express.Multer.File },
+  ): Promise<Image> {
     const user = await this.imagesDataProvider.findUser(userId);
     if (!user) {
       throw new AppError({
@@ -474,9 +480,9 @@ export class ImagesService {
 
     if (userId !== image.userId) {
       throw new AppError({
-        description: "You are not the owner of this image",
+        description: 'You are not the owner of this image',
         httpCode: HttpCode.UNAUTHORIZED,
-      })
+      });
     }
 
     if (user.imageCredits < 3) {
@@ -489,16 +495,20 @@ export class ImagesService {
     try {
       const imageBuffer = await this.getImageBuffer(image.uri);
       const maskBuffer = request.maskFile.buffer;
-      
+
       const inpaintedImageUri = await this.stabilityAIProvider.inpaintImage(
         imageBuffer,
         maskBuffer,
         request.prompt,
         request.negativePrompt,
-        request.seed
+        request.seed,
       );
 
-      const updatedImage = await this.updateImage(imageId, 'inpainting', inpaintedImageUri);
+      const updatedImage = await this.updateImage(
+        imageId,
+        'inpainting',
+        inpaintedImageUri,
+      );
 
       await this.deductCreditsAndNotify(userId, 3, 'Image inpainting');
 
@@ -521,7 +531,11 @@ export class ImagesService {
     }
   }
 
-  async outpaintImage(userId: number, imageId: number, request: ImageOutpaintRequest): Promise<Image> {
+  async outpaintImage(
+    userId: number,
+    imageId: number,
+    request: ImageOutpaintRequest,
+  ): Promise<Image> {
     const user = await this.imagesDataProvider.findUser(userId);
     if (!user) {
       throw new AppError({
@@ -540,9 +554,9 @@ export class ImagesService {
 
     if (userId !== image.userId) {
       throw new AppError({
-        description: "You are not the owner of this image",
+        description: 'You are not the owner of this image',
         httpCode: HttpCode.UNAUTHORIZED,
-      })
+      });
     }
 
     if (user.imageCredits < 4) {
@@ -554,7 +568,7 @@ export class ImagesService {
 
     try {
       const imageBuffer = await this.getImageBuffer(image.uri);
-      
+
       const outpaintedImageUri = await this.stabilityAIProvider.outpaintImage(
         imageBuffer,
         request.left,
@@ -563,10 +577,14 @@ export class ImagesService {
         request.down,
         request.prompt,
         request.creativity,
-        request.seed
+        request.seed,
       );
 
-      const updatedImage = await this.updateImage(imageId, 'outpainting', outpaintedImageUri);
+      const updatedImage = await this.updateImage(
+        imageId,
+        'outpainting',
+        outpaintedImageUri,
+      );
 
       await this.deductCreditsAndNotify(userId, 4, 'Image outpainting');
 
@@ -608,9 +626,9 @@ export class ImagesService {
 
     if (userId !== image.userId) {
       throw new AppError({
-        description: "You are not the owner of this image",
+        description: 'You are not the owner of this image',
         httpCode: HttpCode.UNAUTHORIZED,
-      })
+      });
     }
 
     if (user.imageCredits < 2) {
@@ -622,10 +640,15 @@ export class ImagesService {
 
     try {
       const imageBuffer = await this.getImageBuffer(image.uri);
-      
-      const backgroundRemovedImageUri = await this.stabilityAIProvider.removeBackground(imageBuffer);
 
-      const updatedImage = await this.updateImage(imageId, 'background_removal', backgroundRemovedImageUri);
+      const backgroundRemovedImageUri =
+        await this.stabilityAIProvider.removeBackground(imageBuffer);
+
+      const updatedImage = await this.updateImage(
+        imageId,
+        'background_removal',
+        backgroundRemovedImageUri,
+      );
 
       await this.deductCreditsAndNotify(userId, 2, 'Background removal');
 
@@ -651,22 +674,30 @@ export class ImagesService {
     return Buffer.from(response.data, 'binary');
   }
 
-  private async deductCreditsAndNotify(userId: number, credits: number, reason: string): Promise<void> {
+  private async deductCreditsAndNotify(
+    userId: number,
+    credits: number,
+    reason: string,
+  ): Promise<void> {
     const imageCredits = await modifyImageCreditCount(
       userId,
       -credits,
       ImageCreditChangeType.USER_INITIATED,
-      reason
+      reason,
     );
 
     await sendWebsocketMessage(
       userId,
       WebSocketEvent.UserImageCreditCountUpdated,
-      imageCredits
+      imageCredits,
     );
   }
 
-  async eraseImagePortion(userId: number, imageId: number, maskFile: Express.Multer.File): Promise<Image> {
+  async eraseImagePortion(
+    userId: number,
+    imageId: number,
+    maskFile: Express.Multer.File,
+  ): Promise<Image> {
     const user = await this.imagesDataProvider.findUser(userId);
     if (!user) {
       throw new AppError({
@@ -685,9 +716,9 @@ export class ImagesService {
 
     if (userId !== image.userId) {
       throw new AppError({
-        description: "You are not the owner of this image",
+        description: 'You are not the owner of this image',
         httpCode: HttpCode.UNAUTHORIZED,
-      })
+      });
     }
 
     if (user.imageCredits < 1) {
@@ -699,9 +730,16 @@ export class ImagesService {
 
     try {
       const maskBuffer = maskFile.buffer;
-      const erasedImageUri = await this.stabilityAIProvider.eraseImagePortion(image.uri, maskBuffer);
+      const erasedImageUri = await this.stabilityAIProvider.eraseImagePortion(
+        image.uri,
+        maskBuffer,
+      );
 
-      const updatedImage = await this.updateImage(imageId, 'smart_erase', erasedImageUri);
+      const updatedImage = await this.updateImage(
+        imageId,
+        'smart_erase',
+        erasedImageUri,
+      );
 
       await this.deductCreditsAndNotify(userId, 1, 'Image portion erasing');
 
@@ -724,7 +762,11 @@ export class ImagesService {
     }
   }
 
-  private async updateImage(imageId: number, editType: ImageEdit['type'], newUri: string): Promise<Image> {
+  private async updateImage(
+    imageId: number,
+    editType: ImageEdit['type'],
+    newUri: string,
+  ): Promise<Image> {
     const image = await this.imagesDataProvider.findImage(imageId);
     if (!image) {
       throw new AppError({
@@ -733,7 +775,7 @@ export class ImagesService {
       });
     }
 
-    const edits = image.edits as unknown as ImageEdit[] || [];
+    const edits = (image.edits as unknown as ImageEdit[]) || [];
 
     if (edits.length === 0) {
       edits.push({
@@ -755,7 +797,10 @@ export class ImagesService {
     });
   }
 
-  async getImageById(userId: number | undefined, imageId: number): Promise<Image> {
+  async getImageById(
+    userId: number | undefined,
+    imageId: number,
+  ): Promise<Image> {
     const image = await this.imagesDataProvider.findImage(imageId);
 
     if (!image) {

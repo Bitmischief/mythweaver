@@ -154,7 +154,11 @@ export class ImagesController {
     @Route() imageId: number,
     @Body() maskFile: Express.Multer.File,
   ): Promise<Image> {
-    return await this.imagesService.eraseImagePortion(userId, imageId, maskFile);
+    return await this.imagesService.eraseImagePortion(
+      userId,
+      imageId,
+      maskFile,
+    );
   }
 
   @Security('jwt')

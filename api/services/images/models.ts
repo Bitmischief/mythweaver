@@ -1,4 +1,4 @@
-import { ImageStylePreset } from '../../controllers/images';
+import { ImageStylePreset } from '@/modules/images/images.interface';
 
 export interface ImageGenerationRequest {
   modelId?: number;
