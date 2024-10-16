@@ -206,7 +206,7 @@ router.post('/:imageId/inpaint', [
     );
     return res.status(200).json(response);
   },
-]);
+] as express.RequestHandler[]);
 
 const postOutpaintSchema = z.object({
   left: z.number().min(0).max(2000),
@@ -280,7 +280,7 @@ router.post('/:imageId/erase', [
     );
     return res.status(200).json(response);
   },
-]);
+] as express.RequestHandler[]);
 
 const getImageByIdSchema = z.object({
   imageId: z.coerce.number(),

@@ -1,5 +1,4 @@
 import dotenv from 'dotenv';
-import swaggerUi from 'swagger-ui-express';
 import Router from './routes';
 import { errorHandler } from './lib/errors/ErrorHandler';
 import cors from 'cors';
@@ -19,7 +18,6 @@ import {
   subscriptionPlanUpdateQueue,
   expiredSubscriptionCheckQueue,
 } from './worker';
-import imagesRouter from './modules/images/images.routes';
 
 console.log('Initializing env vars');
 dotenv.config();
@@ -122,17 +120,6 @@ try {
 
   console.log('Initializing routes');
   app.use(Router);
-
-  console.log('Initializing swagger');
-  app.use(
-    '/docs',
-    swaggerUi.serve,
-    swaggerUi.setup(undefined, {
-      swaggerOptions: {
-        url: '/swagger.json',
-      },
-    }),
-  );
 
   console.log('Initializing sentry error handler');
   Sentry.setupExpressErrorHandler(app);
