@@ -12,11 +12,10 @@ import {
 } from '../../lib/validationMiddleware';
 import { ImagesController } from './images.controller';
 import { injectDependencies } from './images.dependencies';
-import { ImageEditRequest, ImageOutpaintRequest } from './images.interface';
 import multer from 'multer';
+import { useUpload } from '../../lib/fileUploadMiddleware';
 
 const upload = multer({ storage: multer.memoryStorage() });
-
 const router = express.Router();
 
 const postImageSchema = z.object({
@@ -33,6 +32,10 @@ const postImageSchema = z.object({
       characterId: z.number().optional(),
     })
     .optional(),
+  width: z.number().min(64).max(2048).default(1024).optional(),
+  height: z.number().min(64).max(2048).default(1024).optional(),
+  imageStrength: z.number().min(1).max(100).default(35).optional(),
+  imageId: z.number().optional(),
 });
 
 router.post('/', [
@@ -48,10 +51,11 @@ router.post('/', [
       res.locals.auth.userId,
       res.locals.trackingInfo,
       req.body,
+      req.file,
     );
     return res.status(200).json(response);
   },
-]);
+] as express.RequestHandler[]);
 
 const patchRouteSchema = z.object({
   imageId: z.coerce.number(),
@@ -305,5 +309,26 @@ router.get('/:imageId', [
     return res.status(200).json(response);
   },
 ]);
+
+const MAX_IMAGE_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const ACCEPTED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/jpg'];
+
+router.post('/upload', [
+  checkAuth0Jwt,
+  useInjectUserId(),
+  useInjectLoggingInfo(),
+  useUpload('image', { maxFileSize: MAX_IMAGE_FILE_SIZE, acceptedFileTypes: ACCEPTED_IMAGE_TYPES }),
+  injectDependencies,
+  async (req: Request, res: Response) => {
+    const controller =
+      req.container.resolve<ImagesController>('imagesController');
+    const response = await controller.uploadImage(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      req.file as Express.Multer.File,
+    );
+    return res.status(200).json(response);
+  },
+] as express.RequestHandler[]);
 
 export default router;

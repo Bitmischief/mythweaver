@@ -1,14 +1,11 @@
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import fs from 'fs';
 import path from 'path';
 import FormData from 'form-data';
 import { v4 as uuidv4 } from 'uuid';
-import {
-  ImageGenerationRequest,
-  ImageUpscaleRequest,
-} from '../services/images/models';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import { saveImage, getImage } from '../services/dataStorage';
+import { ImageGenerationRequest, ImageUpscaleRequest } from '@/modules/images/images.interface';
 
 export interface StabilityGeneratedImageResponse {
   uri: string;
@@ -29,27 +26,36 @@ export class StabilityAIProvider {
   async generateImage(
     request: ImageGenerationRequest,
   ): Promise<StabilityGeneratedImageResponse> {
+    if (request.referenceImage) {
+      return this.generateImageToImage(request);
+    } else {
+      return this.generateTextToImage(request);
+    }
+  }
+
+  private async generateTextToImage(
+    request: ImageGenerationRequest,
+  ): Promise<StabilityGeneratedImageResponse> {
+    const width = request.width || 1024;
+    const height = request.height || 1024;
+
+    const payload = {
+      text_prompts: [
+        { text: request.prompt, weight: 1 },
+        { text: `blurry, bad, ${request.negativePrompt}`, weight: -1 },
+      ],
+      cfg_scale: 7,
+      height,
+      width,
+      steps: 30,
+      samples: request.count,
+      style_preset: request.stylePreset,
+      seed: request.seed,
+    };
+
     const response = await axios.post(
       `${this.apiHost}/v1/generation/stable-diffusion-xl-1024-v1-0/text-to-image`,
-      {
-        text_prompts: [
-          {
-            text: request.prompt,
-            weight: 1,
-          },
-          {
-            text: `blurry, bad, ${request.negativePrompt}`,
-            weight: -1,
-          },
-        ],
-        cfg_scale: 7,
-        height: 1024,
-        width: 1024,
-        steps: 30,
-        samples: request.count,
-        style_preset: request.stylePreset,
-        seed: request.seed ? parseInt(request.seed) : 0,
-      },
+      payload,
       {
         headers: {
           'Content-Type': 'application/json',
@@ -59,6 +65,58 @@ export class StabilityAIProvider {
       },
     );
 
+    return await this.processGenerationResponse(response);
+  }
+
+  private async generateImageToImage(
+    request: ImageGenerationRequest,
+  ): Promise<StabilityGeneratedImageResponse> {
+    const width = request.width || 1024;
+    const height = request.height || 1024;
+
+    const formData = new FormData();
+    formData.append('text_prompts[0][text]', request.prompt);
+    formData.append('text_prompts[0][weight]', '1');
+
+    if (request.negativePrompt) {
+      formData.append('text_prompts[1][text]', `blurry, bad, ${request.negativePrompt}`);
+      formData.append('text_prompts[1][weight]', '-1');
+    }
+
+    formData.append('cfg_scale', '7');
+    formData.append('steps', '30');
+    formData.append('samples', request.count.toString());
+    
+    if (request.stylePreset) {
+      formData.append('style_preset', request.stylePreset);
+    }
+    
+    if (request.seed) {
+      formData.append('seed', request.seed);
+    }
+
+    formData.append('init_image', request.referenceImage, 'init_image.png');
+    formData.append('init_image_mode', 'IMAGE_STRENGTH');
+
+    const imageStrength = (request.imageStrength || 35) / 100;
+    formData.append('image_strength', imageStrength.toString());
+
+    const response = await axios.post(
+      `${this.apiHost}/v1/generation/stable-diffusion-xl-1024-v1-0/image-to-image`,
+      formData,
+      {
+        headers: {
+          ...formData.getHeaders(),
+          Accept: 'application/json',
+          Authorization: `Bearer ${this.apiKey}`,
+        },
+      },
+    );
+
+    return await this.processGenerationResponse(response);
+  }
+
+  async processGenerationResponse(response: AxiosResponse) {
     const artifacts = response.data.artifacts;
 
     if (artifacts.length === 0) {

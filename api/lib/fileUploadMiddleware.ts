@@ -45,3 +45,7 @@ export const useBuildFileUploader = (opts: FileUploadSettings) => {
     },
   });
 };
+
+export const useUpload = (filename: string, opts: FileUploadSettings) => {
+  return useBuildFileUploader(opts).single(filename);
+};
