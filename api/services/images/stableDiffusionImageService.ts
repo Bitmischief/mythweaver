@@ -194,5 +194,5 @@ const postStableDiffusionUpscaleRequest = async (
     });
   }
 
-  return response.data.toString('base64')
+  return response.data.toString('base64');
 };
