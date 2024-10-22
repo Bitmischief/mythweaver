@@ -3,9 +3,6 @@ import { sendWebsocketMessage, WebSocketEvent } from '../services/websockets';
 import { AppError, HttpCode } from './errors/AppError';
 import { BillingPlan } from '@prisma/client';
 import { FreeTierConjurationLimit } from '../data/limits';
-import { OpenFeature } from '@openfeature/server-sdk';
-
-const featureFlags = OpenFeature.getClient();
 
 export const sendConjurationCountUpdatedEvent = async (userId: number) => {
   const userConjurationCount = await prisma.conjuration.count({
@@ -43,24 +40,6 @@ export const validateConjurationCountRestriction = async (userId: number) => {
       description: 'User not found.',
       httpCode: HttpCode.NOT_FOUND,
     });
-  }
-
-  const context = {
-    kind: 'user',
-    key: user.id.toString(),
-    email: user.email,
-    name: user.username,
-    custom: {
-      plan: user.plan,
-    },
-  };
-  const flag = await featureFlags.getBooleanValue(
-    'free-tier-conjuration-limit',
-    false,
-    context,
-  );
-  if (!flag) {
-    return;
   }
 
   if (user.plan === BillingPlan.FREE) {

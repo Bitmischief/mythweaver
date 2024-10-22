@@ -11,6 +11,7 @@ import {
   ImageUpscaleResponse,
 } from './models';
 import { ImageStylePreset } from '../../controllers/images';
+import { arrayBuffer } from 'stream/consumers';
 
 const apiHost = process.env.API_HOST ?? 'https://api.stability.ai';
 const engineId = 'stable-diffusion-v1-6';
@@ -122,30 +123,23 @@ export const stableDiffusionUpscaleImage = async (
   if (!apiKey) throw new Error('Missing Stability API key.');
 
   track(AppEvent.UpscaleImage, request.userId, undefined, {});
-  const upscaleResponse = await postStableDiffusionUpscaleRequest(request);
+  const upscaledImageBase64 = await postStableDiffusionUpscaleRequest(request);
 
-  const artifacts =
-    upscaleResponse?.artifacts?.filter(
-      (a: any) => a.finishReason === 'SUCCESS',
-    ) || [];
-
-  if (artifacts.length === 0) {
+  if (!upscaledImageBase64) {
     throw new AppError({
       description: 'Image upscale failed.',
       httpCode: HttpCode.INTERNAL_SERVER_ERROR,
     });
   }
 
-  const image = artifacts[0];
-
   const imageId = uuidv4();
-  return await saveImage(imageId, image.base64);
+  return await saveImage(imageId, upscaledImageBase64);
 };
 
 const postStableDiffusionUpscaleRequest = async (
   request: ImageUpscaleRequest,
-): Promise<ImageUpscaleResponse | undefined> => {
-  let response: AxiosResponse<any, any>;
+): Promise<string | undefined> => {
+  let response: AxiosResponse<Buffer>;
 
   const imageId = request.imageUri.split('/').pop();
 
@@ -160,17 +154,28 @@ const postStableDiffusionUpscaleRequest = async (
     const formData = new FormData();
 
     const image = await getImage(imageId);
-    formData.append('image', image);
+    if (!image) {
+      throw new AppError({
+        description: 'Image not found.',
+        httpCode: 404,
+      });
+    }
+
+    formData.append('image', image, {
+      filename: `${imageId}.png`,
+      contentType: 'image/png',
+    });
 
     response = await axios.post(
-      `${apiHost}/v1/generation/${upscaleEngine}/image-to-image/upscale`,
+      `${apiHost}/v2beta/stable-image/upscale/fast`,
       formData,
       {
         headers: {
-          'Content-Type': 'multipart/form-data',
-          Accept: 'application/json',
+          ...formData.getHeaders(),
+          Accept: 'image/*',
           Authorization: `Bearer ${apiKey}`,
         },
+        responseType: 'arraybuffer',
       },
     );
   } catch (err: any) {
@@ -189,5 +194,5 @@ const postStableDiffusionUpscaleRequest = async (
     });
   }
 
-  return response.data;
+  return response.data.toString('base64')
 };

@@ -122,17 +122,6 @@ try {
   console.log('Initializing routes');
   app.use(Router);
 
-  console.log('Initializing swagger');
-  app.use(
-    '/docs',
-    swaggerUi.serve,
-    swaggerUi.setup(undefined, {
-      swaggerOptions: {
-        url: '/swagger.json',
-      },
-    }),
-  );
-
   console.log('Initializing sentry error handler');
   Sentry.setupExpressErrorHandler(app);
 
