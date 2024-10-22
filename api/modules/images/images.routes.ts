@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import {
   checkAuth0Jwt,
@@ -310,7 +310,7 @@ router.get('/:imageId', [
   },
 ]);
 
-const MAX_IMAGE_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_IMAGE_FILE_SIZE = 10 * 1024 * 1024;
 const ACCEPTED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/jpg'];
 
 router.post('/upload', [
@@ -322,6 +322,11 @@ router.post('/upload', [
   async (req: Request, res: Response) => {
     const controller =
       req.container.resolve<ImagesController>('imagesController');
+
+    if (!req.file) {
+      return res.status(400).json({ message: 'Invalid image upload, no file provided. Are you using a multipart form upload?' });
+    }
+
     const response = await controller.uploadImage(
       res.locals.auth.userId,
       res.locals.trackingInfo,

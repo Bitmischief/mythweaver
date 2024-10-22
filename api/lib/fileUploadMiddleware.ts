@@ -1,5 +1,5 @@
 import { S3Client } from '@aws-sdk/client-s3';
-import { Request } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
 const multer = require('multer');
@@ -47,5 +47,15 @@ export const useBuildFileUploader = (opts: FileUploadSettings) => {
 };
 
 export const useUpload = (filename: string, opts: FileUploadSettings) => {
-  return useBuildFileUploader(opts).single(filename);
+  const uploader = useBuildFileUploader(opts).single(filename);
+  
+  return (req: Request, res: Response, next: NextFunction) => {
+    uploader(req, res, (err: any) => {
+      if (err) {
+        console.error('File upload error:', err);
+        return res.status(400).json({ error: err.message });
+      }
+      next();
+    });
+  };
 };
