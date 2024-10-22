@@ -202,27 +202,29 @@ export class StabilityAIProvider {
     try {
       const formData = new FormData();
       const image = await getImage(imageId);
-      formData.append('image', image);
+      
+      formData.append('image', image, {
+        filename: `${imageId}.png`,
+        contentType: 'image/png',
+      });
 
       const response = await axios.post(
-        `${this.apiHost}/v1/generation/${this.upscaleEngine}/image-to-image/upscale`,
+        `${this.apiHost}/v2beta/stable-image/upscale/fast`,
         formData,
         {
           headers: {
-            'Content-Type': 'multipart/form-data',
-            Accept: 'application/json',
+            ...formData.getHeaders(),
+            Accept: 'image/*',
             Authorization: `Bearer ${this.apiKey}`,
           },
+          responseType: 'arraybuffer',
         },
       );
 
-      if (response.data.artifacts && response.data.artifacts.length > 0) {
-        const upscaledImage = response.data.artifacts[0];
-        const newImageId = uuidv4();
-        return await saveImage(newImageId, upscaledImage.base64);
-      } else {
-        throw new Error('No upscaled image received from Stability API');
-      }
+      const imageBase64 = response.data.toString('base64');
+      const newImageId = uuidv4();
+      
+      return await saveImage(newImageId, imageBase64); 
     } catch (err: any) {
       throw new AppError({
         description:
