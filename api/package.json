@@ -53,7 +53,7 @@
     "@sentry/integrations": "^7.114.0",
     "@sentry/node": "^8.30.0",
     "@sentry/profiling-node": "^8.30.0",
-    "@sentry/types": "^8.30.0",
+    "@sentry/types": "^8.35.0",
     "@sentry/vite-plugin": "^2.22.4",
     "@types/multer": "^1.4.12",
     "assemblyai": "^4.7.0",
