@@ -68,6 +68,7 @@ export class ImagesDataProvider {
       where: {
         userId: userId,
         uri: { not: null },
+        uploaded: false,
       },
       orderBy: { createdAt: 'desc' },
       skip: offset,
@@ -83,6 +84,7 @@ export class ImagesDataProvider {
       where: {
         userId: userId,
         uri: { not: null },
+        uploaded: false,
       },
     });
   }

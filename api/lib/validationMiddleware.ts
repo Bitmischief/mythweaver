@@ -58,7 +58,10 @@ export const useValidateRequest = (
     const result = schema.safeParse(validationObj);
 
     if (!result.success) {
-      logger.warn('Validation failed', result.error);
+      logger.warn('Validation failed', {
+        error: result.error,
+        input: validationObj,
+      });
 
       return res.status(400).json({
         errors: result.error.errors,

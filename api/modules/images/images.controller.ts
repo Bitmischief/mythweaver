@@ -31,14 +31,29 @@ export class ImagesController {
   ) {}
 
   @Security('jwt')
+  @OperationId('uploadImage')
+  @Post('/upload')
+  public async uploadImage(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Inject() file: any,
+  ): Promise<Image> {
+    return this.imagesService.uploadImage(userId, file?.originalname ?? '', file?.location ?? '');
+  }
+
+  @Security('jwt')
   @OperationId('generateImage')
   @Post('/')
   public async postImage(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
     @Body() request: PostImageRequest,
+    @Inject() referenceImage?: Express.Multer.File,
   ): Promise<void> {
-    await this.imagesService.generateImage(userId, request);
+    await this.imagesService.generateImage(userId, {
+      ...request,
+      referenceImage,
+    });
   }
 
   @Security('jwt')

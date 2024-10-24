@@ -318,6 +318,7 @@ model Image {
   upscaled       Boolean @default(false)
   generating     Boolean @default(false)
   failed         Boolean @default(false)
+  uploaded       Boolean @default(false)
 
   conjurationId Int?
   sessionId     Int?

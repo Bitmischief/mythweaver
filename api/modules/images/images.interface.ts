@@ -12,6 +12,10 @@ export interface PostImageRequest {
     conjurationId?: number;
     characterId?: number;
   };
+  aspectRatio?: AspectRatio;
+  imageId?: number;
+  referenceImage?: Express.Multer.File,
+  imageStrength?: number;
 }
 
 export interface PatchImageConjurationIdRequest {
@@ -44,6 +48,11 @@ export interface ImageGenerationRequest {
   };
   imageId?: number;
   forceImagePrimary?: boolean;
+  // Remove aspectRatio and add width and height
+  width?: number;
+  height?: number;
+  referenceImage?: Buffer;
+  imageStrength?: number;
 }
 
 export interface GetUserImagesResponse {
@@ -67,7 +76,6 @@ export interface ImageOutpaintRequest {
   seed?: number;
 }
 
-// Add this new interface
 export interface ImageEdit {
   dateCreated: string;
   type:
@@ -77,4 +85,16 @@ export interface ImageEdit {
     | 'outpainting'
     | 'background_removal';
   uri: string;
+}
+
+export type AspectRatio = '1:1' | '9:7' | '3:2' | '7:4' | '12:5' | '5:12' | '4:7' | '2:3' | '7:9';
+
+export interface GenerateImageOptions {
+  aspectRatio?: AspectRatio;
+}
+
+export interface ImageUpscaleRequest {
+  userId: number;
+  imageId: number;
+  imageUri: string;
 }

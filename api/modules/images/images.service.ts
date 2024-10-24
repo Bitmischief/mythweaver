@@ -21,6 +21,7 @@ import { checkImageStatusQueue } from '../../worker';
 import retry from 'async-await-retry';
 import { AxiosError } from 'axios';
 import axios from 'axios';
+import { generateMythWeaverModelImage } from '../../services/images/mythweaverImageService';
 
 export class ImagesService {
   constructor(
@@ -64,12 +65,25 @@ export class ImagesService {
       request.modelId = defaultModel.id;
     }
 
+    let referenceImage: Buffer | undefined;
+    if (request.imageId) {
+      const image = await this.imagesDataProvider.findImage(request.imageId);
+      if (!image || !image.uri) {
+        throw new AppError({
+          description: 'Reference image not found.',
+          httpCode: HttpCode.BAD_REQUEST,
+        });
+      }
+      referenceImage = await this.getImageBuffer(image.uri);
+    }
+
     const imagePromises = [];
     for (let i = 0; i < count; i++) {
       const imagePromise = this.generateSingleImage({
         ...request,
         userId,
         count,
+        referenceImage,
       });
       imagePromises.push(imagePromise);
     }
@@ -366,13 +380,28 @@ export class ImagesService {
           return await this.stabilityAIProvider.generateImage(request);
         });
       } else {
-        // Implement MythWeaver model image generation here
-        throw new Error('MythWeaver model image generation not implemented');
+        imageGenerationResponse = await retry(
+          async () => {
+            return await generateMythWeaverModelImage(request, model);
+          },
+          undefined,
+          {
+            onAttemptFail: (data: any) => {
+              // if we get a 400, fail immediately, don't retry
+              if ((data.error as AxiosError)?.response?.status === 400) {
+                throw data.error;
+              }
+            },
+          },
+        );
       }
     } catch (err) {
       const e = err as AxiosError;
 
-      this.logger.error('Received an error generating an image', request, err);
+      this.logger.error('Received an error generating an image', {
+        request,
+        responseBody: e?.response?.data,
+      }, e);
 
       if (e?.response?.status === 400) {
         await sendWebsocketMessage(
@@ -817,6 +846,29 @@ export class ImagesService {
         });
       }
     }
+
+    return image;
+  }
+
+  async uploadImage(userId: number, filename: string, fileUri: string): Promise<Image> {
+    const user = await this.imagesDataProvider.findUser(userId);
+
+    if (!user) {
+      throw new AppError({
+        description: 'User not found.',
+        httpCode: HttpCode.BAD_REQUEST,
+      });
+    }
+
+    const image = await this.imagesDataProvider.createImage({
+      userId,
+      uri: fileUri,
+      prompt: '',
+      primary: false,
+      generating: false,
+      failed: false,
+      uploaded: true,
+    });
 
     return image;
   }
