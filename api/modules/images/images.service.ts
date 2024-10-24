@@ -672,7 +672,7 @@ export class ImagesService {
       const backgroundRemovedImageUri =
         await this.stabilityAIProvider.removeBackground(imageBuffer);
 
-      const updatedImage = await this.updateImage(
+      await this.updateImage(
         imageId,
         'background_removal',
         backgroundRemovedImageUri,
