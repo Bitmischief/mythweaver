@@ -7,7 +7,6 @@ import {
   Route,
   Security,
   Tags,
-  Body,
 } from 'tsoa';
 import { TrackingInfo } from '../../../lib/tracking';
 import { GetCampaignMembersResponse } from './members.interface';

@@ -16,11 +16,9 @@ import { ImagesService } from './images.service';
 import {
   PostImageRequest,
   PatchImageConjurationIdRequest,
-  ImageStylePreset,
   ImageEditRequest,
   ImageOutpaintRequest,
 } from './images.interface';
-import { AppError, HttpCode } from '../../lib/errors/AppError';
 import { Image } from '@prisma/client';
 import { Express } from 'express';
 

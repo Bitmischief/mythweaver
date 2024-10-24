@@ -21,7 +21,6 @@ import { checkImageStatusQueue } from '../../worker';
 import retry from 'async-await-retry';
 import { AxiosError } from 'axios';
 import axios from 'axios';
-import { date } from 'zod';
 
 export class ImagesService {
   constructor(
@@ -644,7 +643,7 @@ export class ImagesService {
       const backgroundRemovedImageUri =
         await this.stabilityAIProvider.removeBackground(imageBuffer);
 
-      const updatedImage = await this.updateImage(
+      await this.updateImage(
         imageId,
         'background_removal',
         backgroundRemovedImageUri,

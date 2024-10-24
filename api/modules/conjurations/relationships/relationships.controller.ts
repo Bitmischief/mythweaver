@@ -14,7 +14,6 @@ import {
   Tags,
 } from 'tsoa';
 import { TrackingInfo } from '../../../lib/tracking';
-import { MythWeaverLogger } from '../../../lib/logger';
 import { Conjuration, ConjurationRelationshipType } from '@prisma/client';
 import {
   RelationshipResponse,

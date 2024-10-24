@@ -29,9 +29,7 @@ export class CampaignsDataProvider {
     });
   }
 
-  async getCampaign(
-    campaignId: number,
-  ): Promise<Prisma.CampaignGetPayload<{
+  async getCampaign(campaignId: number): Promise<Prisma.CampaignGetPayload<{
     include: { members: { include: { user: true } }; user: true };
   }> | null> {
     return await prisma.campaign.findUnique({

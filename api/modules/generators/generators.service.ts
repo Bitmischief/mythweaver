@@ -1,4 +1,4 @@
-import { Conjuration, ConjurationVisibility } from '@prisma/client';
+import { Conjuration } from '@prisma/client';
 import { AppError, HttpCode } from '../../lib/errors/AppError';
 import { AppEvent, track, TrackingInfo } from '../../lib/tracking';
 import { conjureQueue } from '../../worker';

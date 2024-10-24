@@ -65,9 +65,7 @@ export class CollectionsDataProvider {
         `)) as Collections[];
   }
 
-  async getManyCollectionsConjurations(
-    collectionIds: number[],
-  ): Promise<
+  async getManyCollectionsConjurations(collectionIds: number[]): Promise<
     Prisma.CollectionConjurationGetPayload<{
       select: {
         collectionId: true;

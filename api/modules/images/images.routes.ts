@@ -12,7 +12,6 @@ import {
 } from '../../lib/validationMiddleware';
 import { ImagesController } from './images.controller';
 import { injectDependencies } from './images.dependencies';
-import { ImageEditRequest, ImageOutpaintRequest } from './images.interface';
 import multer from 'multer';
 
 const upload = multer({ storage: multer.memoryStorage() });

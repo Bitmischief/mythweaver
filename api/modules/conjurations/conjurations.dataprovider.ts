@@ -1,7 +1,6 @@
 import { prisma } from '../../lib/providers/prisma';
 import {
   Conjuration,
-  ConjurationRelationshipType,
   ConjurationVisibility,
   ConjurationSave,
   Tag,

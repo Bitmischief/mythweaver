@@ -11,8 +11,6 @@ import {
 } from 'tsoa';
 import { CampaignFilesService } from './campaignFiles.service';
 import { PostCampaignFileRequest } from './campaignFiles.interface';
-import { CampaignRole } from '../campaigns.interface';
-import { ContextType } from '@prisma/client';
 import { TrackingInfo } from '../../../lib/tracking';
 
 @Route('campaigns/:campaignId/files')

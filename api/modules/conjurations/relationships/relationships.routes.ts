@@ -2,10 +2,7 @@ import { injectDependencies } from './relationships.dependencies';
 import express, { Request, Response } from 'express';
 import { z } from 'zod';
 import { checkAuth0Jwt, useInjectUserId } from '../../../lib/authMiddleware';
-import {
-  useInjectLoggingInfo,
-  useLogger,
-} from '../../../lib/loggingMiddleware';
+import { useInjectLoggingInfo } from '../../../lib/loggingMiddleware';
 import {
   useValidateRequest,
   ValidationTypes,

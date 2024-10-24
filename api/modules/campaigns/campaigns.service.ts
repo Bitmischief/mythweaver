@@ -14,7 +14,6 @@ import { TrackingInfo, AppEvent, track } from '../../lib/tracking';
 import { AppError, HttpCode } from '../../lib/errors/AppError';
 import { Campaign, ContextType, Character, Conjuration } from '@prisma/client';
 import { createCampaign } from '../../dataAccess/campaigns';
-import { getClient } from '../../lib/providers/openai';
 import { indexCampaignContextQueue } from '../../worker';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -24,8 +23,6 @@ import {
 import { urlPrefix } from '../../lib/utils';
 import { CampaignRole } from './campaigns.interface';
 import { getCampaignCharacters } from '../../lib/charactersHelper';
-
-const openai = getClient();
 
 export class CampaignsService {
   constructor(

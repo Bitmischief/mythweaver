@@ -59,7 +59,6 @@ conjureQueue.process(async (job, done) => {
 
 export const conjure = async (request: ConjureEvent) => {
   const generator = getGenerator(request.generatorCode);
-  const type = request.type || 'image-text';
 
   if (!generator) {
     throw new AppError({

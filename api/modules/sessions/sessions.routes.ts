@@ -39,7 +39,8 @@ router.get('/', [
   }),
   injectDependencies,
   async (req: Request, res: Response) => {
-    const controller = req.container.resolve<SessionsController>('sessionsController');
+    const controller =
+      req.container.resolve<SessionsController>('sessionsController');
 
     const { campaignId = 0, offset = 0, limit = 10 } = req.query;
 
@@ -70,7 +71,8 @@ router.get('/:sessionId', [
   }),
   injectDependencies,
   async (req: Request, res: Response) => {
-    const controller = req.container.resolve<SessionsController>('sessionsController');
+    const controller =
+      req.container.resolve<SessionsController>('sessionsController');
 
     const { sessionId = 0 } = req.params;
 
@@ -96,7 +98,8 @@ router.post('/', [
   useValidateRequest(postSessionsSchema),
   injectDependencies,
   async (req: Request, res: Response) => {
-    const controller = req.container.resolve<SessionsController>('sessionsController');
+    const controller =
+      req.container.resolve<SessionsController>('sessionsController');
 
     const response = await controller.postSession(
       res.locals.auth.userId,
@@ -137,7 +140,8 @@ router.patch('/:sessionId', [
   }),
   injectDependencies,
   async (req: Request, res: Response) => {
-    const controller = req.container.resolve<SessionsController>('sessionsController');
+    const controller =
+      req.container.resolve<SessionsController>('sessionsController');
 
     const { sessionId = 0 } = req.params;
 
@@ -161,7 +165,8 @@ router.delete('/:sessionId', [
   }),
   injectDependencies,
   async (req: Request, res: Response) => {
-    const controller = req.container.resolve<SessionsController>('sessionsController');
+    const controller =
+      req.container.resolve<SessionsController>('sessionsController');
 
     const { sessionId = 0 } = req.params;
 
@@ -184,7 +189,8 @@ router.post('/:sessionId/email-summary', [
   }),
   injectDependencies,
   async (req: Request, res: Response) => {
-    const controller = req.container.resolve<SessionsController>('sessionsController');
+    const controller =
+      req.container.resolve<SessionsController>('sessionsController');
 
     const { sessionId = 0 } = req.params;
 
@@ -209,7 +215,8 @@ router.post('/:sessionId/audio', [
   useAudioFileUploader(),
   injectDependencies,
   async (req: Request, res: Response) => {
-    const controller = req.container.resolve<SessionsController>('sessionsController');
+    const controller =
+      req.container.resolve<SessionsController>('sessionsController');
 
     const file = req.file as any;
     const { sessionId = 0 } = req.params;
@@ -236,7 +243,8 @@ router.post('/:sessionId/transcription', [
   }),
   injectDependencies,
   async (req: Request, res: Response) => {
-    const controller = req.container.resolve<SessionsController>('sessionsController');
+    const controller =
+      req.container.resolve<SessionsController>('sessionsController');
 
     const { sessionId = 0 } = req.params;
     const requestId = getRequestId(req, res);
@@ -261,7 +269,8 @@ router.delete('/:sessionId/audio', [
   }),
   injectDependencies,
   async (req: Request, res: Response) => {
-    const controller = req.container.resolve<SessionsController>('sessionsController');
+    const controller =
+      req.container.resolve<SessionsController>('sessionsController');
 
     const { sessionId = 0 } = req.params;
 
@@ -286,7 +295,8 @@ router.post('/generate-summary', [
   useValidateRequest(postGenerateSummarySchema),
   injectDependencies,
   async (req: Request, res: Response) => {
-    const controller = req.container.resolve<SessionsController>('sessionsController');
+    const controller =
+      req.container.resolve<SessionsController>('sessionsController');
 
     const response = await controller.postGenerateSummary(
       res.locals.auth.userId,
@@ -307,7 +317,8 @@ router.get('/:sessionId/transcript', [
   }),
   injectDependencies,
   async (req: Request, res: Response) => {
-    const controller = req.container.resolve<SessionsController>('sessionsController');
+    const controller =
+      req.container.resolve<SessionsController>('sessionsController');
 
     const response = await controller.getTranscript(
       res.locals.auth.userId,
@@ -328,7 +339,8 @@ router.post('/:sessionId/recap-transcription', [
   }),
   injectDependencies,
   async (req: Request, res: Response) => {
-    const controller = req.container.resolve<SessionsController>('sessionsController');
+    const controller =
+      req.container.resolve<SessionsController>('sessionsController');
 
     const { sessionId = 0 } = req.params;
 
