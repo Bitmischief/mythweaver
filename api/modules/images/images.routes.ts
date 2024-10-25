@@ -1,4 +1,4 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express, { Request, Response } from 'express';
 import { z } from 'zod';
 import {
   checkAuth0Jwt,
@@ -327,12 +327,10 @@ router.post('/upload', [
       req.container.resolve<ImagesController>('imagesController');
 
     if (!req.file) {
-      return res
-        .status(400)
-        .json({
-          message:
-            'Invalid image upload, no file provided. Are you using a multipart form upload?',
-        });
+      return res.status(400).json({
+        message:
+          'Invalid image upload, no file provided. Are you using a multipart form upload?',
+      });
     }
 
     const response = await controller.uploadImage(
