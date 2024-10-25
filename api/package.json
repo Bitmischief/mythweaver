@@ -55,7 +55,6 @@
     "@sentry/profiling-node": "^8.30.0",
     "@sentry/types": "^8.30.0",
     "@sentry/vite-plugin": "^2.22.4",
-    "@types/multer": "^1.4.12",
     "assemblyai": "^4.7.0",
     "async-await-retry": "^2.1.0",
     "auth0": "^4.3.1",
