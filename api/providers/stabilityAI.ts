@@ -74,7 +74,6 @@ export class StabilityAIProvider {
   private async generateImageToImage(
     request: ImageGenerationRequest,
   ): Promise<StabilityGeneratedImageResponse> {
-
     const formData = new FormData();
     formData.append('text_prompts[0][text]', request.prompt);
     formData.append('text_prompts[0][weight]', '1');
