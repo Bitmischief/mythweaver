@@ -4,7 +4,10 @@ import { AppError, HttpCode } from '../../lib/errors/AppError';
 import { v4 as uuidv4 } from 'uuid';
 import { saveImage } from '../dataStorage';
 import logger from '../../lib/logger';
-import { GeneratedImage, ImageGenerationRequest } from '../../modules/images/images.interface';
+import {
+  GeneratedImage,
+  ImageGenerationRequest,
+} from '../../modules/images/images.interface';
 
 export const generateMythWeaverModelImage = async (
   request: ImageGenerationRequest,

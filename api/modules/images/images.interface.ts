@@ -14,7 +14,7 @@ export interface PostImageRequest {
   };
   aspectRatio?: AspectRatio;
   imageId?: number;
-  referenceImage?: Express.Multer.File,
+  referenceImage?: Express.Multer.File;
   imageStrength?: number;
 }
 
@@ -87,7 +87,16 @@ export interface ImageEdit {
   uri: string;
 }
 
-export type AspectRatio = '1:1' | '9:7' | '3:2' | '7:4' | '12:5' | '5:12' | '4:7' | '2:3' | '7:9';
+export type AspectRatio =
+  | '1:1'
+  | '9:7'
+  | '3:2'
+  | '7:4'
+  | '12:5'
+  | '5:12'
+  | '4:7'
+  | '2:3'
+  | '7:9';
 
 export interface GenerateImageOptions {
   aspectRatio?: AspectRatio;

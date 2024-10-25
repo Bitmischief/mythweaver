@@ -5,7 +5,10 @@ import FormData from 'form-data';
 import { v4 as uuidv4 } from 'uuid';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import { saveImage, getImage } from '../services/dataStorage';
-import { ImageGenerationRequest, ImageUpscaleRequest } from '@/modules/images/images.interface';
+import {
+  ImageGenerationRequest,
+  ImageUpscaleRequest,
+} from '@/modules/images/images.interface';
 
 export interface StabilityGeneratedImageResponse {
   uri: string;
@@ -79,18 +82,21 @@ export class StabilityAIProvider {
     formData.append('text_prompts[0][weight]', '1');
 
     if (request.negativePrompt) {
-      formData.append('text_prompts[1][text]', `blurry, bad, ${request.negativePrompt}`);
+      formData.append(
+        'text_prompts[1][text]',
+        `blurry, bad, ${request.negativePrompt}`,
+      );
       formData.append('text_prompts[1][weight]', '-1');
     }
 
     formData.append('cfg_scale', '7');
     formData.append('steps', '30');
     formData.append('samples', request.count.toString());
-    
+
     if (request.stylePreset) {
       formData.append('style_preset', request.stylePreset);
     }
-    
+
     if (request.seed) {
       formData.append('seed', request.seed);
     }
@@ -202,7 +208,7 @@ export class StabilityAIProvider {
     try {
       const formData = new FormData();
       const image = await getImage(imageId);
-      
+
       formData.append('image', image, {
         filename: `${imageId}.png`,
         contentType: 'image/png',
@@ -223,8 +229,8 @@ export class StabilityAIProvider {
 
       const imageBase64 = response.data.toString('base64');
       const newImageId = uuidv4();
-      
-      return await saveImage(newImageId, imageBase64); 
+
+      return await saveImage(newImageId, imageBase64);
     } catch (err: any) {
       throw new AppError({
         description:

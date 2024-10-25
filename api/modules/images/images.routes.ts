@@ -317,14 +317,22 @@ router.post('/upload', [
   checkAuth0Jwt,
   useInjectUserId(),
   useInjectLoggingInfo(),
-  useUpload('image', { maxFileSize: MAX_IMAGE_FILE_SIZE, acceptedFileTypes: ACCEPTED_IMAGE_TYPES }),
+  useUpload('image', {
+    maxFileSize: MAX_IMAGE_FILE_SIZE,
+    acceptedFileTypes: ACCEPTED_IMAGE_TYPES,
+  }),
   injectDependencies,
   async (req: Request, res: Response) => {
     const controller =
       req.container.resolve<ImagesController>('imagesController');
 
     if (!req.file) {
-      return res.status(400).json({ message: 'Invalid image upload, no file provided. Are you using a multipart form upload?' });
+      return res
+        .status(400)
+        .json({
+          message:
+            'Invalid image upload, no file provided. Are you using a multipart form upload?',
+        });
     }
 
     const response = await controller.uploadImage(

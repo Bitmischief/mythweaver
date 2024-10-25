@@ -38,7 +38,11 @@ export class ImagesController {
     @Inject() trackingInfo: TrackingInfo,
     @Inject() file: any,
   ): Promise<Image> {
-    return this.imagesService.uploadImage(userId, file?.originalname ?? '', file?.location ?? '');
+    return this.imagesService.uploadImage(
+      userId,
+      file?.originalname ?? '',
+      file?.location ?? '',
+    );
   }
 
   @Security('jwt')
