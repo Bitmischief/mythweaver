@@ -30,28 +30,28 @@ export const sessionTranscriptionQueue = new Queue<TranscribeSessionEvent>(
 );
 
 sessionTranscriptionQueue.process(async (job, done) => {
-  logger.info('Processing session transcript context job', job.data);
+  logger.info('Starting to process session transcript job', { jobData: job.data });
 
   try {
     await transcribeSession(job.data);
-    logger.info('Completed processing session transcript job', job.data);
+    logger.info('Successfully completed processing session transcript job', { jobData: job.data });
     done();
   } catch (err) {
-    logger.error('Error processing session transcript job!', err);
+    logger.error('Error processing session transcript job', { jobData: job.data }, err);
     done(new Error('Error processing session transcript job!'));
   }
 });
 
 export const transcribeSession = async (request: TranscribeSessionEvent) => {
   const { sessionId, userId } = request;
+  logger.info('Starting transcribeSession', { sessionId, userId });
 
   const session = await prisma.session.findUnique({
-    where: {
-      id: sessionId,
-    },
+    where: { id: sessionId },
   });
 
   if (!session) {
+    logger.error('Session not found', { sessionId });
     throw new AppError({
       description: 'Session not found.',
       httpCode: HttpCode.NOT_FOUND,
@@ -59,30 +59,26 @@ export const transcribeSession = async (request: TranscribeSessionEvent) => {
   }
 
   if (!session.audioUri) {
+    logger.error('Session audio not found', { sessionId });
     throw new AppError({
       description: 'Session audio not found.',
       httpCode: HttpCode.NOT_FOUND,
     });
   }
 
+  logger.info('Session and audio found, proceeding with transcription', { sessionId, audioUri: session.audioUri });
+
   await retry(async () => {
     try {
       await processSessionTranscription(userId, session);
     } catch (error) {
-      logger.error(
-        'Encountered an error transcribing session audio.',
-        {},
-        error,
-      );
+      logger.error('Error transcribing session audio', { sessionId, userId }, error);
 
       await prisma.sessionTranscription.update({
-        where: {
-          sessionId: sessionId,
-        },
-        data: {
-          status_new: TranscriptStatus.FAILED,
-        },
+        where: { sessionId: sessionId },
+        data: { status_new: TranscriptStatus.FAILED },
       });
+      logger.info('Updated session transcription status to FAILED', { sessionId });
     }
   });
 };
@@ -91,39 +87,37 @@ const processSessionTranscription = async (
   userId: number,
   session: Session,
 ) => {
+  logger.info('Starting processSessionTranscription', { userId, sessionId: session.id });
+
   const sessionTranscript = await createOrUpdateSessionTranscriptRecord(
     session.id,
     userId,
   );
 
   if (!sessionTranscript) {
-    logger.info('Session transcript already processed or processing.');
+    logger.info('Session transcript already processed or processing, aborting', { sessionId: session.id });
     return;
   }
 
-  if (!session.audioUri) {
-    throw new AppError({
-      description: 'Session audio not found.',
-      httpCode: HttpCode.NOT_FOUND,
-    });
-  }
+  logger.info('Preparing transcription data', { sessionId: session.id, audioUri: session.audioUri });
 
-  // Request parameters
   const data = {
     audio:
       session.audioUri?.indexOf('https') === -1
         ? `https://${session.audioUri}`
-        : session.audioUri,
+        : session.audioUri || '',
     speaker_labels: true,
     auto_highlights: true,
-    speech_model: 'nano' as SpeechModel,
+    speech_model: 'best' as SpeechModel,
   };
 
   let transcript: Transcript;
   try {
+    logger.info('Sending transcription request to AssemblyAI', { sessionId: session.id });
     transcript = await client.transcripts.transcribe(data);
+    logger.info('Received transcription response from AssemblyAI', { sessionId: session.id, transcriptId: transcript.id });
   } catch (error) {
-    logger.error('Error transcribing session audio.', {}, error);
+    logger.error('Error transcribing session audio with AssemblyAI', { sessionId: session.id }, error);
     throw new AppError({
       description: 'Error transcribing session audio.',
       httpCode: HttpCode.INTERNAL_SERVER_ERROR,
@@ -131,20 +125,22 @@ const processSessionTranscription = async (
   }
 
   await prisma.sessionTranscription.update({
-    where: {
-      sessionId: sessionTranscript.sessionId,
-    },
+    where: { sessionId: sessionTranscript.sessionId },
     data: {
       status_new: TranscriptStatus.PROCESSING,
       transcriptExternalId: transcript.id,
     },
   });
+  logger.info('Updated session transcription status to PROCESSING', { sessionId: session.id, transcriptId: transcript.id });
 
   await sendWebsocketMessage(userId, WebSocketEvent.TranscriptionStarted, {
     sessionId: session.id,
   });
+  logger.info('Sent WebSocket message: TranscriptionStarted', { userId, sessionId: session.id });
 
+  logger.info('Starting to poll for transcript completion', { sessionId: session.id, transcriptId: transcript.id });
   await pollForTranscript(transcript.id);
+  logger.info('Finished polling, transcript is ready', { sessionId: session.id, transcriptId: transcript.id });
 
   await processCompletedTranscript(
     session.campaignId,
@@ -160,9 +156,13 @@ const processCompletedTranscript = async (
   userId: number,
   transcriptId: string,
 ) => {
+  logger.info('Starting processCompletedTranscript', { campaignId, sessionId, userId, transcriptId });
+
   const transcript = await client.transcripts.get(transcriptId);
+  logger.info('Retrieved transcript from AssemblyAI', { transcriptId, status: transcript.status });
 
   if (transcript.status === 'error') {
+    logger.error('Transcript status is error', { transcriptId });
     throw new AppError({
       description: 'Error transcribing session audio.',
       httpCode: HttpCode.INTERNAL_SERVER_ERROR,
@@ -170,15 +170,18 @@ const processCompletedTranscript = async (
   }
 
   if (!transcript.id) {
+    logger.error('Transcript ID is missing', { transcriptId });
     throw new AppError({
       description: '',
       httpCode: HttpCode.INTERNAL_SERVER_ERROR,
     });
   }
 
+  logger.info('Generating recap and summary', { transcriptId });
   const recap = await recapTranscript(transcript.id);
   const summary = await summarizeTranscript(transcript.id);
 
+  logger.info('Retrieving sentences and paragraphs', { transcriptId });
   const { sentences } = await client.transcripts.sentences(transcript.id);
   const { paragraphs } = await client.transcripts.paragraphs(transcript.id);
 
@@ -189,12 +192,9 @@ const processCompletedTranscript = async (
     summary,
   };
 
-  // fullTranscript = await postprocessTranscript(campaignId, fullTranscript);
-
+  logger.info('Updating session transcription in database', { sessionId, transcriptId });
   await prisma.sessionTranscription.update({
-    where: {
-      sessionId,
-    },
+    where: { sessionId },
     data: {
       transcript: Prisma.DbNull,
       transcriptExternalId: transcript.id,
@@ -204,16 +204,16 @@ const processCompletedTranscript = async (
     },
   });
 
+  logger.info('Updating session with summary and recap', { sessionId });
   await prisma.session.update({
-    where: {
-      id: sessionId,
-    },
+    where: { id: sessionId },
     data: {
       summary: fullTranscript.summary,
       recap: fullTranscript.recap,
     },
   });
 
+  logger.info('Sending WebSocket message: TranscriptionComplete', { userId, sessionId });
   await sendWebsocketMessage(userId, WebSocketEvent.TranscriptionComplete, {
     sessionId: sessionId,
     summary: fullTranscript.summary,
@@ -254,31 +254,39 @@ const pollForTranscript = async (transcriptId: string) => {
   const maxPollDuration = 60 * 60 * 1000;
   let iterations = 0;
 
+  logger.info('Starting to poll for transcript', { transcriptId, pollingInterval, maxPollDuration });
+
   do {
     const transcript = await client.transcripts.get(transcriptId);
+    logger.info('Polling transcript status', { transcriptId, status: transcript.status, iteration: iterations });
 
     if (transcript.status === 'completed' || transcript.status === 'error') {
+      logger.info('Transcript polling finished', { transcriptId, status: transcript.status });
       return transcript;
     }
 
     iterations++;
     await sleep(pollingInterval);
   } while (iterations * pollingInterval < maxPollDuration);
+
+  logger.warn('Transcript polling timed out', { transcriptId, totalDuration: iterations * pollingInterval });
 };
 
 const createOrUpdateSessionTranscriptRecord = async (
   sessionId: number,
   userId: number,
 ) => {
+  logger.info('Starting createOrUpdateSessionTranscriptRecord', { sessionId, userId });
+
   let sessionTranscript = await prisma.sessionTranscription.findUnique({
-    where: {
-      sessionId,
-    },
+    where: { sessionId },
   });
+  logger.info('Existing session transcript', { sessionId, status: sessionTranscript?.status_new });
 
   const session = await getSession(sessionId);
 
   if (!session) {
+    logger.error('Session not found', { sessionId });
     throw new AppError({
       description: 'Session not found.',
       httpCode: HttpCode.NOT_FOUND,
@@ -286,18 +294,19 @@ const createOrUpdateSessionTranscriptRecord = async (
   }
 
   if (sessionTranscript?.status_new === TranscriptStatus.COMPLETE) {
-    logger.info('This session transcript is already completed, aborting.');
+    logger.info('Session transcript is already completed, aborting', { sessionId });
     return;
   }
 
   if (sessionTranscript?.status_new === TranscriptStatus.PROCESSING) {
     if (sessionTranscript.transcriptExternalId) {
+      logger.info('Checking status of in-progress transcript', { sessionId, transcriptExternalId: sessionTranscript.transcriptExternalId });
       const transcript = await client.transcripts.get(
         sessionTranscript.transcriptExternalId,
       );
 
       if (transcript.status === 'completed' || transcript.status === 'error') {
-        logger.info('Found completed transcript for this session.');
+        logger.info('Found completed transcript for this session', { sessionId, transcriptStatus: transcript.status });
         await processCompletedTranscript(
           session.campaignId,
           sessionId,
@@ -308,24 +317,21 @@ const createOrUpdateSessionTranscriptRecord = async (
       }
     }
 
-    logger.info('This session transcript is already processing, aborting.');
+    logger.info('Session transcript is already processing, aborting', { sessionId });
     return;
   }
 
   if (sessionTranscript?.status_new === TranscriptStatus.FAILED) {
-    logger.info('This session transcript has failed, retrying.');
+    logger.info('Session transcript has failed, retrying', { sessionId });
 
     sessionTranscript = await prisma.sessionTranscription.update({
-      where: {
-        sessionId,
-      },
-      data: {
-        status_new: TranscriptStatus.PROCESSING,
-      },
+      where: { sessionId },
+      data: { status_new: TranscriptStatus.PROCESSING },
     });
   }
 
   if (!sessionTranscript) {
+    logger.info('Creating new session transcript record', { sessionId, userId });
     sessionTranscript = await prisma.sessionTranscription.create({
       data: {
         sessionId,
@@ -335,5 +341,6 @@ const createOrUpdateSessionTranscriptRecord = async (
     });
   }
 
+  logger.info('Returning session transcript', { sessionId, status: sessionTranscript.status_new });
   return sessionTranscript;
 };
