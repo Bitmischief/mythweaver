@@ -16,11 +16,9 @@ import { ImagesService } from './images.service';
 import {
   PostImageRequest,
   PatchImageConjurationIdRequest,
-  ImageStylePreset,
   ImageEditRequest,
   ImageOutpaintRequest,
 } from './images.interface';
-import { AppError, HttpCode } from '../../lib/errors/AppError';
 import { Image } from '@prisma/client';
 import { Express } from 'express';
 
@@ -40,7 +38,11 @@ export class ImagesController {
     @Inject() trackingInfo: TrackingInfo,
     @Inject() file: any,
   ): Promise<Image> {
-    return this.imagesService.uploadImage(userId, file?.originalname ?? '', file?.location ?? '');
+    return this.imagesService.uploadImage(
+      userId,
+      file?.originalname ?? '',
+      file?.location ?? '',
+    );
   }
 
   @Security('jwt')

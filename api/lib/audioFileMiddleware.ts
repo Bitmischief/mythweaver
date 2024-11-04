@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { prisma } from './providers/prisma';
 import { AppError, HttpCode } from './errors/AppError';
-import { CampaignRole } from '../controllers/campaigns';
+import { CampaignRole } from '../modules/campaigns/campaigns.interface';
 import { useBuildFileUploader } from './fileUploadMiddleware';
 
 const MAX_AUDIO_FILE_SIZE = 600000000;

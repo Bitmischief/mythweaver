@@ -48,7 +48,7 @@ export const useBuildFileUploader = (opts: FileUploadSettings) => {
 
 export const useUpload = (filename: string, opts: FileUploadSettings) => {
   const uploader = useBuildFileUploader(opts).single(filename);
-  
+
   return (req: Request, res: Response, next: NextFunction) => {
     uploader(req, res, (err: any) => {
       if (err) {

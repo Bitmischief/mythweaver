@@ -400,10 +400,14 @@ export class ImagesService {
     } catch (err) {
       const e = err as AxiosError;
 
-      this.logger.error('Received an error generating an image', {
-        request,
-        responseBody: e?.response?.data,
-      }, e);
+      this.logger.error(
+        'Received an error generating an image',
+        {
+          request,
+          responseBody: e?.response?.data,
+        },
+        e,
+      );
 
       if (e?.response?.status === 400) {
         await sendWebsocketMessage(
@@ -674,7 +678,7 @@ export class ImagesService {
       const backgroundRemovedImageUri =
         await this.stabilityAIProvider.removeBackground(imageBuffer);
 
-      const updatedImage = await this.updateImage(
+      await this.updateImage(
         imageId,
         ImageEditType.BACKGROUND_REMOVAL,
         backgroundRemovedImageUri,
@@ -856,7 +860,11 @@ export class ImagesService {
     return image;
   }
 
-  async uploadImage(userId: number, filename: string, fileUri: string): Promise<Image> {
+  async uploadImage(
+    userId: number,
+    filename: string,
+    fileUri: string,
+  ): Promise<Image> {
     const user = await this.imagesDataProvider.findUser(userId);
 
     if (!user) {

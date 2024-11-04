@@ -14,7 +14,7 @@ export interface PostImageRequest {
   };
   aspectRatio?: AspectRatio;
   imageId?: number;
-  referenceImage?: Express.Multer.File,
+  referenceImage?: Express.Multer.File;
   imageStrength?: number;
 }
 
