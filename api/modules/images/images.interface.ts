@@ -77,14 +77,19 @@ export interface ImageOutpaintRequest {
 }
 
 export interface ImageEdit {
+  id: string;
   dateCreated: string;
-  type:
-    | 'original'
-    | 'smart_erase'
-    | 'inpainting'
-    | 'outpainting'
-    | 'background_removal';
+  type: ImageEditType;
   uri: string;
+}
+
+export enum ImageEditType {
+  ORIGINAL = 'original',
+  SMART_ERASE = 'smart_erase',
+  INPAINTING = 'inpainting',
+  OUTPAINTING = 'outpainting',
+  BACKGROUND_REMOVAL = 'background_removal',
+  REVERT = 'revert',
 }
 
 export type AspectRatio = '1:1' | '9:7' | '3:2' | '7:4' | '12:5' | '5:12' | '4:7' | '2:3' | '7:9';

@@ -336,4 +336,30 @@ router.post('/upload', [
   },
 ] as express.RequestHandler[]);
 
+const setImageToEditSchema = z.object({
+  editId: z.string().uuid(),
+});
+
+router.patch('/:imageId/edit', [
+  checkAuth0Jwt,
+  useInjectUserId(),
+  useInjectLoggingInfo(),
+  useValidateRequest(z.object({ imageId: z.coerce.number() }), {
+    validationType: ValidationTypes.Route,
+  }),
+  useValidateRequest(setImageToEditSchema),
+  injectDependencies,
+  async (req: Request, res: Response) => {
+    const controller =
+      req.container.resolve<ImagesController>('imagesController');
+    const response = await controller.setImageToEdit(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      parseInt(req.params.imageId),
+      req.body,
+    );
+    return res.status(200).json(response);
+  },
+]);
+
 export default router;

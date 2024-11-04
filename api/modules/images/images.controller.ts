@@ -186,4 +186,20 @@ export class ImagesController {
   ): Promise<Image> {
     return this.imagesService.getImageById(userId, imageId);
   }
+
+  @Security('jwt')
+  @OperationId('setImageToEdit')
+  @Patch('/:imageId/edit')
+  public async setImageToEdit(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Route() imageId: number,
+    @Body() request: { editId: string },
+  ): Promise<Image> {
+    return this.imagesService.setImageToEdit(
+      userId,
+      imageId,
+      request.editId,
+    );
+  }
 }

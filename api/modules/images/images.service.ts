@@ -8,6 +8,7 @@ import {
   ImageEditRequest,
   ImageOutpaintRequest,
   ImageEdit,
+  ImageEditType,
 } from './images.interface';
 import { AppError, ErrorType, HttpCode } from '../../lib/errors/AppError';
 import { Image, ImageCreditChangeType } from '@prisma/client';
@@ -22,6 +23,7 @@ import retry from 'async-await-retry';
 import { AxiosError } from 'axios';
 import axios from 'axios';
 import { generateMythWeaverModelImage } from '../../services/images/mythweaverImageService';
+import { v4 as uuidv4 } from 'uuid';
 
 export class ImagesService {
   constructor(
@@ -342,7 +344,7 @@ export class ImagesService {
 
     const updatedImage = await this.updateImage(
       image.id,
-      'original',
+      ImageEditType.ORIGINAL,
       imageGenerationResponse.uri,
     );
 
@@ -534,7 +536,7 @@ export class ImagesService {
 
       const updatedImage = await this.updateImage(
         imageId,
-        'inpainting',
+        ImageEditType.INPAINTING,
         inpaintedImageUri,
       );
 
@@ -610,7 +612,7 @@ export class ImagesService {
 
       const updatedImage = await this.updateImage(
         imageId,
-        'outpainting',
+        ImageEditType.OUTPAINTING,
         outpaintedImageUri,
       );
 
@@ -674,7 +676,7 @@ export class ImagesService {
 
       const updatedImage = await this.updateImage(
         imageId,
-        'background_removal',
+        ImageEditType.BACKGROUND_REMOVAL,
         backgroundRemovedImageUri,
       );
 
@@ -765,7 +767,7 @@ export class ImagesService {
 
       const updatedImage = await this.updateImage(
         imageId,
-        'smart_erase',
+        ImageEditType.SMART_ERASE,
         erasedImageUri,
       );
 
@@ -805,19 +807,23 @@ export class ImagesService {
 
     const edits = (image.edits as unknown as ImageEdit[]) || [];
 
-    if (edits.length === 0) {
+    if (edits.length === 0 && editType !== ImageEditType.ORIGINAL) {
       edits.push({
+        id: uuidv4(),
         dateCreated: image.createdAt?.toISOString() || new Date().toISOString(),
-        type: 'original',
-        uri: image.uri!,
+        type: ImageEditType.ORIGINAL,
+        uri: image.uri || newUri,
       });
     }
 
-    edits.push({
-      dateCreated: new Date().toISOString(),
-      type: editType,
-      uri: newUri,
-    });
+    if (editType !== ImageEditType.ORIGINAL || edits.length === 0) {
+      edits.push({
+        id: uuidv4(),
+        dateCreated: new Date().toISOString(),
+        type: editType,
+        uri: newUri,
+      });
+    }
 
     return this.imagesDataProvider.updateImage(imageId, {
       uri: newUri,
@@ -871,5 +877,60 @@ export class ImagesService {
     });
 
     return image;
+  }
+
+  async setImageToEdit(userId: number, imageId: number, editId: string): Promise<Image> {
+    const image = await this.imagesDataProvider.findImage(imageId);
+
+    if (!image) {
+      throw new AppError({
+        description: 'Image not found.',
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    if (image.userId !== userId) {
+      throw new AppError({
+        description: 'You do not have permission to modify this image.',
+        httpCode: HttpCode.FORBIDDEN,
+      });
+    }
+
+    const edits = image.edits as unknown as ImageEdit[];
+
+    if (!edits) {
+      throw new AppError({
+        description: 'No edits found for this image.',
+        httpCode: HttpCode.BAD_REQUEST,
+      });
+    }
+
+    const selectedEdit = edits.find(edit => edit.id === editId);
+
+    if (!selectedEdit) {
+      throw new AppError({
+        description: 'Edit not found.',
+        httpCode: HttpCode.BAD_REQUEST,
+      });
+    }
+
+    edits.push({
+      id: uuidv4(),
+      dateCreated: new Date().toISOString(),
+      type: ImageEditType.REVERT,
+      uri: selectedEdit.uri,
+    });
+
+    const updatedImage = await this.imagesDataProvider.updateImage(imageId, {
+      uri: selectedEdit.uri,
+      edits,
+    });
+
+    await sendWebsocketMessage(userId, WebSocketEvent.ImageUrlUpdated, {
+      imageId: imageId,
+      newUrl: selectedEdit.uri,
+    });
+
+    return updatedImage;
   }
 }
