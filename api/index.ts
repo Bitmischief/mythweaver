@@ -91,6 +91,9 @@ try {
           res.setHeader('X-Request-Id', id);
           return id;
         },
+        autoLogging: {
+          ignore: (req) => req.url === '/version'
+        },
         customProps: function (req, res) {
           return {
             requestId: getRequestId(req, res),
