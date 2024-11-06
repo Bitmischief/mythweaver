@@ -74,6 +74,8 @@ jobs:
       - name: Update deployment file
         run: >
           sed -i 's|<IMAGE>|${{ env.CONTAINER_IMAGE_NAME }}|' $GITHUB_WORKSPACE/.k8s/ui-deployment.yml
+          sed -i 's|<MIN_REPLICAS>|${{ vars.MIN_REPLICAS }}|' $GITHUB_WORKSPACE/.k8s/ui-deployment.yml
+          sed -i 's|<MAX_REPLICAS>|${{ vars.MAX_REPLICAS }}|' $GITHUB_WORKSPACE/.k8s/ui-deployment.yml
 
       - name: Save DigitalOcean kubeconfig with short-lived credentials
         run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 ${{ secrets.CLUSTER_NAME }}
