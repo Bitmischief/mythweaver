@@ -72,8 +72,8 @@ jobs:
         run: docker push ${{ env.CONTAINER_IMAGE_NAME }}
 
       - name: Update deployment file
-        run: >
-          sed -i 's|<IMAGE>|${{ env.CONTAINER_IMAGE_NAME }}|' $GITHUB_WORKSPACE/.k8s/ui-deployment.yml
+        run: |
+          sed -i 's|<IMAGE>|${{ env.CONTAINER_IMAGE_NAME}}|' $GITHUB_WORKSPACE/.k8s/ui-deployment.yml
           sed -i 's|<MIN_REPLICAS>|${{ vars.MIN_REPLICAS }}|' $GITHUB_WORKSPACE/.k8s/ui-deployment.yml
           sed -i 's|<MAX_REPLICAS>|${{ vars.MAX_REPLICAS }}|' $GITHUB_WORKSPACE/.k8s/ui-deployment.yml
 
