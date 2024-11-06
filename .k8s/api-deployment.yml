@@ -126,6 +126,8 @@ spec:
               value: <ASSEMBLYAI_API_KEY>
             - name: INTERNAL_EMAIL_SERVICE_TOKEN
               value: <INTERNAL_EMAIL_SERVICE_TOKEN>
+            - name: AUTH0_AUDIENCE
+              value: <AUTH0_AUDIENCE>
           readinessProbe:
             httpGet:
               path: /version
