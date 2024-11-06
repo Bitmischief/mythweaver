@@ -220,7 +220,7 @@ async function handleDeleteCampaign() {
         </div>
       </div>
 
-      <div class="mt-6 md:mt-0 md:w-[40%]">
+      <!-- <div class="mt-6 md:mt-0 md:w-[40%]">
         <div class="">
           <div class="text-2xl">Campaign Files</div>
           <div class="text-gray-400 text-sm self-center">
@@ -235,7 +235,7 @@ async function handleDeleteCampaign() {
           :upload-url="campaignFileUploadUrl"
           :drag-and-drop-enabled="false"
         />
-      </div>
+      </div> -->
     </div>
   </div>
 </template>

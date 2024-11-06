@@ -198,10 +198,14 @@ export class ImagesService {
         imageUri: upscaledImageUri,
       });
     } catch (error) {
-      this.logger.error('Failed to upscale image', {
-        userId,
-        imageId,
-      }, error);
+      this.logger.error(
+        'Failed to upscale image',
+        {
+          userId,
+          imageId,
+        },
+        error,
+      );
 
       throw new AppError({
         description: 'Failed to upscale image.',
@@ -335,10 +339,11 @@ export class ImagesService {
         },
       );
 
-      const imageGenerationResponse = await this.generateImageFromProperProvider({
-        ...request,
-        imageId: image.id,
-      });
+      const imageGenerationResponse =
+        await this.generateImageFromProperProvider({
+          ...request,
+          imageId: image.id,
+        });
 
       if (!imageGenerationResponse) {
         await this.imagesDataProvider.updateImage(image.id, {
@@ -365,16 +370,20 @@ export class ImagesService {
 
       return updatedImage;
     } catch (error) {
-      this.logger.error('Failed to generate single image', {
-        userId: request.userId,
-        request: {
-          prompt: request.prompt,
-          negativePrompt: request.negativePrompt,
-          stylePreset: request.stylePreset,
-          modelId: request.modelId
-        }
-      }, error);
-      
+      this.logger.error(
+        'Failed to generate single image',
+        {
+          userId: request.userId,
+          request: {
+            prompt: request.prompt,
+            negativePrompt: request.negativePrompt,
+            stylePreset: request.stylePreset,
+            modelId: request.modelId,
+          },
+        },
+        error,
+      );
+
       throw error; // Re-throw to be handled by caller
     }
   }
@@ -572,12 +581,16 @@ export class ImagesService {
 
       return updatedImage;
     } catch (error) {
-      this.logger.error('Failed to inpaint image', {
-        userId,
-        imageId,
-        prompt: request.prompt,
-        negativePrompt: request.negativePrompt
-      }, error);
+      this.logger.error(
+        'Failed to inpaint image',
+        {
+          userId,
+          imageId,
+          prompt: request.prompt,
+          negativePrompt: request.negativePrompt,
+        },
+        error,
+      );
 
       throw new AppError({
         description: 'Failed to inpaint image.',
@@ -655,17 +668,21 @@ export class ImagesService {
 
       return updatedImage;
     } catch (error) {
-      this.logger.error('Failed to outpaint image', {
-        userId,
-        imageId,
-        request: {
-          prompt: request.prompt,
-          left: request.left,
-          right: request.right,
-          up: request.up,
-          down: request.down
-        }
-      }, error);
+      this.logger.error(
+        'Failed to outpaint image',
+        {
+          userId,
+          imageId,
+          request: {
+            prompt: request.prompt,
+            left: request.left,
+            right: request.right,
+            up: request.up,
+            down: request.down,
+          },
+        },
+        error,
+      );
 
       throw new AppError({
         description: 'Failed to outpaint image.',
@@ -729,10 +746,14 @@ export class ImagesService {
         context: { backgroundRemoved: true },
       });
     } catch (error) {
-      this.logger.error('Failed to remove background', {
-        userId,
-        imageId
-      }, error);
+      this.logger.error(
+        'Failed to remove background',
+        {
+          userId,
+          imageId,
+        },
+        error,
+      );
 
       throw new AppError({
         description: 'Failed to remove background from image.',
@@ -827,7 +848,7 @@ export class ImagesService {
 
       return updatedImage;
     } catch (error) {
-      this.logger.error('Failed to erase image portion', { imageId, }, error);
+      this.logger.error('Failed to erase image portion', { imageId }, error);
       throw new AppError({
         description: 'Failed to erase image portion.',
         httpCode: HttpCode.INTERNAL_SERVER_ERROR,
@@ -931,16 +952,20 @@ export class ImagesService {
     return image;
   }
 
-  async setImageToEdit(userId: number, imageId: number, editId: string): Promise<Image> {
+  async setImageToEdit(
+    userId: number,
+    imageId: number,
+    editId: string,
+  ): Promise<Image> {
     const image = await this.imagesDataProvider.findImage(imageId);
 
     if (!image) {
       this.logger.error('Image not found for setImageToEdit', {
         userId,
         imageId,
-        editId
+        editId,
       });
-      
+
       throw new AppError({
         description: 'Image not found.',
         httpCode: HttpCode.NOT_FOUND,
@@ -951,7 +976,7 @@ export class ImagesService {
       this.logger.error('Unauthorized access attempt to modify image', {
         userId,
         imageId,
-        imageOwnerId: image.userId
+        imageOwnerId: image.userId,
       });
 
       throw new AppError({
@@ -969,7 +994,7 @@ export class ImagesService {
       });
     }
 
-    const selectedEdit = edits.find(edit => edit.id === editId);
+    const selectedEdit = edits.find((edit) => edit.id === editId);
 
     if (!selectedEdit) {
       throw new AppError({
