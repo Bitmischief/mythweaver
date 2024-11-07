@@ -9,9 +9,9 @@ import { showError, showSuccess } from '@/lib/notifications.ts';
 import { AxiosError } from 'axios';
 import { useRouter } from 'vue-router';
 import { ArrowLeftIcon } from '@heroicons/vue/24/outline';
-import DragAndDropUploader from '@/components/Core/DragAndDropUploader.vue';
-import CampaignFileList from '@/components/Campaigns/CampaignFileList.vue';
-import { API_URL } from '@/lib/util.ts';
+// import DragAndDropUploader from '@/components/Core/DragAndDropUploader.vue';
+// import CampaignFileList from '@/components/Campaigns/CampaignFileList.vue';
+// import { API_URL } from '@/lib/util.ts';
 
 const campaignStore = useCampaignStore();
 const selectedCampaignId = useSelectedCampaignId();
@@ -20,9 +20,9 @@ const router = useRouter();
 
 const campaign = ref<Campaign>({} as Campaign);
 
-const campaignFileUploadUrl = computed(
-  () => `${API_URL}/campaigns/${selectedCampaignId.value}/files`,
-);
+// const campaignFileUploadUrl = computed(
+//   () => `${API_URL}/campaigns/${selectedCampaignId.value}/files`,
+// );
 
 const currentUserRole = computed(() => campaignStore.selectedCampaignRole);
 
