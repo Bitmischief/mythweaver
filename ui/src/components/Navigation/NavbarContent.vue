@@ -24,9 +24,7 @@ import {
 } from '@heroicons/vue/24/outline';
 import { useCurrentUserId, useCurrentUserPlan } from '@/lib/hooks.ts';
 import { BillingPlan } from '@/api/users.ts';
-import { useNewGalleryEnabled } from '@/composables/useNewGalleryEnabled';
 
-const { isNewGalleryEnabled } = useNewGalleryEnabled();
 
 defineProps<{
   collapsed?: boolean;
@@ -308,7 +306,6 @@ const isActive = (path: string) =>
     </router-link>
 
     <router-link
-      v-if="isNewGalleryEnabled"
       class="nav-item"
       :class="[
         route.fullPath.startsWith('/image-gallery')
@@ -352,17 +349,6 @@ const isActive = (path: string) =>
       <div v-if="!collapsed" class="whitespace-nowrap">
         Relationship Visualizer
       </div>
-    </router-link>
-
-    <router-link
-      v-if="isNewGalleryEnabled"
-      class="nav-item"
-      :class="{ 'default-border-no-opacity': isActive('/image-gallery') }"
-      to="/image-gallery"
-      @click="emit('nav-item-selected')"
-    >
-      <PhotoIcon class="h-5 mr-2" />
-      <div v-if="!collapsed" class="whitespace-nowrap">Image Gallery</div>
     </router-link>
   </div>
   <div v-if="currentUserPlan !== BillingPlan.Pro" class="mt-auto">
