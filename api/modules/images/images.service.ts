@@ -163,8 +163,7 @@ export class ImagesService {
 
     if (user.imageCredits < 1) {
       throw new AppError({
-        description:
-          'You do not have enough credits to upscale this image.',
+        description: 'You do not have enough credits to upscale this image.',
         httpCode: HttpCode.BAD_REQUEST,
       });
     }

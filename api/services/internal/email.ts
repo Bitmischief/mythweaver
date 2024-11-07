@@ -21,7 +21,7 @@ export const addEmailToMailingList = async (email: string) => {
         },
       },
     );
-  } catch(err) {
+  } catch (err) {
     logger.error('Error adding email to mailing list', {}, err);
   }
 };
