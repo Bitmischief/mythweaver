@@ -3,7 +3,6 @@ import { ref, onMounted } from 'vue';
 import { getUserImageGallery } from '@/api/images';
 import Loader from '@/components/Core/Loader.vue';
 import LightboxImage from '@/components/LightboxImage.vue';
-import { useNewGalleryEnabled } from '@/composables/useNewGalleryEnabled';
 import { Image } from '@/api/images';
 
 const images = ref<Image[]>([]);
@@ -11,8 +10,6 @@ const loading = ref(false);
 const offset = ref(0);
 const limit = ref(50);
 const hasMore = ref(true);
-
-const { isNewGalleryEnabled } = useNewGalleryEnabled();
 
 const loadImages = async () => {
   loading.value = true;
@@ -45,7 +42,6 @@ onMounted(() => {
       </h1>
     </div>
     <div
-      v-if="isNewGalleryEnabled"
       class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6"
     >
       <div v-for="image in images" :key="image.id" class="relative group">
@@ -83,9 +79,6 @@ onMounted(() => {
           {{ image.imageModel.description }}
         </div>
       </div>
-    </div>
-    <div v-else>
-      <!-- Insert your old image gallery implementation here -->
     </div>
     <div v-if="loading" class="text-center mt-8">
       <Loader />

@@ -25,7 +25,6 @@ import {
 import { useCurrentUserId, useCurrentUserPlan } from '@/lib/hooks.ts';
 import { BillingPlan } from '@/api/users.ts';
 
-
 defineProps<{
   collapsed?: boolean;
 }>();
@@ -87,9 +86,6 @@ const myCampaigns = computed(() => {
 const joinedCampaigns = computed(() => {
   return campaigns.value.filter((c: any) => c.userId !== currentUserId.value);
 });
-
-const isActive = (path: string) =>
-  computed(() => route.fullPath.startsWith(path));
 </script>
 
 <template>

@@ -5,3 +5,4 @@ public/data/*.png
 .yarn
 # Sentry Config File
 .sentryclirc
+campaign-*.json
