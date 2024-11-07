@@ -92,7 +92,16 @@ export enum ImageEditType {
   REVERT = 'revert',
 }
 
-export type AspectRatio = '1:1' | '9:7' | '3:2' | '7:4' | '12:5' | '5:12' | '4:7' | '2:3' | '7:9';
+export type AspectRatio =
+  | '1:1'
+  | '9:7'
+  | '3:2'
+  | '7:4'
+  | '12:5'
+  | '5:12'
+  | '4:7'
+  | '2:3'
+  | '7:9';
 
 export interface GenerateImageOptions {
   aspectRatio?: AspectRatio;

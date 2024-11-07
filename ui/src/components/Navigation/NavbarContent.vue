@@ -326,7 +326,11 @@ const isActive = (path: string) =>
 
     <router-link
       class="nav-item"
-      :class="{ 'default-border-no-opacity': isActive('/collections') }"
+      :class="[
+        route.fullPath.startsWith('/collections')
+          ? 'default-border-no-opacity'
+          : '',
+      ]"
       to="/collections"
       @click="emit('nav-item-selected')"
     >
@@ -336,7 +340,11 @@ const isActive = (path: string) =>
 
     <router-link
       class="nav-item"
-      :class="{ 'default-border-no-opacity': isActive('/relationships') }"
+      :class="[
+        route.fullPath.startsWith('/relationships')
+          ? 'default-border-no-opacity'
+          : '',
+      ]"
       to="/relationships/graph"
       @click="emit('nav-item-selected')"
     >

@@ -110,6 +110,4 @@ export async function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export const API_URL = isLocalDevelopment
-  ? import.meta.env.VITE_API_URL
-  : `${import.meta.env.VITE_API_URL}/core`;
+export const API_URL = import.meta.env.VITE_API_URL;

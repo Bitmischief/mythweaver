@@ -12,7 +12,7 @@ import { addEmailToMailingList } from '../services/internal/email';
 import { StripeProvider } from '../providers/stripe';
 
 export const checkAuth0Jwt = auth({
-  audience: process.env.API_URL,
+  audience: process.env.AUTH0_AUDIENCE,
   issuerBaseURL: process.env.ISSUER_BASE_URL,
   authRequired: true,
 });

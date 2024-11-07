@@ -92,7 +92,7 @@ try {
           return id;
         },
         autoLogging: {
-          ignore: (req) => req.url === '/version'
+          ignore: (req) => req.url === '/version',
         },
         customProps: function (req, res) {
           return {

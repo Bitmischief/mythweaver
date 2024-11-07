@@ -198,10 +198,6 @@ export class ImagesController {
     @Route() imageId: number,
     @Body() request: { editId: string },
   ): Promise<Image> {
-    return this.imagesService.setImageToEdit(
-      userId,
-      imageId,
-      request.editId,
-    );
+    return this.imagesService.setImageToEdit(userId, imageId, request.editId);
   }
 }
