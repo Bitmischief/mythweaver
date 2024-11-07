@@ -264,7 +264,7 @@ async function disconnectDiscord() {
                     class="button-ghost-white mr-2"
                     @click="showBuyImageCreditsModal = true"
                   >
-                    Add more image credits
+                    Add more credits
                   </button>
                 </div>
               </div>
@@ -452,7 +452,7 @@ async function disconnectDiscord() {
       class="md:w-[800px] p-6 bg-surface-2 rounded-[20px] border border-surface-3"
     >
       <div class="flex justify-between text-neutral-300">
-        <div class="text-xl mb-6">Buy More Image Credits</div>
+        <div class="text-xl mb-6">Buy More credits</div>
         <XCircleIcon
           class="h-6 w-6 cursor-pointer"
           @click="showBuyImageCreditsModal = false"

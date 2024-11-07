@@ -50,7 +50,7 @@ export class ImagesService {
     if (user.imageCredits < count) {
       throw new AppError({
         description:
-          'You do not have enough image credits to generate this many images.',
+          'You do not have enough credits to generate this many images.',
         httpCode: HttpCode.BAD_REQUEST,
       });
     }
@@ -164,7 +164,7 @@ export class ImagesService {
     if (user.imageCredits < 1) {
       throw new AppError({
         description:
-          'You do not have enough image credits to upscale this image.',
+          'You do not have enough credits to upscale this image.',
         httpCode: HttpCode.BAD_REQUEST,
       });
     }
@@ -540,7 +540,7 @@ export class ImagesService {
 
     if (user.imageCredits < 3) {
       throw new AppError({
-        description: 'Not enough image credits for inpainting.',
+        description: 'Not enough credits for inpainting.',
         httpCode: HttpCode.BAD_REQUEST,
       });
     }
@@ -621,7 +621,7 @@ export class ImagesService {
 
     if (user.imageCredits < 4) {
       throw new AppError({
-        description: 'Not enough image credits for outpainting.',
+        description: 'Not enough credits for outpainting.',
         httpCode: HttpCode.BAD_REQUEST,
       });
     }
@@ -705,7 +705,7 @@ export class ImagesService {
 
     if (user.imageCredits < 2) {
       throw new AppError({
-        description: 'Not enough image credits for background removal.',
+        description: 'Not enough credits for background removal.',
         httpCode: HttpCode.BAD_REQUEST,
       });
     }
@@ -800,7 +800,7 @@ export class ImagesService {
 
     if (user.imageCredits < 1) {
       throw new AppError({
-        description: 'Not enough image credits for erasing image portion.',
+        description: 'Not enough credits for erasing image portion.',
         httpCode: HttpCode.BAD_REQUEST,
       });
     }

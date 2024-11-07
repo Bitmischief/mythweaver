@@ -249,7 +249,7 @@ function imageGenerationTimeoutHandler(data: any) {
     imageTimeouts.value += 1;
     if (imageTimeouts.value === count.value) {
       imageErrorMessage.value =
-        'The image generation was taking longer than normal so the request was cancelled. You have not been charged any image credits. This issue could be due to a high traffic or a temporary provider outage. Please try again.';
+        'The image generation was taking longer than normal so the request was cancelled. You have not been charged any credits. This issue could be due to a high traffic or a temporary provider outage. Please try again.';
       imageError.value = true;
       conjuring.value = false;
       upscaling.value = false;
@@ -941,7 +941,7 @@ const selectedModelIsMythWeaverV1 = computed(() => {
           <div class="text-neutral-500 text-xs px-6">
             This image is taking longer than expected to generate. You can retry
             the image generation or continue to wait. You will not be charged
-            image credits for images that fail to generate.
+            credits for images that fail to generate.
           </div>
         </div>
       </div>
