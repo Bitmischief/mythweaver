@@ -1,14 +1,8 @@
 <script setup lang="ts">
 import { Conjuration, patchConjuration } from '@/api/conjurations.ts';
 import { computed, onMounted, onUpdated, onUnmounted, ref } from 'vue';
-import {
-  CheckIcon,
-  XMarkIcon,
-  PlusIcon,
-  LinkIcon,
-} from '@heroicons/vue/20/solid';
+import { LinkIcon } from '@heroicons/vue/20/solid';
 import { PencilSquareIcon, ShareIcon } from '@heroicons/vue/24/outline';
-import { remove } from 'lodash';
 import { useEventBus } from '@/lib/events.ts';
 import { showError, showSuccess } from '@/lib/notifications.ts';
 import { AxiosError } from 'axios';
@@ -28,6 +22,7 @@ import { mapConjurationType } from '@/lib/util.ts';
 import { ConjurationRelationshipType } from '@/lib/enums.ts';
 import ViewRelationships from '@/components/Relationships/ViewRelationships.vue';
 import { useRoute, useRouter } from 'vue-router';
+import { FormKit } from '@formkit/vue';
 
 const emit = defineEmits(['edit']);
 const props = defineProps<{
@@ -48,9 +43,6 @@ const channel = useWebsocketChannel();
 const hasValidPlan = useHasValidPlan();
 
 const editableConjuration = ref(props.conjuration);
-const addingTag = ref(false);
-const tagText = ref('');
-const tagInput = ref<HTMLElement | null>(null);
 const imageKey = ref(0);
 
 const editable = computed(
@@ -166,24 +158,6 @@ onUpdated(() => {
   }
 });
 
-const removeTag = async (tag: string) => {
-  if (!editableConjuration.value.tags) return;
-
-  let tags = [...editableConjuration.value.tags];
-  remove(tags, function (t) {
-    return t === tag;
-  });
-
-  editableConjuration.value.tags = tags;
-};
-
-const addTag = async () => {
-  if (!tagText.value) return;
-
-  editableConjuration.value.tags?.push(tagText.value);
-  tagText.value = '';
-};
-
 async function saveConjuration() {
   try {
     await patchConjuration(props.conjuration.id, {
@@ -198,11 +172,6 @@ async function saveConjuration() {
       message: (err?.response?.data as any)?.message?.toString() || '',
     });
   }
-}
-
-function beginAddingTag() {
-  addingTag.value = true;
-  tagInput.value?.focus();
 }
 
 const conjurationType = computed(() => {
@@ -309,7 +278,7 @@ async function viewGraph() {
           <input
             v-model="editableConjuration.name"
             class="input-secondary text-2xl"
-            :disabled="!editable"
+            :disabled="readOnly"
             @click="edit"
           />
         </div>
@@ -331,7 +300,7 @@ async function viewGraph() {
             ]"
             value-prop="code"
             display-prop="name"
-            :disabled="!editable"
+            :disabled="readOnly"
             @click="emit('edit')"
           />
           <div class="text-neutral-500 text-xs mx-2">
@@ -340,60 +309,26 @@ async function viewGraph() {
           </div>
         </div>
 
-        <div class="mt-5 px-1 flex flex-wrap">
-          <div class="text-xs text-neutral-400">TAGS</div>
+        <div class="mt-5 px-1">
+          <div class="text-xs text-neutral-400 mb-2">TAGS</div>
           <div class="flex flex-wrap">
-            <div class="tag bg-white/75 text-black flex group group-hover:pr-2">
-              <span class="self-center">{{ conjurationType }}</span>
-            </div>
-            <div
-              v-for="tag of editableConjuration.tags"
-              :key="`${editableConjuration.id}-${tag}`"
-              class="tag flex group group-hover:pr-2"
-            >
-              <span class="self-center">{{ tag }}</span>
-              <XMarkIcon
-                v-if="editable"
-                class="self-center ml-2 h-4 cursor-pointer text-white hidden group-hover:block"
-                @click="removeTag(tag)"
-              />
-            </div>
-
-            <div
-              v-if="!addingTag && editable"
-              class="tag flex cursor-pointer pl-1 pr-3 bg-surface-2 border border-surface-3"
-              @click="beginAddingTag"
-            >
-              <PlusIcon class="w-4 h-4 self-center mr-1" />
-              <span class="self-center">Add Tag</span>
-            </div>
-            <div v-if="addingTag" class="grow mt-1 relative basis-full">
-              <input
-                ref="tagInput"
-                v-model="tagText"
-                class="input-primary"
-                placeholder="Add tag"
-                autofocus
-                @keydown.enter="addTag"
-                @keydown.esc="addingTag = false"
-              />
-
-              <div class="absolute right-2 h-full top-0 flex">
-                <div class="self-center flex">
-                  <XMarkIcon
-                    class="h-6 cursor-pointer text-white hover:bg-gray-500 border border-gray-500 rounded-l-lg"
-                    @click="
-                      tagText = '';
-                      addingTag = false;
-                    "
-                  />
-                  <CheckIcon
-                    class="h-6 cursor-pointer text-white hover:bg-purple-500 border border-gray-500 rounded-r-lg"
-                    @click="addTag"
-                  />
-                </div>
-              </div>
-            </div>
+            <FormKit
+              v-model="editableConjuration.tags"
+              type="taglist"
+              :disabled="readOnly"
+              allow-new-values
+              :close-on-select="true"
+              placeholder="Add tag..."
+              :classes="{
+                input:
+                  'bg-surface-2 border border-surface-3 rounded-md text-sm',
+                tag: 'tag bg-surface-2 border border-surface-3',
+                tagWrapper: 'flex flex-wrap gap-2',
+                removeSelection: 'ml-2 text-white hover:text-red-400',
+                inner: 'min-w-[200px]',
+              }"
+              @click="emit('edit')"
+            />
           </div>
         </div>
       </div>
@@ -466,3 +401,9 @@ async function viewGraph() {
     </div>
   </div>
 </template>
+
+<style scoped>
+.tag {
+  @apply px-2 py-1 rounded-full text-sm bg-surface-2 border border-surface-3 m-1;
+}
+</style>

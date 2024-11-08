@@ -304,15 +304,15 @@ const joinedCampaigns = computed(() => {
     <router-link
       class="nav-item"
       :class="[
-        route.fullPath.startsWith('/image-gallery')
+        route.fullPath.startsWith('/conjurations#gallery')
           ? 'default-border-no-opacity'
           : '',
       ]"
-      to="/image-gallery"
+      to="/conjurations#gallery"
       @click="emit('nav-item-selected')"
     >
       <PhotoIcon class="h-5 mr-2" />
-      <div v-if="!collapsed" class="whitespace-nowrap">Image Gallery</div>
+      <div v-if="!collapsed" class="whitespace-nowrap">Public Gallery</div>
     </router-link>
 
     <div class="text-xs text-gray-500 font-bold mb-3 mt-6">TOOLS</div>
