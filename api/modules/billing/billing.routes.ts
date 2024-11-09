@@ -11,7 +11,7 @@ import BillingController from './billing.controller';
 import { injectDependencies } from './billing.dependencies';
 import { StripeProvider } from '../../providers/stripe';
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 const postCheckoutUrlSchema = z.object({
   priceId: z.string(),

@@ -16,7 +16,7 @@ import multer from 'multer';
 import { useUpload } from '../../lib/fileUploadMiddleware';
 
 const upload = multer({ storage: multer.memoryStorage() });
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 const postImageSchema = z.object({
   modelId: z.number().optional(),

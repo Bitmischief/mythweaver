@@ -13,7 +13,7 @@ import { IntegrationsController } from './integrations.controller';
 import { useInjectLoggingInfo, useLogger } from '../../lib/loggingMiddleware';
 import { injectDependencies } from './integrations.dependencies';
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 router.get('/discord/connect', [
   checkAuth0Jwt,

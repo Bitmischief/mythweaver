@@ -20,7 +20,7 @@ import {
 import { SessionsController } from './sessions.controller';
 import { injectDependencies } from './sessions.dependencies';
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 const getSessionsSchema = z.object({
   campaignId: z.coerce.number().default(0),

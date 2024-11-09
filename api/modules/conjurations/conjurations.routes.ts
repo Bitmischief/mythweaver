@@ -12,7 +12,7 @@ import { ImageStylePreset } from '@/modules/images/images.interface';
 import { injectDependencies } from './conjurations.dependencies';
 import conjurers from '../../data/conjurers';
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 const getConjurationsSchema = z.object({
   campaignId: z.coerce.number().default(0),

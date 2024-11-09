@@ -4,7 +4,7 @@ import { useInjectLoggingInfo } from '../../lib/loggingMiddleware';
 import { ArtistsController } from '../../modules/artists/artists.controller';
 import { injectDependencies } from './artists.dependencies';
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 router.get('/:artistId', [
   checkAuth0Jwt,

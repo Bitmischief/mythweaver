@@ -9,7 +9,7 @@ import { useInjectLoggingInfo } from '../../../lib/loggingMiddleware';
 import { MembersController } from './members.controller';
 import { injectDependencies } from './members.dependencies';
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 const getCampaignMembersRouteSchema = z.object({
   campaignId: z.coerce.number().default(0),

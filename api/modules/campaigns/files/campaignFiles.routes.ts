@@ -13,7 +13,7 @@ import {
 } from '../../../lib/campaignFileMiddleware';
 import { injectDependencies } from './campaignFiles.dependencies';
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 const getCampaignFilesSchema = z.object({
   campaignId: z.coerce.number().default(0),

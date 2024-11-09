@@ -10,7 +10,7 @@ import { UsersController } from './users.controller';
 import { useInjectLoggingInfo } from '../../lib/loggingMiddleware';
 import { injectDependencies } from './users.dependencies';
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 router.get('/me', [
   checkAuth0Jwt,

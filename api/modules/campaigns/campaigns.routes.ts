@@ -14,7 +14,7 @@ import rateLimit from 'express-rate-limit';
 import { useInjectLoggingInfo } from '../../lib/loggingMiddleware';
 import { injectDependencies } from './campaigns.dependencies';
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 const getCampaignsSchema = z.object({
   offset: z.coerce.number().default(0).optional(),

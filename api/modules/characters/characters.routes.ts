@@ -6,7 +6,7 @@ import { CharactersController } from './characters.controller';
 import { injectDependencies } from './characters.dependencies';
 import { useValidateRequest } from '../../lib/validationMiddleware';
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 const postCharactersSchema = z.object({
   campaignId: z.number(),

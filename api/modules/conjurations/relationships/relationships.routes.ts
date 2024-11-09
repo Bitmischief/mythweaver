@@ -10,7 +10,7 @@ import {
 import { ConjurationRelationshipType } from '@prisma/client';
 import { ConjurationsRelationshipsController } from './relationships.controller';
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 const relationshipsRouteSchema = z.object({
   type: z.enum([ConjurationRelationshipType.CONJURATION]),

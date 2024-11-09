@@ -9,7 +9,7 @@ import { injectDependencies } from './campaignConjurations.dependencies';
 import { CampaignConjurationsController } from './campaignConjurations.controller';
 import { useInjectLoggingInfo } from '../../../lib/loggingMiddleware';
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 const postCampaignConjurationRouteSchema = z.object({
   campaignId: z.coerce.number(),

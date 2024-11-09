@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 router.get('/', [
   async (req: Request, res: Response) => {

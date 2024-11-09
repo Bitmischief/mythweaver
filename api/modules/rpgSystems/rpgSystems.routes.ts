@@ -9,7 +9,7 @@ import {
 } from '../../lib/validationMiddleware';
 import { z } from 'zod';
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 const getRpgSystemsSchema = z.object({
   term: z.string().optional(),

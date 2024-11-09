@@ -9,7 +9,7 @@ import express, { Request, Response } from 'express';
 import { CollectionsController } from './collections.controller';
 import { injectDependencies } from './collections.dependencies';
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 const getCollectionsSchema = z.object({
   parentId: z.coerce.number().optional(),
