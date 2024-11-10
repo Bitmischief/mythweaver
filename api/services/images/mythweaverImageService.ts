@@ -23,13 +23,19 @@ export const generateMythWeaverModelImage = async (
   logger.info(`Generating image with model: ${model?.description}`, model);
 
   const response = await axios.post(model.executionUri, {
-    prompt: `${model.promptPrefix} ${request.prompt}`,
-    steps: model.defaultSteps,
-    negative_prompt: request.negativePrompt,
-    lora_name: model.loraName,
+    input: {
+      prompt: `${model.promptPrefix} ${request.prompt}`,
+      steps: model.defaultSteps,
+      negative_prompt: request.negativePrompt,
+      lora_name: model.loraName,
+    },
+  }, {
+    headers: {
+      Authorization: `Bearer ${process.env.RUNPOD_API_KEY}`,
+    }
   });
 
-  const image = response.data;
+  const image = response.data.output;
 
   const imageId = uuidv4();
   const url = await saveImage(imageId, image.base64);

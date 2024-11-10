@@ -87,7 +87,10 @@ const showBookmarkIcon = computed(() => {
   return route.hash === '#history';
 });
 
-async function addConjuration() {
+async function addConjuration(e: Event) {
+  e.preventDefault();
+  e.stopPropagation();
+  
   if (conjuration.value && !conjuration.value.saved) {
     try {
       await saveConjuration(conjuration.value.id);
@@ -213,7 +216,7 @@ const conjurationName = computed(() => {
             'bg-white/50': !conjuration.saved,
             'bg-fuchsia-500/90': conjuration.saved,
           }"
-          @click.stop="addConjuration"
+          @click="addConjuration"
         >
           <div class="flex h-full justify-center text-xs font-bold">
             <BookmarkIconSolid
@@ -301,7 +304,7 @@ const conjurationName = computed(() => {
                 'bg-white/50 hover:bg-white/60': !conjuration.saved,
                 'bg-fuchsia-500/90': conjuration.saved,
               }"
-              @click.stop="addConjuration"
+              @click="addConjuration"
             >
               <div class="flex h-full justify-center text-xs font-bold">
                 <div class="relative self-center">
