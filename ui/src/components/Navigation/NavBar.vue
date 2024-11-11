@@ -47,28 +47,6 @@ async function logout() {
 const collapsed = ref(false);
 const intercom = useIntercom();
 
-const thirdPartySignin = computed(() => {
-  const sub = auth0.user.value?.sub?.toLowerCase();
-  return (
-    sub?.includes('discord') ||
-    sub?.includes('google') ||
-    sub?.includes('twitter') ||
-    sub?.includes('facebook')
-  );
-});
-const loginType = computed(() => {
-  const sub = auth0.user.value?.sub?.toLowerCase();
-  return sub?.includes('discord')
-    ? 'Discord'
-    : sub?.includes('google')
-      ? 'Google'
-      : sub?.includes('twitter')
-        ? 'Twitter'
-        : sub?.includes('facebook')
-          ? 'Facebook'
-          : 'Email';
-});
-
 const appVersion = computed(() => import.meta.env.VITE_VERSION);
 </script>
 
