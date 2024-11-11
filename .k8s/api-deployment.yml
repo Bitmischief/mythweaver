@@ -128,6 +128,8 @@ spec:
               value: <INTERNAL_EMAIL_SERVICE_TOKEN>
             - name: AUTH0_AUDIENCE
               value: <AUTH0_AUDIENCE>
+            - name: RUNPOD_API_KEY
+              value: <RUNPOD_API_KEY>
           readinessProbe:
             httpGet:
               path: /version

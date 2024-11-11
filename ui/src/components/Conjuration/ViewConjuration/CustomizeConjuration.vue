@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Conjuration, patchConjuration } from '@/api/conjurations.ts';
-import { computed, onMounted, onUpdated, onUnmounted, ref } from 'vue';
+import { computed, watch, onMounted, onUpdated, onUnmounted, ref } from 'vue';
 import { LinkIcon } from '@heroicons/vue/20/solid';
 import { PencilSquareIcon, ShareIcon } from '@heroicons/vue/24/outline';
 import { useEventBus } from '@/lib/events.ts';
@@ -74,7 +74,6 @@ onMounted(async () => {
 
   channel.bind(ServerEvent.ImageCreated, imageCreatedHandler);
   channel.bind(ServerEvent.PrimaryImageSet, primaryImageSetHandler);
-  channel.bind(ServerEvent.ImageUpscaled, imageUpscaledHandler);
   channel.bind(ServerEvent.ImageFiltered, imageFilteredHandler);
   channel.bind(ServerEvent.ImageError, imageErrorHandler);
   channel.bind(
@@ -82,6 +81,14 @@ onMounted(async () => {
     imageGenerationTimeoutHandler,
   );
 });
+
+watch(
+  () => props.conjuration,
+  () => {
+    editableConjuration.value = props.conjuration;
+  },
+  { deep: true },
+);
 
 function imageCreatedHandler(image: any) {
   if (!primaryImage.value?.uri) {
@@ -94,14 +101,6 @@ function primaryImageSetHandler(data: any) {
     editableConjuration.value.images = data.images;
     imageKey.value++;
     showSuccess({ message: 'Image saved' });
-  }
-}
-
-function imageUpscaledHandler(data: any) {
-  if (data.id === primaryImage.value?.id) {
-    editableConjuration.value.images = [{ ...data }];
-    imageKey.value++;
-    showSuccess({ message: 'Image upscaled' });
   }
 }
 
@@ -143,7 +142,6 @@ onUnmounted(() => {
   eventBus.$off('save-conjuration');
   channel.unbind(ServerEvent.PrimaryImageSet, primaryImageSetHandler);
   channel.unbind(ServerEvent.ImageCreated, imageCreatedHandler);
-  channel.unbind(ServerEvent.ImageUpscaled, imageUpscaledHandler);
   channel.unbind(ServerEvent.ImageFiltered, imageFilteredHandler);
   channel.unbind(ServerEvent.ImageError, imageErrorHandler);
   channel.unbind(

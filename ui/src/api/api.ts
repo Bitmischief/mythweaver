@@ -35,9 +35,21 @@ axios.interceptors.response.use(
       return;
     }
 
-    if (err.response.status === 401) {
-      await logout();
+    if (err.response?.status === 401) {
+      try {
+        const newToken = await getAccessToken({ cacheMode: 'off' });
+        if (newToken) {
+          const config = err.config;
+          config.headers['Authorization'] = 'Bearer ' + newToken;
+          return axios(config);
+        } else {
+          await logout();
+        }
+      } catch (refreshError) {
+        await logout();
+      }
     }
+
     return Promise.reject(err);
   },
 );

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Bars3Icon } from '@heroicons/vue/24/solid';
+import { Bars3Icon, MegaphoneIcon } from '@heroicons/vue/24/solid';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { Dialog, DialogPanel } from '@headlessui/vue';
 import { useAuthStore } from '@/store';
@@ -46,28 +46,6 @@ async function logout() {
 
 const collapsed = ref(false);
 const intercom = useIntercom();
-
-const thirdPartySignin = computed(() => {
-  const sub = auth0.user.value?.sub?.toLowerCase();
-  return (
-    sub?.includes('discord') ||
-    sub?.includes('google') ||
-    sub?.includes('twitter') ||
-    sub?.includes('facebook')
-  );
-});
-const loginType = computed(() => {
-  const sub = auth0.user.value?.sub?.toLowerCase();
-  return sub?.includes('discord')
-    ? 'Discord'
-    : sub?.includes('google')
-      ? 'Google'
-      : sub?.includes('twitter')
-        ? 'Twitter'
-        : sub?.includes('facebook')
-          ? 'Facebook'
-          : 'Email';
-});
 
 const appVersion = computed(() => import.meta.env.VITE_VERSION);
 </script>
@@ -132,6 +110,15 @@ const appVersion = computed(() => import.meta.env.VITE_VERSION);
                 Join our discord
               </a>
             </div>
+            <a
+              href="https://feedback.mythweaver.co"
+              target="_blank"
+              class="flex px-4 py-2 text-sm text-gray-300 cursor-pointer hover:bg-rounded-purple"
+              @click="intercom.show()"
+            >
+              <MegaphoneIcon class="h-5 mr-2" />
+              Feedback
+            </a>
             <div
               class="flex px-4 py-2 text-sm text-gray-300 cursor-pointer hover:bg-rounded-purple"
               @click="intercom.show()"
@@ -142,28 +129,6 @@ const appVersion = computed(() => import.meta.env.VITE_VERSION);
                 class="h-5 mr-2"
               />
               Support Center
-            </div>
-            <div class="flex justify-center my-1 ml-3">
-              <iframe
-                data-status-badge="true"
-                src="https://status.mythweaver.co/badge?theme=dark"
-                height="30"
-                :class="[collapsed ? 'w-5' : 'w-full']"
-                frameborder="0"
-                scrolling="no"
-              ></iframe>
-            </div>
-            <div v-if="thirdPartySignin">
-              <div class="text-sm text-neutral-400 text-center mx-2 my-2">
-                Currently logged in as {{ auth0.user?.value?.nickname }} via
-                {{ loginType }}
-              </div>
-            </div>
-            <div
-              v-else-if="authStore.user"
-              class="text-center text-neutral-400 text-xs"
-            >
-              Logged in as <span>{{ authStore.user.email }}</span>
             </div>
           </div>
         </div>
@@ -220,19 +185,6 @@ const appVersion = computed(() => import.meta.env.VITE_VERSION);
                   scrolling="no"
                 ></iframe>
                 <hr class="py-2 border-neutral-800 -mx-4 mt-5" />
-
-                <div v-if="thirdPartySignin">
-                  <div class="text-sm text-neutral-400 text-center mx-2 my-2">
-                    Currently logged in as {{ auth0.user?.value?.nickname }} via
-                    {{ loginType }}
-                  </div>
-                </div>
-                <div
-                  v-else-if="authStore.user"
-                  class="text-center text-neutral-400 text-xs"
-                >
-                  Logged in as <span>{{ authStore.user.email }}</span>
-                </div>
                 <button
                   class="button-ghost-primary mt-4 mb-4 w-full"
                   @click="logout"

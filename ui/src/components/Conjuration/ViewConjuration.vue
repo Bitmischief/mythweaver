@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import {
   Conjuration,
   ConjurationVisibility,
@@ -32,6 +32,7 @@ import {
   useCurrentUserId,
   useQuickConjure,
   useSelectedCampaignId,
+  useWebsocketChannel,
 } from '@/lib/hooks.ts';
 import { showError, showSuccess } from '@/lib/notifications.ts';
 import { MenuButton, MenuItem } from '@headlessui/vue';
@@ -42,6 +43,7 @@ import ModalAlternate from '@/components/ModalAlternate.vue';
 import { Conjurer, getConjurers } from '@/api/generators.ts';
 import Select from '@/components/Core/Forms/Select.vue';
 import ConjurationMove from '@/components/Collections/ConjurationMove.vue';
+import { ServerEvent } from '@/lib/serverEvents';
 
 const route = useRoute();
 const router = useRouter();
@@ -49,6 +51,7 @@ const eventBus = useEventBus();
 const quickConjure = useQuickConjure();
 const currentUserId = useCurrentUserId();
 const selectedCampaignId = useSelectedCampaignId();
+const channel = useWebsocketChannel();
 
 const conjuration = ref<Conjuration | null>(null);
 const privateConjuration = ref(false);
@@ -68,11 +71,24 @@ const isQuickConjure = computed(() => {
 
 onMounted(async () => {
   await loadConjuration();
+
+  channel.bind(ServerEvent.ImageUpscaled, imageUpscaledHandler);
+});
+
+onUnmounted(() => {
+  channel.unbind(ServerEvent.ImageUpscaled, imageUpscaledHandler);
 });
 
 watch(conjurationId, async () => {
   await loadConjuration();
 });
+
+async function imageUpscaledHandler(data: any) {
+  await loadConjuration();
+  if (conjuration.value?.images?.find((i) => i.id === data.imageId)) {
+    showSuccess({ message: 'Image upscaled successfully' });
+  }
+}
 
 async function loadConjuration() {
   try {

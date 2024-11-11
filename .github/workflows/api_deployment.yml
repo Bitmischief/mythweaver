@@ -89,6 +89,7 @@ jobs:
           sed -i 's|<ASSEMBLYAI_API_KEY>|${{ secrets.ASSEMBLYAI_API_KEY }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           sed -i 's|<INTERNAL_EMAIL_SERVICE_TOKEN>|${{ secrets.INTERNAL_EMAIL_SERVICE_TOKEN }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           sed -i 's|<AUTH0_AUDIENCE>|${{ vars.AUTH0_AUDIENCE }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
+          sed -i 's|<RUNPOD_API_KEY>|${{ secrets.RUNPOD_API_KEY }}|' $GITHUB_WORKSPACE/.k8s/api-deployment.yml
           cat $GITHUB_WORKSPACE/.k8s/api-deployment.yml
 
       - name: Save DigitalOcean kubeconfig with short-lived credentials

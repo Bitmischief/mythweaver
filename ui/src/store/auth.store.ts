@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { BillingPlan, getCurrentUser, User } from '@/api/users.ts';
 import { useEventBus } from '@/lib/events.ts';
+import router from '@/router';
 
 interface AuthStoreState {
   tokens: any;
@@ -42,6 +43,8 @@ export const useAuthStore = defineStore({
         eventBus.$emit('user-loaded', this.user);
       } catch (err) {
         console.log('Unable to load user');
+        await this.logout();
+        router.push('/login');
       } finally {
         this.isLoading = false;
       }

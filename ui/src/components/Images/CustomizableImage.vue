@@ -7,8 +7,7 @@ import {
 } from '@heroicons/vue/24/outline';
 import { useEventBus } from '@/lib/events.ts';
 import { showError } from '@/lib/notifications.ts';
-import { computed, onMounted, ref } from 'vue';
-
+import { computed, onMounted, ref, watch } from 'vue';
 const props = withDefaults(
   defineProps<{
     image?: {
@@ -63,6 +62,13 @@ const imgHeight = ref(0);
 onMounted(() => {
   setImgDimensions();
 });
+
+watch(
+  () => props.image,
+  () => {
+    setImgDimensions();
+  },
+);
 
 function showCreateImageModal() {
   eventBus.$emit('toggle-customize-image-modal', {
