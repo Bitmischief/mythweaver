@@ -71,7 +71,7 @@ const isQuickConjure = computed(() => {
 
 onMounted(async () => {
   await loadConjuration();
-  
+
   channel.bind(ServerEvent.ImageUpscaled, imageUpscaledHandler);
 });
 
@@ -85,7 +85,7 @@ watch(conjurationId, async () => {
 
 async function imageUpscaledHandler(data: any) {
   await loadConjuration();
-  if (conjuration.value?.images?.find(i => i.id === data.imageId)) {
+  if (conjuration.value?.images?.find((i) => i.id === data.imageId)) {
     showSuccess({ message: 'Image upscaled successfully' });
   }
 }

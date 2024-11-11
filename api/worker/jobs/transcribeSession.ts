@@ -13,7 +13,6 @@ import logger from '../../lib/logger';
 import { SpeechModel } from 'assemblyai/src/types/openapi.generated';
 import { sleep } from 'openai/core';
 import { ProcessedTranscript } from '../../dataAccess/transcript';
-import { generateText } from '../../services/textGeneration';
 import { config } from '../config';
 import {
   recapTranscript,

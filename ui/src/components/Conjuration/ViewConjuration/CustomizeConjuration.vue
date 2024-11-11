@@ -82,9 +82,13 @@ onMounted(async () => {
   );
 });
 
-watch(() => props.conjuration, () => {
-  editableConjuration.value = props.conjuration;
-}, { deep: true });
+watch(
+  () => props.conjuration,
+  () => {
+    editableConjuration.value = props.conjuration;
+  },
+  { deep: true },
+);
 
 function imageCreatedHandler(image: any) {
   if (!primaryImage.value?.uri) {

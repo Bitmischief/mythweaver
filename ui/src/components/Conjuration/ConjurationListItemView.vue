@@ -90,7 +90,7 @@ const showBookmarkIcon = computed(() => {
 async function addConjuration(e: Event) {
   e.preventDefault();
   e.stopPropagation();
-  
+
   if (conjuration.value && !conjuration.value.saved) {
     try {
       await saveConjuration(conjuration.value.id);

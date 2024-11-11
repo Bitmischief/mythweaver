@@ -110,13 +110,13 @@ const appVersion = computed(() => import.meta.env.VITE_VERSION);
                 Join our discord
               </a>
             </div>
-            <a href="https://feedback.mythweaver.co" target="_blank"
+            <a
+              href="https://feedback.mythweaver.co"
+              target="_blank"
               class="flex px-4 py-2 text-sm text-gray-300 cursor-pointer hover:bg-rounded-purple"
               @click="intercom.show()"
             >
-              <MegaphoneIcon
-                class="h-5 mr-2"
-              />
+              <MegaphoneIcon class="h-5 mr-2" />
               Feedback
             </a>
             <div
