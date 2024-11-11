@@ -262,9 +262,9 @@ export class CollectionsDataProvider {
   }
 
   async deleteManyCollections(collectionIds: number[]) {
-    await prisma.collectionConjuration.deleteMany({
+    await prisma.collections.deleteMany({
       where: {
-        collectionId: {
+        id: {
           in: collectionIds,
         },
       },
