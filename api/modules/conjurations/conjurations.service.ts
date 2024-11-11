@@ -402,6 +402,7 @@ export class ConjurationsService {
         await this.conjurationsDataProvider.createImage({
           ...img,
           id: undefined,
+          imageModel: undefined,
           userId: userId,
           conjurationId: conjuration.id,
           edits: {},
