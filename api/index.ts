@@ -44,6 +44,10 @@ try {
         return null;
       }
 
+      if (event.request?.url && event.request?.url?.indexOf('/version') > -1) {
+        return null;
+      }
+
       return event;
     },
   });
