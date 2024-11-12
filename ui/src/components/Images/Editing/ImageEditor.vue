@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { FormKit } from '@formkit/vue';
 import {
   ArrowUturnLeftIcon,
   ArrowUturnRightIcon,
@@ -38,7 +39,7 @@ const isEraseMode = ref<boolean>(false);
 const selectedTool = ref<'inpaint' | 'outpaint' | 'erase'>('inpaint');
 const tools = [
   { mode: 'inpaint', label: 'Modify' },
-  // { mode: 'outpaint', label: 'Extend' },
+  { mode: 'outpaint', label: 'Extend' },
   { mode: 'erase', label: 'Erase' },
 ] as const;
 const undoStack = ref<ImageData[]>([]);
@@ -304,13 +305,27 @@ async function saveImage() {
 
 const canUndo = computed(() => undoStack.value.length > 1);
 const canRedo = computed(() => redoStack.value.length > 0);
+
+const handleEscapeKey = (event: KeyboardEvent) => {
+  if (event.key === 'Escape') {
+    closeModal();
+  }
+};
+
+onMounted(() => {
+  document.addEventListener('keydown', handleEscapeKey);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('keydown', handleEscapeKey);
+});
 </script>
 
 <template>
-  <div class="h-full text-white">
+  <div class="overflow-hidden h-full flex flex-col border border-zinc-700">
     <div class="canvas-background absolute inset-0"></div>
     <div
-      class="fixed top-0 left-0 right-0 flex justify-between items-center p-4"
+      class="fixed top-0 left-0 right-0  p-4 flex justify-between items-center"
     >
       <div class="px-4 gradient-text text-2xl">Image Editor</div>
       <div class="flex gap-2 mr-5">
@@ -330,8 +345,8 @@ const canRedo = computed(() => redoStack.value.length > 0);
         </button>
       </div>
     </div>
-    <div class="flex gap-4 p-4 h-full">
-      <div class="min-w-[12em] mt-12">
+    <div class="flex gap-4 h-full">
+      <div class="min-w-[12em]  p-4 mt-12">
         <div v-for="(tool, i) in tools" :key="`tool_${i}`">
           <button
             class="px-3 py-2 mb-2 rounded-lg w-full cursor-pointer"
@@ -355,16 +370,16 @@ const canRedo = computed(() => redoStack.value.length > 0);
           >
             <div v-if="selectedTool !== 'outpaint'" class="fixed min-w-[12em]">
               <div class="mt-2">
-                <div class="text-center">
+                <div class="">
                   <span class="text-xs">Brush Size ({{ brushSize }}px)</span>
-                  <div class="flex justify-center items-center">
-                    <input
+                  <div class="flex">
+                    <FormKit
                       v-model="brushSize"
-                      class="brush-slider"
                       type="range"
                       :min="5"
                       :max="200"
-                      title="Brush size"
+                      name="brush-size"
+                      :value="brushSize"
                       @input="updateBrushSize"
                       @mousemove="updateBrushPreview"
                       @mouseleave="clearPreview"
@@ -477,7 +492,7 @@ const canRedo = computed(() => redoStack.value.length > 0);
           @mouseleave="clearPreview"
         />
       </div>
-      <div class="min-w-[14em] mt-12">
+      <div class="min-w-[14em] mt-20 bg-neutral-800 rounded-tl-3xl p-4">
         <Transition
           enter-active-class="transition-right duration-200 linear"
           enter-from-class="-right-[100%]"
@@ -581,7 +596,7 @@ const canRedo = computed(() => redoStack.value.length > 0);
   background: rgba(139, 92, 246, 0.3);
 }
 
-.brush-slider {
+:deep(.formkit-input[type="range"]) {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
@@ -594,7 +609,7 @@ const canRedo = computed(() => redoStack.value.length > 0);
   margin: 0.5em 1em;
 }
 
-.brush-slider::-webkit-slider-thumb {
+:deep(.formkit-input[type="range"]::-webkit-slider-thumb) {
   -webkit-appearance: none;
   appearance: none;
   width: 16px;
@@ -604,7 +619,7 @@ const canRedo = computed(() => redoStack.value.length > 0);
   cursor: pointer;
 }
 
-.brush-slider::-moz-range-thumb {
+:deep(.formkit-input[type="range"]::-moz-range-thumb) {
   width: 16px;
   height: 16px;
   border-radius: 50%;
@@ -612,7 +627,7 @@ const canRedo = computed(() => redoStack.value.length > 0);
   cursor: pointer;
 }
 
-.brush-slider:hover {
+:deep(.formkit-input[type="range"]:hover) {
   opacity: 1;
 }
 
