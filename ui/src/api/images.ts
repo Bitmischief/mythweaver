@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export interface Image {
-  id: string;
+  id: number;
   uri: string;
   prompt: string;
   imageModel: {
@@ -55,3 +55,52 @@ export const getConjurationImageHistory = async (conjurationId: number) => {
 export const getUserImageGallery = (offset = 0, limit = 50) => {
   return axios.get(`/images/gallery`, { params: { offset, limit } });
 };
+
+export async function inpaintImage(
+  imageId: number,
+  maskFile: File,
+  prompt: string,
+): Promise<Image> {
+  const formData = new FormData();
+  formData.append('mask', maskFile);
+  formData.append('prompt', prompt);
+
+  const response = await axios.post(`/images/${imageId}/inpaint`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+
+  return response.data;
+}
+
+export const smartErase = async (imageId: number, maskFile: File): Promise<Image> => {
+  const formData = new FormData();
+  formData.append('mask', maskFile);
+
+  const response = await axios.post(`/images/${imageId}/erase`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+
+  return response.data;
+};
+
+export async function outpaint(
+  imageId: number,
+  prompt: string,
+  dimensions: {
+    up: number;
+    down: number;
+    left: number;
+    right: number;
+  },
+): Promise<Image> {
+  const response = await axios.post(`/images/${imageId}/outpaint`, {
+    prompt,
+    ...dimensions,
+  });
+
+  return response.data;
+}

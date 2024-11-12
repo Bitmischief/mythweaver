@@ -26,6 +26,7 @@ import ConjureImage from '@/components/Conjure/ConjureImage.vue';
 import { fbq, rdt } from '@/lib/conversions.ts';
 import UserSignupSource from '@/components/Core/UserSignupSource.vue';
 import { DndProvider } from 'vue3-dnd';
+import EditImageModal from './components/Images/EditImageModal.vue';
 
 // @ts-ignore
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -145,6 +146,30 @@ eventBus.$on('toggle-customize-image-modal', (args: CustomizeImageRequest) => {
     customizeImageArgs.value = undefined;
   } else {
     customizeImageArgs.value = args;
+  }
+});
+
+const showEditImageModal = ref(false);
+const editImageArgs = ref<EditImageRequest | undefined>(undefined);
+
+export interface EditImageRequest {
+  image?: {
+    id: number;
+    uri: string;
+    prompt: string;
+    negativePrompt: string;
+    stylePreset: string;
+    seed: string;
+  };
+}
+
+eventBus.$on('toggle-edit-image-modal', (args: EditImageRequest) => {
+  showEditImageModal.value = !showEditImageModal.value;
+
+  if (!args) {
+    editImageArgs.value = undefined;
+  } else {
+    editImageArgs.value = args;
   }
 });
 
@@ -274,6 +299,15 @@ async function finishOnboarding(sourceInfo: {
         :show-image-credits="customizeImageArgs?.showImageCredits"
         in-modal
         @cancel="showCustomizeImageModal = false"
+      />
+    </div>
+  </ModalAlternate>
+
+  <ModalAlternate :show="showEditImageModal" extra-dark>
+    <div class="relative min-w-[100vw] min-h-[100vh] text-white">
+      <EditImageModal
+        :image="editImageArgs?.image"
+        @close="showEditImageModal = false"
       />
     </div>
   </ModalAlternate>

@@ -15,6 +15,7 @@ import {
   ChevronRightIcon,
   ArrowRightIcon,
   CheckIcon,
+  Square3Stack3DIcon,
 } from '@heroicons/vue/20/solid';
 import { showError } from '@/lib/notifications.ts';
 import { useWebsocketChannel } from '@/lib/hooks.ts';
@@ -26,6 +27,7 @@ import ImageCreditCount from '@/components/Core/ImageCreditCount.vue';
 import { useAuthStore } from '@/store';
 import { getImageModels } from '@/api/imageModels.ts';
 import { ArrowLeftIcon } from '@heroicons/vue/24/solid';
+import { image } from 'd3';
 
 const authStore = useAuthStore();
 
@@ -361,6 +363,12 @@ const alreadyUpscaled = computed(() => {
 const savePrimaryImage = async (image: any) => {
   selectedImg.value = image;
   await setImage();
+};
+
+const editsViewing = ref<any[]>([]);
+
+const viewEditHistory = async (image: any) => {
+  editsViewing.value = image.edits;
 };
 
 const selectedImageModel = computed(() => {
@@ -761,10 +769,48 @@ const selectedModelIsMythWeaverV1 = computed(() => {
       </div>
     </div>
     <div v-if="tab === 'history'">
+      <div v-if="editsViewing.length" class="flex gap-2 mb-4">
+        <div>
+          <button class="button-gradient-blue flex gap-2" @click="editsViewing = []">
+            <ArrowLeftIcon class="h-5 w-5" />
+            Back to history
+          </button>
+        </div>
+      </div>
       <div
         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
       >
         <div
+          v-if="editsViewing.length"
+          v-for="(edit, i) in editsViewing"
+          :key="`edit_history_${i}`"
+          class="relative group/image mx-4 md:mx-0"
+        >
+          <img
+            :src="edit.uri"
+            alt="image"
+            class="rounded-[20px] group-hover/image:opacity-50"
+          />
+          <div
+            v-if="edit.imageModel?.description"
+            class="absolute flex bottom-2 right-2 cursor-pointer bg-neutral-500/50 rounded-[8px]"
+          >
+            <div class="text-neutral-300 text-sm px-2">
+              {{ edit.imageModel?.description }}
+            </div>
+          </div>
+          <div
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 hidden group-hover/image:block"
+          >
+            <div class="flex flex-col justify-center gap-2">
+              <button class="button-gradient" @click="savePrimaryImage(edit)">
+                Set as image
+              </button>
+            </div>
+          </div>
+        </div>
+        <div
+          v-else
           v-for="(img, i) in imageHistory"
           :key="`img_history_${i}`"
           class="relative group/image mx-4 md:mx-0"
@@ -782,12 +828,24 @@ const selectedModelIsMythWeaverV1 = computed(() => {
               {{ img.imageModel?.description }}
             </div>
           </div>
+          <div v-if="img.edits" class="absolute top-5 right-5">
+            <Square3Stack3DIcon class="h-8 w-8" />
+          </div>
           <div
             class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 hidden group-hover/image:block"
           >
-            <button class="button-gradient" @click="savePrimaryImage(img)">
-              Set as image
-            </button>
+            <div class="flex flex-col justify-center gap-2">
+              <button class="button-gradient" @click="savePrimaryImage(img)">
+                Set as image
+              </button>
+              <button
+                v-if="img.edits?.length"
+                class="button-gradient-blue"
+                @click="viewEditHistory(img)"
+              >
+                View Edit History
+              </button>
+            </div>
           </div>
         </div>
       </div>
