@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { BillingPlan, getCurrentUser, User } from '@/api/users.ts';
 import { useEventBus } from '@/lib/events.ts';
-import router from '@/router';
+import router from '@/router/router';
 
 interface AuthStoreState {
   tokens: any;
