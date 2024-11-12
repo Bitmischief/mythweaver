@@ -148,6 +148,10 @@ input[type='number'] {
     @apply disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-rose-700 to-red-500 rounded-[12px] text-sm px-4 py-2 hover:cursor-pointer;
   }
 
+  .button-gradient-blue {
+    @apply disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-blue-700 to-sky-500 rounded-[12px] text-sm px-4 py-2 hover:cursor-pointer;
+  }
+
   .button-text {
     @apply disabled:opacity-50 disabled:cursor-not-allowed bg-transparent rounded-[12px] text-sm px-4 py-2 hover:cursor-pointer;
   }

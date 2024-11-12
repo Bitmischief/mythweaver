@@ -89,6 +89,12 @@ function showCustomizeImageModal() {
   });
 }
 
+function showEditImageModal() {
+  eventBus.$emit('toggle-edit-image-modal', {
+    image: props.image,
+  });
+}
+
 function setImgDimensions() {
   if (props.image.uri) {
     const img = new Image();
@@ -179,7 +185,15 @@ const alreadyUpscaled = computed(() => {
         :disabled="!editable"
         @click="showCreateImageModal"
       >
-        <span class="self-center w-full"> Conjure New Image</span>
+        <span class="self-center w-full">New Image</span>
+      </button>
+      <button
+        type="button"
+        class="flex grow button-gradient-blue bg-white/50"
+        :disabled="!editable"
+        @click="showEditImageModal"
+      >
+        <span class="self-center w-full">Edit Image</span>
       </button>
       <button
         v-if="!image.failed && image.uri"
