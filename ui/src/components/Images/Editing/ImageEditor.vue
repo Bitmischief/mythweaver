@@ -14,6 +14,8 @@ import Loader from '@/components/Core/Loader.vue';
 import Extend from './Extend.vue';
 import Erase from './Erase.vue';
 import { useEventBus } from '@/lib/events.ts';
+import { CheckIcon, CircleStackIcon } from '@heroicons/vue/24/solid';
+import Spinner from '@/components/Core/Spinner.vue';
 
 const props = defineProps<{
   image: any;
@@ -297,12 +299,6 @@ const getMaskCanvas = () => {
   return null;
 };
 
-async function saveImage() {
-  if (!image?.value) return;
-  await patchPrimaryImage(image.value.id);
-  eventBus.$emit('toggle-edit-image-modal');
-}
-
 const canUndo = computed(() => undoStack.value.length > 1);
 const canRedo = computed(() => redoStack.value.length > 0);
 
@@ -325,28 +321,29 @@ onUnmounted(() => {
   <div class="overflow-hidden h-full flex flex-col border border-zinc-700">
     <div class="canvas-background absolute inset-0"></div>
     <div
-      class="fixed top-0 left-0 right-0  p-4 flex justify-between items-center"
+      class="fixed top-0 left-0 right-0 py-2 flex justify-between items-center"
     >
       <div class="px-4 gradient-text text-2xl">Image Editor</div>
-      <div class="flex gap-2 mr-5">
+      <div class="flex gap-2 mr-2">
+        <div v-if="!loadingImage && !editing" class="bg-neutral-800/40 flex gap-1 rounded p-1 px-3 self-center text-neutral-500">
+          <CheckIcon class="w-3 h-3 self-center" />
+          Saved
+        </div>
+        <div v-else class="bg-neutral-800/40 flex gap-1 rounded p-1 px-3 self-center text-neutral-500">
+          <Spinner class="w-3 h-3 self-center animate-spin" />
+          Saving
+        </div>
         <button
-          class="button-gradient z-50"
-          :disabled="editing"
-          @click="saveImage"
-        >
-          Save
-        </button>
-        <button
-          class="button-primary z-50"
+          class="button-primary z-50 text-green-500"
           :disabled="editing"
           @click="closeModal"
         >
-          Close
+          Continue
         </button>
       </div>
     </div>
     <div class="flex gap-4 h-full">
-      <div class="min-w-[12em]  p-4 mt-12">
+      <div class="min-w-[12em] p-4 mt-12">
         <div v-for="(tool, i) in tools" :key="`tool_${i}`">
           <button
             class="px-3 py-2 mb-2 rounded-lg w-full cursor-pointer"
@@ -379,10 +376,13 @@ onUnmounted(() => {
                       :min="5"
                       :max="200"
                       name="brush-size"
+                      label="Brush Size"
+                      help-text="Adjust the size of your brush"
                       :value="brushSize"
                       @input="updateBrushSize"
                       @mousemove="updateBrushPreview"
                       @mouseleave="clearPreview"
+                      input-class="formkit-input[type='range']"
                     />
                   </div>
                 </div>
@@ -492,7 +492,7 @@ onUnmounted(() => {
           @mouseleave="clearPreview"
         />
       </div>
-      <div class="min-w-[14em] mt-20 bg-neutral-800 rounded-tl-3xl p-4">
+      <div class="w-[18em] mt-16 bg-neutral-800 rounded-tl-3xl p-4">
         <Transition
           enter-active-class="transition-right duration-200 linear"
           enter-from-class="-right-[100%]"
@@ -501,15 +501,14 @@ onUnmounted(() => {
           leave-from-class="right-10"
           leave-to-class="-right-[100%]"
         >
-          <div v-if="selectedTool === 'inpaint'" class="fixed max-w-[14em]">
-            <Inpaint
-              :image-id="props.image.id"
-              :get-mask-canvas="getMaskCanvas"
-              @edit-applied="handleEditApplied"
-              @edit-started="handleEditStarted"
-              @edit-failed="handleEditFailed"
-            />
-          </div>
+          <Inpaint 
+            v-if="selectedTool === 'inpaint'"
+            :image-id="props.image.id"
+            :get-mask-canvas="getMaskCanvas"
+            @edit-applied="handleEditApplied"
+            @edit-started="handleEditStarted"
+            @edit-failed="handleEditFailed"
+          />
         </Transition>
         <Transition
           enter-active-class="transition-right duration-200 linear"
@@ -519,14 +518,13 @@ onUnmounted(() => {
           leave-from-class="right-10"
           leave-to-class="-right-[100%]"
         >
-          <div v-if="selectedTool === 'outpaint'" class="fixed max-w-[14em]">
-            <Extend
-              :image-id="props.image.id"
-              @edit-applied="handleEditApplied"
-              @edit-started="handleEditStarted"
-              @edit-failed="handleEditFailed"
-            />
-          </div>
+          <Extend
+            v-if="selectedTool === 'outpaint'"
+            :image-id="props.image.id"
+            @edit-applied="handleEditApplied"
+            @edit-started="handleEditStarted"
+            @edit-failed="handleEditFailed"
+          />
         </Transition>
         <Transition
           enter-active-class="transition-right duration-200 linear"
@@ -536,15 +534,14 @@ onUnmounted(() => {
           leave-from-class="right-10"
           leave-to-class="-right-[100%]"
         >
-          <div v-if="selectedTool === 'erase'" class="mt-4 fixed max-w-[12em]">
-            <Erase
-              :image-id="props.image.id"
-              :get-mask-canvas="getMaskCanvas"
-              @edit-applied="handleEditApplied"
-              @edit-started="handleEditStarted"
-              @edit-failed="handleEditFailed"
-            />
-          </div>
+          <Erase
+              v-if="selectedTool === 'erase'"
+            :image-id="props.image.id"
+            :get-mask-canvas="getMaskCanvas"
+            @edit-applied="handleEditApplied"
+            @edit-started="handleEditStarted"
+            @edit-failed="handleEditFailed"
+          />
         </Transition>
       </div>
     </div>

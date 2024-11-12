@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue';
 import { outpaint } from '@/api/images';
 import Spinner from '@/components/Core/Spinner.vue';
+import { FormKit } from '@formkit/vue';
 
 const props = defineProps<{
   imageId: number;
@@ -57,14 +58,18 @@ const applyOutpaint = async () => {
 <template>
   <div>
     <div class="mb-4">
-      <label for="outpaintPrompt" class="block mb-2">Prompt:</label>
       <FormKit
         id="outpaintPrompt"
         v-model="prompt"
         type="textarea"
         :rows="3"
+        label="Prompt:"
         placeholder="Enter a prompt"
-        inner-class="$reset text-sm w-full bg-neutral-900 border border-zinc-600 rounded"
+        validation="required"
+        :validation-messages="{
+          required: 'Please enter a prompt'
+        }"
+        input-class="text-sm w-full bg-neutral-900 border border-zinc-600 rounded"
       />
     </div>
     <div>
@@ -72,50 +77,45 @@ const applyOutpaint = async () => {
     </div>
     <div class="flex flex-col gap-4 mb-4">
       <div class="flex gap-2">
-        <div class="w-1/2">
-          <label for="direction" class="block mb-1 text-xs text-neutral-500">
-            Extend Direction:
-          </label>
-          <select
-            id="direction"
-            v-model="direction"
-            class="w-full p-1 bg-neutral-900 border border-zinc-600 rounded mb-2"
-          >
-            <option value="up">Up</option>
-            <option value="down">Down</option>
-            <option value="left">Left</option>
-            <option value="right">Right</option>
-          </select>
-        </div>
-        <div class="w-1/2">
-          <label for="pixels" class="block mb-1 text-xs text-neutral-500">
-            Extend By:
-          </label>
-          <div class="relative">
-            <input
-              id="pixels"
-              v-model.number="pixels"
-              type="number"
-              min="0"
-              placeholder="Pixels"
-              class="w-full p-1 pr-8 bg-neutral-900 border border-zinc-600 rounded"
-            />
-            <span
-              class="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-500 text-sm"
-            >
-              px
-            </span>
-          </div>
-        </div>
+        <FormKit
+          type="select"
+          v-model="direction"
+          label="Extend Direction:"
+          :options="[
+            { label: 'Up', value: 'up' },
+            { label: 'Down', value: 'down' },
+            { label: 'Left', value: 'left' },
+            { label: 'Right', value: 'right' }
+          ]"
+          input-class="w-full p-1 bg-neutral-900 border border-zinc-600 rounded"
+          outer-class="w-1/2"
+        />
+        
+        <FormKit
+          type="number"
+          v-model="pixels"
+          label="Extend By:"
+          :min="0"
+          placeholder="Pixels"
+          suffix="px"
+          validation="required|min:0"
+          :validation-messages="{
+            required: 'Please enter pixels',
+            min: 'Must be 0 or greater'
+          }"
+          input-class="w-full p-1 pr-8 bg-neutral-900 border border-zinc-600 rounded"
+          outer-class="w-1/2"
+        />
       </div>
     </div>
-    <button
+    <FormKit
+      type="submit"
       :disabled="isEditing || !isValidDimensions || !prompt.trim()"
-      class="button-ghost w-full flex justify-center gap-2"
+      input-class="button-ghost w-full flex justify-center gap-2"
       @click="applyOutpaint"
     >
       <Spinner v-if="isEditing" />
       {{ isEditing ? 'Processing...' : 'Apply Outpainting' }}
-    </button>
+    </FormKit>
   </div>
 </template>

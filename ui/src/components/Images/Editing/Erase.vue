@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import { smartErase } from '@/api/images';
 import Spinner from '@/components/Core/Spinner.vue';
+import { FormKit } from '@formkit/vue';
 
 const props = defineProps<{
   imageId: number;
@@ -65,13 +66,14 @@ const applySmartErase = async () => {
     <p v-if="error">
       {{ error }}
     </p>
-    <button
+    <FormKit
+      type="submit"
       :disabled="isEditing"
-      class="button-ghost w-full flex justify-center gap-2"
+      input-class="button-ghost w-full flex justify-center gap-2"
       @click="applySmartErase"
     >
       <Spinner v-if="isEditing" />
       {{ isEditing ? 'Processing...' : 'Erase' }}
-    </button>
+    </FormKit>
   </div>
 </template>
