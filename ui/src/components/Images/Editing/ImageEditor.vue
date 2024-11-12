@@ -315,16 +315,16 @@ const canRedo = computed(() => redoStack.value.length > 0);
       <div class="px-4 gradient-text text-2xl">Image Editor</div>
       <div class="flex gap-2 mr-5">
         <button
-          @click="saveImage"
           class="button-gradient z-50"
           :disabled="editing"
+          @click="saveImage"
         >
           Save
         </button>
         <button
-          @click="closeModal"
           class="button-primary z-50"
           :disabled="editing"
+          @click="closeModal"
         >
           Close
         </button>
@@ -359,15 +359,15 @@ const canRedo = computed(() => redoStack.value.length > 0);
                   <span class="text-xs">Brush Size ({{ brushSize }}px)</span>
                   <div class="flex justify-center items-center">
                     <input
+                      v-model="brushSize"
                       class="brush-slider"
                       type="range"
                       :min="5"
                       :max="200"
-                      v-model="brushSize"
+                      title="Brush size"
                       @input="updateBrushSize"
                       @mousemove="updateBrushPreview"
                       @mouseleave="clearPreview"
-                      title="Brush size"
                     />
                   </div>
                 </div>
@@ -376,10 +376,10 @@ const canRedo = computed(() => redoStack.value.length > 0);
                     <span class="text-xs">Undo</span>
                     <button
                       class="control-button"
-                      @click="undo"
                       :disabled="!canUndo"
                       :class="{ disabled: !canUndo }"
                       title="Undo"
+                      @click="undo"
                     >
                       <ArrowUturnLeftIcon class="h-5 w-5" />
                     </button>
@@ -388,10 +388,10 @@ const canRedo = computed(() => redoStack.value.length > 0);
                     <span class="text-xs">Redo</span>
                     <button
                       class="control-button"
-                      @click="redo"
                       :disabled="!canRedo"
                       :class="{ disabled: !canRedo }"
                       title="Redo"
+                      @click="redo"
                     >
                       <ArrowUturnRightIcon class="h-5 w-5" />
                     </button>
@@ -400,8 +400,8 @@ const canRedo = computed(() => redoStack.value.length > 0);
                     <span class="text-xs">Clear</span>
                     <button
                       class="control-button"
-                      @click="clearMask"
                       title="Clear mask"
+                      @click="clearMask"
                     >
                       <XMarkIcon class="h-5 w-5" />
                     </button>
@@ -412,11 +412,11 @@ const canRedo = computed(() => redoStack.value.length > 0);
                     <span class="text-xs">Draw</span>
                     <button
                       class="control-button"
-                      @click="toggleEditMode"
                       :class="{ active: !isEraseMode }"
                       :title="
                         isEraseMode ? 'Switch to Brush' : 'Switch to Eraser'
                       "
+                      @click="toggleEditMode"
                     >
                       <PencilIcon class="h-5 w-5" />
                     </button>
@@ -425,11 +425,11 @@ const canRedo = computed(() => redoStack.value.length > 0);
                     <span class="text-xs">Erase</span>
                     <button
                       class="control-button"
-                      @click="toggleEraseMode"
                       :class="{ active: isEraseMode }"
                       :title="
                         isEraseMode ? 'Switch to Brush' : 'Switch to Eraser'
                       "
+                      @click="toggleEraseMode"
                     >
                       <TrashIcon class="h-5 w-5" />
                     </button>
@@ -440,7 +440,7 @@ const canRedo = computed(() => redoStack.value.length > 0);
           </Transition>
         </div>
       </div>
-      <div class="flex-grow justify-center relative h-full" ref="containerRef">
+      <div ref="containerRef" class="flex-grow justify-center relative h-full">
         <div
           v-if="loadingImage || editing"
           class="absolute flex justify-center h-full w-full z-50"
@@ -472,9 +472,9 @@ const canRedo = computed(() => redoStack.value.length > 0);
         />
         <canvas
           ref="previewCanvasRef"
+          class="pointer-events-none"
           @mousemove="updateBrushPreview"
           @mouseleave="clearPreview"
-          class="pointer-events-none"
         />
       </div>
       <div class="min-w-[14em] mt-12">

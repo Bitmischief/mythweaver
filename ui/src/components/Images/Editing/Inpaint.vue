@@ -66,9 +66,9 @@ const applyEdit = async () => {
     </div>
     <button
       type="button"
-      @click="applyEdit"
       :disabled="isEditing || !prompt"
       class="button-ghost w-full flex justify-center gap-2"
+      @click="applyEdit"
     >
       <Spinner v-if="isEditing" />
       {{ isEditing ? 'Processing...' : 'Apply Inpainting' }}

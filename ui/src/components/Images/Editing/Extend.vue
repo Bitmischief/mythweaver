@@ -110,9 +110,9 @@ const applyOutpaint = async () => {
       </div>
     </div>
     <button
-      @click="applyOutpaint"
       :disabled="isEditing || !isValidDimensions || !prompt.trim()"
       class="button-ghost w-full flex justify-center gap-2"
+      @click="applyOutpaint"
     >
       <Spinner v-if="isEditing" />
       {{ isEditing ? 'Processing...' : 'Apply Outpainting' }}

@@ -27,7 +27,6 @@ import ImageCreditCount from '@/components/Core/ImageCreditCount.vue';
 import { useAuthStore } from '@/store';
 import { getImageModels } from '@/api/imageModels.ts';
 import { ArrowLeftIcon } from '@heroicons/vue/24/solid';
-import { image } from 'd3';
 
 const authStore = useAuthStore();
 
@@ -771,17 +770,20 @@ const selectedModelIsMythWeaverV1 = computed(() => {
     <div v-if="tab === 'history'">
       <div v-if="editsViewing.length" class="flex gap-2 mb-4">
         <div>
-          <button class="button-gradient-blue flex gap-2" @click="editsViewing = []">
+          <button
+            class="button-gradient-blue flex gap-2"
+            @click="editsViewing = []"
+          >
             <ArrowLeftIcon class="h-5 w-5" />
             Back to history
           </button>
         </div>
       </div>
       <div
+        v-if="editsViewing.length"
         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
       >
         <div
-          v-if="editsViewing.length"
           v-for="(edit, i) in editsViewing"
           :key="`edit_history_${i}`"
           class="relative group/image mx-4 md:mx-0"
@@ -809,8 +811,12 @@ const selectedModelIsMythWeaverV1 = computed(() => {
             </div>
           </div>
         </div>
+      </div>
+      <div
+        v-else
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+      >
         <div
-          v-else
           v-for="(img, i) in imageHistory"
           :key="`img_history_${i}`"
           class="relative group/image mx-4 md:mx-0"

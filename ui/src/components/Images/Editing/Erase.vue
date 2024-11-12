@@ -66,9 +66,9 @@ const applySmartErase = async () => {
       {{ error }}
     </p>
     <button
-      @click="applySmartErase"
       :disabled="isEditing"
       class="button-ghost w-full flex justify-center gap-2"
+      @click="applySmartErase"
     >
       <Spinner v-if="isEditing" />
       {{ isEditing ? 'Processing...' : 'Erase' }}
