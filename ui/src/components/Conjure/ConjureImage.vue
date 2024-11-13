@@ -25,7 +25,6 @@ import Loader from '@/components/Core/Loader.vue';
 import { AxiosError } from 'axios';
 import ImageCreditCount from '@/components/Core/ImageCreditCount.vue';
 import { useAuthStore } from '@/store';
-import { getImageModels } from '@/api/imageModels.ts';
 import { ArrowLeftIcon } from '@heroicons/vue/24/solid';
 
 const authStore = useAuthStore();

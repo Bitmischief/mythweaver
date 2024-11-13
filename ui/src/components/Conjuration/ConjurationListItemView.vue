@@ -167,7 +167,7 @@ const conjurationName = computed(() => {
           v-if="primaryImage?.uri"
           :src="primaryImage?.uri"
           :alt="conjuration.name"
-          class="rounded-[16px] aspect-square pointer-events-none"
+          class="rounded-[16px] aspect-square pointer-events-none w-full h-full object-cover object-center"
           :class="{ 'blur-sm': !conjuration.images?.length }"
         />
         <div
