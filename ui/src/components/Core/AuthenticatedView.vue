@@ -194,7 +194,7 @@ eventBus.$on('show-subscription-modal', () => {
 
   
 
-  <GenerateImageModal :showCustomizeImageModal="showCustomizeImageModal" :customizeImageArgs="customizeImageArgs" :closeModal="closeModal" />
+  <GenerateImageModal :showCustomizeImageModal="showCustomizeImageModal" :customizeImageArgs="customizeImageArgs" />
 
   <ModalAlternate :show="showEditImageModal" extra-dark>
     <div class="relative min-w-[100vw] min-h-[100vh] text-white">
