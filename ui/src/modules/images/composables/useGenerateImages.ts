@@ -15,13 +15,21 @@ export function useGenerateImages() {
   const { availableImageModels } = useAvailableImageModels();
   const channel = useWebsocketChannel();
 
+  const loading = ref(false);
+
+  let requestedImageQty = 0;
+  let generatedImageQty = 0;
+
   const generateImages = async (form: GenerateImageForm) => {
+    generatedImageQty = 0;
+    requestedImageQty = form.selectedModels.reduce((n, { quantity }) => n + quantity, 0);
     generatedImages.value = [];
     
     const { width, height } = getWidthAndHeight(form.aspectRatio);
 
     channel.bind(ServerEvent.ImageCreated, imageCreatedHandler);
-    
+    loading.value = true;
+
     await apiGenerateImages({
       selectedModels: form.selectedModels,
       prompt: form.prompt,
@@ -34,6 +42,7 @@ export function useGenerateImages() {
   };
 
   function imageCreatedHandler(event: NewImageResponse) {
+    console.log('called imageCreatedHandler');
     const existingModel = generatedImages.value.find(gi => gi.modelId === event.modelId);
 
     if (existingModel) {
@@ -48,11 +57,17 @@ export function useGenerateImages() {
       });
     }
 
-    channel.unbind(ServerEvent.ImageCreated, imageCreatedHandler);
+    generatedImageQty++;
+    
+    if (generatedImageQty >= requestedImageQty) {
+      loading.value = false;
+      channel.unbind(ServerEvent.ImageCreated, imageCreatedHandler);
+    }
   }
 
   return {
     generateImages,
     generatedImages,
+    loading,
   }
 }

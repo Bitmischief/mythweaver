@@ -9,6 +9,7 @@ const auth0Client: Auth0Plugin = createAuth0({
   authorizationParams: {
     redirect_uri: `${window.location.origin}/auth/login`,
     audience: import.meta.env.VITE_API_URL,
+    scope: 'openid profile email offline_access',
   },
   useRefreshTokens: true,
   cacheLocation: 'localstorage',
@@ -34,5 +35,16 @@ export const logout = async () => {
 };
 
 export const getAccessToken = async (options?: { cacheMode?: 'on' | 'off' }) => {
-  return await auth0Client.getAccessTokenSilently(options);
+  try {
+    return await auth0Client.getAccessTokenSilently({
+      ...options,
+      authorizationParams: {
+        scope: 'openid profile email offline_access',
+      },
+    });
+  } catch (error) {
+    console.error('Error getting access token:', error);
+    await logout();
+    throw error;
+  }
 };

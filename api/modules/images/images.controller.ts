@@ -53,8 +53,8 @@ export class ImagesController {
     @Inject() trackingInfo: TrackingInfo,
     @Body() request: PostImageRequest,
     @Inject() referenceImage?: Express.Multer.File,
-  ): Promise<void> {
-    await this.imagesService.generateImage(userId, {
+  ): Promise<Image[]> {
+    return await this.imagesService.generateImage(userId, {
       ...request,
       referenceImage,
     });
