@@ -41,6 +41,7 @@
     "editorjs-text-alignment-blocktune": "^1.0.3",
     "gsap": "^3.12.5",
     "lodash": "^4.17.21",
+    "lucide-vue-next": "^0.456.0",
     "md5": "^2.3.0",
     "mixpanel-browser": "^2.49.0",
     "pinia": "^2.1.7",

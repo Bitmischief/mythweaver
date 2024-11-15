@@ -10,9 +10,9 @@ export const apiGenerateImages = async(request: GenerateImageRequest): Promise<I
     referenceImageId = image.id;
   }
 
-  const images = [];
+  const images: Image[] = [];
   for (const model of request.selectedModels) {
-    const response = await axios.post('/images', {
+    const response = await axios.post<Image[]>('/images', {
       modelId: model.id,
       prompt: request.prompt,
       negativePrompt: request.negativePrompt,
@@ -23,7 +23,7 @@ export const apiGenerateImages = async(request: GenerateImageRequest): Promise<I
       imageId: referenceImageId,
     });
 
-    images.push(response.data);
+    images.push(...response.data);
   }
 
   return images;
