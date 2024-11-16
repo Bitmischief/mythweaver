@@ -58,7 +58,7 @@ const applySmartErase = async () => {
 </script>
 
 <template>
-  <div>
+  <div class="bg-surface-2 rounded-3xl p-4">
     <p class="mb-4 text-neutral-400">
       Use the brush to paint over the areas you want to erase, then click
       "Erase".
@@ -69,7 +69,7 @@ const applySmartErase = async () => {
     <FormKit
       type="submit"
       :disabled="isEditing"
-      input-class="button-ghost w-full flex justify-center gap-2"
+      input-class="$reset button-purple w-full"
       @click="applySmartErase"
     >
       <Spinner v-if="isEditing" />

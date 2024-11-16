@@ -1,27 +1,19 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { FormKit } from '@formkit/vue';
-import {
-  ArrowUturnLeftIcon,
-  ArrowUturnRightIcon,
-  XMarkIcon,
-  PencilIcon,
-  TrashIcon,
-} from '@heroicons/vue/24/outline';
 import Inpaint from './Inpaint.vue';
-import { Image, patchPrimaryImage } from '@/api/images';
+import { Image } from '@/api/images';
 import Loader from '@/components/Core/Loader.vue';
 import Extend from './Extend.vue';
 import Erase from './Erase.vue';
-import { useEventBus } from '@/lib/events.ts';
-import { CheckIcon, CircleStackIcon } from '@heroicons/vue/24/solid';
+import { CheckIcon } from '@heroicons/vue/24/solid';
 import Spinner from '@/components/Core/Spinner.vue';
+import { Eraser, Fullscreen, Paintbrush, Undo, Redo, X } from 'lucide-vue-next';
 
 const props = defineProps<{
   image: any;
 }>();
 
-const eventBus = useEventBus();
 const emit = defineEmits(['close', 'imageUpdated']);
 
 const image = ref<Image | null>(props.image);
@@ -318,23 +310,31 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="overflow-hidden h-full flex flex-col border border-zinc-700">
+  <div
+    class="overflow-hidden h-full pt-[4em] flex flex-col border border-zinc-700"
+  >
     <div class="canvas-background absolute inset-0"></div>
     <div
       class="fixed top-0 left-0 right-0 py-2 flex justify-between items-center"
     >
       <div class="px-4 gradient-text text-2xl">Image Editor</div>
       <div class="flex gap-2 mr-2">
-        <div v-if="!loadingImage && !editing" class="bg-neutral-800/40 flex gap-1 rounded p-1 px-3 self-center text-neutral-500">
+        <div
+          v-if="!loadingImage && !editing"
+          class="flex gap-1 text-sm rounded-[12px] px-4 py-2 self-center text-neutral-500"
+        >
           <CheckIcon class="w-3 h-3 self-center" />
           Saved
         </div>
-        <div v-else class="bg-neutral-800/40 flex gap-1 rounded p-1 px-3 self-center text-neutral-500">
+        <div
+          v-else
+          class="flex gap-1 text-sm rounded-[12px] px-4 py-2 self-center text-neutral-500"
+        >
           <Spinner class="w-3 h-3 self-center animate-spin" />
           Saving
         </div>
         <button
-          class="button-primary z-50 text-green-500"
+          class="button-purple rounded-full z-50"
           :disabled="editing"
           @click="closeModal"
         >
@@ -343,116 +343,40 @@ onUnmounted(() => {
       </div>
     </div>
     <div class="flex gap-4 h-full">
-      <div class="min-w-[12em] p-4 mt-12">
-        <div v-for="(tool, i) in tools" :key="`tool_${i}`">
-          <button
-            class="px-3 py-2 mb-2 rounded-lg w-full cursor-pointer"
-            :class="{
-              'bg-gradient': selectedTool === tool.mode,
-              'bg-zinc-800': selectedTool !== tool.mode,
-            }"
-            @click="setEditMode(tool.mode)"
+      <div class="w-[5em] mx-4">
+        <div class="bg-surface-2 rounded-2xl p-2">
+          <div
+            v-for="(tool, i) in tools"
+            :key="`tool_${i}`"
+            class="text-neutral-500"
           >
-            {{ tool.label }}
-          </button>
-        </div>
-        <div>
-          <Transition
-            enter-active-class="transition-left duration-200 linear"
-            enter-from-class="-left-[100%]"
-            enter-to-class="left-0"
-            leave-active-class="transition-left duration-200 linear"
-            leave-from-class="left-0"
-            leave-to-class="-left-[100%]"
-          >
-            <div v-if="selectedTool !== 'outpaint'" class="fixed min-w-[12em]">
-              <div class="mt-2">
-                <div class="">
-                  <span class="text-xs">Brush Size ({{ brushSize }}px)</span>
-                  <div class="flex">
-                    <FormKit
-                      v-model="brushSize"
-                      type="range"
-                      :min="5"
-                      :max="200"
-                      name="brush-size"
-                      label="Brush Size"
-                      help-text="Adjust the size of your brush"
-                      :value="brushSize"
-                      @input="updateBrushSize"
-                      @mousemove="updateBrushPreview"
-                      @mouseleave="clearPreview"
-                      input-class="formkit-input[type='range']"
-                    />
-                  </div>
-                </div>
-                <div class="flex justify-center gap-4 mt-2">
-                  <div class="text-center">
-                    <span class="text-xs">Undo</span>
-                    <button
-                      class="control-button"
-                      :disabled="!canUndo"
-                      :class="{ disabled: !canUndo }"
-                      title="Undo"
-                      @click="undo"
-                    >
-                      <ArrowUturnLeftIcon class="h-5 w-5" />
-                    </button>
-                  </div>
-                  <div class="text-center">
-                    <span class="text-xs">Redo</span>
-                    <button
-                      class="control-button"
-                      :disabled="!canRedo"
-                      :class="{ disabled: !canRedo }"
-                      title="Redo"
-                      @click="redo"
-                    >
-                      <ArrowUturnRightIcon class="h-5 w-5" />
-                    </button>
-                  </div>
-                  <div class="text-center">
-                    <span class="text-xs">Clear</span>
-                    <button
-                      class="control-button"
-                      title="Clear mask"
-                      @click="clearMask"
-                    >
-                      <XMarkIcon class="h-5 w-5" />
-                    </button>
-                  </div>
-                </div>
-                <div class="flex justify-center gap-4 mt-2">
-                  <div class="text-center">
-                    <span class="text-xs">Draw</span>
-                    <button
-                      class="control-button"
-                      :class="{ active: !isEraseMode }"
-                      :title="
-                        isEraseMode ? 'Switch to Brush' : 'Switch to Eraser'
-                      "
-                      @click="toggleEditMode"
-                    >
-                      <PencilIcon class="h-5 w-5" />
-                    </button>
-                  </div>
-                  <div class="text-center">
-                    <span class="text-xs">Erase</span>
-                    <button
-                      class="control-button"
-                      :class="{ active: isEraseMode }"
-                      :title="
-                        isEraseMode ? 'Switch to Brush' : 'Switch to Eraser'
-                      "
-                      @click="toggleEraseMode"
-                    >
-                      <TrashIcon class="h-5 w-5" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Transition>
+            <button
+              class="p-2 mb-2 rounded-lg text-sm cursor-pointer flex flex-col items-center justify-center aspect-square w-full"
+              :class="{
+                'bg-fuchsia-800/25 text-fuchsia-600':
+                  selectedTool === tool.mode && tool.mode === 'inpaint',
+                'bg-yellow-800/25 text-yellow-600':
+                  selectedTool === tool.mode && tool.mode === 'outpaint',
+                'bg-blue-800/25 text-blue-600':
+                  selectedTool === tool.mode && tool.mode === 'erase',
+                'bg-surface-2': selectedTool !== tool.mode,
+              }"
+              @click="setEditMode(tool.mode)"
+            >
+              <template v-if="tool.mode === 'inpaint'">
+                <Paintbrush class="h-5 w-5" />
+                Modify
+              </template>
+              <template v-if="tool.mode === 'outpaint'">
+                <Fullscreen class="h-5 w-5" />
+                Extend
+              </template>
+              <template v-if="tool.mode === 'erase'">
+                <Eraser class="h-5 w-5" />
+                Erase
+              </template>
+            </button>
+          </div>
         </div>
       </div>
       <div ref="containerRef" class="flex-grow justify-center relative h-full">
@@ -492,71 +416,127 @@ onUnmounted(() => {
           @mouseleave="clearPreview"
         />
       </div>
-      <div class="w-[18em] mt-16 bg-neutral-800 rounded-tl-3xl p-4">
-        <Transition
-          enter-active-class="transition-right duration-200 linear"
-          enter-from-class="-right-[100%]"
-          enter-to-class="right-10"
-          leave-active-class="transition-right duration-200 linear"
-          leave-from-class="right-10"
-          leave-to-class="-right-[100%]"
-        >
-          <Inpaint 
-            v-if="selectedTool === 'inpaint'"
-            :image-id="props.image.id"
-            :get-mask-canvas="getMaskCanvas"
-            @edit-applied="handleEditApplied"
-            @edit-started="handleEditStarted"
-            @edit-failed="handleEditFailed"
-          />
-        </Transition>
-        <Transition
-          enter-active-class="transition-right duration-200 linear"
-          enter-from-class="-right-[100%]"
-          enter-to-class="right-10"
-          leave-active-class="transition-right duration-200 linear"
-          leave-from-class="right-10"
-          leave-to-class="-right-[100%]"
-        >
-          <Extend
-            v-if="selectedTool === 'outpaint'"
-            :image-id="props.image.id"
-            @edit-applied="handleEditApplied"
-            @edit-started="handleEditStarted"
-            @edit-failed="handleEditFailed"
-          />
-        </Transition>
-        <Transition
-          enter-active-class="transition-right duration-200 linear"
-          enter-from-class="-right-[100%]"
-          enter-to-class="right-10"
-          leave-active-class="transition-right duration-200 linear"
-          leave-from-class="right-10"
-          leave-to-class="-right-[100%]"
-        >
-          <Erase
-              v-if="selectedTool === 'erase'"
-            :image-id="props.image.id"
-            :get-mask-canvas="getMaskCanvas"
-            @edit-applied="handleEditApplied"
-            @edit-started="handleEditStarted"
-            @edit-failed="handleEditFailed"
-          />
-        </Transition>
+      <div class="w-[18em] px-4">
+        <Inpaint
+          v-if="selectedTool === 'inpaint'"
+          :image-id="props.image.id"
+          :get-mask-canvas="getMaskCanvas"
+          @edit-applied="handleEditApplied"
+          @edit-started="handleEditStarted"
+          @edit-failed="handleEditFailed"
+        />
+        <Extend
+          v-if="selectedTool === 'outpaint'"
+          :image-id="props.image.id"
+          @edit-applied="handleEditApplied"
+          @edit-started="handleEditStarted"
+          @edit-failed="handleEditFailed"
+        />
+        <Erase
+          v-if="selectedTool === 'erase'"
+          :image-id="props.image.id"
+          :get-mask-canvas="getMaskCanvas"
+          @edit-applied="handleEditApplied"
+          @edit-started="handleEditStarted"
+          @edit-failed="handleEditFailed"
+        />
       </div>
+    </div>
+    <div class="flex gap-4 min-h-[5em]">
+      <div class="w-[5em]"></div>
+      <div class="flex flex-grow justify-center items-center">
+        <div
+          v-if="selectedTool !== 'outpaint'"
+          class="bg-surface-2 rounded-full p-2"
+        >
+          <div class="flex items-center">
+            <div class="flex justify-center gap-2">
+              <div class="text-center">
+                <button
+                  class="control-button"
+                  :class="{ active: !isEraseMode }"
+                  :title="isEraseMode ? 'Switch to Brush' : 'Switch to Eraser'"
+                  @click="toggleEditMode"
+                >
+                  <Paintbrush class="h-5 w-5" />
+                </button>
+              </div>
+              <div class="text-center">
+                <button
+                  class="control-button"
+                  :class="{ active: isEraseMode }"
+                  :title="isEraseMode ? 'Switch to Brush' : 'Switch to Eraser'"
+                  @click="toggleEraseMode"
+                >
+                  <Eraser class="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+            <div>
+              <FormKit
+                v-model="brushSize"
+                :value="brushSize"
+                :min="5"
+                :max="200"
+                type="range"
+                name="brush-size"
+                help-text="Adjust the size of your brush"
+                outer-class="$reset mb-0 mx-2 py-1 px-3 bg-surface-3 rounded-full"
+                input-class="!bg-surface-2 !rounded-full !m-0"
+                @input="updateBrushSize"
+                @mousemove="updateBrushPreview"
+                @mouseleave="clearPreview"
+              />
+            </div>
+            <div class="flex justify-center gap-4">
+              <div class="text-center">
+                <button
+                  class="control-button"
+                  :disabled="!canUndo"
+                  :class="{ disabled: !canUndo }"
+                  title="Undo"
+                  @click="undo"
+                >
+                  <Undo class="h-5 w-5" />
+                </button>
+              </div>
+              <div class="text-center">
+                <button
+                  class="control-button"
+                  :disabled="!canRedo"
+                  :class="{ disabled: !canRedo }"
+                  title="Redo"
+                  @click="redo"
+                >
+                  <Redo class="h-5 w-5" />
+                </button>
+              </div>
+              <div class="text-center">
+                <button
+                  class="control-button"
+                  title="Clear mask"
+                  @click="clearMask"
+                >
+                  <X class="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="w-[18em]"></div>
     </div>
   </div>
 </template>
 
 <style scoped>
 .canvas-background {
-  background-image: linear-gradient(
-      to right,
-      rgba(255, 255, 255, 0.05) 1px,
-      transparent 1px
+  background-image: radial-gradient(
+      rgba(255, 255, 255, 0.05) 2px,
+      transparent 2px
     ),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-  background-size: 40px 40px;
+    radial-gradient(rgba(255, 255, 255, 0.05) 2px, transparent 2px);
+  background-size: 25px 25px;
   opacity: 0.5;
   z-index: -1;
 }
@@ -565,10 +545,10 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 48px;
+  height: 48px;
   border: none;
-  border-radius: 6px;
+  border-radius: 50%;
   background: rgba(255, 255, 255, 0.1);
   color: white;
   cursor: pointer;
@@ -576,7 +556,7 @@ onUnmounted(() => {
 }
 
 .control-button:hover:not(.disabled) {
-  background: rgba(139, 92, 246, 0.3);
+  background: rgba(196, 28, 222, 0.3);
 }
 
 .control-button.disabled {
@@ -590,41 +570,45 @@ onUnmounted(() => {
 }
 
 .control-button.active {
-  background: rgba(139, 92, 246, 0.3);
+  background: rgba(196, 28, 222, 0.2);
+  color: rgba(196, 28, 222);
+  border: 1px solid rgba(196, 28, 222);
 }
 
-:deep(.formkit-input[type="range"]) {
+:deep(.formkit-input[type='range']) {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
-  height: 4px;
-  border-radius: 2px;
-  background: rgba(139, 92, 246, 0.2);
-  outline: none;
-  opacity: 0.7;
-  transition: opacity 0.2s;
+  height: 12px;
   margin: 0.5em 1em;
+  background-color: transparent;
 }
 
-:deep(.formkit-input[type="range"]::-webkit-slider-thumb) {
+:deep(.formkit-input[type='range']::-webkit-slider-thumb) {
   -webkit-appearance: none;
   appearance: none;
-  width: 16px;
-  height: 16px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-  background: rgb(139, 92, 246);
+  background: rgb(196, 28, 222);
   cursor: pointer;
 }
 
-:deep(.formkit-input[type="range"]::-moz-range-thumb) {
-  width: 16px;
-  height: 16px;
+:deep(.formkit-input[type='range']::-webkit-slider-runnable-track) {
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: transparent;
+}
+
+:deep(.formkit-input[type='range']::-moz-range-thumb) {
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-  background: rgb(139, 92, 246);
+  background: rgb(196, 28, 222);
   cursor: pointer;
 }
 
-:deep(.formkit-input[type="range"]:hover) {
+:deep(.formkit-input[type='range']:hover) {
   opacity: 1;
 }
 
@@ -642,5 +626,6 @@ canvas {
   top: 0;
   left: 50%;
   transform: translate(-50%, 0);
+  cursor: none;
 }
 </style>
