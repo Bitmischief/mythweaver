@@ -25,6 +25,7 @@ import GenerateImageModal from '@/modules/images/components/GenerateImageModal.v
 import { useImageGenerationModal } from '@/modules/images/composables/useImageGenerationModal';
 import { getRedeemPreOrderUrl } from '@/api/billing.ts';
 import NavBarHeader from '@/components/Navigation/NavBarHeader.vue';
+import ChangeImageModal from '@/modules/images/components/ChangeImageModal.vue';
 // @ts-ignore
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
@@ -193,12 +194,6 @@ eventBus.$on('show-subscription-modal', () => {
     </div>
   </div>
 
-  <GenerateImageModal
-    :showCustomizeImageModal="showCustomizeImageModal"
-    :customizeImageArgs="customizeImageArgs"
-    @close="showCustomizeImageModal = false"
-  />
-
   <ModalAlternate :show="showEditImageModal" extra-dark>
     <div class="relative min-w-[100vw] min-h-[100vh] text-white">
       <EditImageModal
@@ -330,6 +325,9 @@ eventBus.$on('show-subscription-modal', () => {
       <UserSignupSource @finish-onboarding="finishOnboarding" />
     </div>
   </ModalAlternate>
+
+  <GenerateImageModal />
+  <ChangeImageModal />
 
   <LightboxRoot />
 </template>

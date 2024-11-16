@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import type { FormKitFile } from '@formkit/inputs';
 import ModelSelector from './ModelSelector.vue';
 import { useAvailableAspectRatios } from '../composables/useAvailableAspectRatios';
 import { GenerateImageForm } from '../types/generateImageForm';
 import { useGenerateImages } from '../composables/useGenerateImages';
+import { Coins } from 'lucide-vue-next';
 
 const { aspectRatios } = useAvailableAspectRatios();
 const { generateImages } = useGenerateImages();
@@ -33,14 +34,17 @@ const handleReferenceImageAddition = (files: FormKitFile[] | undefined) => {
 const handleSubmit = async () => {
   await generateImages(formState.value);
 };
+
+const totalQuantity = computed(() =>
+  formState.value.selectedModels.reduce(
+    (acc, model) => acc + model.quantity,
+    0,
+  ),
+);
 </script>
 
 <template>
-  <FormKit
-    type="form"
-    :actions="false"
-    @submit="handleSubmit"
-  >
+  <FormKit type="form" :actions="false" @submit="handleSubmit">
     <ModelSelector v-model="formState.selectedModels" />
 
     <div class="mt-6">
@@ -57,15 +61,15 @@ const handleSubmit = async () => {
 
     <div>
       <button
-          @click="showAdvancedSettings = !showAdvancedSettings"
-          class="w-full py-2 px-4 bg-zinc-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-left flex justify-between items-center"
+        @click="showAdvancedSettings = !showAdvancedSettings"
+        class="w-full py-2 px-4 bg-zinc-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-left flex justify-between items-center"
       >
-          <span>Advanced Settings</span>
-          <span
+        <span>Advanced Settings</span>
+        <span
           :class="{ 'rotate-180': showAdvancedSettings }"
           class="transition-transform duration-300"
           >▼</span
-          >
+        >
       </button>
     </div>
 
@@ -73,14 +77,15 @@ const handleSubmit = async () => {
       enter-active-class="transition-all duration-500 ease-out"
       leave-active-class="transition-all duration-300 ease-in"
       @enter="
-          (el: Element) => ((el as HTMLElement).style.maxHeight = `${el.scrollHeight}px`)
+        (el: Element) =>
+          ((el as HTMLElement).style.maxHeight = `${el.scrollHeight}px`)
       "
       @leave="(el: Element) => ((el as HTMLElement).style.maxHeight = '0px')"
     >
       <div
-          v-show="showAdvancedSettings"
-          class="space-y-4 overflow-hidden"
-          :style="{ maxHeight: showAdvancedSettings ? '1000px' : '0px' }"
+        v-show="showAdvancedSettings"
+        class="space-y-4 overflow-hidden"
+        :style="{ maxHeight: showAdvancedSettings ? '1000px' : '0px' }"
       >
         <FormKit
           type="textarea"
@@ -105,7 +110,10 @@ const handleSubmit = async () => {
             @input="handleReferenceImageAddition"
           />
 
-          <div v-if="formState.referenceImageFile" class="mt-2 flex items-center">
+          <div
+            v-if="formState.referenceImageFile"
+            class="mt-2 flex items-center"
+          >
             <p class="text-sm text-zinc-400 mr-2">
               Selected: {{ formState.referenceImageFile.name }}
             </p>
@@ -113,7 +121,7 @@ const handleSubmit = async () => {
             <button
               @click="formState.referenceImageFile = undefined"
               class="px-2 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors"
-              >
+            >
               Clear
             </button>
           </div>
@@ -147,14 +155,23 @@ const handleSubmit = async () => {
         input-class="w-full md:w-auto px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors shadow-lg"
         :disabled="formState.selectedModels.length === 0"
       >
-        Generate Images
+        <div class="flex gap-2">
+          <div class="self-center text-lg">Generate Images</div>
+          <div class="self-center flex gap-1 text-lg">
+            {{ totalQuantity }}
+            <Coins class="self-center" />
+          </div>
+        </div>
       </FormKit>
     </div>
 
     <div class="text-sm text-zinc-400">
       {{ formState.selectedModels.length }} model(s) selected,
-      {{ aspectRatios.find((r) => r.value === formState.aspectRatio)?.label || formState.aspectRatio }} aspect
-      ratio
+      {{
+        aspectRatios.find((r) => r.value === formState.aspectRatio)?.label ||
+        formState.aspectRatio
+      }}
+      aspect ratio
     </div>
   </FormKit>
 </template>

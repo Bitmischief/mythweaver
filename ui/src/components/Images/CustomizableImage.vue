@@ -1,17 +1,12 @@
 <script setup lang="ts">
 import LightboxImage from '@/components/LightboxImage.vue';
-import {
-  PencilSquareIcon,
-  ArrowPathIcon,
-  ArrowDownTrayIcon,
-} from '@heroicons/vue/24/outline';
-import { useEventBus } from '@/lib/events.ts';
-import { showError } from '@/lib/notifications.ts';
-import { computed, onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
+import { useChangeImage } from '@/modules/images/composables/useChangeImage';
+
 const props = withDefaults(
   defineProps<{
     image?: {
-      id?: string | null | undefined;
+      id?: number | undefined;
       uri: string | undefined;
       prompt?: string;
       negativePrompt?: string;
@@ -55,7 +50,8 @@ const props = withDefaults(
   },
 );
 
-const eventBus = useEventBus();
+const { changeImage } = useChangeImage();
+
 const imgWidth = ref(0);
 const imgHeight = ref(0);
 
@@ -70,31 +66,6 @@ watch(
   },
 );
 
-function showCreateImageModal() {
-  eventBus.$emit('toggle-customize-image-modal', {
-    image: {
-      ...props.image,
-      uri: undefined,
-    },
-    alt: props.alt,
-    linking: props.linking,
-  });
-}
-
-function showCustomizeImageModal() {
-  eventBus.$emit('toggle-customize-image-modal', {
-    image: props.image,
-    alt: props.alt,
-    linking: props.linking,
-  });
-}
-
-function showEditImageModal() {
-  eventBus.$emit('toggle-edit-image-modal', {
-    image: props.image,
-  });
-}
-
 function setImgDimensions() {
   if (props.image.uri) {
     const img = new Image();
@@ -106,25 +77,15 @@ function setImgDimensions() {
   }
 }
 
-function downloadImage(url: string) {
-  fetch(url)
-    .then((resp) => resp.blob())
-    .then((blobobject) => {
-      const blob = window.URL.createObjectURL(blobobject);
-      const anchor = document.createElement('a');
-      anchor.style.display = 'none';
-      anchor.href = blob;
-      anchor.download = `${props.alt?.toLowerCase()}.png`;
-      document.body.appendChild(anchor);
-      anchor.click();
-      window.URL.revokeObjectURL(blob);
-    })
-    .catch(() => showError({ message: 'Failed to download image' }));
+function beginChangeImage() {
+  changeImage({
+    currentImageId: props.image?.id,
+    link: {
+      conjurationId: props?.linking?.conjurationId,
+      sessionId: props?.linking?.sessionId,
+    },
+  });
 }
-
-const alreadyUpscaled = computed(() => {
-  return imgWidth.value > 1024 || imgHeight.value > 1024;
-});
 </script>
 
 <template>
@@ -155,84 +116,18 @@ const alreadyUpscaled = computed(() => {
           >
           <span v-else>No Image</span>
         </div>
-        <div v-else-if="editable" class="flex my-[150px]">
-          <div class="self-center">
-            <div class="text-center text-xl">Image Conjuration Timed Out</div>
-            <div class="text-center text-lg">
-              {{ imageConjurationFailureReason }}
-            </div>
-            <div class="text-sm text-neutral-500 mb-2">
-              You have not been charged any credits for this image.
-            </div>
-            <div>
-              <button
-                class="button-ghost-white flex mx-auto"
-                @click="showCustomizeImageModal"
-              >
-                Retry Image
-                <ArrowPathIcon class="w-5 ml-2" />
-              </button>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
 
     <div v-if="editable" class="mt-2 xl:absolute flex gap-2 top-0 right-2">
       <button
         type="button"
-        class="flex grow button-gradient bg-white/50"
+        class="flex bg-neutral-700 text-neutral-300 rounded-lg px-2 py-0.5"
         :disabled="!editable"
-        @click="showCreateImageModal"
+        @click="beginChangeImage"
       >
-        <span class="self-center w-full">New Image</span>
+        <span class="self-center w-full">Change Image</span>
       </button>
-      <button
-        type="button"
-        class="flex grow button-gradient-blue bg-white/50"
-        :disabled="!editable"
-        @click="showEditImageModal"
-      >
-        <span class="self-center w-full">Edit Image</span>
-      </button>
-      <button
-        v-if="!image.failed && image.uri"
-        type="button"
-        class="flex button-white bg-white/75"
-        :disabled="!editable"
-        @click="showCustomizeImageModal"
-      >
-        <PencilSquareIcon v-if="image.uri" class="h-5" />
-      </button>
-      <div class="relative group">
-        <button
-          v-if="image.uri"
-          type="button"
-          class="flex button-white bg-white/75"
-          @click="downloadImage(image.uri)"
-        >
-          <ArrowDownTrayIcon class="h-5 w-5" />
-        </button>
-        <div
-          class="absolute mt-2 top-[100%] right-0 hidden group-hover:block whitespace-nowrap px-2 py-1 bg-surface-3 rounded-full"
-        >
-          Download Image
-        </div>
-      </div>
-      <div
-        v-if="alreadyUpscaled"
-        class="relative ml-2 self-center group/upscale"
-      >
-        <img
-          src="@/assets/icons/gradient-sparkles.svg"
-          alt="sparkles"
-          class="w-6 h-6"
-        />
-        <div class="tooltip-bottom-left hidden group-hover/upscale:block">
-          Upscaled
-          <div class="tooltip-arrow" />
-        </div>
-      </div>
     </div>
   </div>
 </template>

@@ -2,6 +2,11 @@ import axios from "axios";
 import { Image } from '../types/image';
 import { GenerateImageRequest } from "../types/generateImageRequest";
 
+export const apiGetImage = async (imageId: number): Promise<Image> => {
+  const response = await axios.get<Image>(`/images/${imageId}`);
+  return response.data;
+};
+
 export const apiGenerateImages = async(request: GenerateImageRequest): Promise<Image[]> => {
   let referenceImageId = undefined;
 

@@ -1,18 +1,15 @@
 <script setup lang="ts">
 import FullScreenModal from '@/components/FullScreenModal.vue';
 import GenerateImage from './GenerateImage.vue';
+import { useGenerateImages } from '../composables/useGenerateImages';
 
-defineProps<{
-  showCustomizeImageModal: boolean;
-}>();
-
-const emit = defineEmits(['close']);
+const { showModal } = useGenerateImages();
 </script>
 
 <template>
-  <FullScreenModal :show="showCustomizeImageModal" extra-dark>
+  <FullScreenModal :show="showModal" :z="35" extra-dark>
     <div class="p-4 flex gap-4 overflow-y-none">
-      <GenerateImage @cancel="emit('close')" />
+      <GenerateImage @cancel="showModal = false" />
     </div>
   </FullScreenModal>
 </template>
