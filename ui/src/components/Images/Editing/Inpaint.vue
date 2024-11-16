@@ -53,30 +53,30 @@ const applyEdit = async () => {
 </script>
 
 <template>
-  <div>
+  <div class="bg-surface-2 rounded-3xl p-4">
     <div class="mb-4">
       <FormKit
         id="inpaintPrompt"
         v-model="prompt"
         type="textarea"
         :rows="3"
-        label="Prompt:"
+        label="Prompt"
         placeholder="Enter a prompt (e.g. clenched fists, leather armor)"
         validation="required"
         :validation-messages="{
-          required: 'Please enter a prompt'
+          required: 'Please enter a prompt',
         }"
-        input-class="text-sm w-full bg-neutral-900 border border-zinc-600 rounded"
+        input-class="$reset text-sm w-full bg-surface border border-zinc-600 rounded"
       />
     </div>
     <FormKit
       type="submit"
       :disabled="isEditing || !prompt"
-      input-class="button-ghost w-full flex justify-center gap-2"
+      input-class="$reset button-purple w-full flex justify-center gap-2"
       @click="applyEdit"
     >
       <Spinner v-if="isEditing" />
-      {{ isEditing ? 'Processing...' : 'Apply Inpainting' }}
+      {{ isEditing ? 'Processing...' : 'Apply changes' }}
     </FormKit>
   </div>
 </template>

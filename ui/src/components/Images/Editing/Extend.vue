@@ -56,7 +56,7 @@ const applyOutpaint = async () => {
 </script>
 
 <template>
-  <div>
+  <div class="bg-surface-2 rounded-3xl p-4">
     <div class="mb-4">
       <FormKit
         id="outpaintPrompt"
@@ -67,7 +67,7 @@ const applyOutpaint = async () => {
         placeholder="Enter a prompt"
         validation="required"
         :validation-messages="{
-          required: 'Please enter a prompt'
+          required: 'Please enter a prompt',
         }"
         input-class="text-sm w-full bg-neutral-900 border border-zinc-600 rounded"
       />
@@ -85,12 +85,12 @@ const applyOutpaint = async () => {
             { label: 'Up', value: 'up' },
             { label: 'Down', value: 'down' },
             { label: 'Left', value: 'left' },
-            { label: 'Right', value: 'right' }
+            { label: 'Right', value: 'right' },
           ]"
           input-class="w-full p-1 bg-neutral-900 border border-zinc-600 rounded"
           outer-class="w-1/2"
         />
-        
+
         <FormKit
           type="number"
           v-model="pixels"
@@ -101,7 +101,7 @@ const applyOutpaint = async () => {
           validation="required|min:0"
           :validation-messages="{
             required: 'Please enter pixels',
-            min: 'Must be 0 or greater'
+            min: 'Must be 0 or greater',
           }"
           input-class="w-full p-1 pr-8 bg-neutral-900 border border-zinc-600 rounded"
           outer-class="w-1/2"
@@ -111,7 +111,7 @@ const applyOutpaint = async () => {
     <FormKit
       type="submit"
       :disabled="isEditing || !isValidDimensions || !prompt.trim()"
-      input-class="button-ghost w-full flex justify-center gap-2"
+      input-class="$reset button-purple w-full"
       @click="applyOutpaint"
     >
       <Spinner v-if="isEditing" />
