@@ -35,7 +35,7 @@ export class ImagesService {
   async generateImage(
     userId: number,
     request: PostImageRequest,
-  ): Promise<void> {
+  ): Promise<Image[]> {
     const user = await this.imagesDataProvider.findUser(userId);
 
     if (!user) {
@@ -79,18 +79,35 @@ export class ImagesService {
       referenceImage = await this.getImageBuffer(image.uri);
     }
 
-    const imagePromises = [];
+    const images = [];
+
     for (let i = 0; i < count; i++) {
-      const imagePromise = this.generateSingleImage({
+      const image = await this.imagesDataProvider.createImage({
+        userId,
+        prompt: request.prompt,
+        negativePrompt: request.negativePrompt,
+        stylePreset: request.stylePreset,
+        ...request.linking,
+        primary: false,
+        generating: true,
+        failed: false,
+        modelId: request.modelId,
+      });
+
+      images.push(image);
+
+      this.generateSingleImage(
+        image, 
+        {
         ...request,
         userId,
         count,
         referenceImage,
-      });
-      imagePromises.push(imagePromise);
+        }
+      );
     }
 
-    await Promise.all(imagePromises);
+    return images;
   }
 
   async setConjurationId(
@@ -313,21 +330,10 @@ export class ImagesService {
   }
 
   private async generateSingleImage(
+    image: Image,
     request: ImageGenerationRequest,
   ): Promise<Image | undefined> {
     try {
-      const image = await this.imagesDataProvider.createImage({
-        userId: request.userId,
-        prompt: request.prompt,
-        negativePrompt: request.negativePrompt,
-        stylePreset: request.stylePreset,
-        ...request.linking,
-        primary: request.forceImagePrimary || false,
-        generating: true,
-        failed: false,
-        modelId: request.modelId,
-      });
-
       await checkImageStatusQueue.add(
         {
           userId: request.userId,
@@ -383,7 +389,7 @@ export class ImagesService {
         error,
       );
 
-      throw error; // Re-throw to be handled by caller
+      throw error;
     }
   }
 

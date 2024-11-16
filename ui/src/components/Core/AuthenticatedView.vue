@@ -21,9 +21,10 @@ import UserSignupSource from '@/components/Core/UserSignupSource.vue';
 import { DndProvider } from 'vue3-dnd';
 import EditImageModal from '@/components/Images/EditImageModal.vue';
 import CreateConjurationRelationship from '@/components/Relationships/Create/CreateConjurationRelationship.vue';
-import GenerateImageModal from '@/modules/images/components/GenerateImageModal.vue'
+import GenerateImageModal from '@/modules/images/components/GenerateImageModal.vue';
 import { useImageGenerationModal } from '@/modules/images/composables/useImageGenerationModal';
 import { getRedeemPreOrderUrl } from '@/api/billing.ts';
+import NavBarHeader from '@/components/Navigation/NavBarHeader.vue';
 // @ts-ignore
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
@@ -37,7 +38,8 @@ const showUpgradeModal = ref(false);
 const showUserSourceModal = ref(false);
 
 const currentUserPlan = useCurrentUserPlan();
-const { showCustomizeImageModal, customizeImageArgs, closeModal } = useImageGenerationModal();
+const { showCustomizeImageModal, customizeImageArgs, closeModal } =
+  useImageGenerationModal();
 
 onMounted(async () => {
   await initIntercom();
@@ -169,13 +171,12 @@ eventBus.$on('show-subscription-modal', () => {
   </div>
 
   <div
-    v-if="
-      route.meta.paidRequired &&
-      currentUserPlan === BillingPlan.Free
-    "
+    v-if="route.meta.paidRequired && currentUserPlan === BillingPlan.Free"
     class="absolute top-1/4 left-1/2 -translate-x-1/2 bg-surface rounded-[12px] w-[90vw] md:w-auto"
   >
-    <div class="border border-[#5A32AA7F] upgrade-box p-12 rounded-[12px] text-neutral-200">
+    <div
+      class="border border-[#5A32AA7F] upgrade-box p-12 rounded-[12px] text-neutral-200"
+    >
       <div class="mt-1 mb-2 text-xl flex">
         <SparklesIcon class="h-8 w-8 mr-1" />
         <div class="self-center">Upgrade to pro</div>
@@ -192,9 +193,11 @@ eventBus.$on('show-subscription-modal', () => {
     </div>
   </div>
 
-  
-
-  <GenerateImageModal :showCustomizeImageModal="showCustomizeImageModal" :customizeImageArgs="customizeImageArgs" :closeModal="closeModal" />
+  <GenerateImageModal
+    :showCustomizeImageModal="showCustomizeImageModal"
+    :customizeImageArgs="customizeImageArgs"
+    @close="showCustomizeImageModal = false"
+  />
 
   <ModalAlternate :show="showEditImageModal" extra-dark>
     <div class="relative min-w-[100vw] min-h-[100vh] text-white">
@@ -329,4 +332,4 @@ eventBus.$on('show-subscription-modal', () => {
   </ModalAlternate>
 
   <LightboxRoot />
-</template> 
+</template>

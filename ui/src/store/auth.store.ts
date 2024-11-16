@@ -4,7 +4,10 @@ import { useEventBus } from '@/lib/events.ts';
 import router from '@/router/router';
 
 interface AuthStoreState {
-  tokens: any;
+  tokens: {
+    accessToken?: string;
+    refreshToken?: string;
+  } | null;
   returnUrl: string | null;
   user: User | null;
   isLoading: boolean;
@@ -15,7 +18,6 @@ const TOKENS_KEY_NAME = 'tokens';
 export const useAuthStore = defineStore({
   id: 'auth',
   state: (): AuthStoreState => ({
-    // initialize state from local storage to enable user to stay logged in
     tokens: localStorage.getItem(TOKENS_KEY_NAME)
       ? JSON.parse(localStorage.getItem(TOKENS_KEY_NAME) || '')
       : null,
@@ -24,6 +26,10 @@ export const useAuthStore = defineStore({
     isLoading: false,
   }),
   actions: {
+    updateTokens(accessToken: string, refreshToken: string) {
+      this.tokens = { accessToken, refreshToken };
+      localStorage.setItem(TOKENS_KEY_NAME, JSON.stringify(this.tokens));
+    },
     async loadCurrentUser(): Promise<void> {
       this.isLoading = true;
 
@@ -54,7 +60,7 @@ export const useAuthStore = defineStore({
       await this.clearCache();
     },
     async clearCache() {
-      localStorage.clear();
+      localStorage.removeItem(TOKENS_KEY_NAME);
       this.tokens = null;
       this.user = null;
     },

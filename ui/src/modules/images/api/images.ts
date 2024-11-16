@@ -2,7 +2,7 @@ import axios from "axios";
 import { Image } from '../types/image';
 import { GenerateImageRequest } from "../types/generateImageRequest";
 
-export const apiGenerateImages = async(request: GenerateImageRequest) => {
+export const apiGenerateImages = async(request: GenerateImageRequest): Promise<Image[]> => {
   let referenceImageId = undefined;
 
   if (request.referenceImageFile) {
@@ -10,8 +10,9 @@ export const apiGenerateImages = async(request: GenerateImageRequest) => {
     referenceImageId = image.id;
   }
 
+  const images: Image[] = [];
   for (const model of request.selectedModels) {
-    axios.post('/images', {
+    const response = await axios.post<Image[]>('/images', {
       modelId: model.id,
       prompt: request.prompt,
       negativePrompt: request.negativePrompt,
@@ -21,7 +22,11 @@ export const apiGenerateImages = async(request: GenerateImageRequest) => {
       width: request.width,
       imageId: referenceImageId,
     });
+
+    images.push(...response.data);
   }
+
+  return images;
 }
 
 async function uploadReferenceImage(file: File): Promise<Image> {
