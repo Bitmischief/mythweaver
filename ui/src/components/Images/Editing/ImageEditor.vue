@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { FormKit } from '@formkit/vue';
 import Inpaint from './Inpaint.vue';
 import { Image } from '@/api/images';
@@ -50,6 +50,25 @@ const imageAspectRatio = ref(1);
 const loadingImage = ref(false);
 const editing = ref(false);
 
+const windowWidth = ref(window.innerWidth);
+const windowHeight = ref(window.innerHeight);
+
+const debounce = (fn: Function, delay: number) => {
+  let timeoutId: NodeJS.Timeout;
+  return (...args: any[]) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => fn(...args), delay);
+  };
+};
+
+const handleResize = () => {
+  windowWidth.value = window.innerWidth;
+  windowHeight.value = window.innerHeight;
+  initCanvas();
+};
+
+const debouncedResize = debounce(handleResize, 250);
+
 async function initCanvas() {
   if (
     canvasRef.value &&
@@ -61,15 +80,23 @@ async function initCanvas() {
     const img = imageRef.value;
     imageAspectRatio.value = img.naturalWidth / img.naturalHeight;
 
-    if (img.naturalWidth > container.clientWidth) {
-      img.style.height = `${img.naturalHeight / imageAspectRatio.value}px`;
-    }
+    const maxAvailableHeight = windowHeight.value - 200;
+    const maxAvailableWidth = container.clientWidth;
 
-    imageWidth.value = img.clientWidth;
-    imageHeight.value = img.clientHeight;
+    let finalWidth = img.naturalWidth;
+    let finalHeight = img.naturalHeight;
 
-    canvasWidth.value = img.clientWidth;
-    canvasHeight.value = img.clientHeight;
+    const widthRatio = maxAvailableWidth / finalWidth;
+    const heightRatio = maxAvailableHeight / finalHeight;
+    const scale = Math.min(widthRatio, heightRatio, 1);
+
+    finalWidth *= scale;
+    finalHeight *= scale;
+
+    imageWidth.value = finalWidth;
+    imageHeight.value = finalHeight;
+    canvasWidth.value = finalWidth;
+    canvasHeight.value = finalHeight;
 
     canvasRef.value.width = canvasWidth.value;
     canvasRef.value.height = canvasHeight.value;
@@ -78,8 +105,27 @@ async function initCanvas() {
     previewCanvasRef.value.width = canvasWidth.value;
     previewCanvasRef.value.height = canvasHeight.value;
     previewCtx.value = previewCanvasRef.value.getContext('2d');
+
+    img.style.width = `${finalWidth}px`;
+    img.style.height = `${finalHeight}px`;
+
+    if (undoStack.value.length > 0) {
+      const lastState = undoStack.value[undoStack.value.length - 1];
+      loadCanvasState(lastState);
+    }
   }
 }
+
+watch(
+  () => imageUrl.value,
+  () => {
+    if (imageRef.value) {
+      imageRef.value.onload = () => {
+        initCanvas();
+      };
+    }
+  },
+);
 
 const draw = (e: MouseEvent) => {
   updateBrushPreview(e);
@@ -302,20 +348,23 @@ const handleEscapeKey = (event: KeyboardEvent) => {
 
 onMounted(() => {
   document.addEventListener('keydown', handleEscapeKey);
+  window.addEventListener('resize', debouncedResize);
+  initCanvas();
 });
 
 onUnmounted(() => {
   document.removeEventListener('keydown', handleEscapeKey);
+  window.removeEventListener('resize', debouncedResize);
 });
 </script>
 
 <template>
   <div
-    class="overflow-hidden h-full pt-[4em] flex flex-col border border-zinc-700"
+    class="overflow-hidden h-[calc(100vh-2.05rem)] m-3 p-3 py-16 rounded-lg flex flex-col border border-zinc-700"
   >
     <div class="canvas-background absolute inset-0"></div>
     <div
-      class="fixed top-0 left-0 right-0 py-2 flex justify-between items-center"
+      class="fixed top-0 left-0 right-0 py-6 px-3 flex justify-between items-center"
     >
       <div class="px-4 gradient-text text-2xl">Image Editor</div>
       <div class="flex gap-2 mr-2">
@@ -342,8 +391,8 @@ onUnmounted(() => {
         </button>
       </div>
     </div>
-    <div class="flex gap-4 h-full">
-      <div class="w-[5em] mx-4">
+    <div class="flex gap-4 h-full max-h-[calc(100vh-9em)]">
+      <div class="w-[5em] mx-4 shrink-0">
         <div class="bg-surface-2 rounded-2xl p-2">
           <div
             v-for="(tool, i) in tools"
@@ -379,7 +428,10 @@ onUnmounted(() => {
           </div>
         </div>
       </div>
-      <div ref="containerRef" class="flex-grow justify-center relative h-full">
+      <div
+        ref="containerRef"
+        class="flex-grow flex justify-center relative items-center"
+      >
         <div
           v-if="loadingImage || editing"
           class="absolute flex justify-center h-full w-full z-50"
@@ -393,7 +445,7 @@ onUnmounted(() => {
           ref="imageRef"
           :src="imageUrl || ''"
           alt="editor image"
-          class="h-full"
+          class="w-full"
           :class="{ 'opacity-60': editing }"
           @load="initCanvas"
         />
@@ -416,7 +468,7 @@ onUnmounted(() => {
           @mouseleave="clearPreview"
         />
       </div>
-      <div class="w-[18em] px-4">
+      <div class="w-[18em] px-4 shrink-0 overflow-y-auto">
         <Inpaint
           v-if="selectedTool === 'inpaint'"
           :image-id="props.image.id"
@@ -614,18 +666,27 @@ onUnmounted(() => {
 
 img {
   position: absolute;
-  top: 0;
+  top: 50%;
   left: 50%;
-  transform: translate(-50%, 0);
+  transform: translate(-50%, -50%);
   user-select: none;
   pointer-events: none;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
 }
 
 canvas {
   position: absolute;
-  top: 0;
+  top: 50%;
   left: 50%;
-  transform: translate(-50%, 0);
+  transform: translate(-50%, -50%);
   cursor: none;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.flex-grow {
+  overflow: hidden;
 }
 </style>

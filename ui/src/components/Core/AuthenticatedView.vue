@@ -194,15 +194,6 @@ eventBus.$on('show-subscription-modal', () => {
     </div>
   </div>
 
-  <ModalAlternate :show="showEditImageModal" extra-dark>
-    <div class="relative min-w-[100vw] min-h-[100vh] text-white">
-      <EditImageModal
-        :image="editImageArgs?.image"
-        @close="showEditImageModal = false"
-      />
-    </div>
-  </ModalAlternate>
-
   <ModalAlternate
     :show="showCreateRelationshipModal"
     extra-dark
@@ -326,6 +317,7 @@ eventBus.$on('show-subscription-modal', () => {
     </div>
   </ModalAlternate>
 
+  <EditImageModal />
   <GenerateImageModal />
   <ChangeImageModal />
 

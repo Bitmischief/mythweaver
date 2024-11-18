@@ -1,26 +1,17 @@
 <script lang="ts" setup>
 import ImageEditor from './Editing/ImageEditor.vue';
+import FullScreenModal from '@/components/FullScreenModal.vue';
+import { useEditImage } from '@/modules/images/composables/useEditImage';
 
-withDefaults(
-  defineProps<{
-    image?: {
-      id?: number;
-      uri?: string;
-    };
-  }>(),
-  {
-    image: () => ({
-      id: undefined,
-      uri: undefined,
-    }),
-  },
-);
-
-const emit = defineEmits(['close']);
+const { showModal, selectedImage } = useEditImage();
 </script>
 
 <template>
-  <div class="fixed inset-0 z-50 bg-surface">
-    <ImageEditor :image="image" @close="emit('close')" />
-  </div>
+  <FullScreenModal :show="showModal" :z="35" extra-dark>
+    <ImageEditor
+      v-if="selectedImage"
+      :image="selectedImage"
+      @close="showModal = false"
+    />
+  </FullScreenModal>
 </template>

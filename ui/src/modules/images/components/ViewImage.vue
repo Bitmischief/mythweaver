@@ -2,12 +2,15 @@
 import { ref } from 'vue';
 import { Image } from '../types/image';
 import { Pencil } from 'lucide-vue-next';
+import { useEditImage } from '../composables/useEditImage';
 
 defineProps<{
   image: Image;
   allowEdits?: boolean;
   disableSetAsPrimary?: boolean;
 }>();
+
+const { setSelectedImage } = useEditImage();
 
 const selected = ref(false);
 </script>
@@ -37,6 +40,7 @@ const selected = ref(false);
         <Pencil
           v-if="allowEdits"
           class="w-5 h-5 text-neutral-400 hover:text-neutral-500 cursor-pointer self-center"
+          @click="setSelectedImage(image.id)"
         />
         <button :disabled="disableSetAsPrimary" class="button-gradient">
           Set as primary image
