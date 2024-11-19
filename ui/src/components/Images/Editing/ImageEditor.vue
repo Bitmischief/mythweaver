@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { FormKit } from '@formkit/vue';
 import Inpaint from './Inpaint.vue';
 import { Image } from '@/api/images';
@@ -8,16 +8,30 @@ import Extend from './Extend.vue';
 import Erase from './Erase.vue';
 import { CheckIcon } from '@heroicons/vue/24/solid';
 import Spinner from '@/components/Core/Spinner.vue';
-import { Eraser, Fullscreen, Paintbrush, Undo, Redo, X } from 'lucide-vue-next';
-
-const props = defineProps<{
-  image: any;
-}>();
+import {
+  Eraser,
+  Fullscreen,
+  Paintbrush,
+  Undo,
+  Redo,
+  X,
+  ImagePlus,
+  History,
+} from 'lucide-vue-next';
+import { useDebounceFn } from '@vueuse/core';
+import GenerateImage from '@/modules/images/components/GenerateImage.vue';
+import { useImageStore } from '@/modules/images/store/image.store.ts';
+import ImageHistory from '@/modules/images/components/ImageHistory.vue';
 
 const emit = defineEmits(['close', 'imageUpdated']);
+const imageStore = useImageStore();
 
-const image = ref<Image | null>(props.image);
-const imageUrl = ref<string | null>(props.image.uri);
+const image = computed(() => {
+  return imageStore.selectedImage;
+});
+const imageUrl = computed(() => {
+  return imageStore.selectedImage?.uri;
+});
 
 const canvasCtx = ref<CanvasRenderingContext2D | null>(null);
 const previewCanvasRef = ref<HTMLCanvasElement | null>(null);
@@ -30,11 +44,16 @@ const maxStackSize = 25;
 const brushSize = ref<number>(25);
 const isEraseMode = ref<boolean>(false);
 
-const selectedTool = ref<'inpaint' | 'outpaint' | 'erase'>('inpaint');
+const maskedModes = ref(['inpaint', 'erase']);
+const selectedTool = ref<
+  'inpaint' | 'outpaint' | 'erase' | 'create' | 'history'
+>('inpaint');
 const tools = [
   { mode: 'inpaint', label: 'Modify' },
   { mode: 'outpaint', label: 'Extend' },
   { mode: 'erase', label: 'Erase' },
+  { mode: 'create', label: 'New' },
+  { mode: 'history', label: 'History' },
 ] as const;
 const undoStack = ref<ImageData[]>([]);
 const redoStack = ref<ImageData[]>([]);
@@ -53,21 +72,13 @@ const editing = ref(false);
 const windowWidth = ref(window.innerWidth);
 const windowHeight = ref(window.innerHeight);
 
-const debounce = (fn: Function, delay: number) => {
-  let timeoutId: NodeJS.Timeout;
-  return (...args: any[]) => {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => fn(...args), delay);
-  };
-};
-
 const handleResize = () => {
   windowWidth.value = window.innerWidth;
   windowHeight.value = window.innerHeight;
   initCanvas();
 };
 
-const debouncedResize = debounce(handleResize, 250);
+const debouncedResize = useDebounceFn(handleResize, 250);
 
 async function initCanvas() {
   if (
@@ -115,17 +126,6 @@ async function initCanvas() {
     }
   }
 }
-
-watch(
-  () => imageUrl.value,
-  () => {
-    if (imageRef.value) {
-      imageRef.value.onload = () => {
-        initCanvas();
-      };
-    }
-  },
-);
 
 const draw = (e: MouseEvent) => {
   updateBrushPreview(e);
@@ -235,10 +235,6 @@ const closeModal = () => {
   emit('close');
 };
 
-const updateBrushSize = (e: any) => {
-  console.log(e);
-};
-
 const undo = () => {
   if (undoStack.value.length <= 1) return; // Keep at least initial state
   const currentState = undoStack.value.pop();
@@ -282,9 +278,11 @@ const toggleEraseMode = () => {
   isEraseMode.value = true;
 };
 
-const setEditMode = (tool: 'inpaint' | 'outpaint' | 'erase') => {
+const setEditMode = (
+  tool: 'inpaint' | 'outpaint' | 'erase' | 'create' | 'history',
+) => {
   selectedTool.value = tool;
-  if (selectedTool.value === 'outpaint') {
+  if (!maskedModes.value.includes(selectedTool.value)) {
     clearMask();
   }
 };
@@ -298,8 +296,8 @@ const handleEditFailed = async () => {
 };
 
 const handleEditApplied = async (updatedImage: Image) => {
-  image.value = updatedImage;
-  imageUrl.value = updatedImage.uri;
+  imageStore.setSelectedImage(updatedImage);
+  clearMask();
   editing.value = false;
 };
 
@@ -360,7 +358,7 @@ onUnmounted(() => {
 
 <template>
   <div
-    class="overflow-hidden h-[calc(100vh-2.05rem)] m-3 p-3 py-16 rounded-lg flex flex-col border border-zinc-700"
+    class="overflow-hidden h-[calc(100vh-2.05rem)] m-3 p-3 py-16 rounded-lg flex flex-col"
   >
     <div class="canvas-background absolute inset-0"></div>
     <div
@@ -387,13 +385,13 @@ onUnmounted(() => {
           :disabled="editing"
           @click="closeModal"
         >
-          Continue
+          Done
         </button>
       </div>
     </div>
     <div class="flex gap-4 h-full max-h-[calc(100vh-9em)]">
       <div class="w-[5em] mx-4 shrink-0">
-        <div class="bg-surface-2 rounded-2xl p-2">
+        <div class="bg-surface rounded-2xl p-2">
           <div
             v-for="(tool, i) in tools"
             :key="`tool_${i}`"
@@ -408,27 +406,40 @@ onUnmounted(() => {
                   selectedTool === tool.mode && tool.mode === 'outpaint',
                 'bg-blue-800/25 text-blue-600':
                   selectedTool === tool.mode && tool.mode === 'erase',
-                'bg-surface-2': selectedTool !== tool.mode,
+                'bg-green-800/25 text-green-600':
+                  selectedTool === tool.mode && tool.mode === 'create',
+                'bg-pink-800/25 text-pink-600':
+                  selectedTool === tool.mode && tool.mode === 'history',
+                'bg-surface': selectedTool !== tool.mode,
               }"
               @click="setEditMode(tool.mode)"
             >
               <template v-if="tool.mode === 'inpaint'">
                 <Paintbrush class="h-5 w-5" />
-                Modify
               </template>
               <template v-if="tool.mode === 'outpaint'">
                 <Fullscreen class="h-5 w-5" />
-                Extend
               </template>
               <template v-if="tool.mode === 'erase'">
                 <Eraser class="h-5 w-5" />
-                Erase
               </template>
+              <template v-if="tool.mode === 'create'">
+                <ImagePlus class="h-5 w-5" />
+              </template>
+              <template v-if="tool.mode === 'history'">
+                <History class="h-5 w-5" />
+              </template>
+              {{ tool.label }}
             </button>
           </div>
         </div>
       </div>
       <div
+        v-if="
+          selectedTool === 'inpaint' ||
+          selectedTool === 'outpaint' ||
+          selectedTool === 'erase'
+        "
         ref="containerRef"
         class="flex-grow flex justify-center relative items-center"
       >
@@ -468,10 +479,44 @@ onUnmounted(() => {
           @mouseleave="clearPreview"
         />
       </div>
-      <div class="w-[18em] px-4 shrink-0 overflow-y-auto">
+      <div
+        v-show="selectedTool === 'create'"
+        class="flex-grow justify-center bg-surface rounded-2xl p-4"
+      >
+        <div class="text-lg text-neutral-300 border-b border-neutral-900 mb-4">
+          Generate New Image
+        </div>
+        <GenerateImage
+          :allow-edits="false"
+          :linking="{
+            conjurationId: image?.conjurationId,
+            sessionId: image?.sessionId,
+            characterId: image?.characterId,
+          }"
+        />
+      </div>
+      <div
+        v-show="selectedTool === 'history'"
+        class="flex-grow justify-center bg-surface rounded-2xl p-4 flex flex-col"
+      >
+        <div class="text-lg text-neutral-300 border-b border-neutral-900 mb-4">
+          Image History
+        </div>
+        <div class="flex overflow-y-auto">
+          <ImageHistory :conjuration-id="image?.conjurationId" />
+        </div>
+      </div>
+      <div
+        v-if="
+          selectedTool === 'inpaint' ||
+          selectedTool === 'outpaint' ||
+          selectedTool === 'erase'
+        "
+        class="w-[18em] px-4 shrink-0 overflow-y-auto"
+      >
         <Inpaint
           v-if="selectedTool === 'inpaint'"
-          :image-id="props.image.id"
+          :image-id="image.id"
           :get-mask-canvas="getMaskCanvas"
           @edit-applied="handleEditApplied"
           @edit-started="handleEditStarted"
@@ -479,14 +524,14 @@ onUnmounted(() => {
         />
         <Extend
           v-if="selectedTool === 'outpaint'"
-          :image-id="props.image.id"
+          :image-id="image.id"
           @edit-applied="handleEditApplied"
           @edit-started="handleEditStarted"
           @edit-failed="handleEditFailed"
         />
         <Erase
           v-if="selectedTool === 'erase'"
-          :image-id="props.image.id"
+          :image-id="image.id"
           :get-mask-canvas="getMaskCanvas"
           @edit-applied="handleEditApplied"
           @edit-started="handleEditStarted"
@@ -498,8 +543,8 @@ onUnmounted(() => {
       <div class="w-[5em]"></div>
       <div class="flex flex-grow justify-center items-center">
         <div
-          v-if="selectedTool !== 'outpaint'"
-          class="bg-surface-2 rounded-full p-2"
+          v-if="maskedModes?.includes(selectedTool)"
+          class="bg-surface rounded-full p-2"
         >
           <div class="flex items-center">
             <div class="flex justify-center gap-2">
@@ -524,7 +569,7 @@ onUnmounted(() => {
                 </button>
               </div>
             </div>
-            <div>
+            <div class="pr-4">
               <FormKit
                 v-model="brushSize"
                 :value="brushSize"
@@ -535,12 +580,13 @@ onUnmounted(() => {
                 help-text="Adjust the size of your brush"
                 outer-class="$reset mb-0 mx-2 py-1 px-3 bg-surface-3 rounded-full"
                 input-class="!bg-surface-2 !rounded-full !m-0"
-                @input="updateBrushSize"
                 @mousemove="updateBrushPreview"
                 @mouseleave="clearPreview"
               />
             </div>
-            <div class="flex justify-center gap-4">
+            <div
+              class="flex justify-center gap-2 border-l-2 border-neutral-900 pl-6"
+            >
               <div class="text-center">
                 <button
                   class="control-button"
@@ -597,8 +643,8 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
+  width: 42px;
+  height: 42px;
   border: none;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.1);
@@ -616,11 +662,6 @@ onUnmounted(() => {
   cursor: not-allowed;
 }
 
-.control-button svg {
-  width: 20px;
-  height: 20px;
-}
-
 .control-button.active {
   background: rgba(196, 28, 222, 0.2);
   color: rgba(196, 28, 222);
@@ -631,7 +672,7 @@ onUnmounted(() => {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
-  height: 12px;
+  height: 16px;
   margin: 0.5em 1em;
   background-color: transparent;
 }

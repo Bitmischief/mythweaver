@@ -11,7 +11,8 @@ const props = defineProps<{
 
 const emit = defineEmits(['update:modelValue']);
 
-const { availableImageModels, imageModelsLoaded, defaultImageModel } = useAvailableImageModels();
+const { availableImageModels, imageModelsLoaded, defaultImageModel } =
+  useAvailableImageModels();
 
 const error = ref<string | null>(null);
 
@@ -30,11 +31,14 @@ const removeModel = (modelId: number) => {
   selectedModels.value = selectedModels.value.filter((m) => m.id !== modelId);
 };
 
-watch(() => imageModelsLoaded, () => {
-  if (defaultImageModel.value) {
-    handleModelSelection([defaultImageModel.value.id]);
-  }
-});
+watch(
+  () => imageModelsLoaded,
+  () => {
+    if (defaultImageModel.value) {
+      handleModelSelection([defaultImageModel.value.id]);
+    }
+  },
+);
 
 const formKitOptions = computed(() =>
   availableImageModels.value?.map((model) => ({
@@ -54,17 +58,26 @@ const handleModelSelection = (selectedIds: number[] | undefined) => {
     const existingModel = selectedModels.value.find((m) => m.id === id);
     const aiModel = availableImageModels.value.find((m) => m.id === id);
     if (!aiModel) throw new Error(`Model with id ${id} not found`);
-    return existingModel || { id: aiModel.id, description: aiModel.description, quantity: 1 };
+    return (
+      existingModel || {
+        id: aiModel.id,
+        description: aiModel.description,
+        quantity: 1,
+      }
+    );
   });
 
   selectedModels.value = newSelectedModels;
 };
 
-const getModelById = (id: number) => availableImageModels.value.find((m) => m.id === id);
+const getModelById = (id: number) =>
+  availableImageModels.value.find((m) => m.id === id);
 </script>
 
 <template>
-  <div v-if="!imageModelsLoaded" class="text-center py-4">Loading Models...</div>
+  <div v-if="!imageModelsLoaded" class="text-center py-4">
+    Loading Models...
+  </div>
   <div v-else-if="error" class="text-center py-4 text-red-500">
     {{ error }}
   </div>
@@ -75,38 +88,47 @@ const getModelById = (id: number) => availableImageModels.value.find((m) => m.id
         label="Select Models"
         :options="formKitOptions"
         :model-value="selectedModels.map((m) => m.id)"
-        @update:model-value="handleModelSelection"
         multiple
         placeholder="Choose models"
         close-on-select="true"
         :config="{
           classes: {
             label: 'mb-2',
-            listitem: 'cursor-pointer',
+            listitem: '$reset cursor-pointer p-0',
           },
         }"
         selection-appearance="tags"
+        @update:model-value="handleModelSelection"
       >
         <template #option="{ option }">
-          <div class="flex items-center">
+          <div
+            class="flex items-center p-2 bg-surface-2 hover:bg-fuchsia-500/25"
+          >
             <img
               :src="option.sampleImageUri"
               :alt="option.label"
-              class="w-16 h-16 md:w-32 md:h-32 object-cover rounded mr-2"
+              class="w-16 h-16 md:w-24 md:h-24 object-cover rounded mr-2"
             />
             <div>
               <div class="font-semibold">{{ option.label }}</div>
               <div class="text-sm -muted">
-                <span v-for="strength in option.strengths" :key="strength" class="mr-2">{{
-                  strength
-                }}</span>
+                <span
+                  v-for="strength in option.strengths"
+                  :key="strength"
+                  class="mr-2"
+                  >{{ strength }}</span
+                >
               </div>
               <div class="text-xs">
-                <span v-if="option.licensedArt" class="text-green-500 mr-2">Licensed Art</span>
+                <span v-if="option.licensedArt" class="text-green-500 mr-2"
+                  >Licensed Art</span
+                >
                 <span v-if="option.default" class="text-blue-500">Default</span>
               </div>
             </div>
-            <div v-if="option.selected" class="text-xs text-green-500">Selected</div>
+            <div v-if="option.selected" class="text-xs text-green-500">
+              Selected
+            </div>
           </div>
         </template>
         <template #tag="{ handlers, option, classes }">
@@ -115,8 +137,8 @@ const getModelById = (id: number) => availableImageModels.value.find((m) => m.id
               {{ option.label }}
             </span>
             <XMarkIcon
-              @click.prevent="handlers.removeSelection(option)()"
               class="w-5 h-5 cursor-pointer hover:bg-primary rounded-full"
+              @click.prevent="handlers.removeSelection(option)()"
             />
           </div>
         </template>
@@ -124,7 +146,9 @@ const getModelById = (id: number) => availableImageModels.value.find((m) => m.id
     </div>
 
     <div v-if="selectedModels.length > 0" class="mt-6">
-      <h3 class="text-zinc-600 underline mb-2 font-semibold">Selected Models</h3>
+      <h3 class="text-zinc-600 underline mb-2 font-semibold">
+        Selected Models
+      </h3>
       <div
         v-for="model in selectedModels"
         :key="model.id"
@@ -148,10 +172,18 @@ const getModelById = (id: number) => availableImageModels.value.find((m) => m.id
               </div>
             </div>
             <div class="text-xs">
-              <span v-if="getModelById(model.id)?.licensedArt" class="text-green-500 mr-2">
+              <span
+                v-if="getModelById(model.id)?.licensedArt"
+                class="text-green-500 mr-2"
+              >
                 Licensed Art
               </span>
-              <span v-if="getModelById(model.id)?.default" class="text-blue-500"> Default </span>
+              <span
+                v-if="getModelById(model.id)?.default"
+                class="text-blue-500"
+              >
+                Default
+              </span>
             </div>
           </div>
         </div>
@@ -159,7 +191,6 @@ const getModelById = (id: number) => availableImageModels.value.find((m) => m.id
           <FormKit
             type="number"
             :model-value="model.quantity"
-            @update:model-value="updateQuantity(model.id, $event)"
             :min="1"
             :max="3"
             label="Qty"
@@ -167,9 +198,10 @@ const getModelById = (id: number) => availableImageModels.value.find((m) => m.id
             label-class="$reset text-sm text-neutral-500"
             inner-class="$reset p-0"
             input-class="w-9"
+            @update:model-value="updateQuantity(model.id, $event)"
           />
           <div>
-            <button @click="removeModel(model.id)" class="p-1">
+            <button class="p-1" @click="removeModel(model.id)">
               <XCircleIcon class="h-5 text-red-500 hover:text-red-500/75" />
             </button>
           </div>

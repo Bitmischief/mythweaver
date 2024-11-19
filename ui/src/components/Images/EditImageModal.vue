@@ -1,17 +1,13 @@
 <script lang="ts" setup>
 import ImageEditor from './Editing/ImageEditor.vue';
 import FullScreenModal from '@/components/FullScreenModal.vue';
-import { useEditImage } from '@/modules/images/composables/useEditImage';
+import { useImageStore } from '@/modules/images/store/image.store.ts';
 
-const { showModal, selectedImage } = useEditImage();
+const imageStore = useImageStore();
 </script>
 
 <template>
-  <FullScreenModal :show="showModal" :z="35" extra-dark>
-    <ImageEditor
-      v-if="selectedImage"
-      :image="selectedImage"
-      @close="showModal = false"
-    />
+  <FullScreenModal :show="imageStore.showEditImageModal" :z="35" extra-dark>
+    <ImageEditor @close="imageStore.showEditImageModal = false" />
   </FullScreenModal>
 </template>

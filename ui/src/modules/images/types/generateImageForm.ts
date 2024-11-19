@@ -1,4 +1,4 @@
-import { SelectedModelInput } from "./selectedModelInput";
+import { SelectedModelInput } from './selectedModelInput';
 import { FormKitFile } from '@formkit/inputs';
 
 export interface GenerateImageForm {
@@ -8,4 +8,9 @@ export interface GenerateImageForm {
   aspectRatio: string;
   referenceImageFile?: FormKitFile;
   referenceImageStrength?: number;
+  linking?: {
+    conjurationId?: number;
+    sessionId?: number;
+    characterId?: number;
+  };
 }

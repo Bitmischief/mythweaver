@@ -53,7 +53,7 @@ const applyEdit = async () => {
 </script>
 
 <template>
-  <div class="bg-surface-2 rounded-3xl p-4">
+  <div class="bg-surface rounded-3xl p-4">
     <div class="mb-4">
       <FormKit
         id="inpaintPrompt"

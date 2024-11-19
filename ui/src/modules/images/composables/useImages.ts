@@ -10,14 +10,14 @@ const loadingImages = ref<Set<number>>(new Set());
 export function useImages() {
   function cacheImages(images: Image | Image[]) {
     const imagesToCache = Array.isArray(images) ? images : [images];
-    imagesToCache.forEach(image => {
+    imagesToCache.forEach((image) => {
       imageCache.value.set(image.id, image);
     });
   }
 
   const getImage = async (imageId: number): Promise<Image> => {
     const cachedImage = imageCache.value.get(imageId);
-    
+
     if (cachedImage) {
       return cachedImage;
     }
@@ -79,4 +79,4 @@ export function useImages() {
     setImageLoaded,
     updateImage,
   };
-} 
+}

@@ -7,6 +7,19 @@ import { GenerateImageForm } from '../types/generateImageForm';
 import { useGenerateImages } from '../composables/useGenerateImages';
 import { Coins } from 'lucide-vue-next';
 
+const props = withDefaults(
+  defineProps<{
+    linking?: {
+      sessionId?: number;
+      conjurationId?: number;
+      characterId?: number;
+    };
+  }>(),
+  {
+    linking: undefined,
+  },
+);
+
 const { aspectRatios } = useAvailableAspectRatios();
 const { generateImages } = useGenerateImages();
 
@@ -32,6 +45,7 @@ const handleReferenceImageAddition = (files: FormKitFile[] | undefined) => {
 };
 
 const handleSubmit = async () => {
+  formState.value.linking = props.linking;
   await generateImages(formState.value);
 };
 
@@ -49,8 +63,8 @@ const totalQuantity = computed(() =>
 
     <div class="mt-6">
       <FormKit
-        type="textarea"
         v-model="formState.prompt"
+        type="textarea"
         label="Prompt"
         validation="required"
         :validation-messages="{ required: 'Prompt is required' }"
@@ -61,8 +75,8 @@ const totalQuantity = computed(() =>
 
     <div>
       <button
-        @click="showAdvancedSettings = !showAdvancedSettings"
         class="w-full py-2 px-4 bg-zinc-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-left flex justify-between items-center"
+        @click="showAdvancedSettings = !showAdvancedSettings"
       >
         <span>Advanced Settings</span>
         <span
@@ -73,86 +87,74 @@ const totalQuantity = computed(() =>
       </button>
     </div>
 
-    <Transition
-      enter-active-class="transition-all duration-500 ease-out"
-      leave-active-class="transition-all duration-300 ease-in"
-      @enter="
-        (el: Element) =>
-          ((el as HTMLElement).style.maxHeight = `${el.scrollHeight}px`)
-      "
-      @leave="(el: Element) => ((el as HTMLElement).style.maxHeight = '0px')"
+    <div
+      v-show="showAdvancedSettings"
+      class="space-y-4 overflow-hidden mt-4"
+      :style="{ maxHeight: showAdvancedSettings ? 'none' : '0px' }"
     >
-      <div
-        v-show="showAdvancedSettings"
-        class="space-y-4 overflow-hidden"
-        :style="{ maxHeight: showAdvancedSettings ? '1000px' : '0px' }"
-      >
+      <FormKit
+        v-model="formState.negativePrompt"
+        type="textarea"
+        label="Negative Prompt"
+        :rows="3"
+        placeholder="Describe what you don't want in the image..."
+      />
+
+      <FormKit
+        v-model="formState.aspectRatio"
+        type="select"
+        label="Aspect Ratio"
+        option-class="$reset bg-surface focus:bg-violet-500/75"
+        :options="aspectRatios"
+      />
+
+      <div>
         <FormKit
-          type="textarea"
-          v-model="formState.negativePrompt"
-          label="Negative Prompt"
-          :rows="3"
-          placeholder="Describe what you don't want in the image..."
+          type="file"
+          label="Reference Image (optional)"
+          accept="image/*"
+          @input="handleReferenceImageAddition"
         />
 
-        <FormKit
-          type="select"
-          v-model="formState.aspectRatio"
-          label="Aspect Ratio"
-          :options="aspectRatios"
-        />
+        <div v-if="formState.referenceImageFile" class="mt-2 flex items-center">
+          <p class="text-sm text-zinc-400 mr-2">
+            Selected: {{ formState.referenceImageFile.name }}
+          </p>
 
-        <div>
-          <FormKit
-            type="file"
-            label="Reference Image (optional)"
-            accept="image/*"
-            @input="handleReferenceImageAddition"
-          />
-
-          <div
-            v-if="formState.referenceImageFile"
-            class="mt-2 flex items-center"
+          <button
+            class="px-2 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors"
+            @click="formState.referenceImageFile = undefined"
           >
-            <p class="text-sm text-zinc-400 mr-2">
-              Selected: {{ formState.referenceImageFile.name }}
-            </p>
-
-            <button
-              @click="formState.referenceImageFile = undefined"
-              class="px-2 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors"
-            >
-              Clear
-            </button>
-          </div>
+            Clear
+          </button>
         </div>
-
-        <FormKit
-          v-if="formState.referenceImageFile"
-          type="range"
-          v-model="formState.referenceImageStrength"
-          label="Image Strength"
-          number
-          :min="1"
-          :max="100"
-          :step="1"
-          help="Adjust the balance between creativity and similarity to the reference image"
-        >
-          <template #help>
-            <div class="flex justify-between text-sm text-zinc-400 mt-1">
-              <span>Very creative</span>
-              <span>Medium</span>
-              <span>Very similar</span>
-            </div>
-          </template>
-        </FormKit>
       </div>
-    </Transition>
+
+      <FormKit
+        v-if="formState.referenceImageFile"
+        v-model="formState.referenceImageStrength"
+        type="range"
+        label="Image Strength"
+        number
+        :min="1"
+        :max="100"
+        :step="1"
+        help="Adjust the balance between creativity and similarity to the reference image"
+      >
+        <template #help>
+          <div class="flex justify-between text-sm text-zinc-400 mt-1">
+            <span>Very creative</span>
+            <span>Medium</span>
+            <span>Very similar</span>
+          </div>
+        </template>
+      </FormKit>
+    </div>
 
     <div class="mt-4 flex w-full justify-end">
       <FormKit
         type="submit"
-        input-class="w-full md:w-auto px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors shadow-lg"
+        input-class="w-full justify-center bg-primary text-white rounded-lg hover:bg-primary-light transition-colors shadow-lg"
         :disabled="formState.selectedModels.length === 0"
       >
         <div class="flex gap-2">

@@ -230,7 +230,7 @@ const clearFilters = () => {
                 @click="addToCollection(con)"
               >
                 <PlusCircleIcon class="h-5 w-5" />
-                <span>Add To Collection</span>
+                <span>Add To Campaign</span>
               </button>
             </div>
           </div>

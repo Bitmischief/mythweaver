@@ -6,7 +6,6 @@ import {
   ArrowRightIcon,
   SquaresPlusIcon,
   EllipsisHorizontalIcon,
-  HomeIcon,
 } from '@heroicons/vue/24/outline';
 import Menu from '@/components/Core/General/Menu.vue';
 import { MenuButton, MenuItem } from '@headlessui/vue';
@@ -23,9 +22,14 @@ import { ServerEvent } from '@/lib/serverEvents.ts';
 import CollectionHistory from '@/components/Collections/CollectionHistory.vue';
 import { useRoute, useRouter } from 'vue-router';
 import CollectionConjuration from '@/components/Collections/CollectionConjuration.vue';
+import { useSelectedCampaignId } from '@/lib/hooks.ts';
+import { useEventBus } from '@/lib/events.ts';
+
+const eventBus = useEventBus();
+const channel = useWebsocketChannel();
+const campaignId = useSelectedCampaignId();
 
 const loading = ref(true);
-const channel = useWebsocketChannel();
 const router = useRouter();
 const route = useRoute();
 
@@ -38,10 +42,6 @@ const showAddConjurations = ref(false);
 
 const newCollectionName = ref('');
 const parentId = ref<number | undefined>();
-
-const props = defineProps<{
-  campaign?: any;
-}>();
 
 watch(parentId, async () => {
   await router.push({
@@ -64,7 +64,7 @@ onMounted(async () => {
     const history = route.query.history as string;
     const historyArray = JSON.parse(history);
 
-    if (props.campaign && historyArray[0].campaignId !== props.campaign.id) {
+    if (historyArray[0].campaignId !== campaignId.value) {
       await router.push({
         query: {
           history: undefined,
@@ -80,10 +80,14 @@ onMounted(async () => {
   channel.bind(ServerEvent.CollectionMoved, fetchCollections);
 
   await fetchCollections();
+  await openCollection(collections.value[0]);
 
-  if (props.campaign) {
+  eventBus.$on('campaign-selected', async () => {
+    collectionHistory.value = [];
+    parentId.value = undefined;
+    await fetchCollections();
     await openCollection(collections.value[0]);
-  }
+  });
 });
 
 onUnmounted(() => {
@@ -94,7 +98,7 @@ onUnmounted(() => {
 const fetchCollections = async () => {
   loading.value = true;
   try {
-    const response = await getCollections(parentId.value, props.campaign?.id);
+    const response = await getCollections(parentId.value, campaignId.value);
     collections.value = response.data?.collections || [];
     conjurations.value = response.data?.conjurations || [];
   } catch {
@@ -143,12 +147,6 @@ async function clickHistory(collection: any) {
   await fetchCollections();
 }
 
-async function clearHistory() {
-  collectionHistory.value = [];
-  parentId.value = undefined;
-  await fetchCollections();
-}
-
 async function back() {
   collectionHistory.value.pop();
   parentId.value = collectionHistory.value?.length
@@ -170,7 +168,7 @@ const parentName = computed(() => {
 });
 
 const showBack = computed(() => {
-  return props.campaign ? collectionHistory.value.length > 1 : !!parentId.value;
+  return collectionHistory.value.length > 1;
 });
 </script>
 
@@ -178,7 +176,7 @@ const showBack = computed(() => {
   <div class="w-full flex justify-between mb-4">
     <div class="flex md:justify-start grow">
       <div class="text-xl self-center">
-        <span class="gradient-text"> Campaign Collections </span>
+        <span class="gradient-text"> Campaign Collection</span>
       </div>
     </div>
     <div class="self-center">
@@ -241,17 +239,6 @@ const showBack = computed(() => {
       <div
         class="grow flex flex-wrap shrink py-1 px-2 bg-surface-2 rounded-[12px] text-neutral-400 whitespace-nowrap self-center"
       >
-        <div v-if="!campaign" class="flex" @click="clearHistory">
-          <HomeIcon class="h-5 w-5 self-center" />
-          <CollectionHistory
-            :data="{
-              id: undefined,
-              name: 'Campaigns',
-            }"
-            :droppable="!!campaign"
-          />
-          <ArrowRightIcon class="h-5 w-5 ml-2 self-center" />
-        </div>
         <div
           v-for="(history, i) in collectionHistory"
           :key="`history_${i}`"
@@ -282,7 +269,7 @@ const showBack = computed(() => {
         >
           <Collection
             :data="collection"
-            :droppable="campaign || !!parentId"
+            :droppable="!!parentId"
             @open="openCollection(collection)"
             @updated="fetchCollections"
           />
@@ -301,14 +288,6 @@ const showBack = computed(() => {
     <div v-if="!loading && !collections?.length && !conjurations?.length">
       <div class="text-center text-neutral-400">
         <div class="text-lg">No collections or conjurations found.</div>
-        <div v-if="!parentId && !campaign" class="text-neutral-500 text-sm">
-          Create a new campaign to get started using collections.
-          <div class="text-white my-4">
-            <router-link class="button-gradient" to="/campaigns/new"
-              >Create Campaign
-            </router-link>
-          </div>
-        </div>
         <button
           v-if="parentId"
           class="button-ghost-primary mt-2"

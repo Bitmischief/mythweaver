@@ -14,4 +14,12 @@ export class ImageModelsDataProvider {
       take: limit,
     });
   }
+
+  async getImageModel(modelId: number): Promise<any> {
+    return prisma.imageModel.findUnique({
+      where: {
+        id: modelId,
+      },
+    });
+  }
 }

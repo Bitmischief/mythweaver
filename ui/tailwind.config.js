@@ -1,11 +1,7 @@
 const FormKitVariants = require('@formkit/themes/tailwindcss');
 
 module.exports = {
-  content: [
-    './index.html',
-    './src/**/*.{js,ts,vue}',
-    'formkit.theme.ts',
-  ],
+  content: ['./index.html', './src/**/*.{js,ts,vue}', 'formkit.theme.ts'],
   theme: {
     extend: {
       fontFamily: {

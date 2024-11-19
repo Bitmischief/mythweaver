@@ -22,7 +22,6 @@ import { DndProvider } from 'vue3-dnd';
 import EditImageModal from '@/components/Images/EditImageModal.vue';
 import CreateConjurationRelationship from '@/components/Relationships/Create/CreateConjurationRelationship.vue';
 import GenerateImageModal from '@/modules/images/components/GenerateImageModal.vue';
-import { useImageGenerationModal } from '@/modules/images/composables/useImageGenerationModal';
 import { getRedeemPreOrderUrl } from '@/api/billing.ts';
 import NavBarHeader from '@/components/Navigation/NavBarHeader.vue';
 import ChangeImageModal from '@/modules/images/components/ChangeImageModal.vue';
@@ -39,8 +38,6 @@ const showUpgradeModal = ref(false);
 const showUserSourceModal = ref(false);
 
 const currentUserPlan = useCurrentUserPlan();
-const { showCustomizeImageModal, customizeImageArgs, closeModal } =
-  useImageGenerationModal();
 
 onMounted(async () => {
   await initIntercom();

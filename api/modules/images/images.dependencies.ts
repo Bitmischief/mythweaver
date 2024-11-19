@@ -5,6 +5,7 @@ import { ImagesDataProvider } from './images.dataprovider';
 import { StabilityAIProvider } from '../../providers/stabilityAI';
 import { useLogger } from '../../lib/loggingMiddleware';
 import { NextFunction, Request, Response } from 'express';
+import { ImageModelsDataProvider } from '../imageModels/imageModels.dataprovider';
 
 const container = createContainer({
   injectionMode: InjectionMode.CLASSIC,
@@ -14,6 +15,7 @@ container.register({
   imagesController: asClass(ImagesController).scoped(),
   imagesService: asClass(ImagesService).scoped(),
   imagesDataProvider: asClass(ImagesDataProvider).scoped(),
+  imageModelsDataProvider: asClass(ImageModelsDataProvider).scoped(),
   stabilityAIProvider: asClass(StabilityAIProvider).singleton(),
   logger: asFunction(useLogger).scoped(),
 });

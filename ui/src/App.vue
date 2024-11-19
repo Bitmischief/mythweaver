@@ -104,7 +104,9 @@ eventBus.$on('global-loading-stop', () => {
   <div class="block h-screen bg-surface-2 text-white md:flex overflow-hidden">
     <Navbar v-if="!!authStore.user" class="w-full md:max-w-[256px]" />
     <div class="block w-full overflow-hidden">
-      <AuthenticatedView v-if="!isLoading && isAuthenticated && authStore.user" />
+      <AuthenticatedView
+        v-if="!isLoading && isAuthenticated && authStore.user"
+      />
       <div v-else-if="!isLoading && route.meta.noAuth">
         <router-view></router-view>
       </div>

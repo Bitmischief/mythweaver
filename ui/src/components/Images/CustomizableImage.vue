@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import LightboxImage from '@/components/LightboxImage.vue';
 import { onMounted, ref, watch } from 'vue';
-import { useChangeImage } from '@/modules/images/composables/useChangeImage';
+import { useEditImage } from '@/modules/images/composables/useEditImage';
+import { PencilLine } from 'lucide-vue-next';
 
 const props = withDefaults(
   defineProps<{
@@ -50,7 +51,7 @@ const props = withDefaults(
   },
 );
 
-const { changeImage } = useChangeImage();
+const { setSelectedImage } = useEditImage();
 
 const imgWidth = ref(0);
 const imgHeight = ref(0);
@@ -77,14 +78,10 @@ function setImgDimensions() {
   }
 }
 
-function beginChangeImage() {
-  changeImage({
-    currentImageId: props.image?.id,
-    link: {
-      conjurationId: props?.linking?.conjurationId,
-      sessionId: props?.linking?.sessionId,
-    },
-  });
+async function beginEditImage() {
+  if (props.image?.id) {
+    await setSelectedImage(props.image?.id);
+  }
 }
 </script>
 
@@ -119,14 +116,17 @@ function beginChangeImage() {
       </div>
     </div>
 
-    <div v-if="editable" class="mt-2 xl:absolute flex gap-2 top-0 right-2">
+    <div v-if="editable" class="mt-2 flex gap-2 top-0 right-2">
       <button
         type="button"
-        class="flex bg-neutral-700 text-neutral-300 rounded-lg px-2 py-0.5"
+        class="button-primary w-full"
         :disabled="!editable"
-        @click="beginChangeImage"
+        @click="beginEditImage"
       >
-        <span class="self-center w-full">Change Image</span>
+        <span class="w-full flex justify-center items-center gap-1">
+          <PencilLine class="w-5 h-5" />
+          Modify Image
+        </span>
       </button>
     </div>
   </div>
