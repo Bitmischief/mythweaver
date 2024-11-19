@@ -102,10 +102,10 @@ const joinedCampaigns = computed(() => {
       </router-link>
     </div>
 
-    <Menu v-model="selectedCampaignId" class="mb-0.5">
+    <Menu v-model="selectedCampaignId" class="mt-2">
       <div class="relative mt-1">
         <MenuButton
-          class="relative h-10 w-full cursor-pointer rounded-xl pl-1 pr-8 text-left text-neutral-300 font-bold flex items-center text-sm hover:bg-purple-800/20"
+          class="relative h-10 w-full cursor-pointer rounded-xl pl-3 pr-8 text-left text-neutral-300 font-bold flex items-center text-sm border-2 border-neutral-800 hover:bg-purple-800/20"
         >
           <BookmarkIcon v-show="collapsed" class="w-6 h-6 overflow-visible" />
           <span class="block truncate">{{
@@ -235,7 +235,7 @@ const joinedCampaigns = computed(() => {
         </transition>
       </div>
     </Menu>
-    <div class="border-l border-neutral-700 ml-1 pl-4">
+    <div class="mt-4 border-l border-neutral-700 ml-1 pl-4">
       <router-link
         class="nav-item"
         :class="[
