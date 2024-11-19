@@ -147,6 +147,10 @@ const draw = (e: MouseEvent) => {
 };
 
 const startDrawing = (e: MouseEvent) => {
+  if (selectedTool.value === 'outpaint') {
+    return;
+  }
+
   isDrawing.value = true;
   const { x, y } = getMousePos(e);
   [mouseX.value, mouseY.value] = [x, y];

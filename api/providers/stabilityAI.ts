@@ -52,7 +52,7 @@ export class StabilityAIProvider {
       width,
       steps: 30,
       samples: request.count,
-      style_preset: request.stylePreset,
+      style_preset: request.stylePreset || 'fantasy-art',
       seed: request.seed,
     };
 
