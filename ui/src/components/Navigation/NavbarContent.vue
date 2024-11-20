@@ -329,23 +329,6 @@ const joinedCampaigns = computed(() => {
       <router-link
         class="nav-item"
         :class="[
-          route.fullPath.startsWith('/conjurations#history') ||
-          route.query['from']?.startsWith('/conjurations#history')
-            ? 'bg-purple-800/20 text-purple-500'
-            : '',
-        ]"
-        to="/conjurations#history"
-        @click="emit('nav-item-selected')"
-      >
-        <Clock class="h-5 mr-2" />
-        <div v-if="!collapsed" class="whitespace-nowrap">
-          Conjuration History
-        </div>
-      </router-link>
-
-      <router-link
-        class="nav-item"
-        :class="[
           route.fullPath.startsWith('/conjurations#gallery') ||
           route.query['from']?.startsWith('/conjurations#gallery')
             ? 'bg-purple-800/20 text-purple-500'
