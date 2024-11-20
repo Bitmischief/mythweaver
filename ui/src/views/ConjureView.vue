@@ -7,7 +7,9 @@ import { Conjurer, getConjurers } from '@/api/generators.ts';
 import DescribeConjuration from '@/components/Conjure/DescribeConjuration.vue';
 import { Conjuration, getConjuration } from '@/api/conjurations.ts';
 import EditConjurationDetails from '@/components/Conjure/EditConjurationDetails.vue';
-import CreateConjurationImage from '@/components/Conjure/CreateConjurationImage.vue';
+import GenerateImage from '@/modules/images/components/GenerateImage.vue';
+import { generateArbitrary } from '@/lib/generation';
+import Loader from '@/components/Core/Loader.vue';
 
 const current = ref<'generator' | 'conjure' | 'edit' | 'image'>('generator');
 const router = useRouter();
@@ -17,7 +19,8 @@ const generator = ref<Conjurer>();
 const generators = ref<Conjurer[]>([]);
 const conjuration = ref<Conjuration>();
 const defaultPrompt = ref('');
-
+const generatedImagePrompt = ref('');
+const loading = ref(false);
 watch(route, () => {
   if (route.fullPath === '/conjure') {
     current.value = 'generator';
@@ -75,7 +78,7 @@ const back = () => {
   }
 };
 
-const next = () => {
+const next = async () => {
   switch (current.value) {
     case 'generator':
       current.value = 'conjure';
@@ -92,6 +95,21 @@ const next = () => {
       });
       break;
     case 'edit':
+      if (!generatedImagePrompt.value) {
+        loading.value = true;
+        const promptResponse = await generateArbitrary({
+          prompt:
+            'Generate me a stable diffusion image prompt for this conjuration. Keep the description short (less than 300 characters), punchy and light on details. For fantasy races (like dragonborn, etc), please adjust the prompt with the description "anthropomorphic {{bear, dragon, horse, etc}} humanoid", for example, in the prompt.',
+          context:
+            'Return just a prompt used to generate AI images in a system like Stable Diffusion. I am generating an image for a tabletop roleplaying session.',
+          background: conjuration.value,
+        });
+
+        generatedImagePrompt.value = promptResponse.text;
+
+        loading.value = false;
+      }
+
       current.value = 'image';
       router.push({
         query: {
@@ -130,7 +148,7 @@ async function loadConjuration(id: any) {
         @next="next"
       />
     </div>
-    <div v-if="current === 'edit' && generator && conjuration">
+    <div v-if="current === 'edit' && !loading && generator && conjuration">
       <EditConjurationDetails
         v-model="conjuration"
         :generator="generator"
@@ -138,12 +156,23 @@ async function loadConjuration(id: any) {
         @next="next"
       />
     </div>
+    <div v-if="current === 'edit' && loading">
+      <div class="md:p-24">
+        <Loader />
+      </div>
+    </div>
     <div v-if="current === 'image' && generator && conjuration">
-      <CreateConjurationImage
-        v-model="conjuration"
-        :generator="generator"
-        @back="back"
-        @next="next"
+      <div class="mb-4 text-xl">
+        Generate the perfect image for your
+        <span class="gradient-text">{{ generator.name }}</span>
+      </div>
+      <div class="flex justify-between mb-6">
+        <button class="button-primary" @click="back">Back</button>
+      </div>
+      <GenerateImage
+        allow-edits
+        :linking="{ conjurationId: conjuration.id }"
+        :prompt="generatedImagePrompt"
       />
     </div>
   </div>

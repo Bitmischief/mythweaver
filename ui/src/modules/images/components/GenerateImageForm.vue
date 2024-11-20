@@ -14,9 +14,11 @@ const props = withDefaults(
       conjurationId?: number;
       characterId?: number;
     };
+    prompt?: string;
   }>(),
   {
     linking: undefined,
+    prompt: undefined,
   },
 );
 
@@ -26,7 +28,7 @@ const { generateImages } = useGenerateImages();
 const showAdvancedSettings = ref(false);
 const formState = ref<GenerateImageForm>({
   selectedModels: [],
-  prompt: '',
+  prompt: props.prompt || '',
   aspectRatio: '1024x1024',
 });
 
@@ -70,6 +72,7 @@ const totalQuantity = computed(() =>
         :validation-messages="{ required: 'Prompt is required' }"
         :rows="3"
         placeholder="Describe the image you want to generate..."
+        auto-height
       />
     </div>
 
@@ -98,6 +101,7 @@ const totalQuantity = computed(() =>
         label="Negative Prompt"
         :rows="3"
         placeholder="Describe what you don't want in the image..."
+        text-height
       />
 
       <FormKit
