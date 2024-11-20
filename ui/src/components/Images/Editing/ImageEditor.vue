@@ -185,34 +185,31 @@ function saveCanvasState() {
 const updateBrushPreview = (e: MouseEvent) => {
   if (!previewCtx.value || !previewCanvasRef.value) return;
 
-  let x = 0;
-  let y = 0;
   const pos = getMousePos(e);
-  mouseX.value = pos.x;
-  mouseY.value = pos.y;
-  x = pos.x;
-  y = pos.y;
-
-  if (x < 0 || x > canvasWidth.value || y < 0 || y > canvasHeight.value) {
-    x = canvasWidth.value / 2;
-    y = canvasWidth.value / 2;
-  }
+  let x = Math.min(Math.max(pos.x, 0), canvasWidth.value);
+  let y = Math.min(Math.max(pos.y, 0), canvasHeight.value);
+  
+  mouseX.value = x;
+  mouseY.value = y;
 
   previewCtx.value.clearRect(
     0,
     0,
     previewCanvasRef.value.width,
-    previewCanvasRef.value.height,
+    previewCanvasRef.value.height
   );
-  previewCtx.value.beginPath();
-  previewCtx.value.arc(x, y, brushSize.value / 2, 0, Math.PI * 2);
-  previewCtx.value.fillStyle = isEraseMode.value
-    ? 'rgba(255, 25, 25, 0.2)'
-    : 'rgba(139, 92, 246, 0.2)';
-  previewCtx.value.fill();
-  previewCtx.value.strokeStyle = 'rgba(255, 255, 255, 0.8)';
-  previewCtx.value.lineWidth = 1;
-  previewCtx.value.stroke();
+  
+  if (x >= 0 && x <= canvasWidth.value && y >= 0 && y <= canvasHeight.value) {
+    previewCtx.value.beginPath();
+    previewCtx.value.arc(x, y, brushSize.value / 2, 0, Math.PI * 2);
+    previewCtx.value.fillStyle = isEraseMode.value
+      ? 'rgba(255, 25, 25, 0.2)'
+      : 'rgba(139, 92, 246, 0.2)';
+    previewCtx.value.fill();
+    previewCtx.value.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+    previewCtx.value.lineWidth = 1;
+    previewCtx.value.stroke();
+  }
 };
 
 const clearPreview = () => {
@@ -229,9 +226,12 @@ const clearPreview = () => {
 const getMousePos = (e: MouseEvent) => {
   if (!canvasRef.value) return { x: 0, y: 0 };
   const rect = canvasRef.value.getBoundingClientRect();
+  const scaleX = canvasRef.value.width / rect.width;
+  const scaleY = canvasRef.value.height / rect.height;
+  
   return {
-    x: e.clientX - rect.left,
-    y: e.clientY - rect.top,
+    x: (e.clientX - rect.left) * scaleX,
+    y: (e.clientY - rect.top) * scaleY
   };
 };
 
