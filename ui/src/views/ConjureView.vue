@@ -133,7 +133,6 @@ async function loadConjuration(id: any) {
 }
 
 const handlePrimaryImageSet = () => {
-  debugger;
   router.push(`/conjurations/view/${conjuration.value?.id}`);
 };
 </script>
