@@ -181,7 +181,6 @@ router.post('/:conjurationId/save', [
 const patchConjurationsSchema = z.object({
   name: z.string().optional(),
   imageUri: z.string().optional(),
-  imageAIPrompt: z.string().optional(),
   tags: z.array(z.string()).optional(),
   data: z.any().optional(),
   visibility: z.enum(['PUBLIC', 'PRIVATE']).optional(),
