@@ -6,6 +6,7 @@ import { Image } from '@/api/images';
 import Loader from '@/components/Core/Loader.vue';
 import Extend from './Extend.vue';
 import Erase from './Erase.vue';
+import { Download } from 'lucide-vue-next';
 import { CheckIcon } from '@heroicons/vue/24/solid';
 import Spinner from '@/components/Core/Spinner.vue';
 import {
@@ -188,7 +189,7 @@ const updateBrushPreview = (e: MouseEvent) => {
   const pos = getMousePos(e);
   let x = Math.min(Math.max(pos.x, 0), canvasWidth.value);
   let y = Math.min(Math.max(pos.y, 0), canvasHeight.value);
-  
+
   mouseX.value = x;
   mouseY.value = y;
 
@@ -196,9 +197,9 @@ const updateBrushPreview = (e: MouseEvent) => {
     0,
     0,
     previewCanvasRef.value.width,
-    previewCanvasRef.value.height
+    previewCanvasRef.value.height,
   );
-  
+
   if (x >= 0 && x <= canvasWidth.value && y >= 0 && y <= canvasHeight.value) {
     previewCtx.value.beginPath();
     previewCtx.value.arc(x, y, brushSize.value / 2, 0, Math.PI * 2);
@@ -228,10 +229,10 @@ const getMousePos = (e: MouseEvent) => {
   const rect = canvasRef.value.getBoundingClientRect();
   const scaleX = canvasRef.value.width / rect.width;
   const scaleY = canvasRef.value.height / rect.height;
-  
+
   return {
     x: (e.clientX - rect.left) * scaleX,
-    y: (e.clientY - rect.top) * scaleY
+    y: (e.clientY - rect.top) * scaleY,
   };
 };
 
@@ -348,6 +349,28 @@ const handleEscapeKey = (event: KeyboardEvent) => {
   }
 };
 
+const downloadImage = async () => {
+  if (!imageUrl.value) return;
+
+  try {
+    const response = await fetch(imageUrl.value);
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `image-${image.value?.id || 'download'}.png`;
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error('Error downloading image:', error);
+  }
+};
+
 onMounted(() => {
   document.addEventListener('keydown', handleEscapeKey);
   window.addEventListener('resize', debouncedResize);
@@ -384,6 +407,14 @@ onUnmounted(() => {
           <Spinner class="w-3 h-3 self-center animate-spin" />
           Saving
         </div>
+        <button
+          class="bg-[#CC52C0]/20 hover:bg-[#CC52C0]/40 text-[#CC52C0] flex items-center px-4 rounded-full z-50"
+          :disabled="editing"
+          @click="downloadImage"
+        >
+          <Download class="w-5 h-5 mr-2" />
+          Download
+        </button>
         <button
           class="button-purple rounded-full z-50"
           :disabled="editing"
@@ -438,125 +469,19 @@ onUnmounted(() => {
           </div>
         </div>
       </div>
-      <div
-        v-if="
-          selectedTool === 'inpaint' ||
-          selectedTool === 'outpaint' ||
-          selectedTool === 'erase'
-        "
-        ref="containerRef"
-        class="flex-grow flex justify-center relative items-center"
-      >
-        <div
-          v-if="loadingImage || editing"
-          class="absolute flex justify-center h-full w-full z-50"
-        >
-          <div class="flex flex-col justify-center">
-            <Loader />
-            <div class="mt-2 text-center">Loading...</div>
-          </div>
-        </div>
-        <img
-          ref="imageRef"
-          :src="imageUrl || ''"
-          alt="editor image"
-          class="w-full"
-          :class="{ 'opacity-60': editing }"
-          @load="initCanvas"
-        />
-        <canvas
-          ref="canvasRef"
-          @mousedown="startDrawing"
-          @mousemove="draw"
-          @mouseup="stopDrawing"
-          @mouseleave="
-            () => {
-              stopDrawing();
-              clearPreview();
-            }
-          "
-        />
-        <canvas
-          ref="previewCanvasRef"
-          class="pointer-events-none"
-          @mousemove="updateBrushPreview"
-          @mouseleave="clearPreview"
-        />
-      </div>
-      <div
-        v-show="selectedTool === 'create'"
-        class="flex-grow justify-center bg-surface rounded-2xl p-4"
-      >
-        <div class="text-lg text-neutral-300 border-b border-neutral-900 mb-4">
-          Generate New Image
-        </div>
-        <GenerateImage
-          :allow-edits="false"
-          :linking="{
-            conjurationId: image?.conjurationId,
-            sessionId: image?.sessionId,
-            characterId: image?.characterId,
-          }"
-        />
-      </div>
-      <div
-        v-show="selectedTool === 'history'"
-        class="flex-grow justify-center bg-surface rounded-2xl p-4 flex flex-col"
-      >
-        <div class="text-lg text-neutral-300 border-b border-neutral-900 mb-4">
-          Image History
-        </div>
-        <div class="flex overflow-y-auto">
-          <ImageHistory :conjuration-id="image?.conjurationId" />
-        </div>
-      </div>
-      <div
-        v-if="
-          selectedTool === 'inpaint' ||
-          selectedTool === 'outpaint' ||
-          selectedTool === 'erase'
-        "
-        class="w-[18em] px-4 shrink-0 overflow-y-auto"
-      >
-        <Inpaint
-          v-if="selectedTool === 'inpaint'"
-          :image-id="image.id"
-          :get-mask-canvas="getMaskCanvas"
-          @edit-applied="handleEditApplied"
-          @edit-started="handleEditStarted"
-          @edit-failed="handleEditFailed"
-        />
-        <Extend
-          v-if="selectedTool === 'outpaint'"
-          :image-id="image.id"
-          @edit-applied="handleEditApplied"
-          @edit-started="handleEditStarted"
-          @edit-failed="handleEditFailed"
-        />
-        <Erase
-          v-if="selectedTool === 'erase'"
-          :image-id="image.id"
-          :get-mask-canvas="getMaskCanvas"
-          @edit-applied="handleEditApplied"
-          @edit-started="handleEditStarted"
-          @edit-failed="handleEditFailed"
-        />
-      </div>
-    </div>
-    <div class="flex gap-4 min-h-[5em]">
-      <div class="w-[5em]"></div>
-      <div class="flex flex-grow justify-center items-center">
+      <div class="flex-grow flex flex-col">
         <div
           v-if="maskedModes?.includes(selectedTool)"
-          class="bg-surface rounded-full p-2"
+          class="bg-surface rounded-full p-2 mb-4 self-center"
         >
+          <div class="text-neutral-500 text-center mb-1">Brush Settings</div>
           <div class="flex items-center">
             <div class="flex justify-center gap-2">
               <div class="text-center">
                 <button
                   class="control-button"
                   :class="{ active: !isEraseMode }"
-                  :title="isEraseMode ? 'Switch to Brush' : 'Switch to Eraser'"
+                  title="Switch to Brush"
                   @click="toggleEditMode"
                 >
                   <Paintbrush class="h-5 w-5" />
@@ -566,7 +491,7 @@ onUnmounted(() => {
                 <button
                   class="control-button"
                   :class="{ active: isEraseMode }"
-                  :title="isEraseMode ? 'Switch to Brush' : 'Switch to Eraser'"
+                  title="Switch to Eraser"
                   @click="toggleEraseMode"
                 >
                   <Eraser class="h-5 w-5" />
@@ -625,8 +550,115 @@ onUnmounted(() => {
             </div>
           </div>
         </div>
+        <div
+          v-if="
+            selectedTool === 'inpaint' ||
+            selectedTool === 'outpaint' ||
+            selectedTool === 'erase'
+          "
+          ref="containerRef"
+          class="flex-grow relative flex justify-center items-center"
+        >
+          <div
+            v-if="loadingImage || editing"
+            class="absolute flex justify-center h-full w-full z-50"
+          >
+            <div class="flex flex-col justify-center">
+              <Loader />
+              <div class="mt-2 text-center">Loading...</div>
+            </div>
+          </div>
+          <img
+            ref="imageRef"
+            :src="imageUrl || ''"
+            alt="editor image"
+            class="w-full"
+            :class="{ 'opacity-60': editing }"
+            @load="initCanvas"
+          />
+          <canvas
+            ref="canvasRef"
+            @mousedown="startDrawing"
+            @mousemove="draw"
+            @mouseup="stopDrawing"
+            @mouseleave="
+              () => {
+                stopDrawing();
+                clearPreview();
+              }
+            "
+          />
+          <canvas
+            ref="previewCanvasRef"
+            class="pointer-events-none"
+            @mousemove="updateBrushPreview"
+            @mouseleave="clearPreview"
+          />
+        </div>
+        <div
+          v-show="selectedTool === 'create'"
+          class="flex-grow justify-center bg-surface rounded-2xl p-4"
+        >
+          <div
+            class="text-lg text-neutral-300 border-b border-neutral-900 mb-4"
+          >
+            Generate New Image
+          </div>
+          <GenerateImage
+            :allow-edits="false"
+            :linking="{
+              conjurationId: image?.conjurationId,
+              sessionId: image?.sessionId,
+              characterId: image?.characterId,
+            }"
+          />
+        </div>
+        <div
+          v-show="selectedTool === 'history'"
+          class="flex-grow justify-center bg-surface rounded-2xl p-4 flex flex-col"
+        >
+          <div
+            class="text-lg text-neutral-300 border-b border-neutral-900 mb-4"
+          >
+            Image History
+          </div>
+          <div class="flex overflow-y-auto">
+            <ImageHistory :conjuration-id="image?.conjurationId" />
+          </div>
+        </div>
       </div>
-      <div class="w-[18em]"></div>
+      <div
+        v-if="
+          selectedTool === 'inpaint' ||
+          selectedTool === 'outpaint' ||
+          selectedTool === 'erase'
+        "
+        class="w-[18em] px-4 shrink-0 overflow-y-auto"
+      >
+        <Inpaint
+          v-if="selectedTool === 'inpaint'"
+          :image-id="image.id"
+          :get-mask-canvas="getMaskCanvas"
+          @edit-applied="handleEditApplied"
+          @edit-started="handleEditStarted"
+          @edit-failed="handleEditFailed"
+        />
+        <Extend
+          v-if="selectedTool === 'outpaint'"
+          :image-id="image.id"
+          @edit-applied="handleEditApplied"
+          @edit-started="handleEditStarted"
+          @edit-failed="handleEditFailed"
+        />
+        <Erase
+          v-if="selectedTool === 'erase'"
+          :image-id="image.id"
+          :get-mask-canvas="getMaskCanvas"
+          @edit-applied="handleEditApplied"
+          @edit-started="handleEditStarted"
+          @edit-failed="handleEditFailed"
+        />
+      </div>
     </div>
   </div>
 </template>
