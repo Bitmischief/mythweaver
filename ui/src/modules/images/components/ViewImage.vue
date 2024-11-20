@@ -13,12 +13,21 @@ defineProps<{
   disableSetAsPrimary?: boolean;
 }>();
 
+const emit = defineEmits<{
+  (e: 'primaryImageSet', imageId: number): void;
+}>();
+
 const imageStore = useImageStore();
 const { loading, setPrimaryImage, setSelectedImage } = useEditImage();
 const selected = ref(false);
 const selectedImageId = computed(() => {
   return imageStore.selectedImage?.id;
 });
+
+const handlePrimaryImageSet = (imageId: number) => {
+  emit('primaryImageSet', imageId);
+  setPrimaryImage(imageId);
+};
 </script>
 
 <template>
@@ -71,7 +80,7 @@ const selectedImageId = computed(() => {
           v-if="image.id !== selectedImageId"
           :disabled="disableSetAsPrimary || loading"
           class="button-gradient flex gap-2"
-          @click="setPrimaryImage(image.id)"
+          @click="handlePrimaryImageSet(image.id)"
         >
           Set as primary image
           <Spinner v-if="loading" />

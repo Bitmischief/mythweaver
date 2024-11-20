@@ -131,6 +131,11 @@ async function loadConjuration(id: any) {
   const conjurationResponse = await getConjuration(id);
   conjuration.value = conjurationResponse.data;
 }
+
+const handlePrimaryImageSet = () => {
+  debugger;
+  router.push(`/conjurations/view/${conjuration.value?.id}`);
+};
 </script>
 
 <template>
@@ -173,6 +178,7 @@ async function loadConjuration(id: any) {
         allow-edits
         :linking="{ conjurationId: conjuration.id }"
         :prompt="generatedImagePrompt"
+        @primary-image-set="handlePrimaryImageSet"
       />
     </div>
   </div>

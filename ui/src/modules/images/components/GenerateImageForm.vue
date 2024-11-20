@@ -72,7 +72,7 @@ const totalQuantity = computed(() =>
         :validation-messages="{ required: 'Prompt is required' }"
         :rows="3"
         placeholder="Describe the image you want to generate..."
-        auto-height
+        :auto-height="formState.prompt.length > 0"
       />
     </div>
 

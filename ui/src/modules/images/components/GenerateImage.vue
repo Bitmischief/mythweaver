@@ -4,6 +4,7 @@ import { useGenerateImages } from '../composables/useGenerateImages';
 import GenerateImageForm from './GenerateImageForm.vue';
 
 const { generatedImages } = useGenerateImages();
+
 withDefaults(
   defineProps<{
     allowEdits: boolean;
@@ -20,6 +21,14 @@ withDefaults(
     prompt: undefined,
   },
 );
+
+const emit = defineEmits<{
+  (e: 'primaryImageSet', imageId: number): void;
+}>();
+
+const handlePrimaryImageSet = (imageId: number) => {
+  emit('primaryImageSet', imageId);
+};
 </script>
 
 <template>
@@ -34,6 +43,7 @@ withDefaults(
           :key="image.id"
           :image="image"
           :allow-edits="allowEdits"
+          @primary-image-set="handlePrimaryImageSet"
         />
       </div>
     </div>
