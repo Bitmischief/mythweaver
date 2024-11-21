@@ -3,6 +3,7 @@ import LightboxImage from '@/components/LightboxImage.vue';
 import { onMounted, ref, watch } from 'vue';
 import { useEditImage } from '@/modules/images/composables/useEditImage';
 import { PencilLine } from 'lucide-vue-next';
+import { useGenerateImages } from '@/modules/images/composables/useGenerateImages';
 
 const props = withDefaults(
   defineProps<{
@@ -52,6 +53,7 @@ const props = withDefaults(
 );
 
 const { setSelectedImage } = useEditImage();
+const { showModal: showGenerateImageModal } = useGenerateImages();
 
 const imgWidth = ref(0);
 const imgHeight = ref(0);
@@ -82,6 +84,10 @@ async function beginEditImage() {
   if (props.image?.id) {
     await setSelectedImage(props.image?.id);
   }
+}
+
+function handleNewImage() {
+  showGenerateImageModal.value = true;
 }
 </script>
 
@@ -119,7 +125,18 @@ async function beginEditImage() {
     <div v-if="editable" class="mt-2 flex gap-2 top-0 right-2">
       <button
         type="button"
-        class="button-primary w-full"
+        class="button-primary w-[12rem]"
+        :disabled="!editable"
+        @click="handleNewImage"
+      >
+        <span class="w-full flex justify-center items-center gap-1">
+          <PencilLine class="w-5 h-5" />
+          New Image
+        </span>
+      </button>
+      <button
+        type="button"
+        class="button-primary bg-[#CC52C0]/20 hover:bg-[#CC52C0]/40 text-[#CC52C0] w-full"
         :disabled="!editable"
         @click="beginEditImage"
       >

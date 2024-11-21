@@ -23,12 +23,13 @@ import {
 } from '@heroicons/vue/24/solid';
 import AddConjurationsToCollection from '@/components/Collections/AddConjurationsToCollection.vue';
 import Collection from '@/components/Collections/Collection.vue';
-import { useWebsocketChannel } from '@/lib/hooks.ts';
+import { useSelectedCampaignId, useWebsocketChannel } from '@/lib/hooks.ts';
 import { ServerEvent } from '@/lib/serverEvents.ts';
 import CollectionHistory from '@/components/Collections/CollectionHistory.vue';
 import { useRoute, useRouter } from 'vue-router';
 import ConjurationQuickView from '@/components/Conjuration/ConjurationListItemView.vue';
 import ConjurationMove from '@/components/Collections/ConjurationMove.vue';
+import { useEventBus } from '@/lib/events';
 
 const eventBus = useEventBus();
 const channel = useWebsocketChannel();

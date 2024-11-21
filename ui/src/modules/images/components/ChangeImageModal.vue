@@ -24,7 +24,6 @@ watch(currentImageId, async () => {
 });
 
 function generateNewImage() {
-  console.log('generateNewImage');
   showGenerateImageModal.value = true;
 }
 </script>
