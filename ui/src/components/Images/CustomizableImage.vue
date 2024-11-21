@@ -2,7 +2,7 @@
 import LightboxImage from '@/components/LightboxImage.vue';
 import { onMounted, ref, watch } from 'vue';
 import { useEditImage } from '@/modules/images/composables/useEditImage';
-import { PencilLine } from 'lucide-vue-next';
+import { PencilLine, ImagePlus } from 'lucide-vue-next';
 import { useGenerateImages } from '@/modules/images/composables/useGenerateImages';
 
 const props = withDefaults(
@@ -140,9 +140,20 @@ function handleNewImage() {
         :disabled="!editable"
         @click="beginEditImage"
       >
-        <span class="w-full flex justify-center items-center gap-1">
+        <span class="w-full flex justify-center items-center gap-2">
           <PencilLine class="w-5 h-5" />
-          Modify Image
+          New Image
+        </span>
+      </button>
+      <button
+        type="button"
+        class="button-primary w-full bg-[#CC52C0]/20 hover:bg-[#CC52C0]/40 text-[#CC52C0]"
+        :disabled="!editable"
+        @click="beginEditImage"
+      >
+        <span class="w-full flex justify-center items-center gap-2">
+          <PencilLine class="w-5 h-5" />
+          Edit Image
         </span>
       </button>
     </div>

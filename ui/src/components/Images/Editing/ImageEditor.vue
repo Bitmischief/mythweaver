@@ -281,9 +281,7 @@ const toggleEraseMode = () => {
   isEraseMode.value = true;
 };
 
-const setEditMode = (
-  tool: 'inpaint' | 'outpaint' | 'erase' | 'create' | 'history',
-) => {
+const setEditMode = (tool: 'inpaint' | 'outpaint' | 'erase') => {
   selectedTool.value = tool;
   if (!maskedModes.value.includes(selectedTool.value)) {
     clearMask();
@@ -441,11 +439,6 @@ onUnmounted(() => {
                   selectedTool === tool.mode && tool.mode === 'outpaint',
                 'bg-blue-800/25 text-blue-600':
                   selectedTool === tool.mode && tool.mode === 'erase',
-                'bg-green-800/25 text-green-600':
-                  selectedTool === tool.mode && tool.mode === 'create',
-                'bg-pink-800/25 text-pink-600':
-                  selectedTool === tool.mode && tool.mode === 'history',
-                'bg-surface': selectedTool !== tool.mode,
               }"
               @click="setEditMode(tool.mode)"
             >
@@ -457,12 +450,6 @@ onUnmounted(() => {
               </template>
               <template v-if="tool.mode === 'erase'">
                 <Eraser class="h-5 w-5" />
-              </template>
-              <template v-if="tool.mode === 'create'">
-                <ImagePlus class="h-5 w-5" />
-              </template>
-              <template v-if="tool.mode === 'history'">
-                <History class="h-5 w-5" />
               </template>
               {{ tool.label }}
             </button>
@@ -604,7 +591,7 @@ onUnmounted(() => {
                 </button>
               </div>
             </div>
-            <div class="pr-4">
+            <div>
               <FormKit
                 v-model="brushSize"
                 :value="brushSize"
@@ -618,6 +605,15 @@ onUnmounted(() => {
                 @mousemove="updateBrushPreview"
                 @mouseleave="clearPreview"
               />
+            </div>
+            <div class="text-center pr-4">
+              <button
+                class="control-button"
+                title="Clear mask"
+                @click="clearMask"
+              >
+                <X class="h-5 w-5" />
+              </button>
             </div>
             <div
               class="flex justify-center gap-2 border-l-2 border-neutral-900 pl-6"
@@ -642,15 +638,6 @@ onUnmounted(() => {
                   @click="redo"
                 >
                   <Redo class="h-5 w-5" />
-                </button>
-              </div>
-              <div class="text-center">
-                <button
-                  class="control-button"
-                  title="Clear mask"
-                  @click="clearMask"
-                >
-                  <X class="h-5 w-5" />
                 </button>
               </div>
             </div>
