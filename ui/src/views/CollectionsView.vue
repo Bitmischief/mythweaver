@@ -1,15 +1,20 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
-import { getCollections, saveCollection } from '@/api/collections.ts';
+import {
+  deleteCollectionConjuration,
+  getCollections,
+  saveCollection,
+} from '@/api/collections.ts';
 import { showError, showSuccess } from '@/lib/notifications.ts';
 import {
   ArrowRightIcon,
   SquaresPlusIcon,
   EllipsisHorizontalIcon,
-  HomeIcon,
+  ArrowRightEndOnRectangleIcon,
+  MinusCircleIcon,
 } from '@heroicons/vue/24/outline';
 import Menu from '@/components/Core/General/Menu.vue';
-import { MenuButton, MenuItem } from '@headlessui/vue';
+import { MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import {
   XCircleIcon,
@@ -22,7 +27,10 @@ import { useWebsocketChannel } from '@/lib/hooks.ts';
 import { ServerEvent } from '@/lib/serverEvents.ts';
 import CollectionHistory from '@/components/Collections/CollectionHistory.vue';
 import { useRoute, useRouter } from 'vue-router';
-import CollectionConjuration from '@/components/Collections/CollectionConjuration.vue';
+import { useSelectedCampaignId } from '@/lib/hooks.ts';
+import { useEventBus } from '@/lib/events.ts';
+import ConjurationQuickView from '@/components/Conjuration/ConjurationListItemView.vue';
+import ConjurationMove from '@/components/Collections/ConjurationMove.vue';
 
 const loading = ref(true);
 const channel = useWebsocketChannel();
@@ -35,6 +43,8 @@ const collectionHistory = ref<any[]>([]);
 
 const showNewCollection = ref(false);
 const showAddConjurations = ref(false);
+const showMoveConjuration = ref(false);
+const conjurationToMove = ref<any>(null);
 
 const newCollectionName = ref('');
 const parentId = ref<number | undefined>();
@@ -172,13 +182,34 @@ const parentName = computed(() => {
 const showBack = computed(() => {
   return props.campaign ? collectionHistory.value.length > 1 : !!parentId.value;
 });
+
+const removeCollectionConjuration = async (
+  collectionId: number,
+  conjurationId: number,
+) => {
+  try {
+    await deleteCollectionConjuration(collectionId, conjurationId);
+    await fetchCollections();
+    showSuccess({ message: 'Conjuration removed from collection' });
+  } catch {
+    showError({
+      message:
+        'Failed to remove conjuration from collection. Please try again.',
+    });
+  }
+};
+
+const moveConjuration = (conjuration: any) => {
+  showMoveConjuration.value = true;
+  conjurationToMove.value = conjuration;
+};
 </script>
 
 <template>
   <div class="w-full flex justify-between mb-4">
     <div class="flex md:justify-start grow">
       <div class="text-xl self-center">
-        <span class="gradient-text"> Campaign Collections </span>
+        <span class="gradient-text"> Campaign Collections</span>
       </div>
     </div>
     <div class="self-center">
@@ -288,15 +319,73 @@ const showBack = computed(() => {
           />
         </div>
       </template>
+    </div>
+    <div
+      class="border-b border-neutral-800 text-neutral-500 mt-4 font-bold text-lg"
+    >
+      Conjurations
+    </div>
+    <div class="mt-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
       <template v-if="conjurations?.length && parentId">
         <div v-for="conjuration in conjurations" :key="conjuration.id">
-          <CollectionConjuration
-            :data="conjuration"
-            :collection-id="parentId"
-            @deleted="fetchCollections"
-          />
+          <ConjurationQuickView :data="conjuration" :show-saves="false">
+            <template #actions>
+              <div class="absolute top-3 w-full z-10">
+                <Menu class="flex cursor-pointer">
+                  <div
+                    class="absolute top-0 right-3 flex rounded-full bg-surface-3 p-1 z-10"
+                  >
+                    <MenuButton class="flex self-center mx-1 py-1">
+                      <EllipsisHorizontalIcon class="h-6 w-6 self-center" />
+                    </MenuButton>
+                  </div>
+                  <MenuItems>
+                    <div
+                      class="absolute left-0 right-0 top-10 z-10 bg-surface-3 py-2 rounded-[12px]"
+                    >
+                      <MenuItem @click="moveConjuration(conjuration)">
+                        <div class="menu-item">
+                          <div class="button-text flex gap-2">
+                            <div class="self-center">
+                              <ArrowRightEndOnRectangleIcon class="h-5 w-5" />
+                            </div>
+                            Move Conjuration
+                          </div>
+                        </div>
+                      </MenuItem>
+                      <MenuItem @click="removeCollectionConjuration">
+                        <div class="menu-item">
+                          <div class="button-text flex gap-2 text-red-400">
+                            <div class="self-center">
+                              <MinusCircleIcon class="h-5 w-5" />
+                            </div>
+                            Remove From Collection
+                          </div>
+                        </div>
+                      </MenuItem>
+                    </div>
+                  </MenuItems>
+                </Menu>
+              </div>
+            </template>
+          </ConjurationQuickView>
         </div>
       </template>
+      <div
+        v-if="!conjurations.length"
+        class="flex justify-center w-full col-span-full"
+      >
+        <div class="flex flex-col justify-center gap-2">
+          <div class="text-neutral-500">No conjurations in this collection</div>
+          <button
+            class="button-gradient flex justify-center gap-2"
+            @click="showAddConjurations = true"
+          >
+            <SparklesIcon class="h-5 w-5" />
+            Add Conjurations
+          </button>
+        </div>
+      </div>
     </div>
     <div v-if="!loading && !collections?.length && !conjurations?.length">
       <div class="text-center text-neutral-400">
@@ -362,6 +451,13 @@ const showBack = computed(() => {
       :collection-name="parentName"
       class="md:max-w-[75vw] h-[90vw]"
       @close="closeAddConjurations"
+    />
+  </ModalAlternate>
+  <ModalAlternate :show="showMoveConjuration">
+    <ConjurationMove
+      :data="conjurationToMove"
+      :collection-id="parentId"
+      @close="showMoveConjuration = false"
     />
   </ModalAlternate>
 </template>

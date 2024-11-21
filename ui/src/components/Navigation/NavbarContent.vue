@@ -24,6 +24,16 @@ import {
 } from '@heroicons/vue/24/outline';
 import { useCurrentUserId, useCurrentUserPlan } from '@/lib/hooks.ts';
 import { BillingPlan } from '@/api/users.ts';
+import {
+  BookOpenText,
+  LayoutDashboard,
+  ScrollText,
+  Sparkles,
+  TableCellsMerge,
+  VenetianMask,
+  WandSparkles,
+  Workflow,
+} from 'lucide-vue-next';
 
 defineProps<{
   collapsed?: boolean;
@@ -89,18 +99,8 @@ const joinedCampaigns = computed(() => {
 </script>
 
 <template>
-  <div class="flex w-full flex-col my-4">
-    <router-link
-      class="button-gradient flex justify-center text-white"
-      to="/conjure"
-      @click="emit('nav-item-selected')"
-    >
-      <span class="self-center">Conjure</span>
-      <img src="@/assets/icons/wand.svg" alt="wand" class="w-6 p-1 ml-1" />
-    </router-link>
-
-    <div class="text-xs text-gray-500 font-bold mb-3 mt-6">CAMPAIGN</div>
-    <Menu v-model="selectedCampaignId" class="my-0.5">
+  <div class="flex w-full flex-col">
+    <Menu v-model="selectedCampaignId" class="mt-2">
       <div class="relative mt-1">
         <MenuButton
           class="relative h-10 w-full cursor-pointer rounded-xl pl-4 pr-8 text-left text-white flex items-center text-sm border border-surface-3 hover:bg-purple-800/20"
@@ -233,41 +233,72 @@ const joinedCampaigns = computed(() => {
         </transition>
       </div>
     </Menu>
-    <router-link
-      class="nav-item"
-      :class="[
-        route.fullPath.startsWith('/campaign/overview')
-          ? 'default-border-no-opacity'
-          : '',
-      ]"
-      to="/campaign/overview"
-      @click="emit('nav-item-selected')"
-    >
-      <StarIcon class="h-5 mr-2" />
-      <div v-if="!collapsed" class="whitespace-nowrap">Campaign Overview</div>
-    </router-link>
-    <router-link
-      class="nav-item"
-      :class="[
-        route.path.startsWith('/characters') ? 'default-border-no-opacity' : '',
-      ]"
-      to="/characters"
-      @click="emit('nav-item-selected')"
-    >
-      <UsersIcon class="h-5 mr-2" />
-      <div v-if="!collapsed" class="whitespace-nowrap">Campaign Characters</div>
-    </router-link>
-    <router-link
-      class="nav-item"
-      :class="[
-        route.path.startsWith('/sessions') ? 'default-border-no-opacity' : '',
-      ]"
-      to="/sessions"
-      @click="emit('nav-item-selected')"
-    >
-      <img src="@/assets/icons/sessions.svg" alt="sessions" class="h-5 mr-2" />
-      <div v-if="!collapsed" class="whitespace-nowrap">Campaign Sessions</div>
-    </router-link>
+    <div class="mt-4 border-l border-neutral-700 ml-1 pl-4">
+      <router-link
+        class="button-gradient gap-2 py-1 nav-item text-white"
+        to="/conjure"
+        @click="emit('nav-item-selected')"
+      >
+        <WandSparkles class="h-5" />
+        <span class="self-center">Conjure</span>
+      </router-link>
+      <router-link
+        class="nav-item"
+        :class="[
+          route.fullPath.startsWith('/campaign/overview') ||
+          route.query['from']?.startsWith('/campaign/overview')
+            ? 'bg-purple-800/20 text-purple-500'
+            : '',
+        ]"
+        to="/campaign/overview"
+        @click="emit('nav-item-selected')"
+      >
+        <LayoutDashboard class="h-5 mr-2" />
+        <div v-if="!collapsed" class="whitespace-nowrap">Overview</div>
+      </router-link>
+      <router-link
+        class="nav-item"
+        :class="[
+          route.path.startsWith('/characters') ||
+          route.query['from']?.startsWith('/characters')
+            ? 'bg-purple-800/20 text-purple-500'
+            : '',
+        ]"
+        to="/characters"
+        @click="emit('nav-item-selected')"
+      >
+        <VenetianMask class="h-5 mr-2" />
+        <div v-if="!collapsed" class="whitespace-nowrap">Characters</div>
+      </router-link>
+      <router-link
+        class="nav-item"
+        :class="[
+          route.path.startsWith('/sessions') ||
+          route.query['from']?.startsWith('/sessions')
+            ? 'bg-purple-800/20 text-purple-500'
+            : '',
+        ]"
+        to="/sessions"
+        @click="emit('nav-item-selected')"
+      >
+        <BookOpenText class="h-5 mr-2" />
+        <div v-if="!collapsed" class="whitespace-nowrap">Sessions</div>
+      </router-link>
+      <router-link
+        class="nav-item"
+        :class="[
+          route.fullPath.startsWith('/collections') ||
+          route.query['from']?.startsWith('/collections')
+            ? 'bg-purple-800/20 text-purple-500'
+            : '',
+        ]"
+        to="/collections"
+        @click="emit('nav-item-selected')"
+      >
+        <Sparkles class="h-5 mr-2" />
+        <div v-if="!collapsed" class="whitespace-nowrap">Collections</div>
+      </router-link>
+    </div>
 
     <div class="text-xs text-gray-500 font-bold mb-3 mt-6">CONJURATIONS</div>
 
