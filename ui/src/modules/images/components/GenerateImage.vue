@@ -22,9 +22,7 @@ withDefaults(
   },
 );
 
-const emit = defineEmits<{
-  (e: 'primaryImageSet', imageId: number): void;
-}>();
+const emit = defineEmits(['primaryImageSet', 'cancel', 'insertImage']);
 
 const handlePrimaryImageSet = (imageId: number) => {
   emit('primaryImageSet', imageId);

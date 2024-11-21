@@ -142,8 +142,9 @@ const conjurationName = computed(() => {
     v-if="conjuration"
     :ref="draggable ? drag : undefined"
     :style="{ opacity }"
-    class="h-full"
+    class="h-full relative"
   >
+    <slot name="actions" />
     <router-link
       class="h-full flex cursor-pointer rounded-[20px] shadow-xl bg-surface-2 group relative"
       :class="{
@@ -157,7 +158,7 @@ const conjurationName = computed(() => {
       }"
     >
       <div
-        class="relative m-2 group-hover:mx-6 transition-all"
+        class="relative m-2 transition-all"
         :class="{
           'basis-1/3 my-auto': condensedView,
           'basis-1': !condensedView,

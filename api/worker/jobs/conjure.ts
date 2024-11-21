@@ -138,6 +138,30 @@ export const conjure = async (request: ConjureEvent) => {
     },
   });
 
+  const campaignCollection = await prisma.collections.findFirst({
+    where: {
+      campaignId: request.campaignId,
+      parentCollectionId: null,
+    },
+  });
+  if (campaignCollection) {
+    await prisma.collectionConjuration.create({
+      data: {
+        collectionId: campaignCollection.id,
+        conjurationId: createdConjuration.id,
+      },
+    });
+  }
+
+  if (createdConjuration.conjurerCode === 'players') {
+    await prisma.campaignConjuration.create({
+      data: {
+        conjurationId: createdConjuration.id,
+        campaignId: request.campaignId,
+      },
+    });
+  }
+
   await sendWebsocketMessage(
     request.userId,
     WebSocketEvent.ConjurationCreated,

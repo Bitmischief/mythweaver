@@ -23,6 +23,7 @@ import { useDebounceFn } from '@vueuse/core';
 import GenerateImage from '@/modules/images/components/GenerateImage.vue';
 import { useImageStore } from '@/modules/images/store/image.store.ts';
 import ImageHistory from '@/modules/images/components/ImageHistory.vue';
+import { useDebounceFn } from '@vueuse/core';
 
 const emit = defineEmits(['close', 'imageUpdated']);
 const imageStore = useImageStore();

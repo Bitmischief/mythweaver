@@ -95,14 +95,18 @@ const totalQuantity = computed(() =>
       class="space-y-4 overflow-hidden mt-4"
       :style="{ maxHeight: showAdvancedSettings ? 'none' : '0px' }"
     >
-      <FormKit
-        v-model="formState.negativePrompt"
-        type="textarea"
-        label="Negative Prompt"
-        :rows="3"
-        placeholder="Describe what you don't want in the image..."
-        text-height
-      />
+      <div
+        v-show="showAdvancedSettings"
+        class="space-y-4 overflow-hidden"
+        :style="{ maxHeight: showAdvancedSettings ? '1000px' : '0px' }"
+      >
+        <FormKit
+          v-model="formState.negativePrompt"
+          type="textarea"
+          label="Negative Prompt"
+          :rows="3"
+          placeholder="Describe what you don't want in the image..."
+        />
 
       <FormKit
         v-model="formState.aspectRatio"
@@ -114,10 +118,10 @@ const totalQuantity = computed(() =>
 
       <div>
         <FormKit
-          type="file"
-          label="Reference Image (optional)"
-          accept="image/*"
-          @input="handleReferenceImageAddition"
+          v-model="formState.aspectRatio"
+          type="select"
+          label="Aspect Ratio"
+          :options="aspectRatios"
         />
 
         <div v-if="formState.referenceImageFile" class="mt-2 flex items-center">
@@ -134,26 +138,38 @@ const totalQuantity = computed(() =>
         </div>
       </div>
 
-      <FormKit
-        v-if="formState.referenceImageFile"
-        v-model="formState.referenceImageStrength"
-        type="range"
-        label="Image Strength"
-        number
-        :min="1"
-        :max="100"
-        :step="1"
-        help="Adjust the balance between creativity and similarity to the reference image"
-      >
-        <template #help>
-          <div class="flex justify-between text-sm text-zinc-400 mt-1">
-            <span>Very creative</span>
-            <span>Medium</span>
-            <span>Very similar</span>
+            <button
+              class="px-2 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors"
+              @click="formState.referenceImageFile = undefined"
+            >
+              Clear
+            </button>
           </div>
         </template>
       </FormKit>
     </div>
+
+        <FormKit
+          v-if="formState.referenceImageFile"
+          v-model="formState.referenceImageStrength"
+          type="range"
+          label="Image Strength"
+          number
+          :min="1"
+          :max="100"
+          :step="1"
+          help="Adjust the balance between creativity and similarity to the reference image"
+        >
+          <template #help>
+            <div class="flex justify-between text-sm text-zinc-400 mt-1">
+              <span>Very creative</span>
+              <span>Medium</span>
+              <span>Very similar</span>
+            </div>
+          </template>
+        </FormKit>
+      </div>
+    </Transition>
 
     <div class="mt-4 flex w-full justify-end">
       <FormKit
