@@ -64,17 +64,6 @@ const handlePrimaryImageSet = (imageId: number) => {
         class="h-8 w-8 absolute top-2 right-2 text-purple-500 bg-neutral-800 rounded"
       />
     </div>
-    <img
-      v-else
-      :key="image.id"
-      :src="image.uri"
-      class="object-contain rounded-lg max-h-full"
-      :class="{
-        'border-2 border-green-500 rounded-b-none': selected,
-        'cursor-pointer': true,
-      }"
-      @click="selected = !selected"
-    />
 
     <div v-if="!image.generating">
       <div class="flex justify-end gap-4 py-2">

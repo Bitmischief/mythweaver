@@ -23,7 +23,6 @@ import { useDebounceFn } from '@vueuse/core';
 import GenerateImage from '@/modules/images/components/GenerateImage.vue';
 import { useImageStore } from '@/modules/images/store/image.store.ts';
 import ImageHistory from '@/modules/images/components/ImageHistory.vue';
-import { useDebounceFn } from '@vueuse/core';
 
 const emit = defineEmits(['close', 'imageUpdated']);
 const imageStore = useImageStore();
@@ -54,8 +53,6 @@ const tools = [
   { mode: 'inpaint', label: 'Modify' },
   { mode: 'outpaint', label: 'Extend' },
   { mode: 'erase', label: 'Erase' },
-  { mode: 'create', label: 'New' },
-  { mode: 'history', label: 'History' },
 ] as const;
 const undoStack = ref<ImageData[]>([]);
 const redoStack = ref<ImageData[]>([]);
@@ -190,7 +187,7 @@ const updateBrushPreview = (e: MouseEvent) => {
   const pos = getMousePos(e);
   let x = Math.min(Math.max(pos.x, 0), canvasWidth.value);
   let y = Math.min(Math.max(pos.y, 0), canvasHeight.value);
-  
+
   mouseX.value = x;
   mouseY.value = y;
 
@@ -198,9 +195,9 @@ const updateBrushPreview = (e: MouseEvent) => {
     0,
     0,
     previewCanvasRef.value.width,
-    previewCanvasRef.value.height
+    previewCanvasRef.value.height,
   );
-  
+
   if (x >= 0 && x <= canvasWidth.value && y >= 0 && y <= canvasHeight.value) {
     previewCtx.value.beginPath();
     previewCtx.value.arc(x, y, brushSize.value / 2, 0, Math.PI * 2);
@@ -230,10 +227,10 @@ const getMousePos = (e: MouseEvent) => {
   const rect = canvasRef.value.getBoundingClientRect();
   const scaleX = canvasRef.value.width / rect.width;
   const scaleY = canvasRef.value.height / rect.height;
-  
+
   return {
     x: (e.clientX - rect.left) * scaleX,
-    y: (e.clientY - rect.top) * scaleY
+    y: (e.clientY - rect.top) * scaleY,
   };
 };
 
@@ -427,14 +424,16 @@ onUnmounted(() => {
     </div>
     <div class="flex gap-4 h-full max-h-[calc(100vh-9em)]">
       <div class="w-[5em] mx-4 shrink-0">
-        <div class="bg-surface rounded-2xl p-2">
+        <div
+          class="bg-surface flex flex-col gap-2 justify-between rounded-2xl p-2"
+        >
           <div
             v-for="(tool, i) in tools"
             :key="`tool_${i}`"
             class="text-neutral-500"
           >
             <button
-              class="p-2 mb-2 rounded-lg text-sm cursor-pointer flex flex-col items-center justify-center aspect-square w-full"
+              class="p-2 rounded-lg text-sm cursor-pointer flex flex-col items-center justify-center aspect-square w-full"
               :class="{
                 'bg-fuchsia-800/25 text-fuchsia-600':
                   selectedTool === tool.mode && tool.mode === 'inpaint',
