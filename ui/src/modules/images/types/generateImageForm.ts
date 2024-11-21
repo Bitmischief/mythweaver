@@ -1,4 +1,4 @@
-import { SelectedModelInput } from "./selectedModelInput";
+import { SelectedModelInput } from './selectedModelInput';
 import { FormKitFile } from '@formkit/inputs';
 
 export interface GenerateImageForm {

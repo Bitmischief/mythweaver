@@ -19,5 +19,5 @@ export function useAvailableAspectRatios() {
   return {
     aspectRatios,
     getWidthAndHeight,
-  }
+  };
 }

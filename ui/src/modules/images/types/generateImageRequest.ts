@@ -1,4 +1,4 @@
-import { SelectedModelInput } from "./selectedModelInput";
+import { SelectedModelInput } from './selectedModelInput';
 
 export interface GenerateImageRequest {
   selectedModels: SelectedModelInput[];

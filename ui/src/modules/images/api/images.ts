@@ -1,13 +1,13 @@
-import axios from "axios";
+import axios from 'axios';
 import { Image } from '../types/image';
-import { GenerateImageRequest } from "../types/generateImageRequest";
+import { GenerateImageRequest } from '../types/generateImageRequest';
 
 export const apiGetImage = async (imageId: number): Promise<Image> => {
   const response = await axios.get<Image>(`/images/${imageId}`);
   return response.data;
 };
 
-export const apiGenerateImages = async(request: GenerateImageRequest): Promise<Image[]> => {
+export const apiGenerateImages = async (request: GenerateImageRequest): Promise<Image[]> => {
   let referenceImageId = undefined;
 
   if (request.referenceImageFile) {
@@ -32,7 +32,7 @@ export const apiGenerateImages = async(request: GenerateImageRequest): Promise<I
   }
 
   return images;
-}
+};
 
 async function uploadReferenceImage(file: File): Promise<Image> {
   const formData = new FormData();
