@@ -27,8 +27,6 @@ import { useWebsocketChannel } from '@/lib/hooks.ts';
 import { ServerEvent } from '@/lib/serverEvents.ts';
 import CollectionHistory from '@/components/Collections/CollectionHistory.vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useSelectedCampaignId } from '@/lib/hooks.ts';
-import { useEventBus } from '@/lib/events.ts';
 import ConjurationQuickView from '@/components/Conjuration/ConjurationListItemView.vue';
 import ConjurationMove from '@/components/Collections/ConjurationMove.vue';
 

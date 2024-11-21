@@ -28,11 +28,11 @@ const selected = ref(false);
       :key="image.id"
       :src="image.uri"
       class="object-contain rounded-lg max-h-full"
-      @click="selected = !selected"
       :class="{
         'border-2 border-green-500 rounded-b-none': selected,
         'cursor-pointer': true,
       }"
+      @click="selected = !selected"
     />
 
     <div v-if="selected">

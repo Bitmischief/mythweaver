@@ -78,8 +78,8 @@ const applyOutpaint = async () => {
     <div class="flex flex-col gap-4 mb-4">
       <div class="flex gap-2">
         <FormKit
-          type="select"
           v-model="direction"
+          type="select"
           label="Extend Direction:"
           :options="[
             { label: 'Up', value: 'up' },
@@ -92,8 +92,8 @@ const applyOutpaint = async () => {
         />
 
         <FormKit
-          type="number"
           v-model="pixels"
+          type="number"
           label="Extend By:"
           :min="0"
           placeholder="Pixels"

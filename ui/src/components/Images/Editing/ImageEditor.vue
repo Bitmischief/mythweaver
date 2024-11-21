@@ -9,6 +9,7 @@ import Erase from './Erase.vue';
 import { CheckIcon } from '@heroicons/vue/24/solid';
 import Spinner from '@/components/Core/Spinner.vue';
 import { Eraser, Fullscreen, Paintbrush, Undo, Redo, X } from 'lucide-vue-next';
+import { useDebounceFn } from '@vueuse/core';
 
 const props = defineProps<{
   image: any;
@@ -53,21 +54,13 @@ const editing = ref(false);
 const windowWidth = ref(window.innerWidth);
 const windowHeight = ref(window.innerHeight);
 
-const debounce = (fn: Function, delay: number) => {
-  let timeoutId: NodeJS.Timeout;
-  return (...args: any[]) => {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => fn(...args), delay);
-  };
-};
-
 const handleResize = () => {
   windowWidth.value = window.innerWidth;
   windowHeight.value = window.innerHeight;
   initCanvas();
 };
 
-const debouncedResize = debounce(handleResize, 250);
+const debouncedResize = useDebounceFn(handleResize, 250);
 
 async function initCanvas() {
   if (

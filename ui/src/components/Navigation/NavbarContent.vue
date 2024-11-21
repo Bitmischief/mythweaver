@@ -17,8 +17,6 @@ import {
   PhotoIcon,
   SparklesIcon,
   ClockIcon,
-  StarIcon,
-  UsersIcon,
   SquaresPlusIcon,
   ShareIcon,
 } from '@heroicons/vue/24/outline';
@@ -27,12 +25,9 @@ import { BillingPlan } from '@/api/users.ts';
 import {
   BookOpenText,
   LayoutDashboard,
-  ScrollText,
   Sparkles,
-  TableCellsMerge,
   VenetianMask,
   WandSparkles,
-  Workflow,
 } from 'lucide-vue-next';
 
 defineProps<{

@@ -96,15 +96,12 @@ export class ImagesService {
 
       images.push(image);
 
-      this.generateSingleImage(
-        image, 
-        {
+      this.generateSingleImage(image, {
         ...request,
         userId,
         count,
         referenceImage,
-        }
-      );
+      });
     }
 
     return images;

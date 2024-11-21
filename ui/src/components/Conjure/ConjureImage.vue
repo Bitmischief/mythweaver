@@ -26,6 +26,7 @@ import { AxiosError } from 'axios';
 import ImageCreditCount from '@/components/Core/ImageCreditCount.vue';
 import { useAuthStore } from '@/store';
 import { ArrowLeftIcon } from '@heroicons/vue/24/solid';
+import { fetchImageModels as getImageModels } from '@/modules/images/api/imageModels.ts';
 
 const authStore = useAuthStore();
 

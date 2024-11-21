@@ -1,17 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue';
 import ViewImage from './ViewImage.vue';
 import { useGenerateImages } from '../composables/useGenerateImages';
-import { useGetModelName } from '../composables/useGetModelName';
 import GenerateImageForm from './GenerateImageForm.vue';
-import { Pencil } from 'lucide-vue-next';
 
 const { generatedImages } = useGenerateImages();
-const { getModelName } = useGetModelName();
 
 const emit = defineEmits(['cancel', 'insertImage']);
-
-const selectedImageId = ref<number | null>(null);
 </script>
 
 <template>

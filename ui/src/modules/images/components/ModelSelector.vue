@@ -75,7 +75,6 @@ const getModelById = (id: number) => availableImageModels.value.find((m) => m.id
         label="Select Models"
         :options="formKitOptions"
         :model-value="selectedModels.map((m) => m.id)"
-        @update:model-value="handleModelSelection"
         multiple
         placeholder="Choose models"
         close-on-select="true"
@@ -86,6 +85,7 @@ const getModelById = (id: number) => availableImageModels.value.find((m) => m.id
           },
         }"
         selection-appearance="tags"
+        @update:model-value="handleModelSelection"
       >
         <template #option="{ option }">
           <div class="flex items-center">
@@ -115,8 +115,8 @@ const getModelById = (id: number) => availableImageModels.value.find((m) => m.id
               {{ option.label }}
             </span>
             <XMarkIcon
-              @click.prevent="handlers.removeSelection(option)()"
               class="w-5 h-5 cursor-pointer hover:bg-primary rounded-full"
+              @click.prevent="handlers.removeSelection(option)()"
             />
           </div>
         </template>
@@ -159,7 +159,6 @@ const getModelById = (id: number) => availableImageModels.value.find((m) => m.id
           <FormKit
             type="number"
             :model-value="model.quantity"
-            @update:model-value="updateQuantity(model.id, $event)"
             :min="1"
             :max="3"
             label="Qty"
@@ -167,9 +166,10 @@ const getModelById = (id: number) => availableImageModels.value.find((m) => m.id
             label-class="$reset text-sm text-neutral-500"
             inner-class="$reset p-0"
             input-class="w-9"
+            @update:model-value="updateQuantity(model.id, $event)"
           />
           <div>
-            <button @click="removeModel(model.id)" class="p-1">
+            <button class="p-1" @click="removeModel(model.id)">
               <XCircleIcon class="h-5 text-red-500 hover:text-red-500/75" />
             </button>
           </div>

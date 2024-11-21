@@ -49,8 +49,8 @@ const totalQuantity = computed(() =>
 
     <div class="mt-6">
       <FormKit
-        type="textarea"
         v-model="formState.prompt"
+        type="textarea"
         label="Prompt"
         validation="required"
         :validation-messages="{ required: 'Prompt is required' }"
@@ -61,8 +61,8 @@ const totalQuantity = computed(() =>
 
     <div>
       <button
-        @click="showAdvancedSettings = !showAdvancedSettings"
         class="w-full py-2 px-4 bg-zinc-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-left flex justify-between items-center"
+        @click="showAdvancedSettings = !showAdvancedSettings"
       >
         <span>Advanced Settings</span>
         <span
@@ -88,16 +88,16 @@ const totalQuantity = computed(() =>
         :style="{ maxHeight: showAdvancedSettings ? '1000px' : '0px' }"
       >
         <FormKit
-          type="textarea"
           v-model="formState.negativePrompt"
+          type="textarea"
           label="Negative Prompt"
           :rows="3"
           placeholder="Describe what you don't want in the image..."
         />
 
         <FormKit
-          type="select"
           v-model="formState.aspectRatio"
+          type="select"
           label="Aspect Ratio"
           :options="aspectRatios"
         />
@@ -119,8 +119,8 @@ const totalQuantity = computed(() =>
             </p>
 
             <button
-              @click="formState.referenceImageFile = undefined"
               class="px-2 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors"
+              @click="formState.referenceImageFile = undefined"
             >
               Clear
             </button>
@@ -129,8 +129,8 @@ const totalQuantity = computed(() =>
 
         <FormKit
           v-if="formState.referenceImageFile"
-          type="range"
           v-model="formState.referenceImageStrength"
+          type="range"
           label="Image Strength"
           number
           :min="1"
