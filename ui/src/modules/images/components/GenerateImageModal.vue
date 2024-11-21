@@ -7,9 +7,14 @@ const { showModal } = useGenerateImages();
 </script>
 
 <template>
-  <FullScreenModal :show="showModal" :z="35" extra-dark>
+  <FullScreenModal
+    :show="showModal"
+    :z="35"
+    @close="showModal = false"
+    extra-dark
+  >
     <div class="p-4 flex gap-4 overflow-y-none">
-      <GenerateImage @cancel="showModal = false" />
+      <GenerateImage @cancel="showModal = false" allow-edits />
     </div>
   </FullScreenModal>
 </template>

@@ -24,7 +24,7 @@ import CreateConjurationRelationship from '@/components/Relationships/Create/Cre
 import GenerateImageModal from '@/modules/images/components/GenerateImageModal.vue';
 import { getRedeemPreOrderUrl } from '@/api/billing.ts';
 import NavBarHeader from '@/components/Navigation/NavBarHeader.vue';
-import ChangeImageModal from '@/modules/images/components/ChangeImageModal.vue';
+import ImageHistoryModal from '@/modules/images/components/ImageHistoryModal.vue';
 // @ts-ignore
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
@@ -316,7 +316,6 @@ eventBus.$on('show-subscription-modal', () => {
 
   <EditImageModal />
   <GenerateImageModal />
-  <ChangeImageModal />
-
+  <ImageHistoryModal />
   <LightboxRoot />
 </template>

@@ -33,6 +33,11 @@ onUnmounted(() => {
     role="dialog"
     aria-modal="true"
   >
-    <slot></slot>
+    <div class="absolute top-2 right-2">
+      <button class="button-secondary" @click="$emit('close')">cancel</button>
+    </div>
+    <div class="container">
+      <slot></slot>
+    </div>
   </div>
 </template>
