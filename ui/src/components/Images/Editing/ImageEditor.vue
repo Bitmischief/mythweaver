@@ -608,11 +608,11 @@ onUnmounted(() => {
             </div>
             <div class="text-center pr-4">
               <button
-                class="control-button"
+                class="control-button-text"
                 title="Clear mask"
                 @click="clearMask"
               >
-                <X class="h-5 w-5" />
+                Clear Drawing
               </button>
             </div>
             <div
@@ -659,6 +659,21 @@ onUnmounted(() => {
   background-size: 25px 25px;
   opacity: 0.5;
   z-index: -1;
+}
+
+.control-button-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  height: 42px;
+  padding-left: 24px;
+  padding-right: 24px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #888888;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .control-button {

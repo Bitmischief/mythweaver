@@ -9,11 +9,6 @@ import { Coins } from 'lucide-vue-next';
 
 const props = withDefaults(
   defineProps<{
-    linking?: {
-      sessionId?: number;
-      conjurationId?: number;
-      characterId?: number;
-    };
     prompt?: string;
   }>(),
   {

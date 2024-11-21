@@ -14,7 +14,11 @@ const { showModal } = useGenerateImages();
     extra-dark
   >
     <div class="p-4 flex gap-4 overflow-y-none">
-      <GenerateImage @cancel="showModal = false" allow-edits />
+      <GenerateImage
+        @cancel="showModal = false"
+        @primary-image-set="showModal = false"
+        allow-edits
+      />
     </div>
   </FullScreenModal>
 </template>

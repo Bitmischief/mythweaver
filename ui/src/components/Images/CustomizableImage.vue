@@ -56,7 +56,8 @@ const props = withDefaults(
 );
 
 const { setSelectedImage } = useEditImage();
-const { showModal: showGenerateImageModal } = useGenerateImages();
+const { showModal: showGenerateImageModal, setLinkingContext } =
+  useGenerateImages();
 const { chooseFromImageHistory } = useImageHistory();
 
 const imgWidth = ref(0);
@@ -91,6 +92,7 @@ async function beginEditImage() {
 }
 
 function showNewImageModal() {
+  setLinkingContext({ conjurationId: props.linking?.conjurationId });
   showGenerateImageModal.value = true;
 }
 </script>

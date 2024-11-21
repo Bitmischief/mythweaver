@@ -8,11 +8,6 @@ const { generatedImages } = useGenerateImages();
 withDefaults(
   defineProps<{
     allowEdits: boolean;
-    linking?: {
-      sessionId?: number;
-      conjurationId?: number;
-      characterId?: number;
-    };
     prompt?: string;
   }>(),
   {
@@ -32,7 +27,7 @@ const handlePrimaryImageSet = (imageId: number) => {
 <template>
   <div class="md:flex w-full">
     <div class="md:w-1/3">
-      <GenerateImageForm :linking="linking" :prompt="prompt" />
+      <GenerateImageForm :prompt="prompt" />
     </div>
     <div class="mt-8 md:mt-0 md:ml-8 w-full overflow-y-scroll">
       <div class="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

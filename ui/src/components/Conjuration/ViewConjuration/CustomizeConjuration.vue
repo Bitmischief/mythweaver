@@ -23,6 +23,7 @@ import { ConjurationRelationshipType } from '@/lib/enums.ts';
 import ViewRelationships from '@/components/Relationships/ViewRelationships.vue';
 import { useRoute, useRouter } from 'vue-router';
 import { FormKit } from '@formkit/vue';
+import { useGenerateImages } from '@/modules/images/composables/useGenerateImages';
 
 const emit = defineEmits(['edit']);
 const props = defineProps<{
@@ -41,6 +42,8 @@ const currentUserId = useCurrentUserId();
 const currentUserRole = useCurrentUserRole();
 const channel = useWebsocketChannel();
 const hasValidPlan = useHasValidPlan();
+const { showModal: showGenerateImageModal, setLinkingContext } =
+  useGenerateImages();
 
 const editableConjuration = ref(props.conjuration);
 const imageKey = ref(0);
@@ -200,27 +203,8 @@ const primaryImage = computed(() => {
 });
 
 function showCustomizeImageModal() {
-  eventBus.$emit('toggle-customize-image-modal', {
-    image: {
-      prompt: editableConjuration.value.imageAIPrompt,
-    },
-    linking: {
-      conjurationId: editableConjuration.value.id,
-    },
-  });
-}
-
-function showImageHistoryModal() {
-  eventBus.$emit('toggle-customize-image-modal', {
-    image: {
-      prompt: editableConjuration.value.imageAIPrompt,
-    },
-    linking: {
-      conjurationId: editableConjuration.value.id,
-    },
-    historyMode: true,
-    showImageCredits: false,
-  });
+  setLinkingContext({ conjurationId: props.conjuration.id });
+  showGenerateImageModal.value = true;
 }
 
 function edit(e: any) {

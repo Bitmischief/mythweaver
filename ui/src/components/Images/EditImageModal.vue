@@ -7,7 +7,12 @@ const imageStore = useImageStore();
 </script>
 
 <template>
-  <FullScreenModal :show="imageStore.showEditImageModal" :z="35" extra-dark>
+  <FullScreenModal
+    :show="imageStore.showEditImageModal"
+    :z="35"
+    extra-dark
+    manually-override-close
+  >
     <ImageEditor @close="imageStore.showEditImageModal = false" />
   </FullScreenModal>
 </template>

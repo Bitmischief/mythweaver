@@ -53,11 +53,7 @@ const back = () => {
   <div class="h-full w-full">
     <div class="flex flex-wrap justify-between mb-4">
       <div class="flex gap-2">
-        <button class="button-primary flex self-center" @click="back">
-          <ArrowLeftIcon class="mr-2 h-4 w-4 self-center" />
-          Back
-        </button>
-        <div class="text-lg gradient-text self-center">
+        <div class="text-xl gradient-text self-center">
           Conjuration Relationships
         </div>
       </div>
