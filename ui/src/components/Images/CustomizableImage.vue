@@ -4,6 +4,8 @@ import { onMounted, ref, watch } from 'vue';
 import { useEditImage } from '@/modules/images/composables/useEditImage';
 import { PencilLine, ImagePlus } from 'lucide-vue-next';
 import { useGenerateImages } from '@/modules/images/composables/useGenerateImages';
+import SecondaryButton from '@/modules/core/components/buttons/SecondaryButton.vue';
+import Button from '@/modules/core/components/buttons/Button.vue';
 
 const props = withDefaults(
   defineProps<{
@@ -123,39 +125,23 @@ function handleNewImage() {
     </div>
 
     <div v-if="editable" class="mt-2 flex gap-2 top-0 right-2">
-      <button
+      <Button
         type="button"
         class="button-primary w-[12rem]"
         :disabled="!editable"
         @click="handleNewImage"
       >
-        <span class="w-full flex justify-center items-center gap-1">
-          <PencilLine class="w-5 h-5" />
-          New Image
-        </span>
-      </button>
-      <button
-        type="button"
-        class="button-primary bg-[#CC52C0]/20 hover:bg-[#CC52C0]/40 text-[#CC52C0] w-full"
-        :disabled="!editable"
-        @click="beginEditImage"
-      >
         <span class="w-full flex justify-center items-center gap-2">
-          <PencilLine class="w-5 h-5" />
+          <ImagePlus class="w-5 h-5" />
           New Image
         </span>
-      </button>
-      <button
-        type="button"
-        class="button-primary w-full bg-[#CC52C0]/20 hover:bg-[#CC52C0]/40 text-[#CC52C0]"
-        :disabled="!editable"
-        @click="beginEditImage"
-      >
+      </Button>
+      <SecondaryButton @click="beginEditImage" class="w-full">
         <span class="w-full flex justify-center items-center gap-2">
           <PencilLine class="w-5 h-5" />
           Edit Image
         </span>
-      </button>
+      </SecondaryButton>
     </div>
   </div>
 </template>

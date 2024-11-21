@@ -12,11 +12,24 @@ import * as Sentry from '@sentry/vue';
 import { isDevelopment, isLocalDevelopment, isProduction } from '@/lib/util.ts';
 import auth0Client from '@/plugins/auth.ts';
 import VueSafeHTML from 'vue-safe-html';
+import PrimeVue from 'primevue/config';
+import Aura from '@primevue/themes/aura';
 
 const app = createApp(App);
 
 app.use(VueIntercom);
 
+app.use(PrimeVue, {
+  theme: {
+    preset: Aura,
+    options: {
+      cssLayer: {
+        name: 'primevue',
+        order: 'tailwind-base, primevue, tailwind-utilities',
+      },
+    },
+  },
+});
 app.use(plugin, defaultConfig(config()));
 
 app.use(createPinia());
