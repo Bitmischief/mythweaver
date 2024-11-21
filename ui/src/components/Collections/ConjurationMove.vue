@@ -53,9 +53,12 @@ const moveConjuration = async () => {
       <div class="gradient-text text-lg self-center flex">
         <div>{{ conjuration.name }}</div>
       </div>
-      <div v-if="selectedMoveLocation" class="flex gap-2">
+      <div class="flex gap-2">
         <div class="self-center">to</div>
-        <div class="gradient-text text-lg self-center">
+        <div
+          v-if="selectedMoveLocation"
+          class="gradient-text text-lg self-center"
+        >
           {{ selectedMoveLocation?.name }}
         </div>
       </div>

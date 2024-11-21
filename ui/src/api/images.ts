@@ -8,6 +8,9 @@ export interface Image {
     description: string;
   };
   createdAt: string;
+  conjurationId?: number;
+  characterId?: number;
+  sessionId?: number;
 }
 
 export const conjureImage = async (

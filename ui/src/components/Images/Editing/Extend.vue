@@ -22,7 +22,7 @@ const downDimension = ref(0);
 const leftDimension = ref(0);
 const rightDimension = ref(0);
 const direction = ref('up');
-const pixels = ref(0);
+const pixels = ref('0');
 
 const isValidDimensions = computed(() => {
   return (
@@ -40,10 +40,10 @@ const applyOutpaint = async () => {
   try {
     emit('edit-started');
     const editedImage = await outpaint(props.imageId, prompt.value, {
-      up: direction.value === 'up' ? pixels.value : 0,
-      down: direction.value === 'down' ? pixels.value : 0,
-      left: direction.value === 'left' ? pixels.value : 0,
-      right: direction.value === 'right' ? pixels.value : 0,
+      up: direction.value === 'up' ? parseInt(pixels.value) : 0,
+      down: direction.value === 'down' ? parseInt(pixels.value) : 0,
+      left: direction.value === 'left' ? parseInt(pixels.value) : 0,
+      right: direction.value === 'right' ? parseInt(pixels.value) : 0,
     });
     emit('edit-applied', editedImage);
   } catch (error) {
@@ -56,7 +56,7 @@ const applyOutpaint = async () => {
 </script>
 
 <template>
-  <div class="bg-surface-2 rounded-3xl p-4">
+  <div class="bg-surface rounded-3xl p-4">
     <div class="mb-4">
       <FormKit
         id="outpaintPrompt"
@@ -78,8 +78,8 @@ const applyOutpaint = async () => {
     <div class="flex flex-col gap-4 mb-4">
       <div class="flex gap-2">
         <FormKit
-          type="select"
           v-model="direction"
+          type="select"
           label="Extend Direction:"
           :options="[
             { label: 'Up', value: 'up' },
@@ -92,8 +92,8 @@ const applyOutpaint = async () => {
         />
 
         <FormKit
-          type="number"
           v-model="pixels"
+          type="number"
           label="Extend By:"
           :min="0"
           placeholder="Pixels"

@@ -58,7 +58,7 @@ const applySmartErase = async () => {
 </script>
 
 <template>
-  <div class="bg-surface-2 rounded-3xl p-4">
+  <div class="bg-surface rounded-3xl p-4">
     <p class="mb-4 text-neutral-400">
       Use the brush to paint over the areas you want to erase, then click
       "Erase".

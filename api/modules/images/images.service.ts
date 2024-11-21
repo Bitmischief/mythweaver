@@ -1,4 +1,5 @@
 import { ImagesDataProvider } from './images.dataprovider';
+import { ImageModelsDataProvider } from '@/modules/imageModels/imageModels.dataprovider';
 import { StabilityAIProvider } from '../../providers/stabilityAI';
 import { MythWeaverLogger } from '../../lib/logger';
 import {
@@ -29,6 +30,7 @@ export class ImagesService {
   constructor(
     private imagesDataProvider: ImagesDataProvider,
     private stabilityAIProvider: StabilityAIProvider,
+    private imageModelsDataProvider: ImageModelsDataProvider,
     private logger: MythWeaverLogger,
   ) {}
 
@@ -96,15 +98,12 @@ export class ImagesService {
 
       images.push(image);
 
-      this.generateSingleImage(
-        image, 
-        {
+      this.generateSingleImage(image, {
         ...request,
         userId,
         count,
         referenceImage,
-        }
-      );
+      });
     }
 
     return images;
@@ -364,9 +363,17 @@ export class ImagesService {
         imageGenerationResponse.uri,
       );
 
+      let model = null;
+      if (updatedImage.modelId) {
+        model = await this.imageModelsDataProvider.getImageModel(
+          updatedImage.modelId,
+        );
+      }
+
       await sendWebsocketMessage(request.userId, WebSocketEvent.ImageCreated, {
         image: updatedImage,
         modelId: image.modelId,
+        modelName: model?.modelName,
         imageId: image.id,
         context: {
           ...request.linking,
@@ -582,6 +589,7 @@ export class ImagesService {
       await sendWebsocketMessage(userId, WebSocketEvent.ImageEdited, {
         imageId,
         context: { inpainted: true },
+        image: updatedImage,
       });
 
       return updatedImage;

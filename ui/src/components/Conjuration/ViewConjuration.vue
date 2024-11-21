@@ -399,7 +399,7 @@ async function addToCampaign() {
                     @click="showAddToCollection = true"
                   >
                     <SquaresPlusIcon class="h-5 w-5" />
-                    Add To Collection
+                    Add To Campaign
                   </button>
                 </div>
               </MenuItem>

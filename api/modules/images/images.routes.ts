@@ -27,9 +27,9 @@ const postImageSchema = z.object({
   seed: z.string().optional(),
   linking: z
     .object({
-      sessionId: z.number().optional(),
-      conjurationId: z.number().optional(),
-      characterId: z.number().optional(),
+      sessionId: z.number().nullish(),
+      conjurationId: z.number().nullish(),
+      characterId: z.number().nullish(),
     })
     .optional(),
   width: z.number().min(64).max(2048).default(1024).optional(),

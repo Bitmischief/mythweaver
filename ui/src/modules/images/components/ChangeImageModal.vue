@@ -32,9 +32,9 @@ function generateNewImage() {
 <template>
   <FullScreenModal
     :show="showModal"
-    @close="showModal = false"
     :z="25"
     extra-dark
+    @close="showModal = false"
   >
     <div class="p-4 flex justify-between gap-4">
       <!-- Current Image ID: {{ currentImageId }} Linking Context:

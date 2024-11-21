@@ -37,7 +37,7 @@ const handleOutsideClick = (event: MouseEvent) => {
       @click="handleOutsideClick"
     >
       <div
-        class="max-w-4xl w-full rounded-lg overflow-hidden max-h-[90vh] flex flex-col"
+        class="max-w-4xl rounded-lg overflow-hidden max-h-[90vh] flex flex-col"
       >
         <div class="flex flex-col overflow-y-auto relative">
           <button

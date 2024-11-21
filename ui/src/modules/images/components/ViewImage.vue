@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { Image } from '../types/image';
-import { Pencil } from 'lucide-vue-next';
+import { Pencil, SquareCheck, CheckCircle } from 'lucide-vue-next';
 import { useEditImage } from '../composables/useEditImage';
+import Loader from '@/components/Core/Loader.vue';
+import Spinner from '@/components/Core/Spinner.vue';
+import { useImageStore } from '../store/image.store.ts';
 
 defineProps<{
   image: Image;
@@ -10,41 +13,82 @@ defineProps<{
   disableSetAsPrimary?: boolean;
 }>();
 
-const { setSelectedImage } = useEditImage();
+const emit = defineEmits<{
+  (e: 'primaryImageSet', imageId: number): void;
+}>();
 
+const imageStore = useImageStore();
+const { loading, setPrimaryImage, setSelectedImage } = useEditImage();
 const selected = ref(false);
+const selectedImageId = computed(() => {
+  return imageStore.selectedImage?.id;
+});
+
+const handlePrimaryImageSet = (imageId: number) => {
+  emit('primaryImageSet', imageId);
+  setPrimaryImage(imageId);
+};
 </script>
 
 <template>
   <div>
-    <div
-      v-if="image.generating"
-      class="h-[22rem] w-full bg-neutral-800 rounded-lg animate-pulse flex"
-    >
-      <div class="m-auto self-center text-neutral-500">conjuring...</div>
+    <div class="relative">
+      <div v-if="image.generating" class="h-[22rem] w-full">
+        <div
+          class="flex flex-col h-full flex-grow justify-center text-center bg-surface-2 rounded-lg"
+        >
+          <Loader />
+          <div class="text-xl gradient-text my-4 animate-pulse">
+            Conjuring...
+          </div>
+        </div>
+      </div>
+      <img
+        v-else
+        :key="image.id"
+        :src="image.uri"
+        class="object-contain rounded-lg max-h-full"
+        :class="{
+          'border-4 border-purple-500': selected,
+          'cursor-pointer': true,
+        }"
+      />
+      <div
+        v-if="!image.generating"
+        class="absolute bg-neutral-900/75 px-2 rounded-full bottom-2 right-2"
+      >
+        {{ image.modelName }}
+      </div>
+      <SquareCheck
+        v-if="!image.generating && selected"
+        class="h-8 w-8 absolute top-2 right-2 text-purple-500 bg-neutral-800 rounded"
+      />
     </div>
-    <img
-      v-else
-      :key="image.id"
-      :src="image.uri"
-      class="object-contain rounded-lg max-h-full"
-      @click="selected = !selected"
-      :class="{
-        'border-2 border-green-500 rounded-b-none': selected,
-        'cursor-pointer': true,
-      }"
-    />
 
-    <div v-if="selected">
-      <div class="flex rounded-b-md bg-neutral-800 justify-end gap-4 p-2">
-        <Pencil
+    <div v-if="!image.generating">
+      <div class="flex justify-end gap-4 py-2">
+        <button
           v-if="allowEdits"
-          class="w-5 h-5 text-neutral-400 hover:text-neutral-500 cursor-pointer self-center"
+          class="button-primary cursor-pointer"
           @click="setSelectedImage(image.id)"
-        />
-        <button :disabled="disableSetAsPrimary" class="button-gradient">
-          Set as primary image
+        >
+          <Pencil
+            class="w-5 h-5 text-neutral-200 hover:text-neutral-500 self-center"
+          />
         </button>
+        <button
+          v-if="image.id !== selectedImageId"
+          :disabled="disableSetAsPrimary || loading"
+          class="button-gradient flex gap-2"
+          @click="handlePrimaryImageSet(image.id)"
+        >
+          Set as primary image
+          <Spinner v-if="loading" />
+        </button>
+        <div v-else class="button-primary opacity-75 flex items-center gap-2">
+          Primary Image Set
+          <CheckCircle />
+        </div>
       </div>
     </div>
   </div>

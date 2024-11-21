@@ -130,6 +130,11 @@ export const conjure = async (request: ConjureEvent) => {
       ],
       conjurationRequestId: request.conjurationRequestId,
       prompt: request.arg,
+      saves: {
+        create: {
+          userId: request.userId,
+        },
+      },
     },
   });
 

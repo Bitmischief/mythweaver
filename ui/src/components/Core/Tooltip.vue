@@ -27,7 +27,7 @@ const positionClasses = computed(() => {
     <slot></slot>
     <div
       :class="[
-        'absolute px-3 py-1 bg-neutral-800 text-neutral-200 text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap',
+        'absolute z-[90] px-3 py-1 bg-neutral-800 text-neutral-200 text-xs rounded-md group-hover:flex hidden opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap',
         positionClasses,
       ]"
     >

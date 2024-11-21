@@ -42,7 +42,7 @@ export function useWebsocketChannel() {
   if (!userId.value) {
     throw new Error('No userId to bind server events to!');
   }
-  
+
   const channel = pusher.channel(userId.value.toString());
   if (channel) {
     return channel;

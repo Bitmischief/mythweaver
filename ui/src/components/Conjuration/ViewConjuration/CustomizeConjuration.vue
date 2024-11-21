@@ -73,6 +73,7 @@ onMounted(async () => {
   );
 
   channel.bind(ServerEvent.ImageCreated, imageCreatedHandler);
+  channel.bind(ServerEvent.ImageEdited, imageEditedHandler);
   channel.bind(ServerEvent.PrimaryImageSet, primaryImageSetHandler);
   channel.bind(ServerEvent.ImageFiltered, imageFilteredHandler);
   channel.bind(ServerEvent.ImageError, imageErrorHandler);
@@ -93,6 +94,12 @@ watch(
 function imageCreatedHandler(image: any) {
   if (!primaryImage.value?.uri) {
     editableConjuration.value.images = [{ ...image }];
+  }
+}
+
+function imageEditedHandler(data: any) {
+  if (primaryImage.value?.id === data.imageId) {
+    editableConjuration.value.images = [{ ...data.image }];
   }
 }
 
@@ -142,6 +149,7 @@ onUnmounted(() => {
   eventBus.$off('save-conjuration');
   channel.unbind(ServerEvent.PrimaryImageSet, primaryImageSetHandler);
   channel.unbind(ServerEvent.ImageCreated, imageCreatedHandler);
+  channel.unbind(ServerEvent.ImageEdited, imageEditedHandler);
   channel.unbind(ServerEvent.ImageFiltered, imageFilteredHandler);
   channel.unbind(ServerEvent.ImageError, imageErrorHandler);
   channel.unbind(
@@ -186,7 +194,7 @@ const hasAnyImageHistory = computed(() => {
 
 const primaryImage = computed(() => {
   if (editableConjuration.value?.images?.length) {
-    return editableConjuration.value.images.find((i) => i.primary);
+    return editableConjuration.value.images.find((i: any) => i.primary);
   }
   return undefined;
 });

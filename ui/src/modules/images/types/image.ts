@@ -4,6 +4,10 @@ export interface Image {
   generating: boolean;
   createdAt: string;
   modelId: number;
+  modelName: string;
   prompt: string;
   edits: any;
+  conjurationId?: number;
+  sessionId?: number;
+  characterId?: number;
 }

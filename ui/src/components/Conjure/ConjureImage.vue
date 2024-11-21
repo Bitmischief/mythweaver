@@ -7,6 +7,7 @@ import {
   patchPrimaryImage,
   postImageUpscale,
 } from '@/api/images.ts';
+import { fetchImageModels as getImageModels } from '@/modules/images/api/imageModels.ts';
 import { useEventBus } from '@/lib/events.ts';
 import {
   ArrowsPointingOutIcon,

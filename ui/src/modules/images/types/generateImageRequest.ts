@@ -1,4 +1,4 @@
-import { SelectedModelInput } from "./selectedModelInput";
+import { SelectedModelInput } from './selectedModelInput';
 
 export interface GenerateImageRequest {
   selectedModels: SelectedModelInput[];
@@ -8,4 +8,9 @@ export interface GenerateImageRequest {
   width: number;
   height: number;
   referenceImageStrength?: number;
+  linking?: {
+    conjurationId?: number;
+    sessionId?: number;
+    characterId?: number;
+  };
 }

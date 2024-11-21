@@ -36,4 +36,8 @@ export enum ServerEvent {
   CollectionMoved = 'collection-moved',
   CampaignFileUploaded = 'campaign-file-uploaded',
   CampaignFileProcessed = 'campaign-file-processed',
+  ImageEdited = 'image-edited',
+  ModelGenerationStarted = 'MODEL_GENERATION_STARTED',
+  ModelGenerationCompleted = 'MODEL_GENERATION_COMPLETED',
+  ImageUrlUpdated = 'image-url-updated',
 }

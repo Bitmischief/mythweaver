@@ -57,7 +57,7 @@ export interface PostGenerateArbitraryRequest {
 export interface PostGenerateArbitraryFromPromptRequest {
   background: any;
   context: string;
-  propertyName: string;
+  prompt: string;
 }
 
 export interface PostGenerateArbitraryReplacementRequest {

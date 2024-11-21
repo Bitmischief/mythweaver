@@ -32,6 +32,7 @@ export function useGenerateImages() {
       negativePrompt: form.negativePrompt,
       referenceImageFile: form.referenceImageFile as File,
       referenceImageStrength: form.referenceImageStrength,
+      linking: form.linking,
     });
   }
 
