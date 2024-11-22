@@ -312,12 +312,12 @@ export class ConjurationsDataProvider {
 
   async findUserConjuration(
     userId: number,
-    requestId: number,
+    conjurationId: number,
   ): Promise<Conjuration | null> {
     return prisma.conjuration.findFirst({
       where: {
         userId: userId,
-        conjurationRequestId: requestId,
+        id: conjurationId,
       },
     });
   }
