@@ -20,7 +20,11 @@ module.exports = {
       },
     },
   },
-  plugins: [require('@tailwindcss/forms'), FormKitVariants, require('tailwindcss-primeui')],
+  plugins: [
+    require('@tailwindcss/forms'),
+    FormKitVariants,
+    require('tailwindcss-primeui'),
+  ],
   variants: {
     extend: {
       display: ['group-hover'],

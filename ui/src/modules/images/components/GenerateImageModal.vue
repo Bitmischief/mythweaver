@@ -10,14 +10,14 @@ const { showModal } = useGenerateImages();
   <FullScreenModal
     :show="showModal"
     :z="35"
-    @close="showModal = false"
     extra-dark
+    @close="showModal = false"
   >
     <div class="p-4 flex gap-4 overflow-y-none">
       <GenerateImage
+        allow-edits
         @cancel="showModal = false"
         @primary-image-set="showModal = false"
-        allow-edits
       />
     </div>
   </FullScreenModal>

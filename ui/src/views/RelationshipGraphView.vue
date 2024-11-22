@@ -4,12 +4,8 @@ import { getRelationshipGraph } from '@/api/relationships.ts';
 import { showError } from '@/lib/notifications.ts';
 import Loader from '@/components/Core/Loader.vue';
 import ForceGraph from '@/components/Relationships/Graphs/ForceGraph.vue';
-import { ArrowLeftIcon } from '@heroicons/vue/24/solid';
-import { useRoute } from 'vue-router';
-import router from '@/router/router.ts';
 import { useSelectedCampaignId } from '@/lib/hooks';
 
-const route = useRoute();
 const loading = ref(true);
 const data = ref<any>(undefined);
 const campaignId = useSelectedCampaignId();
@@ -39,14 +35,6 @@ async function fetchGraphData() {
     loading.value = false;
   }
 }
-
-const back = () => {
-  if (route.query.from) {
-    router.push(route.query.from.toString());
-  } else {
-    router.push('/conjurations#saved');
-  }
-};
 </script>
 
 <template>

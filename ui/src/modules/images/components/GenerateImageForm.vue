@@ -42,7 +42,6 @@ const handleReferenceImageAddition = (files: FormKitFile[] | undefined) => {
 };
 
 const handleSubmit = async () => {
-  formState.value.linking = props.linking;
   await generateImages(formState.value);
 };
 
@@ -106,17 +105,26 @@ const totalQuantity = computed(() =>
         :options="aspectRatios"
       />
 
-      <div v-if="formState.referenceImageFile" class="mt-2 flex items-center">
-        <p class="text-sm text-zinc-400 mr-2">
-          Selected: {{ formState.referenceImageFile.name }}
-        </p>
+      <div>
+        <FormKit
+          type="file"
+          label="Reference Image (optional)"
+          accept="image/*"
+          @input="handleReferenceImageAddition"
+        />
 
-        <button
-          class="px-2 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors"
-          @click="formState.referenceImageFile = undefined"
-        >
-          Clear
-        </button>
+        <div v-if="formState.referenceImageFile" class="mt-2 flex items-center">
+          <p class="text-sm text-zinc-400 mr-2">
+            Selected: {{ formState.referenceImageFile.name }}
+          </p>
+
+          <button
+            class="px-2 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors"
+            @click="formState.referenceImageFile = undefined"
+          >
+            Clear
+          </button>
+        </div>
       </div>
 
       <FormKit

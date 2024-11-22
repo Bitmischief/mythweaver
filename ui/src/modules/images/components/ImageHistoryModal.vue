@@ -10,8 +10,8 @@ const { showModal } = useImageHistory();
   <FullScreenModal
     :show="showModal"
     :z="35"
-    @close="showModal = false"
     extra-dark
+    @close="showModal = false"
   >
     <div class="p-4 overflow-y-none">
       <ImageHistory />

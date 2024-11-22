@@ -2,7 +2,7 @@
 import { Conjuration, patchConjuration } from '@/api/conjurations.ts';
 import { computed, watch, onMounted, onUpdated, onUnmounted, ref } from 'vue';
 import { LinkIcon } from '@heroicons/vue/20/solid';
-import { PencilSquareIcon, ShareIcon } from '@heroicons/vue/24/outline';
+import { ShareIcon } from '@heroicons/vue/24/outline';
 import { useEventBus } from '@/lib/events.ts';
 import { showError, showSuccess } from '@/lib/notifications.ts';
 import { AxiosError } from 'axios';
@@ -191,10 +191,6 @@ const hasAnyPrimaryImages = computed(() => {
   return editableConjuration.value?.images?.some((i) => i.primary && i.uri);
 });
 
-const hasAnyImageHistory = computed(() => {
-  return editableConjuration.value?.images?.length;
-});
-
 const primaryImage = computed(() => {
   if (editableConjuration.value?.images?.length) {
     return editableConjuration.value.images.find((i: any) => i.primary);
@@ -255,11 +251,6 @@ async function viewGraph() {
               @click="showCustomizeImageModal"
             >
               Conjure Image
-            </button>
-          </div>
-          <div v-if="hasAnyImageHistory">
-            <button class="button-ghost" @click="showImageHistoryModal">
-              <PencilSquareIcon class="h-5 w-5" />
             </button>
           </div>
         </div>

@@ -16,7 +16,6 @@ import { useCurrentUserId, useCurrentUserPlan } from '@/lib/hooks.ts';
 import { BillingPlan } from '@/api/users.ts';
 import {
   BookOpenText,
-  Clock,
   LayoutDashboard,
   ScrollText,
   Sparkles,
@@ -87,6 +86,14 @@ const myCampaigns = computed(() => {
 const joinedCampaigns = computed(() => {
   return campaigns.value.filter((c: any) => c.userId !== currentUserId.value);
 });
+
+const pathStartsWith = (path: string) => {
+  return (
+    (typeof route.fullPath === 'string' && route.fullPath.startsWith(path)) ||
+    (typeof route.query['from'] === 'string' &&
+      route.query['from'].startsWith(path))
+  );
+};
 </script>
 
 <template>
@@ -239,8 +246,7 @@ const joinedCampaigns = computed(() => {
       <router-link
         class="nav-item"
         :class="[
-          route.fullPath.startsWith('/campaign/overview') ||
-          route.query['from']?.startsWith('/campaign/overview')
+          pathStartsWith('/campaign/overview')
             ? 'bg-purple-800/20 text-purple-500'
             : '',
         ]"
@@ -253,8 +259,7 @@ const joinedCampaigns = computed(() => {
       <router-link
         class="nav-item"
         :class="[
-          route.path.startsWith('/characters') ||
-          route.query['from']?.startsWith('/characters')
+          pathStartsWith('/characters')
             ? 'bg-purple-800/20 text-purple-500'
             : '',
         ]"
@@ -267,10 +272,7 @@ const joinedCampaigns = computed(() => {
       <router-link
         class="nav-item"
         :class="[
-          route.path.startsWith('/sessions') ||
-          route.query['from']?.startsWith('/sessions')
-            ? 'bg-purple-800/20 text-purple-500'
-            : '',
+          pathStartsWith('/sessions') ? 'bg-purple-800/20 text-purple-500' : '',
         ]"
         to="/sessions"
         @click="emit('nav-item-selected')"
@@ -281,8 +283,7 @@ const joinedCampaigns = computed(() => {
       <router-link
         class="nav-item"
         :class="[
-          route.fullPath.startsWith('/collections') ||
-          route.query['from']?.startsWith('/collections')
+          pathStartsWith('/collections')
             ? 'bg-purple-800/20 text-purple-500'
             : '',
         ]"
@@ -296,8 +297,7 @@ const joinedCampaigns = computed(() => {
       <router-link
         class="nav-item"
         :class="[
-          route.fullPath.startsWith('/relationships') ||
-          route.query['from']?.startsWith('/relationships/graph')
+          pathStartsWith('/relationships/graph')
             ? 'bg-purple-800/20 text-purple-500'
             : '',
         ]"
@@ -314,8 +314,7 @@ const joinedCampaigns = computed(() => {
       <router-link
         class="nav-item"
         :class="[
-          route.fullPath.startsWith('/conjurations#saved') ||
-          route.query['from']?.startsWith('/conjurations#saved')
+          pathStartsWith('/conjurations#saved')
             ? 'bg-purple-800/20 text-purple-500'
             : '',
         ]"
@@ -329,8 +328,7 @@ const joinedCampaigns = computed(() => {
       <router-link
         class="nav-item"
         :class="[
-          route.fullPath.startsWith('/conjurations#gallery') ||
-          route.query['from']?.startsWith('/conjurations#gallery')
+          pathStartsWith('/conjurations#gallery')
             ? 'bg-purple-800/20 text-purple-500'
             : '',
         ]"
