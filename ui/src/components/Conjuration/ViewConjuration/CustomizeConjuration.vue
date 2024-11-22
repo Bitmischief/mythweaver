@@ -2,7 +2,7 @@
 import { Conjuration, patchConjuration } from '@/api/conjurations.ts';
 import { computed, watch, onMounted, onUpdated, onUnmounted, ref } from 'vue';
 import { LinkIcon } from '@heroicons/vue/20/solid';
-import { PencilSquareIcon, ShareIcon } from '@heroicons/vue/24/outline';
+import { ShareIcon } from '@heroicons/vue/24/outline';
 import { useEventBus } from '@/lib/events.ts';
 import { showError, showSuccess } from '@/lib/notifications.ts';
 import { AxiosError } from 'axios';
@@ -23,6 +23,7 @@ import { ConjurationRelationshipType } from '@/lib/enums.ts';
 import ViewRelationships from '@/components/Relationships/ViewRelationships.vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useDebounceFn } from '@vueuse/core';
+import { useGenerateImages } from '@/modules/images/composables/useGenerateImages';
 
 const emit = defineEmits(['edit']);
 const props = defineProps<{
@@ -41,6 +42,8 @@ const currentUserId = useCurrentUserId();
 const currentUserRole = useCurrentUserRole();
 const channel = useWebsocketChannel();
 const hasValidPlan = useHasValidPlan();
+const { showModal: showGenerateImageModal, setLinkingContext } =
+  useGenerateImages();
 
 const editableConjuration = ref(props.conjuration);
 const imageKey = ref(0);
@@ -195,10 +198,6 @@ const hasAnyPrimaryImages = computed(() => {
   return editableConjuration.value?.images?.some((i) => i.primary && i.uri);
 });
 
-const hasAnyImageHistory = computed(() => {
-  return editableConjuration.value?.images?.length;
-});
-
 const primaryImage = computed(() => {
   if (editableConjuration.value?.images?.length) {
     return editableConjuration.value.images.find((i: any) => i.primary);
@@ -207,27 +206,8 @@ const primaryImage = computed(() => {
 });
 
 function showCustomizeImageModal() {
-  eventBus.$emit('toggle-customize-image-modal', {
-    image: {
-      prompt: editableConjuration.value.imageAIPrompt,
-    },
-    linking: {
-      conjurationId: editableConjuration.value.id,
-    },
-  });
-}
-
-function showImageHistoryModal() {
-  eventBus.$emit('toggle-customize-image-modal', {
-    image: {
-      prompt: editableConjuration.value.imageAIPrompt,
-    },
-    linking: {
-      conjurationId: editableConjuration.value.id,
-    },
-    historyMode: true,
-    showImageCredits: false,
-  });
+  setLinkingContext({ conjurationId: props.conjuration.id });
+  showGenerateImageModal.value = true;
 }
 
 function edit(e: any) {
@@ -297,11 +277,6 @@ function addTag() {
               @click="showCustomizeImageModal"
             >
               Conjure Image
-            </button>
-          </div>
-          <div v-if="hasAnyImageHistory">
-            <button class="button-ghost" @click="showImageHistoryModal">
-              <PencilSquareIcon class="h-5 w-5" />
             </button>
           </div>
         </div>

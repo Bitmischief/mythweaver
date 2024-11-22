@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import Inpaint from './Inpaint.vue';
-import { Image } from '@/api/images';
+import { Image } from '@/modules/images/types/image';
 import Loader from '@/components/Core/Loader.vue';
 import Extend from './Extend.vue';
 import Erase from './Erase.vue';
 import { Download } from 'lucide-vue-next';
 import { CheckIcon } from '@heroicons/vue/24/solid';
 import Spinner from '@/components/Core/Spinner.vue';
-import { Eraser, Fullscreen, Paintbrush, Undo, Redo, X } from 'lucide-vue-next';
+import { Eraser, Fullscreen, Paintbrush, Undo, Redo } from 'lucide-vue-next';
 import { useDebounceFn } from '@vueuse/core';
 import GenerateImage from '@/modules/images/components/GenerateImage.vue';
 import { useImageStore } from '@/modules/images/store/image.store.ts';
@@ -32,7 +32,7 @@ const imageRef = ref<HTMLImageElement | null>(null);
 const containerRef = ref<HTMLDivElement | null>(null);
 
 const maxStackSize = 25;
-const brushSize = ref<number>(25);
+const brushSize = ref<string>('25');
 const isEraseMode = ref<boolean>(false);
 
 const maskedModes = ref(['inpaint', 'erase']);
@@ -126,7 +126,7 @@ const draw = (e: MouseEvent) => {
   canvasCtx.value.moveTo(mouseX.value, mouseY.value);
   canvasCtx.value.lineTo(x, y);
   canvasCtx.value.strokeStyle = 'rgba(139, 92, 246, 1)';
-  canvasCtx.value.lineWidth = brushSize.value;
+  canvasCtx.value.lineWidth = Number(brushSize.value);
   canvasCtx.value.lineCap = 'round';
   canvasCtx.value.globalCompositeOperation = isEraseMode.value
     ? 'destination-out'
@@ -190,7 +190,7 @@ const updateBrushPreview = (e: MouseEvent) => {
 
   if (x >= 0 && x <= canvasWidth.value && y >= 0 && y <= canvasHeight.value) {
     previewCtx.value.beginPath();
-    previewCtx.value.arc(x, y, brushSize.value / 2, 0, Math.PI * 2);
+    previewCtx.value.arc(x, y, Number(brushSize.value) / 2, 0, Math.PI * 2);
     previewCtx.value.fillStyle = isEraseMode.value
       ? 'rgba(255, 25, 25, 0.2)'
       : 'rgba(139, 92, 246, 0.2)';
@@ -520,9 +520,9 @@ onUnmounted(() => {
       </div>
       <div
         v-if="
-          selectedTool === 'inpaint' ||
-          selectedTool === 'outpaint' ||
-          selectedTool === 'erase'
+          (image && selectedTool === 'inpaint') ||
+          (image && selectedTool === 'outpaint') ||
+          (image && selectedTool === 'erase')
         "
         class="w-[18em] px-4 shrink-0 overflow-y-auto"
       >
@@ -597,11 +597,11 @@ onUnmounted(() => {
             </div>
             <div class="text-center pr-4">
               <button
-                class="control-button"
+                class="control-button-text"
                 title="Clear mask"
                 @click="clearMask"
               >
-                <X class="h-5 w-5" />
+                Clear Drawing
               </button>
             </div>
             <div
@@ -648,6 +648,21 @@ onUnmounted(() => {
   background-size: 25px 25px;
   opacity: 0.5;
   z-index: -1;
+}
+
+.control-button-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  height: 42px;
+  padding-left: 24px;
+  padding-right: 24px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #888888;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .control-button {

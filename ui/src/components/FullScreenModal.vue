@@ -5,6 +5,7 @@ defineProps<{
   show: boolean;
   extraDark?: boolean;
   z?: number;
+  manuallyOverrideClose?: boolean;
 }>();
 
 const emit = defineEmits(['close']);
@@ -33,6 +34,9 @@ onUnmounted(() => {
     role="dialog"
     aria-modal="true"
   >
+    <div v-if="!manuallyOverrideClose" class="absolute top-2 right-2">
+      <button class="button-secondary" @click="$emit('close')">cancel</button>
+    </div>
     <slot></slot>
   </div>
 </template>

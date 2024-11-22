@@ -109,6 +109,24 @@ const PrimeVueStyles = {
         'flex justify-center items-center rounded border border-zinc-800 bg-fuchsia-500 w-5 h-5 outline-transparent',
     },
   },
+  splitbutton: {
+    root: 'cursor-pointer bg-surface-2 flex justify-center items-center rounded-[12px]',
+    pcdropdown: {
+      root: 'bg-surface-2 hover:bg-neutral-900 p-1 pl-2 flex justify-center items-center rounded-[12px]',
+    },
+    pcmenu: {
+      root: 'bg-surface-3 border border-neutral-500 text-neutral-400 rounded-md',
+      item: {
+        class: 'hover:cursor-pointer p-2 px-4 hover:bg-surface-2 rounded-md',
+      },
+    },
+  },
+  fileupload: {
+    root: 'flex flex-wrap items-center justify-center gap-2',
+    input: {
+      class: 'hidden',
+    },
+  },
 };
 
 export default PrimeVueStyles;

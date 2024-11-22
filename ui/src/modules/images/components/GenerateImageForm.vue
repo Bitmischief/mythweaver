@@ -9,11 +9,6 @@ import { Select } from 'primevue';
 
 const props = withDefaults(
   defineProps<{
-    linking?: {
-      sessionId?: number;
-      conjurationId?: number;
-      characterId?: number;
-    };
     prompt?: string;
   }>(),
   {
@@ -32,22 +27,30 @@ const formState = ref<GenerateImageForm>({
   aspectRatio: '1024x1024',
 });
 
-// const isAspectRatioLocked = ref(false);
+const isAspectRatioLocked = ref(false);
 
-// const handleReferenceImageAddition = (files: FormKitFile[] | undefined) => {
-//   if (files && files.length > 0) {
-//     formState.value.referenceImageFile = files[0];
-//
-//     formState.value.aspectRatio = '1024x1024';
-//     isAspectRatioLocked.value = true;
-//   } else {
-//     formState.value.referenceImageFile = undefined;
-//     isAspectRatioLocked.value = false;
-//   }
-// };
+const uploadImageUri = ref();
+const handleReferenceImageAddition = (e: any) => {
+  if (e.files && e.files.length) {
+    const file = e.files[0];
+    const reader = new FileReader();
+
+    reader.onload = async (e) => {
+      uploadImageUri.value = e.target.result;
+    };
+    reader.readAsDataURL(file);
+
+    formState.value.referenceImageFile = file;
+
+    formState.value.aspectRatio = '1024x1024';
+    isAspectRatioLocked.value = true;
+  } else {
+    formState.value.referenceImageFile = undefined;
+    isAspectRatioLocked.value = false;
+  }
+};
 
 const handleSubmit = async () => {
-  formState.value.linking = props.linking;
   await generateImages(formState.value);
 };
 
@@ -57,6 +60,11 @@ const totalQuantity = computed(() =>
     0,
   ),
 );
+
+const clearReferenceImageFile = () => {
+  formState.value.referenceImageFile = undefined;
+  uploadImageUri.value = undefined;
+};
 </script>
 
 <template>
@@ -119,6 +127,23 @@ const totalQuantity = computed(() =>
       />
     </div>
 
+    <div>
+      <label>Reference Image (optional)</label>
+      <FileUpload
+        v-if="!formState.referenceImageFile"
+        accept="image/*"
+        mode="basic"
+        class="button-ghost"
+        custom-upload
+        @select="handleReferenceImageAddition"
+      />
+      <img
+        v-if="uploadImageUri"
+        :src="uploadImageUri"
+        alt="Image"
+        class="shadow-md rounded-xl w-full"
+      />
+    </div>
     <div v-if="formState.referenceImageFile" class="mt-2 flex items-center">
       <p class="text-sm text-zinc-400 mr-2">
         Selected: {{ formState.referenceImageFile.name }}
@@ -126,7 +151,7 @@ const totalQuantity = computed(() =>
 
       <button
         class="px-2 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors"
-        @click="formState.referenceImageFile = undefined"
+        @click="clearReferenceImageFile"
       >
         Clear
       </button>
@@ -160,7 +185,7 @@ const totalQuantity = computed(() =>
         formState.selectedModels.length === 0 ||
         !formState.prompt.length ||
         formState.prompt?.length > 2500 ||
-        formState.negativePrompt?.length > 2500
+        formState?.negativePrompt?.length > 2500
       "
       @click="handleSubmit"
     >

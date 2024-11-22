@@ -4,8 +4,9 @@ import { onMounted, ref, watch } from 'vue';
 import { useEditImage } from '@/modules/images/composables/useEditImage';
 import { PencilLine, ImagePlus } from 'lucide-vue-next';
 import { useGenerateImages } from '@/modules/images/composables/useGenerateImages';
-import SecondaryButton from '@/modules/core/components/buttons/SecondaryButton.vue';
-import Button from '@/modules/core/components/buttons/Button.vue';
+import SplitButton from 'primevue/splitbutton';
+import Button from 'primevue/button';
+import { useImageHistory } from '@/modules/images/composables/useImageHistory';
 
 const props = withDefaults(
   defineProps<{
@@ -55,7 +56,9 @@ const props = withDefaults(
 );
 
 const { setSelectedImage } = useEditImage();
-const { showModal: showGenerateImageModal } = useGenerateImages();
+const { showModal: showGenerateImageModal, setLinkingContext } =
+  useGenerateImages();
+const { chooseFromImageHistory } = useImageHistory();
 
 const imgWidth = ref(0);
 const imgHeight = ref(0);
@@ -88,7 +91,8 @@ async function beginEditImage() {
   }
 }
 
-function handleNewImage() {
+function showNewImageModal() {
+  setLinkingContext({ conjurationId: props.linking?.conjurationId });
   showGenerateImageModal.value = true;
 }
 </script>
@@ -124,24 +128,29 @@ function handleNewImage() {
       </div>
     </div>
 
-    <div v-if="editable" class="mt-2 flex gap-2 top-0 right-2">
-      <Button
-        type="button"
-        class="button-primary w-[12rem]"
+    <div v-if="editable" class="mt-2 flex gap-2">
+      <SplitButton
+        v-if="linking?.conjurationId"
+        class="flex w-full"
         :disabled="!editable"
-        @click="handleNewImage"
+        :model="[
+          {
+            label: 'Choose from conjuration history',
+            command: () => chooseFromImageHistory(linking.conjurationId!),
+          },
+        ]"
+        @click="showNewImageModal"
       >
-        <span class="w-full flex justify-center items-center gap-2">
-          <ImagePlus class="w-5 h-5" />
-          New Image
-        </span>
-      </Button>
-      <SecondaryButton class="w-full" @click="beginEditImage">
+        <ImagePlus class="w-4 h-4" />
+        New Image
+      </SplitButton>
+
+      <Button class="button-primary !py-1" @click="beginEditImage">
         <span class="w-full flex justify-center items-center gap-2">
           <PencilLine class="w-5 h-5" />
           Edit Image
         </span>
-      </SecondaryButton>
+      </Button>
     </div>
   </div>
 </template>

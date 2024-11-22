@@ -158,6 +158,7 @@ async function showCustomizeImageModal() {
       sessionId: session.value.id,
     },
   });
+
   loadingImageModal.value = false;
 }
 

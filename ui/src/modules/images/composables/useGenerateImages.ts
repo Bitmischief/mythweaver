@@ -6,15 +6,21 @@ import { useWebsocketChannel } from '@/lib/hooks';
 import { ServerEvent } from '@/lib/serverEvents';
 import { NewImageResponse } from '../types/newImageResponse';
 import { Image } from '../types/image';
+import { ChangeImageContextLink } from '../types/changeImageContext';
 
 const showModal = ref(false);
 const generatedImages = ref<Image[]>([]);
+const linkingContext = ref<ChangeImageContextLink | undefined>(undefined);
 
 export function useGenerateImages() {
   const { getWidthAndHeight } = useAvailableAspectRatios();
   const channel = useWebsocketChannel();
 
   const loading = ref(false);
+
+  function setLinkingContext(context: ChangeImageContextLink) {
+    linkingContext.value = context;
+  }
 
   async function generateImages(form: GenerateImageForm) {
     generatedImages.value = [];
@@ -32,7 +38,9 @@ export function useGenerateImages() {
       negativePrompt: form.negativePrompt,
       referenceImageFile: form.referenceImageFile as File,
       referenceImageStrength: form.referenceImageStrength,
-      linking: form.linking,
+      linking: {
+        ...linkingContext.value,
+      },
     });
   }
 
@@ -53,6 +61,7 @@ export function useGenerateImages() {
 
   return {
     showModal,
+    setLinkingContext,
     generateImages,
     generatedImages,
     loading,
