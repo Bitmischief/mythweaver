@@ -373,7 +373,7 @@ export class ImagesService {
       await sendWebsocketMessage(request.userId, WebSocketEvent.ImageCreated, {
         image: updatedImage,
         modelId: image.modelId,
-        modelName: model?.modelName,
+        modelName: model?.description,
         imageId: image.id,
         context: {
           ...request.linking,

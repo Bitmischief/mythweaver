@@ -1,4 +1,4 @@
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { apiGenerateImages } from '../api/images';
 import { GenerateImageForm } from '../types/generateImageForm';
 import { useAvailableAspectRatios } from './useAvailableAspectRatios';
@@ -17,6 +17,10 @@ export function useGenerateImages() {
   const channel = useWebsocketChannel();
 
   const loading = ref(false);
+
+  onMounted(() => {
+    generatedImages.value = [];
+  });
 
   function setLinkingContext(context: ChangeImageContextLink) {
     linkingContext.value = context;
@@ -50,6 +54,7 @@ export function useGenerateImages() {
     if (existingImage) {
       existingImage.uri = event.image.uri;
       existingImage.generating = false;
+      existingImage.modelName = event.modelName;
     } else {
       generatedImages.value.push(event.image);
     }
@@ -67,7 +72,7 @@ export function useGenerateImages() {
       existingImage.error = true;
       existingImage.errorMessage = event.description;
     }
-    
+
     if (generatedImages.value.every((i) => !i.generating)) {
       channel.unbind(ServerEvent.ImageFiltered, imageFilteredHandler);
       loading.value = false;

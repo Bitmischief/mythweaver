@@ -18,7 +18,7 @@ const props = withDefaults(
 );
 
 const { aspectRatios } = useAvailableAspectRatios();
-const { generateImages } = useGenerateImages();
+const { generateImages, loading } = useGenerateImages();
 
 const showAdvancedSettings = ref(false);
 const formState = ref<GenerateImageForm>({
@@ -186,6 +186,7 @@ const clearReferenceImageFile = () => {
     <Button
       class="button-purple"
       :disabled="
+        loading ||
         formState.selectedModels.length === 0 ||
         formState.prompt.length === 0 ||
         formState.prompt.length > 2500 ||
@@ -193,7 +194,11 @@ const clearReferenceImageFile = () => {
       "
       @click="handleSubmit"
     >
-      <div class="flex gap-2">
+      <div v-if="loading" class="flex items-center gap-2">
+        <Spinner />
+        <div class="text-lg">Generating...</div>
+      </div>
+      <div v-else class="flex gap-2">
         <div class="self-center text-lg">Generate Images</div>
         <div class="self-center flex gap-1 text-lg">
           {{ totalQuantity }}
