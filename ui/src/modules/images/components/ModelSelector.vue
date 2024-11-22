@@ -124,10 +124,10 @@ const getModelById = (id: number) =>
             </div>
           </div>
         </template>
-        <template #chipicon="{ removeCallback }">
+        <template #chipicon="{ item, removeCallback }">
           <XMarkIcon
             class="w-5 h-5 cursor-pointer hover:bg-primary rounded-full"
-            @click.prevent="removeCallback!"
+            @click.prevent="(e: Event) => removeCallback(e, item)"
           />
         </template>
       </MultiSelect>

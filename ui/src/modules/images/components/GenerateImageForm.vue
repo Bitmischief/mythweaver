@@ -36,7 +36,9 @@ const handleReferenceImageAddition = (e: any) => {
     const reader = new FileReader();
 
     reader.onload = async (e) => {
-      uploadImageUri.value = e.target?.result;
+      if (e.target?.result) {
+        uploadImageUri.value = e.target.result;
+      }
     };
     reader.readAsDataURL(file);
 
@@ -110,7 +112,9 @@ const clearReferenceImageFile = () => {
         placeholder="Describe what you don't want in the image..."
       />
       <div
-        v-if="formState?.negativePrompt?.length! > 2500"
+        v-if="
+          formState.negativePrompt && formState.negativePrompt?.length > 2500
+        "
         class="text-red-500 text-xs"
       >
         Prompt cannot exceed 2500 characters
@@ -183,9 +187,9 @@ const clearReferenceImageFile = () => {
       class="button-purple"
       :disabled="
         formState.selectedModels.length === 0 ||
-        !formState.prompt.length ||
-        formState.prompt?.length > 2500 ||
-        formState?.negativePrompt?.length! > 2500
+        formState.prompt.length === 0 ||
+        formState.prompt.length > 2500 ||
+        (!!formState.negativePrompt && formState.negativePrompt.length > 2500)
       "
       @click="handleSubmit"
     >
