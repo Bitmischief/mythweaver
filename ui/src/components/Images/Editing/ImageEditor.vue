@@ -32,7 +32,7 @@ const imageRef = ref<HTMLImageElement | null>(null);
 const containerRef = ref<HTMLDivElement | null>(null);
 
 const maxStackSize = 25;
-const brushSize = ref<string>('25');
+const brushSize = ref<number>(25);
 const isEraseMode = ref<boolean>(false);
 
 const maskedModes = ref(['inpaint', 'erase']);
@@ -126,7 +126,7 @@ const draw = (e: MouseEvent) => {
   canvasCtx.value.moveTo(mouseX.value, mouseY.value);
   canvasCtx.value.lineTo(x, y);
   canvasCtx.value.strokeStyle = 'rgba(139, 92, 246, 1)';
-  canvasCtx.value.lineWidth = Number(brushSize.value);
+  canvasCtx.value.lineWidth = brushSize.value;
   canvasCtx.value.lineCap = 'round';
   canvasCtx.value.globalCompositeOperation = isEraseMode.value
     ? 'destination-out'
@@ -190,7 +190,7 @@ const updateBrushPreview = (e: MouseEvent) => {
 
   if (x >= 0 && x <= canvasWidth.value && y >= 0 && y <= canvasHeight.value) {
     previewCtx.value.beginPath();
-    previewCtx.value.arc(x, y, Number(brushSize.value) / 2, 0, Math.PI * 2);
+    previewCtx.value.arc(x, y, brushSize.value / 2, 0, Math.PI * 2);
     previewCtx.value.fillStyle = isEraseMode.value
       ? 'rgba(255, 25, 25, 0.2)'
       : 'rgba(139, 92, 246, 0.2)';
