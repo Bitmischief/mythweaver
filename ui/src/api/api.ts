@@ -6,7 +6,8 @@ axios.defaults.baseURL = API_URL;
 
 axios.interceptors.request.use(
   async (config) => {
-    if (config.url?.startsWith('/campaigns/invites/') && config.method === 'GET') {
+    debugger;
+    if (config.url?.startsWith('/campaigns/invites/') && config.method?.toUpperCase() === 'GET') {
       return config;
     }
 

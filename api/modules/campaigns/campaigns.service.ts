@@ -300,6 +300,7 @@ export class CampaignsService {
       email: user.email,
       role: CampaignRole.Player,
       userId: user.id,
+      joinedAt: new Date(),
     });
   }
 
