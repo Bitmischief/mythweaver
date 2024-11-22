@@ -242,6 +242,10 @@ function removeTag(tag: string) {
 const newTag = ref<string | null>(null);
 
 function addTag() {
+  if (!newTag.value) {
+    return;
+  }
+
   if (editableConjuration.value.tags) {
     editableConjuration.value.tags.push(newTag.value);
   } else {

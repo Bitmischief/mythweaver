@@ -32,7 +32,7 @@ const imageRef = ref<HTMLImageElement | null>(null);
 const containerRef = ref<HTMLDivElement | null>(null);
 
 const maxStackSize = 25;
-const brushSize = ref<string>('25');
+const brushSize = ref<number>(25);
 const isEraseMode = ref<boolean>(false);
 
 const maskedModes = ref(['inpaint', 'erase']);

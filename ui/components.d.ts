@@ -24,7 +24,6 @@ declare module 'vue' {
     ConjurationListItemView: typeof import('./src/components/Conjuration/ConjurationListItemView.vue')['default']
     ConjurationMove: typeof import('./src/components/Collections/ConjurationMove.vue')['default']
     ConjurationsListFiltering: typeof import('./src/components/Conjuration/ConjurationsListFiltering.vue')['default']
-    ConjureImage: typeof import('./src/components/Conjure/ConjureImage.vue')['default']
     ConjuringLoader: typeof import('./src/components/Conjuration/ConjuringLoader.vue')['default']
     CreateConjurationRelationship: typeof import('./src/components/Relationships/Create/CreateConjurationRelationship.vue')['default']
     CustomizableImage: typeof import('./src/components/Images/CustomizableImage.vue')['default']

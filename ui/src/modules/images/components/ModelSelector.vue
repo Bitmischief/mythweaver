@@ -91,7 +91,7 @@ const getModelById = (id: number) =>
         multiple
         placeholder="Choose models"
         close-on-select="true"
-        show-toggle-all="false"
+        :show-toggle-all="false"
         display="chip"
         @update:model-value="handleModelSelection"
       >
@@ -127,7 +127,7 @@ const getModelById = (id: number) =>
         <template #chipicon="{ removeCallback }">
           <XMarkIcon
             class="w-5 h-5 cursor-pointer hover:bg-primary rounded-full"
-            @click.prevent="removeCallback"
+            @click.prevent="removeCallback!"
           />
         </template>
       </MultiSelect>
