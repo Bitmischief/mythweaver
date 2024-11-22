@@ -271,6 +271,14 @@ export class CollectionsDataProvider {
     });
   }
 
+  async deleteManyCollectionsConjuration(conjurationId: number) {
+    await prisma.collectionConjuration.deleteMany({
+      where: {
+        conjurationId: conjurationId,
+      },
+    });
+  }
+
   async deleteCollectionConjuration(
     collectionId: number,
     conjurationId: number,

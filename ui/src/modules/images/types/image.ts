@@ -10,4 +10,6 @@ export interface Image {
   conjurationId?: number;
   sessionId?: number;
   characterId?: number;
+  error?: boolean;
+  errorMessage?: string;
 }

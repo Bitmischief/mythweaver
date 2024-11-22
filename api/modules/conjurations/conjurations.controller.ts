@@ -90,8 +90,8 @@ export class ConjurationsController {
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
     @Route() conjurationId: number,
-  ): Promise<void> {
-    await this.conjurationsService.saveConjuration(
+  ): Promise<Conjuration | null> {
+    return await this.conjurationsService.copyConjuration(
       userId,
       trackingInfo,
       conjurationId,

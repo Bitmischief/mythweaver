@@ -300,6 +300,11 @@ export class ConjurationsService {
     await this.conjurationsRelationshipsDataProvider.deleteConjurationRelationships(
       conjurationId,
     );
+
+    await this.collectionsDataProvider.deleteManyCollectionsConjuration(
+      conjurationId,
+    );
+
     await this.conjurationsDataProvider.deleteConjuration(conjurationId);
 
     track(AppEvent.DeleteConjuration, userId, trackingInfo);

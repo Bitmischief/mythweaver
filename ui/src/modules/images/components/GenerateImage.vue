@@ -25,7 +25,7 @@ const handlePrimaryImageSet = (imageId: number) => {
 </script>
 
 <template>
-  <div class="md:flex w-full">
+  <div class="md:flex w-full mt-4">
     <div class="md:w-1/3">
       <GenerateImageForm :prompt="prompt" />
     </div>

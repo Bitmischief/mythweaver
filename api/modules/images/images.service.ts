@@ -428,7 +428,7 @@ export class ImagesService {
           },
           undefined,
           {
-            onAttemptFail: (data: any) => {
+            onAttemptFail: async (data: any) => {
               // if we get a 400, fail immediately, don't retry
               if ((data.error as AxiosError)?.response?.status === 400) {
                 throw data.error;
@@ -449,14 +449,15 @@ export class ImagesService {
         e,
       );
 
-      if (e?.response?.status === 400) {
+      if (e?.response?.status === 403) {
         await sendWebsocketMessage(
           request.userId,
           WebSocketEvent.ImageFiltered,
           {
-            description: 'The returned images did not pass our content filter.',
+            description: 'The returned image did not pass our content filter.',
             context: {
               ...request.linking,
+              imageId: request.imageId,
             },
           },
         );

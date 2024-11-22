@@ -116,9 +116,11 @@ async function loadConjuration() {
 
 async function handleSaveConjuration() {
   try {
-    await saveConjuration(conjurationId.value);
+    const { data } = await saveConjuration(conjurationId.value);
     showSuccess({ message: 'Successfully saved conjuration!' });
-    await loadConjuration();
+    await router.push({
+      path: `/conjurations/view/${data.id}`,
+    });
   } catch (e: any) {
     if (e.response?.data?.name === 'CONJURATION_LIMIT_REACHED') {
       showError({
@@ -191,16 +193,6 @@ async function routeBack() {
   } else {
     await router.push('/conjurations#saved');
   }
-}
-
-async function conjureUsingPrompt() {
-  await router.push({
-    path: '/conjure',
-    query: {
-      prompt: conjuration.value?.prompt,
-      code: conjuration.value?.conjurerCode,
-    },
-  });
 }
 
 const readOnly = ref(true);
@@ -332,7 +324,7 @@ async function addToCampaign() {
           class="button-gradient self-center"
           @click="addToCampaign"
         >
-          Add To Current Campaign
+          Add Character To Current Campaign
         </button>
         <button
           v-if="isMyConjuration && readOnly"
@@ -380,19 +372,7 @@ async function addToCampaign() {
 
           <template #content>
             <div class="relative z-60 bg-surface-3 py-2 rounded-[12px]">
-              <MenuItem>
-                <div class="menu-item">
-                  <button
-                    v-if="conjuration.prompt"
-                    class="button-text flex gap-2"
-                    @click="conjureUsingPrompt"
-                  >
-                    <ChatBubbleLeftRightIcon class="h-5 w-5" />
-                    Conjure With Same Prompt
-                  </button>
-                </div>
-              </MenuItem>
-              <MenuItem>
+              <MenuItem v-if="conjuration.conjurerCode !== 'players'">
                 <div class="menu-item">
                   <button
                     class="button-text flex gap-2"
@@ -414,7 +394,7 @@ async function addToCampaign() {
                   </button>
                 </div>
               </MenuItem>
-              <MenuItem>
+              <MenuItem v-if="conjuration.saved && !isMyConjuration">
                 <div class="menu-item">
                   <button
                     class="button-text flex gap-2"

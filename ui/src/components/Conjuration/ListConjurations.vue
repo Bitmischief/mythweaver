@@ -368,7 +368,7 @@ const clearFilters = () => {
         v-for="conjuration of conjurations"
         :key="conjuration.name"
         :data="conjuration"
-        :show-saves="!conjurationsMineQuery.saved"
+        :show-saves="false"
         :condensed-view="viewType === 'list'"
         @add-conjuration="handleConjurationChange"
         @remove-conjuration="handleConjurationChange"

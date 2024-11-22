@@ -28,6 +28,7 @@ export function useGenerateImages() {
     const { width, height } = getWidthAndHeight(form.aspectRatio);
 
     channel.bind(ServerEvent.ImageCreated, imageCreatedHandler);
+    channel.bind(ServerEvent.ImageFiltered, imageFilteredHandler);
     loading.value = true;
 
     generatedImages.value = await apiGenerateImages({
@@ -55,6 +56,20 @@ export function useGenerateImages() {
 
     if (generatedImages.value.every((i) => !i.generating)) {
       channel.unbind(ServerEvent.ImageCreated, imageCreatedHandler);
+      loading.value = false;
+    }
+  }
+
+  function imageFilteredHandler(event: any) {
+    const existingImage = generatedImages.value.find((i) => i.id === event.context.imageId);
+    if (existingImage) {
+      existingImage.generating = false;
+      existingImage.error = true;
+      existingImage.errorMessage = event.description;
+    }
+    
+    if (generatedImages.value.every((i) => !i.generating)) {
+      channel.unbind(ServerEvent.ImageFiltered, imageFilteredHandler);
       loading.value = false;
     }
   }

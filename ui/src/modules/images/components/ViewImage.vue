@@ -35,11 +35,21 @@ const handlePrimaryImageSet = (imageId: number) => {
     <div class="relative">
       <div v-if="image.generating" class="h-[22rem] w-full">
         <div
-          class="flex flex-col h-full flex-grow justify-center text-center bg-surface-2 rounded-lg"
+          class="flex flex-col h-full flex-grow justify-center text-center bg-surface rounded-lg"
         >
           <Loader />
           <div class="text-xl gradient-text my-4 animate-pulse">
             Conjuring...
+          </div>
+        </div>
+      </div>
+      <div v-else-if="image.error" class="h-[22rem] w-full">
+        <div
+          class="flex flex-col h-full flex-grow justify-center text-center bg-surface rounded-lg p-2"
+        >
+          <div class="text-neutral-400 my-4">
+            {{ image.errorMessage }}
+            Please try again.
           </div>
         </div>
       </div>
@@ -65,7 +75,7 @@ const handlePrimaryImageSet = (imageId: number) => {
       />
     </div>
 
-    <div v-if="!image.generating">
+    <div v-if="!image.generating && !image.error">
       <div class="flex justify-end gap-4 py-2">
         <button
           v-if="allowEdits"
