@@ -163,35 +163,38 @@ const addCollection = async () => {
           </button>
         </div>
         <div v-else>
-          <FormKit type="form" :actions="false" @submit="addCollection">
-            <div
-              class="bg-surface-2 rounded-[20px] min-w-[90vw] md:min-w-[50vw] p-6"
-            >
-              <div class="mt-1">
-                <FormKit
-                  ref="newCollectionNameInput"
-                  v-model="newCollectionName"
-                  placeholder="New Collection Name"
-                  label="Collection Name"
-                  type="text"
-                  validation="required"
-                />
+          <div
+            class="bg-surface-2 rounded-[20px] min-w-[90vw] md:min-w-[50vw] p-6"
+          >
+            <div class="mb-2">
+              <InputText
+                ref="newCollectionNameInput"
+                v-model="newCollectionName"
+                placeholder="New Collection Name"
+                label="Collection Name"
+                type="text"
+                validation="required"
+              />
+            </div>
+            <div class="flex gap-2">
+              <div>
+                <Button
+                  class="button-ghost-primary"
+                  @click="showNewCollection = false"
+                >
+                  Cancel
+                </Button>
               </div>
-              <div class="flex gap-2">
-                <div>
-                  <button
-                    class="button-ghost-primary"
-                    @click.prevent="showNewCollection = false"
-                  >
-                    Cancel
-                  </button>
-                </div>
-                <div>
-                  <button class="button-gradient">Create Collection</button>
-                </div>
+              <div>
+                <Button
+                  class="button-gradient"
+                  :disabled="!newCollectionName"
+                  @click="addCollection"
+                  >Create Collection
+                </Button>
               </div>
             </div>
-          </FormKit>
+          </div>
         </div>
       </div>
     </div>

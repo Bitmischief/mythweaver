@@ -251,24 +251,22 @@ const clearFilters = () => {
         class="my-4 md:mt-0 self-center flex justify-center md:justify-end gap-2 grow flex-wrap md:flex-nowrap"
       >
         <div class="grow">
-          <FormKit type="form" :actions="false" @submit="handleFiltersUpdated">
-            <div class="flex grow">
-              <FormKit
-                v-model="searchText"
-                type="search"
-                name="search"
-                placeholder="Search names & tags"
-                outer-class="$reset grow"
-                inner-class="rounded-tr-none rounded-br-none"
-              />
-              <button
-                class="button-gradient rounded-tl-none rounded-bl-none"
-                type="submit"
-              >
-                <MagnifyingGlassIcon class="h-5 w-5" />
-              </button>
-            </div>
-          </FormKit>
+          <div class="flex grow">
+            <InputText
+              v-model="searchText"
+              type="text"
+              name="search"
+              placeholder="Search names & tags"
+              class="grow rounded-r-none"
+              @keydown.enter="handleFiltersUpdated({ search: searchText })"
+            />
+            <button
+              class="button-gradient rounded-tl-none rounded-bl-none"
+              @click="handleFiltersUpdated({ search: searchText })"
+            >
+              <MagnifyingGlassIcon class="h-5 w-5" />
+            </button>
+          </div>
         </div>
 
         <button

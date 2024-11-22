@@ -8,6 +8,7 @@ import { CampaignRole } from '@/api/campaigns.ts';
 import WysiwygEditor from '@/components/Core/WysiwygEditor.vue';
 import { cloneDeep, isEqual } from 'lodash';
 import { format } from 'date-fns';
+import { DatePicker } from 'primevue';
 
 const route = useRoute();
 const currentUserRole = useCurrentUserRole();
@@ -29,7 +30,7 @@ async function init() {
   session.value = response.data as SessionBase;
   sessionName.value = session.value.name;
   if (session.value.date) {
-    sessionDate.value = format(session.value.date, "yyyy-MM-dd'T'HH:mm");
+    sessionDate.value = format(session.value.date, 'MMMM dd yyyy');
   }
 
   origPlanning = cloneDeep(session.value.planningJson);
@@ -73,38 +74,30 @@ const planningChanged = (planning: any) => {
 
 <template>
   <div v-if="session">
-    <FormKit type="form" :actions="false" @submit="clickSaveSession">
-      <div class="w-full flex justify-end">
-        <div
-          v-if="currentUserRole === CampaignRole.DM"
-          class="shrink self-center"
-        >
-          <button type="submit" class="button-gradient self-center">
-            Save Changes
-          </button>
-        </div>
+    <div class="w-full flex justify-end">
+      <div
+        v-if="currentUserRole === CampaignRole.DM"
+        class="shrink self-center"
+      >
+        <button class="button-gradient self-center" @click="clickSaveSession">
+          Save Changes
+        </button>
       </div>
-      <div class="md:mt-6 flex flex-wrap md:flex-nowrap gap-4 mb-4">
-        <div class="grow">
-          <FormKit
-            v-model="sessionName"
-            type="text"
-            label="Session Name"
-            input-class="md:text-xl"
-            validation="required"
-          />
-        </div>
-        <div class="shrink">
-          <FormKit
-            v-model="sessionDate"
-            type="datetime-local"
-            label="Session Date"
-            input-class="md:text-xl"
-            validation-visibility="live"
-          />
-        </div>
+    </div>
+    <div class="md:mt-6 flex flex-wrap md:flex-nowrap gap-4 mb-4">
+      <div class="grow">
+        <label>Session Name</label>
+        <InputText v-model="sessionName" />
       </div>
-    </FormKit>
+      <div class="shrink">
+        <label>Session Date</label>
+        <DatePicker
+          v-model="sessionDate"
+          date-format="MM dd yy"
+          placeholder="mm/dd/yyyy"
+        />
+      </div>
+    </div>
     <div class="mt-4 pb-6 mb-6 border border-neutral-800 rounded-[20px] p-4">
       <div class="flex flex-wrap md:flex-nowrap justify-between mb-2">
         <div class="text-lg font-bold text-neutral-200 self-center">
@@ -116,13 +109,7 @@ const planningChanged = (planning: any) => {
         <div
           v-if="currentUserRole === CampaignRole.DM"
           class="flex gap-2 grow justify-end"
-        >
-          <!--          <div>-->
-          <!--            <button class="button-ghost self-center" @click="toggleReadOnly">-->
-          <!--              {{ readOnly ? 'Edit Mode' : 'Read Mode' }}-->
-          <!--            </button>-->
-          <!--          </div>-->
-        </div>
+        ></div>
       </div>
       <WysiwygEditor
         :key="'' + readOnly"

@@ -28,10 +28,10 @@ const value = computed({
   },
 });
 
+const promptLimit = ref(2500);
 const channel = useWebsocketChannel();
 const currentUserPlan = useCurrentUserPlan();
 const selectedCampaignId = useSelectedCampaignId();
-// const quickConjure = useQuickConjure();
 
 const generating = ref(false);
 const conjurationRequestId = ref<number | undefined>(undefined);
@@ -138,72 +138,72 @@ const generatorExamples = () => {
     </div>
   </div>
   <div v-else>
-    <FormKit :actions="false" type="form" @submit="generate">
-      <div class="text-xl">
-        Give us a description of the
-        <span class="gradient-text">{{ generator.name }}</span>
-        you want to conjure
-      </div>
-      <div class="text-sm text-neutral-500 mb-4">
-        {{ generator.customizationHelpPrompt }}
-      </div>
-      <div class="mb-4 flex gap-2 justify-between">
-        <button class="button-primary flex gap-2" @click="emit('back')">
-          <ArrowLeftIcon class="h-5 w-5 self-center" />
-          <span class="self-center">Back</span>
-        </button>
+    <div class="text-xl">
+      Give us a description of the
+      <span class="gradient-text">{{ generator.name }}</span>
+      you want to conjure
+    </div>
+    <div class="text-sm text-neutral-500 mb-4">
+      {{ generator.customizationHelpPrompt }}
+    </div>
+    <div class="mb-4 flex gap-2 justify-between">
+      <button class="button-primary flex gap-2" @click="emit('back')">
+        <ArrowLeftIcon class="h-5 w-5 self-center" />
+        <span class="self-center">Back</span>
+      </button>
 
-        <button class="button-gradient flex gap-2">
-          <img
-            src="@/assets/icons/wand.svg"
-            alt="wand"
-            class="h-5 self-center"
-          />
-          <span class="self-center">Conjure</span>
-        </button>
-      </div>
-      <div
-        class="w-full bg-gradient-to-r from-fuchsia-500 to-violet-500 p-px rounded-[20px] purple-shadow"
+      <button
+        class="button-gradient flex gap-2"
+        :disabled="!prompt || prompt.length > promptLimit"
+        @click="generate"
       >
-        <div class="flex flex-col p-3 rounded-[20px] bg-surface-2 min-h-[12em]">
-          <div class="relative pb-1 grow">
-            <FormKit
-              v-model="prompt"
-              :placeholder="`Enter ${generator?.name} Description`"
-              inner-class="border-none"
-              input-class="$reset input-secondary border-none focus:ring-fuchsia-500 resize-none md:pr-[8em]"
-              help-class="px-1"
-              name="prompt"
-              type="textarea"
-              validation="length:0,2500"
-              rows="10"
-              :disabled="selectedIsProOnly"
-            />
-            <div class="absolute text-neutral-500 text-xs right-2 bottom-0">
-              {{ prompt.length }} / 2500
-            </div>
+        <img src="@/assets/icons/wand.svg" alt="wand" class="h-5 self-center" />
+        <span class="self-center">Conjure</span>
+      </button>
+    </div>
+    <div
+      class="w-full bg-gradient-to-r from-fuchsia-500 to-violet-500 p-px rounded-[20px] purple-shadow"
+    >
+      <div class="flex flex-col p-3 rounded-[20px] bg-surface-2 min-h-[12em]">
+        <div class="relative pb-1 grow">
+          <Textarea
+            v-model="prompt"
+            rows="10"
+            class="border-none focus:ring-surface-2 mb-2"
+            auto-resize
+            :placeholder="`Enter ${generator?.name} Description`"
+            :disabled="selectedIsProOnly"
+          />
+          <Message
+            v-if="prompt.length > 2500"
+            class="text-sm text-yellow-500 mx-3"
+          >
+            Prompt exceeds max length of {{ promptLimit }}.
+          </Message>
+          <div class="absolute text-neutral-500 text-xs right-2 bottom-0">
+            {{ prompt.length }} / {{ promptLimit }}
           </div>
         </div>
       </div>
-      <div class="text-lg mt-12 text-center">Examples</div>
+    </div>
+    <div class="text-lg mt-12 text-center">Examples</div>
+    <div
+      class="grid grid-cols-1 xl:grid-cols-3 text-neutral-500 mx-auto gap-4 mt-4 justify-around"
+    >
       <div
-        class="grid grid-cols-1 xl:grid-cols-3 text-neutral-500 mx-auto gap-4 mt-4 justify-around"
+        v-for="(des, i) in examples"
+        :key="`sample_npc_${i}`"
+        class="rounded-[20px] bg-surface-2 p-4 flex flex-col"
       >
-        <div
-          v-for="(des, i) in examples"
-          :key="`sample_npc_${i}`"
-          class="rounded-[20px] bg-surface-2 p-4 flex flex-col"
+        <div class="mb-2">{{ des }}</div>
+        <button
+          class="button-ghost-primary mt-auto"
+          @click.prevent="prompt = des"
         >
-          <div class="mb-2">{{ des }}</div>
-          <button
-            class="button-ghost-primary mt-auto"
-            @click.prevent="prompt = des"
-          >
-            Copy example
-          </button>
-        </div>
+          Copy example
+        </button>
       </div>
-    </FormKit>
+    </div>
   </div>
 </template>
 

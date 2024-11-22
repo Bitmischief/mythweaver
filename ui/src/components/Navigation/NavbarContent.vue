@@ -16,7 +16,6 @@ import { useCurrentUserId, useCurrentUserPlan } from '@/lib/hooks.ts';
 import { BillingPlan } from '@/api/users.ts';
 import {
   BookOpenText,
-  Clock,
   LayoutDashboard,
   ScrollText,
   Sparkles,

@@ -1,5 +1,3 @@
-const FormKitVariants = require('@formkit/themes/tailwindcss');
-
 module.exports = {
   content: ['./index.html', './src/**/*.{js,ts,vue}', 'formkit.theme.ts'],
   theme: {
@@ -16,11 +14,10 @@ module.exports = {
       },
       screens: {
         '3xl': '1921px',
-        // => @media (min-width: 1921px) { ... }
       },
     },
   },
-  plugins: [require('@tailwindcss/forms'), FormKitVariants, require('tailwindcss-primeui')],
+  plugins: [require('@tailwindcss/forms'), require('tailwindcss-primeui')],
   variants: {
     extend: {
       display: ['group-hover'],

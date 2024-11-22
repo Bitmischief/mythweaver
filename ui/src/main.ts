@@ -1,6 +1,4 @@
 import { createApp } from 'vue';
-import { defaultConfig, plugin } from '@formkit/vue';
-import config from '../formkit.config.ts';
 
 import '@/index.css';
 import App from './App.vue';
@@ -13,24 +11,16 @@ import { isDevelopment, isLocalDevelopment, isProduction } from '@/lib/util.ts';
 import auth0Client from '@/plugins/auth.ts';
 import VueSafeHTML from 'vue-safe-html';
 import PrimeVue from 'primevue/config';
-import Aura from '@primevue/themes/aura';
+import PrimeVueStyles from '@/primevue.styles.ts';
 
 const app = createApp(App);
 
 app.use(VueIntercom);
 
 app.use(PrimeVue, {
-  theme: {
-    preset: Aura,
-    options: {
-      cssLayer: {
-        name: 'primevue',
-        order: 'tailwind-base, primevue, tailwind-utilities',
-      },
-    },
-  },
+  unstyled: true,
+  pt: PrimeVueStyles,
 });
-app.use(plugin, defaultConfig(config()));
 
 app.use(createPinia());
 app.use(router);

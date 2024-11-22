@@ -136,7 +136,7 @@ function handleNewImage() {
           New Image
         </span>
       </Button>
-      <SecondaryButton @click="beginEditImage" class="w-full">
+      <SecondaryButton class="w-full" @click="beginEditImage">
         <span class="w-full flex justify-center items-center gap-2">
           <PencilLine class="w-5 h-5" />
           Edit Image

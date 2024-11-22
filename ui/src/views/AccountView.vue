@@ -172,41 +172,27 @@ async function disconnectDiscord() {
       <div class="md:mx-8 text-neutral-200 grow">
         <div v-if="tab === 'profile'">
           <div class="text-lg mb-2">Profile Settings</div>
-          <FormKit :actions="false" type="form" @submit="saveChanges">
-            <div
-              class="p-6 rounded-[12px] bg-surface-2 border border-surface-3"
-            >
-              <div class="text-md">User Information</div>
-              <div class="grid grid-cols-2 mt-8 gap-8">
-                <div>
-                  <FormKit
-                    :value="user?.email"
-                    label="Email"
-                    type="text"
-                    inner-class="$reset border-none w-full"
-                    input-class="$reset input-secondary"
-                    disabled
-                  />
-                </div>
-
-                <div>
-                  <FormKit
-                    v-model="username"
-                    label="Username"
-                    type="text"
-                    inner-class="$reset border-none w-full"
-                    input-class="$reset input-secondary"
-                  />
-                </div>
+          <div class="p-6 rounded-[12px] bg-surface-2 border border-surface-3">
+            <div class="text-md">User Information</div>
+            <div class="grid grid-cols-2 mt-8 gap-8">
+              <div>
+                <label>Email</label>
+                <InputText :value="user?.email" disabled />
               </div>
-              <FormKit
-                v-if="username !== user?.username"
-                label="Save"
-                type="submit"
-                input-class="$reset button-ghost"
-              />
+
+              <div>
+                <label>Username</label>
+                <InputText v-model="username" />
+              </div>
             </div>
-          </FormKit>
+            <Button
+              v-if="username !== user?.username"
+              class="button-ghost"
+              @click="saveChanges"
+            >
+              Save
+            </Button>
+          </div>
         </div>
         <div v-if="tab === 'billing'">
           <div class="text-lg mb-2">Billing & Subscription</div>

@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue';
 import { outpaint } from '@/api/images';
 import Spinner from '@/components/Core/Spinner.vue';
-import { FormKit } from '@formkit/vue';
+import { Select } from 'primevue';
 
 const props = defineProps<{
   imageId: number;
@@ -22,7 +22,7 @@ const downDimension = ref(0);
 const leftDimension = ref(0);
 const rightDimension = ref(0);
 const direction = ref('up');
-const pixels = ref('0');
+const pixels = ref(0);
 
 const isValidDimensions = computed(() => {
   return (
@@ -40,10 +40,10 @@ const applyOutpaint = async () => {
   try {
     emit('edit-started');
     const editedImage = await outpaint(props.imageId, prompt.value, {
-      up: direction.value === 'up' ? parseInt(pixels.value) : 0,
-      down: direction.value === 'down' ? parseInt(pixels.value) : 0,
-      left: direction.value === 'left' ? parseInt(pixels.value) : 0,
-      right: direction.value === 'right' ? parseInt(pixels.value) : 0,
+      up: direction.value === 'up' ? pixels.value : 0,
+      down: direction.value === 'down' ? pixels.value : 0,
+      left: direction.value === 'left' ? pixels.value : 0,
+      right: direction.value === 'right' ? pixels.value : 0,
     });
     emit('edit-applied', editedImage);
   } catch (error) {
@@ -58,64 +58,52 @@ const applyOutpaint = async () => {
 <template>
   <div class="bg-surface rounded-3xl p-4">
     <div class="mb-4">
-      <FormKit
+      <label>Prompt:</label>
+      <Textarea
         id="outpaintPrompt"
         v-model="prompt"
-        type="textarea"
         :rows="3"
-        label="Prompt:"
         placeholder="Enter a prompt"
-        validation="required"
-        :validation-messages="{
-          required: 'Please enter a prompt',
-        }"
-        input-class="text-sm w-full bg-neutral-900 border border-zinc-600 rounded"
       />
     </div>
     <div>
       <hr class="border-zinc-500 my-2" />
     </div>
     <div class="flex flex-col gap-4 mb-4">
-      <div class="flex gap-2">
-        <FormKit
-          v-model="direction"
-          type="select"
-          label="Extend Direction:"
-          :options="[
-            { label: 'Up', value: 'up' },
-            { label: 'Down', value: 'down' },
-            { label: 'Left', value: 'left' },
-            { label: 'Right', value: 'right' },
-          ]"
-          input-class="w-full p-1 bg-neutral-900 border border-zinc-600 rounded"
-          outer-class="w-1/2"
-        />
-
-        <FormKit
-          v-model="pixels"
-          type="number"
-          label="Extend By:"
-          :min="0"
-          placeholder="Pixels"
-          suffix="px"
-          validation="required|min:0"
-          :validation-messages="{
-            required: 'Please enter pixels',
-            min: 'Must be 0 or greater',
-          }"
-          input-class="w-full p-1 pr-8 bg-neutral-900 border border-zinc-600 rounded"
-          outer-class="w-1/2"
-        />
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-1 items-center">
+        <div>
+          <label>Extend Direction:</label>
+          <Select
+            v-model="direction"
+            checkmark
+            option-label="label"
+            option-value="value"
+            :options="[
+              { label: 'Up', value: 'up' },
+              { label: 'Down', value: 'down' },
+              { label: 'Left', value: 'left' },
+              { label: 'Right', value: 'right' },
+            ]"
+          />
+        </div>
+        <div>
+          <label>Extend By:</label>
+          <InputNumber
+            v-model="pixels"
+            :min="0"
+            placeholder="Pixels"
+            suffix="px"
+          />
+        </div>
       </div>
     </div>
-    <FormKit
-      type="submit"
+    <Button
       :disabled="isEditing || !isValidDimensions || !prompt.trim()"
-      input-class="$reset button-purple w-full"
+      class="button-purple"
       @click="applyOutpaint"
     >
       <Spinner v-if="isEditing" />
       {{ isEditing ? 'Processing...' : 'Apply Outpainting' }}
-    </FormKit>
+    </Button>
   </div>
 </template>
