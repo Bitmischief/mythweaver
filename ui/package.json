@@ -7,8 +7,8 @@
     "build": "vue-tsc && vite build --mode prod",
     "start": "serve -s dist",
     "preview": "vite preview",
-    "validate": "eslint . --ext js,vue && prettier . --check",
-    "repair": "eslint . --ext js,vue --fix && prettier . --write \"**/*.+(js|ts|vue)\"",
+    "validate": "eslint . --ext ts,js,vue && prettier . --check \"**/*.{js,ts,vue}\" \"**/*.d.{ts,js}\"",
+    "repair": "eslint . --ext ts,js,vue --fix && prettier --write \"**/*.{js,ts,vue}\" \"**/*.d.{ts,js}\"",
     "prepare": "cd ../ && husky install ./ui/.husky"
   },
   "dependencies": {
