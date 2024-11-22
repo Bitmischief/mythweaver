@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
-import { FormKit } from '@formkit/vue';
 import { XMarkIcon, XCircleIcon } from '@heroicons/vue/20/solid';
 import { useAvailableImageModels } from '../composables/useAvailableImageModels';
 import { SelectedModelInput } from '../types/selectedModelInput';
@@ -40,7 +39,7 @@ watch(
   },
 );
 
-const formKitOptions = computed(() =>
+const modelOptions = computed(() =>
   availableImageModels.value?.map((model) => ({
     value: model.id,
     label: model.description,
@@ -83,27 +82,21 @@ const getModelById = (id: number) =>
   </div>
   <div v-else>
     <div class="mb-6">
-      <FormKit
-        type="dropdown"
-        label="Select Models"
-        :options="formKitOptions"
+      <label>Select Models</label>
+      <MultiSelect
+        :options="modelOptions"
+        option-label="label"
+        option-value="value"
         :model-value="selectedModels.map((m) => m.id)"
         multiple
         placeholder="Choose models"
         close-on-select="true"
-        :config="{
-          classes: {
-            label: 'mb-2',
-            listitem: '$reset cursor-pointer p-0',
-          },
-        }"
-        selection-appearance="tags"
+        show-toggle-all="false"
+        display="chip"
         @update:model-value="handleModelSelection"
       >
         <template #option="{ option }">
-          <div
-            class="flex items-center p-2 bg-surface-2 hover:bg-fuchsia-500/25"
-          >
+          <div class="flex w-full items-center">
             <img
               :src="option.sampleImageUri"
               :alt="option.label"
@@ -131,18 +124,13 @@ const getModelById = (id: number) =>
             </div>
           </div>
         </template>
-        <template #tag="{ handlers, option, classes }">
-          <div :class="classes.tag" class="whitespace-nowrap">
-            <span :class="classes.tagLabel">
-              {{ option.label }}
-            </span>
-            <XMarkIcon
-              class="w-5 h-5 cursor-pointer hover:bg-primary rounded-full"
-              @click.prevent="handlers.removeSelection(option)()"
-            />
-          </div>
+        <template #chipicon="{ removeCallback }">
+          <XMarkIcon
+            class="w-5 h-5 cursor-pointer hover:bg-primary rounded-full"
+            @click.prevent="removeCallback"
+          />
         </template>
-      </FormKit>
+      </MultiSelect>
     </div>
 
     <div v-if="selectedModels.length > 0" class="mt-6">
@@ -152,7 +140,7 @@ const getModelById = (id: number) =>
       <div
         v-for="model in selectedModels"
         :key="model.id"
-        class="flex items-center justify-between min-w-0"
+        class="flex items-center justify-between min-w-0 my-2"
       >
         <div class="flex items-center gap-2">
           <img
@@ -188,20 +176,17 @@ const getModelById = (id: number) =>
           </div>
         </div>
         <div class="flex items-center">
-          <FormKit
-            type="number"
-            :model-value="model.quantity"
-            :min="1"
-            :max="3"
-            label="Qty"
-            number
-            label-class="$reset text-sm text-neutral-500"
-            inner-class="$reset p-0"
-            input-class="w-9"
-            @update:model-value="updateQuantity(model.id, $event)"
-          />
+          <div class="max-w-12">
+            <label>Qty</label>
+            <InputNumber
+              v-model="model.quantity"
+              :min="1"
+              :max="3"
+              @update:model-value="updateQuantity(model.id, $event)"
+            />
+          </div>
           <div>
-            <button class="p-1" @click="removeModel(model.id)">
+            <button class="p-1 mt-6" @click="removeModel(model.id)">
               <XCircleIcon class="h-5 text-red-500 hover:text-red-500/75" />
             </button>
           </div>

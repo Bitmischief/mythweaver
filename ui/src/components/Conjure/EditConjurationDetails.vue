@@ -97,14 +97,9 @@ const saveAndGotoConjuration = async () => {
     </div>
     <div class="md:flex">
       <div class="w-full">
-        <div class="relative mb-8 font-bold">
-          <FormKit
-            v-model="conjuration.name"
-            type="text"
-            label="Name"
-            inner-class="$reset w-full"
-            input-class="$reset input-secondary text-xl"
-          />
+        <div class="mb-8 font-bold">
+          <label>Name</label>
+          <InputText v-model="conjuration.name" class="!text-lg" />
         </div>
         <div class="text-sm text-neutral-400">
           Double click anywhere in the editor to start editing the content.

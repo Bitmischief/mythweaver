@@ -461,18 +461,18 @@ async function addToCampaign() {
         </div>
         <div class="flex gap-2 justify-center mt-4">
           <div>
-            <FormKit
+            <Button
               label="Cancel"
               type="button"
-              input-class="$reset button-ghost self-center"
+              class="button-ghost self-center"
               @click="confirmDeleteConjuration = false"
             />
           </div>
           <div>
-            <FormKit
+            <Button
               label="Confirm Delete"
               type="button"
-              input-class="$reset button-gradient self-center"
+              class="button-gradient self-center"
               @click="handleDeleteConjuration"
             />
           </div>

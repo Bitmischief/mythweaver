@@ -2,7 +2,6 @@
 import { ref } from 'vue';
 import { inpaintImage } from '@/api/images';
 import Spinner from '@/components/Core/Spinner.vue';
-import { FormKit } from '@formkit/vue';
 
 const emit = defineEmits([
   'edit-applied',
@@ -55,28 +54,21 @@ const applyEdit = async () => {
 <template>
   <div class="bg-surface rounded-3xl p-4">
     <div class="mb-4">
-      <FormKit
+      <label>Prompt:</label>
+      <Textarea
         id="inpaintPrompt"
         v-model="prompt"
-        type="textarea"
         :rows="3"
-        label="Prompt"
         placeholder="Enter a prompt (e.g. clenched fists, leather armor)"
-        validation="required"
-        :validation-messages="{
-          required: 'Please enter a prompt',
-        }"
-        input-class="$reset text-sm w-full bg-surface border border-zinc-600 rounded"
       />
     </div>
-    <FormKit
-      type="submit"
+    <Button
       :disabled="isEditing || !prompt"
-      input-class="$reset button-purple w-full flex justify-center gap-2"
+      class="button-purple"
       @click="applyEdit"
     >
       <Spinner v-if="isEditing" />
       {{ isEditing ? 'Processing...' : 'Apply changes' }}
-    </FormKit>
+    </Button>
   </div>
 </template>

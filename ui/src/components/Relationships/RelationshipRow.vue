@@ -89,11 +89,9 @@ const updateRelationship = async () => {
       <div v-if="editComment" class="flex">
         <div class="self-center">
           <div class="text-xs text-neutral-400">What is the relationship?</div>
-          <FormKit
+          <InputText
             v-model="relationship.comment"
-            type="text"
             placeholder="e.g. 'friends with'"
-            outer-class="$reset"
             autofocus
             @keydown.enter="updateRelationship"
           />

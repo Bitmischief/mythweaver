@@ -131,7 +131,7 @@ function showNewImageModal() {
     <div v-if="editable" class="mt-2 flex gap-2">
       <SplitButton
         v-if="linking?.conjurationId"
-        class="flex"
+        class="flex w-full"
         :disabled="!editable"
         :model="[
           {
@@ -145,9 +145,9 @@ function showNewImageModal() {
         New Image
       </SplitButton>
 
-      <Button class="grow button-ghost" @click="beginEditImage">
-        <span class="flex justify-center items-center gap-2">
-          <PencilLine class="w-4 h-4" />
+      <Button class="button-primary !py-1" @click="beginEditImage">
+        <span class="w-full flex justify-center items-center gap-2">
+          <PencilLine class="w-5 h-5" />
           Edit Image
         </span>
       </Button>

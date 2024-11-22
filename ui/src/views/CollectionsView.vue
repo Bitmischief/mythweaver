@@ -393,34 +393,35 @@ const moveConjuration = (conjuration: any) => {
     </div>
   </div>
   <ModalAlternate :show="showNewCollection">
-    <FormKit type="form" :actions="false" @submit="addCollection">
-      <div class="bg-surface-2 rounded-[20px] min-w-[90vw] md:min-w-[50vw] p-6">
-        <div class="flex justify-between mb-4">
-          <div class="self-center text-lg">New Collection</div>
-          <div
-            class="self-center cursor-pointer"
-            @click="showNewCollection = false"
-          >
-            <XCircleIcon class="h-6 w-6" />
-          </div>
-        </div>
-        <div class="mt-1">
-          <FormKit
-            ref="newCollectionNameInput"
-            v-model="newCollectionName"
-            placeholder="New Collection Name"
-            label="Collection Name"
-            type="text"
-            validation="required"
-          />
-        </div>
-        <div class="flex">
-          <div>
-            <button class="button-gradient">Create Collection</button>
-          </div>
+    <div class="bg-surface-2 rounded-[20px] min-w-[90vw] md:min-w-[50vw] p-6">
+      <div class="flex justify-between mb-4">
+        <div class="self-center text-lg">New Collection</div>
+        <div
+          class="self-center cursor-pointer"
+          @click="showNewCollection = false"
+        >
+          <XCircleIcon class="h-6 w-6" />
         </div>
       </div>
-    </FormKit>
+      <div class="mb-4">
+        <InputText
+          v-model="newCollectionName"
+          type="text"
+          placeholder="New Collection Name"
+        />
+      </div>
+      <div class="flex">
+        <div>
+          <button
+            class="button-gradient"
+            :disabled="!newCollectionName"
+            @click="addCollection"
+          >
+            Create Collection
+          </button>
+        </div>
+      </div>
+    </div>
   </ModalAlternate>
   <ModalAlternate v-if="parentId" :show="showAddConjurations">
     <AddConjurationsToCollection

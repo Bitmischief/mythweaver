@@ -22,7 +22,7 @@ import { mapConjurationType } from '@/lib/util.ts';
 import { ConjurationRelationshipType } from '@/lib/enums.ts';
 import ViewRelationships from '@/components/Relationships/ViewRelationships.vue';
 import { useRoute, useRouter } from 'vue-router';
-import { FormKit } from '@formkit/vue';
+import { useDebounceFn } from '@vueuse/core';
 import { useGenerateImages } from '@/modules/images/composables/useGenerateImages';
 
 const emit = defineEmits(['edit']);
@@ -91,6 +91,14 @@ watch(
   () => {
     editableConjuration.value = props.conjuration;
   },
+  { deep: true },
+);
+
+watch(
+  () => editableConjuration.value,
+  useDebounceFn(async () => {
+    await saveConjuration();
+  }, 1200),
   { deep: true },
 );
 
@@ -174,7 +182,6 @@ async function saveConjuration() {
       data: Object.fromEntries(dataArray.value.map((x) => [x.key, x.value])),
       imageUri: undefined,
     });
-    showSuccess({ message: 'Successfully saved conjuration' });
   } catch (e) {
     const err = e as AxiosError;
     showError({
@@ -223,6 +230,25 @@ async function viewGraph() {
     path: '/relationships/graph',
     query: { from: route.fullPath, source: props.conjuration.id },
   });
+}
+
+function removeTag(tag: string) {
+  const index = editableConjuration.value.tags?.indexOf(tag);
+  if (index && index >= 0) {
+    editableConjuration.value.tags?.splice(index, 1);
+  }
+}
+
+const newTag = ref<string | null>(null);
+
+function addTag() {
+  if (editableConjuration.value.tags) {
+    editableConjuration.value.tags.push(newTag.value);
+  } else {
+    editableConjuration.value.tags = [newTag.value];
+  }
+
+  newTag.value = null;
 }
 </script>
 
@@ -291,25 +317,27 @@ async function viewGraph() {
         </div>
 
         <div class="mt-5 px-1">
-          <div class="text-xs text-neutral-400 mb-2">TAGS</div>
-          <div class="flex flex-wrap">
-            <FormKit
-              v-model="editableConjuration.tags"
-              type="taglist"
-              :disabled="readOnly"
-              allow-new-values
-              :close-on-select="true"
-              placeholder="Add tag..."
-              :classes="{
-                input:
-                  'bg-surface-2 border border-surface-3 rounded-md text-sm',
-                tag: 'tag bg-surface-2 border border-surface-3',
-                tagWrapper: 'flex flex-wrap gap-2',
-                removeSelection: 'ml-2 text-white hover:text-red-400',
-                inner: 'min-w-[200px]',
-              }"
-              @click="emit('edit')"
+          <div class="text-xs text-neutral-400 mb-1">TAGS</div>
+          <div
+            class="flex flex-wrap border border-neutral-800 rounded-lg p-1 gap-1"
+            @click="readOnly && emit('edit')"
+          >
+            <Chip
+              v-for="(tag, i) in editableConjuration.tags"
+              :key="`tag_${i}`"
+              :label="tag"
+              :removable="!readOnly"
+              @click="removeTag(tag)"
             />
+            <div v-if="!readOnly" class="flex-grow !min-w-0">
+              <InputText
+                v-model="newTag"
+                type="text"
+                class="!bg-surface !border-none"
+                placeholder="+ Add tag"
+                @keydown.enter="addTag"
+              />
+            </div>
           </div>
         </div>
       </div>

@@ -1,6 +1,4 @@
 import { createApp } from 'vue';
-import { defaultConfig, plugin } from '@formkit/vue';
-import config from '../formkit.config.ts';
 
 import '@/index.css';
 import App from './App.vue';
@@ -13,6 +11,7 @@ import { isDevelopment, isLocalDevelopment, isProduction } from '@/lib/util.ts';
 import auth0Client from '@/plugins/auth.ts';
 import VueSafeHTML from 'vue-safe-html';
 import PrimeVue from 'primevue/config';
+import PrimeVueStyles from '@/primevue.styles.ts';
 
 const app = createApp(App);
 
@@ -20,26 +19,8 @@ app.use(VueIntercom);
 
 app.use(PrimeVue, {
   unstyled: true,
-  pt: {
-    button: {
-      root: 'cursor-pointer bg-surface-2 text-sm hover:bg-neutral-900 py-1 px-4 flex justify-center items-center gap-2 rounded-[12px]',
-      label: 'text-white',
-    },
-    splitbutton: {
-      root: 'cursor-pointer bg-surface-2 flex justify-center items-center rounded-[12px]',
-      pcdropdown: {
-        root: 'bg-surface-2 hover:bg-neutral-900 p-1 pl-2 flex justify-center items-center rounded-[12px]',
-      },
-      pcmenu: {
-        root: 'bg-surface-3 border border-neutral-500 text-neutral-400 rounded-md',
-        item: {
-          class: 'hover:cursor-pointer p-2 px-4 hover:bg-surface-2 rounded-md',
-        },
-      },
-    },
-  },
+  pt: PrimeVueStyles,
 });
-app.use(plugin, defaultConfig(config()));
 
 app.use(createPinia());
 app.use(router);

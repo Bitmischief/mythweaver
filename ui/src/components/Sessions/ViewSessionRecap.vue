@@ -113,19 +113,13 @@ async function saveRecap() {
 </script>
 
 <template>
-  <FormKit
-    type="form"
-    :actions="false"
-    :config="{ validationVisibility: 'submit' }"
-    @submit="saveRecap"
-  >
-    <FormKit
+  <div>
+    <label>Session Recap</label>
+    <Textarea
       v-model="session.recap"
-      auto-height
+      auto-resize
       :disabled="currentUserRole !== CampaignRole.DM"
-      label="Session Recap"
       validation="(500)length:0,15000"
-      type="textarea"
     />
     <div
       v-if="session.suggestedRecap"
@@ -158,40 +152,35 @@ async function saveRecap() {
       </div>
     </div>
 
-    <div class="flex gap-4">
+    <div class="flex gap-2">
       <div>
-        <FormKit
+        <Button
           v-if="currentUserRole === CampaignRole.DM && !session.archived"
-          type="submit"
-          label="Save"
-          input-class="$reset button-gradient"
+          class="button-gradient"
           :disabled="processing || !unsavedChanges"
-        />
+          @click="saveRecap"
+        >
+          Save
+        </Button>
       </div>
       <div class="relative group/recap">
-        <FormKit
+        <Button
           v-if="currentUserRole === CampaignRole.DM && !session.archived"
-          type="button"
-          :label="
+          :class="`button-ghost ${recapLoading ? 'animate-pulse' : ''}`"
+          :disabled="processing || !transcript"
+          @click="generateRecap"
+        >
+          {{
             recapLoading
               ? 'Loading recap...'
               : `${session.suggestedRecap ? 'Re-g' : 'G'}enerate suggested recap`
-          "
-          :input-class="`$reset button-ghost ${recapLoading ? 'animate-pulse' : ''}`"
-          outer-class="mb-0"
-          :disabled="processing || !transcript.sentences?.length"
-          :title="
-            !transcript.sentences?.length
-              ? 'A session transcript is required to use this feature.'
-              : ''
-          "
-          @click="generateRecap"
-        />
+          }}
+        </Button>
         <div v-if="!transcript" class="tooltip-top group-hover/recap:block">
           A session transcript is required to use this feature.
           <div class="tooltip-arrow" />
         </div>
       </div>
     </div>
-  </FormKit>
+  </div>
 </template>

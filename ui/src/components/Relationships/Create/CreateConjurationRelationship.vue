@@ -196,9 +196,8 @@ function cancelLinking() {
       </div>
     </div>
     <div v-if="!linking" class="mt-2">
-      <FormKit
+      <InputText
         v-model="searchText"
-        type="text"
         placeholder="Search conjurations"
         autofocus
       />
@@ -300,9 +299,8 @@ function cancelLinking() {
       </div>
       <div class="flex mt-6">
         <div :class="{ 'basis-full': !twoWay, 'basis-2/5': twoWay }">
-          <FormKit
+          <InputText
             v-model="linkComment"
-            type="text"
             :label="`Relationship with ${linking?.name}`"
             placeholder="e.g. 'friends with', 'killed by'"
             :help="
@@ -314,7 +312,7 @@ function cancelLinking() {
         </div>
         <div v-if="twoWay" class="basis-1/5"></div>
         <div v-if="twoWay" class="basis-2/5">
-          <FormKit
+          <InputText
             v-model="reverseLinkComment"
             type="text"
             :label="`Relationship with ${conjuration.name}`"
@@ -327,14 +325,21 @@ function cancelLinking() {
           />
         </div>
       </div>
-      <div class="w-full mt-6">
-        <FormKit
+      <div class="w-full md:w-1/2 mt-6">
+        <label>Relationship Direction</label>
+        <SelectButton
           v-model="twoWay"
-          type="checkbox"
-          label="Two Way Relationship"
-          decorator-icon="check"
-          help="This will create the relationship going both directions"
+          option-label="label"
+          option-value="value"
+          :options="[
+            { label: 'One-way', value: false },
+            { label: 'Two-way', value: true },
+          ]"
         />
+        <div class="text-xs text-neutral-500">
+          This will create the relationship going
+          {{ twoWay ? 'both directions' : 'one direction' }}
+        </div>
       </div>
     </div>
     <div v-if="!loading && linking" class="grow">

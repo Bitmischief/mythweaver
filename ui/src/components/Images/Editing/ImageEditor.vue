@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { FormKit } from '@formkit/vue';
 import Inpaint from './Inpaint.vue';
 import { Image } from '@/modules/images/types/image';
 import Loader from '@/components/Core/Loader.vue';
@@ -515,8 +514,8 @@ onUnmounted(() => {
         <div class="text-lg text-neutral-300 border-b border-neutral-900 mb-4">
           Image History
         </div>
-        <div class="flex overflow-y-auto">
-          <ImageHistory :conjuration-id="image?.conjurationId" />
+        <div v-if="image?.conjurationId" class="flex overflow-y-auto">
+          <ImageHistory :conjuration-id="image.conjurationId" />
         </div>
       </div>
       <div
@@ -583,19 +582,18 @@ onUnmounted(() => {
               </div>
             </div>
             <div>
-              <FormKit
-                v-model="brushSize"
-                :value="brushSize"
-                :min="5"
-                :max="200"
-                type="range"
-                name="brush-size"
-                help-text="Adjust the size of your brush"
-                outer-class="$reset mb-0 mx-2 py-1 px-3 bg-surface-3 rounded-full"
-                input-class="!bg-surface-2 !rounded-full !m-0"
-                @mousemove="updateBrushPreview"
-                @mouseleave="clearPreview"
-              />
+              <div class="px-2 py-3 mx-2 rounded-full bg-surface-3">
+                <Slider
+                  v-model="brushSize"
+                  :min="5"
+                  :max="200"
+                  name="brush-size"
+                  class="w-36"
+                  @click="updateBrushPreview"
+                  @mousemove="updateBrushPreview"
+                  @mouseleave="clearPreview"
+                />
+              </div>
             </div>
             <div class="text-center pr-4">
               <button
@@ -694,43 +692,6 @@ onUnmounted(() => {
   background: rgba(196, 28, 222, 0.2);
   color: rgba(196, 28, 222);
   border: 1px solid rgba(196, 28, 222);
-}
-
-:deep(.formkit-input[type='range']) {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 100%;
-  height: 16px;
-  margin: 0.5em 1em;
-  background-color: transparent;
-}
-
-:deep(.formkit-input[type='range']::-webkit-slider-thumb) {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: rgb(196, 28, 222);
-  cursor: pointer;
-}
-
-:deep(.formkit-input[type='range']::-webkit-slider-runnable-track) {
-  -webkit-appearance: none;
-  appearance: none;
-  background-color: transparent;
-}
-
-:deep(.formkit-input[type='range']::-moz-range-thumb) {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: rgb(196, 28, 222);
-  cursor: pointer;
-}
-
-:deep(.formkit-input[type='range']:hover) {
-  opacity: 1;
 }
 
 img {

@@ -187,10 +187,6 @@ input[type='number'] {
     @apply text-sm py-3 bg-surface-2 w-full rounded-[12px] border-surface-3 focus:border-fuchsia-500 focus:ring-0;
   }
 
-  .select-ghost {
-    @apply text-sm py-3 px-3 text-white text-left cursor-pointer bg-surface-2 w-full rounded-[12px] border border-surface-3 min-h-[3em];
-  }
-
   .select-secondary {
     @apply text-sm py-3 px-3 text-white text-left cursor-pointer bg-surface w-full rounded-[12px] border border-surface-3 min-h-[3em];
   }
@@ -305,6 +301,10 @@ input[type='number'] {
 
   mark {
     @apply bg-purple-500/50 text-neutral-200 rounded-[4px];
+  }
+
+  label {
+    @apply text-sm text-neutral-500;
   }
 }
 

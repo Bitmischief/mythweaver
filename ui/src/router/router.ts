@@ -4,7 +4,6 @@ import CampaignsView from '@/views/CampaignsView.vue';
 import ListCampaigns from '@/components/Campaigns/ListCampaigns.vue';
 import NewCampaign from '@/components/Campaigns/NewCampaign.vue';
 import ConjuringView from '@/views/ConjuringView.vue';
-import ViewConjurer from '@/components/Conjuration/ViewConjurer.vue';
 import ViewCampaign from '@/components/Campaigns/ViewCampaign.vue';
 import SessionsView from '@/views/SessionsView.vue';
 import ViewSession from '@/components/Sessions/ViewSession.vue';
@@ -13,8 +12,6 @@ import ListConjurations from '@/components/Conjuration/ListConjurations.vue';
 import ViewConjuration from '@/components/Conjuration/ViewConjuration.vue';
 import InviteView from '@/views/InviteView.vue';
 import CharactersList from '@/views/CharactersList.vue';
-import CharactersView from '@/views/CharactersView.vue';
-import CharactersNew from '@/components/Characters/NewCharacter.vue';
 import AuthenticatedView from '@/views/AuthenticatedView.vue';
 import AccountView from '@/views/AccountView.vue';
 import OverviewCampaign from '@/components/Campaigns/OverviewCampaign.vue';
@@ -89,17 +86,6 @@ const router = createRouter({
           beforeEnter: authGuard,
         },
         {
-          path: '/character/new',
-          component: CharactersNew,
-          beforeEnter: authGuard,
-        },
-        {
-          name: 'CHARACTER',
-          path: '/character/:characterId',
-          component: CharactersView,
-          beforeEnter: authGuard,
-        },
-        {
           name: 'CAMPAIGNS',
           path: '/campaigns',
           component: CampaignsView,
@@ -138,11 +124,6 @@ const router = createRouter({
               meta: {
                 paidRequired: true,
               },
-            },
-            {
-              path: 'conjure/:summonerCode',
-              component: ViewConjurer,
-              beforeEnter: authGuard,
             },
           ],
         },

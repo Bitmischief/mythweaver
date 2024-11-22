@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import type { FormKitFile } from '@formkit/inputs';
 import ModelSelector from './ModelSelector.vue';
 import { useAvailableAspectRatios } from '../composables/useAvailableAspectRatios';
 import { GenerateImageForm } from '../types/generateImageForm';
 import { useGenerateImages } from '../composables/useGenerateImages';
 import { Coins } from 'lucide-vue-next';
+import { Select } from 'primevue';
 
 const props = withDefaults(
   defineProps<{
@@ -29,9 +29,18 @@ const formState = ref<GenerateImageForm>({
 
 const isAspectRatioLocked = ref(false);
 
-const handleReferenceImageAddition = (files: FormKitFile[] | undefined) => {
-  if (files && files.length > 0) {
-    formState.value.referenceImageFile = files[0];
+const uploadImageUri = ref();
+const handleReferenceImageAddition = (e: any) => {
+  if (e.files && e.files.length) {
+    const file = e.files[0];
+    const reader = new FileReader();
+
+    reader.onload = async (e) => {
+      uploadImageUri.value = e.target.result;
+    };
+    reader.readAsDataURL(file);
+
+    formState.value.referenceImageFile = file;
 
     formState.value.aspectRatio = '1024x1024';
     isAspectRatioLocked.value = true;
@@ -51,126 +60,151 @@ const totalQuantity = computed(() =>
     0,
   ),
 );
+
+const clearReferenceImageFile = () => {
+  formState.value.referenceImageFile = undefined;
+  uploadImageUri.value = undefined;
+};
 </script>
 
 <template>
-  <FormKit type="form" :actions="false" @submit="handleSubmit">
-    <ModelSelector v-model="formState.selectedModels" />
+  <ModelSelector v-model="formState.selectedModels" />
 
-    <div class="mt-6">
-      <FormKit
-        v-model="formState.prompt"
-        type="textarea"
-        label="Prompt"
-        validation="required"
-        :validation-messages="{ required: 'Prompt is required' }"
+  <div class="mt-6">
+    <label>Prompt</label>
+    <Textarea
+      v-model="formState.prompt"
+      :rows="3"
+      placeholder="Describe the image you want to generate..."
+      auto-resize
+    />
+    <div v-if="formState?.prompt?.length > 2500" class="text-red-500 text-xs">
+      Prompt cannot exceed 2500 characters
+    </div>
+  </div>
+
+  <div>
+    <button
+      class="w-full py-2 px-4 rounded-lg border border-zinc-800 focus:outline-none focus:ring-2 focus:ring-primary text-left flex justify-between items-center mt-4"
+      @click="showAdvancedSettings = !showAdvancedSettings"
+    >
+      <span>Advanced Settings</span>
+      <span
+        :class="{ 'rotate-180': showAdvancedSettings }"
+        class="transition-transform duration-300"
+        >▼</span
+      >
+    </button>
+  </div>
+
+  <div
+    v-show="showAdvancedSettings"
+    class="space-y-4 overflow-hidden mt-4"
+    :style="{ maxHeight: showAdvancedSettings ? 'none' : '0px' }"
+  >
+    <div>
+      <label>Negative Prompt</label>
+      <Textarea
+        v-model="formState.negativePrompt"
         :rows="3"
-        placeholder="Describe the image you want to generate..."
-        :auto-height="formState.prompt.length > 0"
+        placeholder="Describe what you don't want in the image..."
+      />
+      <div
+        v-if="formState?.negativePrompt?.length > 2500"
+        class="text-red-500 text-xs"
+      >
+        Prompt cannot exceed 2500 characters
+      </div>
+    </div>
+
+    <div>
+      <label>Aspect Ratio</label>
+      <Select
+        v-model="formState.aspectRatio"
+        option-label="label"
+        option-value="value"
+        :options="aspectRatios"
       />
     </div>
 
     <div>
+      <label>Reference Image (optional)</label>
+      <FileUpload
+        v-if="!formState.referenceImageFile"
+        accept="image/*"
+        mode="basic"
+        class="button-ghost"
+        custom-upload
+        @select="handleReferenceImageAddition"
+      />
+      <img
+        v-if="uploadImageUri"
+        :src="uploadImageUri"
+        alt="Image"
+        class="shadow-md rounded-xl w-full"
+      />
+    </div>
+    <div v-if="formState.referenceImageFile" class="mt-2 flex items-center">
+      <p class="text-sm text-zinc-400 mr-2">
+        Selected: {{ formState.referenceImageFile.name }}
+      </p>
+
       <button
-        class="w-full py-2 px-4 bg-zinc-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-left flex justify-between items-center"
-        @click="showAdvancedSettings = !showAdvancedSettings"
+        class="px-2 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors"
+        @click="clearReferenceImageFile"
       >
-        <span>Advanced Settings</span>
-        <span
-          :class="{ 'rotate-180': showAdvancedSettings }"
-          class="transition-transform duration-300"
-          >▼</span
-        >
+        Clear
       </button>
     </div>
 
-    <div
-      v-show="showAdvancedSettings"
-      class="space-y-4 overflow-hidden mt-4"
-      :style="{ maxHeight: showAdvancedSettings ? 'none' : '0px' }"
+    <div v-if="formState.referenceImageFile">
+      <label>Image Strength</label>
+      <div class="flex items-center my-2">
+        <div class="text-xs text-neutral-500">Very creative</div>
+        <div class="py-1 mx-3 rounded-full bg-surface-3 grow">
+          <Slider
+            v-model="formState.referenceImageStrength"
+            :min="1"
+            :max="100"
+            :step="1"
+          />
+        </div>
+        <div class="text-xs text-neutral-500">Very similar</div>
+      </div>
+      <div class="text-xs text-neutral-500">
+        Adjust the balance between creativity and similarity to the reference
+        image
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-6 flex w-full justify-end">
+    <Button
+      class="button-purple"
+      :disabled="
+        formState.selectedModels.length === 0 ||
+        !formState.prompt.length ||
+        formState.prompt?.length > 2500 ||
+        formState?.negativePrompt?.length > 2500
+      "
+      @click="handleSubmit"
     >
-      <FormKit
-        v-model="formState.negativePrompt"
-        type="textarea"
-        label="Negative Prompt"
-        :rows="3"
-        placeholder="Describe what you don't want in the image..."
-      />
-
-      <FormKit
-        v-model="formState.aspectRatio"
-        type="select"
-        label="Aspect Ratio"
-        option-class="$reset bg-surface focus:bg-violet-500/75"
-        :options="aspectRatios"
-      />
-
-      <div>
-        <FormKit
-          type="file"
-          label="Reference Image (optional)"
-          accept="image/*"
-          @input="handleReferenceImageAddition"
-        />
-
-        <div v-if="formState.referenceImageFile" class="mt-2 flex items-center">
-          <p class="text-sm text-zinc-400 mr-2">
-            Selected: {{ formState.referenceImageFile.name }}
-          </p>
-
-          <button
-            class="px-2 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors"
-            @click="formState.referenceImageFile = undefined"
-          >
-            Clear
-          </button>
+      <div class="flex gap-2">
+        <div class="self-center text-lg">Generate Images</div>
+        <div class="self-center flex gap-1 text-lg">
+          {{ totalQuantity }}
+          <Coins class="self-center" />
         </div>
       </div>
+    </Button>
+  </div>
 
-      <FormKit
-        v-if="formState.referenceImageFile"
-        v-model="formState.referenceImageStrength"
-        type="range"
-        label="Image Strength"
-        number
-        :min="1"
-        :max="100"
-        :step="1"
-        help="Adjust the balance between creativity and similarity to the reference image"
-      >
-        <template #help>
-          <div class="flex justify-between text-sm text-zinc-400 mt-1">
-            <span>Very creative</span>
-            <span>Medium</span>
-            <span>Very similar</span>
-          </div>
-        </template>
-      </FormKit>
-    </div>
-
-    <div class="mt-4 flex w-full justify-end">
-      <FormKit
-        type="submit"
-        input-class="w-full justify-center bg-primary text-white rounded-lg hover:bg-primary-light transition-colors shadow-lg"
-        :disabled="formState.selectedModels.length === 0"
-      >
-        <div class="flex gap-2">
-          <div class="self-center text-lg">Generate Images</div>
-          <div class="self-center flex gap-1 text-lg">
-            {{ totalQuantity }}
-            <Coins class="self-center" />
-          </div>
-        </div>
-      </FormKit>
-    </div>
-
-    <div class="text-sm text-zinc-400">
-      {{ formState.selectedModels.length }} model(s) selected,
-      {{
-        aspectRatios.find((r) => r.value === formState.aspectRatio)?.label ||
-        formState.aspectRatio
-      }}
-      aspect ratio
-    </div>
-  </FormKit>
+  <div class="text-sm text-zinc-400 mt-2">
+    {{ formState.selectedModels.length }} model(s) selected,
+    {{
+      aspectRatios.find((r) => r.value === formState.aspectRatio)?.label ||
+      formState.aspectRatio
+    }}
+    aspect ratio
+  </div>
 </template>

@@ -163,8 +163,9 @@ const clearFilters = () => {
       </div>
     </div>
     <div class="mt-2 flex gap-2">
-      <FormKit
+      <InputText
         v-model="searchText"
+        class="w-full"
         type="text"
         placeholder="Search conjurations"
         autofocus

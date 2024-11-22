@@ -197,16 +197,15 @@ const editCollectionName = () => {
       >
         <PencilSquareIcon class="h-5 w-5 text-neutral-400" />
       </div>
-      <FormKit
+      <InputText
         v-show="editingCollectionName"
         v-model="collection.name"
-        inner-class="$reset w-full p-1 border-neutral-800"
-        input-class="$reset input-secondary"
+        class="w-full"
         type="text"
         autofocus
         @focusout="updateCollection"
       />
-      <div v-if="editingCollectionName" class="mt-2">
+      <div v-if="editingCollectionName">
         <button
           class="button-gradient rounded-full p-2"
           @click="updateCollection"
@@ -236,18 +235,18 @@ const editCollectionName = () => {
       </div>
       <div class="flex gap-2 justify-center mt-4">
         <div>
-          <FormKit
+          <Button
             label="Cancel"
             type="button"
-            input-class="$reset button-ghost-white self-center"
+            class="button-ghost-white self-center"
             @click="showConfirmDelete = false"
           />
         </div>
         <div>
-          <FormKit
+          <Button
             label="Confirm Delete"
             type="button"
-            input-class="$reset button-gradient-red self-center"
+            class="button-gradient-red self-center"
             @click="handleDeleteCollection"
           />
         </div>
