@@ -179,7 +179,12 @@ async function saveRecap() {
           "
           :input-class="`$reset button-ghost ${recapLoading ? 'animate-pulse' : ''}`"
           outer-class="mb-0"
-          :disabled="processing || !transcript"
+          :disabled="processing || !transcript.sentences?.length"
+          :title="
+            !transcript.sentences?.length
+              ? 'A session transcript is required to use this feature.'
+              : ''
+          "
           @click="generateRecap"
         />
         <div v-if="!transcript" class="tooltip-top group-hover/recap:block">
