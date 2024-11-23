@@ -14,7 +14,6 @@ import {
 import CustomizableImage from '@/components/Images/CustomizableImage.vue';
 import { useWebsocketChannel } from '@/lib/hooks.ts';
 import { ServerEvent } from '@/lib/serverEvents.ts';
-import Select from '@/components/Core/Forms/Select.vue';
 import { BillingPlan } from '@/api/users.ts';
 import { CampaignRole } from '@/api/campaigns.ts';
 import WysiwygEditor from '@/components/Core/WysiwygEditor.vue';
@@ -24,6 +23,7 @@ import ViewRelationships from '@/components/Relationships/ViewRelationships.vue'
 import { useRoute, useRouter } from 'vue-router';
 import { useDebounceFn } from '@vueuse/core';
 import { useGenerateImages } from '@/modules/images/composables/useGenerateImages';
+import { Select } from 'primevue';
 
 const emit = defineEmits(['edit']);
 const props = defineProps<{
@@ -309,8 +309,8 @@ function addTag() {
                 disabled: !hasValidPlan(BillingPlan.Basic),
               },
             ]"
-            value-prop="code"
-            display-prop="name"
+            option-value="code"
+            option-label="name"
             :disabled="readOnly"
             @click="emit('edit')"
           />
