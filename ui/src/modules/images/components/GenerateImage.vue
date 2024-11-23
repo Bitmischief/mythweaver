@@ -2,10 +2,11 @@
 import ViewImage from './ViewImage.vue';
 import { useGenerateImages } from '../composables/useGenerateImages';
 import GenerateImageForm from './GenerateImageForm.vue';
+import { ref } from 'vue';
 
-const { generatedImages } = useGenerateImages();
+const { generatedImages, presetSettings } = useGenerateImages();
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     allowEdits: boolean;
     prompt?: string;
@@ -18,6 +19,8 @@ withDefaults(
 );
 
 const emit = defineEmits(['primaryImageSet', 'cancel', 'insertImage']);
+
+const prompt = ref(props.prompt ?? presetSettings.value?.prompt ?? '');
 
 const handlePrimaryImageSet = (imageId: number) => {
   emit('primaryImageSet', imageId);

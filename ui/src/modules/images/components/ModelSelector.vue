@@ -3,6 +3,7 @@ import { ref, computed, watch } from 'vue';
 import { XMarkIcon, XCircleIcon } from '@heroicons/vue/20/solid';
 import { useAvailableImageModels } from '../composables/useAvailableImageModels';
 import { SelectedModelInput } from '../types/selectedModelInput';
+import { useGenerateImages } from '../composables/useGenerateImages';
 
 const props = defineProps<{
   modelValue: SelectedModelInput[];
@@ -12,6 +13,7 @@ const emit = defineEmits(['update:modelValue']);
 
 const { availableImageModels, imageModelsLoaded, defaultImageModel } =
   useAvailableImageModels();
+const { presetSettings } = useGenerateImages();
 
 const error = ref<string | null>(null);
 
@@ -33,10 +35,13 @@ const removeModel = (modelId: number) => {
 watch(
   () => imageModelsLoaded,
   () => {
-    if (defaultImageModel.value) {
+    if (presetSettings.value?.selectedModelId) {
+      handleModelSelection([presetSettings.value.selectedModelId]);
+    } else if (defaultImageModel.value) {
       handleModelSelection([defaultImageModel.value.id]);
     }
   },
+  { immediate: true, deep: true },
 );
 
 const modelOptions = computed(() =>

@@ -7,22 +7,11 @@ import { useGenerateImages } from '@/modules/images/composables/useGenerateImage
 import SplitButton from 'primevue/splitbutton';
 import Button from 'primevue/button';
 import { useImageHistory } from '@/modules/images/composables/useImageHistory';
+import { type Image } from '@/modules/images/types/image';
 
 const props = withDefaults(
   defineProps<{
-    image?: {
-      id?: number | undefined;
-      uri: string | undefined;
-      prompt?: string;
-      negativePrompt?: string;
-      stylePreset?: string;
-      seed?: string;
-      imageModel?: {
-        description?: string;
-      };
-      generating?: boolean;
-      failed?: boolean;
-    };
+    image?: Image;
     editable?: boolean;
     alt?: string;
     imageConjurationFailed?: boolean;
@@ -35,19 +24,20 @@ const props = withDefaults(
     };
   }>(),
   {
-    image: () => ({
-      id: undefined,
-      uri: undefined,
-      prompt: undefined,
-      negativePrompt: undefined,
-      stylePreset: 'fantasy-art',
-      seed: undefined,
-      imageModel: {
-        description: '',
-      },
-      generating: false,
-      failed: false,
-    }),
+    image: () =>
+      ({
+        id: undefined,
+        uri: undefined,
+        prompt: undefined,
+        negativePrompt: undefined,
+        stylePreset: 'fantasy-art',
+        seed: undefined,
+        imageModel: {
+          description: '',
+        },
+        generating: false,
+        failed: false,
+      }) as unknown as Image,
     alt: undefined,
     imageConjurationFailureReason: undefined,
     type: undefined,
@@ -56,8 +46,11 @@ const props = withDefaults(
 );
 
 const { setSelectedImage } = useEditImage();
-const { showModal: showGenerateImageModal, setLinkingContext } =
-  useGenerateImages();
+const {
+  showModal: showGenerateImageModal,
+  setLinkingContext,
+  setPresetImageSettings,
+} = useGenerateImages();
 const { chooseFromImageHistory } = useImageHistory();
 
 const imgWidth = ref(0);
@@ -92,6 +85,10 @@ async function beginEditImage() {
 }
 
 function showNewImageModal() {
+  setPresetImageSettings({
+    prompt: props.image?.prompt,
+    selectedModelId: props.image?.modelId,
+  });
   setLinkingContext({ conjurationId: props.linking?.conjurationId });
   showGenerateImageModal.value = true;
 }

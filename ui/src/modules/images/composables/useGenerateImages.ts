@@ -7,10 +7,12 @@ import { ServerEvent } from '@/lib/serverEvents';
 import { NewImageResponse } from '../types/newImageResponse';
 import { Image } from '../types/image';
 import { ChangeImageContextLink } from '../types/changeImageContext';
+import { PresetImageSettings } from '../types/presetImageSettings';
 
 const showModal = ref(false);
 const generatedImages = ref<Image[]>([]);
 const linkingContext = ref<ChangeImageContextLink | undefined>(undefined);
+const presetSettings = ref<PresetImageSettings | undefined>(undefined);
 
 export function useGenerateImages() {
   const { getWidthAndHeight } = useAvailableAspectRatios();
@@ -24,6 +26,10 @@ export function useGenerateImages() {
 
   function setLinkingContext(context: ChangeImageContextLink) {
     linkingContext.value = context;
+  }
+
+  function setPresetImageSettings(settings: PresetImageSettings) {
+    presetSettings.value = settings;
   }
 
   async function generateImages(form: GenerateImageForm) {
@@ -85,5 +91,7 @@ export function useGenerateImages() {
     generateImages,
     generatedImages,
     loading,
+    presetSettings,
+    setPresetImageSettings,
   };
 }
