@@ -45,7 +45,7 @@ const props = withDefaults(
   },
 );
 
-const { setSelectedImage } = useEditImage();
+const { setSelectedImageById } = useEditImage();
 const {
   showModal: showGenerateImageModal,
   setLinkingContext,

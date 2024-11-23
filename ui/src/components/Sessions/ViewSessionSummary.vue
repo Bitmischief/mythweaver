@@ -19,13 +19,15 @@ import Spinner from '@/components/Core/Spinner.vue';
 import { ArrowPathIcon } from '@heroicons/vue/24/solid';
 import { EnvelopeIcon, EnvelopeOpenIcon } from '@heroicons/vue/24/outline';
 import CustomizableImage from '@/components/Images/CustomizableImage.vue';
-import { generateArbitraryProperty } from '@/lib/generation.ts';
 import { SparklesIcon } from '@heroicons/vue/24/solid';
+import { useGenerateImages } from '@/modules/images/composables/useGenerateImages.ts';
 
 const route = useRoute();
 const channel = useWebsocketChannel();
 const eventBus = useEventBus();
 const currentUserRole = useCurrentUserRole();
+const { showModal: showGenerateImageModal, setLinkingContext } =
+  useGenerateImages();
 
 const session = ref<SessionBase>({} as SessionBase);
 
@@ -138,28 +140,9 @@ const emailSummary = async () => {
 
 const loadingImageModal = ref(false);
 
-async function showCustomizeImageModal() {
-  loadingImageModal.value = true;
-  if (!session.value.suggestedImagePrompt && session.value.recap) {
-    sessionSuggestedImagePrompt.value = await generateArbitraryProperty({
-      propertyName: 'aiImagePrompt',
-      context:
-        'This is a recap of a tabletop roleplaying session. Choose the most pivotal scene from the session and describe that, in less than 500 characters. Return just a prompt used to generate AI images in a system like Stable Diffusion.',
-      background: session.value.recap,
-    });
-    await saveSession();
-  }
-
-  eventBus.$emit('toggle-customize-image-modal', {
-    image: {
-      prompt: sessionSuggestedImagePrompt.value,
-    },
-    linking: {
-      sessionId: session.value.id,
-    },
-  });
-
-  loadingImageModal.value = false;
+function showNewImageModal() {
+  setLinkingContext({ sessionId: sessionId });
+  showGenerateImageModal.value = true;
 }
 
 const primaryImage = computed(() => {
@@ -182,7 +165,7 @@ const primaryImage = computed(() => {
           <button
             :disabled="loadingImageModal"
             class="whitespace-nowrap button-ghost hover:button-gradient hover:text-neutral-200 group/ssnbtn"
-            @click="showCustomizeImageModal"
+            @click="showNewImageModal"
           >
             <span v-if="!loadingImageModal" class="flex">
               <SparklesIcon
