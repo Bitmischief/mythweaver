@@ -182,6 +182,7 @@ async function saveConjuration() {
       data: Object.fromEntries(dataArray.value.map((x) => [x.key, x.value])),
       imageUri: undefined,
     });
+    showSuccess({ message: 'Conjuration updated successfully' });
   } catch (e) {
     const err = e as AxiosError;
     showError({

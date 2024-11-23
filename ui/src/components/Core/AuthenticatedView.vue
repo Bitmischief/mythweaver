@@ -25,6 +25,7 @@ import GenerateImageModal from '@/modules/images/components/GenerateImageModal.v
 import { getRedeemPreOrderUrl } from '@/api/billing.ts';
 import NavBarHeader from '@/components/Navigation/NavBarHeader.vue';
 import ImageHistoryModal from '@/modules/images/components/ImageHistoryModal.vue';
+import NotificationHandler from '@/components/Notifications/NotificationHandler.vue';
 // @ts-ignore
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
@@ -190,6 +191,8 @@ eventBus.$on('show-subscription-modal', () => {
       </button>
     </div>
   </div>
+
+  <NotificationHandler />
 
   <ModalAlternate
     :show="showCreateRelationshipModal"

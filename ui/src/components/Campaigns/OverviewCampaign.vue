@@ -184,6 +184,7 @@ async function handleRemoveMember() {
     );
     await init();
     showDeleteModal.value = false;
+    showSuccess({ message: 'Player removed from campaign successfully' });
   } catch (e) {
     const err = e as AxiosError;
     showError({

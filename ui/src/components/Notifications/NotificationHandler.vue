@@ -19,7 +19,9 @@ const routeRef = ref();
 const positionRef = ref();
 
 onMounted(() => {
+  console.log('NotificationHandler mounted');
   eventBus.$on('showNotification', (options: any) => {
+    console.log('showNotification', options);
     const {
       type = 'success',
       timeout = 5000,

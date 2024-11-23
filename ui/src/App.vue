@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import Navbar from '@/components/Navigation/NavBar.vue';
 import { useAuthStore } from '@/store';
-import NotificationHandler from '@/components/Notifications/NotificationHandler.vue';
 import { useEventBus } from '@/lib/events.ts';
 import { onMounted, onBeforeMount, onUpdated, ref, watch } from 'vue';
 import { useIntercom } from '@homebaseai/vue3-intercom';
@@ -112,7 +111,6 @@ eventBus.$on('global-loading-stop', () => {
         <router-view></router-view>
       </div>
     </div>
-    <NotificationHandler />
 
     <div
       v-if="isLoading || authStore.isLoading || showLoading"
