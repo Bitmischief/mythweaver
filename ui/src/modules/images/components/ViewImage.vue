@@ -18,7 +18,7 @@ const emit = defineEmits<{
 }>();
 
 const imageStore = useImageStore();
-const { loading, setPrimaryImage, setSelectedImage } = useEditImage();
+const { loading, setPrimaryImage, setSelectedImageById } = useEditImage();
 const selected = ref(false);
 const selectedImageId = computed(() => {
   return imageStore.selectedImage?.id;
@@ -80,14 +80,13 @@ const handlePrimaryImageSet = (imageId: number) => {
         <button
           v-if="allowEdits"
           class="button-primary cursor-pointer"
-          @click="setSelectedImage(image.id)"
+          @click="setSelectedImageById(image.id)"
         >
           <Pencil
             class="w-5 h-5 text-neutral-200 hover:text-neutral-500 self-center"
           />
         </button>
         <button
-          v-if="image.id !== selectedImageId"
           :disabled="disableSetAsPrimary || loading"
           class="button-gradient flex gap-2"
           @click="handlePrimaryImageSet(image.id)"
@@ -95,10 +94,6 @@ const handlePrimaryImageSet = (imageId: number) => {
           Set as primary image
           <Spinner v-if="loading" />
         </button>
-        <div v-else class="button-primary opacity-75 flex items-center gap-2">
-          Primary Image Set
-          <CheckCircle />
-        </div>
       </div>
     </div>
   </div>

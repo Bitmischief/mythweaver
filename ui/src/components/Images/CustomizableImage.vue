@@ -80,7 +80,7 @@ function setImgDimensions() {
 
 async function beginEditImage() {
   if (props.image?.id) {
-    await setSelectedImage(props.image?.id);
+    await setSelectedImageById(props.image?.id);
   }
 }
 

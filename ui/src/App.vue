@@ -39,17 +39,15 @@ watch(isAuthenticated, async (isAuthenticated) => {
 
 onMounted(async () => {
   eventBus.$on('user-loaded', async () => {
-    await initIntercom();
-    await initNotifications();
+    if (authStore.user) {
+      await initIntercom();
+      await initNotifications();
 
-    const user = useAuthStore().user;
-
-    if (user) {
       mixpanel.init(import.meta.env.VITE_MIXPANEL_TOKEN as string);
 
-      mixpanel.alias(user.id.toString());
+      mixpanel.alias(authStore.user.id.toString());
 
-      if (!user.onboarded) {
+      if (!authStore.user.onboarded) {
         fbq('track', 'Lead');
         rdt('track', 'SignUp');
         rdt('track', 'Lead');
@@ -57,7 +55,7 @@ onMounted(async () => {
         showUserSourceModal.value = true;
       }
 
-      if (user.preorderRedemptionCoupon) {
+      if (authStore.user.preorderRedemptionCoupon) {
         showPreorderRedemptionModal.value = true;
       }
     }
@@ -102,10 +100,13 @@ eventBus.$on('global-loading-stop', () => {
 
 <template>
   <div class="block h-screen bg-surface-2 text-white md:flex overflow-hidden">
-    <Navbar v-if="!!authStore.user" class="w-full md:max-w-[256px]" />
+    <Navbar
+      v-if="isAuthenticated && !!authStore.user"
+      class="w-full md:max-w-[256px]"
+    />
     <div class="block w-full overflow-hidden">
       <AuthenticatedView
-        v-if="!isLoading && isAuthenticated && authStore.user"
+        v-if="!isLoading && isAuthenticated && !!authStore.user"
       />
       <div v-else-if="!isLoading && route.meta.noAuth">
         <router-view></router-view>

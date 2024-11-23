@@ -13,7 +13,7 @@ defineProps<{
 }>();
 
 const imageStore = useImageStore();
-const { loading, setPrimaryImage, setSelectedImage } = useEditImage();
+const { loading, setPrimaryImage, setSelectedImageById } = useEditImage();
 const selectedImageId = computed(() => {
   return imageStore.selectedImage?.id;
 });
@@ -28,7 +28,7 @@ const selectedImageId = computed(() => {
         <button
           v-if="allowEdits"
           class="button-primary cursor-pointer"
-          @click="setSelectedImage(image.id)"
+          @click="setSelectedImageById(image.id)"
         >
           <Pencil
             class="w-5 h-5 text-neutral-200 hover:text-neutral-500 self-center"

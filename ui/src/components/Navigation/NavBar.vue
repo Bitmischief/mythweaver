@@ -31,9 +31,13 @@ onUnmounted(() => {
 });
 
 function refreshStatusBadge() {
-  (document.querySelector('[data-status-badge]') as HTMLIFrameElement).src = (
-    document.querySelector('[data-status-badge]') as HTMLIFrameElement
-  ).src;
+  const badge = document.querySelector(
+    '[data-status-badge]',
+  ) as HTMLIFrameElement;
+  if (badge)
+    badge.src = (
+      document.querySelector('[data-status-badge]') as HTMLIFrameElement
+    ).src;
 }
 
 async function logout() {

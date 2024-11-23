@@ -35,7 +35,7 @@ export const useAuthStore = defineStore({
 
       try {
         const userResponse = await getCurrentUser();
-        this.user = userResponse.data;
+        this.user = userResponse.data as User | null;
 
         if (!this.user) {
           return;

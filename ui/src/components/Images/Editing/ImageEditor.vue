@@ -13,9 +13,11 @@ import { useDebounceFn } from '@vueuse/core';
 import GenerateImage from '@/modules/images/components/GenerateImage.vue';
 import { useImageStore } from '@/modules/images/store/image.store.ts';
 import ImageHistory from '@/modules/images/components/ImageHistory.vue';
+import { useEditImage } from '@/modules/images/composables/useEditImage.ts';
 
 const emit = defineEmits(['close', 'imageUpdated']);
 const imageStore = useImageStore();
+const { setSelectedImage } = useEditImage();
 
 const image = computed(() => {
   return imageStore.selectedImage;
@@ -161,6 +163,9 @@ function saveCanvasState() {
     0,
     canvasRef.value.width,
     canvasRef.value.height,
+    {
+      willReadFrequently: true,
+    },
   );
   undoStack.value.push(imageData);
 
@@ -287,7 +292,7 @@ const handleEditFailed = async () => {
 };
 
 const handleEditApplied = async (updatedImage: Image) => {
-  imageStore.setSelectedImage(updatedImage);
+  await setSelectedImage(updatedImage);
   clearMask();
   editing.value = false;
 };
@@ -307,6 +312,9 @@ const getMaskCanvas = () => {
         0,
         tempCanvas.width,
         tempCanvas.height,
+        {
+          willReadFrequently: true,
+        },
       );
       const data = imageData.data;
 

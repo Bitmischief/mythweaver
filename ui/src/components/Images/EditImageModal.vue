@@ -9,7 +9,7 @@ const imageStore = useImageStore();
 <template>
   <FullScreenModal
     :show="imageStore.showEditImageModal"
-    :z="35"
+    :z="45"
     extra-dark
     manually-override-close
   >
