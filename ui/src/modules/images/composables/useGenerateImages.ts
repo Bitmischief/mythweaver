@@ -1,4 +1,4 @@
-import { onMounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import { apiGenerateImages } from '../api/images';
 import { GenerateImageForm } from '../types/generateImageForm';
 import { useAvailableAspectRatios } from './useAvailableAspectRatios';
@@ -22,6 +22,12 @@ export function useGenerateImages() {
 
   onMounted(() => {
     generatedImages.value = [];
+  });
+
+  onUnmounted(() => {
+    generatedImages.value = [];
+    presetSettings.value = undefined;
+    linkingContext.value = undefined;
   });
 
   function setLinkingContext(context: ChangeImageContextLink) {
