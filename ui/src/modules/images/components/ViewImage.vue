@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import { Image } from '../types/image';
-import { Pencil, SquareCheck, CheckCircle } from 'lucide-vue-next';
+import { Pencil, SquareCheck, RefreshCw } from 'lucide-vue-next';
 import { useEditImage } from '../composables/useEditImage';
 import Loader from '@/components/Core/Loader.vue';
 import Spinner from '@/components/Core/Spinner.vue';
-import { useImageStore } from '../store/image.store.ts';
+import { useGenerationProgress } from '../composables/useGenerationProgress.ts';
 
-defineProps<{
+const props = defineProps<{
   image: Image;
   allowEdits?: boolean;
   disableSetAsPrimary?: boolean;
@@ -17,12 +17,9 @@ const emit = defineEmits<{
   (e: 'primaryImageSet', imageId: number): void;
 }>();
 
-const imageStore = useImageStore();
+const { isLongRunning } = useGenerationProgress(props.image);
 const { loading, setPrimaryImage, setSelectedImageById } = useEditImage();
 const selected = ref(false);
-const selectedImageId = computed(() => {
-  return imageStore.selectedImage?.id;
-});
 
 const handlePrimaryImageSet = (imageId: number) => {
   emit('primaryImageSet', imageId);
@@ -40,6 +37,14 @@ const handlePrimaryImageSet = (imageId: number) => {
           <Loader />
           <div class="text-xl gradient-text my-4 animate-pulse">
             Conjuring...
+          </div>
+          <div v-if="isLongRunning" class="flex flex-col items-center gap-2">
+            <RefreshCw class="w-5 h-5 animate-spin text-purple-500" />
+            <div class="text-sm text-neutral-400">
+              This image is taking longer than usual to generate.
+              <br />
+              Please be patient...
+            </div>
           </div>
         </div>
       </div>

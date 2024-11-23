@@ -1,8 +1,7 @@
 export interface Image {
   id: number;
-  uri: string;
-  generating: boolean;
-  createdAt: string;
+  uri?: string;
+  generating?: boolean;
   modelId: number;
   modelName: string;
   prompt: string;
@@ -12,4 +11,6 @@ export interface Image {
   characterId?: number;
   error?: boolean;
   errorMessage?: string;
+  modelName?: string;
+  createdAt?: string;
 }
