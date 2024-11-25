@@ -59,11 +59,29 @@ const hasGeneratingImages = computed(() => {
 });
 
 const handleSubmit = async () => {
+  if (formState.value.selectedModels.length === 0) {
+    return;
+  }
+
+  if (
+    formState.value.prompt.length === 0 ||
+    formState.value.prompt.length > 2500
+  ) {
+    return;
+  }
+
+  if (
+    formState.value.negativePrompt &&
+    formState.value.negativePrompt.length > 2500
+  ) {
+    return;
+  }
+
   if (hasGeneratingImages.value) {
     confirm.require({
       message:
-        'You have images currently generating. Starting a new generation will cancel the current one. Do you want to continue?',
-      header: 'Confirm New Generation',
+        'You have images currently generating. Starting a new generation will cost more credits. Are you sure you want to continue?',
+      header: 'Are you sure?',
       accept: async () => {
         await generateImages(formState.value);
       },
@@ -208,17 +226,7 @@ watch(
   </div>
 
   <div class="mt-6 flex w-full justify-end">
-    <Button
-      class="button-purple"
-      :disabled="
-        loading ||
-        formState.selectedModels.length === 0 ||
-        formState.prompt.length === 0 ||
-        formState.prompt.length > 2500 ||
-        (!!formState.negativePrompt && formState.negativePrompt.length > 2500)
-      "
-      @click="handleSubmit"
-    >
+    <Button class="button-purple" @click="handleSubmit">
       <div v-if="loading" class="flex items-center gap-2">
         <Spinner />
         <div class="text-lg">Generating...</div>

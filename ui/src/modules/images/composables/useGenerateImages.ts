@@ -61,27 +61,47 @@ function createWebsocketHandlers(updateState: (updates: Partial<GenerateImagesSt
   }
 
   function handleImageFiltered(event: any) {
+    updateImageInState(event.context.imageId, {
+      generating: false,
+      error: true,
+      errorMessage: event.description || 'An error occurred during generation',
+    });
+
     const { images } = state.value;
-    const existingImageIndex = images.findIndex((i) => i.id === event.context.imageId);
-
-    if (existingImageIndex !== -1) {
-      const updatedImage: Image = {
-        ...images[existingImageIndex],
-        generating: false,
-        error: true,
-        errorMessage: event.description || 'An error occurred during generation',
-      };
-      images[existingImageIndex] = updatedImage;
-    }
-
     if (images.every((i) => !i.generating)) {
       updateState({ loading: false });
+    }
+  }
+
+  function handleImageGenerationTimeout(imageId: number) {
+    updateImageInState(imageId, {
+      generating: false,
+      error: true,
+      errorMessage: 'Image generation timed out, please try again.',
+    });
+  }
+
+  function handleImageGenerationError(imageId: number) {
+    updateImageInState(imageId, {
+      generating: false,
+      error: true,
+      errorMessage: 'There was an error generating this image, please try again.',
+    });
+  }
+
+  function updateImageInState(imageId: number, update: Partial<Image>) {
+    const { images } = state.value;
+    const existingImageIndex = images.findIndex((i) => i.id === imageId);
+    if (existingImageIndex !== -1) {
+      images[existingImageIndex] = { ...images[existingImageIndex], ...update };
     }
   }
 
   return {
     handleImageCreated,
     handleImageFiltered,
+    handleImageGenerationTimeout,
+    handleImageGenerationError,
   };
 }
 
@@ -96,17 +116,26 @@ export function useGenerateImages() {
     };
   }
 
-  const { handleImageCreated, handleImageFiltered } = createWebsocketHandlers(updateState);
+  const {
+    handleImageCreated,
+    handleImageFiltered,
+    handleImageGenerationTimeout,
+    handleImageGenerationError,
+  } = createWebsocketHandlers(updateState);
 
   function setupWebsocketListeners() {
     cleanupWebsocketListeners();
     channel.bind(ServerEvent.ImageCreated, handleImageCreated);
     channel.bind(ServerEvent.ImageFiltered, handleImageFiltered);
+    channel.bind(ServerEvent.ImageGenerationTimeout, handleImageGenerationTimeout);
+    channel.bind(ServerEvent.ImageGenerationTimeout, handleImageGenerationError);
   }
 
   function cleanupWebsocketListeners() {
     channel.unbind(ServerEvent.ImageCreated, handleImageCreated);
     channel.unbind(ServerEvent.ImageFiltered, handleImageFiltered);
+    channel.unbind(ServerEvent.ImageGenerationTimeout, handleImageGenerationTimeout);
+    channel.unbind(ServerEvent.ImageGenerationTimeout, handleImageGenerationError);
   }
 
   function setLinkingContext(context: ChangeImageContextLink) {

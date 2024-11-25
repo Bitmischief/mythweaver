@@ -21,6 +21,7 @@ app.use(VueIntercom);
 
 app.use(PrimeVue, {
   theme: 'none',
+  unstyled: true,
   pt: PrimeVueStyles,
 });
 

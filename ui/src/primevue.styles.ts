@@ -127,6 +127,26 @@ const PrimeVueStyles = {
       class: 'hidden',
     },
   },
+  dialog: {
+    root: 'bg-neutral-900 border w-[30rem] border-zinc-800 rounded-lg text-neutral-300 p-4 shadow-lg flex',
+    header: 'flex justify-between items-center text-2xl text-neutral-100 font-medium mb-4',
+    footer: {
+      class: 'flex justify-end gap-2 mt-4',
+    },
+  },
+  confirmdialog: {
+    root: 'bg-neutral-900 border w-[30rem] border-zinc-800 rounded-lg text-neutral-300 p-4 shadow-lg flex',
+    header: 'flex justify-between items-center text-2xl text-neutral-100 font-medium mb-4',
+    footer: {
+      class: 'flex justify-end gap-2 mt-4',
+    },
+    pcrejectbutton: {
+      root: 'px-4 py-2 bg-neutral-900 hover:bg-neutral-800 border border-zinc-800 rounded-lg',
+    },
+    pcacceptbutton: {
+      root: 'px-4 py-2 bg-fuchsia-500 hover:bg-fuchsia-600 text-white rounded-lg',
+    },
+  },
 };
 
 export default PrimeVueStyles;
