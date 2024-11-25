@@ -39,15 +39,11 @@ async function uploadReferenceImage(file: File): Promise<Image> {
   const formData = new FormData();
   formData.append('image', file);
 
-  const response = await axios.post(
-    `${import.meta.env.VITE_CORE_API_URL}/images/upload`,
-    formData,
-    {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+  const response = await axios.post(`/images/upload`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
     },
-  );
+  });
 
   return response.data;
 }

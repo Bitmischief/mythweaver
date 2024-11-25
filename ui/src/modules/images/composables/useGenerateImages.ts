@@ -1,4 +1,4 @@
-import { ref } from 'vue';
+import { ref, computed, onUnmounted } from 'vue';
 import { apiGenerateImages } from '../api/images';
 import { GenerateImageForm } from '../types/generateImageForm';
 import { useAvailableAspectRatios } from './useAvailableAspectRatios';
@@ -10,34 +10,117 @@ import { ChangeImageContextLink } from '../types/changeImageContext';
 import { PresetImageSettings } from '../types/presetImageSettings';
 
 const showModal = ref(false);
-const generatedImages = ref<Image[]>([]);
-const linkingContext = ref<ChangeImageContextLink | undefined>(undefined);
-const presetSettings = ref<PresetImageSettings | undefined>(undefined);
+
+interface GenerateImagesState {
+  images: Image[];
+  loading: boolean;
+  linkingContext?: ChangeImageContextLink;
+  presetSettings?: PresetImageSettings;
+}
+
+const state = ref<GenerateImagesState>({
+  images: [],
+  loading: false,
+});
+
+function createWebsocketHandlers(updateState: (updates: Partial<GenerateImagesState>) => void) {
+  function handleImageCreated(event: NewImageResponse) {
+    const { images } = state.value;
+    const existingImageIndex = images.findIndex((i) => i.id === event.image.id);
+
+    if (existingImageIndex !== -1) {
+      const updatedImage: Image = {
+        ...images[existingImageIndex],
+        ...event.image,
+        uri: event.image.uri || '',
+        generating: false,
+        modelName: event.modelName || 'Unknown Model',
+        prompt: event.image.prompt || '',
+        edits: event.image.edits || [],
+        error: false,
+        errorMessage: '',
+      };
+      images[existingImageIndex] = updatedImage;
+    } else {
+      const newImage: Image = {
+        ...event.image,
+        uri: event.image.uri || '',
+        generating: false,
+        modelName: event.modelName || 'Unknown Model',
+        prompt: event.image.prompt || '',
+        edits: event.image.edits || [],
+        error: false,
+        errorMessage: '',
+      };
+      images.push(newImage);
+    }
+
+    if (images.every((i) => !i.generating)) {
+      updateState({ loading: false });
+    }
+  }
+
+  function handleImageFiltered(event: any) {
+    const { images } = state.value;
+    const existingImageIndex = images.findIndex((i) => i.id === event.context.imageId);
+
+    if (existingImageIndex !== -1) {
+      const updatedImage: Image = {
+        ...images[existingImageIndex],
+        generating: false,
+        error: true,
+        errorMessage: event.description || 'An error occurred during generation',
+      };
+      images[existingImageIndex] = updatedImage;
+    }
+
+    if (images.every((i) => !i.generating)) {
+      updateState({ loading: false });
+    }
+  }
+
+  return {
+    handleImageCreated,
+    handleImageFiltered,
+  };
+}
 
 export function useGenerateImages() {
   const { getWidthAndHeight } = useAvailableAspectRatios();
   const channel = useWebsocketChannel();
 
-  const loading = ref(false);
+  function updateState(updates: Partial<GenerateImagesState>) {
+    state.value = {
+      ...state.value,
+      ...updates,
+    };
+  }
+
+  const { handleImageCreated, handleImageFiltered } = createWebsocketHandlers(updateState);
+
+  function setupWebsocketListeners() {
+    cleanupWebsocketListeners();
+    channel.bind(ServerEvent.ImageCreated, handleImageCreated);
+    channel.bind(ServerEvent.ImageFiltered, handleImageFiltered);
+  }
+
+  function cleanupWebsocketListeners() {
+    channel.unbind(ServerEvent.ImageCreated, handleImageCreated);
+    channel.unbind(ServerEvent.ImageFiltered, handleImageFiltered);
+  }
 
   function setLinkingContext(context: ChangeImageContextLink) {
-    linkingContext.value = context;
+    updateState({ linkingContext: context });
   }
 
   function setPresetImageSettings(settings: PresetImageSettings) {
-    presetSettings.value = settings;
+    updateState({ presetSettings: settings });
   }
 
-  async function generateImages(form: GenerateImageForm) {
-    generatedImages.value = [];
-
+  async function generateRequest(form: GenerateImageForm, retryImageId?: number) {
     const { width, height } = getWidthAndHeight(form.aspectRatio);
 
-    channel.bind(ServerEvent.ImageCreated, imageCreatedHandler);
-    channel.bind(ServerEvent.ImageFiltered, imageFilteredHandler);
-    loading.value = true;
-
-    generatedImages.value = await apiGenerateImages({
+    return apiGenerateImages({
       selectedModels: form.selectedModels,
       prompt: form.prompt,
       width,
@@ -45,49 +128,70 @@ export function useGenerateImages() {
       negativePrompt: form.negativePrompt,
       referenceImageFile: form.referenceImageFile as File,
       referenceImageStrength: form.referenceImageStrength,
-      linking: {
-        ...linkingContext.value,
-      },
+      linking: state.value.linkingContext,
+      ...(retryImageId && { retryImageId }),
     });
   }
 
-  function imageCreatedHandler(event: NewImageResponse) {
-    const existingImage = generatedImages.value.find((i) => i.id === event.image.id);
-    if (existingImage) {
-      existingImage.uri = event.image.uri;
-      existingImage.generating = false;
-      existingImage.modelName = event.modelName;
-    } else {
-      generatedImages.value.push(event.image);
-    }
+  async function generateImages(form: GenerateImageForm) {
+    updateState({ loading: true, images: [] });
+    setupWebsocketListeners();
 
-    if (generatedImages.value.every((i) => !i.generating)) {
-      channel.unbind(ServerEvent.ImageCreated, imageCreatedHandler);
-      loading.value = false;
+    try {
+      const newImages = await generateRequest(form);
+      updateState({ images: newImages });
+      return newImages;
+    } catch (error) {
+      updateState({ loading: false });
+      cleanupWebsocketListeners();
+      throw error;
     }
   }
 
-  function imageFilteredHandler(event: any) {
-    const existingImage = generatedImages.value.find((i) => i.id === event.context.imageId);
-    if (existingImage) {
-      existingImage.generating = false;
-      existingImage.error = true;
-      existingImage.errorMessage = event.description;
-    }
+  async function retryGeneration(form: GenerateImageForm, imageId: number) {
+    updateState({ loading: true });
+    setupWebsocketListeners();
 
-    if (generatedImages.value.every((i) => !i.generating)) {
-      channel.unbind(ServerEvent.ImageFiltered, imageFilteredHandler);
-      loading.value = false;
+    try {
+      const newImages = await generateRequest(form, imageId);
+
+      const updatedImages = [...state.value.images];
+      const index = updatedImages.findIndex((img) => img.id === imageId);
+      if (index !== -1 && newImages[0]) {
+        const updatedImage: Image = {
+          ...newImages[0],
+          uri: newImages[0].uri || '',
+          generating: false,
+          modelName: newImages[0].modelName || 'Unknown Model',
+          prompt: newImages[0].prompt || '',
+          edits: newImages[0].edits || [],
+          error: false,
+          errorMessage: '',
+        };
+        updatedImages[index] = updatedImage;
+      }
+
+      updateState({ images: updatedImages });
+      return newImages[0];
+    } catch (error) {
+      updateState({ loading: false });
+      cleanupWebsocketListeners();
+      throw error;
     }
   }
+
+  onUnmounted(() => {
+    cleanupWebsocketListeners();
+  });
 
   return {
+    generatedImages: computed(() => state.value.images),
+    loading: computed(() => state.value.loading),
+    presetSettings: computed(() => state.value.presetSettings),
     showModal,
-    setLinkingContext,
     generateImages,
-    generatedImages,
-    loading,
-    presetSettings,
+    retryGeneration,
+    setLinkingContext,
     setPresetImageSettings,
   };
 }

@@ -17,16 +17,25 @@ export class RunPodProvider {
     model: ImageModel,
     request: ImageGenerationRequest,
   ): Promise<RunPodResponse> {
+    const input: any = {
+      prompt: `${model.promptPrefix} ${request.prompt}`,
+      steps: model.defaultSteps,
+      negative_prompt: request.negativePrompt,
+      lora_name: model.loraName,
+      width: request.width ?? 1024,
+      height: request.height ?? 1024,
+    };
+
+    if (request.referenceImage) {
+      input.input_image = request.referenceImage.toString('base64');
+      input.strength = request.imageStrength
+        ? request.imageStrength / 100
+        : 0.7;
+    }
+
     const response = await axios.post<RunPodResponse>(
       `${model.executionUri}/run`,
-      {
-        input: {
-          prompt: `${model.promptPrefix} ${request.prompt}`,
-          steps: model.defaultSteps,
-          negative_prompt: request.negativePrompt,
-          lora_name: model.loraName,
-        },
-      },
+      { input },
       {
         headers: {
           Authorization: `Bearer ${process.env.RUNPOD_API_KEY}`,

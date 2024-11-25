@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { Image } from '../types/image';
-import { Pencil, SquareCheck, RefreshCw } from 'lucide-vue-next';
+import {
+  Pencil,
+  SquareCheck,
+  RefreshCw,
+  XCircle,
+  RotateCw,
+} from 'lucide-vue-next';
 import { useEditImage } from '../composables/useEditImage';
 import Loader from '@/components/Core/Loader.vue';
 import Spinner from '@/components/Core/Spinner.vue';
@@ -15,6 +21,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'primaryImageSet', imageId: number): void;
+  (e: 'retryGeneration', imageId: number): void;
 }>();
 
 const { isLongRunning } = useGenerationProgress(props.image);
@@ -24,6 +31,10 @@ const selected = ref(false);
 const handlePrimaryImageSet = (imageId: number) => {
   emit('primaryImageSet', imageId);
   setPrimaryImage(imageId);
+};
+
+const handleRetry = () => {
+  emit('retryGeneration', props.image.id);
 };
 </script>
 
@@ -54,8 +65,14 @@ const handlePrimaryImageSet = (imageId: number) => {
         >
           <div class="text-neutral-400 my-4">
             {{ image.errorMessage }}
-            Please try again.
           </div>
+          <button
+            class="flex items-center gap-2 px-3 py-1 mx-auto text-purple-500 hover:text-purple-400 transition-colors rounded-lg border border-purple-500 hover:border-purple-400"
+            @click="handleRetry"
+          >
+            <RotateCw class="w-4 h-4" />
+            Retry Generation
+          </button>
         </div>
       </div>
       <img

@@ -12,6 +12,8 @@ import auth0Client from '@/plugins/auth.ts';
 import VueSafeHTML from 'vue-safe-html';
 import PrimeVue from 'primevue/config';
 import PrimeVueStyles from '@/primevue.styles.ts';
+import ConfirmationService from 'primevue/confirmationservice';
+import ConfirmDialog from 'primevue/confirmdialog';
 
 const app = createApp(App);
 
@@ -67,5 +69,7 @@ Sentry.init({
 
 app.use(auth0Client as any);
 app.use(VueSafeHTML);
+app.use(ConfirmationService);
+app.component('ConfirmDialog', ConfirmDialog);
 
 app.mount('#app');

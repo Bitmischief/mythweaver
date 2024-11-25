@@ -1,24 +1,27 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import ModelSelector from './ModelSelector.vue';
 import { useAvailableAspectRatios } from '../composables/useAvailableAspectRatios';
-import { GenerateImageForm } from '../types/generateImageForm';
+import type { GenerateImageForm } from '../types/generateImageForm';
 import { useGenerateImages } from '../composables/useGenerateImages';
 import { Coins } from 'lucide-vue-next';
-import { Select } from 'primevue';
+import { useConfirm } from 'primevue/useconfirm';
+import Select from 'primevue/select';
 
 const props = withDefaults(
   defineProps<{
     prompt?: string;
   }>(),
   {
-    linking: undefined,
     prompt: undefined,
   },
 );
 
+const emit = defineEmits(['form-update']);
+
 const { aspectRatios } = useAvailableAspectRatios();
-const { generateImages, loading } = useGenerateImages();
+const { generateImages, loading, generatedImages } = useGenerateImages();
+const confirm = useConfirm();
 
 const showAdvancedSettings = ref(false);
 const formState = ref<GenerateImageForm>({
@@ -28,8 +31,8 @@ const formState = ref<GenerateImageForm>({
 });
 
 const isAspectRatioLocked = ref(false);
-
 const uploadImageUri = ref();
+
 const handleReferenceImageAddition = (e: any) => {
   if (e.files && e.files.length) {
     const file = e.files[0];
@@ -43,7 +46,6 @@ const handleReferenceImageAddition = (e: any) => {
     reader.readAsDataURL(file);
 
     formState.value.referenceImageFile = file;
-
     formState.value.aspectRatio = '1024x1024';
     isAspectRatioLocked.value = true;
   } else {
@@ -52,13 +54,28 @@ const handleReferenceImageAddition = (e: any) => {
   }
 };
 
+const hasGeneratingImages = computed(() => {
+  return generatedImages.value.some((img) => img.generating);
+});
+
 const handleSubmit = async () => {
-  await generateImages(formState.value);
+  if (hasGeneratingImages.value) {
+    confirm.require({
+      message:
+        'You have images currently generating. Starting a new generation will cancel the current one. Do you want to continue?',
+      header: 'Confirm New Generation',
+      accept: async () => {
+        await generateImages(formState.value);
+      },
+    });
+  } else {
+    await generateImages(formState.value);
+  }
 };
 
 const totalQuantity = computed(() =>
   formState.value.selectedModels.reduce(
-    (acc, model) => acc + model.quantity,
+    (acc: number, model: { quantity: number }) => acc + model.quantity,
     0,
   ),
 );
@@ -67,6 +84,14 @@ const clearReferenceImageFile = () => {
   formState.value.referenceImageFile = undefined;
   uploadImageUri.value = undefined;
 };
+
+watch(
+  formState,
+  (newValue) => {
+    emit('form-update', newValue);
+  },
+  { deep: true },
+);
 </script>
 
 <template>

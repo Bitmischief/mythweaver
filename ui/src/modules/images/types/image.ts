@@ -10,7 +10,11 @@ export interface Image {
   sessionId?: number;
   characterId?: number;
   error?: boolean;
+  failed?: boolean;
   errorMessage?: string;
-  modelName?: string;
   createdAt?: string;
+  imageModel?: {
+    description: string;
+    id: number;
+  };
 }

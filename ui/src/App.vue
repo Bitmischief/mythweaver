@@ -13,6 +13,7 @@ import { useRoute } from 'vue-router';
 import { useAuth0 } from '@auth0/auth0-vue';
 import { fbq, rdt } from '@/lib/conversions.ts';
 import AuthenticatedView from '@/components/Core/AuthenticatedView.vue';
+import ConfirmDialog from 'primevue/confirmdialog';
 
 const authStore = useAuthStore();
 const eventBus = useEventBus();
@@ -123,5 +124,6 @@ eventBus.$on('global-loading-stop', () => {
         </div>
       </div>
     </div>
+    <ConfirmDialog />
   </div>
 </template>
