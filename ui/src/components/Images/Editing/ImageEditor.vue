@@ -379,17 +379,19 @@ onUnmounted(() => {
 
 <template>
   <div
-    class="overflow-hidden h-[calc(100vh-2.05rem)] m-3 p-3 py-16 rounded-lg flex flex-col"
+    class="h-[calc(100vh-2.05rem)] md:m-3 md:p-3 md:py-16 rounded-lg flex flex-col"
   >
     <div class="canvas-background absolute inset-0"></div>
     <div
-      class="fixed top-0 left-0 right-0 py-6 px-3 flex justify-between items-center"
+      class="fixed top-0 left-0 right-0 py-6 px-3 md:flex justify-between items-center"
     >
-      <div class="px-4 gradient-text text-2xl">Image Editor</div>
-      <div class="flex gap-2 mr-2">
+      <div class="px-4 gradient-text text-center md:text-left text-2xl">
+        Image Editor
+      </div>
+      <div class="mt-2 md:mt-0 flex gap-2 justify-center items-center mr-2">
         <div
           v-if="!loadingImage && !editing"
-          class="flex gap-1 text-sm rounded-[12px] px-4 py-2 self-center text-neutral-500"
+          class="hidden md:flex gap-1 text-sm rounded-[12px] px-4 py-2 self-center text-neutral-500"
         >
           <CheckIcon class="w-3 h-3 self-center" />
           Saved
@@ -402,7 +404,7 @@ onUnmounted(() => {
           Saving
         </div>
         <button
-          class="bg-[#CC52C0]/20 hover:bg-[#CC52C0]/40 text-[#CC52C0] flex items-center px-4 rounded-full z-50"
+          class="bg-[#CC52C0]/20 hover:bg-[#CC52C0]/40 text-[#CC52C0] flex items-center px-4 py-2 rounded-full z-50"
           :disabled="editing"
           @click="downloadImage"
         >
@@ -418,10 +420,10 @@ onUnmounted(() => {
         </button>
       </div>
     </div>
-    <div class="flex gap-4 h-full max-h-[calc(100vh-9em)]">
-      <div class="w-[5em] mx-4 shrink-0">
+    <div class="md:flex w-full md:gap-4 h-full md:max-h-[calc(100vh-9em)]">
+      <div class="mt-32 md:mt-0 md:w-[5em] mx-4 shrink-0">
         <div
-          class="bg-surface flex flex-col gap-2 justify-between rounded-2xl p-2"
+          class="bg-surface flex md:flex-col gap-2 justify-between rounded-2xl p-2"
         >
           <div
             v-for="(tool, i) in tools"
@@ -461,7 +463,7 @@ onUnmounted(() => {
           selectedTool === 'erase'
         "
         ref="containerRef"
-        class="flex-grow flex justify-center relative items-center"
+        class="md:flex-grow mt-2 w-full h-[315px] md:h-auto md:mt-0 md:flex md:justify-center relative md:items-center"
       >
         <div
           v-if="loadingImage || editing"
@@ -500,39 +502,12 @@ onUnmounted(() => {
         />
       </div>
       <div
-        v-show="selectedTool === 'create'"
-        class="flex-grow justify-center bg-surface rounded-2xl p-4"
-      >
-        <div class="text-lg text-neutral-300 border-b border-neutral-900 mb-4">
-          Generate New Image
-        </div>
-        <GenerateImage
-          :allow-edits="false"
-          :linking="{
-            conjurationId: image?.conjurationId,
-            sessionId: image?.sessionId,
-            characterId: image?.characterId,
-          }"
-        />
-      </div>
-      <div
-        v-show="selectedTool === 'history'"
-        class="flex-grow justify-center bg-surface rounded-2xl p-4 flex flex-col"
-      >
-        <div class="text-lg text-neutral-300 border-b border-neutral-900 mb-4">
-          Image History
-        </div>
-        <div v-if="image?.conjurationId" class="flex overflow-y-auto">
-          <ImageHistory :conjuration-id="image.conjurationId" />
-        </div>
-      </div>
-      <div
         v-if="
           (image && selectedTool === 'inpaint') ||
           (image && selectedTool === 'outpaint') ||
           (image && selectedTool === 'erase')
         "
-        class="w-[18em] px-4 shrink-0 overflow-y-auto"
+        class="mt-4 md:mt-0 md:w-[18em] px-4 shrink-0 overflow-y-auto"
       >
         <Inpaint
           v-if="selectedTool === 'inpaint'"
@@ -559,7 +534,7 @@ onUnmounted(() => {
         />
       </div>
     </div>
-    <div class="flex gap-4 min-h-[5em]">
+    <div class="hidden md:flex gap-4 min-h-[5em]">
       <div class="w-[5em]"></div>
       <div class="flex flex-grow justify-center items-center">
         <div
