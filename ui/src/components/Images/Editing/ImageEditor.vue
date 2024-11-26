@@ -117,11 +117,11 @@ async function initCanvas() {
   }
 }
 
-const draw = (e: MouseEvent) => {
+const draw = (e: MouseEvent | TouchEvent) => {
   updateBrushPreview(e);
   if (!isDrawing.value || !canvasCtx.value) return;
 
-  const { x, y } = getMousePos(e);
+  const { x, y } = getPointerPos(e);
 
   canvasCtx.value.beginPath();
   canvasCtx.value.moveTo(mouseX.value, mouseY.value);
@@ -136,13 +136,13 @@ const draw = (e: MouseEvent) => {
   [mouseX.value, mouseY.value] = [x, y];
 };
 
-const startDrawing = (e: MouseEvent) => {
+const startDrawing = (e: MouseEvent | TouchEvent) => {
   if (selectedTool.value === 'outpaint') {
     return;
   }
 
   isDrawing.value = true;
-  const { x, y } = getMousePos(e);
+  const { x, y } = getPointerPos(e);
   [mouseX.value, mouseY.value] = [x, y];
   updateBrushPreview(e);
 };
@@ -172,10 +172,10 @@ function saveCanvasState() {
   redoStack.value = [];
 }
 
-const updateBrushPreview = (e: MouseEvent) => {
+const updateBrushPreview = (e: MouseEvent | TouchEvent) => {
   if (!previewCtx.value || !previewCanvasRef.value) return;
 
-  const pos = getMousePos(e);
+  const pos = getPointerPos(e);
   let x = Math.min(Math.max(pos.x, 0), canvasWidth.value);
   let y = Math.min(Math.max(pos.y, 0), canvasHeight.value);
 
@@ -213,15 +213,28 @@ const clearPreview = () => {
   }
 };
 
-const getMousePos = (e: MouseEvent) => {
+const getPointerPos = (e: MouseEvent | TouchEvent) => {
   if (!canvasRef.value) return { x: 0, y: 0 };
+
   const rect = canvasRef.value.getBoundingClientRect();
   const scaleX = canvasRef.value.width / rect.width;
   const scaleY = canvasRef.value.height / rect.height;
 
+  let clientX: number;
+  let clientY: number;
+
+  if (e instanceof TouchEvent) {
+    e.preventDefault(); // Prevent scrolling while drawing
+    clientX = e.touches[0].clientX;
+    clientY = e.touches[0].clientY;
+  } else {
+    clientX = e.clientX;
+    clientY = e.clientY;
+  }
+
   return {
-    x: (e.clientX - rect.left) * scaleX,
-    y: (e.clientY - rect.top) * scaleY,
+    x: (clientX - rect.left) * scaleX,
+    y: (clientY - rect.top) * scaleY,
   };
 };
 
@@ -486,12 +499,18 @@ onUnmounted(() => {
               clearPreview();
             }
           "
+          @touchstart="startDrawing"
+          @touchmove="draw"
+          @touchend="stopDrawing"
+          @touchcancel="stopDrawing"
         />
         <canvas
           ref="previewCanvasRef"
           class="pointer-events-none"
           @mousemove="updateBrushPreview"
           @mouseleave="clearPreview"
+          @touchmove="updateBrushPreview"
+          @touchend="clearPreview"
         />
       </div>
       <div
@@ -630,5 +649,15 @@ canvas {
 
 .flex-grow {
   overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  canvas {
+    touch-action: none; /* Prevents default touch behaviors like scrolling */
+  }
+
+  .canvas-container {
+    overflow: hidden; /* Prevents scrolling while drawing */
+  }
 }
 </style>
