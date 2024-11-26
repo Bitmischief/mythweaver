@@ -22,14 +22,23 @@ const selectedModels = computed({
   set: (value) => emit('update:modelValue', value),
 });
 
-const updateQuantity = (modelId: number, quantity: number | undefined = 0) => {
-  selectedModels.value = selectedModels.value.map((m) =>
-    m.id === modelId ? { ...m, quantity } : m,
-  );
-};
+const handleModelSelection = (selectedIds: number[] | undefined) => {
+  if (!selectedIds) return;
 
-const removeModel = (modelId: number) => {
-  selectedModels.value = selectedModels.value.filter((m) => m.id !== modelId);
+  const newSelectedModels = selectedIds.map((id) => {
+    const existingModel = selectedModels.value.find((m) => m.id === id);
+    const aiModel = availableImageModels.value.find((m) => m.id === id);
+    if (!aiModel) throw new Error(`Model with id ${id} not found`);
+    return (
+      existingModel || {
+        id: aiModel.id,
+        description: aiModel.description,
+        quantity: 1,
+      }
+    );
+  });
+
+  selectedModels.value = newSelectedModels;
 };
 
 watch(
@@ -55,23 +64,14 @@ const modelOptions = computed(() =>
   })),
 );
 
-const handleModelSelection = (selectedIds: number[] | undefined) => {
-  if (!selectedIds) return;
+const updateQuantity = (modelId: number, quantity: number | undefined = 0) => {
+  selectedModels.value = selectedModels.value.map((m) =>
+    m.id === modelId ? { ...m, quantity } : m,
+  );
+};
 
-  const newSelectedModels = selectedIds.map((id) => {
-    const existingModel = selectedModels.value.find((m) => m.id === id);
-    const aiModel = availableImageModels.value.find((m) => m.id === id);
-    if (!aiModel) throw new Error(`Model with id ${id} not found`);
-    return (
-      existingModel || {
-        id: aiModel.id,
-        description: aiModel.description,
-        quantity: 1,
-      }
-    );
-  });
-
-  selectedModels.value = newSelectedModels;
+const removeModel = (modelId: number) => {
+  selectedModels.value = selectedModels.value.filter((m) => m.id !== modelId);
 };
 
 const getModelById = (id: number) =>
