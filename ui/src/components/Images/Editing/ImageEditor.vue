@@ -8,12 +8,11 @@ import Erase from './Erase.vue';
 import { Download } from 'lucide-vue-next';
 import { CheckIcon } from '@heroicons/vue/24/solid';
 import Spinner from '@/components/Core/Spinner.vue';
-import { Eraser, Fullscreen, Paintbrush, Undo, Redo } from 'lucide-vue-next';
+import { Eraser, Fullscreen, Paintbrush } from 'lucide-vue-next';
 import { useDebounceFn } from '@vueuse/core';
-import GenerateImage from '@/modules/images/components/GenerateImage.vue';
 import { useImageStore } from '@/modules/images/store/image.store.ts';
-import ImageHistory from '@/modules/images/components/ImageHistory.vue';
 import { useEditImage } from '@/modules/images/composables/useEditImage.ts';
+import BrushControls from './BrushControls.vue';
 
 const emit = defineEmits(['close', 'imageUpdated']);
 const imageStore = useImageStore();
@@ -163,9 +162,6 @@ function saveCanvasState() {
     0,
     canvasRef.value.width,
     canvasRef.value.height,
-    {
-      willReadFrequently: true,
-    },
   );
   undoStack.value.push(imageData);
 
@@ -312,9 +308,6 @@ const getMaskCanvas = () => {
         0,
         tempCanvas.width,
         tempCanvas.height,
-        {
-          willReadFrequently: true,
-        },
       );
       const data = imageData.data;
 
@@ -537,84 +530,20 @@ onUnmounted(() => {
     <div class="hidden md:flex gap-4 min-h-[5em]">
       <div class="w-[5em]"></div>
       <div class="flex flex-grow justify-center items-center">
-        <div
+        <BrushControls
           v-if="maskedModes?.includes(selectedTool)"
-          class="bg-surface rounded-full p-2"
-        >
-          <div class="flex items-center">
-            <div class="flex justify-center gap-2">
-              <div class="text-center">
-                <button
-                  class="control-button"
-                  :class="{ active: !isEraseMode }"
-                  :title="isEraseMode ? 'Switch to Brush' : 'Switch to Eraser'"
-                  @click="toggleEditMode"
-                >
-                  <Paintbrush class="h-5 w-5" />
-                </button>
-              </div>
-              <div class="text-center">
-                <button
-                  class="control-button"
-                  :class="{ active: isEraseMode }"
-                  :title="isEraseMode ? 'Switch to Brush' : 'Switch to Eraser'"
-                  @click="toggleEraseMode"
-                >
-                  <Eraser class="h-5 w-5" />
-                </button>
-              </div>
-            </div>
-            <div>
-              <div class="px-2 py-3 mx-2 rounded-full bg-surface-3">
-                <Slider
-                  v-model="brushSize"
-                  :min="5"
-                  :max="200"
-                  name="brush-size"
-                  class="w-36"
-                  @click="updateBrushPreview"
-                  @mousemove="updateBrushPreview"
-                  @mouseleave="clearPreview"
-                />
-              </div>
-            </div>
-            <div class="text-center pr-4">
-              <button
-                class="control-button-text"
-                title="Clear mask"
-                @click="clearMask"
-              >
-                Clear Drawing
-              </button>
-            </div>
-            <div
-              class="flex justify-center gap-2 border-l-2 border-neutral-900 pl-6"
-            >
-              <div class="text-center">
-                <button
-                  class="control-button"
-                  :disabled="!canUndo"
-                  :class="{ disabled: !canUndo }"
-                  title="Undo"
-                  @click="undo"
-                >
-                  <Undo class="h-5 w-5" />
-                </button>
-              </div>
-              <div class="text-center">
-                <button
-                  class="control-button"
-                  :disabled="!canRedo"
-                  :class="{ disabled: !canRedo }"
-                  title="Redo"
-                  @click="redo"
-                >
-                  <Redo class="h-5 w-5" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+          v-model:brush-size="brushSize"
+          :is-erase-mode="isEraseMode"
+          :can-undo="canUndo"
+          :can-redo="canRedo"
+          @toggle-edit-mode="toggleEditMode"
+          @toggle-erase-mode="toggleEraseMode"
+          @clear-mask="clearMask"
+          @undo="undo"
+          @redo="redo"
+          @update-brush-preview="updateBrushPreview"
+          @clear-preview="clearPreview"
+        />
       </div>
       <div class="w-[18em]"></div>
     </div>

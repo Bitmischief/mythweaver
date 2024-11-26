@@ -13,6 +13,7 @@ declare module 'vue' {
     AudioUpload: typeof import('./src/components/Core/Forms/AudioUpload.vue')['default']
     AuthenticatedView: typeof import('./src/components/Core/AuthenticatedView.vue')['default']
     Autocomplete: typeof import('./src/components/Core/Forms/Autocomplete.vue')['default']
+    BrushControls: typeof import('./src/components/Images/Editing/BrushControls.vue')['default']
     Button: typeof import('primevue/button')['default']
     CampaignFileList: typeof import('./src/components/Campaigns/CampaignFileList.vue')['default']
     Chip: typeof import('primevue/chip')['default']

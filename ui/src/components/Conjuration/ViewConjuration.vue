@@ -25,7 +25,6 @@ import {
   BookmarkSquareIcon,
   EllipsisHorizontalIcon,
   TrashIcon,
-  ChatBubbleLeftRightIcon,
   SquaresPlusIcon,
 } from '@heroicons/vue/24/outline';
 import {

@@ -141,7 +141,7 @@ const emailSummary = async () => {
 const loadingImageModal = ref(false);
 
 function showNewImageModal() {
-  setLinkingContext({ sessionId: sessionId });
+  setLinkingContext({ sessionId: sessionId.value });
   showGenerateImageModal.value = true;
 }
 

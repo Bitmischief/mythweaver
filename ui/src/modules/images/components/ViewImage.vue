@@ -1,13 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { Image } from '../types/image';
-import {
-  Pencil,
-  SquareCheck,
-  RefreshCw,
-  XCircle,
-  RotateCw,
-} from 'lucide-vue-next';
+import { Pencil, SquareCheck, RefreshCw, RotateCw } from 'lucide-vue-next';
 import { useEditImage } from '../composables/useEditImage';
 import Loader from '@/components/Core/Loader.vue';
 import Spinner from '@/components/Core/Spinner.vue';
