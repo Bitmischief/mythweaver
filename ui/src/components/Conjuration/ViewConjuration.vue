@@ -72,15 +72,21 @@ onMounted(async () => {
   await loadConjuration();
 
   channel.bind(ServerEvent.ImageUpscaled, imageUpscaledHandler);
+  channel.bind(ServerEvent.ImageEdited, imageEditedHandler);
 });
 
 onUnmounted(() => {
   channel.unbind(ServerEvent.ImageUpscaled, imageUpscaledHandler);
+  channel.bind(ServerEvent.ImageEdited, imageEditedHandler);
 });
 
 watch(conjurationId, async () => {
   await loadConjuration();
 });
+
+async function imageEditedHandler() {
+  await loadConjuration();
+}
 
 async function imageUpscaledHandler(data: any) {
   await loadConjuration();

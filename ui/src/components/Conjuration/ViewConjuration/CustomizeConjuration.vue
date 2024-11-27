@@ -24,7 +24,6 @@ import { useRoute, useRouter } from 'vue-router';
 import { useDebounceFn } from '@vueuse/core';
 import { useGenerateImages } from '@/modules/images/composables/useGenerateImages';
 import { Select } from 'primevue';
-import { useImageStore } from '@/modules/images/store/image.store';
 
 const emit = defineEmits(['edit']);
 const props = defineProps<{
@@ -41,7 +40,6 @@ const router = useRouter();
 const eventBus = useEventBus();
 const currentUserId = useCurrentUserId();
 const currentUserRole = useCurrentUserRole();
-const imageStore = useImageStore();
 const channel = useWebsocketChannel();
 const hasValidPlan = useHasValidPlan();
 const { showModal: showGenerateImageModal, setLinkingContext } =
@@ -201,15 +199,10 @@ const hasAnyPrimaryImages = computed(() => {
   return editableConjuration.value?.images?.some((i) => i.primary && i.uri);
 });
 
-const selectedImage = computed(() => {
-  return imageStore.selectedImage;
-});
-
 const primaryImage = computed(() => {
   if (editableConjuration.value?.images?.length) {
     return editableConjuration.value.images.find((i: any) => i.primary);
   }
-
   return undefined;
 });
 
@@ -271,8 +264,9 @@ function addTag() {
         class="lg:min-w-[25rem] lg:w-[25rem] 3xl:min-w-[35rem] 3xl:w-[35rem] shrink rounded-md md:mr-6"
       >
         <CustomizableImage
+          v-if="hasAnyPrimaryImages"
           :key="imageKey"
-          :image="selectedImage ?? primaryImage"
+          :image="primaryImage"
           :editable="editable"
           :alt="editableConjuration.name"
           :image-conjuration-failed="imageConjurationFailed"
@@ -281,7 +275,7 @@ function addTag() {
           :linking="{ conjurationId: editableConjuration.id }"
           class="mb-2"
         />
-        <div v-if="!hasAnyPrimaryImages && editable" class="flex gap-2">
+        <div v-else-if="editable" class="flex gap-2">
           <div class="grow">
             <button
               class="button-gradient w-full mb-2"
