@@ -8,12 +8,14 @@ const loading = ref(false);
 const conjurationId = ref<number | undefined>(undefined);
 
 export function useImageHistory() {
-  function chooseFromImageHistory(newConjurationId: number) {
+  async function chooseFromImageHistory(newConjurationId: number) {
     showModal.value = true;
     conjurationId.value = newConjurationId;
+
+    await reloadImageHistory();
   }
 
-  watch(conjurationId, async () => {
+  async function reloadImageHistory() {
     if (!conjurationId.value) {
       return;
     }
@@ -21,6 +23,14 @@ export function useImageHistory() {
     loading.value = true;
     imageHistory.value = await getConjurationImageHistory(conjurationId.value);
     loading.value = false;
+  }
+
+  watch(conjurationId, async () => {
+    if (!conjurationId.value) {
+      return;
+    }
+
+    await reloadImageHistory();
   });
 
   return {

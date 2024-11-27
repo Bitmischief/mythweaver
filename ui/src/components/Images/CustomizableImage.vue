@@ -133,7 +133,8 @@ function showNewImageModal() {
         :model="[
           {
             label: 'Choose from conjuration history',
-            command: () => chooseFromImageHistory(linking.conjurationId!),
+            command: async () =>
+              await chooseFromImageHistory(linking.conjurationId!),
           },
         ]"
         @click="showNewImageModal"
