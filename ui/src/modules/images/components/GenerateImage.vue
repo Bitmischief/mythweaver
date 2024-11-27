@@ -2,11 +2,12 @@
 import ViewImage from './ViewImage.vue';
 import { useGenerateImages } from '../composables/useGenerateImages';
 import GenerateImageForm from './GenerateImageForm.vue';
-import { ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import { useConfirm } from 'primevue/useconfirm';
 import type { GenerateImageForm as GenerateImageFormType } from '../types/generateImageForm';
 
-const { generatedImages, presetSettings } = useGenerateImages();
+const { generatedImages, presetSettings, clearGeneratedImages } =
+  useGenerateImages();
 const confirm = useConfirm();
 
 const props = withDefaults(
@@ -19,6 +20,14 @@ const props = withDefaults(
     prompt: undefined,
   },
 );
+
+onMounted(() => {
+  clearGeneratedImages();
+});
+
+onUnmounted(() => {
+  clearGeneratedImages();
+});
 
 const emit = defineEmits(['primaryImageSet', 'cancel', 'insertImage']);
 const currentFormState = ref<GenerateImageFormType | null>(null);

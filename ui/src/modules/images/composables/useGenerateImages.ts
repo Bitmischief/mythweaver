@@ -1,4 +1,4 @@
-import { ref, computed, onUnmounted } from 'vue';
+import { ref, computed, onUnmounted, watch } from 'vue';
 import { apiGenerateImages } from '../api/images';
 import { GenerateImageForm } from '../types/generateImageForm';
 import { useAvailableAspectRatios } from './useAvailableAspectRatios';
@@ -146,6 +146,14 @@ export function useGenerateImages() {
     updateState({ presetSettings: settings });
   }
 
+  watch(showModal, () => {
+    clearGeneratedImages();
+  });
+
+  function clearGeneratedImages() {
+    updateState({ images: [] });
+  }
+
   async function generateRequest(form: GenerateImageForm, retryImageId?: number) {
     const { width, height } = getWidthAndHeight(form.aspectRatio);
 
@@ -222,5 +230,6 @@ export function useGenerateImages() {
     retryGeneration,
     setLinkingContext,
     setPresetImageSettings,
+    clearGeneratedImages,
   };
 }
