@@ -133,6 +133,9 @@ const PrimeVueStyles = {
     footer: {
       class: 'flex justify-end gap-2 mt-4',
     },
+    mask: {
+      class: 'bg-neutral-900/50 backdrop-blur-sm',
+    },
   },
   confirmdialog: {
     root: 'bg-neutral-900 border w-[30rem] border-zinc-800 rounded-lg text-neutral-300 p-4 shadow-lg flex',
