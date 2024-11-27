@@ -439,7 +439,7 @@ onUnmounted(() => {
     <main class="flex-1 relative">
       <div class="lg:h-full lg:flex lg:gap-4 lg:p-4">
         <div
-          class="sticky top-[72px] z-10 bg-background/50 backdrop-blur-sm mt-4 px-4 lg:p-0 lg:static lg:w-[5em] lg:bg-transparent"
+          class="sticky top-[72px] z-10 mt-4 px-4 lg:p-0 lg:static lg:w-[5em] lg:bg-transparent"
         >
           <div
             class="flex lg:flex-col w-full gap-2 justify-between rounded-2xl p-2 bg-surface"
