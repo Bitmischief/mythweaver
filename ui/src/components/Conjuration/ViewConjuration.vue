@@ -316,22 +316,6 @@ async function addToCampaign() {
         class="flex flex-wrap xl:flex-nowrap whitespace-nowrap gap-2 mt-0 justify-end grow"
       >
         <button
-          v-if="isQuickConjure"
-          class="button-gradient flex self-center"
-          @click="quickConjure(conjuration.conjurerCode)"
-        >
-          <ArrowPathIcon class="mr-2 h-5 w-5 self-center" />
-          Retry Quick Conjure
-        </button>
-
-        <button
-          v-if="isMyConjuration && isCharacterNotInCampaign"
-          class="button-gradient self-center"
-          @click="addToCampaign"
-        >
-          Add Character To Current Campaign
-        </button>
-        <button
           v-if="isMyConjuration && readOnly"
           class="button-gradient self-center"
           @click="readOnly = false"
@@ -377,6 +361,11 @@ async function addToCampaign() {
 
           <template #content>
             <div class="relative z-60 bg-surface-3 py-2 rounded-[12px]">
+              <MenuItem v-if="isMyConjuration && isCharacterNotInCampaign">
+                <button class="button-text self-center" @click="addToCampaign">
+                  Add Character To Campaign
+                </button>
+              </MenuItem>
               <MenuItem v-if="conjuration.conjurerCode !== 'players'">
                 <div class="menu-item">
                   <button

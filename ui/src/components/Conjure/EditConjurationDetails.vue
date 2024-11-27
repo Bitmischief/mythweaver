@@ -89,7 +89,10 @@ const saveAndGotoConjuration = async () => {
       </div>
     </div>
     <div class="flex justify-end">
-      <button class="button-text flex gap-2" @click="saveAndGotoConjuration">
+      <button
+        class="button-text underline text-neutral-500 flex gap-2 py-0"
+        @click="saveAndGotoConjuration"
+      >
         <span class="self-center">Skip Image</span>
         <ArrowRightStartOnRectangleIcon class="h-5 w-5 self-center" />
       </button>

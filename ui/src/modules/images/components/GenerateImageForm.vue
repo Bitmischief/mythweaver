@@ -61,6 +61,10 @@ const hasGeneratingImages = computed(() => {
   return generatedImages.value.some((img) => img.generating);
 });
 
+const isMobileDevice = () => {
+  return window.innerWidth <= 768;
+};
+
 const handleSubmit = async () => {
   if (formState.value.selectedModels.length === 0) {
     return;
@@ -87,12 +91,16 @@ const handleSubmit = async () => {
       header: 'Are you sure?',
       accept: async () => {
         await generateImages(formState.value);
-        isPanelExpanded.value = false;
+        if (isMobileDevice()) {
+          isPanelExpanded.value = false;
+        }
       },
     });
   } else {
     await generateImages(formState.value);
-    isPanelExpanded.value = false;
+    if (isMobileDevice()) {
+      isPanelExpanded.value = false;
+    }
   }
 };
 

@@ -225,7 +225,7 @@ function characterDescription(character: Conjuration) {
                 '/images/conjurations/player-character-no-image.png'
               "
               alt="character portrait"
-              class="rounded-[20px]"
+              class="rounded-[20px] aspect-square object-cover"
               :class="{ 'filter blur-sm': !primaryImage(char) }"
             />
             <div
@@ -263,7 +263,7 @@ function characterDescription(character: Conjuration) {
             <img
               :src="primaryImage(char)"
               alt="character portrait"
-              class="rounded-[20px]"
+              class="rounded-[20px] aspect-square object-cover"
             />
           </div>
           <div class="py-1 px-2 text-center truncate">
