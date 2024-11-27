@@ -190,26 +190,19 @@ export function useGenerateImages() {
     setupWebsocketListeners();
 
     try {
-      const newImages = await generateRequest(form, imageId);
+      const newImage = (await generateRequest(form, imageId))[0];
 
       const updatedImages = [...state.value.images];
       const index = updatedImages.findIndex((img) => img.id === imageId);
-      if (index !== -1 && newImages[0]) {
+      if (index !== -1 && newImage) {
         const updatedImage: Image = {
-          ...newImages[0],
-          uri: newImages[0].uri || '',
-          generating: false,
-          modelName: newImages[0].modelName || 'Unknown Model',
-          prompt: newImages[0].prompt || '',
-          edits: newImages[0].edits || [],
-          error: false,
-          errorMessage: '',
+          ...newImage,
         };
         updatedImages[index] = updatedImage;
       }
 
       updateState({ images: updatedImages });
-      return newImages[0];
+      return newImage;
     } catch (error) {
       updateState({ loading: false });
       cleanupWebsocketListeners();
