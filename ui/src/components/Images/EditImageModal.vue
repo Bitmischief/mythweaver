@@ -12,6 +12,7 @@ const imageStore = useImageStore();
     :z="45"
     extra-dark
     manually-override-close
+    class="overflow-hidden"
   >
     <ImageEditor @close="imageStore.showEditImageModal = false" />
   </FullScreenModal>

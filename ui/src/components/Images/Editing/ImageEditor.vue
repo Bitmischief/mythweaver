@@ -385,207 +385,207 @@ onUnmounted(() => {
 
 <template>
   <div
-    class="h-[calc(100vh-2.05rem)] lg:m-3 lg:p-3 lg:py-16 rounded-lg flex flex-col"
+    class="flex flex-col min-h-full lg:h-full overflow-y-auto lg:overflow-hidden relative"
   >
-    <div class="canvas-background absolute inset-0"></div>
-    <div
-      class="fixed top-0 left-0 right-0 py-6 px-3 lg:flex justify-between items-center"
-    >
-      <div class="px-4 gradient-text text-center lg:text-left text-2xl">
-        Image Editor
-      </div>
-      <div class="mt-2 lg:mt-0 flex gap-2 justify-center items-center mr-2">
-        <div
-          v-if="!loadingImage && !editing"
-          class="hidden lg:flex gap-1 text-sm rounded-[12px] px-4 py-2 self-center text-neutral-500"
-        >
-          <CheckIcon class="w-3 h-3 self-center" />
-          Saved
-        </div>
-        <div
-          v-else
-          class="flex gap-1 text-sm rounded-[12px] px-4 py-2 self-center text-neutral-500"
-        >
-          <Spinner class="w-3 h-3 self-center animate-spin" />
-          Saving
-        </div>
-        <button
-          class="bg-[#CC52C0]/20 hover:bg-[#CC52C0]/40 text-[#CC52C0] flex items-center px-4 py-2 rounded-full z-50"
-          :disabled="editing"
-          @click="downloadImage"
-        >
-          <Download class="w-5 h-5 mr-2" />
-          Download
-        </button>
-        <button
-          class="button-purple rounded-full z-50"
-          :disabled="editing"
-          @click="closeModal"
-        >
-          Done
-        </button>
-      </div>
-    </div>
-    <div class="lg:flex w-full lg:gap-4 h-full lg:max-h-[calc(100vh-9em)]">
+    <div class="canvas-background fixed inset-0"></div>
+
+    <header class="sticky top-0 z-20 p-4 lg:p-6 bg-surface/50 backdrop-blur-sm">
       <div
-        class="mt-32 lg:mt-0 lg:w-[5em] flex justify-center lg:block w-auto mx-4 lg:shrink-0"
+        class="mx-auto flex flex-col lg:flex-row justify-between items-center gap-4"
       >
+        <div class="gradient-text text-2xl">Image Editor</div>
+        <div class="flex gap-2 items-center">
+          <div
+            v-if="!loadingImage && !editing"
+            class="hidden lg:flex gap-1 text-sm rounded-[12px] px-4 py-2 text-neutral-500"
+          >
+            <CheckIcon class="w-3 h-3 self-center" />
+            Saved
+          </div>
+          <div
+            v-else
+            class="flex gap-1 text-sm rounded-[12px] px-4 py-2 text-neutral-500"
+          >
+            <Spinner class="w-3 h-3 self-center animate-spin" />
+            Saving
+          </div>
+          <button
+            class="bg-[#CC52C0]/20 hover:bg-[#CC52C0]/40 text-[#CC52C0] flex items-center px-4 py-2 rounded-full"
+            :disabled="editing"
+            @click="downloadImage"
+          >
+            <Download class="w-5 h-5 mr-2" />
+            Download
+          </button>
+          <button
+            class="button-purple rounded-full"
+            :disabled="editing"
+            @click="closeModal"
+          >
+            Done
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-1 relative">
+      <div class="lg:h-full lg:flex lg:gap-4 lg:p-4">
         <div
-          class="bg-surface flex lg:flex-col w-[12.75em] lg:w-auto gap-2 lg:justify-between rounded-2xl p-2"
+          class="sticky top-[72px] z-10 bg-background/50 backdrop-blur-sm mt-4 px-4 lg:p-0 lg:static lg:w-[5em] lg:bg-transparent"
         >
           <div
-            v-for="(tool, i) in tools"
-            :key="`tool_${i}`"
-            class="text-neutral-500"
+            class="flex lg:flex-col w-full gap-2 justify-between rounded-2xl p-2 bg-surface"
           >
-            <button
-              class="p-2 rounded-lg text-sm cursor-pointer flex flex-col items-center justify-center aspect-square w-full"
-              :class="{
-                'bg-fuchsia-800/25 text-fuchsia-600':
-                  selectedTool === tool.mode && tool.mode === 'inpaint',
-                'bg-yellow-800/25 text-yellow-600':
-                  selectedTool === tool.mode && tool.mode === 'outpaint',
-                'bg-blue-800/25 text-blue-600':
-                  selectedTool === tool.mode && tool.mode === 'erase',
-              }"
-              @click="setEditMode(tool.mode)"
+            <div
+              v-for="(tool, i) in tools"
+              :key="`tool_${i}`"
+              class="text-neutral-500"
             >
-              <template v-if="tool.mode === 'inpaint'">
-                <Paintbrush class="h-5 w-5" />
-              </template>
-              <template v-if="tool.mode === 'outpaint'">
-                <Fullscreen class="h-5 w-5" />
-              </template>
-              <template v-if="tool.mode === 'erase'">
-                <Eraser class="h-5 w-5" />
-              </template>
-              {{ tool.label }}
-            </button>
+              <button
+                class="p-2 rounded-lg text-sm cursor-pointer flex flex-col items-center justify-center aspect-square w-full"
+                :class="{
+                  'bg-fuchsia-800/25 text-fuchsia-600':
+                    selectedTool === tool.mode && tool.mode === 'inpaint',
+                  'bg-yellow-800/25 text-yellow-600':
+                    selectedTool === tool.mode && tool.mode === 'outpaint',
+                  'bg-blue-800/25 text-blue-600':
+                    selectedTool === tool.mode && tool.mode === 'erase',
+                }"
+                @click="setEditMode(tool.mode)"
+              >
+                <template v-if="tool.mode === 'inpaint'">
+                  <Paintbrush class="h-5 w-5" />
+                </template>
+                <template v-if="tool.mode === 'outpaint'">
+                  <Fullscreen class="h-5 w-5" />
+                </template>
+                <template v-if="tool.mode === 'erase'">
+                  <Eraser class="h-5 w-5" />
+                </template>
+                {{ tool.label }}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-      <div
-        class="lg:hidden mt-2 flex mx-4 flex-grow justify-center items-center"
-      >
-        <BrushControls
-          v-if="maskedModes?.includes(selectedTool)"
-          v-model:brush-size="brushSize"
-          :is-erase-mode="isEraseMode"
-          :can-undo="canUndo"
-          :can-redo="canRedo"
-          @toggle-edit-mode="toggleEditMode"
-          @toggle-erase-mode="toggleEraseMode"
-          @clear-mask="clearMask"
-          @undo="undo"
-          @redo="redo"
-          @update-brush-preview="updateBrushPreview"
-          @clear-preview="clearPreview"
-        />
-      </div>
-      <div
-        v-if="
-          selectedTool === 'inpaint' ||
-          selectedTool === 'outpaint' ||
-          selectedTool === 'erase'
-        "
-        ref="containerRef"
-        class="lg:flex-grow mt-2 w-full h-[315px] lg:h-auto lg:mt-0 lg:flex lg:justify-center relative lg:items-center"
-      >
+
         <div
-          v-if="loadingImage || editing"
-          class="absolute flex justify-center h-full w-full z-50"
+          class="lg:hidden sticky z-10 bg-background/50 backdrop-blur-sm mt-2 px-4"
         >
-          <div class="flex flex-col justify-center">
-            <Loader />
-            <div class="mt-2 text-center">Loading...</div>
-          </div>
+          <BrushControls
+            v-if="maskedModes?.includes(selectedTool)"
+            v-model:brush-size="brushSize"
+            :is-erase-mode="isEraseMode"
+            :can-undo="canUndo"
+            :can-redo="canRedo"
+            @toggle-edit-mode="toggleEditMode"
+            @toggle-erase-mode="toggleEraseMode"
+            @clear-mask="clearMask"
+            @undo="undo"
+            @redo="redo"
+            @update-brush-preview="updateBrushPreview"
+            @clear-preview="clearPreview"
+          />
         </div>
-        <img
-          ref="imageRef"
-          :src="imageUrl || ''"
-          alt="editor image"
-          class="w-full"
-          :class="{ 'opacity-60': editing }"
-          @load="initCanvas"
-        />
-        <canvas
-          ref="canvasRef"
-          @mousedown="startDrawing"
-          @mousemove="draw"
-          @mouseup="stopDrawing"
-          @mouseleave="
-            () => {
-              stopDrawing();
-              clearPreview();
-            }
+
+        <div class="flex-1 relative min-h-[50vh] lg:h-full lg:mt-0">
+          <div
+            v-if="loadingImage || editing"
+            class="absolute flex justify-center h-full w-full z-50"
+          >
+            <div class="flex flex-col justify-center">
+              <Loader />
+              <div class="mt-2 text-center">Loading...</div>
+            </div>
+          </div>
+          <img
+            ref="imageRef"
+            :src="imageUrl || ''"
+            alt="editor image"
+            class="w-full"
+            :class="{ 'opacity-60': editing }"
+            @load="initCanvas"
+          />
+          <canvas
+            ref="canvasRef"
+            @mousedown="startDrawing"
+            @mousemove="draw"
+            @mouseup="stopDrawing"
+            @mouseleave="
+              () => {
+                stopDrawing();
+                clearPreview();
+              }
+            "
+            @touchstart="startDrawing"
+            @touchmove="draw"
+            @touchend="stopDrawing"
+            @touchcancel="stopDrawing"
+          />
+          <canvas
+            ref="previewCanvasRef"
+            class="pointer-events-none"
+            @mousemove="updateBrushPreview"
+            @mouseleave="clearPreview"
+            @touchmove="updateBrushPreview"
+            @touchend="clearPreview"
+          />
+        </div>
+
+        <div
+          v-if="
+            image && ['inpaint', 'outpaint', 'erase'].includes(selectedTool)
           "
-          @touchstart="startDrawing"
-          @touchmove="draw"
-          @touchend="stopDrawing"
-          @touchcancel="stopDrawing"
-        />
-        <canvas
-          ref="previewCanvasRef"
-          class="pointer-events-none"
-          @mousemove="updateBrushPreview"
-          @mouseleave="clearPreview"
-          @touchmove="updateBrushPreview"
-          @touchend="clearPreview"
-        />
+          class="px-4 lg:w-[18em] lg:shrink-0 overflow-y-auto"
+        >
+          <Inpaint
+            v-if="selectedTool === 'inpaint'"
+            :image-id="image.id"
+            :get-mask-canvas="getMaskCanvas"
+            @edit-applied="handleEditApplied"
+            @edit-started="handleEditStarted"
+            @edit-failed="handleEditFailed"
+          />
+          <Extend
+            v-if="selectedTool === 'outpaint'"
+            :image-id="image.id"
+            @edit-applied="handleEditApplied"
+            @edit-started="handleEditStarted"
+            @edit-failed="handleEditFailed"
+          />
+          <Erase
+            v-if="selectedTool === 'erase'"
+            :image-id="image.id"
+            :get-mask-canvas="getMaskCanvas"
+            @edit-applied="handleEditApplied"
+            @edit-started="handleEditStarted"
+            @edit-failed="handleEditFailed"
+          />
+        </div>
       </div>
-      <div
-        v-if="
-          (image && selectedTool === 'inpaint') ||
-          (image && selectedTool === 'outpaint') ||
-          (image && selectedTool === 'erase')
-        "
-        class="mt-4 lg:mt-0 lg:w-[18em] px-4 shrink-0 overflow-y-auto"
-      >
-        <Inpaint
-          v-if="selectedTool === 'inpaint'"
-          :image-id="image.id"
-          :get-mask-canvas="getMaskCanvas"
-          @edit-applied="handleEditApplied"
-          @edit-started="handleEditStarted"
-          @edit-failed="handleEditFailed"
-        />
-        <Extend
-          v-if="selectedTool === 'outpaint'"
-          :image-id="image.id"
-          @edit-applied="handleEditApplied"
-          @edit-started="handleEditStarted"
-          @edit-failed="handleEditFailed"
-        />
-        <Erase
-          v-if="selectedTool === 'erase'"
-          :image-id="image.id"
-          :get-mask-canvas="getMaskCanvas"
-          @edit-applied="handleEditApplied"
-          @edit-started="handleEditStarted"
-          @edit-failed="handleEditFailed"
-        />
+    </main>
+
+    <footer class="hidden lg:block sticky bottom-0 px-4">
+      <div class="flex gap-4 min-h-[5em]">
+        <div class="w-[5em]"></div>
+        <div class="flex flex-grow justify-center items-center">
+          <BrushControls
+            v-if="maskedModes?.includes(selectedTool)"
+            v-model:brush-size="brushSize"
+            :is-erase-mode="isEraseMode"
+            :can-undo="canUndo"
+            :can-redo="canRedo"
+            @toggle-edit-mode="toggleEditMode"
+            @toggle-erase-mode="toggleEraseMode"
+            @clear-mask="clearMask"
+            @undo="undo"
+            @redo="redo"
+            @update-brush-preview="updateBrushPreview"
+            @clear-preview="clearPreview"
+          />
+        </div>
+        <div class="w-[18em]"></div>
       </div>
-    </div>
-    <div class="hidden lg:flex gap-4 min-h-[5em]">
-      <div class="w-[5em]"></div>
-      <div class="flex flex-grow justify-center items-center">
-        <BrushControls
-          v-if="maskedModes?.includes(selectedTool)"
-          v-model:brush-size="brushSize"
-          :is-erase-mode="isEraseMode"
-          :can-undo="canUndo"
-          :can-redo="canRedo"
-          @toggle-edit-mode="toggleEditMode"
-          @toggle-erase-mode="toggleEraseMode"
-          @clear-mask="clearMask"
-          @undo="undo"
-          @redo="redo"
-          @update-brush-preview="updateBrushPreview"
-          @clear-preview="clearPreview"
-        />
-      </div>
-      <div class="w-[18em]"></div>
-    </div>
+    </footer>
   </div>
 </template>
 
@@ -599,6 +599,7 @@ onUnmounted(() => {
   background-size: 25px 25px;
   opacity: 0.5;
   z-index: -1;
+  pointer-events: none;
 }
 
 .control-button-text {
@@ -678,6 +679,13 @@ canvas {
 
   .canvas-container {
     overflow: hidden; /* Prevents scrolling while drawing */
+  }
+}
+
+@media (max-width: 1024px) {
+  .sticky {
+    position: sticky;
+    backdrop-filter: blur(8px);
   }
 }
 </style>
