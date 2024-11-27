@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Paintbrush, Eraser, Undo, Redo } from 'lucide-vue-next';
+import { Paintbrush, Eraser } from 'lucide-vue-next';
 
 defineProps<{
   brushSize: number;
@@ -67,33 +67,6 @@ const emit = defineEmits<{
               @mouseleave="emit('clear-preview')"
             />
           </div>
-        </div>
-      </div>
-
-      <div
-        class="hidden sm:flex justify-center gap-2 border-l-2 border-neutral-900 pl-6"
-      >
-        <div class="text-center">
-          <button
-            class="control-button"
-            :disabled="!canUndo"
-            :class="{ disabled: !canUndo }"
-            title="Undo"
-            @click="emit('undo')"
-          >
-            <Undo class="h-5 w-5" />
-          </button>
-        </div>
-        <div class="text-center">
-          <button
-            class="control-button"
-            :disabled="!canRedo"
-            :class="{ disabled: !canRedo }"
-            title="Redo"
-            @click="emit('redo')"
-          >
-            <Redo class="h-5 w-5" />
-          </button>
         </div>
       </div>
     </div>
