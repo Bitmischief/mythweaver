@@ -76,6 +76,7 @@ watch(query, async () => {
 });
 
 async function navigateToCreateCampaign() {
+  emit('nav-item-selected');
   await router.push('/campaigns/new');
 }
 

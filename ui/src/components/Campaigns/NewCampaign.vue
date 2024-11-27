@@ -84,7 +84,7 @@ async function joinExistingCampaign() {
 <template>
   <div class="flex items-center justify-center my-auto">
     <div
-      class="text-white min-w-[30em] max-w-[50em] max-h-[50em] bg-surface-2 rounded-[20px] p-10"
+      class="text-white md:min-w-[30em] max-w-[50em] max-h-[50em] bg-surface-2 rounded-[20px] p-10"
     >
       <div v-if="loading">
         <Loader />
@@ -138,14 +138,14 @@ async function joinExistingCampaign() {
           <div class="text-center text-neutral-500 mt-4 mb-6">
             Have a link to an ongoing campaign?
           </div>
-          <div class="flex">
+          <div class="md:flex">
             <input
               v-model="inviteCode"
-              class="input-primary rounded-r-none"
+              class="input-primary md:rounded-r-none"
               placeholder="Paste campaign invite code here"
             />
             <button
-              class="button-primary whitespace-nowrap rounded-l-none"
+              class="mt-2 md:mt-0 button-primary whitespace-nowrap w-full md:w-auto md:rounded-l-none"
               @click="joinExistingCampaign"
             >
               Join Campaign
