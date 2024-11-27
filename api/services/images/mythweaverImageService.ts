@@ -10,8 +10,6 @@ import {
 import runPodProvider from '../../providers/runPod';
 
 const POLL_INTERVAL = 2 * 1000;
-const MAX_GENERATION_TIME = 5 * 60 * 1000;
-const MAX_RETRIES = 3;
 
 async function pollJobStatus(
   model: ImageModel,
@@ -57,21 +55,6 @@ async function pollJobStatus(
       elapsedTime,
       maxTime: MAX_GENERATION_TIME,
     });
-
-    if (elapsedTime > MAX_GENERATION_TIME) {
-      logger.warn(`Job timed out`, { jobId, imageId, elapsedTime, retryCount });
-      await runPodProvider.cancelJob(model, jobId);
-
-      if (retryCount >= MAX_RETRIES) {
-        logger.error(`Max retries reached`, { jobId, imageId, retryCount });
-        throw new AppError({
-          description: 'Image generation timed out after multiple retries',
-          httpCode: HttpCode.INTERNAL_SERVER_ERROR,
-        });
-      }
-
-      throw new Error('RETRY_NEEDED');
-    }
 
     await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL));
   }
