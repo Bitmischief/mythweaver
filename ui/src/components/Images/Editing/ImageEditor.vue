@@ -393,7 +393,7 @@ onUnmounted(() => {
 
 <template>
   <div
-    class="flex flex-col min-h-full lg:h-full overflow-y-auto lg:overflow-hidden relative"
+    class="flex flex-col min-h-full lg:h-full overflow-y-auto pb-12 md:pb-0 lg:overflow-hidden relative"
   >
     <div class="canvas-background fixed inset-0"></div>
 
