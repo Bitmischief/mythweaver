@@ -120,6 +120,7 @@ async function initCanvas() {
 }
 
 const draw = (e: MouseEvent | TouchEvent) => {
+  e.preventDefault();
   updateBrushPreview(e);
   if (!isDrawing.value || !canvasCtx.value) return;
 
@@ -143,6 +144,7 @@ const startDrawing = (e: MouseEvent | TouchEvent) => {
     return;
   }
 
+  e.preventDefault();
   isDrawing.value = true;
   const { x, y } = getPointerPos(e);
   [mouseX.value, mouseY.value] = [x, y];
@@ -226,7 +228,6 @@ const getPointerPos = (e: MouseEvent | TouchEvent) => {
   let clientY: number;
 
   if (e instanceof TouchEvent) {
-    e.preventDefault(); // Prevent scrolling while drawing
     clientX = e.touches[0].clientX;
     clientY = e.touches[0].clientY;
   } else {
@@ -234,9 +235,12 @@ const getPointerPos = (e: MouseEvent | TouchEvent) => {
     clientY = e.clientY;
   }
 
+  const x = (clientX - rect.left) * scaleX;
+  const y = (clientY - rect.top) * scaleY;
+
   return {
-    x: (clientX - rect.left) * scaleX,
-    y: (clientY - rect.top) * scaleY,
+    x: Math.min(Math.max(x, 0), canvasRef.value.width),
+    y: Math.min(Math.max(y, 0), canvasRef.value.height),
   };
 };
 
@@ -504,7 +508,7 @@ onUnmounted(() => {
           />
         </div>
 
-        <div 
+        <div
           ref="containerRef"
           class="flex-1 relative min-h-[50vh] lg:h-full mt-4 lg:mt-0 flex items-center justify-center px-2 lg:px-0"
         >
@@ -517,7 +521,7 @@ onUnmounted(() => {
               <div class="mt-2 text-center">Loading...</div>
             </div>
           </div>
-          
+
           <div class="relative">
             <img
               ref="imageRef"
@@ -525,7 +529,7 @@ onUnmounted(() => {
               alt="editor image"
               :style="{
                 width: `${imageWidth}px`,
-                height: `${imageHeight}px`
+                height: `${imageHeight}px`,
               }"
               :class="{ 'opacity-60': editing }"
               @load="initCanvas"
@@ -537,13 +541,17 @@ onUnmounted(() => {
               class="absolute top-0 left-0"
               :style="{
                 width: `${imageWidth}px`,
-                height: `${imageHeight}px`
+                height: `${imageHeight}px`,
               }"
               @mousedown="startDrawing"
               @mousemove="draw"
               @mouseup="stopDrawing"
               @mouseleave="clearPreview"
               @mouseenter="updateBrushPreview"
+              @touchstart="startDrawing"
+              @touchmove="draw"
+              @touchend="stopDrawing"
+              @touchcancel="stopDrawing"
             />
             <canvas
               ref="previewCanvasRef"
@@ -552,7 +560,7 @@ onUnmounted(() => {
               class="absolute top-0 left-0 pointer-events-none"
               :style="{
                 width: `${imageWidth}px`,
-                height: `${imageHeight}px`
+                height: `${imageHeight}px`,
               }"
               @mousemove="updateBrushPreview"
               @mouseleave="clearPreview"
@@ -717,6 +725,24 @@ canvas {
   .sticky {
     position: sticky;
     backdrop-filter: blur(8px);
+  }
+}
+
+canvas {
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (max-width: 768px) {
+  .canvas-container {
+    overscroll-behavior: none;
+    overflow: hidden;
   }
 }
 </style>
