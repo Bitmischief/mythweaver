@@ -21,8 +21,8 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <div class="bg-surface rounded-3xl md:rounded-full p-2">
-    <div class="md:flex items-center">
+  <div class="bg-surface rounded-3xl w-full sm:w-auto sm:rounded-full p-2">
+    <div class="sm:flex items-center">
       <div class="flex justify-center gap-2">
         <div class="text-center">
           <button
@@ -44,7 +44,10 @@ const emit = defineEmits<{
             <Eraser class="h-5 w-5" />
           </button>
         </div>
-        <div>
+        <div class="sm:hidden text-sm text-center self-center text-neutral-500">
+          This editor is experimental on mobile devices.
+        </div>
+        <div class="hidden sm:block">
           <div class="px-2 py-3 mx-2 rounded-full bg-surface-3">
             <Slider
               :model-value="brushSize"
@@ -67,7 +70,9 @@ const emit = defineEmits<{
         </div>
       </div>
 
-      <div class="flex justify-center gap-2 border-l-2 border-neutral-900 pl-6">
+      <div
+        class="hidden sm:flex justify-center gap-2 border-l-2 border-neutral-900 pl-6"
+      >
         <div class="text-center">
           <button
             class="control-button"

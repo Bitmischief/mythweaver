@@ -372,19 +372,19 @@ onUnmounted(() => {
 
 <template>
   <div
-    class="h-[calc(100vh-2.05rem)] md:m-3 md:p-3 md:py-16 rounded-lg flex flex-col"
+    class="h-[calc(100vh-2.05rem)] lg:m-3 lg:p-3 lg:py-16 rounded-lg flex flex-col"
   >
     <div class="canvas-background absolute inset-0"></div>
     <div
-      class="fixed top-0 left-0 right-0 py-6 px-3 md:flex justify-between items-center"
+      class="fixed top-0 left-0 right-0 py-6 px-3 lg:flex justify-between items-center"
     >
-      <div class="px-4 gradient-text text-center md:text-left text-2xl">
+      <div class="px-4 gradient-text text-center lg:text-left text-2xl">
         Image Editor
       </div>
-      <div class="mt-2 md:mt-0 flex gap-2 justify-center items-center mr-2">
+      <div class="mt-2 lg:mt-0 flex gap-2 justify-center items-center mr-2">
         <div
           v-if="!loadingImage && !editing"
-          class="hidden md:flex gap-1 text-sm rounded-[12px] px-4 py-2 self-center text-neutral-500"
+          class="hidden lg:flex gap-1 text-sm rounded-[12px] px-4 py-2 self-center text-neutral-500"
         >
           <CheckIcon class="w-3 h-3 self-center" />
           Saved
@@ -413,10 +413,12 @@ onUnmounted(() => {
         </button>
       </div>
     </div>
-    <div class="md:flex w-full md:gap-4 h-full md:max-h-[calc(100vh-9em)]">
-      <div class="mt-32 md:mt-0 md:w-[5em] mx-4 shrink-0">
+    <div class="lg:flex w-full lg:gap-4 h-full lg:max-h-[calc(100vh-9em)]">
+      <div
+        class="mt-32 lg:mt-0 lg:w-[5em] flex justify-center lg:block w-auto mx-4 lg:shrink-0"
+      >
         <div
-          class="bg-surface flex md:flex-col gap-2 justify-between rounded-2xl p-2"
+          class="bg-surface flex lg:flex-col w-[12.75em] lg:w-auto gap-2 lg:justify-between rounded-2xl p-2"
         >
           <div
             v-for="(tool, i) in tools"
@@ -450,13 +452,31 @@ onUnmounted(() => {
         </div>
       </div>
       <div
+        class="lg:hidden mt-2 flex mx-4 flex-grow justify-center items-center"
+      >
+        <BrushControls
+          v-if="maskedModes?.includes(selectedTool)"
+          v-model:brush-size="brushSize"
+          :is-erase-mode="isEraseMode"
+          :can-undo="canUndo"
+          :can-redo="canRedo"
+          @toggle-edit-mode="toggleEditMode"
+          @toggle-erase-mode="toggleEraseMode"
+          @clear-mask="clearMask"
+          @undo="undo"
+          @redo="redo"
+          @update-brush-preview="updateBrushPreview"
+          @clear-preview="clearPreview"
+        />
+      </div>
+      <div
         v-if="
           selectedTool === 'inpaint' ||
           selectedTool === 'outpaint' ||
           selectedTool === 'erase'
         "
         ref="containerRef"
-        class="md:flex-grow mt-2 w-full h-[315px] md:h-auto md:mt-0 md:flex md:justify-center relative md:items-center"
+        class="lg:flex-grow mt-2 w-full h-[315px] lg:h-auto lg:mt-0 lg:flex lg:justify-center relative lg:items-center"
       >
         <div
           v-if="loadingImage || editing"
@@ -500,7 +520,7 @@ onUnmounted(() => {
           (image && selectedTool === 'outpaint') ||
           (image && selectedTool === 'erase')
         "
-        class="mt-4 md:mt-0 md:w-[18em] px-4 shrink-0 overflow-y-auto"
+        class="mt-4 lg:mt-0 lg:w-[18em] px-4 shrink-0 overflow-y-auto"
       >
         <Inpaint
           v-if="selectedTool === 'inpaint'"
@@ -527,7 +547,7 @@ onUnmounted(() => {
         />
       </div>
     </div>
-    <div class="hidden md:flex gap-4 min-h-[5em]">
+    <div class="hidden lg:flex gap-4 min-h-[5em]">
       <div class="w-[5em]"></div>
       <div class="flex flex-grow justify-center items-center">
         <BrushControls
