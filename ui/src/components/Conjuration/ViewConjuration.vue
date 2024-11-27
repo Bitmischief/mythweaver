@@ -15,7 +15,6 @@ import { useEventBus } from '@/lib/events.ts';
 import CustomizeConjuration from '@/components/Conjuration/ViewConjuration/CustomizeConjuration.vue';
 import {
   ArrowLeftIcon,
-  ArrowPathIcon,
   DocumentDuplicateIcon,
   BookmarkSlashIcon,
   ArrowsRightLeftIcon,
@@ -29,7 +28,6 @@ import {
 } from '@heroicons/vue/24/outline';
 import {
   useCurrentUserId,
-  useQuickConjure,
   useSelectedCampaignId,
   useWebsocketChannel,
 } from '@/lib/hooks.ts';
@@ -43,11 +41,11 @@ import { Conjurer, getConjurers } from '@/api/generators.ts';
 import Select from '@/components/Core/Forms/Select.vue';
 import ConjurationMove from '@/components/Collections/ConjurationMove.vue';
 import { ServerEvent } from '@/lib/serverEvents';
+import { PlusIcon } from 'lucide-vue-next';
 
 const route = useRoute();
 const router = useRouter();
 const eventBus = useEventBus();
-const quickConjure = useQuickConjure();
 const currentUserId = useCurrentUserId();
 const selectedCampaignId = useSelectedCampaignId();
 const channel = useWebsocketChannel();
@@ -63,10 +61,6 @@ const conjurationId = computed(() =>
 const isMyConjuration = computed(
   () => conjuration.value?.userId === currentUserId.value,
 );
-
-const isQuickConjure = computed(() => {
-  return route.query.quick === 'true';
-});
 
 onMounted(async () => {
   await loadConjuration();
@@ -362,7 +356,11 @@ async function addToCampaign() {
           <template #content>
             <div class="relative z-60 bg-surface-3 py-2 rounded-[12px]">
               <MenuItem v-if="isMyConjuration && isCharacterNotInCampaign">
-                <button class="button-text self-center" @click="addToCampaign">
+                <button
+                  class="button-text self-center flex gap-2"
+                  @click="addToCampaign"
+                >
+                  <PlusIcon class="h-5 w-5" />
                   Add Character To Campaign
                 </button>
               </MenuItem>
