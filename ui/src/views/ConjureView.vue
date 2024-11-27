@@ -10,10 +10,12 @@ import EditConjurationDetails from '@/components/Conjure/EditConjurationDetails.
 import GenerateImage from '@/modules/images/components/GenerateImage.vue';
 import { generateArbitrary } from '@/lib/generation';
 import Loader from '@/components/Core/Loader.vue';
+import { useGenerateImages } from '@/modules/images/composables/useGenerateImages';
 
 const current = ref<'generator' | 'conjure' | 'edit' | 'image'>('generator');
 const router = useRouter();
 const route = useRoute();
+const { setLinkingContext } = useGenerateImages();
 
 const generator = ref<Conjurer>();
 const generators = ref<Conjurer[]>([]);
@@ -111,6 +113,9 @@ const next = async () => {
       }
 
       current.value = 'image';
+      setLinkingContext({
+        conjurationId: conjuration.value?.id,
+      });
       router.push({
         query: {
           code: generator.value?.code,
@@ -175,7 +180,6 @@ const handlePrimaryImageSet = () => {
       </div>
       <GenerateImage
         allow-edits
-        :linking="{ conjurationId: conjuration.id }"
         :prompt="generatedImagePrompt"
         @primary-image-set="handlePrimaryImageSet"
       />

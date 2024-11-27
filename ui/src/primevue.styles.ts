@@ -147,6 +147,10 @@ const PrimeVueStyles = {
       root: 'px-4 py-2 bg-fuchsia-500 hover:bg-fuchsia-600 text-white rounded-lg',
     },
   },
+  panel: {
+    root: 'bg-surface-2 border border-zinc-800 rounded-lg p-4 shadow-lg',
+    header: 'flex items-center justify-between items-center text-lg text-neutral-100 font-medium',
+  },
 };
 
 export default PrimeVueStyles;

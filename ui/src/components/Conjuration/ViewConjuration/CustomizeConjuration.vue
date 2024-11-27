@@ -118,7 +118,6 @@ function primaryImageSetHandler(data: any) {
   if (data.context?.conjurationId === editableConjuration.value.id) {
     editableConjuration.value.images = data.images;
     imageKey.value++;
-    showSuccess({ message: 'Image saved' });
   }
 }
 
