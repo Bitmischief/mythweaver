@@ -40,4 +40,7 @@ export enum ServerEvent {
   ModelGenerationStarted = 'MODEL_GENERATION_STARTED',
   ModelGenerationCompleted = 'MODEL_GENERATION_COMPLETED',
   ImageUrlUpdated = 'image-url-updated',
+  ImageInpaintError = 'image-inpaint-error',
+  ImageOutpaintError = 'image-outpaint-error',
+  ImageEraseError = 'image-erase-error',
 }

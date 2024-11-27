@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { smartErase } from '@/api/images';
 import Spinner from '@/components/Core/Spinner.vue';
+import { ServerEvent } from '@/lib/serverEvents';
+import { useWebsocketChannel } from '@/lib/hooks';
+import { showError } from '@/lib/notifications';
 
 const props = defineProps<{
   imageId: number;
@@ -16,14 +19,28 @@ const emit = defineEmits([
 ]);
 
 const isEditing = ref(false);
-const error = ref<string | null>(null);
+const channel = useWebsocketChannel();
+
+onMounted(() => {
+  channel.bind(ServerEvent.ImageEraseError, handleError);
+});
+
+onUnmounted(() => {
+  channel.unbind(ServerEvent.ImageEraseError, handleError);
+});
+
+const handleError = () => {
+  showError({
+    message:
+      'Encountered an error smart erasing image. Please contact support if this issue persists.',
+  });
+  isEditing.value = false;
+  emit('edit-failed');
+};
 
 const applySmartErase = async () => {
   const maskCanvas = props.getMaskCanvas();
-  console.log(maskCanvas);
-  if (!maskCanvas) {
-    return;
-  }
+  if (!maskCanvas) return;
 
   isEditing.value = true;
   try {
@@ -61,9 +78,6 @@ const applySmartErase = async () => {
     <p class="mb-4 text-neutral-400">
       Use the brush to paint over the areas you want to erase, then click
       "Erase".
-    </p>
-    <p v-if="error">
-      {{ error }}
     </p>
     <Button
       :disabled="isEditing"

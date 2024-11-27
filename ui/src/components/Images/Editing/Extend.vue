@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { outpaint } from '@/api/images';
 import Spinner from '@/components/Core/Spinner.vue';
 import { Select } from 'primevue';
 import { Image } from '@/modules/images/types/image';
 import { useImages } from '@/modules/images/composables/useImages';
+import { ServerEvent } from '@/lib/serverEvents';
+import { useWebsocketChannel } from '@/lib/hooks';
+import { showError } from '@/lib/notifications';
 
 const props = defineProps<{
   imageId: number;
@@ -29,11 +32,26 @@ const leftDimension = ref(0);
 const rightDimension = ref(0);
 const direction = ref('down');
 const image = ref<Image | undefined>(undefined);
+const channel = useWebsocketChannel();
 
 onMounted(async () => {
+  channel.bind(ServerEvent.ImageOutpaintError, handleError);
   image.value = await getImage(props.imageId);
   prompt.value = image.value?.prompt || '';
 });
+
+onUnmounted(() => {
+  channel.unbind(ServerEvent.ImageOutpaintError, handleError);
+});
+
+const handleError = () => {
+  showError({
+    message:
+      'Encountered an error extending image. Please contact support if this issue persists.',
+  });
+  isEditing.value = false;
+  emit('edit-failed');
+};
 
 const isValidDimensions = computed(() => {
   return (
@@ -60,7 +78,10 @@ const applyOutpaint = async () => {
 
     emit('edit-applied', editedImage);
   } catch (error) {
-    console.error('Error applying outpaint:', error);
+    showError({
+      message:
+        'Encountered an error smart erasing image. Please contact support if this issue persists.',
+    });
     emit('edit-failed');
   } finally {
     isEditing.value = false;

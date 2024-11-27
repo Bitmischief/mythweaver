@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { inpaintImage } from '@/api/images';
 import Spinner from '@/components/Core/Spinner.vue';
+import { ServerEvent } from '@/lib/serverEvents';
+import { useWebsocketChannel } from '@/lib/hooks';
+import { showError } from '@/lib/notifications';
 
 const emit = defineEmits([
   'edit-applied',
@@ -17,6 +20,24 @@ const props = defineProps<{
 
 const prompt = ref<string>();
 const isEditing = ref<boolean>(false);
+const channel = useWebsocketChannel();
+
+onMounted(() => {
+  channel.bind(ServerEvent.ImageInpaintError, handleError);
+});
+
+onUnmounted(() => {
+  channel.unbind(ServerEvent.ImageInpaintError, handleError);
+});
+
+const handleError = () => {
+  showError({
+    message:
+      'Encountered an error modifying image. Please contact support if this issue persists.',
+  });
+  isEditing.value = false;
+  emit('edit-failed');
+};
 
 const applyEdit = async () => {
   const maskCanvas = props.getMaskCanvas();
