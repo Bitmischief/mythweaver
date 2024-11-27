@@ -103,7 +103,7 @@ async function handleDeleteCampaign() {
           </router-link>
         </div>
 
-        <div class="mt-2 self-center md:mt-0 flex justify-between">
+        <div class="self-center md:mt-0 flex justify-between">
           <button
             v-if="currentUserRole === CampaignRole.DM"
             class="button-ghost mr-2"
@@ -167,7 +167,7 @@ async function handleDeleteCampaign() {
             :key="member.id"
             class="bg-surface-2 mb-2 rounded-xl p-3"
           >
-            <div class="flex justify-between group">
+            <div class="md:flex justify-between group">
               <div>
                 <div
                   class="text-lg"
