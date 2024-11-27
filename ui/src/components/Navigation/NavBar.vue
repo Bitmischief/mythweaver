@@ -152,13 +152,11 @@ const appVersion = computed(() => import.meta.env.VITE_VERSION);
             <img src="/images/logo-horizontal-2.svg" class="h-20 w-auto" />
 
             <div class="flex h-full flex-col justify-between">
-              <div>
+              <div class="pb-6">
                 <NavbarContent @nav-item-selected="showPanel = false" />
               </div>
-              <div class="mb-4">
-                <div class="text-xs text-gray-500 font-bold mb-3 mt-6">
-                  ACCOUNT
-                </div>
+              <div>
+                <hr class="py-2 border-neutral-800 -mx-4" />
                 <router-link
                   class="nav-item"
                   to="/account-settings"
@@ -167,11 +165,29 @@ const appVersion = computed(() => import.meta.env.VITE_VERSION);
                   <Cog6ToothIcon class="h-5 mr-2" />
                   <div class="whitespace-nowrap">Account Settings</div>
                 </router-link>
-              </div>
-              <div>
-                <hr class="py-2 border-neutral-800 -mx-4" />
                 <div
-                  class="flex px-1 py-3 text-sm text-gray-300 cursor-pointer hover:bg-rounded-purple"
+                  class="flex px-2 py-2 text-sm text-gray-300 cursor-pointer hover:bg-rounded-purple"
+                >
+                  <img
+                    src="@/assets/icons/discord_icon_white.svg"
+                    alt="support"
+                    class="h-4 mr-2 self-center"
+                  />
+                  <a href="https://discord.gg/vbccbz8Jhp" target="_blank">
+                    Join our discord
+                  </a>
+                </div>
+                <a
+                  href="https://feedback.mythweaver.co"
+                  target="_blank"
+                  class="flex px-2 py-2 text-sm text-gray-300 cursor-pointer hover:bg-rounded-purple"
+                  @click="intercom.show()"
+                >
+                  <MegaphoneIcon class="h-5 mr-2" />
+                  Feedback
+                </a>
+                <div
+                  class="flex px-2 py-2 text-sm text-gray-300 cursor-pointer hover:bg-rounded-purple"
                   @click="intercom.show()"
                 >
                   <img
@@ -181,13 +197,6 @@ const appVersion = computed(() => import.meta.env.VITE_VERSION);
                   />
                   Support Center
                 </div>
-                <iframe
-                  data-status-badge="true"
-                  src="https://status.mythweaver.co/badge?theme=dark"
-                  height="30"
-                  frameborder="0"
-                  scrolling="no"
-                ></iframe>
                 <hr class="py-2 border-neutral-800 -mx-4 mt-5" />
                 <button
                   class="button-ghost-primary mt-4 mb-4 w-full"
