@@ -504,48 +504,62 @@ onUnmounted(() => {
           />
         </div>
 
-        <div class="flex-1 relative min-h-[50vh] lg:h-full lg:mt-0">
+        <div 
+          ref="containerRef"
+          class="flex-1 relative min-h-[50vh] lg:h-full mt-4 lg:mt-0 flex items-center justify-center px-2 lg:px-0"
+        >
           <div
             v-if="loadingImage || editing"
-            class="absolute flex justify-center h-full w-full z-50"
+            class="absolute inset-0 flex justify-center items-center z-50"
           >
-            <div class="flex flex-col justify-center">
+            <div class="flex flex-col items-center">
               <Loader />
               <div class="mt-2 text-center">Loading...</div>
             </div>
           </div>
-          <img
-            ref="imageRef"
-            :src="imageUrl || ''"
-            alt="editor image"
-            class="w-full"
-            :class="{ 'opacity-60': editing }"
-            @load="initCanvas"
-          />
-          <canvas
-            ref="canvasRef"
-            @mousedown="startDrawing"
-            @mousemove="draw"
-            @mouseup="stopDrawing"
-            @mouseleave="
-              () => {
-                stopDrawing();
-                clearPreview();
-              }
-            "
-            @touchstart="startDrawing"
-            @touchmove="draw"
-            @touchend="stopDrawing"
-            @touchcancel="stopDrawing"
-          />
-          <canvas
-            ref="previewCanvasRef"
-            class="pointer-events-none"
-            @mousemove="updateBrushPreview"
-            @mouseleave="clearPreview"
-            @touchmove="updateBrushPreview"
-            @touchend="clearPreview"
-          />
+          
+          <div class="relative">
+            <img
+              ref="imageRef"
+              :src="imageUrl || ''"
+              alt="editor image"
+              :style="{
+                width: `${imageWidth}px`,
+                height: `${imageHeight}px`
+              }"
+              :class="{ 'opacity-60': editing }"
+              @load="initCanvas"
+            />
+            <canvas
+              ref="canvasRef"
+              :width="imageWidth"
+              :height="imageHeight"
+              class="absolute top-0 left-0"
+              :style="{
+                width: `${imageWidth}px`,
+                height: `${imageHeight}px`
+              }"
+              @mousedown="startDrawing"
+              @mousemove="draw"
+              @mouseup="stopDrawing"
+              @mouseleave="clearPreview"
+              @mouseenter="updateBrushPreview"
+            />
+            <canvas
+              ref="previewCanvasRef"
+              :width="imageWidth"
+              :height="imageHeight"
+              class="absolute top-0 left-0 pointer-events-none"
+              :style="{
+                width: `${imageWidth}px`,
+                height: `${imageHeight}px`
+              }"
+              @mousemove="updateBrushPreview"
+              @mouseleave="clearPreview"
+              @touchmove="updateBrushPreview"
+              @touchend="clearPreview"
+            />
+          </div>
         </div>
 
         <div
@@ -676,25 +690,13 @@ onUnmounted(() => {
 }
 
 img {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   user-select: none;
   pointer-events: none;
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
+  display: block;
 }
 
 canvas {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   cursor: none;
-  max-width: 100%;
-  max-height: 100%;
 }
 
 .flex-grow {
