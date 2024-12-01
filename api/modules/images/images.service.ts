@@ -195,12 +195,6 @@ export class ImagesService {
         uri: upscaledImageUri,
       });
 
-      await sendWebsocketMessage(
-        userId,
-        WebSocketEvent.UserImageCreditCountUpdated,
-        imageCredits,
-      );
-
       await sendWebsocketMessage(userId, WebSocketEvent.ImageUpscaled, {
         imageId: imageId,
         imageUri: upscaledImageUri,
