@@ -195,13 +195,6 @@ export class ImagesService {
         uri: upscaledImageUri,
       });
 
-      const imageCredits = await modifyImageCreditCount(
-        userId,
-        -1,
-        ImageCreditChangeType.USER_INITIATED,
-        `Image upscale: ${upscaledImageUri}`,
-      );
-
       await sendWebsocketMessage(
         userId,
         WebSocketEvent.UserImageCreditCountUpdated,
@@ -510,8 +503,6 @@ export class ImagesService {
         inpaintedImageUri,
       );
 
-      await this.deductCreditsAndNotify(userId, 3, 'Image inpainting');
-
       await sendWebsocketMessage(userId, WebSocketEvent.ImageEdited, {
         imageId,
         context: { inpainted: true },
@@ -598,8 +589,6 @@ export class ImagesService {
         outpaintedImageUri,
       );
 
-      await this.deductCreditsAndNotify(userId, 4, 'Image outpainting');
-
       await sendWebsocketMessage(userId, WebSocketEvent.ImageEdited, {
         imageId,
         context: { outpainted: true },
@@ -677,8 +666,6 @@ export class ImagesService {
         ImageEditType.BACKGROUND_REMOVAL,
         backgroundRemovedImageUri,
       );
-
-      await this.deductCreditsAndNotify(userId, 2, 'Background removal');
 
       await sendWebsocketMessage(userId, WebSocketEvent.ImageEdited, {
         imageId,
@@ -777,8 +764,6 @@ export class ImagesService {
         ImageEditType.SMART_ERASE,
         erasedImageUri,
       );
-
-      await this.deductCreditsAndNotify(userId, 1, 'Image portion erasing');
 
       await sendWebsocketMessage(userId, WebSocketEvent.ImageEdited, {
         imageId,
