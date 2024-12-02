@@ -1,61 +1,26 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 import { showError } from '@/lib/notifications.ts';
+import RadioButton from 'primevue/radiobutton';
 
 const emit = defineEmits(['finish-onboarding']);
 
 const sources = ref([
-  {
-    id: 'friend',
-    name: 'Friend',
-  },
-  {
-    id: 'google',
-    name: 'Google',
-  },
-  {
-    id: 'meta',
-    name: 'Facebook or Instagram',
-  },
-  {
-    id: 'influencer',
-    name: 'Influencer',
-  },
-  {
-    id: 'reddit',
-    name: 'Reddit',
-  },
+  { id: 'friend', name: 'Friend' },
+  { id: 'google', name: 'Google' },
+  { id: 'meta', name: 'Facebook or Instagram' },
+  { id: 'influencer', name: 'Influencer' },
+  { id: 'reddit', name: 'Reddit' },
 ]);
 
 const influencers = ref([
-  {
-    id: 'totu',
-    name: 'Theatre of the Unaligned',
-  },
-  {
-    id: 'punkrockjenny',
-    name: 'PunkRockJenny',
-  },
-  {
-    id: 'dumbestdnd',
-    name: 'dumbestdnd',
-  },
-  {
-    id: 'tawny',
-    name: 'Tawny Platis',
-  },
-  {
-    id: 'vatara',
-    name: 'Vatara',
-  },
-  {
-    id: 'nerdieststepdad',
-    name: 'Nerdiest Step Dad',
-  },
-  {
-    id: 'other',
-    name: 'Other',
-  },
+  { id: 'totu', name: 'Theatre of the Unaligned' },
+  { id: 'punkrockjenny', name: 'PunkRockJenny' },
+  { id: 'dumbestdnd', name: 'dumbestdnd' },
+  { id: 'tawny', name: 'Tawny Platis' },
+  { id: 'vatara', name: 'Vatara' },
+  { id: 'nerdieststepdad', name: 'Nerdiest Step Dad' },
+  { id: 'other', name: 'Other' },
 ]);
 
 const selectedSource = ref({ id: '', name: '' });
@@ -67,10 +32,7 @@ function submitSourceInfo() {
     return;
   }
 
-  if (
-    selectedSource?.value?.id === 'influencer' &&
-    !selectedInfluencer?.value?.id
-  ) {
+  if (selectedSource?.value?.id === 'influencer' && !selectedInfluencer?.value?.id) {
     showError({ message: 'Please select an influencer and submit again!' });
     return;
   }
@@ -85,23 +47,17 @@ function submitSourceInfo() {
 <template>
   <div class="text-3xl">How did you find us?</div>
   <div class="text-lg text-neutral-400">
-    Help our small business by taking a moment to let us know how you found us!
-    This helps a ton!
+    Help our small business by taking a moment to let us know how you found us! This helps a ton!
   </div>
 
   <div class="mt-4">
     <div class="flex flex-col space-y-4">
-      <div
-        v-for="source in sources"
-        :key="source.id"
-        class="flex items-center space-x-4"
-      >
-        <input
-          :id="source.id"
+      <div v-for="source in sources" :key="source.id" class="flex items-center gap-2">
+        <RadioButton
           v-model="selectedSource"
-          type="radio"
+          :inputId="source.id"
+          name="source"
           :value="source"
-          class="form-radio h-6 w-6 text-primary-500"
         />
         <label :for="source.id" class="text-lg text-neutral-400">
           {{ source.name }}
@@ -115,17 +71,12 @@ function submitSourceInfo() {
         Help us show your favorite influencer some love!
       </div>
       <div class="mt-4 flex flex-col space-y-4">
-        <div
-          v-for="influencer in influencers"
-          :key="influencer.id"
-          class="flex items-center space-x-4"
-        >
-          <input
-            :id="influencer.id"
+        <div v-for="influencer in influencers" :key="influencer.id" class="flex items-center gap-2">
+          <RadioButton
             v-model="selectedInfluencer"
-            type="radio"
+            :inputId="influencer.id"
+            name="influencer"
             :value="influencer"
-            class="form-radio h-6 w-6 text-primary-500"
           />
           <label :for="influencer.id" class="text-lg text-neutral-400">
             {{ influencer.name }}
