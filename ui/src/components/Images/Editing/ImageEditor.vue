@@ -14,6 +14,7 @@ import { useImageStore } from '@/modules/images/store/image.store.ts';
 import { useEditImage } from '@/modules/images/composables/useEditImage.ts';
 import BrushControls from './BrushControls.vue';
 import { Dialog, Button } from 'primevue';
+import { setImageToEdit, deleteEdits } from '@/api/images';
 
 const emit = defineEmits(['close', 'imageUpdated']);
 const imageStore = useImageStore();
@@ -33,7 +34,6 @@ const canvasRef = ref<HTMLCanvasElement | null>(null);
 const imageRef = ref<HTMLImageElement | null>(null);
 const containerRef = ref<HTMLDivElement | null>(null);
 
-const maxStackSize = 25;
 const brushSize = ref<number>(25);
 const isEraseMode = ref<boolean>(false);
 
@@ -47,8 +47,28 @@ const tools = [
   { mode: 'erase', label: 'Erase', soon: false },
   { mode: 'upscale', label: 'Upscale', soon: true },
 ] as const;
-const undoStack = ref<ImageData[]>([]);
-const redoStack = ref<ImageData[]>([]);
+
+const currentEdit = computed(() => {
+  return image.value?.edits.find((edit: any) => edit.uri === image.value?.uri);
+});
+
+const canUndo = computed(() => {
+  if (image.value?.edits.length > 1) {
+    const firstImage = image.value?.edits[0];
+    return currentEdit.value?.id !== firstImage?.id;
+  }
+
+  return false;
+});
+
+const canRedo = computed(() => {
+  if (image.value?.edits.length > 1) {
+    const lastImage = image.value?.edits.at(-1);
+    return currentEdit.value?.id !== lastImage?.id;
+  }
+
+  return false;
+});
 
 const isDrawing = ref<boolean>(false);
 const mouseX = ref<number>(0);
@@ -111,11 +131,6 @@ async function initCanvas() {
 
     img.style.width = `${finalWidth}px`;
     img.style.height = `${finalHeight}px`;
-
-    if (undoStack.value.length > 0) {
-      const lastState = undoStack.value[undoStack.value.length - 1];
-      loadCanvasState(lastState);
-    }
   }
 }
 
@@ -167,17 +182,15 @@ function saveCanvasState() {
     canvasRef.value.width,
     canvasRef.value.height,
   );
-  undoStack.value.push(imageData);
-
-  if (undoStack.value.length > maxStackSize) {
-    undoStack.value.shift();
-  }
-
-  redoStack.value = [];
 }
 
 const updateBrushPreview = (e: MouseEvent | TouchEvent) => {
-  if (!previewCtx.value || !previewCanvasRef.value) return;
+  if (
+    !previewCtx.value ||
+    !previewCanvasRef.value ||
+    !maskedModes.value.includes(selectedTool.value)
+  )
+    return;
 
   const pos = getPointerPos(e);
   let x = Math.min(Math.max(pos.x, 0), canvasWidth.value);
@@ -244,25 +257,15 @@ const getPointerPos = (e: MouseEvent | TouchEvent) => {
   };
 };
 
-const closeModal = () => {
-  emit('close');
-};
-
-const undo = () => {
-  if (undoStack.value.length <= 1) return; // Keep at least initial state
-  const currentState = undoStack.value.pop();
-  if (currentState) {
-    redoStack.value.push(currentState);
-    const previousState = undoStack.value[undoStack.value.length - 1];
-    loadCanvasState(previousState);
-  }
-};
-
-const redo = () => {
-  const nextState = redoStack.value.pop();
-  if (nextState) {
-    undoStack.value.push(nextState);
-    loadCanvasState(nextState);
+const closeModal = async () => {
+  try {
+    if (image.value?.id && image.value?.edits.length) {
+      await deleteEdits(image.value?.id);
+    }
+  } catch (error) {
+    console.error('Error clearing edits:', error);
+  } finally {
+    emit('close');
   }
 };
 
@@ -277,11 +280,6 @@ const clearMask = () => {
     saveCanvasState();
   }
 };
-
-function loadCanvasState(imageData: ImageData) {
-  if (!canvasCtx.value) return;
-  canvasCtx.value.putImageData(imageData, 0, 0);
-}
 
 const toggleEditMode = () => {
   isEraseMode.value = false;
@@ -346,9 +344,6 @@ const getMaskCanvas = () => {
   return null;
 };
 
-const canUndo = computed(() => undoStack.value.length > 1);
-const canRedo = computed(() => redoStack.value.length > 0);
-
 const handleEscapeKey = (event: KeyboardEvent) => {
   if (event.key === 'Escape') {
     closeModal();
@@ -389,6 +384,52 @@ onUnmounted(() => {
   document.removeEventListener('keydown', handleEscapeKey);
   window.removeEventListener('resize', debouncedResize);
 });
+
+async function undoEdit() {
+  if (!image.value || !image.value?.id || !currentEdit.value?.id) return;
+
+  try {
+    console.log(currentEdit.value);
+    const previousEditIndex =
+      image.value.edits.findIndex(
+        (edit: any) => edit.id === currentEdit.value.id,
+      ) - 1;
+
+    editing.value = true;
+    await setImageToEdit(
+      image.value.id,
+      image.value.edits[previousEditIndex].id,
+    );
+
+    image.value.uri = image.value.edits[previousEditIndex].uri;
+    await handleEditApplied(image.value);
+  } catch (error) {
+    console.error('Error undoing edit:', error);
+  } finally {
+    editing.value = false;
+  }
+}
+
+async function redoEdit() {
+  if (!image.value || !image.value?.id || !currentEdit.value?.id) return;
+
+  try {
+    const nextEditIndex =
+      image.value.edits.findIndex(
+        (edit: any) => edit.id === currentEdit.value.id,
+      ) + 1;
+
+    editing.value = true;
+    await setImageToEdit(image.value.id, image.value.edits[nextEditIndex].id);
+
+    image.value.uri = image.value.edits[nextEditIndex].uri;
+    await handleEditApplied(image.value);
+  } catch (error) {
+    console.error('Error undoing edit:', error);
+  } finally {
+    editing.value = false;
+  }
+}
 </script>
 
 <template>
@@ -493,16 +534,16 @@ onUnmounted(() => {
           class="lg:hidden sticky z-10 bg-background/50 backdrop-blur-sm mt-2 px-4"
         >
           <BrushControls
-            v-if="maskedModes?.includes(selectedTool)"
             v-model:brush-size="brushSize"
+            :disable-mask="selectedTool === 'outpaint'"
             :is-erase-mode="isEraseMode"
             :can-undo="canUndo"
             :can-redo="canRedo"
             @toggle-edit-mode="toggleEditMode"
             @toggle-erase-mode="toggleEraseMode"
             @clear-mask="clearMask"
-            @undo="undo"
-            @redo="redo"
+            @undo="undoEdit"
+            @redo="redoEdit"
             @update-brush-preview="updateBrushPreview"
             @clear-preview="clearPreview"
           />
@@ -608,16 +649,16 @@ onUnmounted(() => {
         <div class="w-[5em]"></div>
         <div class="flex flex-grow justify-center items-center">
           <BrushControls
-            v-if="maskedModes?.includes(selectedTool)"
             v-model:brush-size="brushSize"
+            :disable-mask="selectedTool === 'outpaint'"
             :is-erase-mode="isEraseMode"
             :can-undo="canUndo"
             :can-redo="canRedo"
             @toggle-edit-mode="toggleEditMode"
             @toggle-erase-mode="toggleEraseMode"
             @clear-mask="clearMask"
-            @undo="undo"
-            @redo="redo"
+            @undo="undoEdit"
+            @redo="redoEdit"
             @update-brush-preview="updateBrushPreview"
             @clear-preview="clearPreview"
           />

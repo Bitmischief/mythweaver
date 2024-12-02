@@ -921,16 +921,8 @@ export class ImagesService {
       });
     }
 
-    edits.push({
-      id: uuidv4(),
-      dateCreated: new Date().toISOString(),
-      type: ImageEditType.REVERT,
-      uri: selectedEdit.uri,
-    });
-
     const updatedImage = await this.imagesDataProvider.updateImage(imageId, {
       uri: selectedEdit.uri,
-      edits,
     });
 
     await sendWebsocketMessage(userId, WebSocketEvent.ImageUrlUpdated, {
@@ -939,5 +931,9 @@ export class ImagesService {
     });
 
     return updatedImage;
+  }
+
+  async deleteImageEdits(userId: number, imageId: number): Promise<Image> {
+    return this.imagesDataProvider.updateImage(imageId, { edits: [] });
   }
 }

@@ -368,4 +368,24 @@ router.patch('/:imageId/edit', [
   },
 ]);
 
+router.delete('/:imageId/edits', [
+  checkAuth0Jwt,
+  useInjectUserId(),
+  useInjectLoggingInfo(),
+  useValidateRequest(z.object({ imageId: z.coerce.number() }), {
+    validationType: ValidationTypes.Route,
+  }),
+  injectDependencies,
+  async (req: Request, res: Response) => {
+    const controller =
+      req.container.resolve<ImagesController>('imagesController');
+    const response = await controller.deleteImageEdits(
+      res.locals.auth.userId,
+      res.locals.trackingInfo,
+      parseInt(req.params.imageId),
+    );
+    return res.status(200).json(response);
+  },
+]);
+
 export default router;

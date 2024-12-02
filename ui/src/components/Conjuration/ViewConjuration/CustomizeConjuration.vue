@@ -80,7 +80,22 @@ onMounted(async () => {
   channel.bind(ServerEvent.PrimaryImageSet, primaryImageSetHandler);
   channel.bind(ServerEvent.ImageFiltered, imageFilteredHandler);
   channel.bind(ServerEvent.ImageError, imageErrorHandler);
+  channel.bind(ServerEvent.ImageUrlUpdated, imageUrlUpdatedHandler);
   channel.bind(
+    ServerEvent.ImageGenerationTimeout,
+    imageGenerationTimeoutHandler,
+  );
+});
+
+onUnmounted(() => {
+  eventBus.$off('save-conjuration');
+  channel.unbind(ServerEvent.PrimaryImageSet, primaryImageSetHandler);
+  channel.unbind(ServerEvent.ImageCreated, imageCreatedHandler);
+  channel.unbind(ServerEvent.ImageEdited, imageEditedHandler);
+  channel.unbind(ServerEvent.ImageFiltered, imageFilteredHandler);
+  channel.unbind(ServerEvent.ImageError, imageErrorHandler);
+  channel.unbind(ServerEvent.ImageUrlUpdated, imageUrlUpdatedHandler);
+  channel.unbind(
     ServerEvent.ImageGenerationTimeout,
     imageGenerationTimeoutHandler,
   );
@@ -155,18 +170,11 @@ function imageGenerationTimeoutHandler() {
   });
 }
 
-onUnmounted(() => {
-  eventBus.$off('save-conjuration');
-  channel.unbind(ServerEvent.PrimaryImageSet, primaryImageSetHandler);
-  channel.unbind(ServerEvent.ImageCreated, imageCreatedHandler);
-  channel.unbind(ServerEvent.ImageEdited, imageEditedHandler);
-  channel.unbind(ServerEvent.ImageFiltered, imageFilteredHandler);
-  channel.unbind(ServerEvent.ImageError, imageErrorHandler);
-  channel.unbind(
-    ServerEvent.ImageGenerationTimeout,
-    imageGenerationTimeoutHandler,
-  );
-});
+function imageUrlUpdatedHandler(data: any) {
+  if (primaryImage.value?.id === data.imageId) {
+    primaryImage.value.uri = data.newUrl;
+  }
+}
 
 onUpdated(() => {
   if (props.conjuration.id !== editableConjuration.value.id) {
@@ -262,6 +270,15 @@ function addTag() {
       <div
         class="lg:min-w-[25rem] lg:w-[25rem] 3xl:min-w-[35rem] 3xl:w-[35rem] shrink rounded-md md:mr-6"
       >
+        <div class="mb-2 font-bold text-center">
+          <input
+            v-model="editableConjuration.name"
+            class="input-secondary text-2xl data-[readonly=true]:text-3xl data-[readonly=true]:px-0 data-[readonly=true]:py-1.5 data-[readonly=true]:border-none data-[readonly=true]:rounded-none"
+            :data-readonly="readOnly"
+            @click="edit"
+          />
+        </div>
+
         <CustomizableImage
           v-if="hasAnyPrimaryImages"
           :key="imageKey"
@@ -283,15 +300,6 @@ function addTag() {
               Conjure Image
             </button>
           </div>
-        </div>
-
-        <div class="mb-2 font-bold text-center">
-          <input
-            v-model="editableConjuration.name"
-            class="input-secondary text-2xl"
-            :disabled="readOnly"
-            @click="edit"
-          />
         </div>
 
         <div>
