@@ -1,30 +1,26 @@
 import { ImageModel } from '@prisma/client';
 import { AppError, HttpCode } from '../../lib/errors/AppError';
-import { v4 as uuidv4 } from 'uuid';
-import { saveImage } from '../dataStorage';
 import logger from '../../lib/logger';
 import {
-  GeneratedImage,
+  ApiImageGenerationResponse,
   ImageGenerationRequest,
 } from '../../modules/images/images.interface';
 import runPodProvider from '../../providers/runPod';
+import { Image } from '@prisma/client';
 
 const POLL_INTERVAL = 2 * 1000;
 const MAX_GENERATION_TIME = 5 * 60 * 1000;
-const MAX_RETRIES = 3;
 
 async function pollJobStatus(
   model: ImageModel,
   jobId: string,
   startTime: number,
-  imageId: string,
-  retryCount: number,
-): Promise<GeneratedImage> {
+  images: Image[],
+): Promise<ApiImageGenerationResponse[]> {
   logger.info(`Starting to poll job status`, {
     jobId,
-    imageId,
+    imageIds: images.map((image) => image.id),
     modelId: model.id,
-    retryCount,
   });
 
   // eslint-disable-next-line no-constant-condition
@@ -34,17 +30,15 @@ async function pollJobStatus(
     logger.info(`Received job status`, { jobId, status: status.status });
 
     if (status.status === 'COMPLETED' && status.output) {
-      logger.info(`Job completed successfully`, { jobId, imageId });
-      const url = await saveImage(imageId, status.output.base64);
-      logger.info(`Image saved successfully`, { imageId, url });
-      return {
-        uri: url,
-        seed: status.output.seed,
-      };
+      return status.output;
     }
 
     if (status.status === 'FAILED') {
-      logger.error(`Job failed`, { jobId, imageId, modelId: model.id });
+      logger.error(`Job failed`, {
+        jobId,
+        imageIds: images.map((image) => image.id),
+        modelId: model.id,
+      });
       throw new AppError({
         description: 'Image generation failed',
         httpCode: HttpCode.INTERNAL_SERVER_ERROR,
@@ -59,18 +53,15 @@ async function pollJobStatus(
     });
 
     if (elapsedTime > MAX_GENERATION_TIME) {
-      logger.warn(`Job timed out`, { jobId, imageId, elapsedTime, retryCount });
-      await runPodProvider.cancelJob(model, jobId);
-
-      if (retryCount >= MAX_RETRIES) {
-        logger.error(`Max retries reached`, { jobId, imageId, retryCount });
-        throw new AppError({
-          description: 'Image generation timed out after multiple retries',
-          httpCode: HttpCode.INTERNAL_SERVER_ERROR,
-        });
-      }
-
-      throw new Error('RETRY_NEEDED');
+      logger.error(`Job timed out`, {
+        jobId,
+        imageIds: images.map((image) => image.id),
+        modelId: model.id,
+      });
+      throw new AppError({
+        description: 'Image generation timed out',
+        httpCode: HttpCode.INTERNAL_SERVER_ERROR,
+      });
     }
 
     await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL));
@@ -80,7 +71,8 @@ async function pollJobStatus(
 export const generateMythWeaverModelImage = async (
   request: ImageGenerationRequest,
   model: ImageModel,
-): Promise<GeneratedImage> => {
+  images: Image[],
+): Promise<ApiImageGenerationResponse[]> => {
   logger.info(`Starting image generation`, {
     modelId: model.id,
     modelDescription: model.description,
@@ -95,45 +87,18 @@ export const generateMythWeaverModelImage = async (
     });
   }
 
-  const imageId = uuidv4();
-  let retryCount = 0;
-
-  while (retryCount < MAX_RETRIES) {
-    try {
-      logger.info(`Submitting job`, {
-        imageId,
-        retryCount,
-        modelId: model.id,
-        userId: request.userId,
-      });
-
-      const job = await runPodProvider.submitJob(model, request);
-      logger.info(`Job submitted successfully`, { jobId: job.id, imageId });
-
-      const startTime = Date.now();
-      return await pollJobStatus(model, job.id, startTime, imageId, retryCount);
-    } catch (error) {
-      if (error instanceof Error && error.message === 'RETRY_NEEDED') {
-        logger.info(`Retry needed, attempting again`, {
-          imageId,
-          retryCount: retryCount + 1,
-        });
-        retryCount++;
-        continue;
-      }
-      logger.error(`Unexpected error during image generation`, {
-        error,
-        imageId,
-        modelId: model.id,
-        retryCount,
-      });
-      throw error;
-    }
-  }
-
-  logger.error(`Max retries exceeded`, { imageId, retryCount });
-  throw new AppError({
-    description: 'Failed to generate image after maximum retries',
-    httpCode: HttpCode.INTERNAL_SERVER_ERROR,
+  logger.info(`Submitting job`, {
+    imageIds: images.map((image) => image.id),
+    modelId: model.id,
+    userId: request.userId,
   });
+
+  const job = await runPodProvider.submitJob(model, request);
+  logger.info(`Job submitted successfully`, {
+    jobId: job.id,
+    imageIds: images.map((image) => image.id),
+  });
+
+  const startTime = Date.now();
+  return await pollJobStatus(model, job.id, startTime, images);
 };

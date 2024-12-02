@@ -10,27 +10,27 @@ import {
   ImageOutpaintRequest,
   ImageEdit,
   ImageEditType,
+  ApiImageGenerationResponse,
 } from './images.interface';
 import { AppError, ErrorType, HttpCode } from '../../lib/errors/AppError';
-import { Image, ImageCreditChangeType } from '@prisma/client';
+import { Image, ImageCreditChangeType, ImageModel } from '@prisma/client';
 import {
   sendWebsocketMessage,
   WebSocketEvent,
 } from '../../services/websockets';
 import { modifyImageCreditCount } from '../../services/credits';
-import { AppEvent, track } from '../../lib/tracking';
 import { checkImageStatusQueue } from '../../worker';
 import retry from 'async-await-retry';
 import { AxiosError } from 'axios';
 import axios from 'axios';
 import { generateMythWeaverModelImage } from '../../services/images/mythweaverImageService';
 import { v4 as uuidv4 } from 'uuid';
+import { saveImage } from '../../services/dataStorage';
 
 export class ImagesService {
   constructor(
     private imagesDataProvider: ImagesDataProvider,
     private stabilityAIProvider: StabilityAIProvider,
-    private imageModelsDataProvider: ImageModelsDataProvider,
     private logger: MythWeaverLogger,
   ) {}
 
@@ -97,14 +97,14 @@ export class ImagesService {
       });
 
       images.push(image);
-
-      this.generateSingleImage(image, {
-        ...request,
-        userId,
-        count,
-        referenceImage,
-      });
     }
+
+    this.generateImages(images, {
+      ...request,
+      userId,
+      count,
+      referenceImage,
+    });
 
     return images;
   }
@@ -194,19 +194,6 @@ export class ImagesService {
       await this.imagesDataProvider.updateImage(imageId, {
         uri: upscaledImageUri,
       });
-
-      const imageCredits = await modifyImageCreditCount(
-        userId,
-        -1,
-        ImageCreditChangeType.USER_INITIATED,
-        `Image upscale: ${upscaledImageUri}`,
-      );
-
-      await sendWebsocketMessage(
-        userId,
-        WebSocketEvent.UserImageCreditCountUpdated,
-        imageCredits,
-      );
 
       await sendWebsocketMessage(userId, WebSocketEvent.ImageUpscaled, {
         imageId: imageId,
@@ -328,11 +315,11 @@ export class ImagesService {
     return { images, total };
   }
 
-  private async generateSingleImage(
-    image: Image,
+  private async generateImages(
+    images: Image[],
     request: ImageGenerationRequest,
-  ): Promise<Image | undefined> {
-    try {
+  ): Promise<void> {
+    for (const image of images) {
       await checkImageStatusQueue.add(
         {
           userId: request.userId,
@@ -342,67 +329,15 @@ export class ImagesService {
           delay: 120000,
         },
       );
-
-      const imageGenerationResponse =
-        await this.generateImageFromProperProvider({
-          ...request,
-          imageId: image.id,
-        });
-
-      if (!imageGenerationResponse) {
-        await this.imagesDataProvider.updateImage(image.id, {
-          generating: false,
-          failed: true,
-        });
-        return;
-      }
-
-      const updatedImage = await this.updateImage(
-        image.id,
-        ImageEditType.ORIGINAL,
-        imageGenerationResponse.uri,
-      );
-
-      let model = null;
-      if (updatedImage.modelId) {
-        model = await this.imageModelsDataProvider.getImageModel(
-          updatedImage.modelId,
-        );
-      }
-
-      await sendWebsocketMessage(request.userId, WebSocketEvent.ImageCreated, {
-        image: updatedImage,
-        modelId: image.modelId,
-        modelName: model?.description,
-        imageId: image.id,
-        context: {
-          ...request.linking,
-        },
-      });
-
-      return updatedImage;
-    } catch (error) {
-      this.logger.error(
-        'Failed to generate single image',
-        {
-          userId: request.userId,
-          request: {
-            prompt: request.prompt,
-            negativePrompt: request.negativePrompt,
-            stylePreset: request.stylePreset,
-            modelId: request.modelId,
-          },
-        },
-        error,
-      );
-
-      throw error;
     }
+
+    await this.generateImagesFromProperProvider(request, images);
   }
 
-  private async generateImageFromProperProvider(
+  private async generateImagesFromProperProvider(
     request: ImageGenerationRequest,
-  ): Promise<GeneratedImage | undefined> {
+    images: Image[],
+  ): Promise<GeneratedImage[] | undefined> {
     const model = await this.imagesDataProvider.findImageModel(
       request.modelId!,
     );
@@ -414,29 +349,8 @@ export class ImagesService {
       });
     }
 
-    let imageGenerationResponse: GeneratedImage;
-
     try {
-      if (model.stableDiffusionApiModel) {
-        imageGenerationResponse = await retry(async () => {
-          return await this.stabilityAIProvider.generateImage(request);
-        });
-      } else {
-        imageGenerationResponse = await retry(
-          async () => {
-            return await generateMythWeaverModelImage(request, model);
-          },
-          undefined,
-          {
-            onAttemptFail: async (data: any) => {
-              // if we get a 400, fail immediately, don't retry
-              if ((data.error as AxiosError)?.response?.status === 400) {
-                throw data.error;
-              }
-            },
-          },
-        );
-      }
+      await this.processGeneratedImage(model, request, images);
     } catch (err) {
       const e = err as AxiosError;
 
@@ -449,87 +363,85 @@ export class ImagesService {
         e,
       );
 
-      if (e?.response?.status === 403) {
-        await sendWebsocketMessage(
-          request.userId,
-          WebSocketEvent.ImageFiltered,
-          {
-            description: 'The returned image did not pass our content filter.',
-            context: {
-              ...request.linking,
-              imageId: request.imageId,
-            },
-          },
-        );
-      } else {
-        await sendWebsocketMessage(request.userId, WebSocketEvent.Error, {
-          description:
-            'The image generation service was unable to generate an image.',
-          context: {
-            ...request.linking,
-          },
-        });
-      }
+      await sendWebsocketMessage(request.userId, WebSocketEvent.Error, {
+        description:
+          'The image generation service was unable to generate an image.',
+        context: {
+          ...request.linking,
+        },
+      });
 
       return;
     }
+  }
 
-    if (!imageGenerationResponse) {
-      this.logger.warn('Image generation response was undefined.');
-      return;
+  async processGeneratedImage(
+    model: ImageModel,
+    request: ImageGenerationRequest,
+    images: Image[],
+  ): Promise<void> {
+    let apiImages: ApiImageGenerationResponse[] = [];
+
+    if (model.stableDiffusionApiModel) {
+      apiImages = await retry(async () => {
+        return await this.stabilityAIProvider.generateImage(request);
+      });
+    } else {
+      apiImages = await generateMythWeaverModelImage(request, model, images);
     }
 
-    if (request.imageId) {
-      const image = await this.imagesDataProvider.findImage(request.imageId);
-      if (image?.failed) {
-        return;
-      }
-    }
+    for (let i = 0; i < images.length; i++) {
+      const image = images[i];
+      const apiImageResponse = apiImages[i];
 
-    track(AppEvent.ConjureImage, request.userId, undefined, {
-      prompt: request.prompt,
-      negativePrompt: request.negativePrompt,
-      stylePreset: request.stylePreset,
-      count: request.count,
-      modelId: request.modelId,
-      artistId: model.artists.length ? model.artists[0].artistId : undefined,
-    });
+      this.logger.info(`Image generated successfully`, { imageId: image.id });
+      const url = await saveImage(image.id.toString(), apiImageResponse.base64);
+      this.logger.info(`Image saved successfully`, { imageId: image.id, url });
 
-    await sendWebsocketMessage(
-      request.userId,
-      WebSocketEvent.ImageGenerationDone,
-      {
-        image: imageGenerationResponse,
-      },
-    );
+      await this.updateImage(image.id, ImageEditType.ORIGINAL, url);
 
-    const imageCredits = await modifyImageCreditCount(
-      request.userId,
-      -1,
-      ImageCreditChangeType.USER_INITIATED,
-      `Image generation: ${imageGenerationResponse.uri}, ${JSON.stringify(request.linking)}`,
-    );
+      const updatedImage = await this.imagesDataProvider.updateImage(image.id, {
+        uri: url,
+        generating: false,
+        failed: false,
+      });
 
-    await sendWebsocketMessage(
-      request.userId,
-      WebSocketEvent.UserImageCreditCountUpdated,
-      imageCredits,
-    );
+      await sendWebsocketMessage(request.userId, WebSocketEvent.ImageCreated, {
+        image: updatedImage,
+        modelId: image.modelId,
+        modelName: model?.description,
+        imageId: image.id,
+        context: {
+          ...request.linking,
+        },
+      });
 
-    if (model.paysRoyalties) {
-      const { amountSupportingArtistsUsd } =
-        await this.imagesDataProvider.updateUserArtistContributions(
-          request.userId,
-        );
+      const imageCredits = await modifyImageCreditCount(
+        request.userId,
+        -1,
+        ImageCreditChangeType.USER_INITIATED,
+        `Image generation: ${updatedImage.uri}, ${JSON.stringify(request.linking)}`,
+      );
 
       await sendWebsocketMessage(
         request.userId,
-        WebSocketEvent.UserArtistContributionsUpdated,
-        amountSupportingArtistsUsd,
+        WebSocketEvent.UserImageCreditCountUpdated,
+        imageCredits,
       );
-    }
 
-    return imageGenerationResponse;
+      if (model.paysRoyalties) {
+        const { amountSupportingArtistsUsd } =
+          await this.imagesDataProvider.updateUserArtistContributions(
+            request.userId,
+          );
+
+        await sendWebsocketMessage(
+          request.userId,
+          WebSocketEvent.UserArtistContributionsUpdated,
+          amountSupportingArtistsUsd,
+        );
+      }
+    }
   }
 
   async inpaintImage(
@@ -584,8 +496,6 @@ export class ImagesService {
         ImageEditType.INPAINTING,
         inpaintedImageUri,
       );
-
-      await this.deductCreditsAndNotify(userId, 3, 'Image inpainting');
 
       await sendWebsocketMessage(userId, WebSocketEvent.ImageEdited, {
         imageId,
@@ -673,8 +583,6 @@ export class ImagesService {
         outpaintedImageUri,
       );
 
-      await this.deductCreditsAndNotify(userId, 4, 'Image outpainting');
-
       await sendWebsocketMessage(userId, WebSocketEvent.ImageEdited, {
         imageId,
         context: { outpainted: true },
@@ -752,8 +660,6 @@ export class ImagesService {
         ImageEditType.BACKGROUND_REMOVAL,
         backgroundRemovedImageUri,
       );
-
-      await this.deductCreditsAndNotify(userId, 2, 'Background removal');
 
       await sendWebsocketMessage(userId, WebSocketEvent.ImageEdited, {
         imageId,
@@ -852,8 +758,6 @@ export class ImagesService {
         ImageEditType.SMART_ERASE,
         erasedImageUri,
       );
-
-      await this.deductCreditsAndNotify(userId, 1, 'Image portion erasing');
 
       await sendWebsocketMessage(userId, WebSocketEvent.ImageEdited, {
         imageId,

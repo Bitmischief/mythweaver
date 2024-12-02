@@ -1,15 +1,15 @@
 import axios from 'axios';
 import { ImageModel } from '@prisma/client';
-import { ImageGenerationRequest } from '@/modules/images/images.interface';
+import {
+  ApiImageGenerationResponse,
+  ImageGenerationRequest,
+} from '@/modules/images/images.interface';
 import logger from '../lib/logger';
 
 export interface RunPodResponse {
   id: string;
   status: 'IN_QUEUE' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED';
-  output?: {
-    base64: string;
-    seed: number;
-  };
+  output?: ApiImageGenerationResponse[];
 }
 
 export class RunPodProvider {
@@ -24,6 +24,7 @@ export class RunPodProvider {
       lora_name: model.loraName,
       width: request.width ?? 1024,
       height: request.height ?? 1024,
+      num_images: request.count,
     };
 
     if (request.referenceImage) {

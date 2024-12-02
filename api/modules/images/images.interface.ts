@@ -28,8 +28,15 @@ export enum ImageStylePreset {
   COMIC_BOOK = 'comic-book',
 }
 
+export interface ApiImageGenerationResponse {
+  base64: string;
+  nsfw: boolean;
+  seed: number;
+}
+
 export interface GeneratedImage {
   uri: string;
+  nsfw: boolean;
   seed: number;
 }
 
@@ -46,7 +53,6 @@ export interface ImageGenerationRequest {
     conjurationId?: number;
     characterId?: number;
   };
-  imageId?: number;
   forceImagePrimary?: boolean;
   // Remove aspectRatio and add width and height
   width?: number;

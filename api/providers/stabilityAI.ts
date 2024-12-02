@@ -6,14 +6,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { AppError, HttpCode } from '../lib/errors/AppError';
 import { saveImage, getImage } from '../services/dataStorage';
 import {
+  ApiImageGenerationResponse,
   ImageGenerationRequest,
   ImageUpscaleRequest,
 } from '@/modules/images/images.interface';
-
-export interface StabilityGeneratedImageResponse {
-  uri: string;
-  seed: number;
-}
+import { GeneratedImage } from '@/modules/images/images.interface';
 
 export class StabilityAIProvider {
   private apiKey: string;
@@ -28,7 +25,7 @@ export class StabilityAIProvider {
 
   async generateImage(
     request: ImageGenerationRequest,
-  ): Promise<StabilityGeneratedImageResponse> {
+  ): Promise<ApiImageGenerationResponse[]> {
     if (request.referenceImage) {
       return this.generateImageToImage(request);
     } else {
@@ -38,7 +35,7 @@ export class StabilityAIProvider {
 
   private async generateTextToImage(
     request: ImageGenerationRequest,
-  ): Promise<StabilityGeneratedImageResponse> {
+  ): Promise<ApiImageGenerationResponse[]> {
     const width = request.width || 1024;
     const height = request.height || 1024;
 
@@ -73,7 +70,7 @@ export class StabilityAIProvider {
 
   private async generateImageToImage(
     request: ImageGenerationRequest,
-  ): Promise<StabilityGeneratedImageResponse> {
+  ): Promise<ApiImageGenerationResponse[]> {
     const formData = new FormData();
     formData.append('text_prompts[0][text]', request.prompt);
     formData.append('text_prompts[0][weight]', '1');
@@ -119,7 +116,9 @@ export class StabilityAIProvider {
     return await this.processGenerationResponse(response);
   }
 
-  async processGenerationResponse(response: AxiosResponse) {
+  async processGenerationResponse(
+    response: AxiosResponse,
+  ): Promise<ApiImageGenerationResponse[]> {
     const artifacts = response.data.artifacts;
 
     if (artifacts.length === 0) {
@@ -129,14 +128,14 @@ export class StabilityAIProvider {
       });
     }
 
-    const image = artifacts[0];
-    const imageId = uuidv4();
-    const url = await saveImage(imageId, image.base64);
-
-    return {
-      uri: url,
-      seed: image.seed,
-    };
+    return artifacts.map(
+      (a: any) =>
+        ({
+          base64: a.base64,
+          nsfw: false,
+          seed: a.seed,
+        }) as ApiImageGenerationResponse,
+    );
   }
 
   async eraseImagePortion(
