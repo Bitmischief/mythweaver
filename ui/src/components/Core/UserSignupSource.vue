@@ -32,7 +32,10 @@ function submitSourceInfo() {
     return;
   }
 
-  if (selectedSource?.value?.id === 'influencer' && !selectedInfluencer?.value?.id) {
+  if (
+    selectedSource?.value?.id === 'influencer' &&
+    !selectedInfluencer?.value?.id
+  ) {
     showError({ message: 'Please select an influencer and submit again!' });
     return;
   }
@@ -47,15 +50,20 @@ function submitSourceInfo() {
 <template>
   <div class="text-3xl">How did you find us?</div>
   <div class="text-lg text-neutral-400">
-    Help our small business by taking a moment to let us know how you found us! This helps a ton!
+    Help our small business by taking a moment to let us know how you found us!
+    This helps a ton!
   </div>
 
   <div class="mt-4">
     <div class="flex flex-col space-y-4">
-      <div v-for="source in sources" :key="source.id" class="flex items-center gap-2">
+      <div
+        v-for="source in sources"
+        :key="source.id"
+        class="flex items-center gap-2"
+      >
         <RadioButton
           v-model="selectedSource"
-          :inputId="source.id"
+          :input-id="source.id"
           name="source"
           :value="source"
         />
@@ -71,10 +79,14 @@ function submitSourceInfo() {
         Help us show your favorite influencer some love!
       </div>
       <div class="mt-4 flex flex-col space-y-4">
-        <div v-for="influencer in influencers" :key="influencer.id" class="flex items-center gap-2">
+        <div
+          v-for="influencer in influencers"
+          :key="influencer.id"
+          class="flex items-center gap-2"
+        >
           <RadioButton
             v-model="selectedInfluencer"
-            :inputId="influencer.id"
+            :input-id="influencer.id"
             name="influencer"
             :value="influencer"
           />

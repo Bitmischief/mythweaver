@@ -70,7 +70,6 @@ declare module 'vue' {
     PricingPlan: typeof import('./src/components/Core/PricingPlan.vue')['default']
     PricingTable: typeof import('./src/components/Core/PricingTable.vue')['default']
     QuickViewSession: typeof import('./src/components/Sessions/QuickViewSession.vue')['default']
-    RadioButton: typeof import('primevue/radiobutton')['default']
     RelationshipRow: typeof import('./src/components/Relationships/RelationshipRow.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

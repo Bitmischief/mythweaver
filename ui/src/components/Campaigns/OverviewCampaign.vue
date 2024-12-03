@@ -229,7 +229,7 @@ function primaryImage(char: any) {
     <div
       class="grid grid-cols-1 lg:grid-cols-6 grid-rows-1 gap-y-4 lg:gap-4 mb-4"
     >
-      <div class="rounded-[18px] bg-surface-3 p-4 col-span-3 h-full mt-4">
+      <div class="rounded-[18px] bg-surface-2 p-4 col-span-3 h-full mt-4">
         <div class="text-lg mb-2">
           {{ campaign.name }}
         </div>
@@ -252,7 +252,7 @@ function primaryImage(char: any) {
           </div>
         </div>
       </div>
-      <div class="flex rounded-[18px] bg-surface-3 p-4 col-span-3 h-full mt-4">
+      <div class="flex rounded-[18px] bg-surface-2 p-4 col-span-3 h-full mt-4">
         <div v-if="latestSession" class="flex flex-col">
           <div class="text-lg mb-2 flex gap-2">
             <div>Last Session</div>
@@ -320,7 +320,7 @@ function primaryImage(char: any) {
             </div>
           </div>
           <div
-            class="rounded-[18px] bg-surface-3 p-4 min-h-[10em] text-neutral-500 grow"
+            class="rounded-[18px] bg-surface-2 p-4 min-h-[10em] text-neutral-500 grow"
           >
             <div class="my-2">
               Game manager: <span class="text-neutral-300">{{ gm }}</span>
@@ -379,11 +379,11 @@ function primaryImage(char: any) {
               </button>
             </div>
           </div>
-          <div class="rounded-[18px] bg-surface-3 p-4 col-span-2 grow">
+          <div class="rounded-[18px] bg-surface-2 p-4 col-span-2 grow">
             <div
               v-for="member in campaign.members"
               :key="`${member.id}_member`"
-              class="md:flex text-sm p-2 group justify-between min-h-[3.5em] whitespace-nowrap border-b border-neutral-700"
+              class="md:flex text-sm p-2 group justify-between min-h-[3.5em] whitespace-nowrap border-b border-surface-3"
               :class="{
                 'bg-fuchsia-500/10 rounded-[12px]':
                   currentUser?.email === member.user?.email,
