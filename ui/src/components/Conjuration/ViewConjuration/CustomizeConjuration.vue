@@ -112,7 +112,7 @@ watch(
 watch(
   () => editableConjuration.value,
   useDebounceFn(async () => {
-    await saveConjuration();
+    await saveConjuration(true);
   }, 1200),
   { deep: true },
 );
@@ -182,14 +182,16 @@ onUpdated(() => {
   }
 });
 
-async function saveConjuration() {
+async function saveConjuration(silent = false) {
   try {
     await patchConjuration(props.conjuration.id, {
       ...editableConjuration.value,
       data: Object.fromEntries(dataArray.value.map((x) => [x.key, x.value])),
       imageUri: undefined,
     });
-    showSuccess({ message: 'Conjuration updated successfully' });
+    if (!silent) {
+      showSuccess({ message: 'Conjuration updated successfully' });
+    }
   } catch (e) {
     const err = e as AxiosError;
     showError({

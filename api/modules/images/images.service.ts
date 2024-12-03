@@ -1,5 +1,4 @@
 import { ImagesDataProvider } from './images.dataprovider';
-import { ImageModelsDataProvider } from '@/modules/imageModels/imageModels.dataprovider';
 import { StabilityAIProvider } from '../../providers/stabilityAI';
 import { MythWeaverLogger } from '../../lib/logger';
 import {

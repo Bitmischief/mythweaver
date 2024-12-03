@@ -167,22 +167,8 @@ const startDrawing = (e: MouseEvent | TouchEvent) => {
 };
 
 const stopDrawing = () => {
-  if (isDrawing.value) {
-    saveCanvasState();
-  }
   isDrawing.value = false;
 };
-
-function saveCanvasState() {
-  if (!canvasCtx.value || !canvasRef.value) return;
-
-  const imageData = canvasCtx.value.getImageData(
-    0,
-    0,
-    canvasRef.value.width,
-    canvasRef.value.height,
-  );
-}
 
 const updateBrushPreview = (e: MouseEvent | TouchEvent) => {
   if (
@@ -277,7 +263,6 @@ const clearMask = () => {
       canvasRef.value.width,
       canvasRef.value.height,
     );
-    saveCanvasState();
   }
 };
 
