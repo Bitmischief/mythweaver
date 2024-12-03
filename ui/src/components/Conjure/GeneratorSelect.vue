@@ -52,6 +52,15 @@ const proOnly = (gen: Conjurer) => {
     currentUserPlan.value !== BillingPlan.Pro
   );
 };
+
+const selectGenerator = (gen: Conjurer) => {
+  value.value = gen;
+  if (!proOnly(gen)) {
+    emit('next');
+  } else {
+    eventBus.$emit('show-subscription-modal');
+  }
+};
 </script>
 
 <template>
@@ -68,12 +77,7 @@ const proOnly = (gen: Conjurer) => {
         'relative proOnly': proOnly(gens),
         'relative group/experimental': !proOnly(gens) && gens.experimental,
       }"
-      @mouseover="!proOnly(gens) ? (value = gens) : null"
-      @click="
-        !proOnly(gens)
-          ? (value = gens)
-          : eventBus.$emit('show-subscription-modal')
-      "
+      @click="selectGenerator(gens)"
     >
       <div
         class="absolute h-full w-full hidden group-[.proOnly]/generator:flex justify-center rounded-[24px] bg-purple-900/10"
@@ -83,7 +87,9 @@ const proOnly = (gen: Conjurer) => {
           <div class="">Pro Only</div>
         </div>
       </div>
-      <div class="flex flex-wrap bg-surface-2 rounded-[24px] p-2">
+      <div
+        class="flex flex-wrap bg-surface-2 hover:bg-purple-900/25 hover:outline hover:outline-fuchsia-500 rounded-[24px] p-2"
+      >
         <div class="flex">
           <div class="basis-1/3">
             <img
@@ -94,8 +100,14 @@ const proOnly = (gen: Conjurer) => {
           </div>
           <div class="basis-2/3 px-3 rounded-[12px]">
             <div class="overflow-visible text-xl flex">
-              <div class="truncate">
+              <div
+                class="truncate flex items-center gap-2"
+                :class="{
+                  'group-hover/generator:text-fuchsia-500': !proOnly(gens),
+                }"
+              >
                 {{ gens.name }}
+                <ArrowRightIcon class="h-4 w-4 self-center" />
               </div>
               <div
                 v-if="gens.proOnly"
@@ -113,23 +125,6 @@ const proOnly = (gen: Conjurer) => {
             <div class="text-sm text-neutral-500">
               {{ gens.description }}
             </div>
-          </div>
-        </div>
-        <div class="w-full group-[.active]/generator:mt-2">
-          <div
-            class="max-h-0 group-[.active]/generator:max-h-10 transition-all overflow-hidden"
-          >
-            <button
-              class="button-gradient flex justify-center gap-2 rounded-[16px] w-full"
-              @click="
-                !proOnly(gens)
-                  ? $emit('next')
-                  : eventBus.$emit('show-subscription-modal')
-              "
-            >
-              Continue
-              <ArrowRightIcon class="h-4 w-4 self-center" />
-            </button>
           </div>
         </div>
       </div>
