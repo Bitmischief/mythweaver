@@ -4,6 +4,7 @@ import {
   GetObjectCommand,
   PutObjectCommand,
   S3Client,
+  DeleteObjectCommand,
 } from '@aws-sdk/client-s3';
 const s3 = new S3Client({
   endpoint: 'https://sfo3.digitaloceanspaces.com',
@@ -82,4 +83,24 @@ export const getTranscription = async (sessionId: number) => {
     (await response.Body?.transformToByteArray()) as Uint8Array,
   );
   return JSON.parse(jsonBuffer.toString());
+};
+
+export const deleteImage = async (imageUrl: string): Promise<void> => {
+  if (isLocalDevelopment) {
+    const imagePath = `${process.env.DATA_DIR ?? './public/images'}/${imageUrl.split('/').pop()}`;
+    if (fs.existsSync(imagePath)) {
+      fs.unlinkSync(imagePath);
+    }
+    return;
+  }
+
+  const key = imageUrl.split('assets.mythweaver.co/')[1];
+  if (!key) return;
+
+  const command = new DeleteObjectCommand({
+    Bucket: 'mythweaver-assets',
+    Key: key,
+  });
+
+  await s3.send(command);
 };

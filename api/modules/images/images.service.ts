@@ -24,7 +24,7 @@ import { AxiosError } from 'axios';
 import axios from 'axios';
 import { generateMythWeaverModelImage } from '../../services/images/mythweaverImageService';
 import { v4 as uuidv4 } from 'uuid';
-import { saveImage } from '../../services/dataStorage';
+import { saveImage, deleteImage } from '../../services/dataStorage';
 
 export class ImagesService {
   constructor(
@@ -941,6 +941,32 @@ export class ImagesService {
   }
 
   async deleteImageEdits(userId: number, imageId: number): Promise<Image> {
+    const image = await this.imagesDataProvider.findImage(imageId);
+
+    if (!image) {
+      throw new AppError({
+        description: 'Image not found.',
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    if (image.userId !== userId) {
+      throw new AppError({
+        description: 'You do not have permission to modify this image.',
+        httpCode: HttpCode.FORBIDDEN,
+      });
+    }
+
+    const edits = image.edits as unknown as ImageEdit[];
+
+    if (edits && edits.length > 0) {
+      const deletePromises = edits
+        .filter((edit) => edit.uri !== image.uri)
+        .map((edit) => deleteImage(edit.uri));
+
+      await Promise.all(deletePromises);
+    }
+
     return this.imagesDataProvider.updateImage(imageId, { edits: [] });
   }
 }
