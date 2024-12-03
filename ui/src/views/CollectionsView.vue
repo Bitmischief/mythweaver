@@ -59,7 +59,7 @@ watch(parentId, async () => {
             collectionHistory.value.map((h: any) => ({
               id: h.id,
               name: h.name,
-              campaign: h.campaignId,
+              campaignId: h.campaignId,
             })),
           )
         : undefined,
@@ -80,7 +80,7 @@ onMounted(async () => {
       });
     } else {
       collectionHistory.value = historyArray;
-      parentId.value = historyArray[historyArray.length - 1].id;
+      parentId.value = historyArray.at(-1)?.id;
     }
   }
 
@@ -88,7 +88,9 @@ onMounted(async () => {
   channel.bind(ServerEvent.CollectionMoved, fetchCollections);
 
   await fetchCollections();
-  await openCollection(collections.value[0]);
+  if (!parentId.value && collections.value.length) {
+    await openCollection(collections.value[0]);
+  }
 
   eventBus.$on('campaign-selected', async () => {
     collectionHistory.value = [];
@@ -313,9 +315,13 @@ const moveConjuration = (conjuration: any) => {
     <div class="mt-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
       <template v-if="conjurations?.length && parentId">
         <div v-for="conjuration in conjurations" :key="conjuration.id">
-          <ConjurationQuickView :data="conjuration" :show-saves="false">
+          <ConjurationQuickView
+            :data="conjuration"
+            :show-saves="false"
+            :has-actions="true"
+          >
             <template #actions>
-              <div class="absolute top-3 w-full z-10">
+              <div class="absolute top-3 w-full z-50">
                 <Menu class="flex cursor-pointer">
                   <div
                     class="absolute top-0 right-3 flex rounded-full bg-surface-3 p-1 z-10"

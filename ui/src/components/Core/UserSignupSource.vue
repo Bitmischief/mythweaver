@@ -1,61 +1,26 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 import { showError } from '@/lib/notifications.ts';
+import RadioButton from 'primevue/radiobutton';
 
 const emit = defineEmits(['finish-onboarding']);
 
 const sources = ref([
-  {
-    id: 'friend',
-    name: 'Friend',
-  },
-  {
-    id: 'google',
-    name: 'Google',
-  },
-  {
-    id: 'meta',
-    name: 'Facebook or Instagram',
-  },
-  {
-    id: 'influencer',
-    name: 'Influencer',
-  },
-  {
-    id: 'reddit',
-    name: 'Reddit',
-  },
+  { id: 'friend', name: 'Friend' },
+  { id: 'google', name: 'Google' },
+  { id: 'meta', name: 'Facebook or Instagram' },
+  { id: 'influencer', name: 'Influencer' },
+  { id: 'reddit', name: 'Reddit' },
 ]);
 
 const influencers = ref([
-  {
-    id: 'totu',
-    name: 'Theatre of the Unaligned',
-  },
-  {
-    id: 'punkrockjenny',
-    name: 'PunkRockJenny',
-  },
-  {
-    id: 'dumbestdnd',
-    name: 'dumbestdnd',
-  },
-  {
-    id: 'tawny',
-    name: 'Tawny Platis',
-  },
-  {
-    id: 'vatara',
-    name: 'Vatara',
-  },
-  {
-    id: 'nerdieststepdad',
-    name: 'Nerdiest Step Dad',
-  },
-  {
-    id: 'other',
-    name: 'Other',
-  },
+  { id: 'totu', name: 'Theatre of the Unaligned' },
+  { id: 'punkrockjenny', name: 'PunkRockJenny' },
+  { id: 'dumbestdnd', name: 'dumbestdnd' },
+  { id: 'tawny', name: 'Tawny Platis' },
+  { id: 'vatara', name: 'Vatara' },
+  { id: 'nerdieststepdad', name: 'Nerdiest Step Dad' },
+  { id: 'other', name: 'Other' },
 ]);
 
 const selectedSource = ref({ id: '', name: '' });
@@ -94,14 +59,13 @@ function submitSourceInfo() {
       <div
         v-for="source in sources"
         :key="source.id"
-        class="flex items-center space-x-4"
+        class="flex items-center gap-2"
       >
-        <input
-          :id="source.id"
+        <RadioButton
           v-model="selectedSource"
-          type="radio"
+          :input-id="source.id"
+          name="source"
           :value="source"
-          class="form-radio h-6 w-6 text-primary-500"
         />
         <label :for="source.id" class="text-lg text-neutral-400">
           {{ source.name }}
@@ -118,14 +82,13 @@ function submitSourceInfo() {
         <div
           v-for="influencer in influencers"
           :key="influencer.id"
-          class="flex items-center space-x-4"
+          class="flex items-center gap-2"
         >
-          <input
-            :id="influencer.id"
+          <RadioButton
             v-model="selectedInfluencer"
-            type="radio"
+            :input-id="influencer.id"
+            name="influencer"
             :value="influencer"
-            class="form-radio h-6 w-6 text-primary-500"
           />
           <label :for="influencer.id" class="text-lg text-neutral-400">
             {{ influencer.name }}
