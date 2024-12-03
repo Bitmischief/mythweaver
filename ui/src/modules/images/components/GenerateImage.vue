@@ -57,7 +57,9 @@ const handleRetryGeneration = async (imageId: number) => {
       header: 'Confirm Retry Generation',
       accept: async () => {
         try {
-          await retryGeneration(currentFormState.value!, imageId);
+          if (currentFormState.value) {
+            await retryGeneration(currentFormState.value, imageId);
+          }
         } catch (error) {
           console.error('Failed to retry image generation:', error);
         }

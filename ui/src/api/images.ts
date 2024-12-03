@@ -107,3 +107,11 @@ export async function outpaint(
 
   return response.data;
 }
+
+export const setImageToEdit = async (imageId: number, editId: string) => {
+  return axios.patch(`/images/${imageId}/edit`, { editId });
+};
+
+export const deleteEdits = async (imageId: number) => {
+  return axios.delete(`/images/${imageId}/edits`);
+};

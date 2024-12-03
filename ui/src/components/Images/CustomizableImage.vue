@@ -1,12 +1,6 @@
 <script setup lang="ts">
 import LightboxImage from '@/components/LightboxImage.vue';
 import { onMounted, ref, watch } from 'vue';
-import { useEditImage } from '@/modules/images/composables/useEditImage';
-import { PencilLine, ImagePlus } from 'lucide-vue-next';
-import { useGenerateImages } from '@/modules/images/composables/useGenerateImages';
-import SplitButton from 'primevue/splitbutton';
-import Button from 'primevue/button';
-import { useImageHistory } from '@/modules/images/composables/useImageHistory';
 import { type Image } from '@/modules/images/types/image';
 
 const props = withDefaults(
@@ -45,14 +39,6 @@ const props = withDefaults(
   },
 );
 
-const { setSelectedImageById } = useEditImage();
-const {
-  showModal: showGenerateImageModal,
-  setLinkingContext,
-  setPresetImageSettings,
-} = useGenerateImages();
-const { chooseFromImageHistory } = useImageHistory();
-
 const imgWidth = ref(0);
 const imgHeight = ref(0);
 
@@ -77,21 +63,6 @@ function setImgDimensions() {
     img.src = props.image.uri;
   }
 }
-
-async function beginEditImage() {
-  if (props.image?.id) {
-    await setSelectedImageById(props.image?.id);
-  }
-}
-
-function showNewImageModal() {
-  setPresetImageSettings({
-    prompt: props.image?.prompt,
-    selectedModelId: props.image?.modelId,
-  });
-  setLinkingContext({ conjurationId: props.linking?.conjurationId });
-  showGenerateImageModal.value = true;
-}
 </script>
 
 <template>
@@ -111,7 +82,15 @@ function showNewImageModal() {
         :src="image.uri"
         :alt="alt"
         class="rounded-[20px]"
-      />
+      >
+        <div class="p-2">
+          <ImageActions
+            :image="image"
+            :editable="editable"
+            :linking="linking"
+          />
+        </div>
+      </LightboxImage>
       <div v-else class="w-full flex justify-center h-full bg-surface">
         <div
           v-if="!image.failed"
@@ -125,30 +104,8 @@ function showNewImageModal() {
       </div>
     </div>
 
-    <div v-if="editable" class="mt-2 flex gap-2">
-      <SplitButton
-        v-if="linking?.conjurationId"
-        class="flex w-full"
-        :disabled="!editable"
-        :model="[
-          {
-            label: 'Choose from conjuration history',
-            command: async () =>
-              await chooseFromImageHistory(linking.conjurationId!),
-          },
-        ]"
-        @click="showNewImageModal"
-      >
-        <ImagePlus class="w-4 h-4" />
-        New Image
-      </SplitButton>
-
-      <Button class="button-primary !py-1" @click="beginEditImage">
-        <span class="w-full flex justify-center items-center gap-2">
-          <PencilLine class="w-5 h-5" />
-          Edit Image
-        </span>
-      </Button>
+    <div v-if="editable" class="mt-2">
+      <ImageActions :image="image" :editable="editable" :linking="linking" />
     </div>
   </div>
 </template>

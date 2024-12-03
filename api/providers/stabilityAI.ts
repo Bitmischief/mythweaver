@@ -10,7 +10,6 @@ import {
   ImageGenerationRequest,
   ImageUpscaleRequest,
 } from '@/modules/images/images.interface';
-import { GeneratedImage } from '@/modules/images/images.interface';
 
 export class StabilityAIProvider {
   private apiKey: string;

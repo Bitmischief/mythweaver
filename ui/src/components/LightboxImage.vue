@@ -47,9 +47,7 @@ const handleOutsideClick = (event: MouseEvent) => {
             &times;
           </button>
           <img :src="src" :alt="alt" class="w-full h-[75vh] object-contain" />
-          <div
-            class="overflow-y-auto text-white bg-black bg-opacity-75 p-6 rounded-b-lg"
-          >
+          <div class="overflow-y-auto">
             <slot></slot>
           </div>
         </div>

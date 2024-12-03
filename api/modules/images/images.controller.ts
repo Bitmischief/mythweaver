@@ -9,6 +9,7 @@ import {
   Security,
   Tags,
   Query,
+  Delete,
 } from 'tsoa';
 import { AppEvent, track, TrackingInfo } from '../../lib/tracking';
 import { MythWeaverLogger } from '../../lib/logger';
@@ -199,5 +200,16 @@ export class ImagesController {
     @Body() request: { editId: string },
   ): Promise<Image> {
     return this.imagesService.setImageToEdit(userId, imageId, request.editId);
+  }
+
+  @Security('jwt')
+  @OperationId('deleteImageEdits')
+  @Delete('/:imageId/edits')
+  public async deleteImageEdits(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Route() imageId: number,
+  ): Promise<Image> {
+    return this.imagesService.deleteImageEdits(userId, imageId);
   }
 }
