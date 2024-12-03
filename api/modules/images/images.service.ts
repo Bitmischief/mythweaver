@@ -394,6 +394,14 @@ export class ImagesService {
       const image = images[i];
       const apiImageResponse = apiImages[i];
 
+      if (apiImageResponse.nsfw) {
+        await this.imagesDataProvider.updateImage(image.id, {
+          generating: false,
+          failed: true,
+        });
+        continue;
+      }
+
       this.logger.info(`Image generated successfully`, { imageId: image.id });
       const url = await saveImage(image.id.toString(), apiImageResponse.base64);
       this.logger.info(`Image saved successfully`, { imageId: image.id, url });
