@@ -94,7 +94,7 @@ export const deleteImage = async (imageUrl: string): Promise<void> => {
     return;
   }
 
-  const key = imageUrl.split('assets.mythweaver.co/')[1];
+  const key = imageUrl.split('mythweaver.co/')[1];
   if (!key) return;
 
   const command = new DeleteObjectCommand({
