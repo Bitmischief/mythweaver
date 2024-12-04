@@ -799,7 +799,9 @@ export class ImagesService {
       });
     }
 
-    const edits = (image.edits as unknown as ImageEdit[]) || [];
+    let edits: ImageEdit[] = Array.isArray(image.edits)
+      ? (image.edits as ImageEdit[])
+      : [];
 
     if (edits.length === 0 && editType !== ImageEditType.ORIGINAL) {
       edits.push({
