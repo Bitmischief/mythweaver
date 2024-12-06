@@ -334,7 +334,7 @@ async function addToCampaign() {
           @click="handleCopyConjuration"
         >
           <DocumentDuplicateIcon class="h-5 w-5 mr-2" />
-          <span class="self-center">Copy Conjuration</span>
+          <span class="self-center">Save Conjuration</span>
         </button>
         <button
           v-if="

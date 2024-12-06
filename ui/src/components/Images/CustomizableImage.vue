@@ -83,7 +83,7 @@ function setImgDimensions() {
         :alt="alt"
         class="rounded-[20px]"
       >
-        <div class="p-2">
+        <div v-if="editable" class="p-2">
           <ImageActions
             :image="image"
             :editable="editable"
