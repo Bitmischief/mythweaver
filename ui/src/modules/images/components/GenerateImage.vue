@@ -76,7 +76,7 @@ const handleRetryGeneration = async (imageId: number) => {
 </script>
 
 <template>
-  <div class="lg:flex w-full mt-4">
+  <div class="lg:flex w-full mt-12 md:mt-6">
     <div class="w-full lg:w-[30rem]">
       <GenerateImageForm
         :prompt="prompt"
