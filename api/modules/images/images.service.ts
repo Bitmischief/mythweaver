@@ -831,7 +831,7 @@ export class ImagesService {
     userId: number | undefined,
     imageId: number,
   ): Promise<Image> {
-    const image = await this.imagesDataProvider.findImage(imageId);
+    let image = await this.imagesDataProvider.findImage(imageId);
 
     if (!image) {
       throw new AppError({
@@ -847,6 +847,12 @@ export class ImagesService {
           httpCode: HttpCode.FORBIDDEN,
         });
       }
+    }
+
+    if (!image.edits || (image.edits as unknown as ImageEdit[]).length === 0) {
+      image = await this.imagesDataProvider.updateImage(image.id, {
+        edits: [{ id: uuidv4(), dateCreated: new Date().toISOString(), type: ImageEditType.ORIGINAL, uri: image.uri }],
+      });
     }
 
     return image;
