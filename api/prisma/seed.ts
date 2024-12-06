@@ -43,7 +43,7 @@ import { prisma } from '../lib/providers/prisma';
         'https://assets.mythweaver.co/87800f32-b9fe-4d5c-8499-0c4416972cf5.png',
         'https://assets.mythweaver.co/0ef39e56-d3b6-48f0-97ee-4f481068e98a.png',
       ],
-      executionUri: 'https://api.runpod.ai/v2/bckffswqylvpkn',
+      executionUri: 'https://api.runpod.ai/v2/8tqab8y5j32sjz',
       licensedArt: true,
       stableDiffusionApiModel: false,
       defaultSteps: 40,

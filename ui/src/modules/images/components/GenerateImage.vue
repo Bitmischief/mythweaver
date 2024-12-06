@@ -76,14 +76,14 @@ const handleRetryGeneration = async (imageId: number) => {
 </script>
 
 <template>
-  <div class="md:flex w-full mt-4">
-    <div class="md:w-1/3">
+  <div class="lg:flex w-full mt-4">
+    <div class="w-full lg:w-[30rem]">
       <GenerateImageForm
         :prompt="prompt"
         @form-update="handleFormStateUpdate"
       />
     </div>
-    <div class="mt-8 md:mt-0 md:ml-8 w-full overflow-y-scroll">
+    <div class="mt-8 lg:mt-0 lg:ml-8 lg:w-full overflow-y-scroll">
       <div class="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <ViewImage
           v-for="image in generatedImages"

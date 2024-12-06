@@ -9,7 +9,7 @@ const PrimeVueStyles = {
     root: 'py-1 px-2 rounded-lg bg-surface-2 border border-surface-3 flex items-center gap-1 cursor-pointer',
   },
   select: {
-    root: 'p-2 border border-zinc-800 bg-surface-2 rounded-lg text-sm w-full flex justify-between items-center cursor-pointer',
+    root: 'p-2 border border-zinc-800 bg-surface-2 rounded-lg text-sm w-full flex gap-2 justify-between items-center cursor-pointer',
     listContainer: {
       class: '!bg-surface-2 rounded-lg border border-zinc-800 overflow-y-auto',
     },
@@ -24,6 +24,9 @@ const PrimeVueStyles = {
     },
     option: {
       class: 'text-neutral-300 flex items-center gap-1 p-2 hover:bg-fuchsia-500/25 cursor-pointer',
+    },
+    pcsection: {
+      class: 'flex flex-col gap-2',
     },
     header: {
       class: 'hidden',
@@ -153,6 +156,9 @@ const PrimeVueStyles = {
   panel: {
     root: 'bg-surface-2 border border-zinc-800 rounded-lg p-4 shadow-lg',
     header: 'flex items-center justify-between items-center text-lg text-neutral-100 font-medium',
+  },
+  dropdown: {
+    root: 'bg-surface-2 flex gap-2 items-center justify-between border border-zinc-800 rounded-lg p-2 text-sm w-full',
   },
 };
 

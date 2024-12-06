@@ -47,7 +47,6 @@ declare module 'vue' {
     ImageCreditCount: typeof import('./src/components/Core/ImageCreditCount.vue')['default']
     ImageEditor: typeof import('./src/components/Images/Editing/ImageEditor.vue')['default']
     Inpaint: typeof import('./src/components/Images/Editing/Inpaint.vue')['default']
-    InputNumber: typeof import('primevue/inputnumber')['default']
     InputText: typeof import('primevue/inputtext')['default']
     LightboxImage: typeof import('./src/components/LightboxImage.vue')['default']
     LightboxRoot: typeof import('./src/components/LightboxRoot.vue')['default']

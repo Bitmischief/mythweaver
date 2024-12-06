@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
-import { XMarkIcon, XCircleIcon } from '@heroicons/vue/20/solid';
+import { XMarkIcon } from '@heroicons/vue/20/solid';
 import { useAvailableImageModels } from '../composables/useAvailableImageModels';
 import { SelectedModelInput } from '../types/selectedModelInput';
 import { useGenerateImages } from '../composables/useGenerateImages';
+import Select from 'primevue/select';
 
 const props = defineProps<{
   modelValue: SelectedModelInput[];
@@ -105,7 +106,7 @@ const getModelById = (id: number) =>
             <img
               :src="option.sampleImageUri"
               :alt="option.label"
-              class="w-16 h-16 md:w-24 md:h-24 object-cover rounded mr-2"
+              class="w-16 h-16 object-cover rounded mr-2"
             />
             <div>
               <div class="font-semibold">{{ option.label }}</div>
@@ -151,50 +152,31 @@ const getModelById = (id: number) =>
           <img
             :src="getModelById(model.id)?.sampleImageUris[0]"
             :alt="model.description"
-            class="w-16 h-16 object-cover rounded"
+            class="w-12 h-12 object-cover rounded"
           />
           <div class="">
             <span class="font-semibold">{{ model.description }}</span>
-            <div class="text-sm text-gray-600 flex truncate">
-              <div
-                v-for="strength in getModelById(model.id)?.strengths"
-                :key="strength"
-                class="mr-2"
+            <div>
+              <button
+                class="py-0.5 text-neutral-500 text-xs hover:text-red-500"
+                @click="removeModel(model.id)"
               >
-                {{ strength }}
-              </div>
-            </div>
-            <div class="text-xs">
-              <span
-                v-if="getModelById(model.id)?.licensedArt"
-                class="text-green-500 mr-2"
-              >
-                Licensed Art
-              </span>
-              <span
-                v-if="getModelById(model.id)?.default"
-                class="text-blue-500"
-              >
-                Default
-              </span>
+                Remove
+              </button>
             </div>
           </div>
         </div>
         <div class="flex items-center">
           <div class="max-w-12">
             <label>Qty</label>
-            <InputNumber
+            <Select
               v-model="model.quantity"
-              :min="1"
-              :max="3"
-              @update:model-value="updateQuantity(model.id, $event)"
+              :options="[1, 2, 3]"
+              class="w-16"
+              @change="updateQuantity(model.id, $event.value)"
             />
           </div>
-          <div>
-            <button class="p-1 mt-6" @click="removeModel(model.id)">
-              <XCircleIcon class="h-5 text-red-500 hover:text-red-500/75" />
-            </button>
-          </div>
+          <div></div>
         </div>
       </div>
     </div>
