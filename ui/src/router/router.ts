@@ -8,7 +8,6 @@ import ViewCampaign from '@/components/Campaigns/ViewCampaign.vue';
 import SessionsView from '@/views/SessionsView.vue';
 import ViewSession from '@/components/Sessions/ViewSession.vue';
 import ListSessions from '@/components/Sessions/ListSessions.vue';
-import ListConjurations from '@/components/Conjuration/ListConjurations.vue';
 import ViewConjuration from '@/components/Conjuration/ViewConjuration.vue';
 import InviteView from '@/views/InviteView.vue';
 import CharactersList from '@/views/CharactersList.vue';
@@ -22,6 +21,8 @@ import { fbq, gtag, rdt } from '@/lib/conversions.ts';
 import { isProduction } from '@/lib/util.ts';
 import RelationshipGraphView from '@/views/RelationshipGraphView.vue';
 import ImageGalleryView from '@/views/ImageGalleryView.vue';
+
+import ConjurationList from '@/modules/conjurations/components/list/conjurationList.vue';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -111,7 +112,7 @@ const router = createRouter({
             {
               path: 'list',
               alias: '',
-              component: ListConjurations,
+              component: ConjurationList,
               beforeEnter: authGuard,
               meta: {
                 paidRequired: true,

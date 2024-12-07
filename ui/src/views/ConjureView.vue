@@ -5,12 +5,13 @@ import MeteorShower from '@/components/Core/MeteorShower.vue';
 import GeneratorSelect from '@/components/Conjure/GeneratorSelect.vue';
 import { Conjurer, getConjurers } from '@/api/generators.ts';
 import DescribeConjuration from '@/components/Conjure/DescribeConjuration.vue';
-import { Conjuration, getConjuration } from '@/api/conjurations.ts';
+import { getConjuration } from '@/modules/conjurations/api';
 import EditConjurationDetails from '@/components/Conjure/EditConjurationDetails.vue';
 import GenerateImage from '@/modules/images/components/GenerateImage.vue';
 import { generateArbitrary } from '@/lib/generation';
 import Loader from '@/components/Core/Loader.vue';
 import { useGenerateImages } from '@/modules/images/composables/useGenerateImages';
+import { Conjuration } from '@/modules/conjurations/types';
 
 const current = ref<'generator' | 'conjure' | 'edit' | 'image'>('generator');
 const router = useRouter();

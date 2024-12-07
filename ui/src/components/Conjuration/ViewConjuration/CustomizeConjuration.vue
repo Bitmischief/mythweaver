@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Conjuration, patchConjuration } from '@/api/conjurations.ts';
+import { patchConjuration } from '@/modules/conjurations/api';
 import { computed, watch, onMounted, onUpdated, onUnmounted, ref } from 'vue';
 import { LinkIcon } from '@heroicons/vue/20/solid';
 import { ShareIcon } from '@heroicons/vue/24/outline';
@@ -24,6 +24,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useDebounceFn } from '@vueuse/core';
 import { useGenerateImages } from '@/modules/images/composables/useGenerateImages';
 import { Select } from 'primevue';
+import { Conjuration } from '@/modules/conjurations/types';
 
 const emit = defineEmits(['edit']);
 const props = defineProps<{

@@ -49,13 +49,13 @@ function openOptions() {
   <Combobox
     v-model="value"
     as="div"
-    class="gradient-border-no-opacity relative w-full cursor-pointer rounded-xl bg-black text-left text-white"
+    class="gradient-border-no-opacity !rounded-lg relative w-full cursor-pointer text-left text-white"
     :multiple="multiple"
     nullable
   >
     <ComboboxInput
       as="input"
-      class="mr-4 h-10 w-full bg-transparent rounded-md px-4 border-none"
+      class="mr-4 w-full text-sm bg-surface-2 rounded-lg px-2 border-none"
       placeholder="Search tags to filter by"
       @change="emitQueryChange($event.target.value)"
       @focus="openOptions"
@@ -79,7 +79,7 @@ function openOptions() {
     >
       <ComboboxOptions
         ref="optionsList"
-        class="gradient-border-no-opacity absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md px-4 py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+        class="gradient-border-no-opacity absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md p-2 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
       >
         <ComboboxOption
           v-for="option in options"
@@ -87,6 +87,7 @@ function openOptions() {
           v-slot="{ selected }"
           :value="option[valueProp] || option"
           as="template"
+          class="hover:bg-purple-500/10 rounded-lg px-2"
         >
           <li class="flex text-lg">
             <CheckIcon

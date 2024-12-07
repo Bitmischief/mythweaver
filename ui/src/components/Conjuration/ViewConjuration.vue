@@ -1,15 +1,13 @@
 <script lang="ts" setup>
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import {
-  Conjuration,
-  ConjurationVisibility,
   copyConjuration,
   deleteConjuration,
   getConjuration,
   postConvertConjurationRequest,
   removeConjuration,
   saveConjuration,
-} from '@/api/conjurations.ts';
+} from '@/modules/conjurations/api';
 import { useRoute, useRouter } from 'vue-router';
 import { useEventBus } from '@/lib/events.ts';
 import CustomizeConjuration from '@/components/Conjuration/ViewConjuration/CustomizeConjuration.vue';
@@ -42,6 +40,10 @@ import Select from '@/components/Core/Forms/Select.vue';
 import ConjurationMove from '@/components/Collections/ConjurationMove.vue';
 import { ServerEvent } from '@/lib/serverEvents';
 import { PlusIcon } from 'lucide-vue-next';
+import {
+  Conjuration,
+  ConjurationVisibility,
+} from '@/modules/conjurations/types';
 
 const route = useRoute();
 const router = useRouter();
