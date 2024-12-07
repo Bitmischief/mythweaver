@@ -39,10 +39,15 @@ const handleRetry = () => {
         <div
           class="flex flex-col h-full flex-grow justify-center text-center bg-surface rounded-lg"
         >
-          <Loader />
-          <div class="text-xl gradient-text my-4 animate-pulse">
-            Conjuring...
-          </div>
+          <template v-if="!image.status || image.status === 'IN_QUEUE'">
+            Image queued for generation
+          </template>
+          <template v-else-if="image.status === 'IN_PROGRESS'">
+            <Loader />
+            <div class="text-xl gradient-text my-4 animate-pulse">
+              Conjuring...
+            </div>
+          </template>
           <div v-if="isLongRunning" class="flex flex-col items-center gap-2">
             <RefreshCw class="w-5 h-5 animate-spin text-purple-500" />
             <div class="text-sm text-neutral-400">

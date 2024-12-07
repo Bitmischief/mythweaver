@@ -18,6 +18,8 @@ import {
   subscriptionPlanUpdateQueue,
   expiredSubscriptionCheckQueue,
 } from './worker';
+import { MythWeaverImageWorker } from './modules/images/mythweaverImage.worker';
+import { container as imagesContainer } from './modules/images/images.dependencies';
 
 console.log('Initializing env vars');
 dotenv.config();
@@ -151,6 +153,10 @@ try {
 
   app.listen(PORT, async () => {
     console.log(`Server is running on port ${PORT}`);
+
+    const mythweaverImageWorker =
+      imagesContainer.resolve<MythWeaverImageWorker>('mythweaverImageWorker');
+    mythweaverImageWorker.initializeWorker();
 
     // End trial job
     const existingEndTrialJob = await endTrialQueue.getRepeatableJobs();

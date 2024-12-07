@@ -9,7 +9,6 @@ import {
   ImageOutpaintRequest,
   ImageEdit,
   ImageEditType,
-  ApiImageGenerationResponse,
 } from './images.interface';
 import { AppError, ErrorType, HttpCode } from '../../lib/errors/AppError';
 import { Image, ImageCreditChangeType, ImageModel } from '@prisma/client';
@@ -18,18 +17,20 @@ import {
   WebSocketEvent,
 } from '../../services/websockets';
 import { modifyImageCreditCount } from '../../services/credits';
-import { checkImageStatusQueue } from '../../worker';
 import retry from 'async-await-retry';
 import { AxiosError } from 'axios';
 import axios from 'axios';
-import { generateMythWeaverModelImage } from '../../services/images/mythweaverImageService';
 import { v4 as uuidv4 } from 'uuid';
-import { saveImage, deleteImage } from '../../services/dataStorage';
+import { deleteImage } from '../../services/dataStorage';
+import { CompletedImageService } from './completedImage.service';
+import { MythWeaverImageProvider } from './mythweaverImage.provider';
 
 export class ImagesService {
   constructor(
     private imagesDataProvider: ImagesDataProvider,
     private stabilityAIProvider: StabilityAIProvider,
+    private mythweaverImageProvider: MythWeaverImageProvider,
+    private completedImageService: CompletedImageService,
     private logger: MythWeaverLogger,
   ) {}
 
@@ -318,18 +319,6 @@ export class ImagesService {
     images: Image[],
     request: ImageGenerationRequest,
   ): Promise<void> {
-    for (const image of images) {
-      await checkImageStatusQueue.add(
-        {
-          userId: request.userId,
-          imageId: image.id,
-        },
-        {
-          delay: 120000,
-        },
-      );
-    }
-
     await this.generateImagesFromProperProvider(request, images);
   }
 
@@ -349,7 +338,7 @@ export class ImagesService {
     }
 
     try {
-      await this.processGeneratedImage(model, request, images);
+      await this.generateRequestedImages(model, request, images);
     } catch (err) {
       const e = err as AxiosError;
 
@@ -374,80 +363,28 @@ export class ImagesService {
     }
   }
 
-  async processGeneratedImage(
+  async generateRequestedImages(
     model: ImageModel,
     request: ImageGenerationRequest,
     images: Image[],
   ): Promise<void> {
-    let apiImages: ApiImageGenerationResponse[] = [];
-
     if (model.stableDiffusionApiModel) {
-      apiImages = await retry(async () => {
+      const apiImages = await retry(async () => {
         return await this.stabilityAIProvider.generateImage(request);
       });
+
+      await this.completedImageService.processGeneratedImages(
+        apiImages,
+        images,
+        request,
+        model,
+      );
     } else {
-      apiImages = await generateMythWeaverModelImage(request, model, images);
-    }
-
-    for (let i = 0; i < images.length; i++) {
-      const image = images[i];
-      const apiImageResponse = apiImages[i];
-
-      if (apiImageResponse.nsfw) {
-        await this.imagesDataProvider.updateImage(image.id, {
-          generating: false,
-          failed: true,
-        });
-        continue;
-      }
-
-      this.logger.info(`Image generated successfully`, { imageId: image.id });
-      const url = await saveImage(image.id.toString(), apiImageResponse.base64);
-      this.logger.info(`Image saved successfully`, { imageId: image.id, url });
-
-      await this.updateImage(image.id, ImageEditType.ORIGINAL, url);
-
-      const updatedImage = await this.imagesDataProvider.updateImage(image.id, {
-        uri: url,
-        generating: false,
-        failed: false,
-      });
-
-      await sendWebsocketMessage(request.userId, WebSocketEvent.ImageCreated, {
-        image: updatedImage,
-        modelId: image.modelId,
-        modelName: model?.description,
-        imageId: image.id,
-        context: {
-          ...request.linking,
-        },
-      });
-
-      const imageCredits = await modifyImageCreditCount(
-        request.userId,
-        -1,
-        ImageCreditChangeType.USER_INITIATED,
-        `Image generation: ${updatedImage.uri}, ${JSON.stringify(request.linking)}`,
+      await this.mythweaverImageProvider.generateMythWeaverModelImage(
+        request,
+        model,
+        images,
       );
-
-      await sendWebsocketMessage(
-        request.userId,
-        WebSocketEvent.UserImageCreditCountUpdated,
-        imageCredits,
-      );
-
-      if (model.paysRoyalties) {
-        const { amountSupportingArtistsUsd } =
-          await this.imagesDataProvider.updateUserArtistContributions(
-            request.userId,
-          );
-
-        await sendWebsocketMessage(
-          request.userId,
-          WebSocketEvent.UserArtistContributionsUpdated,
-          amountSupportingArtistsUsd,
-        );
-      }
     }
   }
 
@@ -851,7 +788,14 @@ export class ImagesService {
 
     if (!image.edits || (image.edits as unknown as ImageEdit[]).length === 0) {
       image = await this.imagesDataProvider.updateImage(image.id, {
-        edits: [{ id: uuidv4(), dateCreated: new Date().toISOString(), type: ImageEditType.ORIGINAL, uri: image.uri }],
+        edits: [
+          {
+            id: uuidv4(),
+            dateCreated: new Date().toISOString(),
+            type: ImageEditType.ORIGINAL,
+            uri: image.uri,
+          },
+        ],
       });
     }
 
