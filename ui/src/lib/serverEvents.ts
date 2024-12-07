@@ -43,4 +43,5 @@ export enum ServerEvent {
   ImageInpaintError = 'image-inpaint-error',
   ImageOutpaintError = 'image-outpaint-error',
   ImageEraseError = 'image-erase-error',
+  ImageGenerationUpdate = 'image-generation-update',
 }

@@ -44,6 +44,7 @@ export enum WebSocketEvent {
   ModelGenerationStarted = 'MODEL_GENERATION_STARTED',
   ModelGenerationCompleted = 'MODEL_GENERATION_COMPLETED',
   ImageUrlUpdated = 'image-url-updated',
+  ImageGenerationUpdate = 'image-generation-update',
 }
 
 export interface WebSocketContext {

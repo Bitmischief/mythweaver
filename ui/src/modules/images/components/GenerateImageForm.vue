@@ -29,6 +29,7 @@ const formState = ref<GenerateImageForm>({
   selectedModels: [],
   prompt: props.prompt || '',
   aspectRatio: '1024x1024',
+  referenceImageStrength: 50,
 });
 
 const isAspectRatioLocked = ref(false);

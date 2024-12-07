@@ -3,7 +3,7 @@ import type { Image } from '../types/image';
 
 export function useGenerationProgress(image: Image) {
   const isLongRunning = ref(false);
-  const LONG_RUNNING_THRESHOLD = 30 * 1000; // 30 seconds
+  const LONG_RUNNING_THRESHOLD = 60 * 1000; // 60 seconds
   let checkInterval: NodeJS.Timeout | null = null;
 
   function checkGenerationTime() {
