@@ -1,8 +1,14 @@
 import { Image, ImageModel } from '@prisma/client';
 import { ImagesDataProvider } from './images.dataprovider';
 import { MythWeaverLogger } from '../../lib/logger';
-import { ApiImageGenerationResponse, ImageGenerationRequest } from './images.interface';
-import { WebSocketEvent, sendWebsocketMessage } from '../../services/websockets';
+import {
+  ApiImageGenerationResponse,
+  ImageGenerationRequest,
+} from './images.interface';
+import {
+  WebSocketEvent,
+  sendWebsocketMessage,
+} from '../../services/websockets';
 import { modifyImageCreditCount } from '../../services/credits';
 import { ImageCreditChangeType } from '@prisma/client';
 import { saveImage } from '../../services/dataStorage';

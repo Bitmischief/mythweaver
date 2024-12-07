@@ -178,7 +178,7 @@ export function useGenerateImages() {
     updateState({ images: [] });
   }
 
-  async function generateRequest(form: GenerateImageForm, retryImageId?: number, retryQty?: number) {
+  async function generateRequest(form: GenerateImageForm, retryImageId?: number) {
     const { width, height } = getWidthAndHeight(form.aspectRatio);
 
     return apiGenerateImages({
@@ -214,7 +214,7 @@ export function useGenerateImages() {
     setupWebsocketListeners();
 
     try {
-      const newImage = (await generateRequest(form, imageId, 1))[0];
+      const newImage = (await generateRequest(form, imageId))[0];
 
       const updatedImages = [...state.value.images];
       const index = updatedImages.findIndex((img) => img.id === imageId);

@@ -93,7 +93,7 @@ export class MythWeaverImageWorker {
           status: status.status,
           imageIds: images.map((image) => image.id),
         });
-        
+
         await sendWebsocketMessage(
           userId,
           WebSocketEvent.ImageGenerationUpdate,
