@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Conjuration, saveConjuration } from '@/api/conjurations.ts';
+import { saveConjuration } from '@/modules/conjurations/api';
 import { useRoute } from 'vue-router';
 import { ArrowRightIcon } from '@heroicons/vue/24/solid';
 import { computed, ref, unref } from 'vue';
@@ -9,6 +9,7 @@ import { useDrag } from 'vue3-dnd';
 import { postMoveCollectionConjuration } from '@/api/collections.ts';
 import { Eye, EyeOff, PlusCircle, CheckCircle } from 'lucide-vue-next';
 import { useCurrentUserId } from '@/lib/hooks.ts';
+import { Conjuration } from '@/modules/conjurations/types';
 
 const props = defineProps<{
   data: Conjuration | undefined;

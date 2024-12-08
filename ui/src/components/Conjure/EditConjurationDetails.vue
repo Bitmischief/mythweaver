@@ -1,9 +1,5 @@
 <script setup lang="ts">
-import {
-  Conjuration,
-  patchConjuration,
-  saveConjuration,
-} from '@/api/conjurations.ts';
+import { patchConjuration, saveConjuration } from '@/modules/conjurations/api';
 import { computed, ref } from 'vue';
 import {
   ArrowLeftIcon,
@@ -14,6 +10,7 @@ import { Conjurer } from '@/api/generators.ts';
 import { showError } from '@/lib/notifications.ts';
 import WysiwygEditor from '@/components/Core/WysiwygEditor.vue';
 import { useRouter } from 'vue-router';
+import { Conjuration } from '@/modules/conjurations/types';
 
 const router = useRouter();
 const emit = defineEmits(['update:modelValue', 'back', 'next']);

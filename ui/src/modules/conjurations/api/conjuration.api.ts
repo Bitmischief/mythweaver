@@ -1,48 +1,14 @@
 import axios from 'axios';
-import { ConjurationRelationshipType } from '@/lib/enums.ts';
+import {
+  GetConjurationsRequest,
+  GetConjurationTagsRequest,
+  PatchConjurationsRequest,
+  PostConvertConjurationRequest,
+} from '../types';
 
-export enum ConjurationVisibility {
-  Public = 'PUBLIC',
-  Private = 'PRIVATE',
-}
-
-export interface Conjuration {
-  id: number;
-  userId: number | undefined;
-  conjurerCode: string;
-  name: string;
-  visibility: ConjurationVisibility;
-  imageUri: string;
-  data: any;
-  tags?: string[];
-  copies?: Conjuration[];
-  originalId?: number;
-  imageAIPrompt: string;
-  saved: boolean;
-  saves: number;
-  imageGenerationFailed: boolean;
-  prompt?: string;
-  images?: any[];
-  updatedAt?: string;
-  linked?: boolean;
-  campaignIds?: number[];
-  inCollection: boolean;
-}
-
-export interface GetConjurationsRequest {
-  campaignId?: number;
-  mine?: boolean;
-  saved?: boolean;
-  conjurerCodes?: string[] | undefined;
-  imageStylePreset?: string;
-  tags?: string[];
-  offset: number;
-  limit: number;
-  search?: string;
-  nodeId?: number;
-  nodeType?: ConjurationRelationshipType;
-  collectionId?: number;
-}
+export const getConjuration = (conjurationId: number) => {
+  return axios.get(`/conjurations/${conjurationId}`);
+};
 
 export const getConjurations = (request: GetConjurationsRequest) => {
   return axios.get('/conjurations', {
@@ -60,12 +26,6 @@ export const getConjurations = (request: GetConjurationsRequest) => {
   });
 };
 
-export interface GetConjurationTagsRequest {
-  term?: string;
-  offset?: number;
-  limit?: number;
-}
-
 export const getConjurationTags = (request: GetConjurationTagsRequest) => {
   return axios.get('/conjurations/tags', {
     params: request,
@@ -77,17 +37,6 @@ export const saveConjuration = (conjurationId: number) => {
     conjurationId,
   });
 };
-
-export const getConjuration = (conjurationId: number) => {
-  return axios.get(`/conjurations/${conjurationId}`);
-};
-
-export interface PatchConjurationsRequest {
-  tags?: string[];
-  name?: string;
-  imageUri?: string;
-  data?: any;
-}
 
 export const patchConjuration = (conjurationId: number, request: PatchConjurationsRequest) => {
   return axios.patch(`/conjurations/${conjurationId}`, request);
@@ -108,11 +57,6 @@ export const copyConjuration = (conjurationId: number) => {
 export const getConjurationRequest = (requestId: number) => {
   return axios.get(`/conjurations/request/${requestId}`);
 };
-
-export interface PostConvertConjurationRequest {
-  conjurationId: number;
-  conjurerCode: string;
-}
 
 export const postConvertConjurationRequest = (request: PostConvertConjurationRequest) => {
   return axios.post(`/conjurations/convert`, request);

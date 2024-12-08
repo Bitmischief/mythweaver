@@ -8,13 +8,14 @@ import { useRoute, useRouter } from 'vue-router';
 import { XCircleIcon } from '@heroicons/vue/20/solid';
 import { useEventBus } from '@/lib/events.ts';
 import ModalAlternate from '@/components/ModalAlternate.vue';
-import { Conjuration, getConjurations } from '@/api/conjurations.ts';
+import { getConjurations } from '@/modules/conjurations/api';
 import {
   deleteCampaignConjuration,
   getCampaign,
   postCampaignConjuration,
 } from '@/api/campaigns.ts';
 import Spinner from '@/components/Core/Spinner.vue';
+import { Conjuration } from '@/modules/conjurations/types';
 
 const selectedCampaignId = useSelectedCampaignId();
 const eventBus = useEventBus();

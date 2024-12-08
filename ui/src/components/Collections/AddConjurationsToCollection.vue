@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
 import { showError, showSuccess } from '@/lib/notifications.ts';
-import { Conjuration, getConjurations } from '@/api/conjurations.ts';
+import { getConjurations } from '@/modules/conjurations/api';
 import { debounce } from 'lodash';
 import ConjurationListItemView from '@/components/Conjuration/ConjurationListItemView.vue';
 import { CheckCircleIcon, PlusCircleIcon } from '@heroicons/vue/24/solid';
@@ -13,6 +13,7 @@ import {
 import Spinner from '@/components/Core/Spinner.vue';
 import ConjurationsListFiltering from '@/components/Conjuration/ConjurationsListFiltering.vue';
 import { AdjustmentsVerticalIcon } from '@heroicons/vue/20/solid';
+import { Conjuration } from '@/modules/conjurations/types';
 
 const emit = defineEmits(['close']);
 const props = defineProps<{
