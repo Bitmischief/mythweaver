@@ -1,8 +1,29 @@
 <script setup lang="ts">
+import { watch } from 'vue';
 import ConjurationListSearch from './conjurationListSearch.vue';
 import ConjurationListFilter from './conjurationListFilter.vue';
 import ConjurationListFilterPreview from './conjurationListFilterPreview.vue';
+import ToggleCondensedView from '@/modules/core/components/buttons/toggleCondensedView.vue';
 import { Sparkles } from 'lucide-vue-next';
+import { useConjurationStore } from '../../store/conjuration.store';
+import { storeToRefs } from 'pinia';
+
+const { conjurationListFilters } = storeToRefs(useConjurationStore());
+const { getConjurations } = useConjurationStore();
+
+watch(
+  () => conjurationListFilters,
+  async () => {
+    await getConjurations({
+      offset: 0,
+      limit: 25,
+      mine: true,
+      saved: true,
+      ...conjurationListFilters.value,
+    });
+  },
+  { deep: true },
+);
 </script>
 
 <template>
@@ -17,6 +38,9 @@ import { Sparkles } from 'lucide-vue-next';
             <span class="self-center">Create</span>
           </button>
         </router-link>
+      </div>
+      <div>
+        <ToggleCondensedView />
       </div>
     </div>
     <ConjurationListFilterPreview />
