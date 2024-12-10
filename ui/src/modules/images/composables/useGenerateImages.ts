@@ -8,6 +8,7 @@ import { NewImageResponse } from '../types/newImageResponse';
 import { Image } from '../types/image';
 import { ChangeImageContextLink } from '../types/changeImageContext';
 import { PresetImageSettings } from '../types/presetImageSettings';
+import { useSavedNegativePrompt } from './useSavedNegativePrompt';
 
 const showModal = ref(false);
 
@@ -180,13 +181,14 @@ export function useGenerateImages() {
 
   async function generateRequest(form: GenerateImageForm, retryImageId?: number) {
     const { width, height } = getWidthAndHeight(form.aspectRatio);
+    const savedNegativePrompt = useSavedNegativePrompt();
 
     return apiGenerateImages({
       selectedModels: form.selectedModels,
       prompt: form.prompt,
       width,
       height,
-      negativePrompt: form.negativePrompt,
+      negativePrompt: savedNegativePrompt.value,
       referenceImageFile: form.referenceImageFile as File,
       referenceImageStrength: form.referenceImageStrength,
       linking: state.value.linkingContext,
