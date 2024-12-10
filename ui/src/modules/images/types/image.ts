@@ -3,7 +3,7 @@ export interface Image {
   uri?: string;
   generating: boolean;
   modelId: number;
-  modelName: string;
+  modelName?: string;
   prompt: string;
   edits: any;
   conjurationId?: number;

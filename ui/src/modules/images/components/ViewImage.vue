@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { Image } from '../types/image';
 import { Pencil, SquareCheck, RefreshCw, RotateCw } from 'lucide-vue-next';
 import { useEditImage } from '../composables/useEditImage';
@@ -30,6 +30,11 @@ const handlePrimaryImageSet = (imageId: number) => {
 const handleRetry = () => {
   emit('retryGeneration', props.image.id);
 };
+
+const displayModelName = computed(() => {
+  if (!props.image.modelId) return 'No model selected';
+  return props.image.modelName || 'Loading model...';
+});
 </script>
 
 <template>
@@ -88,7 +93,7 @@ const handleRetry = () => {
         v-if="!image.generating"
         class="absolute bg-neutral-900/75 px-2 rounded-full bottom-2 right-2"
       >
-        {{ image.modelName }}
+        {{ displayModelName }}
       </div>
       <SquareCheck
         v-if="!image.generating && selected"

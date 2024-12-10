@@ -24,34 +24,39 @@ const selectedModels = computed({
 });
 
 const handleModelSelection = (selectedIds: number[] | undefined) => {
-  if (!selectedIds) return;
+  if (!selectedIds || !imageModelsLoaded.value) return;
 
   const newSelectedModels = selectedIds.map((id) => {
     const existingModel = selectedModels.value.find((m) => m.id === id);
     const aiModel = availableImageModels.value.find((m) => m.id === id);
-    if (!aiModel) throw new Error(`Model with id ${id} not found`);
-    return (
-      existingModel || {
-        id: aiModel.id,
-        description: aiModel.description,
-        quantity: 1,
-      }
-    );
-  });
+
+    if (!aiModel) {
+      error.value = `Unable to find model ${id}. Please try again.`;
+      return null;
+    }
+    
+    return existingModel || {
+      id: aiModel.id,
+      description: aiModel.description,
+      quantity: 1,
+    };
+  }).filter((model): model is NonNullable<typeof model> => model !== null);
 
   selectedModels.value = newSelectedModels;
 };
 
 watch(
-  () => imageModelsLoaded,
-  () => {
+  () => imageModelsLoaded.value,
+  (isLoaded) => {
+    if (!isLoaded) return;
+    
     if (presetSettings.value?.selectedModelId) {
       handleModelSelection([presetSettings.value.selectedModelId]);
     } else if (defaultImageModel.value) {
       handleModelSelection([defaultImageModel.value.id]);
     }
   },
-  { immediate: true, deep: true },
+  { immediate: true },
 );
 
 const modelOptions = computed(() =>
@@ -75,8 +80,10 @@ const removeModel = (modelId: number) => {
   selectedModels.value = selectedModels.value.filter((m) => m.id !== modelId);
 };
 
-const getModelById = (id: number) =>
-  availableImageModels.value.find((m) => m.id === id);
+const getModelById = (id: number) => {
+  if (!imageModelsLoaded.value) return undefined;
+  return availableImageModels.value.find((m) => m.id === id);
+};
 </script>
 
 <template>
