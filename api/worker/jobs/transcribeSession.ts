@@ -26,6 +26,16 @@ const client = new AssemblyAI({
 export const sessionTranscriptionQueue = new Queue<TranscribeSessionEvent>(
   'transcribe-session',
   config,
+  {
+    defaultJobOptions: {
+      timeout: 30 * 60 * 1000,
+      attempts: 3,
+      backoff: {
+        type: 'exponential',
+        delay: 60 * 1000,
+      },
+    },
+  },
 );
 
 sessionTranscriptionQueue.process(async (job, done) => {
