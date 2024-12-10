@@ -80,10 +80,7 @@ const handleSubmit = async () => {
     return;
   }
 
-  if (
-    savedNegativePrompt.value &&
-    savedNegativePrompt.value.length > 2500
-  ) {
+  if (savedNegativePrompt.value && savedNegativePrompt.value.length > 2500) {
     return;
   }
 

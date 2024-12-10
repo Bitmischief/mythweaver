@@ -1,7 +1,6 @@
-import { useLocalStorage } from "@vueuse/core";
+import { useLocalStorage } from '@vueuse/core';
 
 export const useSavedNegativePrompt = () => {
-  const savedNegativePrompt = useLocalStorage("savedNegativePrompt", "");
+  const savedNegativePrompt = useLocalStorage('savedNegativePrompt', '');
   return savedNegativePrompt;
 };
-
