@@ -79,8 +79,8 @@ const handleSubmit = async () => {
   }
 
   if (
-    formState.value.negativePrompt &&
-    formState.value.negativePrompt.length > 2500
+    savedNegativePrompt.value &&
+    savedNegativePrompt.value.length > 2500
   ) {
     return;
   }
