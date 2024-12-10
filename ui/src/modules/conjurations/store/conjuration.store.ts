@@ -22,7 +22,9 @@ import {
   GetConjurationsRequest,
   ConjurationListFilters,
   ConjurationType,
+  ConjurationListFlags,
 } from '@/modules/conjurations/types';
+import { Image } from '@/modules/images/types';
 
 interface ConjurationStoreState {
   conjuration: Conjuration | undefined;
@@ -30,14 +32,35 @@ interface ConjurationStoreState {
   conjurationTags: any[];
   conjurationRequest: Conjuration | undefined;
   conjurationListFilters: ConjurationListFilters;
+  conjurationListFlags: ConjurationListFlags;
   conjurationTypes: ConjurationType[];
+  conjurationLoading: boolean;
+  conjurationListLoading: boolean;
 }
 
-export const defaultFilters: ConjurationListFilters = {
-  search: '',
-  conjurerCodes: [],
-  tags: [],
-};
+export function getDefaultFilters() {
+  return {
+    search: '',
+    conjurerCodes: [],
+    tags: [],
+  };
+}
+
+export function getDefaultFlags() {
+  return {
+    mine: true,
+    saved: true,
+  };
+}
+
+function updateConjurationImages(conjuration: Conjuration, image: Image) {
+  if (conjuration.images) {
+    const imageIndex = conjuration.images.findIndex((i) => i.id === image.id);
+    if (imageIndex !== -1) {
+      conjuration.images[imageIndex] = image;
+    }
+  }
+}
 
 export const useConjurationStore = defineStore({
   id: 'conjuration',
@@ -46,18 +69,29 @@ export const useConjurationStore = defineStore({
     conjurationList: [],
     conjurationTags: [],
     conjurationRequest: undefined,
-    conjurationListFilters: Object.assign({}, defaultFilters),
+    conjurationListFilters: getDefaultFilters(),
+    conjurationListFlags: getDefaultFlags(), // the only difference between these and filters is that we don't let users clear flags
     conjurationTypes: [],
+    conjurationLoading: false,
+    conjurationListLoading: false,
   }),
   actions: {
     async getConjurations(request: GetConjurationsRequest) {
+      this.conjurationListLoading = true;
       const response = await getConjurations(request);
-      this.conjurationList = response.data.data;
+      if (request.offset === 0) {
+        this.conjurationList = response.data.data;
+      } else {
+        this.conjurationList = [...this.conjurationList, ...response.data.data];
+      }
+      this.conjurationListLoading = false;
       return response.data;
     },
     async getConjuration(conjurationId: number) {
+      this.conjurationLoading = true;
       const response = await getConjuration(conjurationId);
       this.conjuration = response.data;
+      this.conjurationLoading = false;
       return response.data;
     },
     async getConjurationRequest(requestId: number) {
@@ -104,7 +138,18 @@ export const useConjurationStore = defineStore({
       return response.data;
     },
     async clearConjurationListFilters() {
-      this.conjurationListFilters = Object.assign({}, defaultFilters);
+      this.conjurationListFilters = getDefaultFilters();
+    },
+    async updateConjurationImages(image: Image) {
+      if (this.conjuration && this.conjuration.images) {
+        updateConjurationImages(this.conjuration, image);
+      }
+
+      if (this.conjurationList.length) {
+        this.conjurationList.forEach((conjuration) => {
+          updateConjurationImages(conjuration, image);
+        });
+      }
     },
   },
 });

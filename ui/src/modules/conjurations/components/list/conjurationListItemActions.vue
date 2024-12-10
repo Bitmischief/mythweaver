@@ -58,7 +58,7 @@ async function addConjuration(e: Event) {
 </script>
 
 <template>
-  <div class="flex mt-2 gap-2 grow items-end">
+  <div class="flex gap-2 grow items-end">
     <div v-if="showSave" class="grow items-center">
       <Button
         class="button-primary hover:bg-purple-500/25 py-1"

@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import ViewImage from './ViewImage.vue';
-import { useGenerateImages } from '../composables/useGenerateImages';
-import GenerateImageForm from './GenerateImageForm.vue';
+import ViewImage from '../ViewImage.vue';
+import { useGenerateImages } from '../../composables/useGenerateImages';
+import GenerateImageForm from '../generate/GenerateImageForm.vue';
 import { onMounted, onUnmounted, ref } from 'vue';
 import { useConfirm } from 'primevue/useconfirm';
-import type { GenerateImageForm as GenerateImageFormType } from '../types/generateImageForm';
+import type { GenerateImageForm as GenerateImageFormType } from '../../types/generateImageForm';
 
 const { generatedImages, presetSettings, clearGeneratedImages } =
   useGenerateImages();

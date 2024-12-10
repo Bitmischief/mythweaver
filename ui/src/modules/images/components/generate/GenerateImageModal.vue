@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import FullScreenModal from '@/components/FullScreenModal.vue';
 import GenerateImage from './GenerateImage.vue';
-import { useGenerateImages } from '../composables/useGenerateImages';
+import { useGenerateImages } from '../../composables/useGenerateImages';
 
 const { showModal } = useGenerateImages();
 </script>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
 import { Image } from '../types/image.ts';
 import { Pencil, CheckCircle } from 'lucide-vue-next';
 import { useEditImage } from '../composables/useEditImage.ts';
@@ -12,8 +12,9 @@ defineProps<{
   disableSetAsPrimary?: boolean;
 }>();
 
+const loading = ref(false);
 const imageStore = useImageStore();
-const { loading, setPrimaryImage, setSelectedImageById } = useEditImage();
+const { setPrimaryImage, setSelectedImageById } = useEditImage();
 const selectedImageId = computed(() => {
   return imageStore.selectedImage?.id;
 });

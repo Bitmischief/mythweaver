@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { outpaint } from '@/api/images';
 import Spinner from '@/components/Core/Spinner.vue';
 import { Select } from 'primevue';
 import { Image } from '@/modules/images/types/image';
@@ -8,31 +7,28 @@ import { useImages } from '@/modules/images/composables/useImages';
 import { ServerEvent } from '@/lib/serverEvents';
 import { useWebsocketChannel } from '@/lib/hooks';
 import { showError } from '@/lib/notifications';
+import { useImageEditorStore } from '@/modules/images/store/editor.store';
+import { storeToRefs } from 'pinia';
 
 const props = defineProps<{
   imageId: number;
 }>();
 
-const emit = defineEmits([
-  'edit-applied',
-  'edit-started',
-  'edit-failed',
-  'cancel',
-]);
-
 const { getImage } = useImages();
+const { outpaintImage } = useImageEditorStore();
+const { editing } = storeToRefs(useImageEditorStore());
+const channel = useWebsocketChannel();
 
 const PIXEL_STEP = 150;
 
-const isEditing = ref(false);
 const prompt = ref('');
 const upDimension = ref(0);
 const downDimension = ref(0);
 const leftDimension = ref(0);
 const rightDimension = ref(0);
 const direction = ref('down');
+
 const image = ref<Image | undefined>(undefined);
-const channel = useWebsocketChannel();
 
 onMounted(async () => {
   channel.bind(ServerEvent.ImageOutpaintError, handleError);
@@ -49,8 +45,6 @@ const handleError = () => {
     message:
       'Encountered an error extending image. Please contact support if this issue persists.',
   });
-  isEditing.value = false;
-  emit('edit-failed');
 };
 
 const isValidDimensions = computed(() => {
@@ -65,26 +59,18 @@ const isValidDimensions = computed(() => {
 const applyOutpaint = async () => {
   if (!isValidDimensions.value) return;
 
-  isEditing.value = true;
   try {
-    emit('edit-started');
-
-    const editedImage = await outpaint(props.imageId, prompt.value, {
+    await outpaintImage(props.imageId, prompt.value, {
       up: direction.value === 'up' ? PIXEL_STEP : 0,
       down: direction.value === 'down' ? PIXEL_STEP : 0,
       left: direction.value === 'left' ? PIXEL_STEP : 0,
       right: direction.value === 'right' ? PIXEL_STEP : 0,
     });
-
-    emit('edit-applied', editedImage);
   } catch (error) {
     showError({
       message:
         'Encountered an error smart erasing image. Please contact support if this issue persists.',
     });
-    emit('edit-failed');
-  } finally {
-    isEditing.value = false;
   }
 };
 </script>
@@ -117,13 +103,13 @@ const applyOutpaint = async () => {
       />
     </div>
     <Button
-      :disabled="isEditing || !isValidDimensions"
+      :disabled="editing || !isValidDimensions"
       class="button-purple w-full"
       @click="applyOutpaint"
     >
-      <Spinner v-if="isEditing" />
+      <Spinner v-if="editing" />
       {{
-        isEditing
+        editing
           ? 'Processing...'
           : `Extend Image ${direction.charAt(0).toUpperCase() + direction.slice(1)}`
       }}

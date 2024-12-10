@@ -22,3 +22,26 @@ export interface Conjuration {
   campaignIds?: number[];
   inCollection: boolean;
 }
+
+export interface ConjurationListFilters {
+  search: string | undefined;
+  conjurerCodes: string[];
+  tags: string[];
+}
+
+export interface ConjurationType {
+  code: string;
+  name: string;
+  description: string;
+  customizationHelpPrompt?: string;
+  imageUri?: string;
+  supportedImageStylePresets?: string[];
+  proOnly?: boolean;
+  experimental?: boolean;
+  examples: string[];
+}
+
+export interface ConjurationListFlags {
+  mine: boolean;
+  saved: boolean;
+}

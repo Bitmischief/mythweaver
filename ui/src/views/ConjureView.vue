@@ -7,7 +7,7 @@ import { Conjurer, getConjurers } from '@/api/generators.ts';
 import DescribeConjuration from '@/components/Conjure/DescribeConjuration.vue';
 import { getConjuration } from '@/modules/conjurations/api';
 import EditConjurationDetails from '@/components/Conjure/EditConjurationDetails.vue';
-import GenerateImage from '@/modules/images/components/GenerateImage.vue';
+import GenerateImage from '@/modules/images/components/generate/GenerateImage.vue';
 import { generateArbitrary } from '@/lib/generation';
 import Loader from '@/components/Core/Loader.vue';
 import { useGenerateImages } from '@/modules/images/composables/useGenerateImages';
@@ -55,6 +55,11 @@ onMounted(async () => {
 
 const back = () => {
   switch (current.value) {
+    case 'generator':
+      if (route.query.from) {
+        router.push({ path: route.query.from as string });
+      }
+      break;
     case 'conjure':
       current.value = 'generator';
       router.push({ query: {} });
@@ -147,7 +152,7 @@ const handlePrimaryImageSet = () => {
   <MeteorShower />
   <div>
     <div v-if="current === 'generator'">
-      <GeneratorSelect v-model="generator" @next="next" />
+      <GeneratorSelect v-model="generator" @back="back" @next="next" />
     </div>
     <div v-if="current === 'conjure' && generator">
       <DescribeConjuration

@@ -50,7 +50,7 @@ function applyFilters() {
 
 <template>
   <ModalAlternate :show="model" @close="model = false">
-    <div class="md:w-[499px] p-6 bg-neutral-900 rounded-[20px]">
+    <div class="md:w-[499px] p-6 bg-surface rounded-[20px]">
       <div class="text-2xl border-b border-gray-700 pb-2 mb-6 text-center">
         Filter Conjurations
       </div>

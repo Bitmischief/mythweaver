@@ -104,7 +104,7 @@ const router = createRouter({
           ],
         },
         {
-          name: 'CONJURING',
+          name: 'CONJURATIONS',
           path: '/conjurations',
           component: ConjuringView,
           beforeEnter: authGuard,
@@ -113,6 +113,9 @@ const router = createRouter({
               path: 'list',
               alias: '',
               component: ConjurationList,
+              props: {
+                mine: true,
+              },
               beforeEnter: authGuard,
               meta: {
                 paidRequired: true,
@@ -121,6 +124,26 @@ const router = createRouter({
             {
               path: 'view/:conjurationId',
               component: ViewConjuration,
+              beforeEnter: authGuard,
+              meta: {
+                paidRequired: true,
+              },
+            },
+          ],
+        },
+        {
+          name: 'GALLERY',
+          path: '/gallery',
+          component: ConjuringView,
+          beforeEnter: authGuard,
+          children: [
+            {
+              path: 'list',
+              alias: '',
+              component: ConjurationList,
+              props: {
+                mine: false,
+              },
               beforeEnter: authGuard,
               meta: {
                 paidRequired: true,

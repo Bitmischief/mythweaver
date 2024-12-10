@@ -15,7 +15,7 @@ const { getConjurationDescription } = useConjurationUtils(props.conjuration);
 
 <template>
   <div
-    class="bg-surface-2 rounded-[20px] flex flex-col absolute bottom-10 right-0 left-0 opacity-100 data-[expanded=false]:top-full data-[expanded=true]:top-0 transition-all"
+    class="bg-surface-2 rounded-[20px] flex flex-col absolute bottom-10 right-0 left-0 opacity-0 data-[expanded=true]:opacity-100 data-[expanded=false]:top-full data-[expanded=true]:top-0 transition-all"
     :class="{ 'left-[35%]': condensed }"
     :data-expanded="show"
   >

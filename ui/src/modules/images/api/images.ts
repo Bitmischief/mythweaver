@@ -47,3 +47,60 @@ async function uploadReferenceImage(file: File): Promise<Image> {
 
   return response.data;
 }
+
+export async function inpaintImage(
+  imageId: number,
+  maskFile: File,
+  prompt: string,
+): Promise<Image> {
+  const formData = new FormData();
+  formData.append('mask', maskFile);
+  formData.append('prompt', prompt);
+
+  const response = await axios.post(`/images/${imageId}/inpaint`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+
+  return response.data;
+}
+
+export const smartErase = async (imageId: number, maskFile: File): Promise<Image> => {
+  const formData = new FormData();
+  formData.append('mask', maskFile);
+
+  const response = await axios.post(`/images/${imageId}/erase`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+
+  return response.data;
+};
+
+export async function outpaint(
+  imageId: number,
+  prompt: string,
+  dimensions: {
+    up: number;
+    down: number;
+    left: number;
+    right: number;
+  },
+): Promise<Image> {
+  const response = await axios.post(`/images/${imageId}/outpaint`, {
+    prompt,
+    ...dimensions,
+  });
+
+  return response.data;
+}
+
+export const setImageToEdit = async (imageId: number, editId: string) => {
+  return axios.patch(`/images/${imageId}/edit`, { editId });
+};
+
+export const deleteEdits = async (imageId: number) => {
+  return axios.delete(`/images/${imageId}/edits`);
+};

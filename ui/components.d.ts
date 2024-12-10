@@ -35,7 +35,7 @@ declare module 'vue' {
     DragAndDropUploader: typeof import('./src/components/Core/DragAndDropUploader.vue')['default']
     DragAndDropZone: typeof import('./src/components/Core/DragAndDropZone.vue')['default']
     EditConjurationDetails: typeof import('./src/components/Conjure/EditConjurationDetails.vue')['default']
-    EditImageModal: typeof import('./src/components/Images/EditImageModal.vue')['default']
+    EditImageModal: typeof import('./src/modules/images/components/Editing/EditImageModal.vue')['default']
     Erase: typeof import('./src/components/Images/Editing/Erase.vue')['default']
     Extend: typeof import('./src/components/Images/Editing/Extend.vue')['default']
     FilePreview: typeof import('./src/components/Core/FilePreview.vue')['default']

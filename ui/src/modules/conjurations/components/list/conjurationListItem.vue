@@ -18,7 +18,7 @@ defineProps<{
 </script>
 
 <template>
-  <div class="h-full relative rounded-[20px] shadow-xl bg-surface-2">
+  <div class="relative rounded-[20px] shadow-xl bg-surface-2">
     <router-link
       class="rounded-[20px] p-2 bg-surface-2 flex gap-2 group relative"
       :class="{
@@ -46,7 +46,7 @@ defineProps<{
         }"
       >
         <div class="max-w-[100%] grow flex flex-col">
-          <div class="relative text-md truncate">
+          <div class="relative text-md truncate mb-1">
             {{ conjuration.name }}
           </div>
           <ConjurationTags :conjuration="conjuration" />

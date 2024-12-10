@@ -2,13 +2,17 @@
 import { watch } from 'vue';
 import ConjurationListSearch from './conjurationListSearch.vue';
 import ConjurationListFilter from './conjurationListFilter.vue';
-import ConjurationListFilterPreview from './conjurationListFilterPreview.vue';
+import ConjurationListFilterChips from './conjurationListFilterChips.vue';
 import ToggleCondensedView from '@/modules/core/components/buttons/toggleCondensedView.vue';
+import HorizontalLoader from '@/modules/core/components/loaders/horizontalLoader.vue';
 import { Sparkles } from 'lucide-vue-next';
 import { useConjurationStore } from '../../store/conjuration.store';
 import { storeToRefs } from 'pinia';
+import { useRoute } from 'vue-router';
 
-const { conjurationListFilters } = storeToRefs(useConjurationStore());
+const route = useRoute();
+const { conjurationListFilters, conjurationListFlags, conjurationListLoading } =
+  storeToRefs(useConjurationStore());
 const { getConjurations } = useConjurationStore();
 
 watch(
@@ -17,9 +21,8 @@ watch(
     await getConjurations({
       offset: 0,
       limit: 25,
-      mine: true,
-      saved: true,
       ...conjurationListFilters.value,
+      ...conjurationListFlags.value,
     });
   },
   { deep: true },
@@ -27,12 +30,12 @@ watch(
 </script>
 
 <template>
-  <div class="mb-4">
-    <div class="flex items-center gap-2">
+  <div>
+    <div class="flex items-center gap-2 mb-2">
       <ConjurationListSearch />
       <ConjurationListFilter />
       <div>
-        <router-link to="/conjure" class="flex">
+        <router-link :to="`/conjure?from=${route.path}`" class="flex">
           <button class="button-gradient flex self-center">
             <Sparkles class="mr-2 h-5 w-5 self-center" />
             <span class="self-center">Create</span>
@@ -43,6 +46,7 @@ watch(
         <ToggleCondensedView />
       </div>
     </div>
-    <ConjurationListFilterPreview />
+    <HorizontalLoader v-model="conjurationListLoading" />
+    <ConjurationListFilterChips />
   </div>
 </template>

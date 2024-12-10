@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import { XMarkIcon } from '@heroicons/vue/20/solid';
-import { useAvailableImageModels } from '../composables/useAvailableImageModels';
-import { SelectedModelInput } from '../types/selectedModelInput';
-import { useGenerateImages } from '../composables/useGenerateImages';
+import { useAvailableImageModels } from '../../composables/useAvailableImageModels';
+import { SelectedModelInput } from '../../types/selectedModelInput';
+import { useGenerateImages } from '../../composables/useGenerateImages';
 import Select from 'primevue/select';
 
 const props = defineProps<{
