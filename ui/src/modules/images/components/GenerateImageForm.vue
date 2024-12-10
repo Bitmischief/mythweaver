@@ -8,6 +8,7 @@ import { Coins } from 'lucide-vue-next';
 import { useConfirm } from 'primevue/useconfirm';
 import Select from 'primevue/select';
 import Panel from 'primevue/panel';
+import { useSavedNegativePrompt } from '../composables/useSavedNegativePrompt';
 
 const props = withDefaults(
   defineProps<{
@@ -23,6 +24,7 @@ const emit = defineEmits(['form-update']);
 const { aspectRatios } = useAvailableAspectRatios();
 const { generateImages, loading, generatedImages } = useGenerateImages();
 const confirm = useConfirm();
+const savedNegativePrompt = useSavedNegativePrompt();
 
 const showAdvancedSettings = ref(false);
 const formState = ref<GenerateImageForm>({
@@ -170,14 +172,12 @@ watch(
       <div>
         <label>Negative Prompt</label>
         <Textarea
-          v-model="formState.negativePrompt"
+          v-model="savedNegativePrompt"
           :rows="3"
           placeholder="Describe what you don't want in the image..."
         />
         <div
-          v-if="
-            formState.negativePrompt && formState.negativePrompt?.length > 2500
-          "
+          v-if="savedNegativePrompt && savedNegativePrompt?.length > 2500"
           class="text-red-500 text-xs"
         >
           Prompt cannot exceed 2500 characters
