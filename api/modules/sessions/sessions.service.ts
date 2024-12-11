@@ -31,6 +31,7 @@ import {
   PostSessionAudioResponse,
   PostSessionRequest,
 } from './sessions.interface';
+import { AssemblyAIProvider } from '@/providers/assemblyAI';
 
 export class SessionsService {
   constructor(
@@ -38,6 +39,7 @@ export class SessionsService {
     private campaignsDataProvider: CampaignsDataProvider,
     private membersDataProvider: MembersDataProvider,
     private usersDataProvider: UsersDataProvider,
+    private assemblyAIProvider: AssemblyAIProvider,
     private logger: MythWeaverLogger,
   ) {}
 
@@ -429,14 +431,29 @@ export class SessionsService {
     const transcript =
       await this.sessionsDataProvider.getSessionTranscription(sessionId);
 
-    if (!transcript) {
+    if (!transcript || !transcript.transcriptExternalId) {
       throw new AppError({
         description: 'Transcript not found.',
         httpCode: HttpCode.NOT_FOUND,
       });
     }
 
-    return transcript;
+    const assemblyTranscript = await this.assemblyAIProvider.getTranscript(
+      transcript.transcriptExternalId,
+    );
+
+    if (assemblyTranscript.status !== 'completed') {
+      throw new AppError({
+        description: 'Transcript is not completed.',
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    const paragraphs = await this.assemblyAIProvider.getParagraphs(
+      transcript.transcriptExternalId,
+    );
+
+    return paragraphs;
   }
 
   async createRecapTranscription(
@@ -484,7 +501,7 @@ export class SessionsService {
 
     if (!session.sessionTranscription.transcriptExternalId) {
       throw new AppError({
-        description: 'Transcript has no external id',
+        description: 'Transcript has not started processing',
         httpCode: HttpCode.NOT_FOUND,
       });
     }
