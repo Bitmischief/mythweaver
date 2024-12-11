@@ -7,7 +7,8 @@ import { UsersDataProvider } from '../users/users.dataprovider';
 import { CampaignsDataProvider } from '../campaigns/campaigns.dataprovider';
 import { useLogger } from '../../lib/loggingMiddleware';
 import { NextFunction, Request, Response } from 'express';
-import { AssemblyAIProvider } from '@/providers/assemblyAI';
+import { AssemblyAIProvider } from '../../providers/assemblyAI';
+import { SessionTranscriptWorker } from './sessionTranscript.worker';
 
 const container = createContainer({
   injectionMode: InjectionMode.CLASSIC,
@@ -21,6 +22,7 @@ container.register({
   usersDataProvider: asClass(UsersDataProvider).scoped(),
   campaignsDataProvider: asClass(CampaignsDataProvider).scoped(),
   assemblyAIProvider: asClass(AssemblyAIProvider).scoped(),
+  sessionTranscriptWorker: asClass(SessionTranscriptWorker).singleton(),
   logger: asFunction(useLogger).scoped(),
 });
 

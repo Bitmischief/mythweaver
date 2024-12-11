@@ -115,24 +115,12 @@ export const deleteSession = (sessionId: number) => {
   return axios.delete(`/sessions/${sessionId}`);
 };
 
-export const postGenerateSummary = (request: PostGenerateSummaryRequest) => {
-  return axios.post(`/sessions/generate-summary`, request);
-};
-
-export const postRecapTranscription = (sessionId: number) => {
-  return axios.post(`/sessions/${sessionId}/recap-transcription`);
-};
-
 export const postSessionSummaryEmail = (sessionId: number) => {
   return axios.post(`/sessions/${sessionId}/email-summary`);
 };
 
 export const postSessionAudio = (sessionId: number, request: FormData) => {
   return axios.post(`/sessions/${sessionId}/audio`, request);
-};
-
-export const postTranscriptionRequest = (sessionId: number) => {
-  return axios.post(`/sessions/${sessionId}/transcription`);
 };
 
 export const deleteSessionAudio = (sessionId: number) => {

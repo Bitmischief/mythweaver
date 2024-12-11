@@ -45,7 +45,7 @@ export class MythWeaverImageProvider {
 
     await this.mythweaverImageWorker.addJob({
       model,
-      jobId: job.id,
+      runpodJobId: job.id,
       images,
       userId: request.userId,
       request,

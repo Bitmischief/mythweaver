@@ -3,7 +3,6 @@ import { computed, onMounted, onUnmounted, ref } from 'vue';
 import {
   getSession,
   patchSession,
-  postGenerateSummary,
   postSessionSummaryEmail,
   SessionBase,
 } from '@/api/sessions.ts';
@@ -98,28 +97,6 @@ const sessionDate = computed(() => {
     : 'TBD';
 });
 
-const summaryLoading = ref(false);
-const generateSummary = async () => {
-  if (!session.value.recap?.length) {
-    showInfo({ message: 'You must add a recap before generating a summary' });
-    return;
-  }
-
-  summaryLoading.value = true;
-  try {
-    const summaryResponse = await postGenerateSummary({
-      recap: session.value.recap,
-    });
-
-    session.value.summary = summaryResponse.data;
-    await saveSession('summary');
-  } catch {
-    showError({ message: 'Failed to generate summary. Please try again.' });
-  } finally {
-    summaryLoading.value = false;
-  }
-};
-
 const emailLoading = ref(false);
 const emailSent = ref(false);
 const emailSummary = async () => {
@@ -196,7 +173,7 @@ const primaryImage = computed(() => {
             <div v-if="session.summary" class="flex gap-2">
               <button
                 class="button-ghost text-sm py-1 flex"
-                :disabled="emailLoading || summaryLoading"
+                :disabled="emailLoading"
                 @click="emailSummary"
               >
                 <span v-if="emailLoading" class="flex">Emailing Summary</span>
@@ -226,16 +203,6 @@ const primaryImage = computed(() => {
                   />
                 </span>
               </button>
-              <button
-                :disabled="summaryLoading"
-                class="button-ghost py-1"
-                @click="generateSummary"
-              >
-                <ArrowPathIcon
-                  class="h-5 w-5"
-                  :class="{ 'animate-spin': summaryLoading }"
-                />
-              </button>
             </div>
           </div>
           <div
@@ -249,28 +216,6 @@ const primaryImage = computed(() => {
             class="text-sm text-neutral-500 text-center max-w-[20em] h-[12em] pt-[5em] mx-auto"
           >
             No summary has been created
-          </div>
-          <div
-            v-else
-            class="h-[12em] flex flex-col justify-center text-neutral-200"
-          >
-            <div class="flex justify-center">
-              <div class="text-center">
-                <div v-if="!summaryLoading" class="mb-2">
-                  No summary has been generated yet.
-                </div>
-                <button
-                  class="button-gradient"
-                  :disabled="summaryLoading"
-                  @click="generateSummary"
-                >
-                  <span v-if="summaryLoading" class="flex"
-                    >Generating Summary<Spinner class="ml-1"
-                  /></span>
-                  <span v-else>Generate Summary From Recap</span>
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       </div>

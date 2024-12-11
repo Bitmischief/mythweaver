@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import {
   getSessionTranscript,
-  postTranscriptionRequest,
   SessionBase,
   SessionTranscript,
 } from '@/api/sessions.ts';
@@ -149,25 +148,6 @@ const setScroll = () => {
 
 const loadingTranscribeSession = ref(false);
 
-async function requestTranscription() {
-  if (!hasValidPlan(BillingPlan.Pro)) {
-    showUpgradeModal({
-      feature: 'Transcribe Session Audio',
-      requiredPlan: BillingPlan.Pro,
-      redirectUri: location.href,
-    });
-    return;
-  }
-
-  loadingTranscribeSession.value = true;
-  const response = await postTranscriptionRequest(session.value.id);
-
-  if (response.status !== 200) {
-    showError({ message: 'Failed to request transcription' });
-    loadingTranscribeSession.value = false;
-  }
-}
-
 function getTimestamp(seconds: number) {
   let h = Math.floor(seconds / 3600);
   let m = Math.floor((seconds - h * 3600) / 60);
@@ -293,18 +273,6 @@ const emit = defineEmits(['seek']);
       v-else-if="currentUserRole === CampaignRole.DM && !readOnly"
       class="p-4"
     >
-      <button
-        v-if="session.audioUri"
-        class="button-gradient mr-2"
-        :disabled="!session.audioUri || loadingTranscribeSession"
-        @click="requestTranscription"
-      >
-        <div v-if="loadingTranscribeSession" class="flex">
-          <Spinner />
-          <span class="ml-2">Transcribing session...</span>
-        </div>
-        <div v-else>Transcribe session</div>
-      </button>
       <div
         v-if="loadingTranscribeSession"
         class="text-xs text-neutral-400 mt-2"
