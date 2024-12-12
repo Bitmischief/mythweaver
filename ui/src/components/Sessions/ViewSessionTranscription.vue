@@ -2,7 +2,6 @@
 import {
   getSessionTranscript,
   SessionBase,
-  SessionTranscript,
   TranscriptParagraph,
 } from '@/api/sessions.ts';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
@@ -49,13 +48,11 @@ onMounted(async () => {
 });
 
 const sessionLoading = ref(true);
-const transcript = ref<SessionTranscript | null>(null);
+const transcript = ref<TranscriptParagraph[] | null>(null);
 
-// Add these new refs
 const showFullTranscript = ref(false);
 const maxInitialLines = 50;
 
-// Add this computed property
 const visibleTranscript = computed(() => {
   if (!transcript.value) return [];
 
@@ -64,7 +61,6 @@ const visibleTranscript = computed(() => {
     : transcript.value.slice(0, maxInitialLines);
 });
 
-// Add this method to toggle full transcript visibility
 const toggleFullTranscript = () => {
   showFullTranscript.value = !showFullTranscript.value;
 };
@@ -87,18 +83,12 @@ async function loadTranscript() {
     );
 
     transcript.value = response.data as TranscriptParagraph[];
-
-    if (transcript.value?.status_new === 'PROCESSING') {
-      loadingTranscribeSession.value = true;
-    }
   } catch (error) {
     if (axios.isAxiosError(error) && error.response?.status === 404) {
-      // No transcript yet
       transcript.value = null;
     } else if (axios.isAxiosError(error) && error.response?.status === 400) {
       loadingTranscribeSession.value = true;
     } else {
-      // Handle other errors
       console.error('Error loading transcript:', error);
       showError({
         message: 'Failed to load transcript',

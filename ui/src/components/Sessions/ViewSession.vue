@@ -3,7 +3,6 @@ import {
   ArrowLeftIcon,
   ArrowRightIcon,
   EllipsisVerticalIcon,
-  LockClosedIcon,
 } from '@heroicons/vue/24/solid';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import {
@@ -17,11 +16,7 @@ import { showError, showInfo, showSuccess } from '@/lib/notifications.ts';
 import Menu from '@/components/Core/General/Menu.vue';
 import { MenuButton, MenuItem } from '@headlessui/vue';
 import { ServerEvent } from '@/lib/serverEvents.ts';
-import {
-  useCurrentUserPlan,
-  useCurrentUserRole,
-  useWebsocketChannel,
-} from '@/lib/hooks.ts';
+import { useCurrentUserRole, useWebsocketChannel } from '@/lib/hooks.ts';
 import { useEventBus } from '@/lib/events.ts';
 import { CampaignRole } from '@/api/campaigns.ts';
 import ViewSessionPlanning from '@/components/Sessions/ViewSessionPlanning.vue';
@@ -30,7 +25,6 @@ import ViewSessionTranscription from '@/components/Sessions/ViewSessionTranscrip
 import ViewSessionSummary from '@/components/Sessions/ViewSessionSummary.vue';
 import { format } from 'date-fns';
 import Spinner from '@/components/Core/Spinner.vue';
-import { BillingPlan } from '@/api/users.ts';
 import { sleep } from '@/lib/util.ts';
 
 const route = useRoute();
@@ -38,7 +32,6 @@ const router = useRouter();
 const channel = useWebsocketChannel();
 const eventBus = useEventBus();
 const currentUserRole = useCurrentUserRole();
-const currentUserPlan = useCurrentUserPlan();
 
 const session = ref<SessionBase>({} as SessionBase);
 

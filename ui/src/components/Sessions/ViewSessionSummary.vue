@@ -2,7 +2,6 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import {
   getSession,
-  patchSession,
   postSessionSummaryEmail,
   SessionBase,
 } from '@/api/sessions.ts';
@@ -11,11 +10,10 @@ import { ServerEvent } from '@/lib/serverEvents.ts';
 import { useCurrentUserRole, useWebsocketChannel } from '@/lib/hooks.ts';
 import { useEventBus } from '@/lib/events.ts';
 import { CampaignRole } from '@/api/campaigns.ts';
-import { showError, showInfo, showSuccess } from '@/lib/notifications.ts';
+import { showError, showSuccess } from '@/lib/notifications.ts';
 import ViewSessionTranscription from '@/components/Sessions/ViewSessionTranscription.vue';
 import { format } from 'date-fns';
 import Spinner from '@/components/Core/Spinner.vue';
-import { ArrowPathIcon } from '@heroicons/vue/24/solid';
 import { EnvelopeIcon, EnvelopeOpenIcon } from '@heroicons/vue/24/outline';
 import CustomizableImage from '@/components/Images/CustomizableImage.vue';
 import { SparklesIcon } from '@heroicons/vue/24/solid';
@@ -60,23 +58,6 @@ async function init() {
 
   session.value = response.data as SessionBase;
   sessionSuggestedImagePrompt.value = session.value.suggestedImagePrompt || '';
-}
-
-async function saveSession(updated?: string) {
-  const putSessionResponse = await patchSession({
-    id: session.value.id,
-    campaignId: session.value.campaignId,
-    suggestedImagePrompt: sessionSuggestedImagePrompt.value,
-    summary: session.value.summary,
-  });
-
-  if (putSessionResponse.status === 200) {
-    if (updated) {
-      showSuccess({ message: `Session ${updated} saved!` });
-    }
-  } else {
-    showError({ message: 'Failed to save session' });
-  }
 }
 
 const sessionType = computed(() => {

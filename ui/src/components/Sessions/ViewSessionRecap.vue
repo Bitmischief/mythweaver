@@ -4,7 +4,7 @@ import {
   getSessionTranscript,
   patchSession,
   SessionBase,
-  SessionTranscript,
+  TranscriptParagraph,
 } from '@/api/sessions.ts';
 import { onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
@@ -23,7 +23,7 @@ const currentUserRole = useCurrentUserRole();
 
 const originalSession = ref<SessionBase>({} as SessionBase);
 const session = ref<SessionBase>({} as SessionBase);
-const transcript = ref<SessionTranscript>({} as SessionTranscript);
+const transcript = ref<TranscriptParagraph[] | null>([]);
 const processing = ref(false);
 
 useUnsavedChangesWarning(originalSession, session);
@@ -54,7 +54,7 @@ async function init() {
     parseInt(route.params.sessionId.toString()),
   );
 
-  transcript.value = transcriptResponse.data as SessionTranscript;
+  transcript.value = transcriptResponse.data as TranscriptParagraph[];
 }
 
 function copySuggestedRecap() {

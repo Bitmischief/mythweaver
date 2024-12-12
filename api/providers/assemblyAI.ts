@@ -33,7 +33,10 @@ export class AssemblyAIProvider {
     return this.client.transcripts.paragraphs(transcriptId);
   }
 
-  async generateTextForTranscript(transcriptId: string, prompt: string): Promise<string> {
+  async generateTextForTranscript(
+    transcriptId: string,
+    prompt: string,
+  ): Promise<string> {
     const { response } = await this.client.lemur.task({
       transcript_ids: [transcriptId],
       prompt,
