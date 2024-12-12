@@ -8,7 +8,7 @@ import { Coins } from 'lucide-vue-next';
 import { useConfirm } from 'primevue/useconfirm';
 import Select from 'primevue/select';
 import Panel from 'primevue/panel';
-import { useSavedNegativePrompt } from '../composables/useSavedNegativePrompt';
+import { useSavedNegativePrompt } from '../../composables/useSavedNegativePrompt';
 
 const props = withDefaults(
   defineProps<{
