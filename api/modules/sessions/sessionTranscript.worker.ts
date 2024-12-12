@@ -6,6 +6,8 @@ import {
 } from '../../services/websockets';
 import { MythWeaverLogger } from '../../lib/logger';
 import { AssemblyAIProvider } from '@/providers/assemblyAI';
+import { SessionsDataProvider } from './sessions.dataprovider';
+import { TranscriptionService } from './transcription.service';
 
 interface TranscriptEvent {
   sessionId: number;
@@ -34,12 +36,14 @@ export const sessionTranscriptQueue = new Queue<TranscriptEvent>(
 );
 
 export class SessionTranscriptWorker {
-  private static isInitialized = false;
-
   constructor(
     private readonly logger: MythWeaverLogger,
-    private readonly assembly: AssemblyAIProvider,
-  ) {}
+    private readonly assemblyAIProvider: AssemblyAIProvider,
+    private readonly transcriptionService: TranscriptionService,
+    private readonly sessionsDataProvider: SessionsDataProvider,
+  ) {
+    this.initializeWorker();
+  }
 
   initializeWorker(): void {
     sessionTranscriptQueue.process(async (job: Job<TranscriptEvent>) => {
@@ -52,7 +56,8 @@ export class SessionTranscriptWorker {
 
       const { transcriptId } = job.data;
 
-      const transcript = await this.assembly.getTranscript(transcriptId);
+      const transcript =
+        await this.assemblyAIProvider.getTranscript(transcriptId);
 
       this.logger.info(`Received transcript status`, {
         transcriptId,
@@ -68,6 +73,26 @@ export class SessionTranscriptWorker {
 
         //@TODO run post-transcript activities here
         // summarization, etc
+        this.logger.info('Generating recap and summary', { transcriptId });
+
+        const recap = await this.transcriptionService.recapTranscript(
+          transcript.id,
+        );
+
+        const summary = await this.transcriptionService.summarizeTranscript(
+          transcript.id,
+        );
+
+        await this.sessionsDataProvider.updateSession(job.data.sessionId, {
+          summary,
+          recap,
+        });
+
+        sendWebsocketMessage(
+          job.data.userId,
+          WebSocketEvent.TranscriptionComplete,
+          {},
+        );
 
         job.discard();
       }
@@ -106,7 +131,6 @@ export class SessionTranscriptWorker {
       },
     );
 
-    SessionTranscriptWorker.isInitialized = true;
     this.logger.info('MythWeaver image worker initialized successfully');
   }
 

@@ -141,10 +141,9 @@ async function saveRecap() {
           Save
         </Button>
       </div>
-        <div v-if="!transcript" class="tooltip-top group-hover/recap:block">
-          A session transcript is required to use this feature.
-          <div class="tooltip-arrow" />
-        </div>
+      <div v-if="!transcript" class="tooltip-top group-hover/recap:block">
+        A session transcript is required to use this feature.
+        <div class="tooltip-arrow" />
       </div>
     </div>
   </div>

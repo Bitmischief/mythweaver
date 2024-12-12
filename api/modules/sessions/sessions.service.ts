@@ -283,6 +283,10 @@ export class SessionsService {
       updatedSession.audioUri,
     );
 
+    await this.sessionsDataProvider.updateSession(sessionId, {
+      assemblyTranscriptId: transcriptJob.id,
+    });
+
     this.sessionTranscriptWorker.addJob({
       transcriptId: transcriptJob.id,
       sessionId,

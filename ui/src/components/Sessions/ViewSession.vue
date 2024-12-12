@@ -207,14 +207,7 @@ const pingSessionOverButton = ref(false);
 const pingSessionCompleteButton = ref(false);
 
 async function changeTab(tabName: string) {
-  if (tabName === 'transcript' && currentUserPlan.value === BillingPlan.Free) {
-    showInfo({
-      message: 'You must have a paid plan to access this feature.',
-      timeout: 2000,
-      position: 'center',
-    });
-    return;
-  } else if (
+  if (
     (tabName === 'recap' || tabName === 'transcript') &&
     !session.value.isOver
   ) {
@@ -299,25 +292,12 @@ const next = () => {
               :class="{
                 'button-gradient': tab === 'transcript',
                 'button-primary': tab !== 'transcript',
-                'opacity-50':
-                  session.isOver === false ||
-                  currentUserPlan === BillingPlan.Free,
+                'opacity-50': session.isOver === false,
               }"
               @click="changeTab('transcript')"
             >
               Transcript
-              <LockClosedIcon
-                v-if="currentUserPlan === BillingPlan.Free"
-                class="h-4 w-4 self-center"
-              />
             </button>
-            <div
-              v-if="currentUserPlan === BillingPlan.Free"
-              class="tooltip-bottom my-2 group-hover/transcript:block"
-            >
-              You must have a paid plan to access this feature.
-              <div class="tooltip-arrow" data-popper-arrow></div>
-            </div>
           </div>
           <ArrowRightIcon class="min-w-5 w-5 self-center" />
           <button

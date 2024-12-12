@@ -1,4 +1,9 @@
-import { AssemblyAI, ParagraphsResponse, Transcript } from 'assemblyai';
+import {
+  AssemblyAI,
+  ParagraphsResponse,
+  SpeechModel,
+  Transcript,
+} from 'assemblyai';
 
 export class AssemblyAIProvider {
   private client: AssemblyAI;
@@ -12,6 +17,11 @@ export class AssemblyAIProvider {
   async transcribe(audioUrl: string): Promise<Transcript> {
     return this.client.transcripts.submit({
       audio_url: audioUrl,
+      speaker_labels: true,
+      speech_model: 'best' as SpeechModel,
+      summarization: true,
+      summary_model: 'conversational',
+      summary_type: 'bullets_verbose',
     });
   }
 
@@ -21,5 +31,15 @@ export class AssemblyAIProvider {
 
   async getParagraphs(transcriptId: string): Promise<ParagraphsResponse> {
     return this.client.transcripts.paragraphs(transcriptId);
+  }
+
+  async generateTextForTranscript(transcriptId: string, prompt: string): Promise<string> {
+    const { response } = await this.client.lemur.task({
+      transcript_ids: [transcriptId],
+      prompt,
+      context: 'This is a tabletop roleplaying game session',
+      final_model: 'anthropic/claude-3-5-sonnet',
+    });
+    return response;
   }
 }

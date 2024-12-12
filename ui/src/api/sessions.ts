@@ -34,12 +34,20 @@ export interface SessionBase {
   images?: any[] | [];
 }
 
-export interface SessionTranscript {
-  sessionId: number;
-  status_new: 'PROCESSING' | 'COMPLETE';
-  paragraphs: any[];
-  sentences: any[];
-  transcript: any;
+export interface TranscriptParagraph {
+  text: string;
+  start: number;
+  end: number;
+  confidence: number;
+  words: TranscriptWord[];
+}
+
+export interface TranscriptWord {
+  text: string;
+  start: number;
+  end: number;
+  confidence: number;
+  speaker: string;
 }
 
 export interface GetSessionsRequest {
