@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { Image } from '../types/image';
 import { Pencil, SquareCheck, RefreshCw, RotateCw } from 'lucide-vue-next';
 import { useEditImage } from '../composables/useEditImage';
@@ -31,6 +31,11 @@ const handlePrimaryImageSet = (imageId: number) => {
 const handleRetry = () => {
   emit('retryGeneration', props.image.id);
 };
+
+const displayModelName = computed(() => {
+  if (!props.image.modelId) return 'No model selected';
+  return props.image.modelName || 'Loading model...';
+});
 </script>
 
 <template>
@@ -40,10 +45,15 @@ const handleRetry = () => {
         <div
           class="flex flex-col h-full flex-grow justify-center text-center bg-surface rounded-lg"
         >
-          <Loader />
-          <div class="text-xl gradient-text my-4 animate-pulse">
-            Conjuring...
-          </div>
+          <template v-if="!image.status || image.status === 'IN_QUEUE'">
+            Image queued for generation
+          </template>
+          <template v-else-if="image.status === 'IN_PROGRESS'">
+            <Loader />
+            <div class="text-xl gradient-text my-4 animate-pulse">
+              Conjuring...
+            </div>
+          </template>
           <div v-if="isLongRunning" class="flex flex-col items-center gap-2">
             <RefreshCw class="w-5 h-5 animate-spin text-purple-500" />
             <div class="text-sm text-neutral-400">
@@ -84,7 +94,7 @@ const handleRetry = () => {
         v-if="!image.generating"
         class="absolute bg-neutral-900/75 px-2 rounded-full bottom-2 right-2"
       >
-        {{ image.modelName }}
+        {{ displayModelName }}
       </div>
       <SquareCheck
         v-if="!image.generating && selected"

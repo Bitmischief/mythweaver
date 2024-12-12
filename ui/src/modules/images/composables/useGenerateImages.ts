@@ -8,6 +8,7 @@ import { NewImageResponse } from '../types/newImageResponse';
 import { Image } from '../types/image';
 import { ChangeImageContextLink } from '../types/changeImageContext';
 import { PresetImageSettings } from '../types/presetImageSettings';
+import { useSavedNegativePrompt } from './useSavedNegativePrompt';
 
 const showModal = ref(false);
 
@@ -34,28 +35,33 @@ function createWebsocketHandlers(updateState: (updates: Partial<GenerateImagesSt
         ...event.image,
         uri: event.image.uri || '',
         generating: false,
-        modelName: event.modelName || 'Unknown Model',
+        modelName: event.modelName || images[existingImageIndex].modelName || 'Loading model...',
         prompt: event.image.prompt || '',
         edits: event.image.edits || [],
         error: false,
         errorMessage: '',
       };
-      images[existingImageIndex] = updatedImage;
+
+      state.value.images = [
+        ...images.slice(0, existingImageIndex),
+        updatedImage,
+        ...images.slice(existingImageIndex + 1),
+      ];
     } else {
       const newImage: Image = {
         ...event.image,
         uri: event.image.uri || '',
         generating: false,
-        modelName: event.modelName || 'Unknown Model',
+        modelName: event.modelName || 'Loading model...',
         prompt: event.image.prompt || '',
         edits: event.image.edits || [],
         error: false,
         errorMessage: '',
       };
-      images.push(newImage);
+      state.value.images = [...images, newImage];
     }
 
-    if (images.every((i) => !i.generating)) {
+    if (state.value.images.every((i) => !i.generating)) {
       updateState({ loading: false });
     }
   }
@@ -89,11 +95,25 @@ function createWebsocketHandlers(updateState: (updates: Partial<GenerateImagesSt
     });
   }
 
+  function handleImageGenerationUpdate(event: any) {
+    console.log('Received image generation update:', event);
+    for (const imageId of event.imageIds) {
+      console.log('Updating image status:', { imageId, status: event.status });
+      updateImageInState(imageId, {
+        status: event.status,
+      });
+    }
+  }
+
   function updateImageInState(imageId: number, update: Partial<Image>) {
     const { images } = state.value;
     const existingImageIndex = images.findIndex((i) => i.id === imageId);
     if (existingImageIndex !== -1) {
-      images[existingImageIndex] = { ...images[existingImageIndex], ...update };
+      state.value.images = [
+        ...images.slice(0, existingImageIndex),
+        { ...images[existingImageIndex], ...update },
+        ...images.slice(existingImageIndex + 1),
+      ];
     }
   }
 
@@ -102,6 +122,7 @@ function createWebsocketHandlers(updateState: (updates: Partial<GenerateImagesSt
     handleImageFiltered,
     handleImageGenerationTimeout,
     handleImageGenerationError,
+    handleImageGenerationUpdate,
   };
 }
 
@@ -121,6 +142,7 @@ export function useGenerateImages() {
     handleImageFiltered,
     handleImageGenerationTimeout,
     handleImageGenerationError,
+    handleImageGenerationUpdate,
   } = createWebsocketHandlers(updateState);
 
   function setupWebsocketListeners() {
@@ -129,6 +151,8 @@ export function useGenerateImages() {
     channel.bind(ServerEvent.ImageFiltered, handleImageFiltered);
     channel.bind(ServerEvent.ImageGenerationTimeout, handleImageGenerationTimeout);
     channel.bind(ServerEvent.ImageGenerationTimeout, handleImageGenerationError);
+    console.log('binding image generation update');
+    channel.bind(ServerEvent.ImageGenerationUpdate, handleImageGenerationUpdate);
   }
 
   function cleanupWebsocketListeners() {
@@ -136,6 +160,7 @@ export function useGenerateImages() {
     channel.unbind(ServerEvent.ImageFiltered, handleImageFiltered);
     channel.unbind(ServerEvent.ImageGenerationTimeout, handleImageGenerationTimeout);
     channel.unbind(ServerEvent.ImageGenerationTimeout, handleImageGenerationError);
+    channel.unbind(ServerEvent.ImageGenerationUpdate, handleImageGenerationUpdate);
   }
 
   function setLinkingContext(context: ChangeImageContextLink) {
@@ -156,13 +181,14 @@ export function useGenerateImages() {
 
   async function generateRequest(form: GenerateImageForm, retryImageId?: number) {
     const { width, height } = getWidthAndHeight(form.aspectRatio);
+    const savedNegativePrompt = useSavedNegativePrompt();
 
     return apiGenerateImages({
       selectedModels: form.selectedModels,
       prompt: form.prompt,
       width,
       height,
-      negativePrompt: form.negativePrompt,
+      negativePrompt: savedNegativePrompt.value,
       referenceImageFile: form.referenceImageFile as File,
       referenceImageStrength: form.referenceImageStrength,
       linking: state.value.linkingContext,

@@ -1,9 +1,9 @@
 export interface Image {
   id: number;
   uri?: string;
-  generating?: boolean;
+  generating: boolean;
   modelId: number;
-  modelName: string;
+  modelName?: string;
   prompt: string;
   edits: any;
   conjurationId?: number;
@@ -17,4 +17,5 @@ export interface Image {
     description: string;
     id: number;
   };
+  status?: string;
 }
