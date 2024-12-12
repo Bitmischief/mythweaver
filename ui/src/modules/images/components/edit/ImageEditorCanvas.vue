@@ -41,6 +41,12 @@ watch(brushSize, () => {
   updateBrushPreview(null);
 });
 
+watch(canvasMask, async () => {
+  if (!canvasMask.value) {
+    clearCanvasMask();
+  }
+});
+
 const handleResize = () => {
   windowWidth.value = window.innerWidth;
   windowHeight.value = window.innerHeight;
@@ -233,6 +239,17 @@ const setCanvasMask = () => {
 
       canvasMask.value = tempCanvas;
     }
+  }
+};
+
+const clearCanvasMask = () => {
+  if (canvasRef.value && canvasCtx.value) {
+    canvasCtx.value.clearRect(
+      0,
+      0,
+      canvasRef.value.width,
+      canvasRef.value.height,
+    );
   }
 };
 </script>

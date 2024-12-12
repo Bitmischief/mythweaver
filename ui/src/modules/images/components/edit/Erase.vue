@@ -8,7 +8,7 @@ import { useImageEditorStore } from '@/modules/images/store/editor.store';
 import { storeToRefs } from 'pinia';
 
 const { editing } = storeToRefs(useImageEditorStore());
-const { eraseImage } = useImageEditorStore();
+const { eraseImage, clearMask } = useImageEditorStore();
 
 const props = defineProps<{
   imageId: number;
@@ -34,6 +34,7 @@ const handleError = () => {
 const applySmartErase = async () => {
   try {
     await eraseImage(props.imageId);
+    clearMask();
   } catch (error) {
     console.error('Error applying smart erase:', error);
   }

@@ -2,7 +2,6 @@
 import { useImageStore } from '@/modules/images/store/image.store';
 import { useImageEditorStore } from '@/modules/images/store/editor.store';
 import { storeToRefs } from 'pinia';
-import { maskedTools } from '@/modules/images/store/editor.store';
 import Inpaint from '@/modules/images/components/edit/Inpaint.vue';
 import Extend from '@/modules/images/components/edit/Extend.vue';
 import Erase from '@/modules/images/components/edit/Erase.vue';
@@ -13,7 +12,7 @@ const { selectedTool } = storeToRefs(useImageEditorStore());
 
 <template>
   <div
-    v-if="selectedImage && maskedTools.includes(selectedTool)"
+    v-if="selectedImage"
     class="px-4 lg:w-[18em] lg:shrink-0 overflow-y-auto"
   >
     <Inpaint v-if="selectedTool === 'inpaint'" :image-id="selectedImage.id" />

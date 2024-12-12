@@ -10,7 +10,7 @@ interface ImageEditorStoreState {
   isEraseMode: boolean;
 }
 
-export const maskedTools = ['inpaint', 'outpaint', 'erase'];
+export const maskedTools = ['inpaint', 'erase'];
 
 export const useImageEditorStore = defineStore({
   id: 'imageEditor',

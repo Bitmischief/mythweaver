@@ -13,7 +13,7 @@ const props = defineProps<{
 
 const channel = useWebsocketChannel();
 const { editing } = storeToRefs(useImageEditorStore());
-const { inpaintImage } = useImageEditorStore();
+const { inpaintImage, clearMask } = useImageEditorStore();
 
 const prompt = ref<string>();
 
@@ -37,6 +37,7 @@ const applyEdit = async () => {
 
   try {
     await inpaintImage(props.imageId, prompt.value);
+    clearMask();
   } catch (error) {
     console.error('Error applying inpainting:', error);
   }
