@@ -177,11 +177,7 @@ async function sessionOver() {
     session.value.isOver = true;
     showSuccess({ message: 'Session marked as over' });
 
-    if (currentUserPlan.value === BillingPlan.Free) {
-      await changeTab('recap');
-    } else {
-      await changeTab('transcript');
-    }
+    await changeTab('transcript');
   } catch {
     showError({ message: 'Failed to mark session as over' });
   }

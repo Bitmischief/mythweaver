@@ -235,23 +235,6 @@ export class SessionsService {
       });
     }
 
-    const user = await this.usersDataProvider.getUserById(userId);
-
-    if (!user) {
-      throw new AppError({
-        description: 'User not found.',
-        httpCode: HttpCode.BAD_REQUEST,
-      });
-    }
-
-    if (user.plan === BillingPlan.FREE) {
-      throw new AppError({
-        description:
-          'You must have a Basic or Pro subscription to upload audio for this session.',
-        httpCode: HttpCode.BAD_REQUEST,
-      });
-    }
-
     const updatedSession = await this.sessionsDataProvider.updateSession(
       sessionId,
       {
