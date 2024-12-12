@@ -122,7 +122,13 @@ export class MythWeaverImageWorker {
           modelId: model.id,
         });
 
-        await this.handleFailure(images, userId, 'Image generation failed');
+        await this.handleFailure(
+          job,
+          images,
+          userId,
+          'Image generation failed',
+        );
+
         throw new AppError({
           description: 'Image generation failed',
           httpCode: HttpCode.INTERNAL_SERVER_ERROR,
@@ -152,6 +158,7 @@ export class MythWeaverImageWorker {
           );
 
           await this.handleFailure(
+            job,
             images,
             userId,
             'Image generation timed out',
@@ -182,22 +189,24 @@ export class MythWeaverImageWorker {
   }
 
   private async handleFailure(
+    job: Job<CheckJobStatusData>,
     images: Image[],
     userId: number,
     errorMessage: string,
   ): Promise<void> {
-    await Promise.all(
-      images.map((image) =>
-        this.imagesDataProvider.updateImage(image.id, {
-          generating: false,
-          failed: true,
-        }),
-      ),
-    );
+    for (const image of images) {
+      await this.imagesDataProvider.updateImage(image.id, {
+        generating: false,
+        failed: true,
+      });
 
-    await sendWebsocketMessage(userId, WebSocketEvent.Error, {
-      description: errorMessage,
-    });
+      await sendWebsocketMessage(userId, WebSocketEvent.ImageGenerationError, {
+        imageId: image.id,
+        description: errorMessage,
+      });
+    }
+
+    job.discard();
   }
 
   async addJob(data: CheckJobStatusData): Promise<Job<CheckJobStatusData>> {

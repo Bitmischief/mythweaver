@@ -87,8 +87,8 @@ function createWebsocketHandlers(updateState: (updates: Partial<GenerateImagesSt
     });
   }
 
-  function handleImageGenerationError(imageId: number) {
-    updateImageInState(imageId, {
+  function handleImageGenerationError(event: { imageId: number }) {
+    updateImageInState(event.imageId, {
       generating: false,
       error: true,
       errorMessage: 'There was an error generating this image, please try again.',
@@ -96,9 +96,7 @@ function createWebsocketHandlers(updateState: (updates: Partial<GenerateImagesSt
   }
 
   function handleImageGenerationUpdate(event: any) {
-    console.log('Received image generation update:', event);
     for (const imageId of event.imageIds) {
-      console.log('Updating image status:', { imageId, status: event.status });
       updateImageInState(imageId, {
         status: event.status,
       });
@@ -150,8 +148,7 @@ export function useGenerateImages() {
     channel.bind(ServerEvent.ImageCreated, handleImageCreated);
     channel.bind(ServerEvent.ImageFiltered, handleImageFiltered);
     channel.bind(ServerEvent.ImageGenerationTimeout, handleImageGenerationTimeout);
-    channel.bind(ServerEvent.ImageGenerationTimeout, handleImageGenerationError);
-    console.log('binding image generation update');
+    channel.bind(ServerEvent.ImageGenerationError, handleImageGenerationError);
     channel.bind(ServerEvent.ImageGenerationUpdate, handleImageGenerationUpdate);
   }
 
@@ -159,7 +156,7 @@ export function useGenerateImages() {
     channel.unbind(ServerEvent.ImageCreated, handleImageCreated);
     channel.unbind(ServerEvent.ImageFiltered, handleImageFiltered);
     channel.unbind(ServerEvent.ImageGenerationTimeout, handleImageGenerationTimeout);
-    channel.unbind(ServerEvent.ImageGenerationTimeout, handleImageGenerationError);
+    channel.unbind(ServerEvent.ImageGenerationError, handleImageGenerationError);
     channel.unbind(ServerEvent.ImageGenerationUpdate, handleImageGenerationUpdate);
   }
 
