@@ -148,6 +148,13 @@ const getModelById = (id: number) => {
           />
         </template>
       </MultiSelect>
+
+      <div
+        v-if="selectedModels?.length === 0"
+        class="mt-1 pl-1 text-red-500 text-xs"
+      >
+        At least one model must be selected, to generate images
+      </div>
     </div>
 
     <div v-if="selectedModels.length > 0" class="mt-6">
