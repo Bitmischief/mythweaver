@@ -11,7 +11,9 @@ export function useConjurationPrimaryImage(conjuration: Conjuration) {
       }
     }
 
-    return mapNoImage(conjuration.conjurerCode);
+    return {
+      uri: mapNoImage(conjuration.conjurerCode),
+    };
   });
 
   return {

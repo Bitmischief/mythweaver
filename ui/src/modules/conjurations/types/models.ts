@@ -1,4 +1,4 @@
-import { ConjurationVisibility } from '@/modules/conjurations/types/conjurationVisibility.ts';
+import { ConjurationVisibility } from '@/modules/conjurations/types/enums.ts';
 
 export interface Conjuration {
   id: number;
