@@ -23,8 +23,8 @@ spec:
       app: mythweaver-ui
   strategy:
     rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 1
+      maxSurge: 2
+      maxUnavailable: 0
   minReadySeconds: 10
   template:
     metadata:
@@ -59,4 +59,4 @@ spec:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: 50
+          averageUtilization: 75
