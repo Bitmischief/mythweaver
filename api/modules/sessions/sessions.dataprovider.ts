@@ -1,5 +1,5 @@
 import { prisma } from '../../lib/providers/prisma';
-import { Prisma, Session, SessionTranscription } from '@prisma/client';
+import { Prisma, Session } from '@prisma/client';
 
 export class SessionsDataProvider {
   async getSessions(
@@ -44,7 +44,7 @@ export class SessionsDataProvider {
     userId: number,
     sessionId: number,
   ): Promise<Prisma.SessionGetPayload<{
-    include: { sessionTranscription: true; images: true };
+    include: { images: true };
   }> | null> {
     return await prisma.session.findUnique({
       where: {
@@ -58,7 +58,6 @@ export class SessionsDataProvider {
         },
       },
       include: {
-        sessionTranscription: true,
         images: {
           where: {
             primary: true,
@@ -84,24 +83,6 @@ export class SessionsDataProvider {
   async deleteSession(sessionId: number): Promise<void> {
     await prisma.session.delete({
       where: { id: sessionId },
-    });
-  }
-
-  async getSessionTranscription(
-    sessionId: number,
-  ): Promise<SessionTranscription | null> {
-    return await prisma.sessionTranscription.findUnique({
-      where: {
-        sessionId,
-      },
-    });
-  }
-
-  async deleteSessionTranscription(sessionId: number): Promise<void> {
-    await prisma.sessionTranscription.delete({
-      where: {
-        sessionId,
-      },
     });
   }
 }

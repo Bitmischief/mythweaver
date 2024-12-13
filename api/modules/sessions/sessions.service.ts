@@ -246,13 +246,6 @@ export class SessionsService {
       },
     );
 
-    const existingTranscription =
-      await this.sessionsDataProvider.getSessionTranscription(sessionId);
-
-    if (existingTranscription) {
-      await this.sessionsDataProvider.deleteSessionTranscription(sessionId);
-    }
-
     track(AppEvent.SessionAudioUploaded, userId, trackingInfo);
 
     if (!updatedSession.audioUri) {
