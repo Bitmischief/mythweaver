@@ -530,6 +530,7 @@ export class ImagesService {
       await sendWebsocketMessage(userId, WebSocketEvent.ImageEdited, {
         imageId,
         context: { outpainted: true },
+        image: updatedImage,
       });
 
       return updatedImage;
@@ -599,7 +600,7 @@ export class ImagesService {
       const backgroundRemovedImageUri =
         await this.stabilityAIProvider.removeBackground(imageBuffer);
 
-      await this.updateImage(
+      const updatedImage = await this.updateImage(
         imageId,
         ImageEditType.BACKGROUND_REMOVAL,
         backgroundRemovedImageUri,
@@ -608,6 +609,7 @@ export class ImagesService {
       await sendWebsocketMessage(userId, WebSocketEvent.ImageEdited, {
         imageId,
         context: { backgroundRemoved: true },
+        image: updatedImage,
       });
     } catch (error) {
       this.logger.error(
@@ -706,6 +708,7 @@ export class ImagesService {
       await sendWebsocketMessage(userId, WebSocketEvent.ImageEdited, {
         imageId,
         context: { erased: true },
+        image: updatedImage,
       });
 
       return updatedImage;

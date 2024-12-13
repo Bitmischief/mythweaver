@@ -17,13 +17,11 @@ export function useConjurationWebhooks() {
   });
 
   async function onImageEdited(data: any) {
-    console.log('image-edited', data);
     await conjurationStore.updateConjurationImages(data.image);
     await imageStore.updateImages(data.image);
   }
 
   async function onPrimaryImageSet(data: any) {
-    console.log('primary-image-set', data);
     if (data.images.length) {
       await conjurationStore.updateConjurationImages(data.images[0]);
       await imageStore.updateImages(data.images[0]);
