@@ -1,9 +1,5 @@
 import { Session } from '@prisma/client';
 
-export interface PostCompleteSessionRequest {
-  recap: string;
-}
-
 export interface GetSessionsResponse {
   data: Session[];
   offset?: number;

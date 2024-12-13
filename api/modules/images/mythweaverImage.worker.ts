@@ -14,7 +14,7 @@ import { CompletedImageService } from './completedImage.service';
 
 interface CheckJobStatusData {
   model: ImageModel;
-  jobId: string;
+  runpodJobId: string;
   images: Image[];
   userId: number;
   request: ImageGenerationRequest;
@@ -78,7 +78,7 @@ export class MythWeaverImageWorker {
         },
       });
 
-      const { model, jobId, images, userId, request } = job.data;
+      const { model, runpodJobId: jobId, images, userId, request } = job.data;
 
       const status = await this.runPodProvider.checkJobStatus(model, jobId);
       this.logger.info(`Received job status`, {
@@ -115,7 +115,7 @@ export class MythWeaverImageWorker {
         return;
       }
 
-      if (status.status === 'FAILED') {
+      if (status.status === 'FAILED' || status.status === 'CANCELLED') {
         this.logger.error(`Job failed`, {
           jobId,
           imageIds: images.map((image: Image) => image.id),

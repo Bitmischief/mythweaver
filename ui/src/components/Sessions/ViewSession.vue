@@ -3,7 +3,6 @@ import {
   ArrowLeftIcon,
   ArrowRightIcon,
   EllipsisVerticalIcon,
-  LockClosedIcon,
 } from '@heroicons/vue/24/solid';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import {
@@ -17,11 +16,7 @@ import { showError, showInfo, showSuccess } from '@/lib/notifications.ts';
 import Menu from '@/components/Core/General/Menu.vue';
 import { MenuButton, MenuItem } from '@headlessui/vue';
 import { ServerEvent } from '@/lib/serverEvents.ts';
-import {
-  useCurrentUserPlan,
-  useCurrentUserRole,
-  useWebsocketChannel,
-} from '@/lib/hooks.ts';
+import { useCurrentUserRole, useWebsocketChannel } from '@/lib/hooks.ts';
 import { useEventBus } from '@/lib/events.ts';
 import { CampaignRole } from '@/api/campaigns.ts';
 import ViewSessionPlanning from '@/components/Sessions/ViewSessionPlanning.vue';
@@ -30,7 +25,6 @@ import ViewSessionTranscription from '@/components/Sessions/ViewSessionTranscrip
 import ViewSessionSummary from '@/components/Sessions/ViewSessionSummary.vue';
 import { format } from 'date-fns';
 import Spinner from '@/components/Core/Spinner.vue';
-import { BillingPlan } from '@/api/users.ts';
 import { sleep } from '@/lib/util.ts';
 
 const route = useRoute();
@@ -38,7 +32,6 @@ const router = useRouter();
 const channel = useWebsocketChannel();
 const eventBus = useEventBus();
 const currentUserRole = useCurrentUserRole();
-const currentUserPlan = useCurrentUserPlan();
 
 const session = ref<SessionBase>({} as SessionBase);
 
@@ -177,11 +170,7 @@ async function sessionOver() {
     session.value.isOver = true;
     showSuccess({ message: 'Session marked as over' });
 
-    if (currentUserPlan.value === BillingPlan.Free) {
-      await changeTab('recap');
-    } else {
-      await changeTab('transcript');
-    }
+    await changeTab('transcript');
   } catch {
     showError({ message: 'Failed to mark session as over' });
   }
@@ -207,14 +196,7 @@ const pingSessionOverButton = ref(false);
 const pingSessionCompleteButton = ref(false);
 
 async function changeTab(tabName: string) {
-  if (tabName === 'transcript' && currentUserPlan.value === BillingPlan.Free) {
-    showInfo({
-      message: 'You must have a paid plan to access this feature.',
-      timeout: 2000,
-      position: 'center',
-    });
-    return;
-  } else if (
+  if (
     (tabName === 'recap' || tabName === 'transcript') &&
     !session.value.isOver
   ) {
@@ -299,25 +281,12 @@ const next = () => {
               :class="{
                 'button-gradient': tab === 'transcript',
                 'button-primary': tab !== 'transcript',
-                'opacity-50':
-                  session.isOver === false ||
-                  currentUserPlan === BillingPlan.Free,
+                'opacity-50': session.isOver === false,
               }"
               @click="changeTab('transcript')"
             >
               Transcript
-              <LockClosedIcon
-                v-if="currentUserPlan === BillingPlan.Free"
-                class="h-4 w-4 self-center"
-              />
             </button>
-            <div
-              v-if="currentUserPlan === BillingPlan.Free"
-              class="tooltip-bottom my-2 group-hover/transcript:block"
-            >
-              You must have a paid plan to access this feature.
-              <div class="tooltip-arrow" data-popper-arrow></div>
-            </div>
           </div>
           <ArrowRightIcon class="min-w-5 w-5 self-center" />
           <button

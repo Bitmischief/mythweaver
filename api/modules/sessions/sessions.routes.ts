@@ -9,10 +9,7 @@ import {
   useValidateRequest,
   ValidationTypes,
 } from '../../lib/validationMiddleware';
-import {
-  getRequestId,
-  useInjectLoggingInfo,
-} from '../../lib/loggingMiddleware';
+import { useInjectLoggingInfo } from '../../lib/loggingMiddleware';
 import {
   useAudioFileUploader,
   useAudioUploadAuthorizer,
@@ -234,32 +231,6 @@ router.post('/:sessionId/audio', [
   },
 ]);
 
-router.post('/:sessionId/transcription', [
-  checkAuth0Jwt,
-  useInjectUserId(),
-  useInjectLoggingInfo(),
-  useValidateRequest(getSessionSchema, {
-    validationType: ValidationTypes.Route,
-  }),
-  injectDependencies,
-  async (req: Request, res: Response) => {
-    const controller =
-      req.container.resolve<SessionsController>('sessionsController');
-
-    const { sessionId = 0 } = req.params;
-    const requestId = getRequestId(req, res);
-
-    await controller.postSessionTranscription(
-      res.locals.auth.userId,
-      res.locals.trackingInfo,
-      requestId as string,
-      sessionId as number,
-    );
-
-    return res.status(200).send();
-  },
-]);
-
 router.delete('/:sessionId/audio', [
   checkAuth0Jwt,
   useInjectUserId(),
@@ -284,30 +255,6 @@ router.delete('/:sessionId/audio', [
   },
 ]);
 
-const postGenerateSummarySchema = z.object({
-  recap: z.string().max(15000),
-});
-
-router.post('/generate-summary', [
-  checkAuth0Jwt,
-  useInjectUserId(),
-  useInjectLoggingInfo(),
-  useValidateRequest(postGenerateSummarySchema),
-  injectDependencies,
-  async (req: Request, res: Response) => {
-    const controller =
-      req.container.resolve<SessionsController>('sessionsController');
-
-    const response = await controller.postGenerateSummary(
-      res.locals.auth.userId,
-      res.locals.trackingInfo,
-      req.body,
-    );
-
-    return res.status(200).send(response);
-  },
-]);
-
 router.get('/:sessionId/transcript', [
   checkAuth0Jwt,
   useInjectUserId(),
@@ -324,30 +271,6 @@ router.get('/:sessionId/transcript', [
       res.locals.auth.userId,
       res.locals.trackingInfo,
       req.params.sessionId as unknown as number,
-    );
-
-    return res.status(200).send(response);
-  },
-]);
-
-router.post('/:sessionId/recap-transcription', [
-  checkAuth0Jwt,
-  useInjectUserId(),
-  useInjectLoggingInfo(),
-  useValidateRequest(getSessionSchema, {
-    validationType: ValidationTypes.Route,
-  }),
-  injectDependencies,
-  async (req: Request, res: Response) => {
-    const controller =
-      req.container.resolve<SessionsController>('sessionsController');
-
-    const { sessionId = 0 } = req.params;
-
-    const response = await controller.postRecapTranscription(
-      res.locals.auth.userId,
-      res.locals.trackingInfo,
-      sessionId as number,
     );
 
     return res.status(200).send(response);

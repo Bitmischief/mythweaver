@@ -34,12 +34,20 @@ export interface SessionBase {
   images?: any[] | [];
 }
 
-export interface SessionTranscript {
-  sessionId: number;
-  status_new: 'PROCESSING' | 'COMPLETE';
-  paragraphs: any[];
-  sentences: any[];
-  transcript: any;
+export interface TranscriptParagraph {
+  text: string;
+  start: number;
+  end: number;
+  confidence: number;
+  words: TranscriptWord[];
+}
+
+export interface TranscriptWord {
+  text: string;
+  start: number;
+  end: number;
+  confidence: number;
+  speaker: string;
 }
 
 export interface GetSessionsRequest {
@@ -115,24 +123,12 @@ export const deleteSession = (sessionId: number) => {
   return axios.delete(`/sessions/${sessionId}`);
 };
 
-export const postGenerateSummary = (request: PostGenerateSummaryRequest) => {
-  return axios.post(`/sessions/generate-summary`, request);
-};
-
-export const postRecapTranscription = (sessionId: number) => {
-  return axios.post(`/sessions/${sessionId}/recap-transcription`);
-};
-
 export const postSessionSummaryEmail = (sessionId: number) => {
   return axios.post(`/sessions/${sessionId}/email-summary`);
 };
 
 export const postSessionAudio = (sessionId: number, request: FormData) => {
   return axios.post(`/sessions/${sessionId}/audio`, request);
-};
-
-export const postTranscriptionRequest = (sessionId: number) => {
-  return axios.post(`/sessions/${sessionId}/transcription`);
 };
 
 export const deleteSessionAudio = (sessionId: number) => {

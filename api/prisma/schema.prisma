@@ -225,6 +225,8 @@ model Session {
   planningJson Json?
   date         DateTime? @db.Timestamptz(6)
 
+  assemblyTranscriptId String?
+
   suggestedName    String?
   suggestedSummary String?
   suggestedRecap   String?

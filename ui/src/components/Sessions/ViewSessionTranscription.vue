@@ -1,16 +1,13 @@
 <script lang="ts" setup>
 import {
   getSessionTranscript,
-  postTranscriptionRequest,
   SessionBase,
-  SessionTranscript,
+  TranscriptParagraph,
 } from '@/api/sessions.ts';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import {
-  showUpgradeModal,
   useCurrentUserPlan,
-  useHasValidPlan,
   useUnsavedChangesWarning,
   useWebsocketChannel,
 } from '@/lib/hooks.ts';
@@ -18,12 +15,12 @@ import { showError } from '@/lib/notifications.ts';
 import { ArrowUpIcon } from '@heroicons/vue/24/outline';
 import { CampaignRole } from '@/api/campaigns';
 import { useCampaignStore } from '@/store/campaign.store';
-import Spinner from '@/components/Core/Spinner.vue';
 import { ServerEvent } from '@/lib/serverEvents.ts';
 import Loader from '@/components/Core/Loader.vue';
 import { BillingPlan } from '@/api/users.ts';
 import axios from 'axios';
 import SessionAudio from './ViewSessionAudio.vue';
+import { useEventBus } from '@/lib/events';
 
 const route = useRoute();
 
@@ -32,7 +29,7 @@ const currentUserRole = computed(() => campaignStore.selectedCampaignRole);
 const originalSession = ref<SessionBase>({} as SessionBase);
 const session = ref<SessionBase>({} as SessionBase);
 const channel = useWebsocketChannel();
-const hasValidPlan = useHasValidPlan();
+const eventBus = useEventBus();
 
 withDefaults(
   defineProps<{
@@ -51,23 +48,19 @@ onMounted(async () => {
 });
 
 const sessionLoading = ref(true);
-const transcript = ref<SessionTranscript | null>(null);
+const transcript = ref<TranscriptParagraph[] | null>(null);
 
-// Add these new refs
 const showFullTranscript = ref(false);
 const maxInitialLines = 50;
 
-// Add this computed property
 const visibleTranscript = computed(() => {
   if (!transcript.value) return [];
-  const segments =
-    transcript.value.sentences || transcript.value.transcript?.segments || [];
+
   return showFullTranscript.value
-    ? segments
-    : segments.slice(0, maxInitialLines);
+    ? transcript.value
+    : transcript.value.slice(0, maxInitialLines);
 });
 
-// Add this method to toggle full transcript visibility
 const toggleFullTranscript = () => {
   showFullTranscript.value = !showFullTranscript.value;
 };
@@ -89,17 +82,13 @@ async function loadTranscript() {
       parseInt(route.params.sessionId.toString()),
     );
 
-    transcript.value = response.data as SessionTranscript;
-
-    if (transcript.value?.status_new === 'PROCESSING') {
-      loadingTranscribeSession.value = true;
-    }
+    transcript.value = response.data as TranscriptParagraph[];
   } catch (error) {
     if (axios.isAxiosError(error) && error.response?.status === 404) {
-      // No transcript yet
       transcript.value = null;
+    } else if (axios.isAxiosError(error) && error.response?.status === 400) {
+      loadingTranscribeSession.value = true;
     } else {
-      // Handle other errors
       console.error('Error loading transcript:', error);
       showError({
         message: 'Failed to load transcript',
@@ -149,26 +138,8 @@ const setScroll = () => {
 
 const loadingTranscribeSession = ref(false);
 
-async function requestTranscription() {
-  if (!hasValidPlan(BillingPlan.Pro)) {
-    showUpgradeModal({
-      feature: 'Transcribe Session Audio',
-      requiredPlan: BillingPlan.Pro,
-      redirectUri: location.href,
-    });
-    return;
-  }
-
-  loadingTranscribeSession.value = true;
-  const response = await postTranscriptionRequest(session.value.id);
-
-  if (response.status !== 200) {
-    showError({ message: 'Failed to request transcription' });
-    loadingTranscribeSession.value = false;
-  }
-}
-
-function getTimestamp(seconds: number) {
+function getTimestamp(milliseconds: number) {
+  const seconds = milliseconds / 1000;
   let h = Math.floor(seconds / 3600);
   let m = Math.floor((seconds - h * 3600) / 60);
   let s = Math.floor(seconds - h * 3600 - m * 60);
@@ -209,9 +180,7 @@ const scrollToTop = () => {
 
 // Add this new function to handle transcript line clicks
 const handleTranscriptClick = (startTime: number) => {
-  const timeInSeconds = transcript.value?.sentences
-    ? startTime / 1000
-    : startTime;
+  const timeInSeconds = startTime / 1000;
   setCurrentAudioTime(timeInSeconds);
   // Emit an event to update the audio player
   emit('seek', timeInSeconds);
@@ -241,10 +210,7 @@ const emit = defineEmits(['seek']);
       :read-only="readOnly"
       :current-time="currentAudioTime"
       @update:session="session = $event"
-      @audio-uploaded="
-        loadingTranscribeSession =
-          useCurrentUserPlan().value === BillingPlan.Pro
-      "
+      @audio-uploaded="loadingTranscribeSession = true"
       @seek="setCurrentAudioTime"
     />
 
@@ -264,26 +230,29 @@ const emit = defineEmits(['seek']);
         <div
           class="text-xs mt-1 text-neutral-500 group-hover:text-violet-500 mr-4"
         >
-          {{ getTimestamp(transcript?.sentences ? s.start / 1000 : s.start) }}
+          {{ getTimestamp(s.start) }}
         </div>
         <div
           class="group-hover:text-violet-500"
           :class="{
-            'text-fuchsia-500':
-              (transcript?.sentences ? s.start / 1000 : s.start) <=
-              currentAudioTime,
+            'text-fuchsia-500': s.start / 1000 <= currentAudioTime,
           }"
         >
           {{ s.text }}
         </div>
       </div>
 
+      <div
+        v-if="useCurrentUserPlan().value !== BillingPlan.Pro"
+        class="mt-8 rounded-xl text-center border-2 border-amber-600 bg-amber-500/25 font-bold cursor-pointer text-xl text-white p-2"
+        @click="eventBus.$emit('show-subscription-modal')"
+      >
+        Upgrade to Pro to view the full transcript.
+      </div>
+
       <button
-        v-if="
-          (transcript?.sentences || transcript?.transcript?.segments || [])
-            .length > maxInitialLines
-        "
-        class="mt-4 px-4 py-2 bg-violet-600 text-white rounded hover:bg-violet-700 transition-colors"
+        v-if="(transcript ?? []).length > maxInitialLines"
+        class="mt-4 px-4 py-2 cursor-pointer bg-violet-600 text-white rounded hover:bg-violet-700 transition-colors"
         @click="toggleFullTranscript"
       >
         {{ showFullTranscript ? 'Show Less' : 'Show Full Transcript' }}
@@ -293,24 +262,15 @@ const emit = defineEmits(['seek']);
       v-else-if="currentUserRole === CampaignRole.DM && !readOnly"
       class="p-4"
     >
-      <button
-        v-if="session.audioUri"
-        class="button-gradient mr-2"
-        :disabled="!session.audioUri || loadingTranscribeSession"
-        @click="requestTranscription"
-      >
-        <div v-if="loadingTranscribeSession" class="flex">
-          <Spinner />
-          <span class="ml-2">Transcribing session...</span>
-        </div>
-        <div v-else>Transcribe session</div>
-      </button>
       <div
         v-if="loadingTranscribeSession"
-        class="text-xs text-neutral-400 mt-2"
+        class="text-lg text-neutral-400 mt-2"
       >
-        Your session is being transcribed, you can leave this page! Please note
-        this process can take 10-20 minutes for a 2-4 hour long session.
+        <Loader />
+        <div class="text-center mt-12">
+          Your session is being transcribed, you can leave this page! Please
+          note this process can take 5-10 minutes per hour of audio.
+        </div>
       </div>
       <div
         v-if="session.sessionTranscription?.status === 'FAILED'"

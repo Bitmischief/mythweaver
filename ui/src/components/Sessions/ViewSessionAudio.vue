@@ -7,8 +7,6 @@ import { TrashIcon, MicrophoneIcon } from '@heroicons/vue/20/solid';
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import AudioUpload from '@/components/Core/Forms/AudioUpload.vue';
 import { CampaignRole } from '@/api/campaigns';
-import { showUpgradeModal, useHasValidPlan } from '@/lib/hooks.ts';
-import { BillingPlan } from '@/api/users.ts';
 
 defineProps<{
   currentUserRole: CampaignRole;
@@ -26,7 +24,6 @@ const emit = defineEmits<{
 }>();
 
 const showUploadAudioModal = ref(false);
-const hasValidPlan = useHasValidPlan();
 
 const session = ref<SessionBase | null>(null);
 
@@ -75,15 +72,7 @@ async function tryDeleteSessionAudio() {
 }
 
 const clickUploadAudio = () => {
-  if (!hasValidPlan(BillingPlan.Basic)) {
-    showUpgradeModal({
-      feature: 'Upload Session Audio',
-      requiredPlan: BillingPlan.Basic,
-      redirectUri: location.href,
-    });
-  } else {
-    showUploadAudioModal.value = true;
-  }
+  showUploadAudioModal.value = true;
 };
 </script>
 
