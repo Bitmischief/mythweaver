@@ -13,7 +13,7 @@ const { selectedTool } = storeToRefs(useImageEditorStore());
 <template>
   <div
     v-if="selectedImage"
-    class="px-4 lg:w-[18em] lg:shrink-0 overflow-y-auto"
+    class="px-4 lg:w-[18em] lg:shrink-0 overflow-y-auto mb-4"
   >
     <Inpaint v-if="selectedTool === 'inpaint'" :image-id="selectedImage.id" />
     <Extend v-if="selectedTool === 'outpaint'" :image-id="selectedImage.id" />

@@ -257,7 +257,7 @@ const clearCanvasMask = () => {
 <template>
   <div
     ref="containerRef"
-    class="flex-1 relative min-h-[50vh] lg:h-full mt-4 lg:mt-0 flex items-center justify-center px-2 lg:px-0"
+    class="flex-1 relative min-h-[50vh] lg:h-full my-4 lg:mt-0 flex items-center justify-center px-2 lg:px-0"
   >
     <div
       v-if="editing"

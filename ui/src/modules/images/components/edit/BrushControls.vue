@@ -108,7 +108,7 @@ const disableMask = computed(() => {
 
 <template>
   <div class="bg-surface rounded-3xl w-full sm:w-auto sm:rounded-full p-2">
-    <div class="sm:flex items-center">
+    <div class="sm:flex justify-center items-center">
       <div class="flex justify-center gap-2">
         <div class="text-center">
           <button

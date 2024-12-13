@@ -21,7 +21,7 @@ const showUpscaleDialog = ref(false);
 
 <template>
   <div
-    class="flex lg:flex-col w-full gap-2 justify-between rounded-2xl p-2 bg-surface"
+    class="flex items-center lg:flex-col w-full gap-2 justify-around rounded-2xl p-2 bg-surface"
   >
     <div v-for="(tool, i) in tools" :key="`tool_${i}`" class="text-neutral-500">
       <button
