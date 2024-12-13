@@ -2,6 +2,7 @@
 import FullScreenModal from '@/components/FullScreenModal.vue';
 import GenerateImage from './GenerateImage.vue';
 import { useGenerateImages } from '../composables/useGenerateImages';
+import MeteorShower from '@/components/Core/MeteorShower.vue';
 
 const { showModal } = useGenerateImages();
 </script>
@@ -13,6 +14,7 @@ const { showModal } = useGenerateImages();
     extra-dark
     @close="showModal = false"
   >
+    <MeteorShower />
     <div class="p-4 flex gap-4 overflow-y-none">
       <GenerateImage
         allow-edits
