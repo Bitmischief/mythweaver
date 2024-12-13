@@ -35,7 +35,7 @@ const PrimeVueStyles = {
       root: 'hidden',
     },
     label: {
-      class: 'flex gap-1',
+      class: 'flex gap-1 flex-wrap',
     },
   },
   selectButton: {
