@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import { Conjuration, patchConjuration } from '@/api/conjurations.ts';
-import { computed, watch, onMounted, onUpdated, onUnmounted, ref } from 'vue';
+import {
+  computed,
+  watch,
+  onMounted,
+  onUpdated,
+  onUnmounted,
+  ref,
+  nextTick,
+} from 'vue';
 import { LinkIcon } from '@heroicons/vue/20/solid';
 import { ShareIcon } from '@heroicons/vue/24/outline';
 import { useEventBus } from '@/lib/events.ts';
@@ -24,6 +32,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useDebounceFn } from '@vueuse/core';
 import { useGenerateImages } from '@/modules/images/composables/useGenerateImages';
 import { Select } from 'primevue';
+import { generateArbitrary } from '@/lib/generation';
 
 const emit = defineEmits(['edit']);
 const props = defineProps<{
@@ -42,8 +51,11 @@ const currentUserId = useCurrentUserId();
 const currentUserRole = useCurrentUserRole();
 const channel = useWebsocketChannel();
 const hasValidPlan = useHasValidPlan();
-const { showModal: showGenerateImageModal, setLinkingContext } =
-  useGenerateImages();
+const {
+  showModal: showGenerateImageModal,
+  setLinkingContext,
+  setPresetImageSettings,
+} = useGenerateImages();
 
 const editableConjuration = ref(props.conjuration);
 const imageKey = ref(0);
@@ -215,8 +227,23 @@ const primaryImage = computed(() => {
   return undefined;
 });
 
-function showCustomizeImageModal() {
+async function showCustomizeImageModal() {
+  eventBus.$emit('global-loading-start');
+  const promptResponse = await generateArbitrary({
+    prompt:
+      'Generate me a stable diffusion image prompt for this conjuration. Keep the description short (less than 300 characters), punchy and light on details. For fantasy races (like dragonborn, etc), please adjust the prompt with the description "anthropomorphic {{bear, dragon, horse, etc}} humanoid", for example, in the prompt.',
+    context:
+      'Return just a prompt used to generate AI images in a system like Stable Diffusion. I am generating an image for a tabletop roleplaying session.',
+    background: props.conjuration,
+  });
+  eventBus.$emit('global-loading-stop');
+
   setLinkingContext({ conjurationId: props.conjuration.id });
+  setPresetImageSettings({
+    prompt: promptResponse.text,
+  });
+
+  await nextTick();
   showGenerateImageModal.value = true;
 }
 
