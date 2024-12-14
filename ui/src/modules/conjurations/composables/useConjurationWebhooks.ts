@@ -13,7 +13,8 @@ export function useConjurationWebhooks() {
   channel.bind(ServerEvent.PrimaryImageSet, onPrimaryImageSet);
 
   onUnmounted(() => {
-    channel.unbind('image-edited', onImageEdited);
+    channel.unbind(ServerEvent.ImageEdited, onImageEdited);
+    channel.unbind(ServerEvent.PrimaryImageSet, onPrimaryImageSet);
   });
 
   async function onImageEdited(data: any) {
