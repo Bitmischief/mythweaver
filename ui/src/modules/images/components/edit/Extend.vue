@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import Spinner from '@/components/Core/Spinner.vue';
 import { Select } from 'primevue';
 import { Image } from '@/modules/images/types/image';
 import { useImages } from '@/modules/images/composables/useImages';
-import { ServerEvent } from '@/lib/serverEvents';
-import { useWebsocketChannel } from '@/lib/hooks';
 import { showError } from '@/lib/notifications';
 import { useImageEditorStore } from '@/modules/images/store/editor.store';
 import { storeToRefs } from 'pinia';
@@ -17,7 +15,6 @@ const props = defineProps<{
 const { getImage } = useImages();
 const { outpaintImage } = useImageEditorStore();
 const { editing } = storeToRefs(useImageEditorStore());
-const channel = useWebsocketChannel();
 
 const PIXEL_STEP = 150;
 
@@ -31,21 +28,9 @@ const direction = ref('down');
 const image = ref<Image | undefined>(undefined);
 
 onMounted(async () => {
-  channel.bind(ServerEvent.ImageOutpaintError, handleError);
   image.value = await getImage(props.imageId);
   prompt.value = image.value?.prompt || '';
 });
-
-onUnmounted(() => {
-  channel.unbind(ServerEvent.ImageOutpaintError, handleError);
-});
-
-const handleError = () => {
-  showError({
-    message:
-      'Encountered an error extending image. Please contact support if this issue persists.',
-  });
-};
 
 const isValidDimensions = computed(() => {
   return (

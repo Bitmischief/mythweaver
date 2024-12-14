@@ -36,6 +36,7 @@ export const useImageEditorStore = defineStore({
         const maskFile = new File([maskBlob], 'mask.png', { type: 'image/png' });
 
         const editedImage = await inpaintImage(imageId, maskFile, prompt);
+        this.clearMask();
 
         return editedImage;
       } finally {
@@ -76,6 +77,8 @@ export const useImageEditorStore = defineStore({
         const maskFile = new File([maskBlob], 'mask.png', { type: 'image/png' });
 
         const editedImage = await smartErase(imageId, maskFile);
+
+        this.clearMask();
 
         return editedImage;
       } finally {

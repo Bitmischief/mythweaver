@@ -1,9 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref } from 'vue';
 import Spinner from '@/components/Core/Spinner.vue';
-import { ServerEvent } from '@/lib/serverEvents';
-import { useWebsocketChannel } from '@/lib/hooks';
-import { showError } from '@/lib/notifications';
 import { useImageEditorStore } from '@/modules/images/store/editor.store';
 import { storeToRefs } from 'pinia';
 
@@ -11,36 +8,14 @@ const props = defineProps<{
   imageId: number;
 }>();
 
-const channel = useWebsocketChannel();
 const { editing } = storeToRefs(useImageEditorStore());
-const { inpaintImage, clearMask } = useImageEditorStore();
+const { inpaintImage } = useImageEditorStore();
 
 const prompt = ref<string>();
 
-onMounted(() => {
-  channel.bind(ServerEvent.ImageInpaintError, handleError);
-});
-
-onUnmounted(() => {
-  channel.unbind(ServerEvent.ImageInpaintError, handleError);
-});
-
-const handleError = () => {
-  showError({
-    message:
-      'Encountered an error modifying image. Please contact support if this issue persists.',
-  });
-};
-
 const applyEdit = async () => {
   if (!prompt.value || !prompt.value.trim()) return;
-
-  try {
-    await inpaintImage(props.imageId, prompt.value);
-    clearMask();
-  } catch (error) {
-    console.error('Error applying inpainting:', error);
-  }
+  await inpaintImage(props.imageId, prompt.value);
 };
 </script>
 
