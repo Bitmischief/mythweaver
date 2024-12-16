@@ -21,16 +21,16 @@ import retry from 'async-await-retry';
 import { AxiosError } from 'axios';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
-import { deleteImage } from '../../services/dataStorage';
 import { CompletedImageService } from './completedImage.service';
 import { MythWeaverImageProvider } from './mythweaverImage.provider';
-
+import { StorageProvider } from '../../providers/storageProvider';
 export class ImagesService {
   constructor(
     private imagesDataProvider: ImagesDataProvider,
     private stabilityAIProvider: StabilityAIProvider,
     private mythweaverImageProvider: MythWeaverImageProvider,
     private completedImageService: CompletedImageService,
+    private storageProvider: StorageProvider,
     private logger: MythWeaverLogger,
   ) {}
 
@@ -926,7 +926,7 @@ export class ImagesService {
     if (edits && edits.length > 0) {
       const deletePromises = edits
         .filter((edit) => edit.uri !== image.uri)
-        .map((edit) => deleteImage(edit.uri));
+        .map((edit) => this.storageProvider.deleteImage(edit.uri));
 
       await Promise.all(deletePromises);
     }

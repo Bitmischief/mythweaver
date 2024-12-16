@@ -4,7 +4,7 @@ import path from 'path';
 import FormData from 'form-data';
 import { v4 as uuidv4 } from 'uuid';
 import { AppError, HttpCode } from '../lib/errors/AppError';
-import { saveImage, getImage } from '../services/dataStorage';
+import { StorageProvider } from './storageProvider';
 import {
   ApiImageGenerationResponse,
   ImageGenerationRequest,
@@ -16,7 +16,7 @@ export class StabilityAIProvider {
   private apiHost: string;
   private upscaleEngine: string;
 
-  constructor() {
+  constructor(private storageProvider: StorageProvider) {
     this.apiKey = process.env.STABILITY_API_KEY || '';
     this.apiHost = 'https://api.stability.ai';
     this.upscaleEngine = 'esrgan-v1-x2plus';
@@ -179,7 +179,7 @@ export class StabilityAIProvider {
 
       const imageId = uuidv4();
       const base64 = Buffer.from(response.data).toString('base64');
-      return await saveImage(imageId, base64);
+      return await this.storageProvider.saveImage(imageId, base64);
     } finally {
       if (imagePath && fs.existsSync(imagePath)) {
         fs.unlinkSync(imagePath);
@@ -202,7 +202,7 @@ export class StabilityAIProvider {
 
     try {
       const formData = new FormData();
-      const image = await getImage(imageId);
+      const image = await this.storageProvider.getImage(imageId);
 
       formData.append('image', image, {
         filename: `${imageId}.png`,
@@ -225,7 +225,7 @@ export class StabilityAIProvider {
       const imageBase64 = response.data.toString('base64');
       const newImageId = uuidv4();
 
-      return await saveImage(newImageId, imageBase64);
+      return await this.storageProvider.saveImage(newImageId, imageBase64);
     } catch (err: any) {
       throw new AppError({
         description:
@@ -264,7 +264,7 @@ export class StabilityAIProvider {
 
     const imageId = uuidv4();
     const base64 = Buffer.from(response.data).toString('base64');
-    return await saveImage(imageId, base64);
+    return await this.storageProvider.saveImage(imageId, base64);
   }
 
   async outpaintImage(
@@ -302,7 +302,7 @@ export class StabilityAIProvider {
 
     const imageId = uuidv4();
     const base64 = Buffer.from(response.data).toString('base64');
-    return await saveImage(imageId, base64);
+    return await this.storageProvider.saveImage(imageId, base64);
   }
 
   async removeBackground(imageData: Buffer): Promise<string> {
@@ -324,6 +324,6 @@ export class StabilityAIProvider {
 
     const imageId = uuidv4();
     const base64 = Buffer.from(response.data).toString('base64');
-    return await saveImage(imageId, base64);
+    return await this.storageProvider.saveImage(imageId, base64);
   }
 }
