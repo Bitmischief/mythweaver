@@ -20,7 +20,6 @@ import {
   PatchSessionRequest,
   PostSessionAudioResponse,
   PostSessionAudioRequest,
-  PostCompleteSessionRequest,
 } from './sessions.interface';
 
 @Route('sessions')
@@ -142,23 +141,6 @@ export class SessionsController {
   }
 
   @Security('jwt')
-  @OperationId('postSessionTranscription')
-  @Post('/:sessionId/transcription')
-  public async postSessionTranscription(
-    @Inject() userId: number,
-    @Inject() trackingInfo: TrackingInfo,
-    @Inject() requestId: string,
-    @Route() sessionId: number,
-  ) {
-    return await this.sessionsService.createSessionTranscription(
-      userId,
-      trackingInfo,
-      requestId,
-      sessionId,
-    );
-  }
-
-  @Security('jwt')
   @OperationId('deleteSessionAudio')
   @Delete('/:sessionId/audio')
   public async deleteSessionAudio(
@@ -174,21 +156,6 @@ export class SessionsController {
   }
 
   @Security('jwt')
-  @OperationId('generateSummary')
-  @Post('/generate-summary')
-  public async postGenerateSummary(
-    @Inject() userId: number,
-    @Inject() trackingInfo: TrackingInfo,
-    @Body() request: PostCompleteSessionRequest,
-  ): Promise<any> {
-    return await this.sessionsService.generateSessionSummary(
-      userId,
-      trackingInfo,
-      request,
-    );
-  }
-
-  @Security('jwt')
   @OperationId('getTranscript')
   @Get('/:sessionId/transcript')
   public async getTranscript(
@@ -196,22 +163,7 @@ export class SessionsController {
     @Inject() trackingInfo: TrackingInfo,
     @Route() sessionId: number,
   ): Promise<any> {
-    return await this.sessionsService.getSessionTranscription(
-      userId,
-      trackingInfo,
-      sessionId,
-    );
-  }
-
-  @Security('jwt')
-  @OperationId('recapTranscription')
-  @Post('/:sessionId/recap-transcription')
-  public async postRecapTranscription(
-    @Inject() userId: number,
-    @Inject() trackingInfo: TrackingInfo,
-    @Route() sessionId: number,
-  ) {
-    return await this.sessionsService.createRecapTranscription(
+    return await this.sessionsService.getSessionTranscript(
       userId,
       trackingInfo,
       sessionId,

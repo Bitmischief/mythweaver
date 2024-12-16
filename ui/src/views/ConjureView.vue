@@ -106,10 +106,12 @@ const next = async () => {
       if (!generatedImagePrompt.value) {
         loading.value = true;
         const promptResponse = await generateArbitrary({
-          prompt:
-            'Generate me a stable diffusion image prompt for this conjuration. Keep the description short (less than 300 characters), punchy and light on details. For fantasy races (like dragonborn, etc), please adjust the prompt with the description "anthropomorphic {{bear, dragon, horse, etc}} humanoid", for example, in the prompt.',
-          context:
-            'Return just a prompt used to generate AI images in a system like Stable Diffusion. I am generating an image for a tabletop roleplaying session.',
+          prompt: `Generate me a stable diffusion image prompt for this conjuration. Keep the description short 
+            (less than 300 characters), punchy and light on details. For non-human fantasy races (like dragonborn, etc), 
+            please adjust the prompt with the description "anthropomorphic {{bear, dragon, horse, etc}} humanoid", in the 
+            prompt. Please include the gender, race, and any other relevant details from the provided background, in the new prompt.`,
+          context: `Return just a prompt used to generate AI images in a system like Stable Diffusion. I am generating an image for 
+            a tabletop roleplaying session.`,
           background: conjuration.value,
         });
 

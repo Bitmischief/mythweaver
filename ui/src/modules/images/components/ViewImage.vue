@@ -54,7 +54,10 @@ const displayModelName = computed(() => {
               Conjuring...
             </div>
           </template>
-          <div v-if="isLongRunning" class="flex flex-col items-center gap-2">
+          <div
+            v-if="isLongRunning && image.generating"
+            class="flex flex-col items-center gap-2"
+          >
             <RefreshCw class="w-5 h-5 animate-spin text-purple-500" />
             <div class="text-sm text-neutral-400">
               This image is taking longer than usual to generate.

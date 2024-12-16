@@ -8,7 +8,7 @@ import logger from '../lib/logger';
 
 export interface RunPodResponse {
   id: string;
-  status: 'IN_QUEUE' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED';
+  status: 'IN_QUEUE' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
   output?: ApiImageGenerationResponse[];
 }
 

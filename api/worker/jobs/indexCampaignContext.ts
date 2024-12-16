@@ -139,9 +139,6 @@ const updateSessionContext = async (
     where: {
       id: sessionId,
     },
-    include: {
-      sessionTranscription: true,
-    },
   });
 
   if (!session) {

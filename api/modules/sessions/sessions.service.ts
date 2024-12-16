@@ -16,21 +16,19 @@ import {
   WebSocketEvent,
 } from '../../services/websockets';
 import { MythWeaverLogger } from '../../lib/logger';
-import { getClient } from '../../lib/providers/openai';
 import {
   deleteSessionContext,
   indexSessionContext,
 } from '../../dataAccess/sessions';
-import { sessionTranscriptionQueue } from '../../worker';
-import { recapTranscript } from '../../services/transcription';
 import {
   GetSessionsResponse,
   PatchSessionRequest,
-  PostCompleteSessionRequest,
   PostSessionAudioRequest,
   PostSessionAudioResponse,
   PostSessionRequest,
 } from './sessions.interface';
+import { AssemblyAIProvider } from '@/providers/assemblyAI';
+import { SessionTranscriptWorker } from './sessionTranscript.worker';
 
 export class SessionsService {
   constructor(
@@ -38,6 +36,8 @@ export class SessionsService {
     private campaignsDataProvider: CampaignsDataProvider,
     private membersDataProvider: MembersDataProvider,
     private usersDataProvider: UsersDataProvider,
+    private assemblyAIProvider: AssemblyAIProvider,
+    private sessionTranscriptWorker: SessionTranscriptWorker,
     private logger: MythWeaverLogger,
   ) {}
 
@@ -235,110 +235,44 @@ export class SessionsService {
       });
     }
 
-    const user = await this.usersDataProvider.getUserById(userId);
-
-    if (!user) {
-      throw new AppError({
-        description: 'User not found.',
-        httpCode: HttpCode.BAD_REQUEST,
-      });
-    }
-
-    if (user.plan === BillingPlan.FREE) {
-      throw new AppError({
-        description:
-          'You must have a Basic or Pro subscription to upload audio for this session.',
-        httpCode: HttpCode.BAD_REQUEST,
-      });
-    }
-
-    await this.sessionsDataProvider.updateSession(sessionId, {
-      audioName: request.audioName,
-      audioUri:
-        request.audioUri.indexOf('https://') === -1
-          ? `https://${request.audioUri}`
-          : request.audioUri,
-    });
-
-    const existingTranscription =
-      await this.sessionsDataProvider.getSessionTranscription(sessionId);
-
-    if (existingTranscription) {
-      await this.sessionsDataProvider.deleteSessionTranscription(sessionId);
-    }
+    const updatedSession = await this.sessionsDataProvider.updateSession(
+      sessionId,
+      {
+        audioName: request.audioName,
+        audioUri:
+          request.audioUri.indexOf('https://') === -1
+            ? `https://${request.audioUri}`
+            : request.audioUri,
+      },
+    );
 
     track(AppEvent.SessionAudioUploaded, userId, trackingInfo);
 
-    if (user.plan === BillingPlan.PRO) {
-      await sessionTranscriptionQueue.add({
-        sessionId,
-        userId,
+    if (!updatedSession.audioUri) {
+      throw new AppError({
+        description: 'Audio URI not found.',
+        httpCode: HttpCode.BAD_REQUEST,
       });
     }
+
+    const transcriptJob = await this.assemblyAIProvider.transcribe(
+      updatedSession.audioUri,
+    );
+
+    await this.sessionsDataProvider.updateSession(sessionId, {
+      assemblyTranscriptId: transcriptJob.id,
+    });
+
+    this.sessionTranscriptWorker.addJob({
+      transcriptId: transcriptJob.id,
+      sessionId,
+      userId,
+    });
 
     return {
       audioName: request.audioName,
       audioUri: request.audioUri,
     };
-  }
-
-  async createSessionTranscription(
-    userId: number,
-    trackingInfo: TrackingInfo,
-    requestId: string,
-    sessionId: number,
-  ) {
-    const session = await this.getSession(userId, trackingInfo, sessionId);
-
-    if (!session) {
-      throw new AppError({
-        description: 'Session not found.',
-        httpCode: HttpCode.BAD_REQUEST,
-      });
-    }
-
-    const campaignMember = await this.membersDataProvider.getCampaignMember(
-      userId,
-      session.campaignId,
-    );
-
-    if (!campaignMember || campaignMember.role !== CampaignRole.DM) {
-      throw new AppError({
-        description:
-          'You do not have permission to perform a transcription for this session.',
-        httpCode: HttpCode.FORBIDDEN,
-      });
-    }
-
-    const user = await this.usersDataProvider.getUserById(userId);
-
-    if (!user) {
-      throw new AppError({
-        description: 'User not found.',
-        httpCode: HttpCode.BAD_REQUEST,
-      });
-    }
-
-    if (user.plan !== BillingPlan.PRO && user.plan !== BillingPlan.TRIAL) {
-      throw new AppError({
-        description:
-          'You must have a Pro subscription to perform a transcription for this session.',
-        httpCode: HttpCode.BAD_REQUEST,
-      });
-    }
-
-    if (!session.audioUri) {
-      throw new AppError({
-        description:
-          'You must upload session audio before you can perform a transcription for this session.',
-        httpCode: HttpCode.BAD_REQUEST,
-      });
-    }
-
-    await sessionTranscriptionQueue.add({
-      sessionId: sessionId,
-      userId,
-    });
   }
 
   async deleteSessionAudio(
@@ -371,48 +305,11 @@ export class SessionsService {
     await this.sessionsDataProvider.updateSession(sessionId, {
       audioName: null,
       audioUri: null,
+      assemblyTranscriptId: null,
     });
-
-    const existingTranscription =
-      await this.sessionsDataProvider.getSessionTranscription(sessionId);
-
-    if (existingTranscription) {
-      await this.sessionsDataProvider.deleteSessionTranscription(sessionId);
-    }
   }
 
-  async generateSessionSummary(
-    userId: number,
-    trackingInfo: TrackingInfo,
-    request: PostCompleteSessionRequest,
-  ) {
-    const openai = getClient();
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4o',
-      messages: [
-        {
-          role: 'system',
-          content:
-            'You are a helpful assistant who is knowledgeable in dungeons and dragons.',
-        },
-        {
-          role: 'user',
-          content: `Provide an 8 sentence summary of the recap provided here:
-          ${request?.recap}.
-          Please return only text, do not include any other formatting.
-          Please make the length of the summary proportional to the length of the recap,
-          ensuring you include the most important highlights from the recap.`,
-        },
-      ],
-    });
-
-    const gptResponse = response.choices[0]?.message?.content;
-    this.logger.info('Received raw response from openai', gptResponse);
-
-    return gptResponse;
-  }
-
-  async getSessionTranscription(
+  async getSessionTranscript(
     userId: number,
     trackingInfo: TrackingInfo,
     sessionId: number,
@@ -426,81 +323,46 @@ export class SessionsService {
       });
     }
 
-    const transcript =
-      await this.sessionsDataProvider.getSessionTranscription(sessionId);
-
-    if (!transcript) {
+    if (!session.assemblyTranscriptId) {
       throw new AppError({
         description: 'Transcript not found.',
         httpCode: HttpCode.NOT_FOUND,
       });
     }
 
-    return transcript;
-  }
-
-  async createRecapTranscription(
-    userId: number,
-    trackingInfo: TrackingInfo,
-    sessionId: number,
-  ) {
-    const session = await this.sessionsDataProvider.getSession(
-      userId,
-      sessionId,
+    const assemblyTranscript = await this.assemblyAIProvider.getTranscript(
+      session.assemblyTranscriptId,
     );
 
-    if (!session) {
+    if (assemblyTranscript.status === 'error') {
       throw new AppError({
-        description: 'Session not found.',
-        httpCode: HttpCode.NOT_FOUND,
+        description: 'Transcript failed to process.',
+        httpCode: HttpCode.INTERNAL_SERVER_ERROR,
+      });
+    } else if (assemblyTranscript.status !== 'completed') {
+      throw new AppError({
+        description: 'Transcript is currently processing.',
+        httpCode: HttpCode.BAD_REQUEST,
       });
     }
 
-    if (session.userId !== null && session.userId !== userId) {
-      throw new AppError({
-        description: 'You do not have access to this session.',
-        httpCode: HttpCode.FORBIDDEN,
-      });
-    }
-
-    const campaignMember = await this.membersDataProvider.getCampaignMember(
-      userId,
-      session.campaignId,
+    const paragraphs = await this.assemblyAIProvider.getParagraphs(
+      session.assemblyTranscriptId,
     );
 
-    if (!campaignMember || campaignMember.role !== CampaignRole.DM) {
+    const user = await this.usersDataProvider.getUserById(userId);
+
+    if (!user) {
       throw new AppError({
-        description: 'You do not have permission to complete this session.',
-        httpCode: HttpCode.FORBIDDEN,
+        description: 'User not found.',
+        httpCode: HttpCode.BAD_REQUEST,
       });
     }
 
-    if (!session.sessionTranscription) {
-      throw new AppError({
-        description: 'Transcript not found.',
-        httpCode: HttpCode.NOT_FOUND,
-      });
+    if (user.plan !== BillingPlan.PRO) {
+      return paragraphs.paragraphs.slice(0, 3);
     }
 
-    if (!session.sessionTranscription.transcriptExternalId) {
-      throw new AppError({
-        description: 'Transcript has no external id',
-        httpCode: HttpCode.NOT_FOUND,
-      });
-    }
-
-    const recap = await recapTranscript(
-      session.sessionTranscription.transcriptExternalId,
-    );
-
-    await this.sessionsDataProvider.updateSession(sessionId, {
-      suggestedRecap: recap,
-    });
-
-    track(AppEvent.RecapSessionTranscription, userId, trackingInfo);
-
-    return {
-      recap,
-    };
+    return paragraphs.paragraphs;
   }
 }

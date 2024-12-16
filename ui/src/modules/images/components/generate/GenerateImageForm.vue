@@ -142,6 +142,9 @@ watch(
         placeholder="Describe the image you want to generate..."
         auto-resize
       />
+      <div v-if="formState?.prompt?.length === 0" class="text-red-500 text-xs">
+        Prompt must be provided
+      </div>
       <div v-if="formState?.prompt?.length > 2500" class="text-red-500 text-xs">
         Prompt cannot exceed 2500 characters
       </div>

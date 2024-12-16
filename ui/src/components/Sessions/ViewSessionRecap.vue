@@ -3,9 +3,8 @@ import {
   getSession,
   getSessionTranscript,
   patchSession,
-  postRecapTranscription,
   SessionBase,
-  SessionTranscript,
+  TranscriptParagraph,
 } from '@/api/sessions.ts';
 import { onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
@@ -24,7 +23,7 @@ const currentUserRole = useCurrentUserRole();
 
 const originalSession = ref<SessionBase>({} as SessionBase);
 const session = ref<SessionBase>({} as SessionBase);
-const transcript = ref<SessionTranscript>({} as SessionTranscript);
+const transcript = ref<TranscriptParagraph[] | null>([]);
 const processing = ref(false);
 
 useUnsavedChangesWarning(originalSession, session);
@@ -55,28 +54,7 @@ async function init() {
     parseInt(route.params.sessionId.toString()),
   );
 
-  transcript.value = transcriptResponse.data as SessionTranscript;
-}
-
-const recapLoading = ref(false);
-
-async function generateRecap() {
-  if (!transcript.value) {
-    showError({
-      message: 'A session transcription is required to use this feature.',
-    });
-    return;
-  }
-
-  try {
-    recapLoading.value = true;
-    const response = await postRecapTranscription(session.value.id);
-    session.value.suggestedRecap = response.data.recap;
-  } catch (e) {
-    showError({ message: 'Failed to generate a recap. Please try again.' });
-  } finally {
-    recapLoading.value = false;
-  }
+  transcript.value = transcriptResponse.data as TranscriptParagraph[];
 }
 
 function copySuggestedRecap() {
@@ -163,23 +141,9 @@ async function saveRecap() {
           Save
         </Button>
       </div>
-      <div class="relative group/recap">
-        <Button
-          v-if="currentUserRole === CampaignRole.DM && !session.archived"
-          :class="`button-ghost ${recapLoading ? 'animate-pulse' : ''}`"
-          :disabled="processing || !transcript"
-          @click="generateRecap"
-        >
-          {{
-            recapLoading
-              ? 'Loading recap...'
-              : `${session.suggestedRecap ? 'Re-g' : 'G'}enerate suggested recap`
-          }}
-        </Button>
-        <div v-if="!transcript" class="tooltip-top group-hover/recap:block">
-          A session transcript is required to use this feature.
-          <div class="tooltip-arrow" />
-        </div>
+      <div v-if="!transcript" class="tooltip-top group-hover/recap:block">
+        A session transcript is required to use this feature.
+        <div class="tooltip-arrow" />
       </div>
     </div>
   </div>

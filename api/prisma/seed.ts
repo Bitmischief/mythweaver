@@ -1,6 +1,10 @@
 import { prisma } from '../lib/providers/prisma';
 
 (async () => {
+  if (process.env.VERSION !== 'local') {
+    return;
+  }
+
   const email = process.env.LOCAL_DEV_USER_EMAIL || 'austin@mythweaver.co';
 
   const users = [

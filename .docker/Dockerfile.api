@@ -1,4 +1,4 @@
-FROM node:20-alpine AS builder
+FROM node:20-alpine3.19 AS builder
 WORKDIR /app
 COPY api/package*.json ./
 COPY api/yarn.lock ./
@@ -8,7 +8,7 @@ RUN yarn prisma generate
 RUN yarn run swagger
 RUN yarn run build
 
-FROM node:20-alpine AS server
+FROM node:20-alpine3.19 AS server
 WORKDIR /app
 COPY api/package*.json ./
 COPY api/yarn.lock ./
