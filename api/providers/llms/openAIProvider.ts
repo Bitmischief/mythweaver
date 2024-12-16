@@ -28,7 +28,7 @@ export class OpenAIProvider {
 
     await this.openai.beta.threads.messages.create(thread.id, {
       content: prompt,
-      role: 'assistant',
+      role: 'user',
     });
 
     const run = await this.openai.beta.threads.runs.createAndPoll(thread.id, {
