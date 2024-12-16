@@ -5,7 +5,8 @@ import { BillingDataProvider } from './billing.dataprovider';
 import { StripeProvider } from '../../providers/stripe';
 import { useLogger } from '../../lib/loggingMiddleware';
 import { NextFunction, Request, Response } from 'express';
-import { EmailProvider } from '@/providers/emailProvider';
+import { EmailProvider } from '../../providers/emailProvider';
+import { DiscordProvider } from '../../providers/discordProvider';
 
 const container = createContainer({
   injectionMode: InjectionMode.CLASSIC,
@@ -17,6 +18,7 @@ container.register({
   billingDataProvider: asClass(BillingDataProvider).scoped(),
   stripeProvider: asClass(StripeProvider).singleton(),
   emailProvider: asClass(EmailProvider).singleton(),
+  discordProvider: asClass(DiscordProvider).singleton(),
   logger: asFunction(useLogger).scoped(),
 });
 

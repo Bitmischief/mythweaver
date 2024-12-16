@@ -11,12 +11,12 @@ import { setIntercomCustomAttributes } from '../../lib/intercom';
 import { modifyImageCreditCount } from '../../services/credits';
 import { AppEvent, track } from '../../lib/tracking';
 import { AdConversionEvent, reportAdConversionEvent } from '../../lib/ads';
-import { postToDiscordBillingChannel } from '../../services/discord';
 import { AppError, HttpCode } from '../../lib/errors/AppError';
 import { EmailProvider, EmailTemplates } from '../../providers/emailProvider';
 import { StripeProvider } from '../../providers/stripe';
 import Stripe from 'stripe';
 import { BillingDataProvider } from './billing.dataprovider';
+import { DiscordProvider } from '../../providers/discordProvider';
 
 export class BillingService {
   constructor(
@@ -24,6 +24,7 @@ export class BillingService {
     private stripeProvider: StripeProvider,
     private billingDataProvider: BillingDataProvider,
     private emailProvider: EmailProvider,
+    private discordProvider: DiscordProvider,
   ) {}
 
   public async getCheckoutUrl(
@@ -432,7 +433,7 @@ export class BillingService {
     subscriptionAmount: number,
     daysSinceRegistration: number,
   ): Promise<void> {
-    await postToDiscordBillingChannel(
+    await this.discordProvider.postToBillingChannel(
       `New Upgrade: ${user.email}! Amount: $${subscriptionAmount}. Days since registration: ${daysSinceRegistration}. ${
         user.initialTrackingData
           ? `Source: ${this.getTrackingString(user.initialTrackingData)}`
@@ -507,7 +508,7 @@ export class BillingService {
     const trackingString = this.getTrackingString(
       user.initialTrackingData || {},
     );
-    await postToDiscordBillingChannel(
+    await this.discordProvider.postToBillingChannel(
       `New subscription: ${user.email}! Amount: $${subscriptionAmount}. Days since registration: ${daysSinceRegistration}. ${
         user.initialTrackingData ? `Source: ${trackingString}` : ''
       }`,
