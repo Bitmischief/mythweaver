@@ -1,10 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue';
-import {
-  Conjuration,
-  getConjuration,
-  getConjurations,
-} from '@/api/conjurations.ts';
+import { getConjuration, getConjurations } from '@/modules/conjurations/api';
 import {
   AdjustmentsVerticalIcon,
   SparklesIcon,
@@ -22,6 +18,7 @@ import { useRoute } from 'vue-router';
 import { useConjurationsStore } from '@/store/conjurations.store.ts';
 import { useCurrentUserPlan } from '@/lib/hooks.ts';
 import { BillingPlan } from '@/api/users.ts';
+import { Conjuration } from '@/modules/conjurations/types';
 
 const images = [
   '00dc4632-7923-479c-a504-f350c39b9fd9.png',

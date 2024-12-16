@@ -18,8 +18,9 @@ const emit = defineEmits<{
   (e: 'retryGeneration', imageId: number): void;
 }>();
 
+const loading = ref(false);
 const { isLongRunning } = useGenerationProgress(props.image);
-const { loading, setPrimaryImage, setSelectedImageById } = useEditImage();
+const { setPrimaryImage, setSelectedImageById } = useEditImage();
 const selected = ref(false);
 
 const handlePrimaryImageSet = (imageId: number) => {

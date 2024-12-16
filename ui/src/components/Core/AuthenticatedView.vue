@@ -19,12 +19,12 @@ import { BillingPlan } from '@/api/users.ts';
 import { SparklesIcon } from '@heroicons/vue/24/outline';
 import UserSignupSource from '@/components/Core/UserSignupSource.vue';
 import { DndProvider } from 'vue3-dnd';
-import EditImageModal from '@/components/Images/EditImageModal.vue';
+import EditImageModal from '@/modules/images/components/edit/EditImageModal.vue';
 import CreateConjurationRelationship from '@/components/Relationships/Create/CreateConjurationRelationship.vue';
-import GenerateImageModal from '@/modules/images/components/GenerateImageModal.vue';
+import GenerateImageModal from '@/modules/images/components/generate/GenerateImageModal.vue';
 import { getRedeemPreOrderUrl } from '@/api/billing.ts';
 import NavBarHeader from '@/components/Navigation/NavBarHeader.vue';
-import ImageHistoryModal from '@/modules/images/components/ImageHistoryModal.vue';
+import ImageHistoryModal from '@/modules/images/components/history/ImageHistoryModal.vue';
 import NotificationHandler from '@/components/Notifications/NotificationHandler.vue';
 // @ts-ignore
 import { HTML5Backend } from 'react-dnd-html5-backend';

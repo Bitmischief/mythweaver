@@ -14,6 +14,7 @@ import { useAuth0 } from '@auth0/auth0-vue';
 import { fbq, rdt } from '@/lib/conversions.ts';
 import AuthenticatedView from '@/components/Core/AuthenticatedView.vue';
 import ConfirmDialog from 'primevue/confirmdialog';
+import { useConjurationWebhooks } from '@/modules/conjurations/composables/useConjurationWebhooks.ts';
 
 const authStore = useAuthStore();
 const eventBus = useEventBus();
@@ -42,6 +43,7 @@ onMounted(async () => {
     if (authStore.user) {
       await initIntercom();
       await initNotifications();
+      await initWebhooks();
 
       mixpanel.init(import.meta.env.VITE_MIXPANEL_TOKEN as string);
 
@@ -86,6 +88,10 @@ async function initIntercom() {
     email: authStore.user?.email,
     created_at: authStore.user?.createdAt,
   } as any);
+}
+
+async function initWebhooks() {
+  useConjurationWebhooks();
 }
 
 const showLoading = ref(false);

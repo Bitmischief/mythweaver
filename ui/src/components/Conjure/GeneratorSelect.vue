@@ -4,7 +4,11 @@ import { toTitleCase } from '@/lib/util.ts';
 import { BillingPlan } from '@/api/users.ts';
 import { computed, onMounted, ref } from 'vue';
 import { useCurrentUserPlan } from '@/lib/hooks.ts';
-import { ArrowRightIcon, LockClosedIcon } from '@heroicons/vue/24/solid';
+import {
+  ArrowRightIcon,
+  ArrowLeftIcon,
+  LockClosedIcon,
+} from '@heroicons/vue/24/solid';
 import { useEventBus } from '@/lib/events.ts';
 
 const props = defineProps<{
@@ -64,6 +68,14 @@ const selectGenerator = (gen: Conjurer) => {
 </script>
 
 <template>
+  <div class="flex mb-4">
+    <div>
+      <Button class="button-primary" @click="emit('back')">
+        <ArrowLeftIcon class="h-4 w-4 self-center" />
+        <span class="self-center">Back</span>
+      </Button>
+    </div>
+  </div>
   <div class="text-xl mb-2">
     What would you like to <span class="gradient-text">Conjure</span>?
   </div>

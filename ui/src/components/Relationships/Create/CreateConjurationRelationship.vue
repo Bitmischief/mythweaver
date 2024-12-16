@@ -1,11 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
 import { showError, showSuccess } from '@/lib/notifications.ts';
-import {
-  Conjuration,
-  getConjuration,
-  getConjurations,
-} from '@/api/conjurations.ts';
+import { getConjuration, getConjurations } from '@/modules/conjurations/api';
 import { postConjurationRelationship } from '@/api/relationships.ts';
 import { ConjurationRelationshipType } from '@/lib/enums.ts';
 import {
@@ -20,6 +16,7 @@ import { debounce } from 'lodash';
 import Spinner from '@/components/Core/Spinner.vue';
 import { useEventBus } from '@/lib/events.ts';
 import { mapConjurationType, mapNoImage } from '@/lib/util.ts';
+import { Conjuration } from '@/modules/conjurations/types';
 
 defineEmits(['relationship-created', 'close']);
 

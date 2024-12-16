@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
-import ModelSelector from './ModelSelector.vue';
-import { useAvailableAspectRatios } from '../composables/useAvailableAspectRatios';
-import type { GenerateImageForm } from '../types/generateImageForm';
-import { useGenerateImages } from '../composables/useGenerateImages';
+import ModelSelector from '../model/ModelSelector.vue';
+import { useAvailableAspectRatios } from '../../composables/useAvailableAspectRatios';
+import type { GenerateImageForm } from '../../types/generateImageForm';
+import { useGenerateImages } from '../../composables/useGenerateImages';
 import { Coins } from 'lucide-vue-next';
 import { useConfirm } from 'primevue/useconfirm';
 import Select from 'primevue/select';
 import Panel from 'primevue/panel';
-import { useSavedNegativePrompt } from '../composables/useSavedNegativePrompt';
+import { useSavedNegativePrompt } from '../../composables/useSavedNegativePrompt';
 
 const props = withDefaults(
   defineProps<{

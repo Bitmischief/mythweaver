@@ -13,11 +13,13 @@ export const useImageStore = defineStore({
     showEditImageModal: false,
   }),
   actions: {
-    setSelectedImage(image: Image) {
-      this.selectedImage = image;
-    },
     setShowEditImageModal(show: boolean) {
       this.showEditImageModal = show;
+    },
+    updateImages(image: Image) {
+      if (this.selectedImage && this.selectedImage.id === image.id) {
+        this.selectedImage = image;
+      }
     },
   },
 });

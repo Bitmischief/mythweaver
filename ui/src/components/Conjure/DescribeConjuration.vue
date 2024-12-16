@@ -10,7 +10,7 @@ import {
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { ServerEvent } from '@/lib/serverEvents.ts';
 import { BillingPlan } from '@/api/users.ts';
-import { Conjuration } from '@/api/conjurations.ts';
+import { Conjuration } from '@/modules/conjurations/types';
 import Loader from '@/components/Core/Loader.vue';
 import { ArrowLeftIcon } from '@heroicons/vue/24/solid';
 

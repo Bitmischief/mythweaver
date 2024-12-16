@@ -4,10 +4,9 @@ import Autocomplete from '@/components/Core/Forms/Autocomplete.vue';
 import { BoltIcon, XMarkIcon } from '@heroicons/vue/20/solid';
 import Select from '@/components/Core/Forms/Select.vue';
 import { Conjurer, getConjurers } from '@/api/generators.ts';
-import {
-  getConjurationTags,
-  GetConjurationTagsRequest,
-} from '@/api/conjurations.ts';
+import { getConjurationTags } from '@/modules/conjurations/api';
+import { GetConjurationTagsRequest } from '@/modules/conjurations/types';
+
 import { onMounted, ref } from 'vue';
 import { useSelectedCampaignId } from '@/lib/hooks.ts';
 

@@ -530,6 +530,7 @@ export class ImagesService {
       await sendWebsocketMessage(userId, WebSocketEvent.ImageEdited, {
         imageId,
         context: { outpainted: true },
+        image: updatedImage,
       });
 
       return updatedImage;
@@ -599,7 +600,7 @@ export class ImagesService {
       const backgroundRemovedImageUri =
         await this.stabilityAIProvider.removeBackground(imageBuffer);
 
-      await this.updateImage(
+      const updatedImage = await this.updateImage(
         imageId,
         ImageEditType.BACKGROUND_REMOVAL,
         backgroundRemovedImageUri,
@@ -608,6 +609,7 @@ export class ImagesService {
       await sendWebsocketMessage(userId, WebSocketEvent.ImageEdited, {
         imageId,
         context: { backgroundRemoved: true },
+        image: updatedImage,
       });
     } catch (error) {
       this.logger.error(
@@ -706,6 +708,7 @@ export class ImagesService {
       await sendWebsocketMessage(userId, WebSocketEvent.ImageEdited, {
         imageId,
         context: { erased: true },
+        image: updatedImage,
       });
 
       return updatedImage;
@@ -740,6 +743,11 @@ export class ImagesService {
       ? (image.edits as unknown as ImageEdit[])
       : [];
 
+    const appliedEditIndex = edits.findIndex((edit) => edit.uri === image.uri);
+    if (appliedEditIndex > -1) {
+      edits.splice(appliedEditIndex + 1);
+    }
+
     if (edits.length === 0 && editType !== ImageEditType.ORIGINAL) {
       edits.push({
         id: uuidv4(),
@@ -747,15 +755,19 @@ export class ImagesService {
         type: ImageEditType.ORIGINAL,
         uri: image.uri || newUri,
       });
-    }
-
-    if (editType !== ImageEditType.ORIGINAL || edits.length === 0) {
+    } else {
       edits.push({
         id: uuidv4(),
         dateCreated: new Date().toISOString(),
         type: editType,
         uri: newUri,
       });
+    }
+
+    if (edits.length > 10) {
+      while (edits.length > 10) {
+        edits.shift();
+      }
     }
 
     return this.imagesDataProvider.updateImage(imageId, {

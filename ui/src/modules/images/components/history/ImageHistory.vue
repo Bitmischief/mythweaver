@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useEditImage } from '@/modules/images/composables/useEditImage.ts';
-import { useImageHistory } from '../composables/useImageHistory';
+import { useImageHistory } from '../../composables/useImageHistory';
 
 const { setPrimaryImage } = useEditImage();
 const { showModal, imageHistory } = useImageHistory();

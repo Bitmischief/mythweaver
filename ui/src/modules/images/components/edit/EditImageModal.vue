@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import ImageEditor from './Editing/ImageEditor.vue';
+import ImageEditor from './ImageEditor.vue';
 import FullScreenModal from '@/components/FullScreenModal.vue';
 import { useImageStore } from '@/modules/images/store/image.store.ts';
 

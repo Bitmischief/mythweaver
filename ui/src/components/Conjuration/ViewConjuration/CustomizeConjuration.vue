@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Conjuration, patchConjuration } from '@/api/conjurations.ts';
+import { patchConjuration } from '@/modules/conjurations/api';
 import {
   computed,
   watch,
@@ -32,6 +32,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useDebounceFn } from '@vueuse/core';
 import { useGenerateImages } from '@/modules/images/composables/useGenerateImages';
 import { Select } from 'primevue';
+import { Conjuration } from '@/modules/conjurations/types';
 import { generateArbitrary } from '@/lib/generation';
 
 const emit = defineEmits(['edit']);

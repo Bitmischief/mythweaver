@@ -102,7 +102,7 @@ const pathStartsWith = (path: string) => {
     <div class="mt-4">
       <router-link
         class="button-gradient nav-item text-white justify-center"
-        to="/conjure"
+        :to="`/conjure?from=${route.path != '/conjure' ? route.path : '/conjurations'}`"
         @click="emit('nav-item-selected')"
       >
         <WandSparkles class="h-5 mr-1" />
@@ -315,11 +315,11 @@ const pathStartsWith = (path: string) => {
       <router-link
         class="nav-item"
         :class="[
-          pathStartsWith('/conjurations#saved')
+          pathStartsWith('/conjurations')
             ? 'bg-purple-800/20 text-purple-500'
             : '',
         ]"
-        to="/conjurations#saved"
+        to="/conjurations"
         @click="emit('nav-item-selected')"
       >
         <ScrollText class="h-5 mr-2" />
@@ -329,11 +329,9 @@ const pathStartsWith = (path: string) => {
       <router-link
         class="nav-item"
         :class="[
-          pathStartsWith('/conjurations#gallery')
-            ? 'bg-purple-800/20 text-purple-500'
-            : '',
+          pathStartsWith('/gallery') ? 'bg-purple-800/20 text-purple-500' : '',
         ]"
-        to="/conjurations#gallery"
+        to="/gallery"
         @click="emit('nav-item-selected')"
       >
         <TableCellsMerge class="h-5 mr-2" />

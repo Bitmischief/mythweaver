@@ -8,7 +8,6 @@ import ViewCampaign from '@/components/Campaigns/ViewCampaign.vue';
 import SessionsView from '@/views/SessionsView.vue';
 import ViewSession from '@/components/Sessions/ViewSession.vue';
 import ListSessions from '@/components/Sessions/ListSessions.vue';
-import ListConjurations from '@/components/Conjuration/ListConjurations.vue';
 import ViewConjuration from '@/components/Conjuration/ViewConjuration.vue';
 import InviteView from '@/views/InviteView.vue';
 import CharactersList from '@/views/CharactersList.vue';
@@ -22,6 +21,8 @@ import { fbq, gtag, rdt } from '@/lib/conversions.ts';
 import { isProduction } from '@/lib/util.ts';
 import RelationshipGraphView from '@/views/RelationshipGraphView.vue';
 import ImageGalleryView from '@/views/ImageGalleryView.vue';
+
+import ConjurationList from '@/modules/conjurations/components/list/conjurationList.vue';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -103,7 +104,7 @@ const router = createRouter({
           ],
         },
         {
-          name: 'CONJURING',
+          name: 'CONJURATIONS',
           path: '/conjurations',
           component: ConjuringView,
           beforeEnter: authGuard,
@@ -111,7 +112,10 @@ const router = createRouter({
             {
               path: 'list',
               alias: '',
-              component: ListConjurations,
+              component: ConjurationList,
+              props: {
+                mine: true,
+              },
               beforeEnter: authGuard,
               meta: {
                 paidRequired: true,
@@ -120,6 +124,26 @@ const router = createRouter({
             {
               path: 'view/:conjurationId',
               component: ViewConjuration,
+              beforeEnter: authGuard,
+              meta: {
+                paidRequired: true,
+              },
+            },
+          ],
+        },
+        {
+          name: 'GALLERY',
+          path: '/gallery',
+          component: ConjuringView,
+          beforeEnter: authGuard,
+          children: [
+            {
+              path: 'list',
+              alias: '',
+              component: ConjurationList,
+              props: {
+                mine: false,
+              },
               beforeEnter: authGuard,
               meta: {
                 paidRequired: true,
