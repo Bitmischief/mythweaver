@@ -13,10 +13,7 @@ import { AppEvent, track } from '../../lib/tracking';
 import { AdConversionEvent, reportAdConversionEvent } from '../../lib/ads';
 import { postToDiscordBillingChannel } from '../../services/discord';
 import { AppError, HttpCode } from '../../lib/errors/AppError';
-import {
-  EmailTemplates,
-  sendTransactionalEmail,
-} from '../../services/internal/email';
+import { EmailProvider, EmailTemplates } from '../../providers/emailProvider';
 import { StripeProvider } from '../../providers/stripe';
 import Stripe from 'stripe';
 import { BillingDataProvider } from './billing.dataprovider';
@@ -26,6 +23,7 @@ export class BillingService {
     private logger: MythWeaverLogger,
     private stripeProvider: StripeProvider,
     private billingDataProvider: BillingDataProvider,
+    private emailProvider: EmailProvider,
   ) {}
 
   public async getCheckoutUrl(
@@ -524,7 +522,7 @@ export class BillingService {
       await this.billingDataProvider.getLatestCampaignForUser(user.id);
 
     try {
-      await sendTransactionalEmail(
+      await this.emailProvider.sendTransactionalEmail(
         user.email,
         EmailTemplates.SUBSCRIBER_WELCOME,
         [

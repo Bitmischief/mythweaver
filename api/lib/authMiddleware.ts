@@ -8,8 +8,8 @@ import { ImageCreditChangeType } from '@prisma/client';
 import { AppEvent, track } from './tracking';
 import { AdConversionEvent, reportAdConversionEvent } from './ads';
 import { createCampaign } from '../dataAccess/campaigns';
-import { addEmailToMailingList } from '../services/internal/email';
 import { StripeProvider } from '../providers/stripe';
+import { EmailProvider } from '@/providers/emailProvider';
 
 export const checkAuth0Jwt = auth({
   audience: process.env.AUTH0_AUDIENCE,
@@ -131,7 +131,8 @@ const createNewUser = async (res: Response, email: string) => {
     },
   });
 
-  await addEmailToMailingList(email);
+  const emailProvider = new EmailProvider(useLogger());
+  await emailProvider.addEmailToMailingList(email);
 
   track(AppEvent.Registered, user.id, res.locals.trackingInfo, {
     email,

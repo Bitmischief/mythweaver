@@ -16,14 +16,10 @@ import { Campaign, ContextType, Character, Conjuration } from '@prisma/client';
 import { createCampaign } from '../../dataAccess/campaigns';
 import { indexCampaignContextQueue } from '../../worker';
 import { v4 as uuidv4 } from 'uuid';
-import {
-  EmailTemplates,
-  sendTransactionalEmail,
-} from '../../services/internal/email';
 import { urlPrefix } from '../../lib/utils';
 import { CampaignRole } from './campaigns.interface';
 import { getCampaignCharacters } from '../../lib/charactersHelper';
-
+import { EmailProvider, EmailTemplates } from '../../providers/emailProvider';
 export class CampaignsService {
   constructor(
     private campaignsDataProvider: CampaignsDataProvider,
@@ -31,6 +27,7 @@ export class CampaignsService {
     private collectionsDataProvider: CollectionsDataProvider,
     private usersDataProvider: UsersDataProvider,
     private charactersDataProvider: CharactersDataProvider,
+    private emailProvider: EmailProvider,
     private logger: MythWeaverLogger,
   ) {}
 
@@ -223,7 +220,7 @@ export class CampaignsService {
       role: CampaignRole.Player,
     });
 
-    await sendTransactionalEmail(
+    await this.emailProvider.sendTransactionalEmail(
       request.email,
       EmailTemplates.CAMPAIGN_INVITE,
       [

@@ -6,10 +6,7 @@ import { AppError, HttpCode } from '../../lib/errors/AppError';
 import { BillingPlan, Session } from '@prisma/client';
 import { AppEvent, track, TrackingInfo } from '../../lib/tracking';
 import { CampaignRole } from '../campaigns/campaigns.interface';
-import {
-  EmailTemplates,
-  sendTransactionalEmail,
-} from '../../services/internal/email';
+import { EmailProvider, EmailTemplates } from '../../providers/emailProvider';
 import { urlPrefix } from '../../lib/utils';
 import {
   sendWebsocketMessage,
@@ -39,6 +36,7 @@ export class SessionsService {
     private assemblyAIProvider: AssemblyAIProvider,
     private sessionTranscriptWorker: SessionTranscriptWorker,
     private logger: MythWeaverLogger,
+    private emailProvider: EmailProvider,
   ) {}
 
   async getSessions(
@@ -194,7 +192,7 @@ export class SessionsService {
 
       if (!email) continue;
 
-      await sendTransactionalEmail(
+      await this.emailProvider.sendTransactionalEmail(
         email,
         EmailTemplates.CAMPAIGN_POST_SESSION,
         [

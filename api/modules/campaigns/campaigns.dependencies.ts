@@ -8,6 +8,7 @@ import { UsersDataProvider } from '../users/users.dataprovider';
 import { CharactersDataProvider } from './characters/characters.dataprovider';
 import { useLogger } from '../../lib/loggingMiddleware';
 import { NextFunction, Request, Response } from 'express';
+import { EmailProvider } from '@/providers/emailProvider';
 
 const container = createContainer({
   injectionMode: InjectionMode.CLASSIC,
@@ -21,6 +22,7 @@ container.register({
   membersDataProvider: asClass(MembersDataProvider).scoped(),
   usersDataProvider: asClass(UsersDataProvider).scoped(),
   charactersDataProvider: asClass(CharactersDataProvider).scoped(),
+  emailProvider: asClass(EmailProvider).singleton(),
   logger: asFunction(useLogger).scoped(),
 });
 
