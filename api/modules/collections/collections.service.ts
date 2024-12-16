@@ -12,9 +12,9 @@ import { Conjuration } from '@prisma/client';
 import { TrackingInfo } from '../../lib/tracking';
 import { AppError, HttpCode } from '../../lib/errors/AppError';
 import {
-  sendWebsocketMessage,
   WebSocketEvent,
-} from '../../services/websockets';
+  WebSocketProvider,
+} from '../../providers/websocketProvider';
 import {
   deleteConjurationContext,
   indexConjurationContext,
@@ -25,6 +25,7 @@ export class CollectionsService {
     private collectionsDataProvider: CollectionsDataProvider,
     private conjurationsDataProvider: ConjurationsDataProvider,
     private logger: MythWeaverLogger,
+    private webSocketProvider: WebSocketProvider,
   ) {}
 
   async getCollections(
@@ -360,7 +361,7 @@ export class CollectionsService {
       postMoveCollectionConjurationRequest.collectionId,
     );
 
-    await sendWebsocketMessage(
+    await this.webSocketProvider.sendMessage(
       userId,
       WebSocketEvent.CollectionConjurationMoved,
       {},
@@ -443,6 +444,10 @@ export class CollectionsService {
       campaignId: parentCollection.campaignId,
     });
 
-    await sendWebsocketMessage(userId, WebSocketEvent.CollectionMoved, {});
+    await this.webSocketProvider.sendMessage(
+      userId,
+      WebSocketEvent.CollectionMoved,
+      {},
+    );
   }
 }

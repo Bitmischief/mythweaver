@@ -16,7 +16,10 @@ import { ImagesDataProvider } from './images.dataprovider';
 import { ImageModelsDataProvider } from '../imageModels/imageModels.dataprovider';
 import { MythWeaverImageProvider } from './mythweaverImage.provider';
 import { MythWeaverImageWorker } from './mythweaverImage.worker';
-import { CreditsProvider } from '@/providers/creditsProvider';
+import { CreditsProvider } from '../../providers/creditsProvider';
+import { WebSocketProvider } from '../../providers/websocketProvider';
+import { StorageProvider } from '../../providers/storageProvider';
+
 export const container = createContainer({
   injectionMode: InjectionMode.CLASSIC,
 });
@@ -33,12 +36,19 @@ container.register({
   runPodProvider: asClass(RunPodProvider, SINGLETON),
   mythweaverImageProvider: asClass(MythWeaverImageProvider).scoped(),
   creditsProvider: asClass(CreditsProvider).singleton(),
+  webSocketProvider: asClass(WebSocketProvider).singleton(),
+  storageProvider: asClass(StorageProvider).singleton(),
+  logger: asFunction(useLogger).scoped(),
+
   mythweaverImageWorker: asFunction(() => {
     const deps = {
       logger: container.resolve('logger'),
       runPodProvider: container.resolve('runPodProvider'),
       imagesDataProvider: container.resolve('imagesDataProvider'),
       completedImageService: container.resolve('completedImageService'),
+      webSocketProvider: container.resolve('webSocketProvider'),
+      creditsProvider: container.resolve('creditsProvider'),
+      storageProvider: container.resolve('storageProvider'),
     };
 
     return MythWeaverImageWorker.getInstance(
@@ -46,9 +56,9 @@ container.register({
       deps.runPodProvider,
       deps.imagesDataProvider,
       deps.completedImageService,
+      deps.webSocketProvider,
     );
   }, SINGLETON),
-  logger: asFunction(useLogger).scoped(),
 });
 
 export const injectDependencies = (

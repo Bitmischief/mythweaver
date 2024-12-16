@@ -7,11 +7,11 @@ import {
 } from './images.interface';
 import {
   WebSocketEvent,
-  sendWebsocketMessage,
-} from '../../services/websockets';
+  WebSocketProvider,
+} from '../../providers/websocketProvider';
 import { ImageCreditChangeType } from '@prisma/client';
 import { StorageProvider } from '../../providers/storageProvider';
-import { CreditsProvider } from '@/providers/creditsProvider';
+import { CreditsProvider } from '../../providers/creditsProvider';
 
 export class CompletedImageService {
   constructor(
@@ -19,6 +19,7 @@ export class CompletedImageService {
     private readonly imagesDataProvider: ImagesDataProvider,
     private readonly storageProvider: StorageProvider,
     private readonly creditsProvider: CreditsProvider,
+    private readonly webSocketProvider: WebSocketProvider,
   ) {}
 
   async processGeneratedImages(
@@ -52,15 +53,19 @@ export class CompletedImageService {
         failed: false,
       });
 
-      await sendWebsocketMessage(request.userId, WebSocketEvent.ImageCreated, {
-        image: updatedImage,
-        modelId: image.modelId,
-        modelName: model?.description,
-        imageId: image.id,
-        context: {
-          ...request.linking,
+      await this.webSocketProvider.sendMessage(
+        request.userId,
+        WebSocketEvent.ImageCreated,
+        {
+          image: updatedImage,
+          modelId: image.modelId,
+          modelName: model?.description,
+          imageId: image.id,
+          context: {
+            ...request.linking,
+          },
         },
-      });
+      );
 
       const imageCredits = await this.creditsProvider.modifyImageCreditCount(
         request.userId,
@@ -69,7 +74,7 @@ export class CompletedImageService {
         `Image generation: ${updatedImage.uri}, ${JSON.stringify(request.linking)}`,
       );
 
-      await sendWebsocketMessage(
+      await this.webSocketProvider.sendMessage(
         request.userId,
         WebSocketEvent.UserImageCreditCountUpdated,
         imageCredits,
@@ -81,7 +86,7 @@ export class CompletedImageService {
             request.userId,
           );
 
-        await sendWebsocketMessage(
+        await this.webSocketProvider.sendMessage(
           request.userId,
           WebSocketEvent.UserArtistContributionsUpdated,
           amountSupportingArtistsUsd,

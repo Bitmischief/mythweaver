@@ -1,21 +1,5 @@
 import Pusher from 'pusher';
 
-const pusher = new Pusher({
-  appId: process.env.PUSHER_APP_ID as string,
-  key: process.env.PUSHER_KEY as string,
-  secret: process.env.PUSHER_SECRET as string,
-  cluster: process.env.PUSHER_CLUSTER as string,
-  useTLS: true,
-});
-
-export const sendWebsocketMessage = async (
-  userId: number,
-  event: string,
-  message: any,
-) => {
-  await pusher.trigger(userId.toString(), event, message);
-};
-
 export enum WebSocketEvent {
   Error = 'error',
   ConjurationCreated = 'conjuration-created',
@@ -53,3 +37,27 @@ export interface WebSocketContext {
   imageId?: number;
   conjurationId?: number;
 }
+
+export class WebSocketProvider {
+  private pusher: Pusher;
+
+  constructor() {
+    this.pusher = new Pusher({
+      appId: process.env.PUSHER_APP_ID as string,
+      key: process.env.PUSHER_KEY as string,
+      secret: process.env.PUSHER_SECRET as string,
+      cluster: process.env.PUSHER_CLUSTER as string,
+      useTLS: true,
+    });
+  }
+
+  async sendMessage(
+    userId: number,
+    event: string,
+    message: any,
+  ): Promise<void> {
+    await this.pusher.trigger(userId.toString(), event, message);
+  }
+}
+
+export default new WebSocketProvider();

@@ -13,9 +13,9 @@ import {
 import { AppError, ErrorType, HttpCode } from '../../lib/errors/AppError';
 import { Image, ImageCreditChangeType, ImageModel } from '@prisma/client';
 import {
-  sendWebsocketMessage,
+  WebSocketProvider,
   WebSocketEvent,
-} from '../../services/websockets';
+} from '../../providers/websocketProvider';
 import retry from 'async-await-retry';
 import { AxiosError } from 'axios';
 import axios from 'axios';
@@ -23,7 +23,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { CompletedImageService } from './completedImage.service';
 import { MythWeaverImageProvider } from './mythweaverImage.provider';
 import { StorageProvider } from '../../providers/storageProvider';
-import { CreditsProvider } from '@/providers/creditsProvider';
+import { CreditsProvider } from '../../providers/creditsProvider';
 export class ImagesService {
   constructor(
     private imagesDataProvider: ImagesDataProvider,
@@ -33,6 +33,7 @@ export class ImagesService {
     private storageProvider: StorageProvider,
     private creditsProvider: CreditsProvider,
     private logger: MythWeaverLogger,
+    private webSocketProvider: WebSocketProvider,
   ) {}
 
   async generateImage(
@@ -196,10 +197,14 @@ export class ImagesService {
         uri: upscaledImageUri,
       });
 
-      await sendWebsocketMessage(userId, WebSocketEvent.ImageUpscaled, {
-        imageId: imageId,
-        imageUri: upscaledImageUri,
-      });
+      await this.webSocketProvider.sendMessage(
+        userId,
+        WebSocketEvent.ImageUpscaled,
+        {
+          imageId: imageId,
+          imageUri: upscaledImageUri,
+        },
+      );
     } catch (error) {
       this.logger.error(
         'Failed to upscale image',
@@ -267,12 +272,16 @@ export class ImagesService {
       primary: true,
     });
 
-    await sendWebsocketMessage(userId, WebSocketEvent.PrimaryImageSet, {
-      images: [updatedImage],
-      context: {
-        conjurationId: image.conjurationId,
+    await this.webSocketProvider.sendMessage(
+      userId,
+      WebSocketEvent.PrimaryImageSet,
+      {
+        images: [updatedImage],
+        context: {
+          conjurationId: image.conjurationId,
+        },
       },
-    });
+    );
   }
 
   async getConjurationImageHistory(
@@ -352,13 +361,17 @@ export class ImagesService {
         e,
       );
 
-      await sendWebsocketMessage(request.userId, WebSocketEvent.Error, {
-        description:
-          'The image generation service was unable to generate an image.',
-        context: {
-          ...request.linking,
+      await this.webSocketProvider.sendMessage(
+        request.userId,
+        WebSocketEvent.Error,
+        {
+          description:
+            'The image generation service was unable to generate an image.',
+          context: {
+            ...request.linking,
+          },
         },
-      });
+      );
 
       return;
     }
@@ -442,11 +455,15 @@ export class ImagesService {
         inpaintedImageUri,
       );
 
-      await sendWebsocketMessage(userId, WebSocketEvent.ImageEdited, {
-        imageId,
-        context: { inpainted: true },
-        image: updatedImage,
-      });
+      await this.webSocketProvider.sendMessage(
+        userId,
+        WebSocketEvent.ImageEdited,
+        {
+          imageId,
+          context: { inpainted: true },
+          image: updatedImage,
+        },
+      );
 
       return updatedImage;
     } catch (error) {
@@ -528,11 +545,14 @@ export class ImagesService {
         outpaintedImageUri,
       );
 
-      await sendWebsocketMessage(userId, WebSocketEvent.ImageEdited, {
-        imageId,
-        context: { outpainted: true },
-        image: updatedImage,
-      });
+      await this.webSocketProvider.sendMessage(
+        userId,
+        WebSocketEvent.ImageEdited,
+        {
+          imageId,
+          context: { outpainted: true },
+        },
+      );
 
       return updatedImage;
     } catch (error) {
@@ -607,11 +627,14 @@ export class ImagesService {
         backgroundRemovedImageUri,
       );
 
-      await sendWebsocketMessage(userId, WebSocketEvent.ImageEdited, {
-        imageId,
-        context: { backgroundRemoved: true },
-        image: updatedImage,
-      });
+      await this.webSocketProvider.sendMessage(
+        userId,
+        WebSocketEvent.ImageEdited,
+        {
+          imageId,
+          context: { backgroundRemoved: true },
+        },
+      );
     } catch (error) {
       this.logger.error(
         'Failed to remove background',
@@ -651,7 +674,7 @@ export class ImagesService {
       reason,
     );
 
-    await sendWebsocketMessage(
+    await this.webSocketProvider.sendMessage(
       userId,
       WebSocketEvent.UserImageCreditCountUpdated,
       imageCredits,
@@ -706,11 +729,14 @@ export class ImagesService {
         erasedImageUri,
       );
 
-      await sendWebsocketMessage(userId, WebSocketEvent.ImageEdited, {
-        imageId,
-        context: { erased: true },
-        image: updatedImage,
-      });
+      await this.webSocketProvider.sendMessage(
+        userId,
+        WebSocketEvent.ImageEdited,
+        {
+          imageId,
+          context: { erased: true },
+        },
+      );
 
       return updatedImage;
     } catch (error) {
@@ -897,10 +923,14 @@ export class ImagesService {
       uri: selectedEdit.uri,
     });
 
-    await sendWebsocketMessage(userId, WebSocketEvent.ImageUrlUpdated, {
-      imageId: imageId,
-      newUrl: selectedEdit.uri,
-    });
+    await this.webSocketProvider.sendMessage(
+      userId,
+      WebSocketEvent.ImageUrlUpdated,
+      {
+        imageId: imageId,
+        newUrl: selectedEdit.uri,
+      },
+    );
 
     return updatedImage;
   }

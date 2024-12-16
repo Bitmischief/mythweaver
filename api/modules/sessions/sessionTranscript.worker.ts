@@ -2,10 +2,10 @@ import Queue, { Job } from 'bull';
 import { config } from '../../worker/config';
 import {
   WebSocketEvent,
-  sendWebsocketMessage,
-} from '../../services/websockets';
+  WebSocketProvider,
+} from '../../providers/websocketProvider';
 import { MythWeaverLogger } from '../../lib/logger';
-import { AssemblyAIProvider } from '@/providers/assemblyAI';
+import { AssemblyAIProvider } from '../../providers/assemblyAI';
 import { SessionsDataProvider } from './sessions.dataprovider';
 import { TranscriptionService } from './transcription.service';
 
@@ -41,6 +41,7 @@ export class SessionTranscriptWorker {
     private readonly assemblyAIProvider: AssemblyAIProvider,
     private readonly transcriptionService: TranscriptionService,
     private readonly sessionsDataProvider: SessionsDataProvider,
+    private readonly webSocketProvider: WebSocketProvider,
   ) {
     this.initializeWorker();
   }
@@ -88,7 +89,7 @@ export class SessionTranscriptWorker {
           recap,
         });
 
-        sendWebsocketMessage(
+        await this.webSocketProvider.sendMessage(
           job.data.userId,
           WebSocketEvent.TranscriptionComplete,
           {},
@@ -144,7 +145,7 @@ export class SessionTranscriptWorker {
 
     job.discard();
 
-    await sendWebsocketMessage(userId, WebSocketEvent.Error, {
+    await this.webSocketProvider.sendMessage(userId, WebSocketEvent.Error, {
       description: 'Transcript failed to generate properly. Please try again.',
     });
   }

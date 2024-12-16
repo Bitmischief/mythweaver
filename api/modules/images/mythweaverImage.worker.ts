@@ -4,9 +4,9 @@ import { ImageGenerationRequest } from './images.interface';
 import { config } from '../../worker/config';
 import { AppError, HttpCode } from '../../lib/errors/AppError';
 import {
+  WebSocketProvider,
   WebSocketEvent,
-  sendWebsocketMessage,
-} from '../../services/websockets';
+} from '../../providers/websocketProvider';
 import { MythWeaverLogger } from '../../lib/logger';
 import { RunPodProvider } from '../../providers/runPod';
 import { ImagesDataProvider } from './images.dataprovider';
@@ -49,6 +49,7 @@ export class MythWeaverImageWorker {
     private readonly runPodProvider: RunPodProvider,
     private readonly imagesDataProvider: ImagesDataProvider,
     private readonly completedImageService: CompletedImageService,
+    private readonly webSocketProvider: WebSocketProvider,
   ) {
     if (MythWeaverImageWorker.instance) {
       return MythWeaverImageWorker.instance;
@@ -94,7 +95,7 @@ export class MythWeaverImageWorker {
           imageIds: images.map((image) => image.id),
         });
 
-        await sendWebsocketMessage(
+        await this.webSocketProvider.sendMessage(
           userId,
           WebSocketEvent.ImageGenerationUpdate,
           {
@@ -176,6 +177,7 @@ export class MythWeaverImageWorker {
     runPodProvider: RunPodProvider,
     imagesDataProvider: ImagesDataProvider,
     completedImageService: CompletedImageService,
+    webSocketProvider: WebSocketProvider,
   ): MythWeaverImageWorker {
     if (!MythWeaverImageWorker.instance) {
       MythWeaverImageWorker.instance = new MythWeaverImageWorker(
@@ -183,6 +185,7 @@ export class MythWeaverImageWorker {
         runPodProvider,
         imagesDataProvider,
         completedImageService,
+        webSocketProvider,
       );
     }
     return MythWeaverImageWorker.instance;
@@ -200,10 +203,14 @@ export class MythWeaverImageWorker {
         failed: true,
       });
 
-      await sendWebsocketMessage(userId, WebSocketEvent.ImageGenerationError, {
-        imageId: image.id,
-        description: errorMessage,
-      });
+      await this.webSocketProvider.sendMessage(
+        userId,
+        WebSocketEvent.ImageGenerationError,
+        {
+          imageId: image.id,
+          description: errorMessage,
+        },
+      );
     }
 
     job.discard();

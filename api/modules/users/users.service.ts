@@ -11,7 +11,7 @@ import {
 } from './users.interface';
 import { ImageCreditChangeType, User } from '@prisma/client';
 import { StripeProvider } from '../../providers/stripe';
-import { CreditsProvider } from '@/providers/creditsProvider';
+import { CreditsProvider } from '../../providers/creditsProvider';
 
 export class UsersService {
   constructor(

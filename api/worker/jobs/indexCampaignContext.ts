@@ -10,14 +10,14 @@ import { Campaign, ContextType, Prisma } from '@prisma/client';
 import logger from '../../lib/logger';
 import fs from 'node:fs';
 import { downloadFile, sleep } from '../../lib/utils';
-import {
-  sendWebsocketMessage,
-  WebSocketEvent,
-} from '../../services/websockets';
 import { config } from '../config';
+import {
+  WebSocketEvent,
+  WebSocketProvider,
+} from '../../providers/websocketProvider';
 
 const openai = getClient();
-
+const webSocketProvider = new WebSocketProvider();
 export const indexCampaignContextQueue = new Queue<ReindexCampaignContextEvent>(
   'index-campaign-context',
   config,
@@ -96,7 +96,7 @@ const addManualFileToCampaignContext = async (
       },
     );
 
-    await sendWebsocketMessage(
+    await webSocketProvider.sendMessage(
       campaign.userId,
       WebSocketEvent.CampaignFileProcessed,
       {

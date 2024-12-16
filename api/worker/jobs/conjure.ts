@@ -4,15 +4,15 @@ import { BillingPlan, ConjurationVisibility } from '@prisma/client';
 import { AppError, ErrorType, HttpCode } from '../../lib/errors/AppError';
 import { sanitizeJson, trimPlural } from '../../lib/utils';
 import { prisma } from '../../lib/providers/prisma';
-import {
-  sendWebsocketMessage,
-  WebSocketEvent,
-} from '../../services/websockets';
 import logger from '../../lib/logger';
 import { nanoid } from 'nanoid';
 import { generateText } from '../../services/textGeneration';
 import { getCampaign } from '../../dataAccess/campaigns';
 import { config } from '../config';
+import {
+  WebSocketEvent,
+  WebSocketProvider,
+} from '../../providers/websocketProvider';
 
 export interface ConjureEvent {
   userId: number;
@@ -23,6 +23,8 @@ export interface ConjureEvent {
   arg?: string | undefined;
   type?: string;
 }
+
+const webSocketProvider = new WebSocketProvider();
 
 export const conjureQueue = new Queue<ConjureEvent>('conjuring', config);
 
@@ -162,7 +164,7 @@ export const conjure = async (request: ConjureEvent) => {
     });
   }
 
-  await sendWebsocketMessage(
+  await webSocketProvider.sendMessage(
     request.userId,
     WebSocketEvent.ConjurationCreated,
     createdConjuration,
