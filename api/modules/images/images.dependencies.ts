@@ -16,7 +16,7 @@ import { ImagesDataProvider } from './images.dataprovider';
 import { ImageModelsDataProvider } from '../imageModels/imageModels.dataprovider';
 import { MythWeaverImageProvider } from './mythweaverImage.provider';
 import { MythWeaverImageWorker } from './mythweaverImage.worker';
-
+import { CreditsProvider } from '@/providers/creditsProvider';
 export const container = createContainer({
   injectionMode: InjectionMode.CLASSIC,
 });
@@ -32,6 +32,7 @@ container.register({
   stabilityAIProvider: asClass(StabilityAIProvider, SINGLETON),
   runPodProvider: asClass(RunPodProvider, SINGLETON),
   mythweaverImageProvider: asClass(MythWeaverImageProvider).scoped(),
+  creditsProvider: asClass(CreditsProvider).singleton(),
   mythweaverImageWorker: asFunction(() => {
     const deps = {
       logger: container.resolve('logger'),

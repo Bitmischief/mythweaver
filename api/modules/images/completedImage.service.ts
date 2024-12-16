@@ -9,15 +9,16 @@ import {
   WebSocketEvent,
   sendWebsocketMessage,
 } from '../../services/websockets';
-import { modifyImageCreditCount } from '../../services/credits';
 import { ImageCreditChangeType } from '@prisma/client';
 import { StorageProvider } from '../../providers/storageProvider';
+import { CreditsProvider } from '@/providers/creditsProvider';
 
 export class CompletedImageService {
   constructor(
     private readonly logger: MythWeaverLogger,
     private readonly imagesDataProvider: ImagesDataProvider,
     private readonly storageProvider: StorageProvider,
+    private readonly creditsProvider: CreditsProvider,
   ) {}
 
   async processGeneratedImages(
@@ -61,7 +62,7 @@ export class CompletedImageService {
         },
       });
 
-      const imageCredits = await modifyImageCreditCount(
+      const imageCredits = await this.creditsProvider.modifyImageCreditCount(
         request.userId,
         -1,
         ImageCreditChangeType.USER_INITIATED,

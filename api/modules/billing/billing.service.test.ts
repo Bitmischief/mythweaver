@@ -7,6 +7,7 @@ import Stripe from 'stripe';
 import '@/lib/intercom';
 import { EmailProvider } from '@/providers/emailProvider';
 import { DiscordProvider } from '@/providers/discordProvider';
+import { CreditsProvider } from '@/providers/creditsProvider';
 
 describe('BillingService', () => {
   let billingService: BillingService;
@@ -15,7 +16,7 @@ describe('BillingService', () => {
   let mockBillingDataProvider: jest.Mocked<BillingDataProvider>;
   let mockEmailProvider: jest.Mocked<EmailProvider>;
   let mockDiscordProvider: jest.Mocked<DiscordProvider>;
-
+  let mockCreditsProvider: jest.Mocked<CreditsProvider>;
   beforeEach(() => {
     mockLogger = {
       info: jest.fn(),
@@ -35,6 +36,9 @@ describe('BillingService', () => {
     mockDiscordProvider = {
       postToBillingChannel: jest.fn(),
     } as any;
+    mockCreditsProvider = {
+      modifyImageCreditCount: jest.fn(),
+    } as any;
 
     billingService = new BillingService(
       mockLogger,
@@ -42,6 +46,7 @@ describe('BillingService', () => {
       mockBillingDataProvider,
       mockEmailProvider,
       mockDiscordProvider,
+      mockCreditsProvider,
     );
   });
 

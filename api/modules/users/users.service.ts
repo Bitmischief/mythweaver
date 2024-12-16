@@ -11,13 +11,14 @@ import {
 } from './users.interface';
 import { ImageCreditChangeType, User } from '@prisma/client';
 import { StripeProvider } from '../../providers/stripe';
-import { modifyImageCreditCount } from '../../services/credits';
+import { CreditsProvider } from '@/providers/creditsProvider';
 
 export class UsersService {
   constructor(
     private usersDataProvider: UsersDataProvider,
     private conjurationsDataProvider: ConjurationsDataProvider,
     private logger: MythWeaverLogger,
+    private creditsProvider: CreditsProvider,
   ) {}
 
   public async getUser(
@@ -168,7 +169,7 @@ export class UsersService {
       trackingInfo,
     });
 
-    await modifyImageCreditCount(
+    await this.creditsProvider.modifyImageCreditCount(
       user.id,
       request.amount,
       ImageCreditChangeType.SUPPORT,

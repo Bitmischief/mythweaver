@@ -8,7 +8,6 @@ import { differenceInDays } from 'date-fns';
 import { MythWeaverLogger } from '../../lib/logger';
 import { GetBillingPortalUrlRequest } from './billing.interface';
 import { setIntercomCustomAttributes } from '../../lib/intercom';
-import { modifyImageCreditCount } from '../../services/credits';
 import { AppEvent, track } from '../../lib/tracking';
 import { AdConversionEvent, reportAdConversionEvent } from '../../lib/ads';
 import { AppError, HttpCode } from '../../lib/errors/AppError';
@@ -17,6 +16,7 @@ import { StripeProvider } from '../../providers/stripe';
 import Stripe from 'stripe';
 import { BillingDataProvider } from './billing.dataprovider';
 import { DiscordProvider } from '../../providers/discordProvider';
+import { CreditsProvider } from '@/providers/creditsProvider';
 
 export class BillingService {
   constructor(
@@ -25,6 +25,7 @@ export class BillingService {
     private billingDataProvider: BillingDataProvider,
     private emailProvider: EmailProvider,
     private discordProvider: DiscordProvider,
+    private creditsProvider: CreditsProvider,
   ) {}
 
   public async getCheckoutUrl(
@@ -277,7 +278,7 @@ export class BillingService {
       );
     const creditCount = this.getImageCreditCountForProductId(productId);
 
-    await modifyImageCreditCount(
+    await this.creditsProvider.modifyImageCreditCount(
       user.id,
       creditCount * qty,
       ImageCreditChangeType.PURCHASE,
@@ -332,7 +333,7 @@ export class BillingService {
         ? curCreditCount - prevCreditCount
         : 0;
 
-    await modifyImageCreditCount(
+    await this.creditsProvider.modifyImageCreditCount(
       user.id,
       incrementCreditCount,
       ImageCreditChangeType.SUBSCRIPTION,
