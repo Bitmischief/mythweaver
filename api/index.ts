@@ -66,6 +66,7 @@ import express, {
   Request,
   Response,
 } from 'express';
+import { initWorkers } from './modules/core/workers/workers';
 
 try {
   console.log('Initializing express');
@@ -153,6 +154,8 @@ try {
 
   app.listen(PORT, async () => {
     console.log(`Server is running on port ${PORT}`);
+
+    initWorkers();
 
     const mythweaverImageWorker =
       imagesContainer.resolve<MythWeaverImageWorker>('mythweaverImageWorker');
