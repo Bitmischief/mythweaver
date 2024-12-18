@@ -13,12 +13,9 @@ import { isLocalDevelopment, isProduction } from '@/lib/environments';
 import * as Sentry from '@sentry/node';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import {
-  endTrialQueue,
   subscriptionPlanUpdateQueue,
   expiredSubscriptionCheckQueue,
 } from '@/worker';
-import { MythWeaverImageWorker } from '@/modules/images/mythweaverImage.worker';
-import { container as imagesContainer } from '@/modules/images/images.dependencies';
 
 console.log('Initializing env vars');
 dotenv.config();
@@ -155,25 +152,6 @@ try {
     console.log(`Server is running on port ${PORT}`);
 
     initWorkers();
-
-    const mythweaverImageWorker =
-      imagesContainer.resolve<MythWeaverImageWorker>('mythweaverImageWorker');
-    mythweaverImageWorker.initializeWorker();
-
-    // End trial job
-    const existingEndTrialJob = await endTrialQueue.getRepeatableJobs();
-    if (!existingEndTrialJob.some((job) => job.id === 'end-trial-job')) {
-      await endTrialQueue.add(
-        {},
-        {
-          repeat: { cron: '* * * * *' },
-          jobId: 'end-trial-job',
-        },
-      );
-      console.log('End trial job scheduled');
-    } else {
-      console.log('End trial job already scheduled');
-    }
 
     // Expired subscription check job
     const expiredSubscriptionCheckJobId = 'expired-subscription-check-job';

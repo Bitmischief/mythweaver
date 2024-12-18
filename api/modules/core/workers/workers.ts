@@ -5,6 +5,8 @@ import { container as contextContainer } from '@/modules/context/context.depende
 import { CampaignContextWorker } from '@/modules/context/workers/campaignContext.worker';
 import { DailyCampaignContextWorker } from '@/modules/context/workers/dailyCampaignContext.worker';
 import { Worker } from '@/modules/core/workers/worker.interface';
+import { MythWeaverImageWorker } from '@/modules/images/mythweaverImage.worker';
+import { container as imagesContainer } from '@/modules/images/images.dependencies';
 
 const workers: Worker[] = [
   conjurationsContainer.resolve<ConjurationWorker>('generateConjurationWorker'),
@@ -12,12 +14,15 @@ const workers: Worker[] = [
     'dailyCampaignContextWorker',
   ),
   contextContainer.resolve<CampaignContextWorker>('indexCampaignContextWorker'),
+  imagesContainer.resolve<MythWeaverImageWorker>('mythweaverImageWorker'),
 ];
 
 export const initWorkers = async () => {
   logger.info('Initializing workers');
+
   for (const worker of workers) {
     await worker.initializeWorker();
   }
+
   logger.info('Workers initialized');
 };

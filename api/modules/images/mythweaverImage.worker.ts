@@ -57,7 +57,7 @@ export class MythWeaverImageWorker {
     MythWeaverImageWorker.instance = this;
   }
 
-  initializeWorker(): void {
+  async initializeWorker(): Promise<void> {
     if (MythWeaverImageWorker.isInitialized) {
       this.logger.info(
         'MythWeaver image worker already initialized, skipping initialization',
