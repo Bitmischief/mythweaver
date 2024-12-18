@@ -13,17 +13,20 @@ import { TrackingInfo } from '@/lib/tracking';
 import { AppError, HttpCode } from '@/lib/errors/AppError';
 import {
   WebSocketEvent,
-  WebSocketProvider,
-} from '@/providers/websocketProvider';
+} from '../../services/websockets';
 import {
   deleteConjurationContext,
   indexConjurationContext,
-} from '@/dataAccess/conjurations';
+} from '../../dataAccess/conjurations';
+  WebSocketProvider,
+} from '@/providers/websocketProvider';
+import { ContextService } from '@/modules/context/context.service';
 
 export class CollectionsService {
   constructor(
     private collectionsDataProvider: CollectionsDataProvider,
     private conjurationsDataProvider: ConjurationsDataProvider,
+    private contextService: ContextService,
     private logger: MythWeaverLogger,
     private webSocketProvider: WebSocketProvider,
   ) {}
@@ -195,7 +198,9 @@ export class CollectionsService {
       conjurationId,
     });
 
-    await deleteConjurationContext(collection.campaignId, conjurationId);
+    await this.contextService.deleteContext(collection.campaignId, {
+      conjurationId,
+    });
 
     await this.collectionsDataProvider.deleteCollectionConjuration(
       collectionId,
@@ -288,10 +293,9 @@ export class CollectionsService {
         conjurationId: collectionConjurationRequest.conjurationId,
       });
 
-    await indexConjurationContext(
-      collection.campaignId,
-      collectionConjurationRequest.conjurationId,
-    );
+    await this.contextService.indexContext(collection.campaignId, {
+      conjurationId: collectionConjurationRequest.conjurationId,
+    });
 
     return newCollectionCojuration;
   }
@@ -354,12 +358,13 @@ export class CollectionsService {
       postMoveCollectionConjurationRequest,
     );
 
-    await deleteConjurationContext(fromCollection.campaignId, conjurationId);
+    await this.contextService.deleteContext(fromCollection.campaignId, {
+      conjurationId,
+    });
 
-    await indexConjurationContext(
-      toCollection.campaignId,
-      postMoveCollectionConjurationRequest.collectionId,
-    );
+    await this.contextService.indexContext(toCollection.campaignId, {
+      conjurationId,
+    });
 
     await this.webSocketProvider.sendMessage(
       userId,

@@ -14,10 +14,13 @@ import {
 } from '@/providers/websocketProvider';
 import { MythWeaverLogger } from '@/lib/logger';
 import {
+<<<<<<< Updated upstream
   deleteSessionContext,
   indexSessionContext,
 } from '@/dataAccess/sessions';
 import {
+=======
+>>>>>>> Stashed changes
   GetSessionsResponse,
   PatchSessionRequest,
   PostSessionAudioRequest,
@@ -25,7 +28,9 @@ import {
   PostSessionRequest,
 } from './sessions.interface';
 import { AssemblyAIProvider } from '@/providers/assemblyAI';
+import { SessionTranscriptWorker } from './sessionTranscript.worker';
 import { SessionTranscriptWorker } from '@/modules/sessions/sessionTranscript.worker';
+import { ContextService } from '../context/context.service';
 
 export class SessionsService {
   constructor(
@@ -38,6 +43,7 @@ export class SessionsService {
     private logger: MythWeaverLogger,
     private emailProvider: EmailProvider,
     private webSocketProvider: WebSocketProvider,
+    private contextService: ContextService,
   ) {}
 
   async getSessions(
@@ -131,7 +137,9 @@ export class SessionsService {
       {},
     );
 
-    await indexSessionContext(session.campaignId, sessionId);
+    await this.contextService.indexContext(session.campaignId, {
+      sessionId: sessionId,
+    });
 
     return session;
   }
@@ -151,7 +159,9 @@ export class SessionsService {
     } else {
       await this.sessionsDataProvider.deleteSession(sessionId);
 
-      await deleteSessionContext(session.campaignId, sessionId);
+      await this.contextService.deleteContext(session.campaignId, {
+        sessionId,
+      });
 
       track(AppEvent.DeleteSession, userId, trackingInfo);
     }

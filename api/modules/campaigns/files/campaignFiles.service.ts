@@ -2,15 +2,24 @@ import { MembersDataProvider } from '@/modules/campaigns/members/members.datapro
 import { TrackingInfo, AppEvent, track } from '@/lib/tracking';
 import { AppError, HttpCode } from '@/lib/errors/AppError';
 import { ContextFiles, ContextType } from '@prisma/client';
+import { CampaignRole } from '../campaigns.interface';
+import { CampaignFilesDataProvider } from './campaignFiles.dataprovider';
+import { PostCampaignFileRequest } from './campaignFiles.interface';
+import { indexCampaignContextQueue } from '../../../worker';
 import { CampaignRole } from '@/modules/campaigns/campaigns.interface';
 import { CampaignFilesDataProvider } from '@/modules/campaigns/files/campaignFiles.dataprovider';
 import { PostCampaignFileRequest } from '@/modules/campaigns/files/campaignFiles.interface';
-import { indexCampaignContextQueue } from '@/worker';
 import {
   WebSocketProvider,
   WebSocketEvent,
+<<<<<<< Updated upstream
+} from '../../../services/websockets';
+import { getClient } from '../../../lib/providers/openai';
+=======
 } from '@/providers/websocketProvider';
 import { getClient } from '@/lib/providers/openai';
+import { CampaignContextWorker } from '@/modules/context/workers/campaignContext.worker';
+>>>>>>> Stashed changes
 
 const openai = getClient();
 
@@ -18,7 +27,11 @@ export class CampaignFilesService {
   constructor(
     private campaignFilesDataProvider: CampaignFilesDataProvider,
     private membersDataProvider: MembersDataProvider,
+<<<<<<< Updated upstream
+=======
+    private indexCampaignContextWorker: CampaignContextWorker,
     private webSocketProvider: WebSocketProvider,
+>>>>>>> Stashed changes
   ) {}
 
   async getCampaignFiles(
@@ -80,7 +93,7 @@ export class CampaignFilesService {
       });
     }
 
-    await indexCampaignContextQueue.add({
+    await this.indexCampaignContextWorker.addJob({
       campaignId,
       eventTargetId: campaignId,
       type: ContextType.MANUAL_FILE_UPLOAD,

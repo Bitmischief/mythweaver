@@ -14,12 +14,12 @@ import { TrackingInfo, AppEvent, track } from '@/lib/tracking';
 import { AppError, HttpCode } from '@/lib/errors/AppError';
 import { Campaign, ContextType, Character, Conjuration } from '@prisma/client';
 import { createCampaign } from '@/dataAccess/campaigns';
-import { indexCampaignContextQueue } from '@/worker';
 import { v4 as uuidv4 } from 'uuid';
 import { urlPrefix } from '@/lib/utils';
 import { CampaignRole } from '@/modules/campaigns/campaigns.interface';
 import { getCampaignCharacters } from '@/lib/charactersHelper';
 import { EmailProvider, EmailTemplates } from '@/providers/emailProvider';
+import { CampaignContextWorker } from '../context/workers/campaignContext.worker';
 
 export class CampaignsService {
   constructor(
@@ -29,6 +29,7 @@ export class CampaignsService {
     private usersDataProvider: UsersDataProvider,
     private charactersDataProvider: CharactersDataProvider,
     private emailProvider: EmailProvider,
+    private indexCampaignContextWorker: CampaignContextWorker,
     private logger: MythWeaverLogger,
   ) {}
 
@@ -137,7 +138,7 @@ export class CampaignsService {
     track(AppEvent.UpdateCampaign, userId, trackingInfo);
 
     if (request.description) {
-      await indexCampaignContextQueue.add({
+      await this.indexCampaignContextWorker.addJob({
         campaignId,
         eventTargetId: campaignId,
         type: ContextType.CAMPAIGN,

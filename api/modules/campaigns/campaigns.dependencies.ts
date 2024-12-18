@@ -9,9 +9,11 @@ import { CharactersDataProvider } from '@/modules/campaigns/characters/character
 import { useLogger } from '@/lib/loggingMiddleware';
 import { NextFunction, Request, Response } from 'express';
 import { EmailProvider } from '@/providers/emailProvider';
+import { CampaignContextWorker } from '../context/workers/campaignContext.worker';
 
 const container = createContainer({
   injectionMode: InjectionMode.CLASSIC,
+  strict: true,
 });
 
 container.register({
@@ -23,6 +25,7 @@ container.register({
   usersDataProvider: asClass(UsersDataProvider).scoped(),
   charactersDataProvider: asClass(CharactersDataProvider).scoped(),
   emailProvider: asClass(EmailProvider).singleton(),
+  indexCampaignContextWorker: asClass(CampaignContextWorker).singleton(),
   logger: asFunction(useLogger).scoped(),
 });
 

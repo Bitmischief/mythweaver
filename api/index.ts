@@ -13,7 +13,6 @@ import { isLocalDevelopment, isProduction } from '@/lib/environments';
 import * as Sentry from '@sentry/node';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import {
-  dailyCampaignContextQueue,
   endTrialQueue,
   subscriptionPlanUpdateQueue,
   expiredSubscriptionCheckQueue,
@@ -174,26 +173,6 @@ try {
       console.log('End trial job scheduled');
     } else {
       console.log('End trial job already scheduled');
-    }
-
-    // Daily campaign context job
-    const existingDailyCampaignJob =
-      await dailyCampaignContextQueue.getRepeatableJobs();
-    if (
-      !existingDailyCampaignJob.some(
-        (job) => job.id === 'daily-campaign-context-job',
-      )
-    ) {
-      await dailyCampaignContextQueue.add(
-        {},
-        {
-          repeat: { cron: '0 7 * * *' },
-          jobId: 'daily-campaign-context-job',
-        },
-      );
-      console.log('Daily campaign context sync job scheduled');
-    } else {
-      console.log('Daily campaign context sync job already scheduled');
     }
 
     // Expired subscription check job

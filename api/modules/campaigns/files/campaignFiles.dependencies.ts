@@ -5,9 +5,11 @@ import { CampaignFilesDataProvider } from '@/modules/campaigns/files/campaignFil
 import { MembersDataProvider } from '@/modules/campaigns/members/members.dataprovider';
 import { useLogger } from '@/lib/loggingMiddleware';
 import { NextFunction, Request, Response } from 'express';
+import { CampaignContextWorker } from '@/modules/context/workers/campaignContext.worker';
 
 const container = createContainer({
   injectionMode: InjectionMode.CLASSIC,
+  strict: true,
 });
 
 container.register({
@@ -15,6 +17,7 @@ container.register({
   campaignFilesService: asClass(CampaignFilesService).scoped(),
   campaignFilesDataProvider: asClass(CampaignFilesDataProvider).scoped(),
   membersDataProvider: asClass(MembersDataProvider).scoped(),
+  indexCampaignContextWorker: asClass(CampaignContextWorker).singleton(),
   logger: asFunction(useLogger).scoped(),
 });
 

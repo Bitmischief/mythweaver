@@ -42,7 +42,7 @@ export class ConjurationWorker {
     private readonly webSocketProvider: WebSocketProvider,
   ) {}
 
-  initializeWorker(): void {
+  async initializeWorker(): Promise<void> {
     conjureQueue.process(async (job: Job<ConjureEvent>) => {
       this.logger.info('Processing conjure job', {
         jobId: job.id,

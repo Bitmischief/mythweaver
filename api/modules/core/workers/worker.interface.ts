@@ -1,3 +1,3 @@
 export interface Worker {
-  initializeWorker(): void;
+  initializeWorker(): Promise<void>;
 }
