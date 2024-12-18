@@ -2,7 +2,7 @@ import Queue, { Job } from 'bull';
 import { prisma } from '@/lib/providers/prisma';
 import { BillingPlan, User } from '@prisma/client';
 import { MythWeaverLogger } from '@/lib/logger';
-import { config } from '@/worker/config';
+import { config } from '@/modules/core/workers/worker.config';
 import { differenceInDays } from 'date-fns';
 import { processInChunks } from '@/lib/utils';
 
@@ -84,7 +84,7 @@ export class ExpiredSubscriptionWorker {
     await expiredSubscriptionCheckQueue.add(
       {},
       {
-        repeat: { cron: '0 0 * * *' },
+        repeat: { cron: '0 7 * * *' },
         jobId,
       },
     );

@@ -2,7 +2,7 @@ import Queue, { Job } from 'bull';
 import { prisma } from '@/lib/providers/prisma';
 import { BillingPlan, User } from '@prisma/client';
 import { MythWeaverLogger } from '@/lib/logger';
-import { config } from '@/worker/config';
+import { config } from '@/modules/core/workers/worker.config';
 
 interface EndTrialEvent {
   batchSize?: number;

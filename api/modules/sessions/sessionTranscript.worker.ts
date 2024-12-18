@@ -1,5 +1,5 @@
 import Queue, { Job } from 'bull';
-import { config } from '@/worker/config';
+import { config } from '@/modules/core/workers/worker.config';
 import {
   WebSocketEvent,
   WebSocketProvider,

@@ -3,7 +3,6 @@ import Router from '@/routes';
 import { errorHandler } from '@/lib/errors/ErrorHandler';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
-import '@/worker/index';
 import * as http from 'http';
 import logger from '@/lib/logger';
 import { getRequestId, useLogger } from '@/lib/loggingMiddleware';
@@ -12,7 +11,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { isLocalDevelopment, isProduction } from '@/lib/environments';
 import * as Sentry from '@sentry/node';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
-import { subscriptionPlanUpdateQueue } from '@/worker';
 
 console.log('Initializing env vars');
 dotenv.config();
@@ -148,28 +146,7 @@ try {
   app.listen(PORT, async () => {
     console.log(`Server is running on port ${PORT}`);
 
-    initWorkers();
-
-    // Subscription Plan Change job
-    const subscriptionPlanUpdateJobId = 'subscription-plan-update-job';
-    const existingSubscriptionPlanUpdateJob =
-      await subscriptionPlanUpdateQueue.getRepeatableJobs();
-    if (
-      !existingSubscriptionPlanUpdateJob.some(
-        (job) => job.id === subscriptionPlanUpdateJobId,
-      )
-    ) {
-      await subscriptionPlanUpdateQueue.add(
-        {},
-        {
-          repeat: { cron: '0 * * * *' }, // Run every hour at the start of the hour
-          jobId: subscriptionPlanUpdateJobId,
-        },
-      );
-      console.log('Hourly subscription plan update job scheduled');
-    } else {
-      console.log('Hourly subscription plan update job already scheduled');
-    }
+    await initWorkers();
   });
 
   process.on('unhandledRejection', (reason: Error | any) => {

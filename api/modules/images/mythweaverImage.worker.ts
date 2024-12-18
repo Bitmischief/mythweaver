@@ -1,7 +1,7 @@
 import Queue, { Job } from 'bull';
 import { ImageModel, Image } from '@prisma/client';
 import { ImageGenerationRequest } from '@/modules/images/images.interface';
-import { config } from '@/worker/config';
+import { config } from '@/modules/core/workers/worker.config';
 import { AppError, HttpCode } from '@/lib/errors/AppError';
 import {
   WebSocketProvider,

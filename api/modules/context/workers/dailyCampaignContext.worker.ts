@@ -4,7 +4,7 @@ import { prisma } from '@/lib/providers/prisma';
 import { ContextService } from '@/modules/context/context.service';
 import { processInChunks } from '@/lib/utils';
 import { MythWeaverLogger } from '@/lib/logger';
-import { config } from '@/worker/config';
+import { config } from '@/modules/core/workers/worker.config';
 
 interface CampaignContextEvent {
   forceSync?: boolean;

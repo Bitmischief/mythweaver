@@ -9,6 +9,7 @@ import { MythWeaverImageWorker } from '@/modules/images/mythweaverImage.worker';
 import { container as imagesContainer } from '@/modules/images/images.dependencies';
 import { EndTrialWorker } from '@/modules/users/workers/endTrial.worker';
 import { ExpiredSubscriptionWorker } from '@/modules/users/workers/expiredSubscription.worker';
+import { SubscriptionPlanUpdateWorker } from '@/modules/users/workers/subscriptionPlanUpdate.worker';
 import { container as usersContainer } from '@/modules/users/users.dependencies';
 
 const workers: Worker[] = [
@@ -19,7 +20,12 @@ const workers: Worker[] = [
   contextContainer.resolve<CampaignContextWorker>('indexCampaignContextWorker'),
   imagesContainer.resolve<MythWeaverImageWorker>('mythweaverImageWorker'),
   usersContainer.resolve<EndTrialWorker>('endTrialWorker'),
-  usersContainer.resolve<ExpiredSubscriptionWorker>('expiredSubscriptionWorker'),
+  usersContainer.resolve<ExpiredSubscriptionWorker>(
+    'expiredSubscriptionWorker',
+  ),
+  usersContainer.resolve<SubscriptionPlanUpdateWorker>(
+    'subscriptionPlanUpdateWorker',
+  ),
 ];
 
 export const initWorkers = async () => {

@@ -6,7 +6,7 @@ import { getClient } from '@/lib/providers/openai';
 import { MythWeaverLogger } from '@/lib/logger';
 import fs from 'node:fs';
 import { downloadFile, sleep } from '@/lib/utils';
-import { config } from '@/worker/config';
+import { config } from '@/modules/core/workers/worker.config';
 import {
   WebSocketEvent,
   WebSocketProvider,

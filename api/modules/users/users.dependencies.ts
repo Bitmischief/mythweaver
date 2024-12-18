@@ -9,6 +9,7 @@ import { CreditsProvider } from '@/providers/creditsProvider';
 import { WebSocketProvider } from '@/providers/websocketProvider';
 import { EndTrialWorker } from './workers/endTrial.worker';
 import { ExpiredSubscriptionWorker } from './workers/expiredSubscription.worker';
+import { SubscriptionPlanUpdateWorker } from './workers/subscriptionPlanUpdate.worker';
 
 export const container = createContainer({
   injectionMode: InjectionMode.CLASSIC,
@@ -25,6 +26,9 @@ container.register({
   logger: asFunction(useLogger).singleton(),
   endTrialWorker: asClass(EndTrialWorker).singleton(),
   expiredSubscriptionWorker: asClass(ExpiredSubscriptionWorker).singleton(),
+  subscriptionPlanUpdateWorker: asClass(
+    SubscriptionPlanUpdateWorker,
+  ).singleton(),
 });
 
 export const injectDependencies = (

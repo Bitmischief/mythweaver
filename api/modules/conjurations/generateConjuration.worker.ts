@@ -7,7 +7,7 @@ import { prisma } from '@/lib/providers/prisma';
 import { MythWeaverLogger } from '@/lib/logger';
 import { nanoid } from 'nanoid';
 import { getCampaign } from '@/dataAccess/campaigns';
-import { config } from '@/worker/config';
+import { config } from '@/modules/core/workers/worker.config';
 import {
   WebSocketEvent,
   WebSocketProvider,
