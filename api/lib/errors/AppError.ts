@@ -1,7 +1,7 @@
 import {
-  sendWebsocketMessage,
   WebSocketContext,
-} from '../../services/websockets';
+  WebSocketProvider,
+} from '../../providers/websocketProvider';
 
 export enum HttpCode {
   OK = 200,
@@ -40,6 +40,8 @@ export interface AppErrorWebsocketConfig {
   context?: WebSocketContext;
 }
 
+const webSocketProvider = new WebSocketProvider();
+
 export class AppError extends Error {
   public readonly name: string;
   public readonly httpCode: HttpCode;
@@ -62,12 +64,14 @@ export class AppError extends Error {
     }
 
     if (this.websocket) {
-      sendWebsocketMessage(this.websocket.userId, this.websocket.errorCode, {
-        context: this.websocket.context,
-        message: this.description,
-      }).then(() => {
-        console.log('Websocket error event pushed to client.');
-      });
+      webSocketProvider
+        .sendMessage(this.websocket.userId, this.websocket.errorCode, {
+          context: this.websocket.context,
+          message: this.description,
+        })
+        .then(() => {
+          console.log('Websocket error event pushed to client.');
+        });
     }
 
     Error.captureStackTrace(this);

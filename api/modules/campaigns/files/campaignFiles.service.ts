@@ -7,9 +7,9 @@ import { CampaignFilesDataProvider } from './campaignFiles.dataprovider';
 import { PostCampaignFileRequest } from './campaignFiles.interface';
 import { indexCampaignContextQueue } from '../../../worker';
 import {
-  sendWebsocketMessage,
+  WebSocketProvider,
   WebSocketEvent,
-} from '../../../services/websockets';
+} from '../../../providers/websocketProvider';
 import { getClient } from '../../../lib/providers/openai';
 
 const openai = getClient();
@@ -18,6 +18,7 @@ export class CampaignFilesService {
   constructor(
     private campaignFilesDataProvider: CampaignFilesDataProvider,
     private membersDataProvider: MembersDataProvider,
+    private webSocketProvider: WebSocketProvider,
   ) {}
 
   async getCampaignFiles(
@@ -91,10 +92,14 @@ export class CampaignFilesService {
       },
     });
 
-    await sendWebsocketMessage(userId, WebSocketEvent.CampaignFileUploaded, {
-      campaignId,
-      filename: request.name,
-    });
+    await this.webSocketProvider.sendMessage(
+      userId,
+      WebSocketEvent.CampaignFileUploaded,
+      {
+        campaignId,
+        filename: request.name,
+      },
+    );
 
     track(AppEvent.CampaignFileUploaded, userId, trackingInfo);
   }

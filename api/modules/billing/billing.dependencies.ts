@@ -7,7 +7,7 @@ import { useLogger } from '../../lib/loggingMiddleware';
 import { NextFunction, Request, Response } from 'express';
 import { EmailProvider } from '../../providers/emailProvider';
 import { DiscordProvider } from '../../providers/discordProvider';
-import { CreditsProvider } from '@/providers/creditsProvider';
+import { CreditsProvider } from '../../providers/creditsProvider';
 
 const container = createContainer({
   injectionMode: InjectionMode.CLASSIC,

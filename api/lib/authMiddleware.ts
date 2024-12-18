@@ -8,8 +8,9 @@ import { AppEvent, track } from './tracking';
 import { AdConversionEvent, reportAdConversionEvent } from './ads';
 import { createCampaign } from '../dataAccess/campaigns';
 import { StripeProvider } from '../providers/stripe';
-import { EmailProvider } from '@/providers/emailProvider';
-import { CreditsProvider } from '@/providers/creditsProvider';
+import { EmailProvider } from '../providers/emailProvider';
+import { CreditsProvider } from '../providers/creditsProvider';
+import { WebSocketProvider } from '../providers/websocketProvider';
 
 export const checkAuth0Jwt = auth({
   audience: process.env.AUTH0_AUDIENCE,
@@ -111,7 +112,8 @@ const createNewUser = async (res: Response, email: string) => {
     },
   });
 
-  const creditsProvider = new CreditsProvider();
+  const webSocketProvider = new WebSocketProvider();
+  const creditsProvider = new CreditsProvider(webSocketProvider);
   await creditsProvider.modifyImageCreditCount(
     user.id,
     10,

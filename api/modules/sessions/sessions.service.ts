@@ -9,9 +9,9 @@ import { CampaignRole } from '../campaigns/campaigns.interface';
 import { EmailProvider, EmailTemplates } from '../../providers/emailProvider';
 import { urlPrefix } from '../../lib/utils';
 import {
-  sendWebsocketMessage,
+  WebSocketProvider,
   WebSocketEvent,
-} from '../../services/websockets';
+} from '../../providers/websocketProvider';
 import { MythWeaverLogger } from '../../lib/logger';
 import {
   deleteSessionContext,
@@ -24,7 +24,7 @@ import {
   PostSessionAudioResponse,
   PostSessionRequest,
 } from './sessions.interface';
-import { AssemblyAIProvider } from '@/providers/assemblyAI';
+import { AssemblyAIProvider } from '../../providers/assemblyAI';
 import { SessionTranscriptWorker } from './sessionTranscript.worker';
 
 export class SessionsService {
@@ -37,6 +37,7 @@ export class SessionsService {
     private sessionTranscriptWorker: SessionTranscriptWorker,
     private logger: MythWeaverLogger,
     private emailProvider: EmailProvider,
+    private webSocketProvider: WebSocketProvider,
   ) {}
 
   async getSessions(
@@ -124,7 +125,11 @@ export class SessionsService {
 
     track(AppEvent.UpdateSession, userId, trackingInfo);
 
-    await sendWebsocketMessage(userId, WebSocketEvent.SessionUpdated, {});
+    await this.webSocketProvider.sendMessage(
+      userId,
+      WebSocketEvent.SessionUpdated,
+      {},
+    );
 
     await indexSessionContext(session.campaignId, sessionId);
 

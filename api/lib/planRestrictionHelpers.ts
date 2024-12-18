@@ -1,8 +1,13 @@
 import { prisma } from './providers/prisma';
-import { sendWebsocketMessage, WebSocketEvent } from '../services/websockets';
+import {
+  WebSocketProvider,
+  WebSocketEvent,
+} from '../providers/websocketProvider';
 import { AppError, HttpCode } from './errors/AppError';
 import { BillingPlan } from '@prisma/client';
 import { FreeTierConjurationLimit } from '../data/limits';
+
+const webSocketProvider = new WebSocketProvider();
 
 export const sendConjurationCountUpdatedEvent = async (userId: number) => {
   const userConjurationCount = await prisma.conjuration.count({
@@ -21,7 +26,8 @@ export const sendConjurationCountUpdatedEvent = async (userId: number) => {
       ],
     },
   });
-  await sendWebsocketMessage(
+
+  await webSocketProvider.sendMessage(
     userId,
     WebSocketEvent.UserConjurationCountUpdated,
     userConjurationCount,

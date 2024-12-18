@@ -10,7 +10,8 @@ import { NextFunction, Request, Response } from 'express';
 import { AssemblyAIProvider } from '../../providers/assemblyAI';
 import { SessionTranscriptWorker } from './sessionTranscript.worker';
 import { TranscriptionService } from './transcription.service';
-import { EmailProvider } from '@/providers/emailProvider';
+import { EmailProvider } from '../../providers/emailProvider';
+import { WebSocketProvider } from '../../providers/websocketProvider';
 
 const container = createContainer({
   injectionMode: InjectionMode.CLASSIC,
@@ -27,6 +28,7 @@ container.register({
   sessionTranscriptWorker: asClass(SessionTranscriptWorker).singleton(),
   transcriptionService: asClass(TranscriptionService).scoped(),
   emailProvider: asClass(EmailProvider).singleton(),
+  webSocketProvider: asClass(WebSocketProvider).singleton(),
   logger: asFunction(useLogger).scoped(),
 });
 

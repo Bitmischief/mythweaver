@@ -16,7 +16,7 @@ import { StripeProvider } from '../../providers/stripe';
 import Stripe from 'stripe';
 import { BillingDataProvider } from './billing.dataprovider';
 import { DiscordProvider } from '../../providers/discordProvider';
-import { CreditsProvider } from '@/providers/creditsProvider';
+import { CreditsProvider } from '../../providers/creditsProvider';
 
 export class BillingService {
   constructor(
