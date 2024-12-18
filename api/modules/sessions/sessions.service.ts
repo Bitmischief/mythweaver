@@ -14,13 +14,6 @@ import {
 } from '@/providers/websocketProvider';
 import { MythWeaverLogger } from '@/lib/logger';
 import {
-<<<<<<< Updated upstream
-  deleteSessionContext,
-  indexSessionContext,
-} from '@/dataAccess/sessions';
-import {
-=======
->>>>>>> Stashed changes
   GetSessionsResponse,
   PatchSessionRequest,
   PostSessionAudioRequest,
@@ -28,7 +21,6 @@ import {
   PostSessionRequest,
 } from './sessions.interface';
 import { AssemblyAIProvider } from '@/providers/assemblyAI';
-import { SessionTranscriptWorker } from './sessionTranscript.worker';
 import { SessionTranscriptWorker } from '@/modules/sessions/sessionTranscript.worker';
 import { ContextService } from '../context/context.service';
 

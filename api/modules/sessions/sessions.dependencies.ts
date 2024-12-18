@@ -7,15 +7,12 @@ import { UsersDataProvider } from '@/modules/users/users.dataprovider';
 import { CampaignsDataProvider } from '@/modules/campaigns/campaigns.dataprovider';
 import { useLogger } from '@/lib/loggingMiddleware';
 import { NextFunction, Request, Response } from 'express';
-import { AssemblyAIProvider } from '../../providers/assemblyAI';
-import { SessionTranscriptWorker } from './sessionTranscript.worker';
-import { TranscriptionService } from './transcription.service';
-import { AssemblyAIProvider } from '@/providers/assemblyAI';
-import { SessionTranscriptWorker } from '@/modules/sessions/sessionTranscript.worker';
-import { TranscriptionService } from '@/modules/sessions/transcription.service';
 import { EmailProvider } from '@/providers/emailProvider';
 import { WebSocketProvider } from '@/providers/websocketProvider';
 import { ContextService } from '../context/context.service';
+import { SessionTranscriptWorker } from './sessionTranscript.worker';
+import { AssemblyAIProvider } from '@/providers/assemblyAI';
+import { TranscriptionService } from './transcription.service';
 
 const container = createContainer({
   injectionMode: InjectionMode.CLASSIC,

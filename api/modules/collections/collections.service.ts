@@ -13,11 +13,6 @@ import { TrackingInfo } from '@/lib/tracking';
 import { AppError, HttpCode } from '@/lib/errors/AppError';
 import {
   WebSocketEvent,
-} from '../../services/websockets';
-import {
-  deleteConjurationContext,
-  indexConjurationContext,
-} from '../../dataAccess/conjurations';
   WebSocketProvider,
 } from '@/providers/websocketProvider';
 import { ContextService } from '@/modules/context/context.service';
