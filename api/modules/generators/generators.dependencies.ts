@@ -1,14 +1,14 @@
 import { asClass, asFunction, createContainer, InjectionMode } from 'awilix';
-import { GeneratorsController } from './generators.controller';
-import { GeneratorsService } from './generators.service';
-import { GeneratorsDataProvider } from './generators.dataprovider';
-import { ConjurationsDataProvider } from '../conjurations/conjurations.dataprovider';
-import { CampaignsDataProvider } from '../campaigns/campaigns.dataprovider';
-import { UsersDataProvider } from '../users/users.dataprovider';
-import { useLogger } from '../../lib/loggingMiddleware';
+import { GeneratorsController } from '@/modules/generators/generators.controller';
+import { GeneratorsService } from '@/modules/generators/generators.service';
+import { GeneratorsDataProvider } from '@/modules/generators/generators.dataprovider';
+import { ConjurationsDataProvider } from '@/modules/conjurations/conjurations.dataprovider';
+import { CampaignsDataProvider } from '@/modules/campaigns/campaigns.dataprovider';
+import { UsersDataProvider } from '@/modules/users/users.dataprovider';
+import { useLogger } from '@/lib/loggingMiddleware';
 import { NextFunction, Request, Response } from 'express';
-import { ConjurationWorker } from '../conjurations/generateConjuration.worker';
-import { WebSocketProvider } from '../../providers/websocketProvider';
+import { ConjurationWorker } from '@/modules/conjurations/generateConjuration.worker';
+import { WebSocketProvider } from '@/providers/websocketProvider';
 
 const container = createContainer({
   injectionMode: InjectionMode.CLASSIC,

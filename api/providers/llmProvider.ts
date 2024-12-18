@@ -1,4 +1,4 @@
-import { OpenAIProvider } from './llms/openAIProvider';
+import { OpenAIProvider } from '@/providers/llms/openAIProvider';
 
 export interface LLMProvider {
   generateText(campaignId: number, prompt: string): Promise<string>;

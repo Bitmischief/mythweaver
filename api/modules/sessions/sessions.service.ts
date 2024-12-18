@@ -1,22 +1,22 @@
-import { SessionsDataProvider } from './sessions.dataprovider';
-import { CampaignsDataProvider } from '../campaigns/campaigns.dataprovider';
-import { MembersDataProvider } from '../campaigns/members/members.dataprovider';
-import { UsersDataProvider } from '../users/users.dataprovider';
-import { AppError, HttpCode } from '../../lib/errors/AppError';
+import { SessionsDataProvider } from '@/modules/sessions/sessions.dataprovider';
+import { CampaignsDataProvider } from '@/modules/campaigns/campaigns.dataprovider';
+import { MembersDataProvider } from '@/modules/campaigns/members/members.dataprovider';
+import { UsersDataProvider } from '@/modules/users/users.dataprovider';
+import { AppError, HttpCode } from '@/lib/errors/AppError';
 import { BillingPlan, Session } from '@prisma/client';
-import { AppEvent, track, TrackingInfo } from '../../lib/tracking';
-import { CampaignRole } from '../campaigns/campaigns.interface';
-import { EmailProvider, EmailTemplates } from '../../providers/emailProvider';
-import { urlPrefix } from '../../lib/utils';
+import { AppEvent, track, TrackingInfo } from '@/lib/tracking';
+import { CampaignRole } from '@/modules/campaigns/campaigns.interface';
+import { EmailProvider, EmailTemplates } from '@/providers/emailProvider';
+import { urlPrefix } from '@/lib/utils';
 import {
   WebSocketProvider,
   WebSocketEvent,
-} from '../../providers/websocketProvider';
-import { MythWeaverLogger } from '../../lib/logger';
+} from '@/providers/websocketProvider';
+import { MythWeaverLogger } from '@/lib/logger';
 import {
   deleteSessionContext,
   indexSessionContext,
-} from '../../dataAccess/sessions';
+} from '@/dataAccess/sessions';
 import {
   GetSessionsResponse,
   PatchSessionRequest,
@@ -24,8 +24,8 @@ import {
   PostSessionAudioResponse,
   PostSessionRequest,
 } from './sessions.interface';
-import { AssemblyAIProvider } from '../../providers/assemblyAI';
-import { SessionTranscriptWorker } from './sessionTranscript.worker';
+import { AssemblyAIProvider } from '@/providers/assemblyAI';
+import { SessionTranscriptWorker } from '@/modules/sessions/sessionTranscript.worker';
 
 export class SessionsService {
   constructor(

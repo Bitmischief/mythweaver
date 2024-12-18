@@ -1,18 +1,18 @@
 import Queue, { Job } from 'bull';
-import { Generator, getGenerator } from '../../data/conjurers';
+import { Generator, getGenerator } from '@/data/conjurers';
 import { BillingPlan, ConjurationVisibility } from '@prisma/client';
-import { AppError, ErrorType, HttpCode } from '../../lib/errors/AppError';
-import { sanitizeJson, trimPlural } from '../../lib/utils';
-import { prisma } from '../../lib/providers/prisma';
-import { MythWeaverLogger } from '../../lib/logger';
+import { AppError, ErrorType, HttpCode } from '@/lib/errors/AppError';
+import { sanitizeJson, trimPlural } from '@/lib/utils';
+import { prisma } from '@/lib/providers/prisma';
+import { MythWeaverLogger } from '@/lib/logger';
 import { nanoid } from 'nanoid';
-import { getCampaign } from '../../dataAccess/campaigns';
-import { config } from '../../worker/config';
+import { getCampaign } from '@/dataAccess/campaigns';
+import { config } from '@/worker/config';
 import {
   WebSocketEvent,
   WebSocketProvider,
-} from '../../providers/websocketProvider';
-import { defaultLLMProvider as llmProvider } from '../../providers/llmProvider';
+} from '@/providers/websocketProvider';
+import { defaultLLMProvider as llmProvider } from '@/providers/llmProvider';
 import retry from 'async-await-retry';
 
 export interface ConjureEvent {

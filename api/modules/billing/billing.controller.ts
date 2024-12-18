@@ -4,20 +4,20 @@ import {
   Inject,
   Post,
   Query,
-  Route,
   SuccessResponse,
   Tags,
+  Route,
 } from 'tsoa';
-import { AppError, HttpCode } from '../../lib/errors/AppError';
-import { TrackingInfo } from '../../lib/tracking';
-import { MythWeaverLogger } from '../../lib/logger';
+import { AppError, HttpCode } from '@/lib/errors/AppError';
+import { TrackingInfo } from '@/lib/tracking';
+import { MythWeaverLogger } from '@/lib/logger';
 import {
   CheckoutUrlRequest,
   GetBillingPortalUrlRequest,
-} from './billing.interface';
+} from '@/modules/billing/billing.interface';
 import Stripe from 'stripe';
-import { BillingService } from './billing.service';
-import { prisma } from '../../lib/providers/prisma';
+import { BillingService } from '@/modules/billing/billing.service';
+import { prisma } from '@/lib/providers/prisma';
 
 @Route('billing')
 @Tags('Billing')

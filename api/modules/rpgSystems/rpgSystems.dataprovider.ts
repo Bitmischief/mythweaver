@@ -1,4 +1,4 @@
-import rpgSystems, { RpgSystem } from '../../data/rpgSystems';
+import rpgSystems, { RpgSystem } from '@/data/rpgSystems';
 
 export class RpgSystemsDataProvider {
   async getRpgSystems(

@@ -1,4 +1,4 @@
-import { prisma } from '../../lib/providers/prisma';
+import { prisma } from '@/lib/providers/prisma';
 import {
   Conjuration,
   ConjurationVisibility,

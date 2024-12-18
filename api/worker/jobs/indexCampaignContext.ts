@@ -2,19 +2,19 @@ import Queue from 'bull';
 import {
   initializeContextForCampaign,
   ReindexCampaignContextEvent,
-} from '../../dataAccess/campaigns';
-import { prisma } from '../../lib/providers/prisma';
-import { AppError, HttpCode } from '../../lib/errors/AppError';
-import { getClient } from '../../lib/providers/openai';
+} from '@/dataAccess/campaigns';
+import { prisma } from '@/lib/providers/prisma';
+import { AppError, HttpCode } from '@/lib/errors/AppError';
+import { getClient } from '@/lib/providers/openai';
 import { Campaign, ContextType, Prisma } from '@prisma/client';
-import logger from '../../lib/logger';
+import logger from '@/lib/logger';
 import fs from 'node:fs';
-import { downloadFile, sleep } from '../../lib/utils';
-import { config } from '../config';
+import { downloadFile, sleep } from '@/lib/utils';
+import { config } from '@/worker/config';
 import {
   WebSocketEvent,
   WebSocketProvider,
-} from '../../providers/websocketProvider';
+} from '@/providers/websocketProvider';
 
 const openai = getClient();
 const webSocketProvider = new WebSocketProvider();

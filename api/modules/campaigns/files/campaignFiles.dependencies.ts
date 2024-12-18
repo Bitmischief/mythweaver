@@ -1,9 +1,9 @@
 import { asClass, asFunction, createContainer, InjectionMode } from 'awilix';
-import { CampaignFilesController } from './campaignFiles.controller';
-import { CampaignFilesService } from './campaignFiles.service';
-import { CampaignFilesDataProvider } from './campaignFiles.dataprovider';
-import { MembersDataProvider } from '../members/members.dataprovider';
-import { useLogger } from '../../../lib/loggingMiddleware';
+import { CampaignFilesController } from '@/modules/campaigns/files/campaignFiles.controller';
+import { CampaignFilesService } from '@/modules/campaigns/files/campaignFiles.service';
+import { CampaignFilesDataProvider } from '@/modules/campaigns/files/campaignFiles.dataprovider';
+import { MembersDataProvider } from '@/modules/campaigns/members/members.dataprovider';
+import { useLogger } from '@/lib/loggingMiddleware';
 import { NextFunction, Request, Response } from 'express';
 
 const container = createContainer({

@@ -1,24 +1,24 @@
-import { CollectionsDataProvider } from './collections.dataprovider';
-import { ConjurationsDataProvider } from '../conjurations/conjurations.dataprovider';
+import { CollectionsDataProvider } from '@/modules/collections/collections.dataprovider';
+import { ConjurationsDataProvider } from '@/modules/conjurations/conjurations.dataprovider';
 import {
   PostCollectionRequest,
   PatchCollectionRequest,
   PostCollectionConjurationRequest,
   PostMoveCollectionConjurationRequest,
   PostMoveCollectionRequest,
-} from './collections.interface';
-import { MythWeaverLogger } from '../../lib/logger';
+} from '@/modules/collections/collections.interface';
+import { MythWeaverLogger } from '@/lib/logger';
 import { Conjuration } from '@prisma/client';
-import { TrackingInfo } from '../../lib/tracking';
-import { AppError, HttpCode } from '../../lib/errors/AppError';
+import { TrackingInfo } from '@/lib/tracking';
+import { AppError, HttpCode } from '@/lib/errors/AppError';
 import {
   WebSocketEvent,
   WebSocketProvider,
-} from '../../providers/websocketProvider';
+} from '@/providers/websocketProvider';
 import {
   deleteConjurationContext,
   indexConjurationContext,
-} from '../../dataAccess/conjurations';
+} from '@/dataAccess/conjurations';
 
 export class CollectionsService {
   constructor(

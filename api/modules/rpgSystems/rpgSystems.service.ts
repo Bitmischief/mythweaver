@@ -1,4 +1,4 @@
-import { AppEvent, track, TrackingInfo } from '../../lib/tracking';
+import { AppEvent, track, TrackingInfo } from '@/lib/tracking';
 import { RpgSystemsDataProvider } from './rpgSystems.dataprovider';
 import { GetRpgSystemsResponse } from './rpgSystems.interface';
 

@@ -1,9 +1,9 @@
 import Queue from 'bull';
-import { prisma } from '../../lib/providers/prisma';
-import logger from '../../lib/logger';
-import { config } from '../config';
+import { prisma } from '@/lib/providers/prisma';
+import logger from '@/lib/logger';
+import { config } from '@/worker/config';
 import { User } from '@prisma/client';
-import { processInChunks } from '../../lib/utils';
+import { processInChunks } from '@/lib/utils';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface SubscriptionPlanUpdateEvent {}

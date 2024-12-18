@@ -5,21 +5,22 @@ import {
   OperationId,
   Patch,
   Post,
-  Route,
+  Path,
   Security,
   Tags,
   Query,
   Delete,
+  Route,
 } from 'tsoa';
-import { AppEvent, track, TrackingInfo } from '../../lib/tracking';
-import { MythWeaverLogger } from '../../lib/logger';
-import { ImagesService } from './images.service';
+import { AppEvent, track, TrackingInfo } from '@/lib/tracking';
+import { MythWeaverLogger } from '@/lib/logger';
+import { ImagesService } from '@/modules/images/images.service';
 import {
   PostImageRequest,
   PatchImageConjurationIdRequest,
   ImageEditRequest,
   ImageOutpaintRequest,
-} from './images.interface';
+} from '@/modules/images/images.interface';
 import { Image } from '@prisma/client';
 import { Express } from 'express';
 
@@ -67,7 +68,7 @@ export class ImagesController {
   public async patchImageConjurationId(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() imageId: number,
+    @Path() imageId: number,
     @Body() request: PatchImageConjurationIdRequest,
   ): Promise<void> {
     await this.imagesService.setConjurationId(
@@ -83,7 +84,7 @@ export class ImagesController {
   public async postImageUpscale(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() imageId: number,
+    @Path() imageId: number,
   ): Promise<void> {
     await this.imagesService.upscaleImage(userId, imageId);
   }
@@ -94,7 +95,7 @@ export class ImagesController {
   public async patchPrimaryImage(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() imageId: number,
+    @Path() imageId: number,
   ): Promise<void> {
     await this.imagesService.setPrimaryImage(userId, imageId);
   }
@@ -105,7 +106,7 @@ export class ImagesController {
   public async getConjurationImageHistory(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() conjurationId: number,
+    @Path() conjurationId: number,
   ): Promise<Image[]> {
     return this.imagesService.getConjurationImageHistory(userId, conjurationId);
   }
@@ -134,7 +135,7 @@ export class ImagesController {
   public async postImageInpaint(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() imageId: number,
+    @Path() imageId: number,
     @Body() request: ImageEditRequest & { maskFile: Express.Multer.File },
   ): Promise<Image> {
     return await this.imagesService.inpaintImage(userId, imageId, request);
@@ -146,7 +147,7 @@ export class ImagesController {
   public async postImageOutpaint(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() imageId: number,
+    @Path() imageId: number,
     @Body() request: ImageOutpaintRequest,
   ): Promise<Image> {
     return await this.imagesService.outpaintImage(userId, imageId, request);
@@ -158,7 +159,7 @@ export class ImagesController {
   public async postRemoveBackground(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() imageId: number,
+    @Path() imageId: number,
   ): Promise<void> {
     await this.imagesService.removeBackground(userId, imageId);
   }
@@ -169,7 +170,7 @@ export class ImagesController {
   public async eraseImagePortion(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() imageId: number,
+    @Path() imageId: number,
     @Body() maskFile: Express.Multer.File,
   ): Promise<Image> {
     return await this.imagesService.eraseImagePortion(
@@ -185,7 +186,7 @@ export class ImagesController {
   public async getImageById(
     @Inject() userId: number | undefined,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() imageId: number,
+    @Path() imageId: number,
   ): Promise<Image> {
     return this.imagesService.getImageById(userId, imageId);
   }
@@ -196,7 +197,7 @@ export class ImagesController {
   public async setImageToEdit(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() imageId: number,
+    @Path() imageId: number,
     @Body() request: { editId: string },
   ): Promise<Image> {
     return this.imagesService.setImageToEdit(userId, imageId, request.editId);
@@ -208,7 +209,7 @@ export class ImagesController {
   public async deleteImageEdits(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() imageId: number,
+    @Path() imageId: number,
   ): Promise<Image> {
     return this.imagesService.deleteImageEdits(userId, imageId);
   }

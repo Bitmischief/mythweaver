@@ -1,8 +1,8 @@
-import { TrackingInfo } from '../../../lib/tracking';
-import { AppError, HttpCode } from '../../../lib/errors/AppError';
-import { CampaignConjurationsDataProvider } from './campaignConjurations.dataprovider';
-import { CampaignsDataProvider } from '../campaigns.dataprovider';
-import { ConjurationsDataProvider } from '../../conjurations/conjurations.dataprovider';
+import { TrackingInfo } from '@/lib/tracking';
+import { AppError, HttpCode } from '@/lib/errors/AppError';
+import { CampaignConjurationsDataProvider } from '@/modules/campaigns/conjurations/campaignConjurations.dataprovider';
+import { CampaignsDataProvider } from '@/modules/campaigns/campaigns.dataprovider';
+import { ConjurationsDataProvider } from '@/modules/conjurations/conjurations.dataprovider';
 
 export class CampaignConjurationsService {
   constructor(

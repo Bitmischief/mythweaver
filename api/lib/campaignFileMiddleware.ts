@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
-import { prisma } from './providers/prisma';
-import { AppError, HttpCode } from './errors/AppError';
-import { CampaignRole } from '../modules/campaigns/campaigns.interface';
-import { useBuildFileUploader } from './fileUploadMiddleware';
+import { prisma } from '@/lib/providers/prisma';
+import { AppError, HttpCode } from '@/lib/errors/AppError';
+import { CampaignRole } from '@/modules/campaigns/campaigns.interface';
+import { useBuildFileUploader } from '@/lib/fileUploadMiddleware';
 
 const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB;
 const ACCEPTED_FILE_TYPES = [

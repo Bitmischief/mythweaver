@@ -1,22 +1,22 @@
 import { Conjuration } from '@prisma/client';
-import { AppError, HttpCode } from '../../lib/errors/AppError';
-import { AppEvent, track, TrackingInfo } from '../../lib/tracking';
-import { sanitizeJson } from '../../lib/utils';
-import { getClient } from '../../lib/providers/openai';
-import { MythWeaverLogger } from '../../lib/logger';
+import { AppError, HttpCode } from '@/lib/errors/AppError';
+import { AppEvent, track, TrackingInfo } from '@/lib/tracking';
+import { sanitizeJson } from '@/lib/utils';
+import { getClient } from '@/lib/providers/openai';
+import { MythWeaverLogger } from '@/lib/logger';
 import { GeneratorsDataProvider } from './generators.dataprovider';
-import conjurers, { Generator, getGenerator } from '../../data/conjurers';
+import conjurers, { Generator, getGenerator } from '@/data/conjurers';
 import {
   GetGeneratorsResponse,
   PostGeneratorGenerate,
   PostGenerateArbitraryRequest,
   PostGenerateArbitraryFromPromptRequest,
   PostGenerateArbitraryReplacementRequest,
-} from './generators.interface';
-import { ConjurationsDataProvider } from '../conjurations/conjurations.dataprovider';
-import { CampaignsDataProvider } from '../campaigns/campaigns.dataprovider';
-import { UsersDataProvider } from '../users/users.dataprovider';
-import { ConjurationWorker } from '../conjurations/generateConjuration.worker';
+} from '@/modules/generators/generators.interface';
+import { ConjurationsDataProvider } from '@/modules/conjurations/conjurations.dataprovider';
+import { CampaignsDataProvider } from '@/modules/campaigns/campaigns.dataprovider';
+import { UsersDataProvider } from '@/modules/users/users.dataprovider';
+import { ConjurationWorker } from '@/modules/conjurations/generateConjuration.worker';
 
 export class GeneratorsService {
   constructor(

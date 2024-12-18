@@ -1,4 +1,4 @@
-import { prisma } from '../../lib/providers/prisma';
+import { prisma } from '@/lib/providers/prisma';
 import { ConjurationRequest } from '@prisma/client';
 
 export class GeneratorsDataProvider {

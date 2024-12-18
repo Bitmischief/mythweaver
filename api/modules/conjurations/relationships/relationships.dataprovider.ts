@@ -1,10 +1,10 @@
-import { prisma } from '../../../lib/providers/prisma';
+import { prisma } from '@/lib/providers/prisma';
 import { Conjuration, ConjurationRelationshipType } from '@prisma/client';
 import { ConjurationRelationships } from '@prisma/client';
 import {
   GraphLinkResponse,
   RelationshipResponse,
-} from './relationships.interface';
+} from '@/modules/conjurations/relationships/relationships.interface';
 
 export class ConjurationsRelationshipsDataProvider {
   async getRelationships(

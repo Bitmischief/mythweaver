@@ -1,16 +1,16 @@
 import Queue, { Job } from 'bull';
 import { ImageModel, Image } from '@prisma/client';
-import { ImageGenerationRequest } from './images.interface';
-import { config } from '../../worker/config';
-import { AppError, HttpCode } from '../../lib/errors/AppError';
+import { ImageGenerationRequest } from '@/modules/images/images.interface';
+import { config } from '@/worker/config';
+import { AppError, HttpCode } from '@/lib/errors/AppError';
 import {
   WebSocketProvider,
   WebSocketEvent,
-} from '../../providers/websocketProvider';
-import { MythWeaverLogger } from '../../lib/logger';
-import { RunPodProvider } from '../../providers/runPod';
-import { ImagesDataProvider } from './images.dataprovider';
-import { CompletedImageService } from './completedImage.service';
+} from '@/providers/websocketProvider';
+import { MythWeaverLogger } from '@/lib/logger';
+import { RunPodProvider } from '@/providers/runPod';
+import { ImagesDataProvider } from '@/modules/images/images.dataprovider';
+import { CompletedImageService } from '@/modules/images/completedImage.service';
 
 interface CheckJobStatusData {
   model: ImageModel;

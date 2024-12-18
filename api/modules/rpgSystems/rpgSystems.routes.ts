@@ -1,12 +1,12 @@
 import express, { Request, Response } from 'express';
-import { checkAuth0Jwt, useInjectUserId } from '../../lib/authMiddleware';
-import { useInjectLoggingInfo } from '../../lib/loggingMiddleware';
-import { RpgSystemsController } from './rpgSystems.controller';
-import { injectDependencies } from './rpgSystems.dependencies';
+import { checkAuth0Jwt, useInjectUserId } from '@/lib/authMiddleware';
+import { useInjectLoggingInfo } from '@/lib/loggingMiddleware';
+import { RpgSystemsController } from '@/modules/rpgSystems/rpgSystems.controller';
+import { injectDependencies } from '@/modules/rpgSystems/rpgSystems.dependencies';
 import {
   useValidateRequest,
   ValidationTypes,
-} from '../../lib/validationMiddleware';
+} from '@/lib/validationMiddleware';
 import { z } from 'zod';
 
 const router = express.Router({ mergeParams: true });

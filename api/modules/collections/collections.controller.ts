@@ -1,4 +1,4 @@
-import { CollectionsService } from './collections.service';
+import { CollectionsService } from '@/modules/collections/collections.service';
 import {
   Body,
   Delete,
@@ -8,18 +8,19 @@ import {
   Patch,
   Post,
   Query,
-  Route,
+  Path,
   Security,
   Tags,
+  Route,
 } from 'tsoa';
-import { TrackingInfo } from '../../lib/tracking';
+import { TrackingInfo } from '@/lib/tracking';
 import {
   PostCollectionRequest,
   PatchCollectionRequest,
   PostCollectionConjurationRequest,
   PostMoveCollectionConjurationRequest,
   PostMoveCollectionRequest,
-} from './collections.interface';
+} from '@/modules/collections/collections.interface';
 
 @Route('collections')
 @Tags('Collections')
@@ -66,7 +67,7 @@ export class CollectionsController {
   public async deleteCollection(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() collectionId: number,
+    @Path() collectionId: number,
   ) {
     return await this.collectionsService.deleteCollection(
       userId,
@@ -81,8 +82,8 @@ export class CollectionsController {
   public async deleteCollectionConjuration(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() collectionId: number,
-    @Route() conjurationId: number,
+    @Path() collectionId: number,
+    @Path() conjurationId: number,
   ) {
     return await this.collectionsService.deleteCollectionConjuration(
       userId,
@@ -98,7 +99,7 @@ export class CollectionsController {
   public async patchCollection(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() collectionId: number,
+    @Path() collectionId: number,
     @Body() patchCollectionRequest: PatchCollectionRequest,
   ) {
     return await this.collectionsService.updateCollection(
@@ -115,7 +116,7 @@ export class CollectionsController {
   public async postCollectionConjuration(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() collectionId: number,
+    @Path() collectionId: number,
     @Body() collectionConjurationRequest: PostCollectionConjurationRequest,
   ) {
     return await this.collectionsService.createCollectionConjuration(
@@ -132,8 +133,8 @@ export class CollectionsController {
   public async postMoveCollectionConjuration(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() collectionId: number,
-    @Route() conjurationId: number,
+    @Path() collectionId: number,
+    @Path() conjurationId: number,
     @Body()
     postMoveCollectionConjurationRequest: PostMoveCollectionConjurationRequest,
   ) {
@@ -152,7 +153,7 @@ export class CollectionsController {
   public async postMoveCollection(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() collectionId: number,
+    @Path() collectionId: number,
     @Body() postMoveCollectionRequest: PostMoveCollectionRequest,
   ) {
     return await this.collectionsService.moveCollection(

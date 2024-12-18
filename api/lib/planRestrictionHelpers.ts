@@ -1,11 +1,11 @@
-import { prisma } from './providers/prisma';
+import { prisma } from '@/lib/providers/prisma';
 import {
   WebSocketProvider,
   WebSocketEvent,
-} from '../providers/websocketProvider';
-import { AppError, HttpCode } from './errors/AppError';
+} from '@/providers/websocketProvider';
+import { AppError, HttpCode } from '@/lib/errors/AppError';
 import { BillingPlan } from '@prisma/client';
-import { FreeTierConjurationLimit } from '../data/limits';
+import { FreeTierConjurationLimit } from '@/data/limits';
 
 const webSocketProvider = new WebSocketProvider();
 

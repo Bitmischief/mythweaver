@@ -1,19 +1,12 @@
 import { Artist } from '@prisma/client';
-import { AppEvent, track, TrackingInfo } from '../../lib/tracking';
-import { AppError, HttpCode } from '../../lib/errors/AppError';
-import { ArtistsDataProvider } from './artists.dataprovider';
+import { AppError, HttpCode } from '@/lib/errors/AppError';
+import { ArtistsDataProvider } from '@/modules/artists/artists.dataprovider';
 
 export class ArtistsService {
   constructor(private artistsDataProvider: ArtistsDataProvider) {}
 
-  public async getArtist(
-    userId: number,
-    trackingInfo: TrackingInfo,
-    artistId: number,
-  ): Promise<Artist> {
+  public async getArtist(artistId: number): Promise<Artist> {
     const artist = await this.artistsDataProvider.getArtist(artistId);
-
-    track(AppEvent.GetArtist, userId, trackingInfo);
 
     if (!artist) {
       throw new AppError({

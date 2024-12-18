@@ -1,6 +1,6 @@
-import logger from '../../../lib/logger';
-import { container as conjurationsContainer } from '../../conjurations/conjurations.dependencies';
-import { Worker } from './worker.interface';
+import logger from '@/lib/logger';
+import { container as conjurationsContainer } from '@/modules/conjurations/conjurations.dependencies';
+import { Worker } from '@/modules/core/workers/worker.interface';
 
 const workers: Worker[] = [
   conjurationsContainer.resolve('generateConjurationWorker'),

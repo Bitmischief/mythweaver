@@ -4,7 +4,7 @@ import {
   ApiImageGenerationResponse,
   ImageGenerationRequest,
 } from '@/modules/images/images.interface';
-import logger from '../lib/logger';
+import logger from '@/lib/logger';
 
 export interface RunPodResponse {
   id: string;

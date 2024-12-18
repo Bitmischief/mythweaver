@@ -1,8 +1,9 @@
 {
   "entryFile": "index.ts",
   "noImplicitAdditionalProperties": "throw-on-extras",
+  "controllerPathGlobs": ["modules/**/*controller.ts"],
   "spec": {
-    "outputDirectory": "public",
+    "outputDirectory": "build",
     "specVersion": 3,
     "securityDefinitions": {
       "jwt": {
@@ -17,6 +18,6 @@
     }
   },
   "routes": {
-    "authenticationModule": "./lib/authMiddleware.ts"
+    "routesDir": "build"
   }
 }

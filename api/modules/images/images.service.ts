@@ -1,6 +1,5 @@
-import { ImagesDataProvider } from './images.dataprovider';
-import { StabilityAIProvider } from '../../providers/stabilityAI';
-import { MythWeaverLogger } from '../../lib/logger';
+import { StabilityAIProvider } from '@/providers/stabilityAI';
+import { MythWeaverLogger } from '@/lib/logger';
 import {
   PostImageRequest,
   ImageGenerationRequest,
@@ -9,21 +8,22 @@ import {
   ImageOutpaintRequest,
   ImageEdit,
   ImageEditType,
-} from './images.interface';
-import { AppError, ErrorType, HttpCode } from '../../lib/errors/AppError';
+} from '@/modules/images/images.interface';
+import { AppError, ErrorType, HttpCode } from '@/lib/errors/AppError';
 import { Image, ImageCreditChangeType, ImageModel } from '@prisma/client';
 import {
   WebSocketProvider,
   WebSocketEvent,
-} from '../../providers/websocketProvider';
+} from '@/providers/websocketProvider';
 import retry from 'async-await-retry';
 import { AxiosError } from 'axios';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
-import { CompletedImageService } from './completedImage.service';
-import { MythWeaverImageProvider } from './mythweaverImage.provider';
-import { StorageProvider } from '../../providers/storageProvider';
-import { CreditsProvider } from '../../providers/creditsProvider';
+import { CompletedImageService } from '@/modules/images/completedImage.service';
+import { MythWeaverImageProvider } from '@/modules/images/mythweaverImage.provider';
+import { StorageProvider } from '@/providers/storageProvider';
+import { CreditsProvider } from '@/providers/creditsProvider';
+import { ImagesDataProvider } from '@/modules/images/images.dataprovider';
 export class ImagesService {
   constructor(
     private imagesDataProvider: ImagesDataProvider,

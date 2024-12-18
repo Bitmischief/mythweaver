@@ -1,16 +1,16 @@
-import { MembersDataProvider } from '../members/members.dataprovider';
-import { TrackingInfo, AppEvent, track } from '../../../lib/tracking';
-import { AppError, HttpCode } from '../../../lib/errors/AppError';
+import { MembersDataProvider } from '@/modules/campaigns/members/members.dataprovider';
+import { TrackingInfo, AppEvent, track } from '@/lib/tracking';
+import { AppError, HttpCode } from '@/lib/errors/AppError';
 import { ContextFiles, ContextType } from '@prisma/client';
-import { CampaignRole } from '../campaigns.interface';
-import { CampaignFilesDataProvider } from './campaignFiles.dataprovider';
-import { PostCampaignFileRequest } from './campaignFiles.interface';
-import { indexCampaignContextQueue } from '../../../worker';
+import { CampaignRole } from '@/modules/campaigns/campaigns.interface';
+import { CampaignFilesDataProvider } from '@/modules/campaigns/files/campaignFiles.dataprovider';
+import { PostCampaignFileRequest } from '@/modules/campaigns/files/campaignFiles.interface';
+import { indexCampaignContextQueue } from '@/worker';
 import {
   WebSocketProvider,
   WebSocketEvent,
-} from '../../../providers/websocketProvider';
-import { getClient } from '../../../lib/providers/openai';
+} from '@/providers/websocketProvider';
+import { getClient } from '@/lib/providers/openai';
 
 const openai = getClient();
 

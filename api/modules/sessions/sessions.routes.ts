@@ -3,19 +3,19 @@ import {
   checkAuth0Jwt,
   useAuthenticateRequest,
   useInjectUserId,
-} from '../../lib/authMiddleware';
+} from '@/lib/authMiddleware';
 import { z } from 'zod';
 import {
   useValidateRequest,
   ValidationTypes,
-} from '../../lib/validationMiddleware';
-import { useInjectLoggingInfo } from '../../lib/loggingMiddleware';
+} from '@/lib/validationMiddleware';
+import { useInjectLoggingInfo } from '@/lib/loggingMiddleware';
 import {
   useAudioFileUploader,
   useAudioUploadAuthorizer,
-} from '../../lib/audioFileMiddleware';
-import { SessionsController } from './sessions.controller';
-import { injectDependencies } from './sessions.dependencies';
+} from '@/lib/audioFileMiddleware';
+import { SessionsController } from '@/modules/sessions/sessions.controller';
+import { injectDependencies } from '@/modules/sessions/sessions.dependencies';
 
 const router = express.Router({ mergeParams: true });
 

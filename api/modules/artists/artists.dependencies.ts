@@ -1,9 +1,9 @@
 import { asClass, asFunction, createContainer, InjectionMode } from 'awilix';
-import { useLogger } from '../../lib/loggingMiddleware';
+import { useLogger } from '@/lib/loggingMiddleware';
 import { NextFunction, Request, Response } from 'express';
-import { ArtistsController } from './artists.controller';
-import { ArtistsService } from './artists.service';
-import { ArtistsDataProvider } from './artists.dataprovider';
+import { ArtistsController } from '@/modules/artists/artists.controller';
+import { ArtistsService } from '@/modules/artists/artists.service';
+import { ArtistsDataProvider } from '@/modules/artists/artists.dataprovider';
 
 const container = createContainer({
   injectionMode: InjectionMode.CLASSIC,

@@ -1,8 +1,8 @@
-import { UsersDataProvider } from './users.dataprovider';
-import { ConjurationsDataProvider } from '../conjurations/conjurations.dataprovider';
-import { MythWeaverLogger } from '../../lib/logger';
-import { TrackingInfo, track, AppEvent, identify } from '../../lib/tracking';
-import { AppError, HttpCode } from '../../lib/errors/AppError';
+import { UsersDataProvider } from '@/modules/users/users.dataprovider';
+import { ConjurationsDataProvider } from '@/modules/conjurations/conjurations.dataprovider';
+import { MythWeaverLogger } from '@/lib/logger';
+import { TrackingInfo, track, AppEvent, identify } from '@/lib/tracking';
+import { AppError, HttpCode } from '@/lib/errors/AppError';
 import {
   GetUserResponse,
   PatchUserRequest,
@@ -10,8 +10,8 @@ import {
   GetSubscriptionResponse,
 } from './users.interface';
 import { ImageCreditChangeType, User } from '@prisma/client';
-import { StripeProvider } from '../../providers/stripe';
-import { CreditsProvider } from '../../providers/creditsProvider';
+import { StripeProvider } from '@/providers/stripe';
+import { CreditsProvider } from '@/providers/creditsProvider';
 
 export class UsersService {
   constructor(

@@ -1,10 +1,10 @@
 import express, { Request, Response } from 'express';
 import { z } from 'zod';
-import { checkAuth0Jwt, useInjectUserId } from '../../lib/authMiddleware';
-import { useInjectLoggingInfo } from '../../lib/loggingMiddleware';
-import { CharactersController } from './characters.controller';
-import { injectDependencies } from './characters.dependencies';
-import { useValidateRequest } from '../../lib/validationMiddleware';
+import { checkAuth0Jwt, useInjectUserId } from '@/lib/authMiddleware';
+import { useInjectLoggingInfo } from '@/lib/loggingMiddleware';
+import { CharactersController } from '@/modules/characters/characters.controller';
+import { injectDependencies } from '@/modules/characters/characters.dependencies';
+import { useValidateRequest } from '@/lib/validationMiddleware';
 
 const router = express.Router({ mergeParams: true });
 

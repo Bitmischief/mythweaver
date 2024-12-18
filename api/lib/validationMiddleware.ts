@@ -1,6 +1,6 @@
 import { ZodObject } from 'zod';
 import { NextFunction, Request, Response } from 'express';
-import { useLogger } from './loggingMiddleware';
+import { useLogger } from '@/lib/loggingMiddleware';
 
 export enum ValidationTypes {
   Body,

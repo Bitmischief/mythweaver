@@ -4,16 +4,16 @@ import {
   checkAuth0Jwt,
   useAuthenticateRequest,
   useInjectUserId,
-} from '../../lib/authMiddleware';
-import { useInjectLoggingInfo } from '../../lib/loggingMiddleware';
+} from '@/lib/authMiddleware';
+import { useInjectLoggingInfo } from '@/lib/loggingMiddleware';
 import {
   useValidateRequest,
   ValidationTypes,
-} from '../../lib/validationMiddleware';
-import { ImagesController } from './images.controller';
-import { injectDependencies } from './images.dependencies';
+} from '@/lib/validationMiddleware';
+import { ImagesController } from '@/modules/images/images.controller';
+import { injectDependencies } from '@/modules/images/images.dependencies';
 import multer from 'multer';
-import { useUpload } from '../../lib/fileUploadMiddleware';
+import { useUpload } from '@/lib/fileUploadMiddleware';
 
 const upload = multer({ storage: multer.memoryStorage() });
 const router = express.Router({ mergeParams: true });

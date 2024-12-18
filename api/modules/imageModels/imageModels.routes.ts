@@ -1,12 +1,12 @@
 import express, { Request, Response } from 'express';
-import { checkAuth0Jwt, useInjectUserId } from '../../lib/authMiddleware';
-import { useInjectLoggingInfo } from '../../lib/loggingMiddleware';
-import { ImageModelsController } from './imageModels.controller';
-import { injectDependencies } from './imageModels.dependencies';
+import { checkAuth0Jwt, useInjectUserId } from '@/lib/authMiddleware';
+import { useInjectLoggingInfo } from '@/lib/loggingMiddleware';
+import { ImageModelsController } from '@/modules/imageModels/imageModels.controller';
+import { injectDependencies } from '@/modules/imageModels/imageModels.dependencies';
 import {
   useValidateRequest,
   ValidationTypes,
-} from '../../lib/validationMiddleware';
+} from '@/lib/validationMiddleware';
 import { z } from 'zod';
 
 const router = express.Router({ mergeParams: true });

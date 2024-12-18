@@ -1,10 +1,19 @@
-import { Route, Tags, Security, OperationId, Post, Delete, Inject } from 'tsoa';
-import { TrackingInfo, AppEvent, track } from '../../../lib/tracking';
-import { AppError, HttpCode } from '../../../lib/errors/AppError';
-import { CampaignConjurationsService } from './campaignConjurations.service';
-import { CampaignConjurationsDataProvider } from './campaignConjurations.dataprovider';
-import { CampaignsDataProvider } from '../campaigns.dataprovider';
-import { ConjurationsDataProvider } from '../../conjurations/conjurations.dataprovider';
+import {
+  Path,
+  Tags,
+  Security,
+  OperationId,
+  Post,
+  Delete,
+  Inject,
+  Route,
+} from 'tsoa';
+import { TrackingInfo, AppEvent, track } from '@/lib/tracking';
+import { AppError, HttpCode } from '@/lib/errors/AppError';
+import { CampaignConjurationsService } from '@/modules/campaigns/conjurations/campaignConjurations.service';
+import { CampaignConjurationsDataProvider } from '@/modules/campaigns/conjurations/campaignConjurations.dataprovider';
+import { CampaignsDataProvider } from '@/modules/campaigns/campaigns.dataprovider';
+import { ConjurationsDataProvider } from '@/modules/conjurations/conjurations.dataprovider';
 
 @Route('campaigns/:campaignId/conjurations')
 @Tags('Campaign Conjurations')
@@ -22,8 +31,8 @@ export class CampaignConjurationsController {
   public async postCampaignConjuration(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() campaignId: number,
-    @Route() conjurationId: number,
+    @Path() campaignId: number,
+    @Path() conjurationId: number,
   ) {
     track(AppEvent.PostCampaignCampaign, userId, trackingInfo);
 
@@ -41,8 +50,8 @@ export class CampaignConjurationsController {
   public async deleteCampaignConjuration(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() campaignId: number,
-    @Route() conjurationId: number,
+    @Path() campaignId: number,
+    @Path() conjurationId: number,
   ) {
     track(AppEvent.DeleteCampaignCampaign, userId, trackingInfo);
 

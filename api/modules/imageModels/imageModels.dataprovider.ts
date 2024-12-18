@@ -1,4 +1,4 @@
-import { prisma } from '../../lib/providers/prisma';
+import { prisma } from '@/lib/providers/prisma';
 
 export class ImageModelsDataProvider {
   async getImageModels(offset: number, limit: number): Promise<any[]> {

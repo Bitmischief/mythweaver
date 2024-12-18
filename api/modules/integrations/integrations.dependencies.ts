@@ -1,10 +1,10 @@
 import { asClass, asFunction, createContainer, InjectionMode } from 'awilix';
-import { useLogger } from '../../lib/loggingMiddleware';
 import { NextFunction, Request, Response } from 'express';
-import { IntegrationsController } from './integrations.controller';
-import { IntegrationsService } from './integrations.service';
-import { UsersDataProvider } from '../users/users.dataprovider';
-import { UserTokensDataProvider } from '../userTokens/userTokens.dataprovider';
+import { IntegrationsController } from '@/modules/integrations/integrations.controller';
+import { IntegrationsService } from '@/modules/integrations/integrations.service';
+import { UsersDataProvider } from '@/modules/users/users.dataprovider';
+import { UserTokensDataProvider } from '@/modules/userTokens/userTokens.dataprovider';
+import { useLogger } from '@/lib/loggingMiddleware';
 
 const container = createContainer({
   injectionMode: InjectionMode.CLASSIC,

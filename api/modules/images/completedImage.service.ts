@@ -1,17 +1,17 @@
 import { Image, ImageModel } from '@prisma/client';
-import { ImagesDataProvider } from './images.dataprovider';
-import { MythWeaverLogger } from '../../lib/logger';
+import { ImagesDataProvider } from '@/modules/images/images.dataprovider';
+import { MythWeaverLogger } from '@/lib/logger';
 import {
   ApiImageGenerationResponse,
   ImageGenerationRequest,
-} from './images.interface';
+} from '@/modules/images/images.interface';
 import {
   WebSocketEvent,
   WebSocketProvider,
-} from '../../providers/websocketProvider';
+} from '@/providers/websocketProvider';
 import { ImageCreditChangeType } from '@prisma/client';
-import { StorageProvider } from '../../providers/storageProvider';
-import { CreditsProvider } from '../../providers/creditsProvider';
+import { StorageProvider } from '@/providers/storageProvider';
+import { CreditsProvider } from '@/providers/creditsProvider';
 
 export class CompletedImageService {
   constructor(

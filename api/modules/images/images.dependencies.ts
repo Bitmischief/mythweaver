@@ -6,19 +6,19 @@ import {
   Lifetime,
 } from 'awilix';
 import { NextFunction, Request, Response } from 'express';
-import { useLogger } from '../../lib/loggingMiddleware';
-import { RunPodProvider } from '../../providers/runPod';
-import { StabilityAIProvider } from '../../providers/stabilityAI';
-import { ImagesController } from './images.controller';
-import { ImagesService } from './images.service';
-import { CompletedImageService } from './completedImage.service';
-import { ImagesDataProvider } from './images.dataprovider';
-import { ImageModelsDataProvider } from '../imageModels/imageModels.dataprovider';
-import { MythWeaverImageProvider } from './mythweaverImage.provider';
-import { MythWeaverImageWorker } from './mythweaverImage.worker';
-import { CreditsProvider } from '../../providers/creditsProvider';
-import { WebSocketProvider } from '../../providers/websocketProvider';
-import { StorageProvider } from '../../providers/storageProvider';
+import { useLogger } from '@/lib/loggingMiddleware';
+import { RunPodProvider } from '@/providers/runPod';
+import { StabilityAIProvider } from '@/providers/stabilityAI';
+import { ImagesController } from '@/modules/images/images.controller';
+import { ImagesService } from '@/modules/images/images.service';
+import { CompletedImageService } from '@/modules/images/completedImage.service';
+import { ImagesDataProvider } from '@/modules/images/images.dataprovider';
+import { ImageModelsDataProvider } from '@/modules/imageModels/imageModels.dataprovider';
+import { MythWeaverImageProvider } from '@/modules/images/mythweaverImage.provider';
+import { MythWeaverImageWorker } from '@/modules/images/mythweaverImage.worker';
+import { CreditsProvider } from '@/providers/creditsProvider';
+import { WebSocketProvider } from '@/providers/websocketProvider';
+import { StorageProvider } from '@/providers/storageProvider';
 
 export const container = createContainer({
   injectionMode: InjectionMode.CLASSIC,

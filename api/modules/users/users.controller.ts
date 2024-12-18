@@ -8,13 +8,13 @@ import {
   Security,
   Tags,
 } from 'tsoa';
-import { TrackingInfo } from '../../lib/tracking';
-import { UsersService } from './users.service';
+import { TrackingInfo } from '@/lib/tracking';
+import { UsersService } from '@/modules/users/users.service';
 import {
   GetUserResponse,
   PatchUserRequest,
   AddUserCreditsRequest,
-} from './users.interface';
+} from '@/modules/users/users.interface';
 import { User } from '@prisma/client';
 
 @Route('users')

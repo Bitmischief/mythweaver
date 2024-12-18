@@ -1,12 +1,12 @@
-import { ConjurationsDataProvider } from './conjurations.dataprovider';
-import { ConjurationsRelationshipsDataProvider } from './relationships/relationships.dataprovider';
-import { MembersDataProvider } from '../campaigns/members/members.dataprovider';
-import { UsersDataProvider } from '../users/users.dataprovider';
-import { CollectionsDataProvider } from '../collections/collections.dataprovider';
+import { ConjurationsDataProvider } from '@/modules/conjurations/conjurations.dataprovider';
+import { ConjurationsRelationshipsDataProvider } from '@/modules/conjurations/relationships/relationships.dataprovider';
+import { MembersDataProvider } from '@/modules/campaigns/members/members.dataprovider';
+import { UsersDataProvider } from '@/modules/users/users.dataprovider';
+import { CollectionsDataProvider } from '@/modules/collections/collections.dataprovider';
 
-import { TrackingInfo, AppEvent, track } from '../../lib/tracking';
-import { AppError, HttpCode } from '../../lib/errors/AppError';
-import { MythWeaverLogger } from '../../lib/logger';
+import { TrackingInfo, AppEvent, track } from '@/lib/tracking';
+import { AppError, HttpCode } from '@/lib/errors/AppError';
+import { MythWeaverLogger } from '@/lib/logger';
 import {
   Conjuration,
   ConjurationRelationshipType,
@@ -20,13 +20,13 @@ import {
   GetConjurationTagsResponse,
   ConvertConjurationRequest,
 } from './conjurations.interface';
-import { ImageStylePreset } from '../images/images.interface';
+import { ImageStylePreset } from '@/modules/images/images.interface';
 import {
   validateConjurationCountRestriction,
   sendConjurationCountUpdatedEvent,
-} from '../../lib/planRestrictionHelpers';
-import { getCharacterCampaigns } from '../../lib/charactersHelper';
-import { processTagsQueue } from '../../worker';
+} from '@/lib/planRestrictionHelpers';
+import { getCharacterCampaigns } from '@/lib/charactersHelper';
+import { processTagsQueue } from '@/worker';
 
 export class ConjurationsService {
   constructor(

@@ -5,16 +5,17 @@ import {
   OperationId,
   Patch,
   Post,
-  Route,
+  Path,
   Security,
   Tags,
+  Route,
 } from 'tsoa';
-import { TrackingInfo } from '../../lib/tracking';
-import { CharactersService } from './characters.service';
+import { TrackingInfo } from '@/lib/tracking';
+import { CharactersService } from '@/modules/characters/characters.service';
 import {
   PostCharactersRequest,
   PatchCharactersRequest,
-} from './characters.interface';
+} from '@/modules/characters/characters.interface';
 
 @Route('characters')
 @Tags('Characters')
@@ -42,7 +43,7 @@ export class CharactersController {
   public async patchCharacter(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() characterId: number,
+    @Path() characterId: number,
     @Body() request: PatchCharactersRequest,
   ): Promise<any> {
     return this.charactersService.updateCharacter(
@@ -59,7 +60,7 @@ export class CharactersController {
   public async deleteCharacter(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() characterId: number,
+    @Path() characterId: number,
   ): Promise<any> {
     return this.charactersService.deleteCharacter(
       userId,

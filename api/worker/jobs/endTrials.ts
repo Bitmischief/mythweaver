@@ -1,8 +1,8 @@
 import Queue from 'bull';
-import { prisma } from '../../lib/providers/prisma';
+import { prisma } from '@/lib/providers/prisma';
 import { BillingPlan, User } from '@prisma/client';
-import logger from '../../lib/logger';
-import { config } from '../config';
+import logger from '@/lib/logger';
+import { config } from '@/worker/config';
 
 export const endTrialQueue = new Queue('end-trial', config);
 

@@ -1,7 +1,7 @@
-import { Get, Inject, OperationId, Query, Route, Security, Tags } from 'tsoa';
-import { TrackingInfo } from '../../lib/tracking';
-import { RpgSystemsService } from './rpgSystems.service';
-import { GetRpgSystemsResponse } from './rpgSystems.interface';
+import { Get, Inject, OperationId, Query, Security, Tags, Route } from 'tsoa';
+import { TrackingInfo } from '@/lib/tracking';
+import { RpgSystemsService } from '@/modules/rpgSystems/rpgSystems.service';
+import { GetRpgSystemsResponse } from '@/modules/rpgSystems/rpgSystems.interface';
 
 @Route('rpg-systems')
 @Tags('RPG Systems')
