@@ -7,6 +7,7 @@ import { useLogger } from '@/lib/loggingMiddleware';
 import { NextFunction, Request, Response } from 'express';
 import { CreditsProvider } from '@/providers/creditsProvider';
 import { WebSocketProvider } from '@/providers/websocketProvider';
+import { EndTrialWorker } from './workers/endTrial.worker';
 
 const container = createContainer({
   injectionMode: InjectionMode.CLASSIC,
@@ -20,6 +21,7 @@ container.register({
   creditsProvider: asClass(CreditsProvider).singleton(),
   webSocketProvider: asClass(WebSocketProvider).singleton(),
   logger: asFunction(useLogger).scoped(),
+  endTrialWorker: asClass(EndTrialWorker).singleton(),
 });
 
 export const injectDependencies = (

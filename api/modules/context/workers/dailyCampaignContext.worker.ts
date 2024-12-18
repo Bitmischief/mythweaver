@@ -76,10 +76,12 @@ export class DailyCampaignContextWorker {
     await dailyCampaignContextQueue.add(
       {},
       {
-        repeat: { cron: '* * * * *' },
+        repeat: { cron: '0 7 * * *' },
         jobId: dailyContextJobId,
       },
     );
+
+    this.logger.info('Daily campaign context job scheduled');
   }
 
   private async processDailyCampaignContextSync(): Promise<void> {
