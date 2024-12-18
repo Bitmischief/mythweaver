@@ -1,5 +1,4 @@
 import { processTagsQueue } from './jobs/processTags';
-import { conjureQueue } from './jobs/conjure';
 import { endTrialQueue } from './jobs/endTrials';
 import { indexCampaignContextQueue } from './jobs/indexCampaignContext';
 import { dailyCampaignContextQueue } from './jobs/dailyCampaignContextSync';
@@ -8,7 +7,6 @@ import { subscriptionPlanUpdateQueue } from './jobs/subscriptionPlanUpdate';
 
 export {
   processTagsQueue,
-  conjureQueue,
   endTrialQueue,
   indexCampaignContextQueue,
   dailyCampaignContextQueue,

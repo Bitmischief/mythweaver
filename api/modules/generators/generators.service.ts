@@ -1,7 +1,6 @@
 import { Conjuration } from '@prisma/client';
 import { AppError, HttpCode } from '../../lib/errors/AppError';
 import { AppEvent, track, TrackingInfo } from '../../lib/tracking';
-import { conjureQueue } from '../../worker';
 import { sanitizeJson } from '../../lib/utils';
 import { getClient } from '../../lib/providers/openai';
 import { MythWeaverLogger } from '../../lib/logger';
@@ -17,6 +16,7 @@ import {
 import { ConjurationsDataProvider } from '../conjurations/conjurations.dataprovider';
 import { CampaignsDataProvider } from '../campaigns/campaigns.dataprovider';
 import { UsersDataProvider } from '../users/users.dataprovider';
+import { ConjurationWorker } from '../conjurations/generateConjuration.worker';
 
 export class GeneratorsService {
   constructor(
@@ -25,6 +25,7 @@ export class GeneratorsService {
     private campaignsDataProvider: CampaignsDataProvider,
     private usersDataProvider: UsersDataProvider,
     private logger: MythWeaverLogger,
+    private generateConjurationWorker: ConjurationWorker,
   ) {}
 
   async getGenerators(
@@ -129,8 +130,7 @@ export class GeneratorsService {
         prompt: request.prompt,
       });
 
-    await conjureQueue.add({
-      count: request.count,
+    await this.generateConjurationWorker.addJob({
       campaignId: request.campaignId,
       generatorCode: code,
       arg: request.customArg || request.prompt || '',

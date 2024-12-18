@@ -3,6 +3,7 @@ import Pusher from 'pusher';
 export enum WebSocketEvent {
   Error = 'error',
   ConjurationCreated = 'conjuration-created',
+  ConjurationError = 'conjuration-error',
   ImageCreated = 'image-created',
   ImageUpscaled = 'image-upscaled',
   ImageGenerationDone = 'image-generation-done',
