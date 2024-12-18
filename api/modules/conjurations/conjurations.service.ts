@@ -26,7 +26,7 @@ import {
   sendConjurationCountUpdatedEvent,
 } from '@/lib/planRestrictionHelpers';
 import { getCharacterCampaigns } from '@/lib/charactersHelper';
-import { processTagsQueue } from '@/worker';
+import { TagsWorker } from '@/modules/conjurations/workers/tags.worker';
 
 export class ConjurationsService {
   constructor(
@@ -35,6 +35,7 @@ export class ConjurationsService {
     private membersDataProvider: MembersDataProvider,
     private usersDataProvider: UsersDataProvider,
     private collectionsDataProvider: CollectionsDataProvider,
+    private tagsWorker: TagsWorker,
     private logger: MythWeaverLogger,
   ) {}
 
@@ -252,7 +253,7 @@ export class ConjurationsService {
         ...request,
       });
 
-    await processTagsQueue.add({
+    await this.tagsWorker.addJob({
       conjurationIds: [conjurationId],
     });
 
