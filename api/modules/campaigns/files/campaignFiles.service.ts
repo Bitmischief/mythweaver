@@ -9,7 +9,7 @@ import {
 import { getClient } from '@/lib/providers/openai';
 import { CampaignContextWorker } from '@/modules/context/workers/campaignContext.worker';
 import { CampaignFilesDataProvider } from './campaignFiles.dataprovider';
-import { CampaignRole } from '../campaigns.interface';
+import { CampaignRole } from '@/modules/campaigns/campaigns.interface';
 import { PostCampaignFileRequest } from './campaignFiles.interface';
 
 const openai = getClient();

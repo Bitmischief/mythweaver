@@ -9,7 +9,7 @@ import { CharactersDataProvider } from '@/modules/campaigns/characters/character
 import { useLogger } from '@/lib/loggingMiddleware';
 import { NextFunction, Request, Response } from 'express';
 import { EmailProvider } from '@/providers/emailProvider';
-import { CampaignContextWorker } from '../context/workers/campaignContext.worker';
+import { CampaignContextWorker } from '@/modules/context/workers/campaignContext.worker';
 
 const container = createContainer({
   injectionMode: InjectionMode.CLASSIC,

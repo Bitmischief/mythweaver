@@ -9,7 +9,7 @@ import { useLogger } from '@/lib/loggingMiddleware';
 import { NextFunction, Request, Response } from 'express';
 import { EmailProvider } from '@/providers/emailProvider';
 import { WebSocketProvider } from '@/providers/websocketProvider';
-import { ContextService } from '../context/context.service';
+import { ContextService } from '@/modules/context/context.service';
 import { SessionTranscriptWorker } from './sessionTranscript.worker';
 import { AssemblyAIProvider } from '@/providers/assemblyAI';
 import { TranscriptionService } from './transcription.service';

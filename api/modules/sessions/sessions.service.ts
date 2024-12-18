@@ -22,7 +22,7 @@ import {
 } from './sessions.interface';
 import { AssemblyAIProvider } from '@/providers/assemblyAI';
 import { SessionTranscriptWorker } from '@/modules/sessions/sessionTranscript.worker';
-import { ContextService } from '../context/context.service';
+import { ContextService } from '@/modules/context/context.service';
 
 export class SessionsService {
   constructor(

@@ -19,7 +19,7 @@ import { urlPrefix } from '@/lib/utils';
 import { CampaignRole } from '@/modules/campaigns/campaigns.interface';
 import { getCampaignCharacters } from '@/lib/charactersHelper';
 import { EmailProvider, EmailTemplates } from '@/providers/emailProvider';
-import { CampaignContextWorker } from '../context/workers/campaignContext.worker';
+import { CampaignContextWorker } from '@/modules/context/workers/campaignContext.worker';
 
 export class CampaignsService {
   constructor(
