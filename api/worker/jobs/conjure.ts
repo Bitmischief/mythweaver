@@ -12,7 +12,8 @@ import {
   WebSocketEvent,
   WebSocketProvider,
 } from '../../providers/websocketProvider';
-import { LLMProvider } from '../../providers/llmProvider';
+import { defaultLLMProvider as llmProvider } from '@/providers/llmProvider';
+
 export interface ConjureEvent {
   userId: number;
   conjurationRequestId: number;
@@ -23,7 +24,6 @@ export interface ConjureEvent {
   type?: string;
 }
 
-const llmProvider = new LLMProvider();
 const webSocketProvider = new WebSocketProvider();
 
 export const conjureQueue = new Queue<ConjureEvent>('conjuring', config);
