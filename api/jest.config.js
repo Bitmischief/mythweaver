@@ -9,5 +9,7 @@ module.exports = {
   collectCoverage: true,
   coverageReporters: ['text', 'cobertura'],
   testPathIgnorePatterns: ['/node_modules/', '/build/'],
-  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, { prefix: '<rootDir>/' }),
+  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, {
+    prefix: '<rootDir>/',
+  }),
 };
