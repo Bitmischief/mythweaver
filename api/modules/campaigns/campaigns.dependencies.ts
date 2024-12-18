@@ -26,7 +26,7 @@ container.register({
   charactersDataProvider: asClass(CharactersDataProvider).scoped(),
   emailProvider: asClass(EmailProvider).singleton(),
   indexCampaignContextWorker: asClass(CampaignContextWorker).singleton(),
-  logger: asFunction(useLogger).scoped(),
+  logger: asFunction(useLogger).singleton(),
 });
 
 export const injectDependencies = (
