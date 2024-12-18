@@ -8,9 +8,11 @@ import { NextFunction, Request, Response } from 'express';
 import { CreditsProvider } from '@/providers/creditsProvider';
 import { WebSocketProvider } from '@/providers/websocketProvider';
 import { EndTrialWorker } from './workers/endTrial.worker';
+import { ExpiredSubscriptionWorker } from './workers/expiredSubscription.worker';
 
-const container = createContainer({
+export const container = createContainer({
   injectionMode: InjectionMode.CLASSIC,
+  strict: true,
 });
 
 container.register({
@@ -20,8 +22,9 @@ container.register({
   conjurationsDataProvider: asClass(ConjurationsDataProvider).scoped(),
   creditsProvider: asClass(CreditsProvider).singleton(),
   webSocketProvider: asClass(WebSocketProvider).singleton(),
-  logger: asFunction(useLogger).scoped(),
+  logger: asFunction(useLogger).singleton(),
   endTrialWorker: asClass(EndTrialWorker).singleton(),
+  expiredSubscriptionWorker: asClass(ExpiredSubscriptionWorker).singleton(),
 });
 
 export const injectDependencies = (

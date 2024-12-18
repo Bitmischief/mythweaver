@@ -12,10 +12,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { isLocalDevelopment, isProduction } from '@/lib/environments';
 import * as Sentry from '@sentry/node';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
-import {
-  subscriptionPlanUpdateQueue,
-  expiredSubscriptionCheckQueue,
-} from '@/worker';
+import { subscriptionPlanUpdateQueue } from '@/worker';
 
 console.log('Initializing env vars');
 dotenv.config();
@@ -152,27 +149,6 @@ try {
     console.log(`Server is running on port ${PORT}`);
 
     initWorkers();
-
-    // Expired subscription check job
-    const expiredSubscriptionCheckJobId = 'expired-subscription-check-job';
-    const existingExpiredSubscriptionCheckJob =
-      await expiredSubscriptionCheckQueue.getRepeatableJobs();
-    if (
-      !existingExpiredSubscriptionCheckJob.some(
-        (job) => job.id === expiredSubscriptionCheckJobId,
-      )
-    ) {
-      await expiredSubscriptionCheckQueue.add(
-        {},
-        {
-          repeat: { cron: '0 6 * * *' },
-          jobId: expiredSubscriptionCheckJobId,
-        },
-      );
-      console.log('Daily expired subscription check job scheduled');
-    } else {
-      console.log('Daily expired subscription check job already scheduled');
-    }
 
     // Subscription Plan Change job
     const subscriptionPlanUpdateJobId = 'subscription-plan-update-job';

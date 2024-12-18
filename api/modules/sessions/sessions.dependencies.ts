@@ -13,6 +13,7 @@ import { ContextService } from '@/modules/context/context.service';
 import { SessionTranscriptWorker } from './sessionTranscript.worker';
 import { AssemblyAIProvider } from '@/providers/assemblyAI';
 import { TranscriptionService } from './transcription.service';
+import { CampaignContextWorker } from '../context/workers/campaignContext.worker';
 
 const container = createContainer({
   injectionMode: InjectionMode.CLASSIC,
@@ -31,6 +32,7 @@ container.register({
   emailProvider: asClass(EmailProvider).singleton(),
   webSocketProvider: asClass(WebSocketProvider).singleton(),
   contextService: asClass(ContextService).scoped(),
+  indexCampaignContextWorker: asClass(CampaignContextWorker).singleton(),
   logger: asFunction(useLogger).scoped(),
 });
 

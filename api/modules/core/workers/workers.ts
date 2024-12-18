@@ -7,6 +7,9 @@ import { DailyCampaignContextWorker } from '@/modules/context/workers/dailyCampa
 import { Worker } from '@/modules/core/workers/worker.interface';
 import { MythWeaverImageWorker } from '@/modules/images/mythweaverImage.worker';
 import { container as imagesContainer } from '@/modules/images/images.dependencies';
+import { EndTrialWorker } from '@/modules/users/workers/endTrial.worker';
+import { ExpiredSubscriptionWorker } from '@/modules/users/workers/expiredSubscription.worker';
+import { container as usersContainer } from '@/modules/users/users.dependencies';
 
 const workers: Worker[] = [
   conjurationsContainer.resolve<ConjurationWorker>('generateConjurationWorker'),
@@ -15,6 +18,8 @@ const workers: Worker[] = [
   ),
   contextContainer.resolve<CampaignContextWorker>('indexCampaignContextWorker'),
   imagesContainer.resolve<MythWeaverImageWorker>('mythweaverImageWorker'),
+  usersContainer.resolve<EndTrialWorker>('endTrialWorker'),
+  usersContainer.resolve<ExpiredSubscriptionWorker>('expiredSubscriptionWorker'),
 ];
 
 export const initWorkers = async () => {

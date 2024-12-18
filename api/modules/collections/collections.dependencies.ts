@@ -6,6 +6,8 @@ import { ConjurationsDataProvider } from '@/modules/conjurations/conjurations.da
 import { useLogger } from '@/lib/loggingMiddleware';
 import { NextFunction, Request, Response } from 'express';
 import { WebSocketProvider } from '@/providers/websocketProvider';
+import { ContextService } from '../context/context.service';
+import { CampaignContextWorker } from '../context/workers/campaignContext.worker';
 
 const container = createContainer({
   injectionMode: InjectionMode.CLASSIC,
@@ -17,6 +19,8 @@ container.register({
   collectionsDataProvider: asClass(CollectionsDataProvider).scoped(),
   conjurationsDataProvider: asClass(ConjurationsDataProvider).scoped(),
   webSocketProvider: asClass(WebSocketProvider).singleton(),
+  contextService: asClass(ContextService).scoped(),
+  indexCampaignContextWorker: asClass(CampaignContextWorker).singleton(),
   logger: asFunction(useLogger).scoped(),
 });
 
