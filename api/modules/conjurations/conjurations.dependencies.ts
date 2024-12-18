@@ -10,6 +10,7 @@ import { MembersDataProvider } from '@/modules/campaigns/members/members.datapro
 import { UsersDataProvider } from '@/modules/users/users.dataprovider';
 import { ConjurationWorker } from '@/modules/conjurations/generateConjuration.worker';
 import { WebSocketProvider } from '@/providers/websocketProvider';
+import { TagsWorker } from './workers/tags.worker';
 
 export const container = createContainer({
   injectionMode: InjectionMode.CLASSIC,
@@ -27,6 +28,7 @@ container.register({
   collectionsDataProvider: asClass(CollectionsDataProvider).scoped(),
   generateConjurationWorker: asClass(ConjurationWorker).singleton(),
   webSocketProvider: asClass(WebSocketProvider).singleton(),
+  tagsWorker: asClass(TagsWorker).singleton(),
   logger: asFunction(useLogger).scoped(),
 });
 
