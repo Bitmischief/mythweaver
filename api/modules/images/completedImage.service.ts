@@ -11,12 +11,13 @@ import {
 } from '../../services/websockets';
 import { modifyImageCreditCount } from '../../services/credits';
 import { ImageCreditChangeType } from '@prisma/client';
-import { saveImage } from '../../services/dataStorage';
+import { StorageProvider } from '../../providers/storageProvider';
 
 export class CompletedImageService {
   constructor(
     private readonly logger: MythWeaverLogger,
     private readonly imagesDataProvider: ImagesDataProvider,
+    private readonly storageProvider: StorageProvider,
   ) {}
 
   async processGeneratedImages(
@@ -38,7 +39,10 @@ export class CompletedImageService {
       }
 
       this.logger.info(`Image generated successfully`, { imageId: image.id });
-      const url = await saveImage(image.id.toString(), apiImageResponse.base64);
+      const url = await this.storageProvider.saveImage(
+        image.id.toString(),
+        apiImageResponse.base64,
+      );
       this.logger.info(`Image saved successfully`, { imageId: image.id, url });
 
       const updatedImage = await this.imagesDataProvider.updateImage(image.id, {
