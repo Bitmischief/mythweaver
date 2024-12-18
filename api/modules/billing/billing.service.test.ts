@@ -5,12 +5,14 @@ import { BillingDataProvider } from '@/modules/billing/billing.dataprovider';
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import Stripe from 'stripe';
 import '@/lib/intercom';
+import { EmailProvider } from '@/providers/emailProvider';
 
 describe('BillingService', () => {
   let billingService: BillingService;
   let mockLogger: jest.Mocked<MythWeaverLogger>;
   let mockStripeProvider: jest.Mocked<StripeProvider>;
   let mockBillingDataProvider: jest.Mocked<BillingDataProvider>;
+  let mockEmailProvider: jest.Mocked<EmailProvider>;
 
   beforeEach(() => {
     mockLogger = {
@@ -25,11 +27,15 @@ describe('BillingService', () => {
       createProcessedStripeEvent: jest.fn(),
       deleteProcessedStripeEvent: jest.fn(),
     } as any;
+    mockEmailProvider = {
+      sendTransactionalEmail: jest.fn(),
+    } as any;
 
     billingService = new BillingService(
       mockLogger,
       mockStripeProvider,
       mockBillingDataProvider,
+      mockEmailProvider,
     );
   });
 
