@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import Stripe from 'stripe';
 import '@/lib/intercom';
 import { EmailProvider } from '@/providers/emailProvider';
+import { DiscordProvider } from '@/providers/discordProvider';
 
 describe('BillingService', () => {
   let billingService: BillingService;
@@ -13,6 +14,7 @@ describe('BillingService', () => {
   let mockStripeProvider: jest.Mocked<StripeProvider>;
   let mockBillingDataProvider: jest.Mocked<BillingDataProvider>;
   let mockEmailProvider: jest.Mocked<EmailProvider>;
+  let mockDiscordProvider: jest.Mocked<DiscordProvider>;
 
   beforeEach(() => {
     mockLogger = {
@@ -30,12 +32,16 @@ describe('BillingService', () => {
     mockEmailProvider = {
       sendTransactionalEmail: jest.fn(),
     } as any;
+    mockDiscordProvider = {
+      postToBillingChannel: jest.fn(),
+    } as any;
 
     billingService = new BillingService(
       mockLogger,
       mockStripeProvider,
       mockBillingDataProvider,
       mockEmailProvider,
+      mockDiscordProvider,
     );
   });
 
