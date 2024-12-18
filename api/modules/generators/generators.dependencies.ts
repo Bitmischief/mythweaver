@@ -8,6 +8,7 @@ import { UsersDataProvider } from '../users/users.dataprovider';
 import { useLogger } from '../../lib/loggingMiddleware';
 import { NextFunction, Request, Response } from 'express';
 import { ConjurationWorker } from '../conjurations/generateConjuration.worker';
+import { WebSocketProvider } from '../../providers/websocketProvider';
 
 const container = createContainer({
   injectionMode: InjectionMode.CLASSIC,
@@ -21,6 +22,7 @@ container.register({
   campaignsDataProvider: asClass(CampaignsDataProvider).scoped(),
   usersDataProvider: asClass(UsersDataProvider).scoped(),
   generateConjurationWorker: asClass(ConjurationWorker).singleton(),
+  webSocketProvider: asClass(WebSocketProvider).singleton(),
   logger: asFunction(useLogger).scoped(),
 });
 
