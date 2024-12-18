@@ -1,6 +1,6 @@
 import axios from 'axios';
-import logger from '../lib/logger';
-import { isProduction } from '../lib/environments';
+import logger from '@/lib/logger';
+import { isProduction } from '@/lib/environments';
 
 export class DiscordProvider {
   async postToBillingChannel(message: string): Promise<void> {

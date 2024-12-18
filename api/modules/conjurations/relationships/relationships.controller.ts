@@ -1,5 +1,4 @@
-import { ConjurationsRelationshipsService } from './relationships.service';
-
+import { ConjurationsRelationshipsService } from '@/modules/conjurations/relationships/relationships.service';
 import {
   Body,
   Delete,
@@ -9,11 +8,12 @@ import {
   Patch,
   Post,
   Query,
-  Route,
+  Path,
   Security,
   Tags,
+  Route,
 } from 'tsoa';
-import { TrackingInfo } from '../../../lib/tracking';
+import { TrackingInfo } from '@/lib/tracking';
 import { Conjuration, ConjurationRelationshipType } from '@prisma/client';
 import {
   RelationshipResponse,
@@ -21,7 +21,7 @@ import {
   DeleteRelationshipRequest,
   PatchRelationshipRequest,
   GraphLinkResponse,
-} from './relationships.interface';
+} from '@/modules/conjurations/relationships/relationships.interface';
 
 @Route('relationships')
 @Tags('Relationships')
@@ -36,8 +36,8 @@ export class ConjurationsRelationshipsController {
   public async getRelationships(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() type: ConjurationRelationshipType,
-    @Route() nodeId: number,
+    @Path() type: ConjurationRelationshipType,
+    @Path() nodeId: number,
     @Query() filterTypes?: ConjurationRelationshipType[],
     @Query() depthLimit?: number,
   ): Promise<RelationshipResponse[]> {
@@ -57,8 +57,8 @@ export class ConjurationsRelationshipsController {
   public async postRelationship(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() type: ConjurationRelationshipType,
-    @Route() nodeId: number,
+    @Path() type: ConjurationRelationshipType,
+    @Path() nodeId: number,
     @Body() body: PostRelationshipRequest,
   ) {
     return this.conjurationsRelationshipsService.createRelationship(
@@ -76,7 +76,7 @@ export class ConjurationsRelationshipsController {
   public async deleteRelationship(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() relationshipId: number,
+    @Path() relationshipId: number,
   ) {
     await this.conjurationsRelationshipsService.deleteRelationship(
       userId,
@@ -109,7 +109,7 @@ export class ConjurationsRelationshipsController {
   public async patchRelationship(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() relationshipId: number,
+    @Path() relationshipId: number,
     @Body() request: PatchRelationshipRequest,
   ) {
     await this.conjurationsRelationshipsService.updateRelationship(

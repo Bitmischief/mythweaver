@@ -1,7 +1,7 @@
-import { UsersDataProvider } from '../users/users.dataprovider';
-import { UserTokensDataProvider } from '../userTokens/userTokens.dataprovider';
 import { User, UserToken, TokenType } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
+import { UsersDataProvider } from '@/modules/users/users.dataprovider';
+import { UserTokensDataProvider } from '@/modules/userTokens/userTokens.dataprovider';
 
 export class IntegrationsService {
   constructor(

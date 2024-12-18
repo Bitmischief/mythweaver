@@ -1,8 +1,8 @@
 import { Client, Operators } from 'intercom-client';
-import { isLocalDevelopment } from './environments';
-import { prisma } from './providers/prisma';
-import { AppError, HttpCode } from './errors/AppError';
-import logger from './logger';
+import { isLocalDevelopment } from '@/lib/environments';
+import { prisma } from '@/lib/providers/prisma';
+import { AppError, HttpCode } from '@/lib/errors/AppError';
+import logger from '@/lib/logger';
 
 const createIntercomClient = () => {
   if (process.env.NODE_ENV === 'test' || !process.env.INTERCOM_ACCESS_TOKEN) {

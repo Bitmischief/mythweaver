@@ -1,11 +1,11 @@
-import { AppError, HttpCode } from '../../lib/errors/AppError';
-import { AppEvent, track, TrackingInfo } from '../../lib/tracking';
-import { CharactersDataProvider } from './characters.dataprovider';
+import { AppError, HttpCode } from '@/lib/errors/AppError';
+import { AppEvent, track, TrackingInfo } from '@/lib/tracking';
+import { CharactersDataProvider } from '@/modules/characters/characters.dataprovider';
 import {
   PostCharactersRequest,
   PatchCharactersRequest,
-} from './characters.interface';
-import { MembersDataProvider } from '../campaigns/members/members.dataprovider';
+} from '@/modules/characters/characters.interface';
+import { MembersDataProvider } from '@/modules/campaigns/members/members.dataprovider';
 
 export class CharactersService {
   constructor(

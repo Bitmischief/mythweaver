@@ -3,15 +3,15 @@ import {
   checkAuth0Jwt,
   useInjectUserId,
   useAuthenticateServiceRequest,
-} from '../../lib/authMiddleware';
+} from '@/lib/authMiddleware';
 import { z } from 'zod';
 import {
   useValidateRequest,
   ValidationTypes,
-} from '../../lib/validationMiddleware';
-import { IntegrationsController } from './integrations.controller';
-import { useInjectLoggingInfo, useLogger } from '../../lib/loggingMiddleware';
-import { injectDependencies } from './integrations.dependencies';
+} from '@/lib/validationMiddleware';
+import { IntegrationsController } from '@/modules/integrations/integrations.controller';
+import { useInjectLoggingInfo, useLogger } from '@/lib/loggingMiddleware';
+import { injectDependencies } from '@/modules/integrations/integrations.dependencies';
 
 const router = express.Router({ mergeParams: true });
 

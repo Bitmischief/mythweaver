@@ -1,4 +1,4 @@
-import { prisma } from './providers/prisma';
+import { prisma } from '@/lib/providers/prisma';
 
 export const getCampaignCharacters = async (campaignId: number) => {
   return prisma.conjuration.findMany({

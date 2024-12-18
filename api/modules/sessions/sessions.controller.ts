@@ -7,20 +7,21 @@ import {
   Patch,
   Post,
   Query,
-  Route,
+  Path,
   Security,
   Tags,
+  Route,
 } from 'tsoa';
 import { Session } from '@prisma/client';
-import { TrackingInfo } from '../../lib/tracking';
-import { SessionsService } from './sessions.service';
+import { TrackingInfo } from '@/lib/tracking';
+import { SessionsService } from '@/modules/sessions/sessions.service';
 import {
   GetSessionsResponse,
   PostSessionRequest,
   PatchSessionRequest,
   PostSessionAudioResponse,
   PostSessionAudioRequest,
-} from './sessions.interface';
+} from '@/modules/sessions/sessions.interface';
 
 @Route('sessions')
 @Tags('Sessions')
@@ -56,7 +57,7 @@ export class SessionsController {
   public async getSession(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() sessionId = 0,
+    @Path() sessionId = 0,
   ): Promise<Session> {
     return this.sessionsService.getSession(userId, trackingInfo, sessionId);
   }
@@ -82,7 +83,7 @@ export class SessionsController {
   public async patchSession(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() sessionId: number,
+    @Path() sessionId: number,
     @Body() request: PatchSessionRequest,
   ): Promise<Session> {
     return await this.sessionsService.updateSession(
@@ -99,7 +100,7 @@ export class SessionsController {
   public async deleteSession(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() sessionId: number,
+    @Path() sessionId: number,
   ): Promise<boolean> {
     return await this.sessionsService.deleteSession(
       userId,
@@ -114,7 +115,7 @@ export class SessionsController {
   public async postSessionSummaryEmail(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() sessionId: number,
+    @Path() sessionId: number,
   ) {
     return await this.sessionsService.postSessionSummaryEmail(
       userId,
@@ -129,7 +130,7 @@ export class SessionsController {
   public async postSessionAudio(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() sessionId: number,
+    @Path() sessionId: number,
     @Body() request: PostSessionAudioRequest,
   ): Promise<PostSessionAudioResponse> {
     return await this.sessionsService.postSessionAudio(
@@ -146,7 +147,7 @@ export class SessionsController {
   public async deleteSessionAudio(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() sessionId: number,
+    @Path() sessionId: number,
   ) {
     return await this.sessionsService.deleteSessionAudio(
       userId,
@@ -161,7 +162,7 @@ export class SessionsController {
   public async getTranscript(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() sessionId: number,
+    @Path() sessionId: number,
   ): Promise<any> {
     return await this.sessionsService.getSessionTranscript(
       userId,

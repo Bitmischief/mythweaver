@@ -1,10 +1,10 @@
 import Queue from 'bull';
 import { Campaign, Conjuration, ContextType, Session } from '@prisma/client';
-import { prisma } from '../../lib/providers/prisma';
+import { prisma } from '@/lib/providers/prisma';
 import { indexCampaignContext } from './indexCampaignContext';
-import { processInChunks } from '../../lib/utils';
-import logger from '../../lib/logger';
-import { config } from '../config';
+import { processInChunks } from '@/lib/utils';
+import logger from '@/lib/logger';
+import { config } from '@/worker/config';
 
 export const dailyCampaignContextQueue = new Queue(
   'campaign-context-sync',

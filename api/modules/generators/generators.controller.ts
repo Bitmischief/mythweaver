@@ -6,21 +6,21 @@ import {
   Path,
   Post,
   Query,
-  Route,
   Security,
   Tags,
+  Route,
 } from 'tsoa';
 import { Conjuration } from '@prisma/client';
-import { TrackingInfo } from '../../lib/tracking';
-import { GeneratorsService } from './generators.service';
+import { TrackingInfo } from '@/lib/tracking';
+import { GeneratorsService } from '@/modules/generators/generators.service';
 import {
   GetGeneratorsResponse,
   PostGeneratorGenerate,
   PostGenerateArbitraryRequest,
   PostGenerateArbitraryFromPromptRequest,
   PostGenerateArbitraryReplacementRequest,
-} from './generators.interface';
-import { Generator } from '../../data/conjurers';
+} from '@/modules/generators/generators.interface';
+import { Generator } from '@/data/conjurers';
 
 @Route('generators')
 @Tags('Conjuration')

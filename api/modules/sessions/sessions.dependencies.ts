@@ -1,17 +1,17 @@
 import { asClass, asFunction, createContainer, InjectionMode } from 'awilix';
-import { SessionsController } from './sessions.controller';
-import { SessionsService } from './sessions.service';
-import { SessionsDataProvider } from './sessions.dataprovider';
-import { MembersDataProvider } from '../campaigns/members/members.dataprovider';
-import { UsersDataProvider } from '../users/users.dataprovider';
-import { CampaignsDataProvider } from '../campaigns/campaigns.dataprovider';
-import { useLogger } from '../../lib/loggingMiddleware';
+import { SessionsController } from '@/modules/sessions/sessions.controller';
+import { SessionsService } from '@/modules/sessions/sessions.service';
+import { SessionsDataProvider } from '@/modules/sessions/sessions.dataprovider';
+import { MembersDataProvider } from '@/modules/campaigns/members/members.dataprovider';
+import { UsersDataProvider } from '@/modules/users/users.dataprovider';
+import { CampaignsDataProvider } from '@/modules/campaigns/campaigns.dataprovider';
+import { useLogger } from '@/lib/loggingMiddleware';
 import { NextFunction, Request, Response } from 'express';
-import { AssemblyAIProvider } from '../../providers/assemblyAI';
-import { SessionTranscriptWorker } from './sessionTranscript.worker';
-import { TranscriptionService } from './transcription.service';
-import { EmailProvider } from '../../providers/emailProvider';
-import { WebSocketProvider } from '../../providers/websocketProvider';
+import { AssemblyAIProvider } from '@/providers/assemblyAI';
+import { SessionTranscriptWorker } from '@/modules/sessions/sessionTranscript.worker';
+import { TranscriptionService } from '@/modules/sessions/transcription.service';
+import { EmailProvider } from '@/providers/emailProvider';
+import { WebSocketProvider } from '@/providers/websocketProvider';
 
 const container = createContainer({
   injectionMode: InjectionMode.CLASSIC,

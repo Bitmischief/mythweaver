@@ -1,21 +1,18 @@
-import { Get, Inject, OperationId, Route, Security, Tags } from 'tsoa';
-import { TrackingInfo } from '../../lib/tracking';
-import { Artist } from '@prisma/client';
-import { ArtistsService } from './artists.service';
+import { Get, Inject, Query, Route } from 'tsoa';
+import { ArtistsService } from '@/modules/artists/artists.service';
+import { track, TrackingInfo, AppEvent } from '@/lib/tracking';
 
-@Route('artists/:artistId')
-@Tags('Artists')
+@Route('artists')
 export class ArtistsController {
   constructor(private artistsService: ArtistsService) {}
 
-  @Get('/:artistId')
-  @Security('jwt')
-  @OperationId('getArtist')
+  @Get('/')
   public async getArtist(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() artistId: number,
-  ): Promise<Artist> {
-    return await this.artistsService.getArtist(userId, trackingInfo, artistId);
+    @Query() artistId: number,
+  ): Promise<any> {
+    track(AppEvent.GetArtist, userId, trackingInfo);
+    return this.artistsService.getArtist(artistId);
   }
 }

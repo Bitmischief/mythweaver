@@ -1,15 +1,15 @@
 import express, { Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import { z } from 'zod';
-import { checkAuth0Jwt, useInjectUserId } from '../../lib/authMiddleware';
-import { useInjectLoggingInfo } from '../../lib/loggingMiddleware';
+import { checkAuth0Jwt, useInjectUserId } from '@/lib/authMiddleware';
+import { useInjectLoggingInfo } from '@/lib/loggingMiddleware';
 import {
   useValidateRequest,
   ValidationTypes,
-} from '../../lib/validationMiddleware';
-import BillingController from './billing.controller';
-import { injectDependencies } from './billing.dependencies';
-import { StripeProvider } from '../../providers/stripe';
+} from '@/lib/validationMiddleware';
+import BillingController from '@/modules/billing/billing.controller';
+import { injectDependencies } from '@/modules/billing/billing.dependencies';
+import { StripeProvider } from '@/providers/stripe';
 
 const router = express.Router({ mergeParams: true });
 

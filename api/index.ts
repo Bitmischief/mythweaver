@@ -1,15 +1,15 @@
 import dotenv from 'dotenv';
-import Router from './routes';
-import { errorHandler } from './lib/errors/ErrorHandler';
+import Router from '@/routes';
+import { errorHandler } from '@/lib/errors/ErrorHandler';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
-import './worker/index';
+import '@/worker/index';
 import * as http from 'http';
-import logger from './lib/logger';
-import { getRequestId, useLogger } from './lib/loggingMiddleware';
+import logger from '@/lib/logger';
+import { getRequestId, useLogger } from '@/lib/loggingMiddleware';
 import pinoHTTP from 'pino-http';
 import { v4 as uuidv4 } from 'uuid';
-import { isLocalDevelopment, isProduction } from './lib/environments';
+import { isLocalDevelopment, isProduction } from '@/lib/environments';
 import * as Sentry from '@sentry/node';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import {
@@ -17,9 +17,9 @@ import {
   endTrialQueue,
   subscriptionPlanUpdateQueue,
   expiredSubscriptionCheckQueue,
-} from './worker';
-import { MythWeaverImageWorker } from './modules/images/mythweaverImage.worker';
-import { container as imagesContainer } from './modules/images/images.dependencies';
+} from '@/worker';
+import { MythWeaverImageWorker } from '@/modules/images/mythweaverImage.worker';
+import { container as imagesContainer } from '@/modules/images/images.dependencies';
 
 console.log('Initializing env vars');
 dotenv.config();

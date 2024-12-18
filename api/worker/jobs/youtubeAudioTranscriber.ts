@@ -3,9 +3,9 @@ import ytdl from 'ytdl-core';
 import puppeteer from 'puppeteer';
 import fs from 'fs';
 import path from 'path';
-import { prisma } from '../../lib/providers/prisma';
-import logger from '../../lib/logger';
-import { config } from '../config';
+import { prisma } from '@/lib/providers/prisma';
+import logger from '@/lib/logger';
+import { config } from '@/worker/config';
 
 interface DownloadYoutubeAudioEvent {
   youtubeUrl: string;

@@ -1,4 +1,4 @@
-import { RpgSystem } from '../../data/rpgSystems';
+import { RpgSystem } from '@/data/rpgSystems';
 
 export interface GetRpgSystemsResponse {
   data: RpgSystem[];

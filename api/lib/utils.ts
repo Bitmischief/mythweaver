@@ -1,6 +1,6 @@
 import axios from 'axios';
 import fs from 'node:fs';
-import logger from './logger';
+import logger from '@/lib/logger';
 
 export function shuffle<T>(array: T[]): T[] {
   let currentIndex = array.length,

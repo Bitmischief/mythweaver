@@ -1,8 +1,8 @@
 import { asClass, asFunction, createContainer, InjectionMode } from 'awilix';
-import { ImageModelsController } from './imageModels.controller';
-import { ImageModelsService } from './imageModels.service';
-import { ImageModelsDataProvider } from './imageModels.dataprovider';
-import { useLogger } from '../../lib/loggingMiddleware';
+import { ImageModelsController } from '@/modules/imageModels/imageModels.controller';
+import { ImageModelsService } from '@/modules/imageModels/imageModels.service';
+import { ImageModelsDataProvider } from '@/modules/imageModels/imageModels.dataprovider';
+import { useLogger } from '@/lib/loggingMiddleware';
 import { NextFunction, Request, Response } from 'express';
 
 const container = createContainer({

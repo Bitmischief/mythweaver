@@ -1,9 +1,9 @@
 import { asClass, asFunction, createContainer, InjectionMode } from 'awilix';
-import { ConjurationsRelationshipsController } from './relationships.controller';
-import { ConjurationsRelationshipsService } from './relationships.service';
-import { ConjurationsRelationshipsDataProvider } from './relationships.dataprovider';
-import { CollectionsDataProvider } from '../../collections/collections.dataprovider';
-import { useLogger } from '../../../lib/loggingMiddleware';
+import { ConjurationsRelationshipsController } from '@/modules/conjurations/relationships/relationships.controller';
+import { ConjurationsRelationshipsService } from '@/modules/conjurations/relationships/relationships.service';
+import { ConjurationsRelationshipsDataProvider } from '@/modules/conjurations/relationships/relationships.dataprovider';
+import { CollectionsDataProvider } from '@/modules/collections/collections.dataprovider';
+import { useLogger } from '@/lib/loggingMiddleware';
 import { NextFunction, Request, Response } from 'express';
 
 const container = createContainer({

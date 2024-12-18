@@ -1,8 +1,8 @@
-import { indexCampaignContextQueue } from '../worker';
+import { indexCampaignContextQueue } from '@/worker';
 import { ContextType } from '@prisma/client';
-import { prisma } from '../lib/providers/prisma';
-import { AppError, HttpCode } from '../lib/errors/AppError';
-import { getClient } from '../lib/providers/openai';
+import { prisma } from '@/lib/providers/prisma';
+import { AppError, HttpCode } from '@/lib/errors/AppError';
+import { getClient } from '@/lib/providers/openai';
 
 const openai = getClient();
 

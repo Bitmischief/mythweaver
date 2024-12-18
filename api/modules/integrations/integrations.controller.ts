@@ -1,7 +1,7 @@
 import { Inject } from 'tsoa';
-import { MythWeaverLogger } from '../../lib/logger';
+import { MythWeaverLogger } from '@/lib/logger';
 import axios from 'axios';
-import { IntegrationsService } from './integrations.service';
+import { IntegrationsService } from '@/modules/integrations/integrations.service';
 
 export class IntegrationsController {
   constructor(

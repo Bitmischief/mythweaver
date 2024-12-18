@@ -1,9 +1,9 @@
-import { urlPrefix } from '../lib/utils';
-import { AppError, HttpCode } from '../lib/errors/AppError';
+import { urlPrefix } from '@/lib/utils';
+import { AppError, HttpCode } from '@/lib/errors/AppError';
 import Stripe from 'stripe';
 import { BillingPlan, BillingInterval } from '@prisma/client';
-import logger from '../lib/logger';
-import { GetBillingPortalUrlRequest } from '../modules/billing/billing.interface';
+import logger from '@/lib/logger';
+import { GetBillingPortalUrlRequest } from '@/modules/billing/billing.interface';
 
 export class StripeProvider {
   private stripe: Stripe;

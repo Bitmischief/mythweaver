@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import logger, { MythWeaverLogger } from './logger';
+import logger, { MythWeaverLogger } from '@/lib/logger';
 import { v4 as uuidv4 } from 'uuid';
 
 export const getRequestId = (req: Request, res: Response) =>

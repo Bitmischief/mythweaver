@@ -1,7 +1,7 @@
 import Queue from 'bull';
-import { prisma } from '../../lib/providers/prisma';
-import logger from '../../lib/logger';
-import { config } from '../config';
+import { prisma } from '@/lib/providers/prisma';
+import logger from '@/lib/logger';
+import { config } from '@/worker/config';
 
 export interface ProcessTagsEvent {
   conjurationIds: number[];

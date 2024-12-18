@@ -7,19 +7,20 @@ import {
   Post,
   Put,
   Query,
-  Route,
+  Path,
   Security,
   Tags,
+  Route,
 } from 'tsoa';
 import { Campaign } from '@prisma/client';
-import { AppEvent, track, TrackingInfo } from '../../lib/tracking';
-import { CampaignsService } from './campaigns.service';
+import { AppEvent, track, TrackingInfo } from '@/lib/tracking';
+import { CampaignsService } from '@/modules/campaigns/campaigns.service';
 import {
   GetCampaignsResponse,
   PostCampaignRequest,
   PutCampaignRequest,
   InviteMemberRequest,
-} from './campaigns.interface';
+} from '@/modules/campaigns/campaigns.interface';
 
 @Route('campaigns')
 @Tags('Campaigns')
@@ -51,7 +52,7 @@ export class CampaignsController {
   public async getCampaign(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() campaignId = 0,
+    @Path() campaignId = 0,
   ): Promise<Campaign> {
     return await this.campaignsService.getCampaign(
       userId,
@@ -82,7 +83,7 @@ export class CampaignsController {
   public async putCampaign(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() campaignId = 0,
+    @Path() campaignId = 0,
     @Body() request: PutCampaignRequest,
   ): Promise<Campaign> {
     return await this.campaignsService.updateCampaign(
@@ -99,7 +100,7 @@ export class CampaignsController {
   public async deleteCampaign(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() campaignId: number,
+    @Path() campaignId: number,
   ): Promise<void> {
     return await this.campaignsService.deleteCampaign(
       userId,
@@ -114,7 +115,7 @@ export class CampaignsController {
   public async inviteCampaignMember(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() campaignId = 0,
+    @Path() campaignId = 0,
     @Body() request: InviteMemberRequest,
   ): Promise<any> {
     return await this.campaignsService.inviteCampaignMember(
@@ -130,7 +131,7 @@ export class CampaignsController {
   @Get('/invites/:inviteCode')
   public async getInvite(
     @Inject() trackingInfo: TrackingInfo,
-    @Route() inviteCode: string,
+    @Path() inviteCode: string,
   ): Promise<any> {
     return await this.campaignsService.getInvite(inviteCode);
   }
@@ -141,7 +142,7 @@ export class CampaignsController {
   public async acceptInvite(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() inviteCode: string,
+    @Path() inviteCode: string,
   ) {
     return await this.campaignsService.acceptInvite(
       userId,
@@ -156,8 +157,8 @@ export class CampaignsController {
   public async getCampaignCharacter(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() campaignId: number,
-    @Route() characterId: number,
+    @Path() campaignId: number,
+    @Path() characterId: number,
   ) {
     return await this.campaignsService.getCampaignCharacter(
       userId,
@@ -173,7 +174,7 @@ export class CampaignsController {
   public async getMyCampaignCharacters(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() campaignId: number,
+    @Path() campaignId: number,
   ) {
     return await this.campaignsService.getMyCampaignCharacters(
       userId,

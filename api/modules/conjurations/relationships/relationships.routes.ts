@@ -1,14 +1,14 @@
-import { injectDependencies } from './relationships.dependencies';
+import { injectDependencies } from '@/modules/conjurations/relationships/relationships.dependencies';
 import express, { Request, Response } from 'express';
 import { z } from 'zod';
-import { checkAuth0Jwt, useInjectUserId } from '../../../lib/authMiddleware';
-import { useInjectLoggingInfo } from '../../../lib/loggingMiddleware';
+import { checkAuth0Jwt, useInjectUserId } from '@/lib/authMiddleware';
+import { useInjectLoggingInfo } from '@/lib/loggingMiddleware';
 import {
   useValidateRequest,
   ValidationTypes,
-} from '../../../lib/validationMiddleware';
+} from '@/lib/validationMiddleware';
 import { ConjurationRelationshipType } from '@prisma/client';
-import { ConjurationsRelationshipsController } from './relationships.controller';
+import { ConjurationsRelationshipsController } from '@/modules/conjurations/relationships/relationships.controller';
 
 const router = express.Router({ mergeParams: true });
 

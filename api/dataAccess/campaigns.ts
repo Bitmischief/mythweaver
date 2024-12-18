@@ -1,7 +1,7 @@
-import { prisma } from '../lib/providers/prisma';
-import { CampaignRole } from '../modules/campaigns/campaigns.interface';
-import { getClient } from '../lib/providers/openai';
-import logger from '../lib/logger';
+import { prisma } from '@/lib/providers/prisma';
+import { CampaignRole } from '@/modules/campaigns/campaigns.interface';
+import { getClient } from '@/lib/providers/openai';
+import logger from '@/lib/logger';
 import { ContextType } from '@prisma/client';
 
 const openai = getClient();

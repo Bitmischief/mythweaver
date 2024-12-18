@@ -9,6 +9,7 @@
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "declaration": true,
     "resolveJsonModule": true,
     "inlineSources": true,
 
@@ -20,7 +21,9 @@
     "typeRoots": ["./types"],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "tsoa": ["node_modules/tsoa/dist"],
+      "tsoa/": ["node_modules/tsoa/dist/"]
     }
   },
   "include": ["**/*.*.ts", "**/*.ts"]

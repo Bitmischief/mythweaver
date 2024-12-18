@@ -5,18 +5,18 @@ import {
   User,
 } from '@prisma/client';
 import { differenceInDays } from 'date-fns';
-import { MythWeaverLogger } from '../../lib/logger';
-import { GetBillingPortalUrlRequest } from './billing.interface';
-import { setIntercomCustomAttributes } from '../../lib/intercom';
-import { AppEvent, track } from '../../lib/tracking';
-import { AdConversionEvent, reportAdConversionEvent } from '../../lib/ads';
-import { AppError, HttpCode } from '../../lib/errors/AppError';
-import { EmailProvider, EmailTemplates } from '../../providers/emailProvider';
-import { StripeProvider } from '../../providers/stripe';
+import { MythWeaverLogger } from '@/lib/logger';
+import { GetBillingPortalUrlRequest } from '@/modules/billing/billing.interface';
+import { setIntercomCustomAttributes } from '@/lib/intercom';
+import { AppEvent, track } from '@/lib/tracking';
+import { AdConversionEvent, reportAdConversionEvent } from '@/lib/ads';
+import { AppError, HttpCode } from '@/lib/errors/AppError';
+import { EmailProvider, EmailTemplates } from '@/providers/emailProvider';
+import { StripeProvider } from '@/providers/stripe';
 import Stripe from 'stripe';
-import { BillingDataProvider } from './billing.dataprovider';
-import { DiscordProvider } from '../../providers/discordProvider';
-import { CreditsProvider } from '../../providers/creditsProvider';
+import { BillingDataProvider } from '@/modules/billing/billing.dataprovider';
+import { DiscordProvider } from '@/providers/discordProvider';
+import { CreditsProvider } from '@/providers/creditsProvider';
 
 export class BillingService {
   constructor(

@@ -1,6 +1,6 @@
-import { AppEvent, track, TrackingInfo } from '../../lib/tracking';
-import { ImageModelsDataProvider } from './imageModels.dataprovider';
-import { GetImageModelsResponse } from './imageModels.interface';
+import { AppEvent, track, TrackingInfo } from '@/lib/tracking';
+import { ImageModelsDataProvider } from '@/modules/imageModels/imageModels.dataprovider';
+import { GetImageModelsResponse } from '@/modules/imageModels/imageModels.interface';
 
 export class ImageModelsService {
   constructor(private imageModelsDataProvider: ImageModelsDataProvider) {}

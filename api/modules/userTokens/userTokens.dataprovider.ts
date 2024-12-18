@@ -1,5 +1,5 @@
 import { TokenType, UserToken } from '@prisma/client';
-import { prisma } from '../../lib/providers/prisma';
+import { prisma } from '@/lib/providers/prisma';
 
 export class UserTokensDataProvider {
   async getUserTokenForUser(

@@ -1,5 +1,5 @@
 import {
-  Route,
+  Path,
   Tags,
   Security,
   OperationId,
@@ -8,10 +8,11 @@ import {
   Delete,
   Inject,
   Body,
+  Route,
 } from 'tsoa';
-import { CampaignFilesService } from './campaignFiles.service';
-import { PostCampaignFileRequest } from './campaignFiles.interface';
-import { TrackingInfo } from '../../../lib/tracking';
+import { CampaignFilesService } from '@/modules/campaigns/files/campaignFiles.service';
+import { PostCampaignFileRequest } from '@/modules/campaigns/files/campaignFiles.interface';
+import { TrackingInfo } from '@/lib/tracking';
 
 @Route('campaigns/:campaignId/files')
 @Tags('Campaign Files')
@@ -24,7 +25,7 @@ export class CampaignFilesController {
   public async postCampaignFiles(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() campaignId: number,
+    @Path() campaignId: number,
     @Body() request: PostCampaignFileRequest,
   ) {
     return await this.campaignFilesService.createCampaignFile(
@@ -41,7 +42,7 @@ export class CampaignFilesController {
   public async getCampaignFiles(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() campaignId: number,
+    @Path() campaignId: number,
   ) {
     return await this.campaignFilesService.getCampaignFiles(
       userId,
@@ -56,8 +57,8 @@ export class CampaignFilesController {
   public async deleteCampaignFile(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() campaignId: number,
-    @Route() fileId: number,
+    @Path() campaignId: number,
+    @Path() fileId: number,
   ) {
     return await this.campaignFilesService.deleteCampaignFile(
       userId,

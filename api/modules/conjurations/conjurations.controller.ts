@@ -5,23 +5,24 @@ import {
   OperationId,
   Patch,
   Post,
-  Route,
+  Path,
   Security,
   Tags,
   Query,
   Delete,
+  Route,
 } from 'tsoa';
-import { TrackingInfo } from '../../lib/tracking';
-import { MythWeaverLogger } from '../../lib/logger';
+import { TrackingInfo } from '@/lib/tracking';
+import { MythWeaverLogger } from '@/lib/logger';
 import { Conjuration, ConjurationRelationshipType } from '@prisma/client';
 import {
   PatchConjurationRequest,
   GetConjurationsResponse,
   GetConjurationTagsResponse,
   ConvertConjurationRequest,
-} from './conjurations.interface';
-import { ImageStylePreset } from '../images/images.interface';
-import { ConjurationsService } from './conjurations.service';
+} from '@/modules/conjurations/conjurations.interface';
+import { ImageStylePreset } from '@/modules/images/images.interface';
+import { ConjurationsService } from '@/modules/conjurations/conjurations.service';
 
 @Route('conjurations')
 @Tags('Conjurations')
@@ -74,7 +75,7 @@ export class ConjurationsController {
   public async getConjuration(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() conjurationId: number,
+    @Path() conjurationId: number,
   ): Promise<Conjuration & { saved: boolean; campaignIds: number[] }> {
     return await this.conjurationsService.getConjuration(
       userId,
@@ -89,7 +90,7 @@ export class ConjurationsController {
   public async postSaveConjuration(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() conjurationId: number,
+    @Path() conjurationId: number,
   ): Promise<Conjuration | null> {
     return await this.conjurationsService.copyConjuration(
       userId,
@@ -104,7 +105,7 @@ export class ConjurationsController {
   public async patchConjuration(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() conjurationId: number,
+    @Path() conjurationId: number,
     @Body() request: PatchConjurationRequest,
   ): Promise<Conjuration> {
     return await this.conjurationsService.updateConjuration(
@@ -121,7 +122,7 @@ export class ConjurationsController {
   public async deleteConjuration(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() conjurationId: number,
+    @Path() conjurationId: number,
   ): Promise<boolean> {
     return await this.conjurationsService.deleteConjuration(
       userId,
@@ -155,7 +156,7 @@ export class ConjurationsController {
   public async postRemoveConjuration(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() conjurationId: number,
+    @Path() conjurationId: number,
   ): Promise<void> {
     await this.conjurationsService.removeConjuration(
       userId,
@@ -170,7 +171,7 @@ export class ConjurationsController {
   public async postCopyConjuration(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() conjurationId: number,
+    @Path() conjurationId: number,
   ): Promise<Conjuration | null> {
     return await this.conjurationsService.copyConjuration(
       userId,
@@ -185,7 +186,7 @@ export class ConjurationsController {
   public async getConjurationRequest(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
-    @Route() requestId: number,
+    @Path() requestId: number,
   ): Promise<Conjuration> {
     return await this.conjurationsService.getConjurationRequest(
       userId,

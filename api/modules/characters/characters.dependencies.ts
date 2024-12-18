@@ -1,10 +1,10 @@
 import { asClass, asFunction, createContainer, InjectionMode } from 'awilix';
-import { CharactersController } from './characters.controller';
-import { CharactersService } from './characters.service';
-import { CharactersDataProvider } from './characters.dataprovider';
-import { useLogger } from '../../lib/loggingMiddleware';
+import { CharactersController } from '@/modules/characters/characters.controller';
+import { CharactersService } from '@/modules/characters/characters.service';
+import { CharactersDataProvider } from '@/modules/characters/characters.dataprovider';
+import { useLogger } from '@/lib/loggingMiddleware';
 import { NextFunction, Request, Response } from 'express';
-import { MembersDataProvider } from '../campaigns/members/members.dataprovider';
+import { MembersDataProvider } from '@/modules/campaigns/members/members.dataprovider';
 
 const container = createContainer({
   injectionMode: InjectionMode.CLASSIC,

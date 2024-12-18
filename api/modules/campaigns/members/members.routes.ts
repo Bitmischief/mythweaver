@@ -1,13 +1,13 @@
 import express, { Request, Response } from 'express';
-import { checkAuth0Jwt, useInjectUserId } from '../../../lib/authMiddleware';
+import { checkAuth0Jwt, useInjectUserId } from '@/lib/authMiddleware';
 import { z } from 'zod';
 import {
   useValidateRequest,
   ValidationTypes,
-} from '../../../lib/validationMiddleware';
-import { useInjectLoggingInfo } from '../../../lib/loggingMiddleware';
-import { MembersController } from './members.controller';
-import { injectDependencies } from './members.dependencies';
+} from '@/lib/validationMiddleware';
+import { useInjectLoggingInfo } from '@/lib/loggingMiddleware';
+import { MembersController } from '@/modules/campaigns/members/members.controller';
+import { injectDependencies } from '@/modules/campaigns/members/members.dependencies';
 
 const router = express.Router({ mergeParams: true });
 

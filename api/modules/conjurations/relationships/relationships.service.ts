@@ -1,16 +1,15 @@
-import { ConjurationsRelationshipsDataProvider } from './relationships.dataprovider';
-import { CollectionsDataProvider } from '../../collections/collections.dataprovider';
-
+import { ConjurationsRelationshipsDataProvider } from '@/modules/conjurations/relationships/relationships.dataprovider';
+import { CollectionsDataProvider } from '@/modules/collections/collections.dataprovider';
 import {
   PatchRelationshipRequest,
   GraphLinkResponse,
   PostRelationshipRequest,
   RelationshipResponse,
-} from './relationships.interface';
-import { TrackingInfo } from '../../../lib/tracking';
+} from '@/modules/conjurations/relationships/relationships.interface';
+import { TrackingInfo } from '@/lib/tracking';
 import { Conjuration, ConjurationRelationshipType } from '@prisma/client';
-import { MythWeaverLogger } from '../../../lib/logger';
-import { AppError, HttpCode } from '../../../lib/errors/AppError';
+import { MythWeaverLogger } from '@/lib/logger';
+import { AppError, HttpCode } from '@/lib/errors/AppError';
 
 export class ConjurationsRelationshipsService {
   constructor(

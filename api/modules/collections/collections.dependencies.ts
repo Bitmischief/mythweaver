@@ -1,11 +1,11 @@
 import { asClass, asFunction, createContainer, InjectionMode } from 'awilix';
-import { CollectionsController } from './collections.controller';
-import { CollectionsService } from './collections.service';
-import { CollectionsDataProvider } from './collections.dataprovider';
-import { ConjurationsDataProvider } from '../conjurations/conjurations.dataprovider';
-import { useLogger } from '../../lib/loggingMiddleware';
+import { CollectionsController } from '@/modules/collections/collections.controller';
+import { CollectionsService } from '@/modules/collections/collections.service';
+import { CollectionsDataProvider } from '@/modules/collections/collections.dataprovider';
+import { ConjurationsDataProvider } from '@/modules/conjurations/conjurations.dataprovider';
+import { useLogger } from '@/lib/loggingMiddleware';
 import { NextFunction, Request, Response } from 'express';
-import { WebSocketProvider } from '../../providers/websocketProvider';
+import { WebSocketProvider } from '@/providers/websocketProvider';
 
 const container = createContainer({
   injectionMode: InjectionMode.CLASSIC,

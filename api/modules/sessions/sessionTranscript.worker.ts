@@ -1,13 +1,13 @@
 import Queue, { Job } from 'bull';
-import { config } from '../../worker/config';
+import { config } from '@/worker/config';
 import {
   WebSocketEvent,
   WebSocketProvider,
-} from '../../providers/websocketProvider';
-import { MythWeaverLogger } from '../../lib/logger';
-import { AssemblyAIProvider } from '../../providers/assemblyAI';
-import { SessionsDataProvider } from './sessions.dataprovider';
-import { TranscriptionService } from './transcription.service';
+} from '@/providers/websocketProvider';
+import { MythWeaverLogger } from '@/lib/logger';
+import { AssemblyAIProvider } from '@/providers/assemblyAI';
+import { SessionsDataProvider } from '@/modules/sessions/sessions.dataprovider';
+import { TranscriptionService } from '@/modules/sessions/transcription.service';
 
 interface TranscriptEvent {
   sessionId: number;

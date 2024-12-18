@@ -1,25 +1,26 @@
-import { CampaignsDataProvider } from './campaigns.dataprovider';
-import { MembersDataProvider } from './members/members.dataprovider';
-import { CollectionsDataProvider } from '../collections/collections.dataprovider';
-import { UsersDataProvider } from '../users/users.dataprovider';
-import { CharactersDataProvider } from './characters/characters.dataprovider';
-import { MythWeaverLogger } from '../../lib/logger';
+import { CampaignsDataProvider } from '@/modules/campaigns/campaigns.dataprovider';
+import { MembersDataProvider } from '@/modules/campaigns/members/members.dataprovider';
+import { CollectionsDataProvider } from '@/modules/collections/collections.dataprovider';
+import { UsersDataProvider } from '@/modules/users/users.dataprovider';
+import { CharactersDataProvider } from '@/modules/campaigns/characters/characters.dataprovider';
+import { MythWeaverLogger } from '@/lib/logger';
 import {
   GetCampaignsResponse,
   PostCampaignRequest,
   PutCampaignRequest,
   InviteMemberRequest,
-} from './campaigns.interface';
-import { TrackingInfo, AppEvent, track } from '../../lib/tracking';
-import { AppError, HttpCode } from '../../lib/errors/AppError';
+} from '@/modules/campaigns/campaigns.interface';
+import { TrackingInfo, AppEvent, track } from '@/lib/tracking';
+import { AppError, HttpCode } from '@/lib/errors/AppError';
 import { Campaign, ContextType, Character, Conjuration } from '@prisma/client';
-import { createCampaign } from '../../dataAccess/campaigns';
-import { indexCampaignContextQueue } from '../../worker';
+import { createCampaign } from '@/dataAccess/campaigns';
+import { indexCampaignContextQueue } from '@/worker';
 import { v4 as uuidv4 } from 'uuid';
-import { urlPrefix } from '../../lib/utils';
-import { CampaignRole } from './campaigns.interface';
-import { getCampaignCharacters } from '../../lib/charactersHelper';
-import { EmailProvider, EmailTemplates } from '../../providers/emailProvider';
+import { urlPrefix } from '@/lib/utils';
+import { CampaignRole } from '@/modules/campaigns/campaigns.interface';
+import { getCampaignCharacters } from '@/lib/charactersHelper';
+import { EmailProvider, EmailTemplates } from '@/providers/emailProvider';
+
 export class CampaignsService {
   constructor(
     private campaignsDataProvider: CampaignsDataProvider,

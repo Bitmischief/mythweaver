@@ -1,4 +1,4 @@
-import { AssemblyAIProvider } from '../../providers/assemblyAI';
+import { AssemblyAIProvider } from '@/providers/assemblyAI';
 
 export class TranscriptionService {
   constructor(private readonly assemblyAIProvider: AssemblyAIProvider) {}

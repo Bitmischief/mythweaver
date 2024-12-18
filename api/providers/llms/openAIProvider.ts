@@ -1,8 +1,8 @@
-import { getCampaign } from '../../dataAccess/campaigns';
-import { AppError } from '../../lib/errors/AppError';
-import { getCampaignContextConfig } from '../../dataAccess/campaigns';
-import { HttpCode } from '../../lib/errors/AppError';
-import { getClient } from '../../lib/providers/openai';
+import { getCampaign } from '@/dataAccess/campaigns';
+import { AppError } from '@/lib/errors/AppError';
+import { getCampaignContextConfig } from '@/dataAccess/campaigns';
+import { HttpCode } from '@/lib/errors/AppError';
+import { getClient } from '@/lib/providers/openai';
 import { TextContentBlock } from 'openai/resources/beta/threads/messages';
 
 export class OpenAIProvider {

@@ -1,7 +1,10 @@
-import { prisma } from '../lib/providers/prisma';
+import { prisma } from '@/lib/providers/prisma';
 import { ImageCreditChangeType } from '@prisma/client';
-import { setIntercomCustomAttributes } from '../lib/intercom';
-import { WebSocketEvent, WebSocketProvider } from './websocketProvider';
+import { setIntercomCustomAttributes } from '@/lib/intercom';
+import {
+  WebSocketEvent,
+  WebSocketProvider,
+} from '@/providers/websocketProvider';
 
 export class CreditsProvider {
   constructor(private webSocketProvider: WebSocketProvider) {}

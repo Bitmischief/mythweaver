@@ -1,7 +1,7 @@
-import { Get, Inject, OperationId, Query, Route, Security, Tags } from 'tsoa';
-import { TrackingInfo } from '../../lib/tracking';
-import { ImageModelsService } from './imageModels.service';
-import { GetImageModelsResponse } from './imageModels.interface';
+import { Get, Inject, OperationId, Query, Security, Tags, Route } from 'tsoa';
+import { TrackingInfo } from '@/lib/tracking';
+import { ImageModelsService } from '@/modules/imageModels/imageModels.service';
+import { GetImageModelsResponse } from '@/modules/imageModels/imageModels.interface';
 
 @Route('models/images')
 @Tags('Image Models')

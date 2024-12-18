@@ -3,14 +3,14 @@ import { z } from 'zod';
 import {
   useValidateRequest,
   ValidationTypes,
-} from '../../lib/validationMiddleware';
-import { ConjurationsController } from './conjurations.controller';
-import { checkAuth0Jwt, useInjectUserId } from '../../lib/authMiddleware';
-import { useInjectLoggingInfo } from '../../lib/loggingMiddleware';
+} from '@/lib/validationMiddleware';
+import { ConjurationsController } from '@/modules/conjurations/conjurations.controller';
+import { checkAuth0Jwt, useInjectUserId } from '@/lib/authMiddleware';
+import { useInjectLoggingInfo } from '@/lib/loggingMiddleware';
 import { ConjurationRelationshipType } from '@prisma/client';
 import { ImageStylePreset } from '@/modules/images/images.interface';
-import { injectDependencies } from './conjurations.dependencies';
-import conjurers from '../../data/conjurers';
+import { injectDependencies } from '@/modules/conjurations/conjurations.dependencies';
+import conjurers from '@/data/conjurers';
 
 const router = express.Router({ mergeParams: true });
 

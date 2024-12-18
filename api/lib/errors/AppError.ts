@@ -1,7 +1,7 @@
 import {
   WebSocketContext,
   WebSocketProvider,
-} from '../../providers/websocketProvider';
+} from '@/providers/websocketProvider';
 
 export enum HttpCode {
   OK = 200,

@@ -3,16 +3,16 @@ import {
   checkAuth0Jwt,
   useAuthenticateRequest,
   useInjectUserId,
-} from '../../lib/authMiddleware';
+} from '@/lib/authMiddleware';
 import { z } from 'zod';
 import {
   useValidateRequest,
   ValidationTypes,
-} from '../../lib/validationMiddleware';
-import { CampaignsController } from './campaigns.controller';
+} from '@/lib/validationMiddleware';
+import { CampaignsController } from '@/modules/campaigns/campaigns.controller';
 import rateLimit from 'express-rate-limit';
-import { useInjectLoggingInfo } from '../../lib/loggingMiddleware';
-import { injectDependencies } from './campaigns.dependencies';
+import { useInjectLoggingInfo } from '@/lib/loggingMiddleware';
+import { injectDependencies } from '@/modules/campaigns/campaigns.dependencies';
 
 const router = express.Router({ mergeParams: true });
 
