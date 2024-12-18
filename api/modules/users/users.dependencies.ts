@@ -5,6 +5,7 @@ import { UsersDataProvider } from './users.dataprovider';
 import { ConjurationsDataProvider } from '../conjurations/conjurations.dataprovider';
 import { useLogger } from '../../lib/loggingMiddleware';
 import { NextFunction, Request, Response } from 'express';
+import { CreditsProvider } from '@/providers/creditsProvider';
 
 const container = createContainer({
   injectionMode: InjectionMode.CLASSIC,
@@ -15,6 +16,7 @@ container.register({
   usersService: asClass(UsersService).scoped(),
   usersDataProvider: asClass(UsersDataProvider).scoped(),
   conjurationsDataProvider: asClass(ConjurationsDataProvider).scoped(),
+  creditsProvider: asClass(CreditsProvider).singleton(),
   logger: asFunction(useLogger).scoped(),
 });
 

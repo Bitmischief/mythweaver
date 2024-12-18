@@ -16,7 +16,6 @@ import {
   sendWebsocketMessage,
   WebSocketEvent,
 } from '../../services/websockets';
-import { modifyImageCreditCount } from '../../services/credits';
 import retry from 'async-await-retry';
 import { AxiosError } from 'axios';
 import axios from 'axios';
@@ -24,6 +23,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { CompletedImageService } from './completedImage.service';
 import { MythWeaverImageProvider } from './mythweaverImage.provider';
 import { StorageProvider } from '../../providers/storageProvider';
+import { CreditsProvider } from '@/providers/creditsProvider';
 export class ImagesService {
   constructor(
     private imagesDataProvider: ImagesDataProvider,
@@ -31,6 +31,7 @@ export class ImagesService {
     private mythweaverImageProvider: MythWeaverImageProvider,
     private completedImageService: CompletedImageService,
     private storageProvider: StorageProvider,
+    private creditsProvider: CreditsProvider,
     private logger: MythWeaverLogger,
   ) {}
 
@@ -643,7 +644,7 @@ export class ImagesService {
     credits: number,
     reason: string,
   ): Promise<void> {
-    const imageCredits = await modifyImageCreditCount(
+    const imageCredits = await this.creditsProvider.modifyImageCreditCount(
       userId,
       -credits,
       ImageCreditChangeType.USER_INITIATED,

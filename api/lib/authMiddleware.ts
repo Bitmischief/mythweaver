@@ -3,13 +3,13 @@ import { NextFunction, Request, Response } from 'express';
 import { prisma } from './providers/prisma';
 import { useLogger } from './loggingMiddleware';
 import { auth } from 'express-oauth2-jwt-bearer';
-import { modifyImageCreditCount } from '../services/credits';
 import { ImageCreditChangeType } from '@prisma/client';
 import { AppEvent, track } from './tracking';
 import { AdConversionEvent, reportAdConversionEvent } from './ads';
 import { createCampaign } from '../dataAccess/campaigns';
 import { StripeProvider } from '../providers/stripe';
 import { EmailProvider } from '@/providers/emailProvider';
+import { CreditsProvider } from '@/providers/creditsProvider';
 
 export const checkAuth0Jwt = auth({
   audience: process.env.AUTH0_AUDIENCE,
@@ -111,7 +111,8 @@ const createNewUser = async (res: Response, email: string) => {
     },
   });
 
-  await modifyImageCreditCount(
+  const creditsProvider = new CreditsProvider();
+  await creditsProvider.modifyImageCreditCount(
     user.id,
     10,
     ImageCreditChangeType.TRIAL,
