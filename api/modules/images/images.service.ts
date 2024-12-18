@@ -24,6 +24,7 @@ import { MythWeaverImageProvider } from '@/modules/images/mythweaverImage.provid
 import { StorageProvider } from '@/providers/storageProvider';
 import { CreditsProvider } from '@/providers/creditsProvider';
 import { ImagesDataProvider } from '@/modules/images/images.dataprovider';
+
 export class ImagesService {
   constructor(
     private imagesDataProvider: ImagesDataProvider,
@@ -621,7 +622,7 @@ export class ImagesService {
       const backgroundRemovedImageUri =
         await this.stabilityAIProvider.removeBackground(imageBuffer);
 
-      const updatedImage = await this.updateImage(
+      await this.updateImage(
         imageId,
         ImageEditType.BACKGROUND_REMOVAL,
         backgroundRemovedImageUri,
