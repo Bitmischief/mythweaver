@@ -1,4 +1,4 @@
-import { MythWeaverLogger } from '@/lib/logger';
+import { MythWeaverLogger } from '@/modules/core/logging/logger';
 import axios from 'axios';
 
 export enum EmailTemplates {

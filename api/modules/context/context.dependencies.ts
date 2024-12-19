@@ -1,5 +1,5 @@
 import { asClass, asFunction, createContainer, InjectionMode } from 'awilix';
-import { useLogger } from '@/lib/loggingMiddleware';
+import { useLogger } from '@/modules/core/logging/loggingMiddleware';
 import { DailyCampaignContextWorker } from '@/modules/context/workers/dailyCampaignContext.worker';
 import { ContextService } from '@/modules/context/context.service';
 import { CampaignContextWorker } from './workers/campaignContext.worker';

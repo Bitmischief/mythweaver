@@ -2,7 +2,7 @@ import { asClass, asFunction, createContainer, InjectionMode } from 'awilix';
 import { ImageModelsController } from '@/modules/imageModels/imageModels.controller';
 import { ImageModelsService } from '@/modules/imageModels/imageModels.service';
 import { ImageModelsDataProvider } from '@/modules/imageModels/imageModels.dataprovider';
-import { useLogger } from '@/lib/loggingMiddleware';
+import { useLogger } from '@/modules/core/logging/loggingMiddleware';
 import { NextFunction, Request, Response } from 'express';
 
 const container = createContainer({

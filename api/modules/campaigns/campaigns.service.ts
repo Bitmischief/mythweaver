@@ -3,7 +3,7 @@ import { MembersDataProvider } from '@/modules/campaigns/members/members.datapro
 import { CollectionsDataProvider } from '@/modules/collections/collections.dataprovider';
 import { UsersDataProvider } from '@/modules/users/users.dataprovider';
 import { CharactersDataProvider } from '@/modules/campaigns/characters/characters.dataprovider';
-import { MythWeaverLogger } from '@/lib/logger';
+import { MythWeaverLogger } from '@/modules/core/logging/logger';
 import {
   GetCampaignsResponse,
   PostCampaignRequest,
@@ -11,7 +11,7 @@ import {
   InviteMemberRequest,
 } from '@/modules/campaigns/campaigns.interface';
 import { TrackingInfo, AppEvent, track } from '@/lib/tracking';
-import { AppError, HttpCode } from '@/lib/errors/AppError';
+import { AppError, HttpCode } from '@/modules/core/errors/AppError';
 import { Campaign, ContextType, Character, Conjuration } from '@prisma/client';
 import { createCampaign } from '@/dataAccess/campaigns';
 import { v4 as uuidv4 } from 'uuid';
@@ -20,6 +20,7 @@ import { CampaignRole } from '@/modules/campaigns/campaigns.interface';
 import { getCampaignCharacters } from '@/lib/charactersHelper';
 import { EmailProvider, EmailTemplates } from '@/providers/emailProvider';
 import { CampaignContextWorker } from '@/modules/context/workers/campaignContext.worker';
+import { CollectionsService } from '../collections/collections.service';
 
 export class CampaignsService {
   constructor(
@@ -30,6 +31,7 @@ export class CampaignsService {
     private charactersDataProvider: CharactersDataProvider,
     private emailProvider: EmailProvider,
     private indexCampaignContextWorker: CampaignContextWorker,
+    private collectionsService: CollectionsService,
     private logger: MythWeaverLogger,
   ) {}
 
@@ -58,11 +60,7 @@ export class CampaignsService {
     };
   }
 
-  async getCampaign(
-    userId: number,
-    trackingInfo: TrackingInfo,
-    campaignId: number,
-  ): Promise<Campaign> {
+  async getCampaign(userId: number, campaignId: number): Promise<Campaign> {
     const actingUserCampaignMember =
       await this.membersDataProvider.getCampaignMember(userId, campaignId);
 
@@ -89,14 +87,11 @@ export class CampaignsService {
       });
     }
 
-    track(AppEvent.GetCampaign, userId, trackingInfo);
-
     return campaign;
   }
 
   async createCampaign(
     userId: number,
-    trackingInfo: TrackingInfo,
     request: PostCampaignRequest,
   ): Promise<Campaign> {
     const campaign = await createCampaign({
@@ -108,6 +103,19 @@ export class CampaignsService {
       name: request.name,
       userId,
       campaignId: campaign.id,
+    });
+
+    await this.collectionsService.createCollection(userId, {
+      name: campaign.name,
+      parentId: null,
+    });
+
+    await prisma.collections.create({
+      data: {
+        campaignId: campaign.id,
+        name: campaign.name,
+        userId: user.id,
+      },
     });
 
     return campaign;
@@ -261,7 +269,9 @@ export class CampaignsService {
           email: m?.email ?? m?.user?.email,
           username: m?.user?.username,
           role: m?.role,
-          character: campaignCharacters.filter((c) => c.userId === m.userId),
+          character: campaignCharacters.filter(
+            (c: any) => c.userId === m.userId,
+          ),
         })),
     };
   }

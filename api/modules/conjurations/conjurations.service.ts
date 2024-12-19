@@ -5,8 +5,8 @@ import { UsersDataProvider } from '@/modules/users/users.dataprovider';
 import { CollectionsDataProvider } from '@/modules/collections/collections.dataprovider';
 
 import { TrackingInfo, AppEvent, track } from '@/lib/tracking';
-import { AppError, HttpCode } from '@/lib/errors/AppError';
-import { MythWeaverLogger } from '@/lib/logger';
+import { AppError, HttpCode } from '@/modules/core/errors/AppError';
+import { MythWeaverLogger } from '@/modules/core/logging/logger';
 import {
   Conjuration,
   ConjurationRelationshipType,

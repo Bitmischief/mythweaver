@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import { AppError, HttpCode } from './AppError';
 import { AxiosError } from 'axios';
-import { useLogger } from '@/lib/loggingMiddleware';
+import { useLogger } from '@/modules/core/logging/loggingMiddleware';
 
 class ErrorHandler {
   private isTrustedError(error: Error): boolean {

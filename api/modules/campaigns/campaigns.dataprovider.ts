@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/providers/prisma';
+import { prisma } from '@/providers/prisma';
 import { Campaign } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 

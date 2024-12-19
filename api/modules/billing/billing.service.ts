@@ -5,12 +5,12 @@ import {
   User,
 } from '@prisma/client';
 import { differenceInDays } from 'date-fns';
-import { MythWeaverLogger } from '@/lib/logger';
+import { MythWeaverLogger } from '@/modules/core/logging/logger';
 import { GetBillingPortalUrlRequest } from '@/modules/billing/billing.interface';
 import { setIntercomCustomAttributes } from '@/lib/intercom';
 import { AppEvent, track } from '@/lib/tracking';
 import { AdConversionEvent, reportAdConversionEvent } from '@/lib/ads';
-import { AppError, HttpCode } from '@/lib/errors/AppError';
+import { AppError, HttpCode } from '@/modules/core/errors/AppError';
 import { EmailProvider, EmailTemplates } from '@/providers/emailProvider';
 import { StripeProvider } from '@/providers/stripe';
 import Stripe from 'stripe';

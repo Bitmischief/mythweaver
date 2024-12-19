@@ -2,7 +2,7 @@ import { asClass, asFunction, createContainer, InjectionMode } from 'awilix';
 import { MembersController } from '@/modules/campaigns/members/members.controller';
 import { MembersService } from '@/modules/campaigns/members/members.service';
 import { MembersDataProvider } from '@/modules/campaigns/members/members.dataprovider';
-import { useLogger } from '@/lib/loggingMiddleware';
+import { useLogger } from '@/modules/core/logging/loggingMiddleware';
 import { NextFunction, Request, Response } from 'express';
 import { CampaignsDataProvider } from '@/modules/campaigns/campaigns.dataprovider';
 import { UsersDataProvider } from '@/modules/users/users.dataprovider';

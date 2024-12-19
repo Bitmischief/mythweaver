@@ -1,13 +1,13 @@
 import Queue, { Job } from 'bull';
 import { Generator, getGenerator } from '@/data/conjurers';
 import { BillingPlan, ConjurationVisibility } from '@prisma/client';
-import { AppError, ErrorType, HttpCode } from '@/lib/errors/AppError';
+import { AppError, ErrorType, HttpCode } from '@/modules/core/errors/AppError';
 import { sanitizeJson, trimPlural } from '@/lib/utils';
-import { prisma } from '@/lib/providers/prisma';
-import { MythWeaverLogger } from '@/lib/logger';
+import { prisma } from '@/providers/prisma';
+import { MythWeaverLogger } from '@/modules/core/logging/logger';
 import { nanoid } from 'nanoid';
 import { getCampaign } from '@/dataAccess/campaigns';
-import { config } from '@/worker/config';
+import { config } from '@/modules/core/workers/worker.config';
 import {
   WebSocketEvent,
   WebSocketProvider,

@@ -3,7 +3,7 @@ import { ConjurationsRelationshipsController } from '@/modules/conjurations/rela
 import { ConjurationsRelationshipsService } from '@/modules/conjurations/relationships/relationships.service';
 import { ConjurationsRelationshipsDataProvider } from '@/modules/conjurations/relationships/relationships.dataprovider';
 import { CollectionsDataProvider } from '@/modules/collections/collections.dataprovider';
-import { useLogger } from '@/lib/loggingMiddleware';
+import { useLogger } from '@/modules/core/logging/loggingMiddleware';
 import { NextFunction, Request, Response } from 'express';
 
 const container = createContainer({

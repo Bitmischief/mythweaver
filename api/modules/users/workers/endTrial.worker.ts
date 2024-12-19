@@ -1,8 +1,8 @@
 import Queue, { Job } from 'bull';
-import { prisma } from '@/lib/providers/prisma';
+import { prisma } from '@/providers/prisma';
 import { BillingPlan, User } from '@prisma/client';
-import { MythWeaverLogger } from '@/lib/logger';
-import { config } from '@/worker/config';
+import { MythWeaverLogger } from '@/modules/core/logging/logger';
+import { config } from '@/modules/core/workers/worker.config';
 
 interface EndTrialEvent {
   batchSize?: number;

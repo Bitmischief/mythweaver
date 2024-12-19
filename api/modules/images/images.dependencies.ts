@@ -6,7 +6,7 @@ import {
   Lifetime,
 } from 'awilix';
 import { NextFunction, Request, Response } from 'express';
-import { useLogger } from '@/lib/loggingMiddleware';
+import { useLogger } from '@/modules/core/logging/loggingMiddleware';
 import { RunPodProvider } from '@/providers/runPod';
 import { StabilityAIProvider } from '@/providers/stabilityAI';
 import { ImagesController } from '@/modules/images/images.controller';

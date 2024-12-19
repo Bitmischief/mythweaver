@@ -6,10 +6,10 @@ import {
   PostRelationshipRequest,
   RelationshipResponse,
 } from '@/modules/conjurations/relationships/relationships.interface';
-import { TrackingInfo } from '@/lib/tracking';
+import { TrackingInfo } from '@/modules/core/analytics/tracking';
 import { Conjuration, ConjurationRelationshipType } from '@prisma/client';
-import { MythWeaverLogger } from '@/lib/logger';
-import { AppError, HttpCode } from '@/lib/errors/AppError';
+import { MythWeaverLogger } from '@/modules/core/logging/logger';
+import { AppError, HttpCode } from '@/modules/core/errors/AppError';
 
 export class ConjurationsRelationshipsService {
   constructor(

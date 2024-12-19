@@ -1,6 +1,6 @@
-import { prisma } from '@/lib/providers/prisma';
+import { prisma } from '@/providers/prisma';
 import { Image, User, Conjuration } from '@prisma/client';
-import { AppError, HttpCode } from '@/lib/errors/AppError';
+import { AppError, HttpCode } from '@/modules/core/errors/AppError';
 
 export class ImagesDataProvider {
   async findImage(imageId: number): Promise<Image | null> {
