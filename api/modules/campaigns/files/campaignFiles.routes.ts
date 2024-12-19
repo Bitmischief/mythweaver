@@ -1,16 +1,17 @@
 import express, { Request, Response } from 'express';
-import { checkAuth0Jwt, useInjectUserId } from '@/lib/authMiddleware';
+import { checkAuth0Jwt } from '@/modules/core/middleware/auth0';
+import { useInjectUserId } from '@/modules/core/middleware/userMiddleware';
 import { z } from 'zod';
 import {
   useValidateRequest,
   ValidationTypes,
-} from '@/lib/validationMiddleware';
+} from '@/modules/core/middleware/validationMiddleware';
 import { CampaignFilesController } from '@/modules/campaigns/files/campaignFiles.controller';
-import { useInjectLoggingInfo } from '@/lib/loggingMiddleware';
+import { useInjectLoggingInfo } from '@/modules/core/logging/loggingMiddleware';
 import {
   useCampaignFileUploadAuthorizer,
   useCampaignFileUploader,
-} from '@/lib/campaignFileMiddleware';
+} from '@/modules/campaigns/campaigns.middleware';
 import { injectDependencies } from '@/modules/campaigns/files/campaignFiles.dependencies';
 
 const router = express.Router({ mergeParams: true });

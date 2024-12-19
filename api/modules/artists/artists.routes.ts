@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
-import { checkAuth0Jwt, useInjectUserId } from '@/lib/authMiddleware';
-import { useInjectLoggingInfo } from '@/lib/loggingMiddleware';
+import { checkAuth0Jwt } from '@/modules/core/middleware/auth0';
+import { useInjectUserId } from '@/modules/core/middleware/userMiddleware';
+import { useInjectLoggingInfo } from '@/modules/core/logging/loggingMiddleware';
 import { ArtistsController } from '@/modules/artists/artists.controller';
 import { injectDependencies } from '@/modules/artists/artists.dependencies';
 

@@ -1,17 +1,15 @@
 import express, { Request, Response } from 'express';
-import {
-  checkAuth0Jwt,
-  useAuthenticateRequest,
-  useInjectUserId,
-} from '@/lib/authMiddleware';
+import { useInjectUserId } from '@/modules/core/middleware/userMiddleware';
+import { checkAuth0Jwt } from '@/modules/core/middleware/auth0';
+import { useAuthenticateRequest } from '@/modules/core/middleware/authMiddleware';
 import { z } from 'zod';
 import {
   useValidateRequest,
   ValidationTypes,
-} from '@/lib/validationMiddleware';
+} from '@/modules/core/middleware/validationMiddleware';
 import { CampaignsController } from '@/modules/campaigns/campaigns.controller';
 import rateLimit from 'express-rate-limit';
-import { useInjectLoggingInfo } from '@/lib/loggingMiddleware';
+import { useInjectLoggingInfo } from '@/modules/core/logging/loggingMiddleware';
 import { injectDependencies } from '@/modules/campaigns/campaigns.dependencies';
 
 const router = express.Router({ mergeParams: true });
@@ -258,35 +256,6 @@ router.post('/invites/:inviteCode', [
       res.locals.auth.userId,
       res.locals.trackingInfo,
       req.params.inviteCode as unknown as string,
-    );
-
-    return res.status(200).send(response);
-  },
-]);
-
-const getCampaignCharacterRouteSchema = z.object({
-  campaignId: z.coerce.number().default(0),
-  characterId: z.coerce.number().default(0),
-});
-
-router.get('/:campaignId/character/:characterId', [
-  checkAuth0Jwt,
-  useInjectUserId(),
-  useInjectLoggingInfo(),
-  useValidateRequest(getCampaignCharacterRouteSchema, {
-    validationType: ValidationTypes.Route,
-  }),
-  injectDependencies,
-  async (req: Request, res: Response) => {
-    const controller = req.container.resolve<CampaignsController>(
-      'campaignsController',
-    );
-
-    const response = await controller.getCampaignCharacter(
-      res.locals.auth.userId,
-      res.locals.trackingInfo,
-      req.params.campaignId as unknown as number,
-      req.params.characterId as unknown as number,
     );
 
     return res.status(200).send(response);

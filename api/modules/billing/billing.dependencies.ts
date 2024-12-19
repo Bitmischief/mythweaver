@@ -3,7 +3,7 @@ import BillingController from '@/modules/billing/billing.controller';
 import { BillingService } from '@/modules/billing/billing.service';
 import { BillingDataProvider } from '@/modules/billing/billing.dataprovider';
 import { StripeProvider } from '@/providers/stripe';
-import { useLogger } from '@/lib/loggingMiddleware';
+import { useLogger } from '@/modules/core/logging/loggingMiddleware';
 import { NextFunction, Request, Response } from 'express';
 import { EmailProvider } from '@/providers/emailProvider';
 import { DiscordProvider } from '@/providers/discordProvider';

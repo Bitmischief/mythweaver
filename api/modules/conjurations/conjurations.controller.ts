@@ -12,8 +12,8 @@ import {
   Delete,
   Route,
 } from 'tsoa';
-import { TrackingInfo } from '@/lib/tracking';
-import { MythWeaverLogger } from '@/lib/logger';
+import { TrackingInfo } from '@/modules/core/analytics/tracking';
+import { MythWeaverLogger } from '@/modules/core/logging/logger';
 import { Conjuration, ConjurationRelationshipType } from '@prisma/client';
 import {
   PatchConjurationRequest,

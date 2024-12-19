@@ -1,4 +1,4 @@
-import logger from '@/lib/logger';
+import logger from '@/modules/core/logging/logger';
 import { container as conjurationsContainer } from '@/modules/conjurations/conjurations.dependencies';
 import { ConjurationWorker } from '@/modules/conjurations/generateConjuration.worker';
 import { container as contextContainer } from '@/modules/context/context.dependencies';
@@ -9,6 +9,7 @@ import { MythWeaverImageWorker } from '@/modules/images/mythweaverImage.worker';
 import { container as imagesContainer } from '@/modules/images/images.dependencies';
 import { EndTrialWorker } from '@/modules/users/workers/endTrial.worker';
 import { ExpiredSubscriptionWorker } from '@/modules/users/workers/expiredSubscription.worker';
+import { SubscriptionPlanUpdateWorker } from '@/modules/users/workers/subscriptionPlanUpdate.worker';
 import { container as usersContainer } from '@/modules/users/users.dependencies';
 
 const workers: Worker[] = [
@@ -19,7 +20,12 @@ const workers: Worker[] = [
   contextContainer.resolve<CampaignContextWorker>('indexCampaignContextWorker'),
   imagesContainer.resolve<MythWeaverImageWorker>('mythweaverImageWorker'),
   usersContainer.resolve<EndTrialWorker>('endTrialWorker'),
-  usersContainer.resolve<ExpiredSubscriptionWorker>('expiredSubscriptionWorker'),
+  usersContainer.resolve<ExpiredSubscriptionWorker>(
+    'expiredSubscriptionWorker',
+  ),
+  usersContainer.resolve<SubscriptionPlanUpdateWorker>(
+    'subscriptionPlanUpdateWorker',
+  ),
 ];
 
 export const initWorkers = async () => {

@@ -1,6 +1,7 @@
 export interface PostCollectionRequest {
   name: string;
-  parentId: number;
+  parentId: number | null;
+  campaignId: number | null;
 }
 
 export interface PatchCollectionRequest {

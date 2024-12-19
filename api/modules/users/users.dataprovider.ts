@@ -1,8 +1,14 @@
-import { prisma } from '@/lib/providers/prisma';
+import { prisma } from '@/providers/prisma';
 import { User } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 
 export class UsersDataProvider {
+  async createUser(data: Prisma.UserCreateInput): Promise<User> {
+    return await prisma.user.create({
+      data,
+    });
+  }
+
   async getUserById(userId: number): Promise<User | null> {
     return prisma.user.findUnique({
       where: {

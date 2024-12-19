@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import FormData from 'form-data';
 import { v4 as uuidv4 } from 'uuid';
-import { AppError, HttpCode } from '@/lib/errors/AppError';
+import { AppError, HttpCode } from '@/modules/core/errors/AppError';
 import { StorageProvider } from '@/providers/storageProvider';
 import {
   ApiImageGenerationResponse,

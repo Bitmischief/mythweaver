@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/providers/prisma';
+import { prisma } from '@/providers/prisma';
 import { Campaign } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 
@@ -84,8 +84,8 @@ export class CampaignsDataProvider {
     });
   }
 
-  async createCampaign(data: any): Promise<void> {
-    await prisma.collections.create({
+  async createCampaign(data: any): Promise<Campaign> {
+    return prisma.campaign.create({
       data: data,
     });
   }

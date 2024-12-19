@@ -3,10 +3,11 @@ import { z } from 'zod';
 import {
   useValidateRequest,
   ValidationTypes,
-} from '@/lib/validationMiddleware';
+} from '@/modules/core/middleware/validationMiddleware';
 import { ConjurationsController } from '@/modules/conjurations/conjurations.controller';
-import { checkAuth0Jwt, useInjectUserId } from '@/lib/authMiddleware';
-import { useInjectLoggingInfo } from '@/lib/loggingMiddleware';
+import { useInjectUserId } from '@/modules/core/middleware/userMiddleware';
+import { checkAuth0Jwt } from '@/modules/core/middleware/auth0';
+import { useInjectLoggingInfo } from '@/modules/core/logging/loggingMiddleware';
 import { ConjurationRelationshipType } from '@prisma/client';
 import { ImageStylePreset } from '@/modules/images/images.interface';
 import { injectDependencies } from '@/modules/conjurations/conjurations.dependencies';

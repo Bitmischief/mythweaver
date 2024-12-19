@@ -47,10 +47,6 @@ import usersRoutes from '@/modules/users/users.routes';
 
 router.use(`/users`, usersRoutes);
 
-import charactersRoutes from '@/modules/characters/characters.routes';
-
-router.use('/characters', charactersRoutes);
-
 import imagesRoutes from '@/modules/images/images.routes';
 
 router.use(`/images`, imagesRoutes);

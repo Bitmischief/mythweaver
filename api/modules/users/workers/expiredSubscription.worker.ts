@@ -1,10 +1,10 @@
 import Queue, { Job } from 'bull';
-import { prisma } from '@/lib/providers/prisma';
+import { prisma } from '@/providers/prisma';
 import { BillingPlan, User } from '@prisma/client';
-import { MythWeaverLogger } from '@/lib/logger';
-import { config } from '@/worker/config';
+import { MythWeaverLogger } from '@/modules/core/logging/logger';
+import { config } from '@/modules/core/workers/worker.config';
 import { differenceInDays } from 'date-fns';
-import { processInChunks } from '@/lib/utils';
+import { processInChunks } from '@/modules/core/utils/chunks';
 
 interface SubscriptionCheckEvent {
   batchSize?: number;
@@ -84,7 +84,7 @@ export class ExpiredSubscriptionWorker {
     await expiredSubscriptionCheckQueue.add(
       {},
       {
-        repeat: { cron: '0 0 * * *' },
+        repeat: { cron: '0 7 * * *' },
         jobId,
       },
     );

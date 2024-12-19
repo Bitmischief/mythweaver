@@ -4,7 +4,7 @@ import { IntegrationsController } from '@/modules/integrations/integrations.cont
 import { IntegrationsService } from '@/modules/integrations/integrations.service';
 import { UsersDataProvider } from '@/modules/users/users.dataprovider';
 import { UserTokensDataProvider } from '@/modules/userTokens/userTokens.dataprovider';
-import { useLogger } from '@/lib/loggingMiddleware';
+import { useLogger } from '@/modules/core/logging/loggingMiddleware';
 
 const container = createContainer({
   injectionMode: InjectionMode.CLASSIC,

@@ -3,7 +3,7 @@ import { CampaignFilesController } from '@/modules/campaigns/files/campaignFiles
 import { CampaignFilesService } from '@/modules/campaigns/files/campaignFiles.service';
 import { CampaignFilesDataProvider } from '@/modules/campaigns/files/campaignFiles.dataprovider';
 import { MembersDataProvider } from '@/modules/campaigns/members/members.dataprovider';
-import { useLogger } from '@/lib/loggingMiddleware';
+import { useLogger } from '@/modules/core/logging/loggingMiddleware';
 import { NextFunction, Request, Response } from 'express';
 import { CampaignContextWorker } from '@/modules/context/workers/campaignContext.worker';
 

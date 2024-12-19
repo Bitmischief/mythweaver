@@ -1,5 +1,5 @@
 import { asClass, asFunction, createContainer, InjectionMode } from 'awilix';
-import { useLogger } from '@/lib/loggingMiddleware';
+import { useLogger } from '@/modules/core/logging/loggingMiddleware';
 import { NextFunction, Request, Response } from 'express';
 import { ArtistsController } from '@/modules/artists/artists.controller';
 import { ArtistsService } from '@/modules/artists/artists.service';

@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/providers/prisma';
+import { prisma } from '@/providers/prisma';
 
 (async () => {
   if (process.env.VERSION !== 'local') {

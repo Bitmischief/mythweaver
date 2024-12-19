@@ -1,16 +1,17 @@
 import express, { Request, Response } from 'express';
-import {
-  checkAuth0Jwt,
-  useInjectUserId,
-  useAuthenticateServiceRequest,
-} from '@/lib/authMiddleware';
+import { useAuthenticateServiceRequest } from '@/modules/core/middleware/authMiddleware';
+import { checkAuth0Jwt } from '@/modules/core/middleware/auth0';
+import { useInjectUserId } from '@/modules/core/middleware/userMiddleware';
 import { z } from 'zod';
 import {
   useValidateRequest,
   ValidationTypes,
-} from '@/lib/validationMiddleware';
+} from '@/modules/core/middleware/validationMiddleware';
 import { IntegrationsController } from '@/modules/integrations/integrations.controller';
-import { useInjectLoggingInfo, useLogger } from '@/lib/loggingMiddleware';
+import {
+  useInjectLoggingInfo,
+  useLogger,
+} from '@/modules/core/logging/loggingMiddleware';
 import { injectDependencies } from '@/modules/integrations/integrations.dependencies';
 
 const router = express.Router({ mergeParams: true });

@@ -5,7 +5,7 @@ import { GeneratorsDataProvider } from '@/modules/generators/generators.dataprov
 import { ConjurationsDataProvider } from '@/modules/conjurations/conjurations.dataprovider';
 import { CampaignsDataProvider } from '@/modules/campaigns/campaigns.dataprovider';
 import { UsersDataProvider } from '@/modules/users/users.dataprovider';
-import { useLogger } from '@/lib/loggingMiddleware';
+import { useLogger } from '@/modules/core/logging/loggingMiddleware';
 import { NextFunction, Request, Response } from 'express';
 import { ConjurationWorker } from '@/modules/conjurations/generateConjuration.worker';
 import { WebSocketProvider } from '@/providers/websocketProvider';

@@ -1,4 +1,8 @@
-import { AppEvent, track, TrackingInfo } from '@/lib/tracking';
+import {
+  AppEvent,
+  track,
+  TrackingInfo,
+} from '@/modules/core/analytics/tracking';
 import { ImageModelsDataProvider } from '@/modules/imageModels/imageModels.dataprovider';
 import { GetImageModelsResponse } from '@/modules/imageModels/imageModels.interface';
 

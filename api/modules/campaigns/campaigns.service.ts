@@ -2,24 +2,29 @@ import { CampaignsDataProvider } from '@/modules/campaigns/campaigns.dataprovide
 import { MembersDataProvider } from '@/modules/campaigns/members/members.dataprovider';
 import { CollectionsDataProvider } from '@/modules/collections/collections.dataprovider';
 import { UsersDataProvider } from '@/modules/users/users.dataprovider';
-import { CharactersDataProvider } from '@/modules/campaigns/characters/characters.dataprovider';
-import { MythWeaverLogger } from '@/lib/logger';
+import { MythWeaverLogger } from '@/modules/core/logging/logger';
 import {
   GetCampaignsResponse,
   PostCampaignRequest,
   PutCampaignRequest,
   InviteMemberRequest,
 } from '@/modules/campaigns/campaigns.interface';
-import { TrackingInfo, AppEvent, track } from '@/lib/tracking';
-import { AppError, HttpCode } from '@/lib/errors/AppError';
-import { Campaign, ContextType, Character, Conjuration } from '@prisma/client';
-import { createCampaign } from '@/dataAccess/campaigns';
+import {
+  TrackingInfo,
+  AppEvent,
+  track,
+} from '@/modules/core/analytics/tracking';
+import { AppError, HttpCode } from '@/modules/core/errors/AppError';
+import { Campaign, ContextType, Conjuration } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
-import { urlPrefix } from '@/lib/utils';
+import { urlPrefix } from '@/modules/core/utils/environments';
 import { CampaignRole } from '@/modules/campaigns/campaigns.interface';
-import { getCampaignCharacters } from '@/lib/charactersHelper';
 import { EmailProvider, EmailTemplates } from '@/providers/emailProvider';
 import { CampaignContextWorker } from '@/modules/context/workers/campaignContext.worker';
+import { CollectionsService } from '@/modules/collections/collections.service';
+import { prisma } from '@/providers/prisma';
+import { ConjurationsDataProvider } from '@/modules/conjurations/conjurations.dataprovider';
+import { CampaignContextConfig } from '@/modules/context/context.interface';
 
 export class CampaignsService {
   constructor(
@@ -27,9 +32,10 @@ export class CampaignsService {
     private membersDataProvider: MembersDataProvider,
     private collectionsDataProvider: CollectionsDataProvider,
     private usersDataProvider: UsersDataProvider,
-    private charactersDataProvider: CharactersDataProvider,
+    private conjurationsDataProvider: ConjurationsDataProvider,
     private emailProvider: EmailProvider,
     private indexCampaignContextWorker: CampaignContextWorker,
+    private collectionsService: CollectionsService,
     private logger: MythWeaverLogger,
   ) {}
 
@@ -58,11 +64,7 @@ export class CampaignsService {
     };
   }
 
-  async getCampaign(
-    userId: number,
-    trackingInfo: TrackingInfo,
-    campaignId: number,
-  ): Promise<Campaign> {
+  async getCampaign(userId: number, campaignId: number): Promise<Campaign> {
     const actingUserCampaignMember =
       await this.membersDataProvider.getCampaignMember(userId, campaignId);
 
@@ -89,24 +91,21 @@ export class CampaignsService {
       });
     }
 
-    track(AppEvent.GetCampaign, userId, trackingInfo);
-
     return campaign;
   }
 
   async createCampaign(
     userId: number,
-    trackingInfo: TrackingInfo,
     request: PostCampaignRequest,
   ): Promise<Campaign> {
-    const campaign = await createCampaign({
-      userId,
-      ...request,
-    });
-
-    await this.campaignsDataProvider.createCampaign({
+    const campaign = await this.campaignsDataProvider.createCampaign({
       name: request.name,
       userId,
+    });
+
+    await this.collectionsService.createCollection(userId, {
+      name: campaign.name,
+      parentId: null,
       campaignId: campaign.id,
     });
 
@@ -249,7 +248,8 @@ export class CampaignsService {
       });
     }
 
-    const campaignCharacters = await getCampaignCharacters(campaign.id);
+    const campaignCharacters =
+      await this.conjurationsDataProvider.getCharacterCampaigns(campaign.id);
 
     return {
       campaignId: campaign.id,
@@ -261,7 +261,9 @@ export class CampaignsService {
           email: m?.email ?? m?.user?.email,
           username: m?.user?.username,
           role: m?.role,
-          character: campaignCharacters.filter((c) => c.userId === m.userId),
+          character: campaignCharacters.filter(
+            (c: any) => c.userId === m.userId,
+          ),
         })),
     };
   }
@@ -303,42 +305,6 @@ export class CampaignsService {
     });
   }
 
-  async getCampaignCharacter(
-    userId: number,
-    trackingInfo: TrackingInfo,
-    campaignId: number,
-    characterId: number,
-  ): Promise<Character & { imageUri: string | null }> {
-    const actingUserCampaignMember =
-      await this.membersDataProvider.getCampaignMember(userId, campaignId);
-
-    if (!actingUserCampaignMember) {
-      throw new AppError({
-        httpCode: HttpCode.FORBIDDEN,
-        description: 'You are not a member of this campaign',
-      });
-    }
-
-    const character = await this.charactersDataProvider.getCampaignCharacters(
-      characterId,
-      campaignId,
-    );
-
-    if (!character) {
-      throw new AppError({
-        httpCode: HttpCode.NOT_FOUND,
-        description: 'This user does not have a character in this campaign',
-      });
-    }
-
-    track(AppEvent.GetCharacter, userId, trackingInfo);
-
-    return {
-      ...character,
-      imageUri: character.images.find((i) => i.primary)?.uri || null,
-    };
-  }
-
   async getMyCampaignCharacters(
     userId: number,
     trackingInfo: TrackingInfo,
@@ -354,7 +320,8 @@ export class CampaignsService {
       });
     }
 
-    const campaignCharacters = await getCampaignCharacters(campaignId);
+    const campaignCharacters =
+      await this.conjurationsDataProvider.getCharactersInCampaign(campaignId);
 
     track(AppEvent.GetCharacters, campaignId, trackingInfo);
 
@@ -362,5 +329,15 @@ export class CampaignsService {
       ...c,
       imageUri: c.images.find((i: any) => i.primary)?.uri || null,
     }));
+  }
+
+  async getCampaignContextConfig(
+    campaignId: number,
+  ): Promise<CampaignContextConfig> {
+    const campaign = await prisma.campaign.findUnique({
+      where: { id: campaignId },
+    });
+
+    return campaign?.openAiConfig as unknown as CampaignContextConfig;
   }
 }

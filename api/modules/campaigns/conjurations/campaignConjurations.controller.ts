@@ -8,8 +8,12 @@ import {
   Inject,
   Route,
 } from 'tsoa';
-import { TrackingInfo, AppEvent, track } from '@/lib/tracking';
-import { AppError, HttpCode } from '@/lib/errors/AppError';
+import {
+  TrackingInfo,
+  AppEvent,
+  track,
+} from '@/modules/core/analytics/tracking';
+import { AppError, HttpCode } from '@/modules/core/errors/AppError';
 import { CampaignConjurationsService } from '@/modules/campaigns/conjurations/campaignConjurations.service';
 import { CampaignConjurationsDataProvider } from '@/modules/campaigns/conjurations/campaignConjurations.dataprovider';
 import { CampaignsDataProvider } from '@/modules/campaigns/campaigns.dataprovider';
