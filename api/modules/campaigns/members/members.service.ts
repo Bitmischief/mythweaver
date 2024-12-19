@@ -1,7 +1,11 @@
 import { MembersDataProvider } from '@/modules/campaigns/members/members.dataprovider';
 import { CampaignsDataProvider } from '@/modules/campaigns/campaigns.dataprovider';
 import { UsersDataProvider } from '@/modules/users/users.dataprovider';
-import { TrackingInfo, AppEvent, track } from '@/lib/tracking';
+import {
+  TrackingInfo,
+  AppEvent,
+  track,
+} from '@/modules/core/analytics/tracking';
 import { AppError, HttpCode } from '@/modules/core/errors/AppError';
 import { GetCampaignMembersResponse } from '@/modules/campaigns/members/members.interface';
 import { CampaignRole } from '@/modules/campaigns/campaigns.interface';

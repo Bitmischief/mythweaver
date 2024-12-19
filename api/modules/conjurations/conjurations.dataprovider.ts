@@ -6,6 +6,7 @@ import {
   Tag,
   Image,
   Prisma,
+  Campaign,
 } from '@prisma/client';
 
 export class ConjurationsDataProvider {
@@ -318,6 +319,34 @@ export class ConjurationsDataProvider {
       where: {
         userId: userId,
         id: conjurationId,
+      },
+    });
+  }
+
+  async getCharacterCampaigns(characterId: number): Promise<Campaign[]> {
+    return prisma.campaign.findMany({
+      where: {
+        campaignConjurations: {
+          some: {
+            conjurationId: characterId,
+            conjuration: {
+              conjurerCode: 'players',
+            },
+          },
+        },
+      },
+    });
+  }
+
+  async getCharactersInCampaign(campaignId: number): Promise<Conjuration[]> {
+    return prisma.conjuration.findMany({
+      where: {
+        conjurerCode: 'players',
+        campaignConjuration: {
+          some: {
+            campaignId,
+          },
+        },
       },
     });
   }

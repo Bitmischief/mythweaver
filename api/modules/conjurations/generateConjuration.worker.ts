@@ -2,18 +2,19 @@ import Queue, { Job } from 'bull';
 import { Generator, getGenerator } from '@/data/conjurers';
 import { BillingPlan, ConjurationVisibility } from '@prisma/client';
 import { AppError, ErrorType, HttpCode } from '@/modules/core/errors/AppError';
-import { sanitizeJson, trimPlural } from '@/lib/utils';
+import { sanitizeJson } from '@/modules/core/utils/json';
+import { trimPlural } from '@/modules/core/utils/strings';
 import { prisma } from '@/providers/prisma';
 import { MythWeaverLogger } from '@/modules/core/logging/logger';
 import { nanoid } from 'nanoid';
-import { getCampaign } from '@/dataAccess/campaigns';
 import { config } from '@/modules/core/workers/worker.config';
+import { CampaignsDataProvider } from '@/modules/campaigns/campaigns.dataprovider';
 import {
   WebSocketEvent,
   WebSocketProvider,
 } from '@/providers/websocketProvider';
-import { defaultLLMProvider as llmProvider } from '@/providers/llmProvider';
 import retry from 'async-await-retry';
+import { LLMProvider } from '@/providers/llmProvider';
 
 export interface ConjureEvent {
   userId: number;
@@ -40,6 +41,8 @@ export class ConjurationWorker {
   constructor(
     private readonly logger: MythWeaverLogger,
     private readonly webSocketProvider: WebSocketProvider,
+    private readonly campaignsDataProvider: CampaignsDataProvider,
+    private readonly llmProvider: LLMProvider,
   ) {}
 
   async initializeWorker(): Promise<void> {
@@ -106,7 +109,7 @@ export class ConjurationWorker {
     let generatedJson = '';
 
     const conjuration = await retry(async () => {
-      generatedJson = await llmProvider.generateText(
+      generatedJson = await this.llmProvider.generateText(
         request.campaignId,
         prompt,
       );
@@ -234,7 +237,7 @@ export class ConjurationWorker {
     campaignId: number,
     customArg?: string,
   ) {
-    const campaign = await getCampaign(campaignId);
+    const campaign = await this.campaignsDataProvider.getCampaign(campaignId);
 
     let prompt = `Please help me flesh out an idea for a ${trimPlural(
       generator.name.toLowerCase(),

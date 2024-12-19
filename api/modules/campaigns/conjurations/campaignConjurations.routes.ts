@@ -1,13 +1,14 @@
 import express, { Request, Response } from 'express';
-import { checkAuth0Jwt, useInjectUserId } from '@/lib/authMiddleware';
+import { useInjectUserId } from '@/modules/core/middleware/userMiddleware';
+import { checkAuth0Jwt } from '@/modules/core/middleware/auth0';
 import { z } from 'zod';
 import {
   useValidateRequest,
   ValidationTypes,
-} from '@/lib/validationMiddleware';
+} from '@/modules/core/middleware/validationMiddleware';
 import { injectDependencies } from '@/modules/campaigns/conjurations/campaignConjurations.dependencies';
 import { CampaignConjurationsController } from '@/modules/campaigns/conjurations/campaignConjurations.controller';
-import { useInjectLoggingInfo } from '@/lib/loggingMiddleware';
+import { useInjectLoggingInfo } from '@/modules/core/logging/loggingMiddleware';
 
 const router = express.Router({ mergeParams: true });
 

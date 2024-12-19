@@ -1,12 +1,13 @@
 import { injectDependencies } from '@/modules/conjurations/relationships/relationships.dependencies';
 import express, { Request, Response } from 'express';
 import { z } from 'zod';
-import { checkAuth0Jwt, useInjectUserId } from '@/lib/authMiddleware';
-import { useInjectLoggingInfo } from '@/lib/loggingMiddleware';
+import { checkAuth0Jwt } from '@/modules/core/middleware/auth0';
+import { useInjectUserId } from '@/modules/core/middleware/userMiddleware';
+import { useInjectLoggingInfo } from '@/modules/core/logging/loggingMiddleware';
 import {
   useValidateRequest,
   ValidationTypes,
-} from '@/lib/validationMiddleware';
+} from '@/modules/core/middleware/validationMiddleware';
 import { ConjurationRelationshipType } from '@prisma/client';
 import { ConjurationsRelationshipsController } from '@/modules/conjurations/relationships/relationships.controller';
 

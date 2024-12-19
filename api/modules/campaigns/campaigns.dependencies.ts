@@ -5,7 +5,6 @@ import { CampaignsDataProvider } from '@/modules/campaigns/campaigns.dataprovide
 import { CollectionsDataProvider } from '@/modules/collections/collections.dataprovider';
 import { MembersDataProvider } from '@/modules/campaigns/members/members.dataprovider';
 import { UsersDataProvider } from '@/modules/users/users.dataprovider';
-import { CharactersDataProvider } from '@/modules/campaigns/characters/characters.dataprovider';
 import { useLogger } from '@/modules/core/logging/loggingMiddleware';
 import { NextFunction, Request, Response } from 'express';
 import { EmailProvider } from '@/providers/emailProvider';
@@ -23,7 +22,6 @@ container.register({
   collectionsDataProvider: asClass(CollectionsDataProvider).scoped(),
   membersDataProvider: asClass(MembersDataProvider).scoped(),
   usersDataProvider: asClass(UsersDataProvider).scoped(),
-  charactersDataProvider: asClass(CharactersDataProvider).scoped(),
   emailProvider: asClass(EmailProvider).singleton(),
   indexCampaignContextWorker: asClass(CampaignContextWorker).singleton(),
   logger: asFunction(useLogger).singleton(),

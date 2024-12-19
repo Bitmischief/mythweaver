@@ -1,16 +1,17 @@
 import { AppError } from '@/modules/core/errors/AppError';
 import { HttpCode } from '@/modules/core/errors/AppError';
 import { CampaignsDataProvider } from '@/modules/campaigns/campaigns.dataprovider';
-import OpenAI from 'openai';
 import { TextContentBlock } from 'openai/resources/beta/threads/messages';
-import { ContextService } from '@/modules/context/context.service';
+import OpenAI from 'openai';
+import fs from 'node:fs';
+import { CampaignsService } from '@/modules/campaigns/campaigns.service';
 
 export class OpenAIProvider {
   private openai;
 
   constructor(
-    private readonly campaignDataProvider: CampaignsDataProvider,
-    private readonly contextService: ContextService,
+    private readonly campaignsDataProvider: CampaignsDataProvider,
+    private readonly campaignsService: CampaignsService,
   ) {
     this.openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
@@ -41,12 +42,28 @@ export class OpenAIProvider {
     return this.openai.files.del(fileId);
   }
 
+  createFile(filepath: string): Promise<OpenAI.Files.FileObject> {
+    return this.openai.files.create({
+      file: fs.createReadStream(filepath),
+      purpose: 'assistants',
+    });
+  }
+
+  addFileToVectorStore(
+    vectorStoreId: string,
+    fileId: string,
+  ): Promise<OpenAI.Beta.VectorStores.Files.VectorStoreFile> {
+    return this.openai.beta.vectorStores.files.createAndPoll(vectorStoreId, {
+      file_id: fileId,
+    });
+  }
+
   createThread() {
     return this.openai.beta.threads.create();
   }
 
   async generateText(campaignId: number, prompt: string): Promise<string> {
-    const campaign = await this.campaignDataProvider.getCampaign(campaignId);
+    const campaign = await this.campaignsDataProvider.getCampaign(campaignId);
 
     if (!campaign) {
       throw new AppError({
@@ -56,7 +73,7 @@ export class OpenAIProvider {
     }
 
     const { assistantId } =
-      await this.contextService.getCampaignContextConfig(campaignId);
+      await this.campaignsService.getCampaignContextConfig(campaignId);
 
     const thread = await this.openai.beta.threads.create();
 

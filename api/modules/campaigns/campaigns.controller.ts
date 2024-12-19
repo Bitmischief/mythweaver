@@ -150,23 +150,6 @@ export class CampaignsController {
   }
 
   @Security('jwt')
-  @OperationId('getCampaignCharacter')
-  @Put('/:campaignId/character/:characterId')
-  public async getCampaignCharacter(
-    @Inject() userId: number,
-    @Inject() trackingInfo: TrackingInfo,
-    @Path() campaignId: number,
-    @Path() characterId: number,
-  ) {
-    return await this.campaignsService.getCampaignCharacter(
-      userId,
-      trackingInfo,
-      campaignId,
-      characterId,
-    );
-  }
-
-  @Security('jwt')
   @OperationId('getMyCampaignCharacters')
   @Put('/:campaignId/characters')
   public async getMyCampaignCharacters(

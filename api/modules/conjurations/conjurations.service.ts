@@ -4,7 +4,11 @@ import { MembersDataProvider } from '@/modules/campaigns/members/members.datapro
 import { UsersDataProvider } from '@/modules/users/users.dataprovider';
 import { CollectionsDataProvider } from '@/modules/collections/collections.dataprovider';
 
-import { TrackingInfo, AppEvent, track } from '@/lib/tracking';
+import {
+  TrackingInfo,
+  AppEvent,
+  track,
+} from '@/modules/core/analytics/tracking';
 import { AppError, HttpCode } from '@/modules/core/errors/AppError';
 import { MythWeaverLogger } from '@/modules/core/logging/logger';
 import {
@@ -21,11 +25,6 @@ import {
   ConvertConjurationRequest,
 } from './conjurations.interface';
 import { ImageStylePreset } from '@/modules/images/images.interface';
-import {
-  validateConjurationCountRestriction,
-  sendConjurationCountUpdatedEvent,
-} from '@/lib/planRestrictionHelpers';
-import { getCharacterCampaigns } from '@/lib/charactersHelper';
 import { TagsWorker } from '@/modules/conjurations/workers/tags.worker';
 
 export class ConjurationsService {
@@ -133,7 +132,10 @@ export class ConjurationsService {
 
     let campaignIds = [] as number[];
     if (conjuration.conjurerCode === 'players') {
-      const characterCampaigns = await getCharacterCampaigns(conjurationId);
+      const characterCampaigns =
+        await this.conjurationsDataProvider.getCharacterCampaigns(
+          conjurationId,
+        );
       campaignIds = characterCampaigns.map((r: any) => r.id);
     }
 
@@ -191,18 +193,12 @@ export class ConjurationsService {
       });
     }
 
-    if (existingConjuration.userId !== userId) {
-      await validateConjurationCountRestriction(userId);
-    }
-
     track(AppEvent.SaveConjuration, userId, trackingInfo);
 
     await this.conjurationsDataProvider.upsertConjurationSave(
       userId,
       conjurationId,
     );
-
-    await sendConjurationCountUpdatedEvent(userId);
   }
 
   async updateConjuration(
@@ -310,8 +306,6 @@ export class ConjurationsService {
 
     track(AppEvent.DeleteConjuration, userId, trackingInfo);
 
-    await sendConjurationCountUpdatedEvent(userId);
-
     return true;
   }
 
@@ -363,8 +357,6 @@ export class ConjurationsService {
     await this.conjurationsDataProvider.deleteConjurationSave(
       existingConjurationSave.id,
     );
-
-    await sendConjurationCountUpdatedEvent(userId);
   }
 
   async copyConjuration(
@@ -381,8 +373,6 @@ export class ConjurationsService {
         httpCode: HttpCode.NOT_FOUND,
       });
     }
-
-    await validateConjurationCountRestriction(userId);
 
     track(AppEvent.CopyConjuration, userId, trackingInfo);
 
@@ -415,8 +405,6 @@ export class ConjurationsService {
         });
       }
     }
-
-    await sendConjurationCountUpdatedEvent(userId);
 
     return this.conjurationsDataProvider.getConjurationById(conjuration.id);
   }

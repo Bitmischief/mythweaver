@@ -10,7 +10,13 @@ import { MembersDataProvider } from '@/modules/campaigns/members/members.datapro
 import { UsersDataProvider } from '@/modules/users/users.dataprovider';
 import { ConjurationWorker } from '@/modules/conjurations/generateConjuration.worker';
 import { WebSocketProvider } from '@/providers/websocketProvider';
-import { TagsWorker } from './workers/tags.worker';
+import { TagsWorker } from '@/modules/conjurations/workers/tags.worker';
+import { CampaignsDataProvider } from '@/modules/campaigns/campaigns.dataprovider';
+import { OpenAIProvider } from '@/providers/llms/openAIProvider';
+import { ContextService } from '@/modules/context/context.service';
+import { CampaignContextWorker } from '@/modules/context/workers/campaignContext.worker';
+import { CampaignsService } from '@/modules/campaigns/campaigns.service';
+import { EmailProvider } from '@/providers/emailProvider';
 
 export const container = createContainer({
   injectionMode: InjectionMode.CLASSIC,
@@ -30,6 +36,12 @@ container.register({
   webSocketProvider: asClass(WebSocketProvider).singleton(),
   tagsWorker: asClass(TagsWorker).singleton(),
   logger: asFunction(useLogger).scoped(),
+  llmProvider: asClass(OpenAIProvider).scoped(),
+  contextService: asClass(ContextService).scoped(),
+  indexCampaignContextWorker: asClass(CampaignContextWorker).singleton(),
+  campaignsService: asClass(CampaignsService).scoped(),
+  campaignsDataProvider: asClass(CampaignsDataProvider).scoped(),
+  emailProvider: asClass(EmailProvider).scoped(),
 });
 
 export const injectDependencies = (

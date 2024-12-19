@@ -84,8 +84,8 @@ export class CampaignsDataProvider {
     });
   }
 
-  async createCampaign(data: any): Promise<void> {
-    await prisma.collections.create({
+  async createCampaign(data: any): Promise<Campaign> {
+    return prisma.campaign.create({
       data: data,
     });
   }

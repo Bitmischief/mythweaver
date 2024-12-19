@@ -7,9 +7,8 @@ import {
 import { differenceInDays } from 'date-fns';
 import { MythWeaverLogger } from '@/modules/core/logging/logger';
 import { GetBillingPortalUrlRequest } from '@/modules/billing/billing.interface';
-import { setIntercomCustomAttributes } from '@/lib/intercom';
-import { AppEvent, track } from '@/lib/tracking';
-import { AdConversionEvent, reportAdConversionEvent } from '@/lib/ads';
+import { AppEvent, track } from '@/modules/core/analytics/tracking';
+import { AdConversionEvent, reportAdConversionEvent } from '@/modules/core/ads';
 import { AppError, HttpCode } from '@/modules/core/errors/AppError';
 import { EmailProvider, EmailTemplates } from '@/providers/emailProvider';
 import { StripeProvider } from '@/providers/stripe';
@@ -165,10 +164,6 @@ export class BillingService {
       pendingPlanChange: BillingPlan.FREE,
       pendingPlanChangeEffectiveDate: periodEnd,
     });
-
-    await setIntercomCustomAttributes(user.id, {
-      'Plan Renewal Date': periodEnd,
-    });
   }
 
   private async processSubscriptionUpdatedEvent(
@@ -215,11 +210,6 @@ export class BillingService {
         daysSinceRegistration,
       );
     }
-
-    await setIntercomCustomAttributes(user.id, {
-      'Plan Renewal Date': subscriptionEnd,
-      Plan: plan,
-    });
   }
 
   private async processInvoicePaidEvent(
@@ -339,11 +329,6 @@ export class BillingService {
       ImageCreditChangeType.SUBSCRIPTION,
       `${plan} plan`,
     );
-
-    await setIntercomCustomAttributes(user.id, {
-      'Plan Interval': interval,
-      Plan: plan,
-    });
 
     track(AppEvent.PaidSubscription, user.id, undefined, {
       amount: amountPaid,

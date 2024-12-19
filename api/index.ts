@@ -1,4 +1,6 @@
 import dotenv from 'dotenv';
+dotenv.config();
+
 import Router from '@/routes';
 import { initWorkers } from './modules/core/workers/workers';
 import {
@@ -6,10 +8,9 @@ import {
   setupSentryErrorHandler,
 } from '@/modules/core/middleware/sentry';
 import { initCoreMiddleware } from '@/modules/core/middleware/coreMiddleware';
-import { initLoggingMiddleware } from '@/modules/core/middleware/logging';
+import { initLoggingMiddleware } from '@/modules/core/logging/loggingMiddleware';
 import { initErrorHandlerMiddleware } from '@/modules/core/middleware/errorMiddleware';
 
-dotenv.config();
 const PORT = process.env.PORT || 8000;
 initSentry();
 

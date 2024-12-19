@@ -65,16 +65,6 @@ export class ContextService {
     });
   }
 
-  async getCampaignContextConfig(
-    campaignId: number,
-  ): Promise<CampaignContextConfig> {
-    const campaign = await prisma.campaign.findUnique({
-      where: { id: campaignId },
-    });
-
-    return campaign?.openAiConfig as unknown as CampaignContextConfig;
-  }
-
   indexContext = async (campaignId: number, target: IndexContextTarget) => {
     await this.indexCampaignContextWorker.addJob({
       campaignId,

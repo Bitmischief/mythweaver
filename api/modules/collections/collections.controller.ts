@@ -54,11 +54,7 @@ export class CollectionsController {
     @Inject() trackingInfo: TrackingInfo,
     @Body() collection: PostCollectionRequest,
   ) {
-    return await this.collectionsService.createCollection(
-      userId,
-      trackingInfo,
-      collection,
-    );
+    return await this.collectionsService.createCollection(userId, collection);
   }
 
   @Security('jwt')

@@ -2,18 +2,21 @@ import Queue, { Job } from 'bull';
 import { Campaign, ContextType, Prisma } from '@prisma/client';
 import { prisma } from '@/providers/prisma';
 import { AppError, HttpCode } from '@/modules/core/errors/AppError';
-import { getClient } from '@/lib/providers/openai';
 import { MythWeaverLogger } from '@/modules/core/logging/logger';
-import fs from 'node:fs';
-import { downloadFile, sleep } from '@/lib/utils';
+import { downloadFile } from '@/modules/core/utils/downloads';
+import { sleep } from '@/modules/core/utils/time';
 import { config } from '@/modules/core/workers/worker.config';
 import {
   WebSocketEvent,
   WebSocketProvider,
 } from '@/providers/websocketProvider';
-import { ReindexCampaignContextEvent } from '@/dataAccess/campaigns';
-import { initializeContextForCampaign } from '@/dataAccess/campaigns';
 import { Worker } from '@/modules/core/workers/worker.interface';
+import { LLMProvider } from '@/providers/llmProvider';
+import {
+  CampaignContextConfig,
+  ReindexCampaignContextEvent,
+} from '@/modules/context/context.interface';
+import fs from 'node:fs';
 
 export const indexCampaignContextQueue = new Queue<ReindexCampaignContextEvent>(
   'index-campaign-context',
@@ -21,10 +24,11 @@ export const indexCampaignContextQueue = new Queue<ReindexCampaignContextEvent>(
 );
 
 export class CampaignContextWorker implements Worker {
-  private readonly openai = getClient();
-  private readonly webSocketProvider = new WebSocketProvider();
-
-  constructor(private readonly logger: MythWeaverLogger) {}
+  constructor(
+    private readonly logger: MythWeaverLogger,
+    private readonly webSocketProvider: WebSocketProvider,
+    private readonly llmProvider: LLMProvider,
+  ) {}
 
   async initializeWorker(): Promise<void> {
     indexCampaignContextQueue.process(
@@ -62,8 +66,6 @@ export class CampaignContextWorker implements Worker {
         httpCode: HttpCode.BAD_REQUEST,
       });
     }
-
-    await initializeContextForCampaign(campaign.id);
 
     switch (request.type) {
       case ContextType.CAMPAIGN:
@@ -243,24 +245,22 @@ export class CampaignContextWorker implements Worker {
     });
 
     if (existingContextFile) {
-      await this.openai.files.del(existingContextFile.externalSystemFileId);
+      await this.llmProvider.deleteFile(
+        existingContextFile.externalSystemFileId,
+      );
       await prisma.contextFiles.delete({
         where: { id: existingContextFile.id },
       });
     }
 
-    const file = await this.openai.files.create({
-      file: fs.createReadStream(internalFilename),
-      purpose: 'assistants',
-    });
+    const file = await this.llmProvider.createFile(internalFilename);
 
     await sleep(250);
     fs.unlinkSync(internalFilename);
 
-    await this.openai.beta.vectorStores.files.createAndPoll(
-      (campaign.openAiConfig as any)?.vectorStoreId,
-      { file_id: file.id },
-    );
+    const { vectorStoreId } =
+      campaign.openAiConfig as unknown as CampaignContextConfig;
+    await this.llmProvider.addFileToVectorStore(vectorStoreId, file.id);
 
     await prisma.contextFiles.create({
       data: {

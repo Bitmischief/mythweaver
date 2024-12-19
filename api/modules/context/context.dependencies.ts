@@ -3,6 +3,7 @@ import { useLogger } from '@/modules/core/logging/loggingMiddleware';
 import { DailyCampaignContextWorker } from '@/modules/context/workers/dailyCampaignContext.worker';
 import { ContextService } from '@/modules/context/context.service';
 import { CampaignContextWorker } from './workers/campaignContext.worker';
+import { OpenAIProvider } from '@/providers/llms/openAIProvider';
 
 export const container = createContainer({
   injectionMode: InjectionMode.CLASSIC,
@@ -12,6 +13,7 @@ export const container = createContainer({
 container.register({
   dailyCampaignContextWorker: asClass(DailyCampaignContextWorker).singleton(),
   indexCampaignContextWorker: asClass(CampaignContextWorker).singleton(),
+  llmProvider: asClass(OpenAIProvider).scoped(),
   contextService: asClass(ContextService).singleton(),
   logger: asFunction(useLogger).singleton(),
 });
