@@ -1,6 +1,6 @@
 import { Image, ImageModel } from '@prisma/client';
 import { ImagesDataProvider } from '@/modules/images/images.dataprovider';
-import { MythWeaverLogger } from '@/lib/logger';
+import { MythWeaverLogger } from '@/modules/core/logging/logger';
 import {
   ApiImageGenerationResponse,
   ImageGenerationRequest,

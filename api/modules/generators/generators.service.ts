@@ -1,9 +1,12 @@
 import { Conjuration } from '@prisma/client';
-import { AppError, HttpCode } from '@/lib/errors/AppError';
-import { AppEvent, track, TrackingInfo } from '@/lib/tracking';
-import { sanitizeJson } from '@/lib/utils';
-import { getClient } from '@/lib/providers/openai';
-import { MythWeaverLogger } from '@/lib/logger';
+import { AppError, HttpCode } from '@/modules/core/errors/AppError';
+import {
+  AppEvent,
+  track,
+  TrackingInfo,
+} from '@/modules/core/analytics/tracking';
+import { sanitizeJson } from '@/modules/core/utils/json';
+import { MythWeaverLogger } from '@/modules/core/logging/logger';
 import { GeneratorsDataProvider } from './generators.dataprovider';
 import conjurers, { Generator, getGenerator } from '@/data/conjurers';
 import {
@@ -17,6 +20,7 @@ import { ConjurationsDataProvider } from '@/modules/conjurations/conjurations.da
 import { CampaignsDataProvider } from '@/modules/campaigns/campaigns.dataprovider';
 import { UsersDataProvider } from '@/modules/users/users.dataprovider';
 import { ConjurationWorker } from '@/modules/conjurations/generateConjuration.worker';
+import { LLMProvider } from '@/providers/llmProvider';
 
 export class GeneratorsService {
   constructor(
@@ -26,6 +30,7 @@ export class GeneratorsService {
     private usersDataProvider: UsersDataProvider,
     private logger: MythWeaverLogger,
     private generateConjurationWorker: ConjurationWorker,
+    private llmProvider: LLMProvider,
   ) {}
 
   async getGenerators(
@@ -154,37 +159,28 @@ export class GeneratorsService {
     );
   }
 
+  async generateText(campaignId: number, prompt: string): Promise<string> {
+    const response = await this.llmProvider.generateText(campaignId, prompt);
+
+    this.logger.info('Received raw response from llm provider', response);
+    const json = sanitizeJson(response || '');
+    this.logger.info('Received sanitized json', json);
+
+    return json;
+  }
+
   async generateArbitrary(
     userId: number,
     trackingInfo: TrackingInfo,
     request: PostGenerateArbitraryRequest,
   ): Promise<any> {
     track(AppEvent.GenerateArbitrary, userId, trackingInfo);
-    const openai = getClient();
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4o',
-      messages: [
-        {
-          role: 'system',
-          content:
-            'You are a helpful assistant who is knowledgeable in dungeons and dragons.',
-        },
-        {
-          role: 'user',
-          content: `Please generate me a ${request.propertyName} for a ${request.context}. Use the following as general background about the ${request.context} to help guide you. ${JSON.stringify(request.background)}. Please return the response in the following JSON format: { "propertyName": "", "propertyValue": "" }.
+    const prompt = `Please generate me a ${request.propertyName} for a ${request.context}. Use the following as general background about the ${request.context} to help guide you. ${JSON.stringify(request.background)}. Please return the response in the following JSON format: { "propertyName": "", "propertyValue": "" }.
           Where propertyValue is a string. 
           Do not include any other text in your response.
-          Make sure propertyValue is no more than ${request.length} characters.`,
-        },
-      ],
-    });
+          Make sure propertyValue is no more than ${request.length} characters.`;
 
-    const gptResponse = response.choices[0]?.message?.content;
-    this.logger.info('Received raw response from openai', gptResponse);
-    const gptJson = sanitizeJson(gptResponse || '');
-    this.logger.info('Received sanitized json', gptJson);
-
-    return gptJson;
+    return this.generateText(request.campaignId, prompt);
   }
 
   async generateArbitraryFromPrompt(
@@ -193,40 +189,17 @@ export class GeneratorsService {
     request: PostGenerateArbitraryFromPromptRequest,
   ): Promise<any> {
     track(AppEvent.GenerateArbitraryFromPrompt, userId, trackingInfo);
-    const openai = getClient();
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4o',
-      messages: [
-        {
-          role: 'system',
-          content:
-            'You are a helpful assistant who is creative and knowledgeable in table top role playing games.',
-        },
-        {
-          role: 'system',
-          content:
-            'If you are extra creative and helpful with the following prompt you will be rewarded based on how much effort you put in.',
-        },
-        {
-          role: 'user',
-          content: `Please generate me ideas for a ${request.context} using the following prompt as guidance:
-          ${request.prompt}.
-          Use the following as general context about the ${request.context} which can be optionally used as inspiration:
-          ${JSON.stringify(request.background)}.
-          Please return the response in the following JSON format: { "label": "", "text": "" }.
-          Where 'label' is a string that succinctly labels what was generated in the 'text' field,
-          and 'text' is a string that holds the generated output.
-          Do not include any other text in your response.`,
-        },
-      ],
-    });
 
-    const gptResponse = response.choices[0]?.message?.content;
-    this.logger.info('Received raw response from openai', gptResponse);
-    const gptJson = sanitizeJson(gptResponse || '');
-    this.logger.info('Received sanitized json', gptJson);
+    const prompt = `Please generate me ideas for a ${request.context} using the following prompt as guidance:
+      ${request.prompt}.
+      Use the following as general context about the ${request.context} which can be optionally used as inspiration:
+      ${JSON.stringify(request.background)}.
+      Please return the response in the following JSON format: { "label": "", "text": "" }.
+      Where 'label' is a string that succinctly labels what was generated in the 'text' field,
+      and 'text' is a string that holds the generated output.
+      Do not include any other text in your response.`;
 
-    return gptJson;
+    return this.generateText(request.campaignId, prompt);
   }
 
   async generateArbitraryReplacement(
@@ -243,41 +216,18 @@ export class GeneratorsService {
     }
 
     track(AppEvent.GenerateArbitraryReplacement, userId, trackingInfo);
-    const openai = getClient();
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4o',
-      messages: [
-        {
-          role: 'system',
-          content:
-            'You are a helpful assistant who is creative and knowledgeable in table top role playing games.',
-        },
-        {
-          role: 'system',
-          content:
-            'If you are extra creative and helpful with the following prompt you will be rewarded based on how much effort you put in.',
-        },
-        {
-          role: 'user',
-          content: `Please replace the following text:
-          ${request.replace}.
-          within this block of text:
-          ${request.full}.
-          Replace the text with a new unique idea that fits the context of the original text.
-          Please return the response in the following JSON format: { "replaced": "", "full": "" }.
-          Where 'replaced' is the specific text you came up with to replace the original,
-          and 'full' is the entire block of text that includes your new replacement text.
-          The 'replaced' text should preserve all leading and trailing spaces that were present in the replaced text.
-          Do not include any other text in your response.`,
-        },
-      ],
-    });
 
-    const gptResponse = response.choices[0]?.message?.content;
-    this.logger.info('Received raw response from openai', gptResponse);
-    const gptJson = sanitizeJson(gptResponse || '');
-    this.logger.info('Received sanitized json', gptJson);
+    const prompt = `Please replace the following text:
+      ${request.replace}.
+      within this block of text:
+      ${request.full}.
+      Replace the text with a new unique idea that fits the context of the original text.
+      Please return the response in the following JSON format: { "replaced": "", "full": "" }.
+      Where 'replaced' is the specific text you came up with to replace the original,
+      and 'full' is the entire block of text that includes your new replacement text.
+      The 'replaced' text should preserve all leading and trailing spaces that were present in the replaced text.
+      Do not include any other text in your response.`;
 
-    return gptJson;
+    return this.generateText(request.campaignId, prompt);
   }
 }

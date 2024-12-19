@@ -6,7 +6,7 @@ import { CollectionsDataProvider } from '@/modules/collections/collections.datap
 import { MembersDataProvider } from '@/modules/campaigns/members/members.dataprovider';
 import { UsersDataProvider } from '@/modules/users/users.dataprovider';
 import { CharactersDataProvider } from '@/modules/campaigns/characters/characters.dataprovider';
-import { useLogger } from '@/lib/loggingMiddleware';
+import { useLogger } from '@/modules/core/logging/loggingMiddleware';
 import { NextFunction, Request, Response } from 'express';
 import { EmailProvider } from '@/providers/emailProvider';
 import { CampaignContextWorker } from '@/modules/context/workers/campaignContext.worker';

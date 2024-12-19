@@ -1,5 +1,5 @@
-import { TrackingInfo } from '@/lib/tracking';
-import { AppError, HttpCode } from '@/lib/errors/AppError';
+import { TrackingInfo } from '@/modules/core/analytics/tracking';
+import { AppError, HttpCode } from '@/modules/core/errors/AppError';
 import { CampaignConjurationsDataProvider } from '@/modules/campaigns/conjurations/campaignConjurations.dataprovider';
 import { CampaignsDataProvider } from '@/modules/campaigns/campaigns.dataprovider';
 import { ConjurationsDataProvider } from '@/modules/conjurations/conjurations.dataprovider';

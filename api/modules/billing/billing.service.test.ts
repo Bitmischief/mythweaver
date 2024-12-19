@@ -1,5 +1,5 @@
 import { BillingService } from '@/modules/billing/billing.service';
-import { MythWeaverLogger } from '@/lib/logger';
+import { MythWeaverLogger } from '@/modules/core/logging/logger';
 import { StripeProvider } from '@/providers/stripe';
 import { BillingDataProvider } from '@/modules/billing/billing.dataprovider';
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';

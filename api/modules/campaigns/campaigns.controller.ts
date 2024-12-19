@@ -13,7 +13,11 @@ import {
   Route,
 } from 'tsoa';
 import { Campaign } from '@prisma/client';
-import { AppEvent, track, TrackingInfo } from '@/lib/tracking';
+import {
+  AppEvent,
+  track,
+  TrackingInfo,
+} from '@/modules/core/analytics/tracking';
 import { CampaignsService } from '@/modules/campaigns/campaigns.service';
 import {
   GetCampaignsResponse,
@@ -54,11 +58,9 @@ export class CampaignsController {
     @Inject() trackingInfo: TrackingInfo,
     @Path() campaignId = 0,
   ): Promise<Campaign> {
-    return await this.campaignsService.getCampaign(
-      userId,
-      trackingInfo,
-      campaignId,
-    );
+    track(AppEvent.GetCampaign, userId, trackingInfo);
+
+    return await this.campaignsService.getCampaign(userId, campaignId);
   }
 
   @Security('jwt')
@@ -70,11 +72,7 @@ export class CampaignsController {
     @Body() request: PostCampaignRequest,
   ): Promise<Campaign> {
     track(AppEvent.CreateCampaign, userId, trackingInfo);
-    return await this.campaignsService.createCampaign(
-      userId,
-      trackingInfo,
-      request,
-    );
+    return await this.campaignsService.createCampaign(userId, request);
   }
 
   @Security('jwt')

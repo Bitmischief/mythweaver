@@ -1,19 +1,17 @@
 import express, { Request, Response } from 'express';
 import { z } from 'zod';
-import {
-  checkAuth0Jwt,
-  useAuthenticateRequest,
-  useInjectUserId,
-} from '@/lib/authMiddleware';
-import { useInjectLoggingInfo } from '@/lib/loggingMiddleware';
+import { useAuthenticateRequest } from '@/modules/core/middleware/authMiddleware';
+import { checkAuth0Jwt } from '@/modules/core/middleware/auth0';
+import { useInjectUserId } from '@/modules/core/middleware/userMiddleware';
+import { useInjectLoggingInfo } from '@/modules/core/logging/loggingMiddleware';
 import {
   useValidateRequest,
   ValidationTypes,
-} from '@/lib/validationMiddleware';
+} from '@/modules/core/middleware/validationMiddleware';
 import { ImagesController } from '@/modules/images/images.controller';
 import { injectDependencies } from '@/modules/images/images.dependencies';
 import multer from 'multer';
-import { useUpload } from '@/lib/fileUploadMiddleware';
+import { useUpload } from '@/modules/core/middleware/fileUploadMiddleware';
 
 const upload = multer({ storage: multer.memoryStorage() });
 const router = express.Router({ mergeParams: true });

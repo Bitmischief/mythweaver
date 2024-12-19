@@ -1,9 +1,9 @@
 import Queue, { Job } from 'bull';
-import { Campaign, Conjuration, ContextType, Session } from '@prisma/client';
-import { prisma } from '@/lib/providers/prisma';
+import { Campaign, Conjuration, Session } from '@prisma/client';
+import { prisma } from '@/providers/prisma';
 import { ContextService } from '@/modules/context/context.service';
-import { processInChunks } from '@/lib/utils';
-import { MythWeaverLogger } from '@/lib/logger';
+import { processInChunks } from '@/modules/core/utils/chunks';
+import { MythWeaverLogger } from '@/modules/core/logging/logger';
 import { config } from '@/modules/core/workers/worker.config';
 
 interface CampaignContextEvent {

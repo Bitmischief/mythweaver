@@ -1,5 +1,9 @@
-import { AppError, HttpCode } from '@/lib/errors/AppError';
-import { AppEvent, track, TrackingInfo } from '@/lib/tracking';
+import { AppError, HttpCode } from '@/modules/core/errors/AppError';
+import {
+  AppEvent,
+  track,
+  TrackingInfo,
+} from '@/modules/core/analytics/tracking';
 import { CharactersDataProvider } from '@/modules/characters/characters.dataprovider';
 import {
   PostCharactersRequest,

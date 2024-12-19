@@ -2,12 +2,12 @@ import Queue, { Job } from 'bull';
 import { ImageModel, Image } from '@prisma/client';
 import { ImageGenerationRequest } from '@/modules/images/images.interface';
 import { config } from '@/modules/core/workers/worker.config';
-import { AppError, HttpCode } from '@/lib/errors/AppError';
+import { AppError, HttpCode } from '@/modules/core/errors/AppError';
 import {
   WebSocketProvider,
   WebSocketEvent,
 } from '@/providers/websocketProvider';
-import { MythWeaverLogger } from '@/lib/logger';
+import { MythWeaverLogger } from '@/modules/core/logging/logger';
 import { RunPodProvider } from '@/providers/runPod';
 import { ImagesDataProvider } from '@/modules/images/images.dataprovider';
 import { CompletedImageService } from '@/modules/images/completedImage.service';

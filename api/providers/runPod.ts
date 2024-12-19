@@ -4,7 +4,7 @@ import {
   ApiImageGenerationResponse,
   ImageGenerationRequest,
 } from '@/modules/images/images.interface';
-import logger from '@/lib/logger';
+import { MythWeaverLogger } from '@/modules/core/logging/logger';
 
 export interface RunPodResponse {
   id: string;
@@ -13,6 +13,8 @@ export interface RunPodResponse {
 }
 
 export class RunPodProvider {
+  constructor(private readonly logger: MythWeaverLogger) {}
+
   async submitJob(
     model: ImageModel,
     request: ImageGenerationRequest,
@@ -58,7 +60,7 @@ export class RunPodProvider {
         },
       );
     } catch (error) {
-      logger.error('Failed to cancel RunPod job', { jobId, error });
+      this.logger.error('Failed to cancel RunPod job', { jobId, error });
     }
   }
 
@@ -77,5 +79,3 @@ export class RunPodProvider {
     return response.data;
   }
 }
-
-export default new RunPodProvider();

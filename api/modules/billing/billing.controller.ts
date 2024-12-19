@@ -8,16 +8,16 @@ import {
   Tags,
   Route,
 } from 'tsoa';
-import { AppError, HttpCode } from '@/lib/errors/AppError';
-import { TrackingInfo } from '@/lib/tracking';
-import { MythWeaverLogger } from '@/lib/logger';
+import { AppError, HttpCode } from '@/modules/core/errors/AppError';
+import { TrackingInfo } from '@/modules/core/analytics/tracking';
+import { MythWeaverLogger } from '@/modules/core/logging/logger';
 import {
   CheckoutUrlRequest,
   GetBillingPortalUrlRequest,
 } from '@/modules/billing/billing.interface';
 import Stripe from 'stripe';
 import { BillingService } from '@/modules/billing/billing.service';
-import { prisma } from '@/lib/providers/prisma';
+import { prisma } from '@/providers/prisma';
 
 @Route('billing')
 @Tags('Billing')

@@ -4,7 +4,7 @@ import {
   WebSocketEvent,
   WebSocketProvider,
 } from '@/providers/websocketProvider';
-import { MythWeaverLogger } from '@/lib/logger';
+import { MythWeaverLogger } from '@/modules/core/logging/logger';
 import { AssemblyAIProvider } from '@/providers/assemblyAI';
 import { SessionsDataProvider } from '@/modules/sessions/sessions.dataprovider';
 import { TranscriptionService } from '@/modules/sessions/transcription.service';

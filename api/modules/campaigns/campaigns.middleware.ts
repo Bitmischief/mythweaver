@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
-import { prisma } from '@/lib/providers/prisma';
-import { AppError, HttpCode } from '@/lib/errors/AppError';
+import { prisma } from '@/providers/prisma';
+import { AppError, HttpCode } from '@/modules/core/errors/AppError';
 import { CampaignRole } from '@/modules/campaigns/campaigns.interface';
 import { useBuildFileUploader } from '@/lib/fileUploadMiddleware';
 

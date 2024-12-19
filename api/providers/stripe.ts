@@ -1,14 +1,13 @@
-import { urlPrefix } from '@/lib/utils';
-import { AppError, HttpCode } from '@/lib/errors/AppError';
+import { urlPrefix } from '@/modules/core/utils/environments';
+import { AppError, HttpCode } from '@/modules/core/errors/AppError';
 import Stripe from 'stripe';
 import { BillingPlan, BillingInterval } from '@prisma/client';
-import logger from '@/lib/logger';
 import { GetBillingPortalUrlRequest } from '@/modules/billing/billing.interface';
-
+import { MythWeaverLogger } from '@/modules/core/logging/logger';
 export class StripeProvider {
   private stripe: Stripe;
 
-  constructor() {
+  constructor(private readonly logger: MythWeaverLogger) {
     this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
       apiVersion: '2023-10-16',
     });
@@ -23,7 +22,7 @@ export class StripeProvider {
       return existingCustomerSearch.data[0].id;
     }
 
-    logger.info('Creating stripe customer for', { email });
+    this.logger.info('Creating stripe customer for', { email });
     const customer = await this.stripe.customers.create({
       email,
     });
@@ -97,7 +96,7 @@ export class StripeProvider {
     customerId: string,
     request: GetBillingPortalUrlRequest,
   ): Promise<string> {
-    logger.info(
+    this.logger.info(
       'Getting billing portal url for stripe customer id',
       customerId,
     );
@@ -150,7 +149,7 @@ export class StripeProvider {
           : undefined,
     });
 
-    logger.info('Received billing portal url', session.url);
+    this.logger.info('Received billing portal url', session.url);
     return session.url;
   }
 
@@ -186,7 +185,7 @@ export class StripeProvider {
       return 100;
     }
 
-    logger.error('Unknown product id', {
+    this.logger.error('Unknown product id', {
       productId: process.env.STRIPE_IMAGE_PACK_100_PRODUCT_ID,
     });
 
@@ -256,5 +255,3 @@ export class StripeProvider {
     return session.url;
   }
 }
-
-export default new StripeProvider();

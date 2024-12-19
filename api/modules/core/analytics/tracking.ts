@@ -1,7 +1,7 @@
 import Mixpanel from 'mixpanel';
 import { Request } from 'express';
 import UAParser from 'ua-parser-js';
-import { isProduction } from '@/lib/environments';
+import { isProduction } from '@/modules/core/utils/environments';
 
 let mixpanel: Mixpanel.Mixpanel | undefined;
 

@@ -1,6 +1,6 @@
 import Queue, { Job } from 'bull';
-import { prisma } from '@/lib/providers/prisma';
-import { MythWeaverLogger } from '@/lib/logger';
+import { prisma } from '@/providers/prisma';
+import { MythWeaverLogger } from '@/modules/core/logging/logger';
 import { config } from '@/modules/core/workers/worker.config';
 
 export interface ProcessTagsEvent {

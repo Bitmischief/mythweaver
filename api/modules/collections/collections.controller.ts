@@ -13,7 +13,7 @@ import {
   Tags,
   Route,
 } from 'tsoa';
-import { TrackingInfo } from '@/lib/tracking';
+import { TrackingInfo } from '@/modules/core/analytics/tracking';
 import {
   PostCollectionRequest,
   PatchCollectionRequest,

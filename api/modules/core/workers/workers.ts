@@ -1,4 +1,4 @@
-import logger from '@/lib/logger';
+import logger from '@/modules/core/logging/logger';
 import { container as conjurationsContainer } from '@/modules/conjurations/conjurations.dependencies';
 import { ConjurationWorker } from '@/modules/conjurations/generateConjuration.worker';
 import { container as contextContainer } from '@/modules/context/context.dependencies';

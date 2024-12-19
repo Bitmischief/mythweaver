@@ -1,5 +1,5 @@
 import { Get, Inject, OperationId, Query, Security, Tags, Route } from 'tsoa';
-import { TrackingInfo } from '@/lib/tracking';
+import { TrackingInfo } from '@/modules/core/analytics/tracking';
 import { ImageModelsService } from '@/modules/imageModels/imageModels.service';
 import { GetImageModelsResponse } from '@/modules/imageModels/imageModels.interface';
 

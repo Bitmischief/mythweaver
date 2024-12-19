@@ -1,6 +1,6 @@
 import { MembersDataProvider } from '@/modules/campaigns/members/members.dataprovider';
 import { TrackingInfo, AppEvent, track } from '@/lib/tracking';
-import { AppError, HttpCode } from '@/lib/errors/AppError';
+import { AppError, HttpCode } from '@/modules/core/errors/AppError';
 import { ContextFiles, ContextType } from '@prisma/client';
 import {
   WebSocketProvider,

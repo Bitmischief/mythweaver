@@ -1,9 +1,12 @@
-import { AdConversionDetails, AdConversionEvent } from '@/lib/ads/index';
+import {
+  AdConversionDetails,
+  AdConversionEvent,
+} from '@/modules/core/ads/index';
 import axios from 'axios';
-import { AppError } from '@/lib/errors/AppError';
+import { AppError } from '@/modules/core/errors/AppError';
 import { sha256 } from 'js-sha256';
 import { User } from '@prisma/client';
-import logger from '@/lib/logger';
+import logger from '@/modules/core/logging/logger';
 
 const API_VERSION = 'v19.0';
 

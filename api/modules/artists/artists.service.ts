@@ -1,5 +1,5 @@
 import { Artist } from '@prisma/client';
-import { AppError, HttpCode } from '@/lib/errors/AppError';
+import { AppError, HttpCode } from '@/modules/core/errors/AppError';
 import { ArtistsDataProvider } from '@/modules/artists/artists.dataprovider';
 
 export class ArtistsService {

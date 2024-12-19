@@ -1,5 +1,5 @@
 import { Inject } from 'tsoa';
-import { MythWeaverLogger } from '@/lib/logger';
+import { MythWeaverLogger } from '@/modules/core/logging/logger';
 import axios from 'axios';
 import { IntegrationsService } from '@/modules/integrations/integrations.service';
 

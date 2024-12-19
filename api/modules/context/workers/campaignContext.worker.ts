@@ -1,9 +1,9 @@
 import Queue, { Job } from 'bull';
 import { Campaign, ContextType, Prisma } from '@prisma/client';
-import { prisma } from '@/lib/providers/prisma';
-import { AppError, HttpCode } from '@/lib/errors/AppError';
+import { prisma } from '@/providers/prisma';
+import { AppError, HttpCode } from '@/modules/core/errors/AppError';
 import { getClient } from '@/lib/providers/openai';
-import { MythWeaverLogger } from '@/lib/logger';
+import { MythWeaverLogger } from '@/modules/core/logging/logger';
 import fs from 'node:fs';
 import { downloadFile, sleep } from '@/lib/utils';
 import { config } from '@/modules/core/workers/worker.config';

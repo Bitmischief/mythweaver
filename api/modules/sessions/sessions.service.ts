@@ -2,17 +2,21 @@ import { SessionsDataProvider } from '@/modules/sessions/sessions.dataprovider';
 import { CampaignsDataProvider } from '@/modules/campaigns/campaigns.dataprovider';
 import { MembersDataProvider } from '@/modules/campaigns/members/members.dataprovider';
 import { UsersDataProvider } from '@/modules/users/users.dataprovider';
-import { AppError, HttpCode } from '@/lib/errors/AppError';
+import { AppError, HttpCode } from '@/modules/core/errors/AppError';
 import { BillingPlan, Session } from '@prisma/client';
-import { AppEvent, track, TrackingInfo } from '@/lib/tracking';
+import {
+  AppEvent,
+  track,
+  TrackingInfo,
+} from '@/modules/core/analytics/tracking';
 import { CampaignRole } from '@/modules/campaigns/campaigns.interface';
 import { EmailProvider, EmailTemplates } from '@/providers/emailProvider';
-import { urlPrefix } from '@/lib/utils';
+import { urlPrefix } from '@/modules/core/utils/environments';
 import {
   WebSocketProvider,
   WebSocketEvent,
 } from '@/providers/websocketProvider';
-import { MythWeaverLogger } from '@/lib/logger';
+import { MythWeaverLogger } from '@/modules/core/logging/logger';
 import {
   GetSessionsResponse,
   PatchSessionRequest,

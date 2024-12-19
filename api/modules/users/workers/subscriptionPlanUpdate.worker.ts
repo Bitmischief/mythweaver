@@ -1,9 +1,9 @@
 import Queue, { Job } from 'bull';
-import { prisma } from '@/lib/providers/prisma';
+import { prisma } from '@/providers/prisma';
 import { User } from '@prisma/client';
-import { MythWeaverLogger } from '@/lib/logger';
+import { MythWeaverLogger } from '@/modules/core/logging/logger';
 import { config } from '@/modules/core/workers/worker.config';
-import { processInChunks } from '@/lib/utils';
+import { processInChunks } from '@/modules/core/utils/chunks';
 
 interface SubscriptionPlanUpdateEvent {
   batchSize?: number;

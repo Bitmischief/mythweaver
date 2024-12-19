@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/providers/prisma';
+import { prisma } from '@/providers/prisma';
 import { Prisma } from '@prisma/client';
 
 export class CharactersDataProvider {

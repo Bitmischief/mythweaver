@@ -1,19 +1,17 @@
 import express, { Request, Response } from 'express';
-import {
-  checkAuth0Jwt,
-  useAuthenticateRequest,
-  useInjectUserId,
-} from '@/lib/authMiddleware';
+import { useAuthenticateRequest } from '@/modules/core/middleware/authMiddleware';
+import { checkAuth0Jwt } from '@/modules/core/middleware/auth0';
 import { z } from 'zod';
 import {
   useValidateRequest,
   ValidationTypes,
-} from '@/lib/validationMiddleware';
-import { useInjectLoggingInfo } from '@/lib/loggingMiddleware';
+} from '@/modules/core/middleware/validationMiddleware';
+import { useInjectUserId } from '@/modules/core/middleware/userMiddleware';
+import { useInjectLoggingInfo } from '@/modules/core/logging/loggingMiddleware';
 import {
   useAudioFileUploader,
   useAudioUploadAuthorizer,
-} from '@/lib/audioFileMiddleware';
+} from '@/modules/sessions/sessions.middleware';
 import { SessionsController } from '@/modules/sessions/sessions.controller';
 import { injectDependencies } from '@/modules/sessions/sessions.dependencies';
 
