@@ -17,8 +17,10 @@ initSentry();
 // these imports have to live below sentry init for it to work properly for some reason
 import express, { Application } from 'express';
 
+let app: Application;
+
 try {
-  const app: Application = express();
+  app = express();
 
   initCoreMiddleware(app);
   initLoggingMiddleware(app);
@@ -35,3 +37,5 @@ try {
 } catch (err) {
   console.error('Error initializing app', err);
 }
+
+export { app };
