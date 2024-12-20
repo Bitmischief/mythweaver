@@ -13,7 +13,7 @@ import {
   Route,
 } from 'tsoa';
 import { Session } from '@prisma/client';
-import { TrackingInfo } from '@/lib/tracking';
+import { TrackingInfo } from '@/modules/core/analytics/tracking';
 import { SessionsService } from '@/modules/sessions/sessions.service';
 import {
   GetSessionsResponse,

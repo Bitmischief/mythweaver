@@ -12,7 +12,7 @@ import {
 } from 'tsoa';
 import { CampaignFilesService } from '@/modules/campaigns/files/campaignFiles.service';
 import { PostCampaignFileRequest } from '@/modules/campaigns/files/campaignFiles.interface';
-import { TrackingInfo } from '@/lib/tracking';
+import { TrackingInfo } from '@/modules/core/analytics/tracking';
 
 @Route('campaigns/:campaignId/files')
 @Tags('Campaign Files')

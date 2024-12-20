@@ -1,17 +1,17 @@
 import express, { Request, Response } from 'express';
-import {
-  checkAuth0Jwt,
-  useInjectUserId,
-  useAuthenticateServiceRequest,
-} from '@/lib/authMiddleware';
+import { useAuthenticateServiceRequest } from '@/modules/core/middleware/authMiddleware';
+import { checkAuth0Jwt } from '@/modules/core/middleware/auth0';
+import { useInjectUserId } from '@/modules/core/middleware/userMiddleware';
 import { z } from 'zod';
 import {
   useValidateRequest,
   ValidationTypes,
-} from '@/lib/validationMiddleware';
+} from '@/modules/core/middleware/validationMiddleware';
 import { IntegrationsController } from '@/modules/integrations/integrations.controller';
-import { useInjectLoggingInfo, useLogger } from '@/lib/loggingMiddleware';
-import { injectDependencies } from '@/modules/integrations/integrations.dependencies';
+import {
+  useInjectLoggingInfo,
+  useLogger,
+} from '@/modules/core/logging/loggingMiddleware';
 
 const router = express.Router({ mergeParams: true });
 
@@ -19,7 +19,6 @@ router.get('/discord/connect', [
   checkAuth0Jwt,
   useInjectUserId(),
   useInjectLoggingInfo(),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<IntegrationsController>(
       'integrationsController',
@@ -41,7 +40,6 @@ router.get('/discord/callback', [
   useValidateRequest(discordCallbackSchema, {
     validationType: ValidationTypes.Query,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<IntegrationsController>(
       'integrationsController',
@@ -63,7 +61,6 @@ router.post('/discord/disconnect', [
   checkAuth0Jwt,
   useInjectUserId(),
   useInjectLoggingInfo(),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<IntegrationsController>(
       'integrationsController',
@@ -83,7 +80,6 @@ router.post('/discord/disconnect', [
 router.get('/discord/user/:discordHandle', [
   useAuthenticateServiceRequest(),
   useInjectLoggingInfo(),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<IntegrationsController>(
       'integrationsController',

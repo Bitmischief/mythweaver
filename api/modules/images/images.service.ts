@@ -1,5 +1,5 @@
 import { StabilityAIProvider } from '@/providers/stabilityAI';
-import { MythWeaverLogger } from '@/lib/logger';
+import { Logger } from '@/modules/core/logging/logger';
 import {
   PostImageRequest,
   ImageGenerationRequest,
@@ -9,7 +9,7 @@ import {
   ImageEdit,
   ImageEditType,
 } from '@/modules/images/images.interface';
-import { AppError, ErrorType, HttpCode } from '@/lib/errors/AppError';
+import { AppError, ErrorType, HttpCode } from '@/modules/core/errors/AppError';
 import { Image, ImageCreditChangeType, ImageModel } from '@prisma/client';
 import {
   WebSocketProvider,
@@ -33,7 +33,7 @@ export class ImagesService {
     private completedImageService: CompletedImageService,
     private storageProvider: StorageProvider,
     private creditsProvider: CreditsProvider,
-    private logger: MythWeaverLogger,
+    private logger: Logger,
     private webSocketProvider: WebSocketProvider,
   ) {}
 

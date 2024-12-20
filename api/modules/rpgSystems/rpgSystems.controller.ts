@@ -1,5 +1,5 @@
 import { Get, Inject, OperationId, Query, Security, Tags, Route } from 'tsoa';
-import { TrackingInfo } from '@/lib/tracking';
+import { TrackingInfo } from '@/modules/core/analytics/tracking';
 import { RpgSystemsService } from '@/modules/rpgSystems/rpgSystems.service';
 import { GetRpgSystemsResponse } from '@/modules/rpgSystems/rpgSystems.interface';
 

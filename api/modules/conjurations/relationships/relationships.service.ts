@@ -6,16 +6,16 @@ import {
   PostRelationshipRequest,
   RelationshipResponse,
 } from '@/modules/conjurations/relationships/relationships.interface';
-import { TrackingInfo } from '@/lib/tracking';
+import { TrackingInfo } from '@/modules/core/analytics/tracking';
 import { Conjuration, ConjurationRelationshipType } from '@prisma/client';
-import { MythWeaverLogger } from '@/lib/logger';
-import { AppError, HttpCode } from '@/lib/errors/AppError';
+import { Logger } from '@/modules/core/logging/logger';
+import { AppError, HttpCode } from '@/modules/core/errors/AppError';
 
 export class ConjurationsRelationshipsService {
   constructor(
-    private conjurationsRelationshipsDataProvider: ConjurationsRelationshipsDataProvider,
+    private relationshipsDataProvider: ConjurationsRelationshipsDataProvider,
     private collectionsDataProvider: CollectionsDataProvider,
-    private logger: MythWeaverLogger,
+    private logger: Logger,
   ) {}
 
   async getRelationships(
@@ -34,7 +34,7 @@ export class ConjurationsRelationshipsService {
       depthLimit,
     });
 
-    return await this.conjurationsRelationshipsDataProvider.getRelationships(
+    return await this.relationshipsDataProvider.getRelationships(
       nodeId,
       userId,
     );
@@ -55,7 +55,7 @@ export class ConjurationsRelationshipsService {
     });
 
     const existingCount =
-      await this.conjurationsRelationshipsDataProvider.getRelationshipCount(
+      await this.relationshipsDataProvider.getRelationshipCount(
         userId,
         nodeId,
         type,
@@ -64,22 +64,20 @@ export class ConjurationsRelationshipsService {
       );
 
     if (existingCount === 0) {
-      await await this.conjurationsRelationshipsDataProvider.createRelationship(
-        {
-          previousNodeId: nodeId,
-          previousType: type,
-          nextNodeId: data.relatedNodeId,
-          nextType: data.relatedNodeType,
-          comment: data.comment,
-          data: data.data,
-          userId: userId,
-        },
-      );
+      await await this.relationshipsDataProvider.createRelationship({
+        previousNodeId: nodeId,
+        previousType: type,
+        nextNodeId: data.relatedNodeId,
+        nextType: data.relatedNodeType,
+        comment: data.comment,
+        data: data.data,
+        userId: userId,
+      });
     }
 
     if (data.twoWay) {
       const reverseCount =
-        await this.conjurationsRelationshipsDataProvider.getRelationshipCount(
+        await this.relationshipsDataProvider.getRelationshipCount(
           userId,
           data.relatedNodeId,
           data.relatedNodeType,
@@ -88,7 +86,7 @@ export class ConjurationsRelationshipsService {
         );
 
       if (reverseCount === 0) {
-        await this.conjurationsRelationshipsDataProvider.createRelationship({
+        await this.relationshipsDataProvider.createRelationship({
           previousNodeId: data.relatedNodeId,
           previousType: data.relatedNodeType,
           nextNodeId: nodeId,
@@ -107,7 +105,7 @@ export class ConjurationsRelationshipsService {
     relationshipId: number,
   ): Promise<void> {
     const relationship =
-      await this.conjurationsRelationshipsDataProvider.findUserRelationship(
+      await this.relationshipsDataProvider.findUserRelationship(
         relationshipId,
         userId,
       );
@@ -123,9 +121,7 @@ export class ConjurationsRelationshipsService {
       userId,
     });
 
-    await this.conjurationsRelationshipsDataProvider.deleteRelationship(
-      relationshipId,
-    );
+    await this.relationshipsDataProvider.deleteRelationship(relationshipId);
   }
 
   async deleteRelationshipsByNodeIds(
@@ -146,7 +142,7 @@ export class ConjurationsRelationshipsService {
       },
     });
 
-    await this.conjurationsRelationshipsDataProvider.deleteRelationshipsByNodeIds(
+    await this.relationshipsDataProvider.deleteRelationshipsByNodeIds(
       previousNodeId,
       previousType,
       nextNodeId,
@@ -161,7 +157,7 @@ export class ConjurationsRelationshipsService {
     request: PatchRelationshipRequest,
   ): Promise<void> {
     const relationship =
-      await this.conjurationsRelationshipsDataProvider.findUserRelationship(
+      await this.relationshipsDataProvider.findUserRelationship(
         relationshipId,
         userId,
       );
@@ -179,7 +175,7 @@ export class ConjurationsRelationshipsService {
       request,
     });
 
-    await this.conjurationsRelationshipsDataProvider.updateRelationship(
+    await this.relationshipsDataProvider.updateRelationship(
       relationshipId,
       request,
     );
@@ -210,18 +206,16 @@ export class ConjurationsRelationshipsService {
     let links: GraphLinkResponse[] = [];
 
     if (!campaignId || (campaignId && conjurationIds.length)) {
-      nodes =
-        await this.conjurationsRelationshipsDataProvider.getRelationshipGraphNodes(
-          userId,
-          conjurationIds,
-          campaignId,
-        );
-      links =
-        await this.conjurationsRelationshipsDataProvider.getRelationshipGraphLinks(
-          userId,
-          conjurationIds,
-          campaignId,
-        );
+      nodes = await this.relationshipsDataProvider.getRelationshipGraphNodes(
+        userId,
+        conjurationIds,
+        campaignId,
+      );
+      links = await this.relationshipsDataProvider.getRelationshipGraphLinks(
+        userId,
+        conjurationIds,
+        campaignId,
+      );
     }
 
     return {

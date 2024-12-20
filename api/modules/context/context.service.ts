@@ -1,11 +1,10 @@
-import { AppError, HttpCode } from '@/lib/errors/AppError';
-import { prisma } from '@/lib/providers/prisma';
+import { AppError, HttpCode } from '@/modules/core/errors/AppError';
+import { prisma } from '@/providers/prisma';
 import { ContextType } from '@prisma/client';
-import { CampaignContextWorker } from './workers/campaignContext.worker';
-import { getClient } from '@/lib/providers/openai';
-
-const openai = getClient();
-
+import { Logger } from '@/modules/core/logging/logger';
+import { LLMProvider } from '@/providers/llmProvider';
+import { Queue } from 'bull';
+import { ReindexCampaignContextEvent } from './context.interface';
 export interface IndexContextTarget {
   sessionId?: number;
   conjurationId?: number;
@@ -13,10 +12,60 @@ export interface IndexContextTarget {
 }
 
 export class ContextService {
-  constructor(private indexCampaignContextWorker: CampaignContextWorker) {}
+  constructor(
+    private indexCampaignContextQueue: Queue<ReindexCampaignContextEvent>,
+    private logger: Logger,
+    private llmProvider: LLMProvider,
+  ) {}
+
+  async initCampaignContext(campaignId: number) {
+    this.logger.info('Initializing context settings for campaign', {
+      campaignId,
+    });
+
+    const campaign = await prisma.campaign.findUnique({
+      where: {
+        id: campaignId,
+      },
+    });
+
+    if (!campaign) {
+      throw new Error('Campaign not found');
+    }
+
+    let vectorStoreId = (campaign.openAiConfig as any)?.vectorStoreId;
+    let assistantId = (campaign.openAiConfig as any)?.assistantId;
+
+    if (vectorStoreId && assistantId) {
+      this.logger.info('Campaign already has open ai config set up');
+      return campaign;
+    }
+
+    if (!vectorStoreId) {
+      const vectorStore = await this.llmProvider.createVectorStore(
+        `campaign-${campaign.id}`,
+      );
+      vectorStoreId = vectorStore.id;
+    }
+
+    if (!assistantId) {
+      const assistant = await this.llmProvider.createAssistant(vectorStoreId);
+      assistantId = assistant.id;
+    }
+
+    return prisma.campaign.update({
+      where: { id: campaign.id },
+      data: {
+        openAiConfig: {
+          assistantId: assistantId,
+          vectorStoreId: vectorStoreId,
+        },
+      },
+    });
+  }
 
   indexContext = async (campaignId: number, target: IndexContextTarget) => {
-    await this.indexCampaignContextWorker.addJob({
+    await this.indexCampaignContextQueue.add({
       campaignId,
       ...this.getTypeAndTargetId(target),
     });
@@ -42,7 +91,7 @@ export class ContextService {
       });
     }
 
-    await openai.files.del(contextFile.externalSystemFileId);
+    await this.llmProvider.deleteFile(contextFile.externalSystemFileId);
 
     await prisma.contextFiles.delete({
       where: {
