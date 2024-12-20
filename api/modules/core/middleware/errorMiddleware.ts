@@ -1,6 +1,7 @@
 import { Application, ErrorRequestHandler, NextFunction, Request, Response } from 'express';
 import { useLogger } from '@/modules/core/logging/loggingMiddleware';
 import { errorHandler } from '@/modules/core/errors/ErrorHandler';
+import { isProduction } from '../utils/environments';
 
 export const initErrorHandlerMiddleware = (app: Application) => {
   const errorHandlerMiddleware: ErrorRequestHandler = (
@@ -13,7 +14,7 @@ export const initErrorHandlerMiddleware = (app: Application) => {
     const localLogger = useLogger();
     localLogger.error(
       `Error handler middleware: ${err?.message}`,
-      { req, res },
+      isProduction ? { req, res } : undefined,
       err,
     );
     errorHandler.handleError(err, res);

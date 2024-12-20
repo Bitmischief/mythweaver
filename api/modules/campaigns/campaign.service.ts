@@ -23,7 +23,10 @@ import { EmailProvider, EmailTemplates } from '@/providers/emailProvider';
 import { CollectionsService } from '@/modules/collections/collections.service';
 import { prisma } from '@/providers/prisma';
 import { ConjurationsDataProvider } from '@/modules/conjurations/conjurations.dataprovider';
-import { CampaignContextConfig, ReindexCampaignContextEvent } from '@/modules/context/context.interface';
+import {
+  CampaignContextConfig,
+  ReindexCampaignContextEvent,
+} from '@/modules/context/context.interface';
 import { Queue } from 'bull';
 
 export class CampaignService {
@@ -101,6 +104,7 @@ export class CampaignService {
     const campaign = await this.campaignDataProvider.createCampaign({
       name: request.name,
       userId,
+      rpgSystemCode: 'dnd5e',
     });
 
     await this.collectionsService.createCollection(userId, {

@@ -5,11 +5,11 @@ const { compilerOptions } = require('./tsconfig.json');
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  testTimeout: 30 * 1000,
-  collectCoverage: true,
-  coverageReporters: ['text', 'cobertura'],
-  testPathIgnorePatterns: ['/node_modules/', '/build/'],
-  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, {
-    prefix: '<rootDir>/',
-  }),
+  setupFiles: ['dotenv/config'],
+  testMatch: ['**/*.integration.tests.ts'],
+  globals: {
+    'ts-jest': {
+      tsconfig: 'tsconfig.json',
+    },
+  },
 };
