@@ -116,6 +116,7 @@ router.get('/requests/:conjurationRequestId', [
 ]);
 
 const postGenerateArbitrarySchema = z.object({
+  campaignId: z.number(),
   background: z.any(),
   context: z.string(),
   propertyName: z.string(),
@@ -141,6 +142,7 @@ router.post('/arbitrary', [
 ]);
 
 const postGenerateArbitraryFromPromptSchema = z.object({
+  campaignId: z.number(),
   background: z.any(),
   context: z.string(),
   prompt: z.string(),
@@ -165,6 +167,7 @@ router.post('/arbitrary/prompt', [
 ]);
 
 const postGenerateArbitraryReplacementSchema = z.object({
+  campaignId: z.number(),
   replace: z.string(),
   full: z.string(),
   turbo: z.boolean(),

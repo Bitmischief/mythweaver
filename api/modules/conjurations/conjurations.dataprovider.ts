@@ -350,6 +350,7 @@ export class ConjurationsDataProvider {
       },
       include: {
         images: true,
+        user: true,
       },
     });
   }

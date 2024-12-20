@@ -1,11 +1,17 @@
-import { sessionTranscriptQueue } from "@/modules/sessions/sessionTranscript.worker";
-import { conjureQueue, GenerateConjurationWorker } from '@/modules/conjurations/workers/generateConjuration.worker';
+import { sessionTranscriptQueue } from '@/modules/sessions/sessionTranscript.worker';
+import {
+  conjureQueue,
+  GenerateConjurationWorker,
+} from '@/modules/conjurations/workers/generateConjuration.worker';
 import {
   CampaignContextWorker,
   indexCampaignContextQueue,
 } from '@/modules/context/workers/campaignContext.worker';
 import { DailyCampaignContextWorker } from '@/modules/context/workers/dailyCampaignContext.worker';
-import { MythWeaverImageWorker } from '@/modules/images/mythweaverImage.worker';
+import {
+  mythweaverImageQueue,
+  MythWeaverImageWorker,
+} from '@/modules/images/mythweaverImage.worker';
 import { SessionTranscriptWorker } from '@/modules/sessions/sessionTranscript.worker';
 import { EndTrialWorker } from '@/modules/users/workers/endTrial.worker';
 import { ExpiredSubscriptionWorker } from '@/modules/users/workers/expiredSubscription.worker';
@@ -51,6 +57,7 @@ container.register({
   conjureQueue: asValue(conjureQueue),
   sessionTranscriptQueue: asValue(sessionTranscriptQueue),
   processTagsQueue: asValue(processTagsQueue),
+  mythweaverImageQueue: asValue(mythweaverImageQueue),
 
   // data providers
   conjurationsDataProvider: asClass(ConjurationsDataProvider).singleton(),

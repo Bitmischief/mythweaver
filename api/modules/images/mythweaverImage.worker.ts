@@ -12,7 +12,7 @@ import { RunPodProvider } from '@/providers/runPod';
 import { ImagesDataProvider } from '@/modules/images/images.dataprovider';
 import { CompletedImageService } from '@/modules/images/completedImage.service';
 
-interface CheckJobStatusData {
+export interface CheckJobStatusData {
   model: ImageModel;
   runpodJobId: string;
   images: Image[];
@@ -41,30 +41,15 @@ export const mythweaverImageQueue = new Queue<CheckJobStatusData>(
 );
 
 export class MythWeaverImageWorker {
-  private static instance: MythWeaverImageWorker;
-  private static isInitialized = false;
-
   constructor(
     private readonly logger: Logger,
     private readonly runPodProvider: RunPodProvider,
     private readonly imagesDataProvider: ImagesDataProvider,
     private readonly completedImageService: CompletedImageService,
     private readonly webSocketProvider: WebSocketProvider,
-  ) {
-    if (MythWeaverImageWorker.instance) {
-      return MythWeaverImageWorker.instance;
-    }
-    MythWeaverImageWorker.instance = this;
-  }
+  ) {}
 
   async initializeWorker(): Promise<void> {
-    if (MythWeaverImageWorker.isInitialized) {
-      this.logger.info(
-        'MythWeaver image worker already initialized, skipping initialization',
-      );
-      return;
-    }
-
     mythweaverImageQueue.process(async (job: Job<CheckJobStatusData>) => {
       this.logger.info('Processing mythweaver image status check job', {
         jobId: job.id,
@@ -168,27 +153,7 @@ export class MythWeaverImageWorker {
       },
     );
 
-    MythWeaverImageWorker.isInitialized = true;
     this.logger.info('MythWeaver image worker initialized successfully');
-  }
-
-  static getInstance(
-    logger: Logger,
-    runPodProvider: RunPodProvider,
-    imagesDataProvider: ImagesDataProvider,
-    completedImageService: CompletedImageService,
-    webSocketProvider: WebSocketProvider,
-  ): MythWeaverImageWorker {
-    if (!MythWeaverImageWorker.instance) {
-      MythWeaverImageWorker.instance = new MythWeaverImageWorker(
-        logger,
-        runPodProvider,
-        imagesDataProvider,
-        completedImageService,
-        webSocketProvider,
-      );
-    }
-    return MythWeaverImageWorker.instance;
   }
 
   private async handleFailure(
@@ -214,13 +179,5 @@ export class MythWeaverImageWorker {
     }
 
     job.discard();
-  }
-
-  async addJob(data: CheckJobStatusData): Promise<Job<CheckJobStatusData>> {
-    return mythweaverImageQueue.add(data);
-  }
-
-  async shutdown(): Promise<void> {
-    await mythweaverImageQueue.close();
   }
 }

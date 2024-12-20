@@ -58,11 +58,14 @@ import { StripeProvider } from '@/providers/stripe';
 import { RunPodProvider } from '@/providers/runPod';
 import { AssemblyAIProvider } from '@/providers/assemblyAI';
 import { TranscriptionService } from '@/modules/sessions/transcription.service';
-import { indexCampaignContextQueue } from './modules/context/workers/campaignContext.worker';
-import { conjureQueue } from './modules/conjurations/workers/generateConjuration.worker';
-import { sessionTranscriptQueue } from './modules/sessions/sessionTranscript.worker';
-import { ConjurationsRelationshipsService } from './modules/conjurations/relationships/relationships.service';
-import { processTagsQueue } from './modules/conjurations/workers/tags.worker';
+import { indexCampaignContextQueue } from '@/modules/context/workers/campaignContext.worker';
+import { conjureQueue } from '@/modules/conjurations/workers/generateConjuration.worker';
+import { sessionTranscriptQueue } from '@/modules/sessions/sessionTranscript.worker';
+import { ConjurationsRelationshipsService } from '@/modules/conjurations/relationships/relationships.service';
+import { processTagsQueue } from '@/modules/conjurations/workers/tags.worker';
+import { StabilityAIProvider } from '@/providers/stabilityAI';
+import { MythWeaverImageProvider } from '@/modules/images/mythweaverImage.provider';
+import { mythweaverImageQueue } from '@/modules/images/mythweaverImage.worker';
 
 const container = createContainer({
   injectionMode: InjectionMode.CLASSIC,
@@ -80,12 +83,15 @@ container.register({
   runPodProvider: asClass(RunPodProvider).scoped(),
   stripeProvider: asClass(StripeProvider).scoped(),
   assemblyAIProvider: asClass(AssemblyAIProvider).scoped(),
+  stabilityAIProvider: asClass(StabilityAIProvider).scoped(),
+  mythweaverImageProvider: asClass(MythWeaverImageProvider).scoped(),
 
   // queues
   indexCampaignContextQueue: asValue(indexCampaignContextQueue),
   conjureQueue: asValue(conjureQueue),
   sessionTranscriptQueue: asValue(sessionTranscriptQueue),
   processTagsQueue: asValue(processTagsQueue),
+  mythweaverImageQueue: asValue(mythweaverImageQueue),
 
   // artists
   artistsDataProvider: asClass(ArtistsDataProvider).scoped(),
