@@ -3,7 +3,6 @@ import { checkAuth0Jwt } from '@/modules/core/middleware/auth0';
 import { useInjectUserId } from '@/modules/core/middleware/userMiddleware';
 import { useInjectLoggingInfo } from '@/modules/core/logging/loggingMiddleware';
 import { GeneratorsController } from '@/modules/generators/generators.controller';
-import { injectDependencies } from '@/modules/generators/generators.dependencies';
 import {
   useValidateRequest,
   ValidationTypes,
@@ -24,7 +23,6 @@ router.get('/', [
   useValidateRequest(getGeneratorsSchema, {
     validationType: ValidationTypes.Query,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<GeneratorsController>(
       'generatorsController',
@@ -43,7 +41,6 @@ router.get('/:code', [
   checkAuth0Jwt,
   useInjectUserId(),
   useInjectLoggingInfo(),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<GeneratorsController>(
       'generatorsController',
@@ -61,7 +58,6 @@ router.post('/:code/generate/quick', [
   checkAuth0Jwt,
   useInjectUserId(),
   useInjectLoggingInfo(),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<GeneratorsController>(
       'generatorsController',
@@ -88,7 +84,6 @@ router.post('/:code/generate', [
   useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(postGeneratorGenerateSchema),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<GeneratorsController>(
       'generatorsController',
@@ -107,7 +102,6 @@ router.get('/requests/:conjurationRequestId', [
   checkAuth0Jwt,
   useInjectUserId(),
   useInjectLoggingInfo(),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<GeneratorsController>(
       'generatorsController',
@@ -133,7 +127,6 @@ router.post('/arbitrary', [
   useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(postGenerateArbitrarySchema),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<GeneratorsController>(
       'generatorsController',
@@ -158,7 +151,6 @@ router.post('/arbitrary/prompt', [
   useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(postGenerateArbitraryFromPromptSchema),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<GeneratorsController>(
       'generatorsController',
@@ -183,7 +175,6 @@ router.post('/arbitrary/replace', [
   useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(postGenerateArbitraryReplacementSchema),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<GeneratorsController>(
       'generatorsController',

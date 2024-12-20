@@ -10,7 +10,7 @@ import {
   track,
 } from '@/modules/core/analytics/tracking';
 import { AppError, HttpCode } from '@/modules/core/errors/AppError';
-import { MythWeaverLogger } from '@/modules/core/logging/logger';
+import { Logger } from '@/modules/core/logging/logger';
 import {
   Conjuration,
   ConjurationRelationshipType,
@@ -25,17 +25,18 @@ import {
   ConvertConjurationRequest,
 } from './conjurations.interface';
 import { ImageStylePreset } from '@/modules/images/images.interface';
-import { TagsWorker } from '@/modules/conjurations/workers/tags.worker';
+import { ProcessTagsEvent } from './workers/tags.worker';
+import { Queue } from 'bull';
 
 export class ConjurationsService {
   constructor(
     private conjurationsDataProvider: ConjurationsDataProvider,
-    private conjurationsRelationshipsDataProvider: ConjurationsRelationshipsDataProvider,
+    private relationshipsDataProvider: ConjurationsRelationshipsDataProvider,
     private membersDataProvider: MembersDataProvider,
     private usersDataProvider: UsersDataProvider,
     private collectionsDataProvider: CollectionsDataProvider,
-    private tagsWorker: TagsWorker,
-    private logger: MythWeaverLogger,
+    private processTagsQueue: Queue<ProcessTagsEvent>,
+    private logger: Logger,
   ) {}
 
   async getConjurations(
@@ -70,7 +71,7 @@ export class ConjurationsService {
     let relationships = [] as any[];
     if (nodeId) {
       relationships =
-        await this.conjurationsRelationshipsDataProvider.findManyConjurationRelationships(
+        await this.relationshipsDataProvider.findManyConjurationRelationships(
           userId,
           nodeId,
           nodeType,
@@ -249,7 +250,7 @@ export class ConjurationsService {
         ...request,
       });
 
-    await this.tagsWorker.addJob({
+    await this.processTagsQueue.add({
       conjurationIds: [conjurationId],
     });
 
@@ -294,7 +295,7 @@ export class ConjurationsService {
       await this.conjurationsDataProvider.deleteConjurationSave(userSave.id);
     }
 
-    await this.conjurationsRelationshipsDataProvider.deleteConjurationRelationships(
+    await this.relationshipsDataProvider.deleteConjurationRelationships(
       conjurationId,
     );
 

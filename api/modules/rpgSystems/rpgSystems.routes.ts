@@ -3,7 +3,6 @@ import { checkAuth0Jwt } from '@/modules/core/middleware/auth0';
 import { useInjectUserId } from '@/modules/core/middleware/userMiddleware';
 import { useInjectLoggingInfo } from '@/modules/core/logging/loggingMiddleware';
 import { RpgSystemsController } from '@/modules/rpgSystems/rpgSystems.controller';
-import { injectDependencies } from '@/modules/rpgSystems/rpgSystems.dependencies';
 import {
   useValidateRequest,
   ValidationTypes,
@@ -25,7 +24,6 @@ router.get('/', [
   useValidateRequest(getRpgSystemsSchema, {
     validationType: ValidationTypes.Query,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<RpgSystemsController>(
       'rpgSystemsController',

@@ -1,18 +1,15 @@
 import { AppError } from '@/modules/core/errors/AppError';
 import { HttpCode } from '@/modules/core/errors/AppError';
-import { CampaignsDataProvider } from '@/modules/campaigns/campaigns.dataprovider';
+import { CampaignDataProvider } from '@/modules/campaigns/campaign.dataprovider';
 import { TextContentBlock } from 'openai/resources/beta/threads/messages';
 import OpenAI from 'openai';
 import fs from 'node:fs';
-import { CampaignsService } from '@/modules/campaigns/campaigns.service';
+import { CampaignContextConfig } from '@/modules/context/context.interface';
 
 export class OpenAIProvider {
   private openai;
 
-  constructor(
-    private readonly campaignsDataProvider: CampaignsDataProvider,
-    private readonly campaignsService: CampaignsService,
-  ) {
+  constructor(private readonly campaignDataProvider: CampaignDataProvider) {
     this.openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
     });
@@ -63,7 +60,7 @@ export class OpenAIProvider {
   }
 
   async generateText(campaignId: number, prompt: string): Promise<string> {
-    const campaign = await this.campaignsDataProvider.getCampaign(campaignId);
+    const campaign = await this.campaignDataProvider.getCampaign(campaignId);
 
     if (!campaign) {
       throw new AppError({
@@ -73,7 +70,14 @@ export class OpenAIProvider {
     }
 
     const { assistantId } =
-      await this.campaignsService.getCampaignContextConfig(campaignId);
+      campaign.openAiConfig as unknown as CampaignContextConfig;
+
+    if (!assistantId) {
+      throw new AppError({
+        description: 'OpenAI assistant not found for campaign.',
+        httpCode: HttpCode.BAD_REQUEST,
+      });
+    }
 
     const thread = await this.openai.beta.threads.create();
 

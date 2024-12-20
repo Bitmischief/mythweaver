@@ -8,7 +8,6 @@ import {
 } from '@/modules/core/middleware/validationMiddleware';
 import { useInjectLoggingInfo } from '@/modules/core/logging/loggingMiddleware';
 import { MembersController } from '@/modules/campaigns/members/members.controller';
-import { injectDependencies } from '@/modules/campaigns/members/members.dependencies';
 
 const router = express.Router({ mergeParams: true });
 
@@ -31,7 +30,6 @@ router.get('/', [
   useValidateRequest(getCampaignMembersSchema, {
     validationType: ValidationTypes.Query,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller =
       req.container.resolve<MembersController>('membersController');
@@ -62,7 +60,6 @@ router.delete('/:memberId', [
   useValidateRequest(deleteCampaignMemberRouteSchema, {
     validationType: ValidationTypes.Route,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller =
       req.container.resolve<MembersController>('membersController');

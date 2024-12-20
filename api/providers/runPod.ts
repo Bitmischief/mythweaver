@@ -4,7 +4,7 @@ import {
   ApiImageGenerationResponse,
   ImageGenerationRequest,
 } from '@/modules/images/images.interface';
-import { MythWeaverLogger } from '@/modules/core/logging/logger';
+import { Logger } from '@/modules/core/logging/logger';
 
 export interface RunPodResponse {
   id: string;
@@ -13,7 +13,7 @@ export interface RunPodResponse {
 }
 
 export class RunPodProvider {
-  constructor(private readonly logger: MythWeaverLogger) {}
+  constructor(private readonly logger: Logger) {}
 
   async submitJob(
     model: ImageModel,

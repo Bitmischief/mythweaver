@@ -7,7 +7,7 @@ import {
   WebSocketProvider,
   WebSocketEvent,
 } from '@/providers/websocketProvider';
-import { MythWeaverLogger } from '@/modules/core/logging/logger';
+import { Logger } from '@/modules/core/logging/logger';
 import { RunPodProvider } from '@/providers/runPod';
 import { ImagesDataProvider } from '@/modules/images/images.dataprovider';
 import { CompletedImageService } from '@/modules/images/completedImage.service';
@@ -45,7 +45,7 @@ export class MythWeaverImageWorker {
   private static isInitialized = false;
 
   constructor(
-    private readonly logger: MythWeaverLogger,
+    private readonly logger: Logger,
     private readonly runPodProvider: RunPodProvider,
     private readonly imagesDataProvider: ImagesDataProvider,
     private readonly completedImageService: CompletedImageService,
@@ -173,7 +173,7 @@ export class MythWeaverImageWorker {
   }
 
   static getInstance(
-    logger: MythWeaverLogger,
+    logger: Logger,
     runPodProvider: RunPodProvider,
     imagesDataProvider: ImagesDataProvider,
     completedImageService: CompletedImageService,

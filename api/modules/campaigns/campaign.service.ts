@@ -1,14 +1,14 @@
-import { CampaignsDataProvider } from '@/modules/campaigns/campaigns.dataprovider';
+import { CampaignDataProvider } from '@/modules/campaigns/campaign.dataprovider';
 import { MembersDataProvider } from '@/modules/campaigns/members/members.dataprovider';
 import { CollectionsDataProvider } from '@/modules/collections/collections.dataprovider';
 import { UsersDataProvider } from '@/modules/users/users.dataprovider';
-import { MythWeaverLogger } from '@/modules/core/logging/logger';
+import { Logger } from '@/modules/core/logging/logger';
 import {
   GetCampaignsResponse,
   PostCampaignRequest,
   PutCampaignRequest,
   InviteMemberRequest,
-} from '@/modules/campaigns/campaigns.interface';
+} from '@/modules/campaigns/campaign.interface';
 import {
   TrackingInfo,
   AppEvent,
@@ -18,25 +18,25 @@ import { AppError, HttpCode } from '@/modules/core/errors/AppError';
 import { Campaign, ContextType, Conjuration } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
 import { urlPrefix } from '@/modules/core/utils/environments';
-import { CampaignRole } from '@/modules/campaigns/campaigns.interface';
+import { CampaignRole } from '@/modules/campaigns/campaign.interface';
 import { EmailProvider, EmailTemplates } from '@/providers/emailProvider';
-import { CampaignContextWorker } from '@/modules/context/workers/campaignContext.worker';
 import { CollectionsService } from '@/modules/collections/collections.service';
 import { prisma } from '@/providers/prisma';
 import { ConjurationsDataProvider } from '@/modules/conjurations/conjurations.dataprovider';
-import { CampaignContextConfig } from '@/modules/context/context.interface';
+import { CampaignContextConfig, ReindexCampaignContextEvent } from '@/modules/context/context.interface';
+import { Queue } from 'bull';
 
-export class CampaignsService {
+export class CampaignService {
   constructor(
-    private campaignsDataProvider: CampaignsDataProvider,
+    private campaignDataProvider: CampaignDataProvider,
     private membersDataProvider: MembersDataProvider,
     private collectionsDataProvider: CollectionsDataProvider,
     private usersDataProvider: UsersDataProvider,
     private conjurationsDataProvider: ConjurationsDataProvider,
     private emailProvider: EmailProvider,
-    private indexCampaignContextWorker: CampaignContextWorker,
     private collectionsService: CollectionsService,
-    private logger: MythWeaverLogger,
+    private logger: Logger,
+    private indexCampaignContextQueue: Queue<ReindexCampaignContextEvent>,
   ) {}
 
   async getCampaigns(
@@ -48,7 +48,7 @@ export class CampaignsService {
   ): Promise<GetCampaignsResponse> {
     this.logger.info('Getting campaigns');
 
-    const campaigns = await this.campaignsDataProvider.getCampaigns(
+    const campaigns = await this.campaignDataProvider.getCampaigns(
       userId,
       offset,
       limit,
@@ -82,7 +82,7 @@ export class CampaignsService {
       });
     }
 
-    const campaign = await this.campaignsDataProvider.getCampaign(campaignId);
+    const campaign = await this.campaignDataProvider.getCampaign(campaignId);
 
     if (!campaign) {
       throw new AppError({
@@ -98,7 +98,7 @@ export class CampaignsService {
     userId: number,
     request: PostCampaignRequest,
   ): Promise<Campaign> {
-    const campaign = await this.campaignsDataProvider.createCampaign({
+    const campaign = await this.campaignDataProvider.createCampaign({
       name: request.name,
       userId,
     });
@@ -118,7 +118,7 @@ export class CampaignsService {
     campaignId: number,
     request: PutCampaignRequest,
   ): Promise<Campaign> {
-    const campaign = await this.campaignsDataProvider.getCampaign(campaignId);
+    const campaign = await this.campaignDataProvider.getCampaign(campaignId);
 
     if (!campaign) {
       throw new AppError({
@@ -137,7 +137,7 @@ export class CampaignsService {
     track(AppEvent.UpdateCampaign, userId, trackingInfo);
 
     if (request.description) {
-      await this.indexCampaignContextWorker.addJob({
+      await this.indexCampaignContextQueue.add({
         campaignId,
         eventTargetId: campaignId,
         type: ContextType.CAMPAIGN,
@@ -151,7 +151,7 @@ export class CampaignsService {
       },
     );
 
-    return await this.campaignsDataProvider.updateCampaign(campaignId, {
+    return await this.campaignDataProvider.updateCampaign(campaignId, {
       ...request,
     });
   }
@@ -161,7 +161,7 @@ export class CampaignsService {
     trackingInfo: TrackingInfo,
     campaignId: number,
   ): Promise<void> {
-    const campaign = await this.campaignsDataProvider.getCampaign(campaignId);
+    const campaign = await this.campaignDataProvider.getCampaign(campaignId);
 
     if (!campaign) {
       throw new AppError({
@@ -179,7 +179,7 @@ export class CampaignsService {
 
     track(AppEvent.DeleteCampaign, userId, trackingInfo);
 
-    await this.campaignsDataProvider.deleteCampaign(campaignId);
+    await this.campaignDataProvider.deleteCampaign(campaignId);
   }
 
   async inviteCampaignMember(
@@ -188,7 +188,7 @@ export class CampaignsService {
     campaignId: number,
     request: InviteMemberRequest,
   ): Promise<any> {
-    const campaign = await this.campaignsDataProvider.getCampaign(campaignId);
+    const campaign = await this.campaignDataProvider.getCampaign(campaignId);
 
     if (!campaign) {
       throw new AppError({
@@ -197,7 +197,9 @@ export class CampaignsService {
       });
     }
 
-    const currentMember = campaign.members.find((m) => m.userId === userId);
+    const currentMember = campaign.members.find(
+      (m: any) => m.userId === userId,
+    );
     if (!currentMember || currentMember.role !== CampaignRole.DM) {
       throw new AppError({
         description: 'You do not have permissions to invite members.',
@@ -205,7 +207,7 @@ export class CampaignsService {
       });
     }
 
-    if (campaign.members.find((m) => m.email === request.email)) {
+    if (campaign.members.find((m: any) => m.email === request.email)) {
       throw new AppError({
         description: 'User is already a member of this campaign.',
         httpCode: HttpCode.CONFLICT,
@@ -239,7 +241,7 @@ export class CampaignsService {
 
   async getInvite(inviteCode: string): Promise<any> {
     const campaign =
-      await this.campaignsDataProvider.getCampaignByInviteCode(inviteCode);
+      await this.campaignDataProvider.getCampaignByInviteCode(inviteCode);
 
     if (!campaign) {
       throw new AppError({
@@ -283,7 +285,7 @@ export class CampaignsService {
     }
 
     const campaign =
-      await this.campaignsDataProvider.getCampaignByInviteCode(inviteCode);
+      await this.campaignDataProvider.getCampaignByInviteCode(inviteCode);
 
     if (!campaign) {
       throw new AppError({

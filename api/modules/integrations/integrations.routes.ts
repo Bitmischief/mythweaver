@@ -12,7 +12,6 @@ import {
   useInjectLoggingInfo,
   useLogger,
 } from '@/modules/core/logging/loggingMiddleware';
-import { injectDependencies } from '@/modules/integrations/integrations.dependencies';
 
 const router = express.Router({ mergeParams: true });
 
@@ -20,7 +19,6 @@ router.get('/discord/connect', [
   checkAuth0Jwt,
   useInjectUserId(),
   useInjectLoggingInfo(),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<IntegrationsController>(
       'integrationsController',
@@ -42,7 +40,6 @@ router.get('/discord/callback', [
   useValidateRequest(discordCallbackSchema, {
     validationType: ValidationTypes.Query,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<IntegrationsController>(
       'integrationsController',
@@ -64,7 +61,6 @@ router.post('/discord/disconnect', [
   checkAuth0Jwt,
   useInjectUserId(),
   useInjectLoggingInfo(),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<IntegrationsController>(
       'integrationsController',
@@ -84,7 +80,6 @@ router.post('/discord/disconnect', [
 router.get('/discord/user/:discordHandle', [
   useAuthenticateServiceRequest(),
   useInjectLoggingInfo(),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<IntegrationsController>(
       'integrationsController',

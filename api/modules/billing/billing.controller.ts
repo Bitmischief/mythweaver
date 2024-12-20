@@ -10,7 +10,7 @@ import {
 } from 'tsoa';
 import { AppError, HttpCode } from '@/modules/core/errors/AppError';
 import { TrackingInfo } from '@/modules/core/analytics/tracking';
-import { MythWeaverLogger } from '@/modules/core/logging/logger';
+import { Logger } from '@/modules/core/logging/logger';
 import {
   CheckoutUrlRequest,
   GetBillingPortalUrlRequest,
@@ -21,10 +21,10 @@ import { prisma } from '@/providers/prisma';
 
 @Route('billing')
 @Tags('Billing')
-export default class BillingController {
+export class BillingController {
   constructor(
     private billingService: BillingService,
-    private logger: MythWeaverLogger,
+    private logger: Logger,
   ) {}
 
   @Post('/checkout-url')

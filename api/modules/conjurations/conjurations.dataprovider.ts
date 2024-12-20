@@ -348,6 +348,9 @@ export class ConjurationsDataProvider {
           },
         },
       },
+      include: {
+        images: true,
+      },
     });
   }
 }

@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import logger, { MythWeaverLogger } from '@/modules/core/logging/logger';
+import logger, { Logger } from '@/modules/core/logging/logger';
 import { v4 as uuidv4 } from 'uuid';
 import { isLocalDevelopment } from '@/modules/core/utils/environments';
 import { Application } from 'express';
@@ -32,7 +32,7 @@ export const useInjectLoggingInfo = () => {
   };
 };
 
-export const useLogger = (): MythWeaverLogger => {
+export const useLogger = (): Logger => {
   return logger;
 };
 
@@ -43,23 +43,23 @@ export const initLoggingMiddleware = (app: Application) => {
     const logger = useLogger();
 
     app.use(
-    pinoHTTP({
-      logger: logger.internalLogger,
-      genReqId: function (req, res) {
-        const existingID = req.id ?? req.headers['x-request-id'];
-        if (existingID) return existingID;
-        const id = uuidv4();
-        res.setHeader('X-Request-Id', id);
-        return id;
-      },
-      autoLogging: {
-        ignore: (req) => req.url === '/version',
-      },
-      customProps: function (req, res) {
-        return {
-          requestId: getRequestId(req, res),
-        };
-      },
+      pinoHTTP({
+        logger: logger.internalLogger,
+        genReqId: function (req, res) {
+          const existingID = req.id ?? req.headers['x-request-id'];
+          if (existingID) return existingID;
+          const id = uuidv4();
+          res.setHeader('X-Request-Id', id);
+          return id;
+        },
+        autoLogging: {
+          ignore: (req) => req.url === '/version',
+        },
+        customProps: function (req, res) {
+          return {
+            requestId: getRequestId(req, res),
+          };
+        },
       }),
     );
   }

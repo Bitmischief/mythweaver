@@ -1,6 +1,6 @@
 import Queue, { Job } from 'bull';
 import { prisma } from '@/providers/prisma';
-import { MythWeaverLogger } from '@/modules/core/logging/logger';
+import { Logger } from '@/modules/core/logging/logger';
 import { config } from '@/modules/core/workers/worker.config';
 
 export interface ProcessTagsEvent {
@@ -19,7 +19,7 @@ export const processTagsQueue = new Queue<ProcessTagsEvent>(
 );
 
 export class TagsWorker {
-  constructor(private readonly logger: MythWeaverLogger) {
+  constructor(private readonly logger: Logger) {
     this.initializeWorker();
   }
 
@@ -101,13 +101,5 @@ export class TagsWorker {
     });
 
     job.discard();
-  }
-
-  async addJob(data: ProcessTagsEvent): Promise<Job<ProcessTagsEvent>> {
-    return processTagsQueue.add(data);
-  }
-
-  async shutdown(): Promise<void> {
-    await processTagsQueue.close();
   }
 }

@@ -1,11 +1,11 @@
-import pino, { Logger } from 'pino';
+import pino, { Logger as PinoLogger } from 'pino';
 import { isLocalDevelopment } from '@/modules/core/utils/environments';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-export class MythWeaverLogger {
-  public internalLogger: Logger;
+export class Logger {
+  public internalLogger: PinoLogger;
 
   constructor() {
     const transport =
@@ -89,4 +89,4 @@ export class MythWeaverLogger {
   }
 }
 
-export default new MythWeaverLogger();
+export default new Logger();

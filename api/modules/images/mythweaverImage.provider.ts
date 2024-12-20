@@ -1,13 +1,13 @@
 import { ImageModel, Image } from '@prisma/client';
 import { AppError, HttpCode } from '@/modules/core/errors/AppError';
-import { MythWeaverLogger } from '@/modules/core/logging/logger';
+import { Logger } from '@/modules/core/logging/logger';
 import { ImageGenerationRequest } from '@/modules/images/images.interface';
 import { RunPodProvider } from '@/providers/runPod';
 import { MythWeaverImageWorker } from '@/modules/images/mythweaverImage.worker';
 
 export class MythWeaverImageProvider {
   constructor(
-    private readonly logger: MythWeaverLogger,
+    private readonly logger: Logger,
     private readonly runPodProvider: RunPodProvider,
     private readonly mythweaverImageWorker: MythWeaverImageWorker,
   ) {}

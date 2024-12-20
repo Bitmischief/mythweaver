@@ -1,5 +1,5 @@
 import { BillingService } from '@/modules/billing/billing.service';
-import { MythWeaverLogger } from '@/modules/core/logging/logger';
+import { Logger } from '@/modules/core/logging/logger';
 import { StripeProvider } from '@/providers/stripe';
 import { BillingDataProvider } from '@/modules/billing/billing.dataprovider';
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
@@ -11,7 +11,7 @@ import { CreditsProvider } from '@/providers/creditsProvider';
 
 describe('BillingService', () => {
   let billingService: BillingService;
-  let mockLogger: jest.Mocked<MythWeaverLogger>;
+  let mockLogger: jest.Mocked<Logger>;
   let mockStripeProvider: jest.Mocked<StripeProvider>;
   let mockBillingDataProvider: jest.Mocked<BillingDataProvider>;
   let mockEmailProvider: jest.Mocked<EmailProvider>;

@@ -11,8 +11,7 @@ import { useInjectLoggingInfo } from '@/modules/core/logging/loggingMiddleware';
 import {
   useCampaignFileUploadAuthorizer,
   useCampaignFileUploader,
-} from '@/modules/campaigns/campaigns.middleware';
-import { injectDependencies } from '@/modules/campaigns/files/campaignFiles.dependencies';
+} from '@/modules/campaigns/campaign.middleware';
 
 const router = express.Router({ mergeParams: true });
 
@@ -29,7 +28,6 @@ router.post('/', [
   }),
   useCampaignFileUploadAuthorizer(),
   useCampaignFileUploader(),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<CampaignFilesController>(
       'campaignFilesController',
@@ -60,7 +58,6 @@ router.get('/', [
   useValidateRequest(getCampaignFilesSchema, {
     validationType: ValidationTypes.Route,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<CampaignFilesController>(
       'campaignFilesController',
@@ -90,7 +87,6 @@ router.delete('/:fileId', [
   useValidateRequest(deleteCampaignFileSchema, {
     validationType: ValidationTypes.Route,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<CampaignFilesController>(
       'campaignFilesController',

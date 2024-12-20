@@ -1,6 +1,6 @@
 import { UsersDataProvider } from '@/modules/users/users.dataprovider';
 import { ConjurationsDataProvider } from '@/modules/conjurations/conjurations.dataprovider';
-import { MythWeaverLogger } from '@/modules/core/logging/logger';
+import { Logger } from '@/modules/core/logging/logger';
 import {
   TrackingInfo,
   track,
@@ -17,7 +17,7 @@ import {
 import { ImageCreditChangeType, User } from '@prisma/client';
 import { StripeProvider } from '@/providers/stripe';
 import { CreditsProvider } from '@/providers/creditsProvider';
-import { CampaignsService } from '@/modules/campaigns/campaigns.service';
+import { CampaignService } from '@/modules/campaigns/campaign.service';
 import { EmailProvider } from '@/providers/emailProvider';
 import { prisma } from '@/providers/prisma';
 import { reportAdConversionEvent, AdConversionEvent } from '@/modules/core/ads';
@@ -26,9 +26,9 @@ export class UsersService {
   constructor(
     private usersDataProvider: UsersDataProvider,
     private conjurationsDataProvider: ConjurationsDataProvider,
-    private logger: MythWeaverLogger,
+    private logger: Logger,
     private creditsProvider: CreditsProvider,
-    private campaignService: CampaignsService,
+    private campaignService: CampaignService,
     private stripeProvider: StripeProvider,
     private emailProvider: EmailProvider,
   ) {}

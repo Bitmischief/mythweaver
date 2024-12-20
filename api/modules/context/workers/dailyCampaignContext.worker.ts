@@ -3,7 +3,7 @@ import { Campaign, Conjuration, Session } from '@prisma/client';
 import { prisma } from '@/providers/prisma';
 import { ContextService } from '@/modules/context/context.service';
 import { processInChunks } from '@/modules/core/utils/chunks';
-import { MythWeaverLogger } from '@/modules/core/logging/logger';
+import { Logger } from '@/modules/core/logging/logger';
 import { config } from '@/modules/core/workers/worker.config';
 
 interface CampaignContextEvent {
@@ -17,7 +17,7 @@ export const dailyCampaignContextQueue = new Queue<CampaignContextEvent>(
 
 export class DailyCampaignContextWorker {
   constructor(
-    private readonly logger: MythWeaverLogger,
+    private readonly logger: Logger,
     private contextService: ContextService,
   ) {}
 

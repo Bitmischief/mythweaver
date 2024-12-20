@@ -6,7 +6,6 @@ import {
   useValidateRequest,
   ValidationTypes,
 } from '@/modules/core/middleware/validationMiddleware';
-import { injectDependencies } from '@/modules/campaigns/conjurations/campaignConjurations.dependencies';
 import { CampaignConjurationsController } from '@/modules/campaigns/conjurations/campaignConjurations.controller';
 import { useInjectLoggingInfo } from '@/modules/core/logging/loggingMiddleware';
 
@@ -24,7 +23,6 @@ router.post('/:conjurationId', [
   useValidateRequest(postCampaignConjurationRouteSchema, {
     validationType: ValidationTypes.Route,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<CampaignConjurationsController>(
       'campaignConjurationsController',
@@ -55,7 +53,6 @@ router.delete('/:conjurationId', [
   useValidateRequest(deleteCampaignConjurationRouteSchema, {
     validationType: ValidationTypes.Route,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<CampaignConjurationsController>(
       'campaignConjurationsController',

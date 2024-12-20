@@ -1,9 +1,9 @@
 import axios from 'axios';
 import { isProduction } from '@/modules/core/utils/environments';
-import { MythWeaverLogger } from '@/modules/core/logging/logger';
+import { Logger } from '@/modules/core/logging/logger';
 
 export class DiscordProvider {
-  constructor(private logger: MythWeaverLogger) {}
+  constructor(private logger: Logger) {}
 
   async postToBillingChannel(message: string): Promise<void> {
     if (!isProduction) return;

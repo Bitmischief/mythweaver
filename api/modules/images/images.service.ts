@@ -1,5 +1,5 @@
 import { StabilityAIProvider } from '@/providers/stabilityAI';
-import { MythWeaverLogger } from '@/modules/core/logging/logger';
+import { Logger } from '@/modules/core/logging/logger';
 import {
   PostImageRequest,
   ImageGenerationRequest,
@@ -33,7 +33,7 @@ export class ImagesService {
     private completedImageService: CompletedImageService,
     private storageProvider: StorageProvider,
     private creditsProvider: CreditsProvider,
-    private logger: MythWeaverLogger,
+    private logger: Logger,
     private webSocketProvider: WebSocketProvider,
   ) {}
 

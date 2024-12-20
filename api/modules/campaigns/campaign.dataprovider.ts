@@ -2,7 +2,7 @@ import { prisma } from '@/providers/prisma';
 import { Campaign } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 
-export class CampaignsDataProvider {
+export class CampaignDataProvider {
   async getCampaigns(
     userId: number,
     offset: number,

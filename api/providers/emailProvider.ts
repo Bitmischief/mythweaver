@@ -1,4 +1,4 @@
-import { MythWeaverLogger } from '@/modules/core/logging/logger';
+import { Logger } from '@/modules/core/logging/logger';
 import axios from 'axios';
 
 export enum EmailTemplates {
@@ -8,7 +8,7 @@ export enum EmailTemplates {
 }
 
 export class EmailProvider {
-  constructor(private logger: MythWeaverLogger) {}
+  constructor(private logger: Logger) {}
 
   async addEmailToMailingList(email: string) {
     this.logger.info('Adding email to mailing list', { email });

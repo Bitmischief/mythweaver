@@ -3,7 +3,6 @@ import { checkAuth0Jwt } from '@/modules/core/middleware/auth0';
 import { useInjectUserId } from '@/modules/core/middleware/userMiddleware';
 import { useInjectLoggingInfo } from '@/modules/core/logging/loggingMiddleware';
 import { ImageModelsController } from '@/modules/imageModels/imageModels.controller';
-import { injectDependencies } from '@/modules/imageModels/imageModels.dependencies';
 import {
   useValidateRequest,
   ValidationTypes,
@@ -24,7 +23,6 @@ router.get('/', [
   useValidateRequest(getImageModelsSchema, {
     validationType: ValidationTypes.Query,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<ImageModelsController>(
       'imageModelsController',

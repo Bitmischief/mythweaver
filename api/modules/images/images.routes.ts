@@ -9,7 +9,6 @@ import {
   ValidationTypes,
 } from '@/modules/core/middleware/validationMiddleware';
 import { ImagesController } from '@/modules/images/images.controller';
-import { injectDependencies } from '@/modules/images/images.dependencies';
 import multer from 'multer';
 import { useUpload } from '@/modules/core/middleware/fileUploadMiddleware';
 
@@ -41,7 +40,6 @@ router.post('/', [
   useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(postImageSchema),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller =
       req.container.resolve<ImagesController>('imagesController');
@@ -70,7 +68,6 @@ router.patch('/:imageId/conjurationId', [
     validationType: ValidationTypes.Route,
   }),
   useValidateRequest(patchConjurationIdSchema),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller =
       req.container.resolve<ImagesController>('imagesController');
@@ -95,7 +92,6 @@ router.post('/:imageId/upscale', [
   useValidateRequest(postUpscaleRouteSchema, {
     validationType: ValidationTypes.Route,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller =
       req.container.resolve<ImagesController>('imagesController');
@@ -115,7 +111,6 @@ router.patch('/:imageId/primary', [
   useValidateRequest(patchRouteSchema, {
     validationType: ValidationTypes.Route,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller =
       req.container.resolve<ImagesController>('imagesController');
@@ -139,7 +134,6 @@ router.get('/conjurations/:conjurationId/history', [
   useValidateRequest(getConjurationImageHistorySchema, {
     validationType: ValidationTypes.Route,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller =
       req.container.resolve<ImagesController>('imagesController');
@@ -164,7 +158,6 @@ router.get('/gallery', [
   useValidateRequest(getUserImagesSchema, {
     validationType: ValidationTypes.Query,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller =
       req.container.resolve<ImagesController>('imagesController');
@@ -193,7 +186,6 @@ router.post('/:imageId/inpaint', [
   }),
   upload.single('mask'),
   useValidateRequest(postInpaintSchema),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller =
       req.container.resolve<ImagesController>('imagesController');
@@ -228,7 +220,6 @@ router.post('/:imageId/outpaint', [
     validationType: ValidationTypes.Route,
   }),
   useValidateRequest(postOutpaintSchema),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller =
       req.container.resolve<ImagesController>('imagesController');
@@ -249,7 +240,6 @@ router.post('/:imageId/remove-background', [
   useValidateRequest(z.object({ imageId: z.coerce.number() }), {
     validationType: ValidationTypes.Route,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller =
       req.container.resolve<ImagesController>('imagesController');
@@ -270,7 +260,6 @@ router.post('/:imageId/erase', [
     validationType: ValidationTypes.Route,
   }),
   upload.single('mask'),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller =
       req.container.resolve<ImagesController>('imagesController');
@@ -295,7 +284,6 @@ router.get('/:imageId', [
   useValidateRequest(getImageByIdSchema, {
     validationType: ValidationTypes.Route,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller =
       req.container.resolve<ImagesController>('imagesController');
@@ -319,7 +307,6 @@ router.post('/upload', [
     maxFileSize: MAX_IMAGE_FILE_SIZE,
     acceptedFileTypes: ACCEPTED_IMAGE_TYPES,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller =
       req.container.resolve<ImagesController>('imagesController');
@@ -352,7 +339,6 @@ router.patch('/:imageId/edit', [
     validationType: ValidationTypes.Route,
   }),
   useValidateRequest(setImageToEditSchema),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller =
       req.container.resolve<ImagesController>('imagesController');
@@ -373,7 +359,6 @@ router.delete('/:imageId/edits', [
   useValidateRequest(z.object({ imageId: z.coerce.number() }), {
     validationType: ValidationTypes.Route,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller =
       req.container.resolve<ImagesController>('imagesController');

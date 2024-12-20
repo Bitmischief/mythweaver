@@ -18,18 +18,18 @@ import {
   track,
   TrackingInfo,
 } from '@/modules/core/analytics/tracking';
-import { CampaignsService } from '@/modules/campaigns/campaigns.service';
+import { CampaignService } from '@/modules/campaigns/campaign.service';
 import {
   GetCampaignsResponse,
   PostCampaignRequest,
   PutCampaignRequest,
   InviteMemberRequest,
-} from '@/modules/campaigns/campaigns.interface';
+} from '@/modules/campaigns/campaign.interface';
 
 @Route('campaigns')
-@Tags('Campaigns')
-export class CampaignsController {
-  constructor(private campaignsService: CampaignsService) {}
+@Tags('Campaigns')    
+export class CampaignController {
+  constructor(private campaignService: CampaignService) {}
 
   @Security('jwt')
   @OperationId('getCampaigns')
@@ -41,7 +41,7 @@ export class CampaignsController {
     @Query() limit = 25,
     @Query() term?: string,
   ): Promise<GetCampaignsResponse> {
-    return this.campaignsService.getCampaigns(
+    return this.campaignService.getCampaigns(
       userId,
       trackingInfo,
       offset,
@@ -60,7 +60,7 @@ export class CampaignsController {
   ): Promise<Campaign> {
     track(AppEvent.GetCampaign, userId, trackingInfo);
 
-    return await this.campaignsService.getCampaign(userId, campaignId);
+    return await this.campaignService.getCampaign(userId, campaignId);
   }
 
   @Security('jwt')
@@ -72,7 +72,7 @@ export class CampaignsController {
     @Body() request: PostCampaignRequest,
   ): Promise<Campaign> {
     track(AppEvent.CreateCampaign, userId, trackingInfo);
-    return await this.campaignsService.createCampaign(userId, request);
+    return await this.campaignService.createCampaign(userId, request);
   }
 
   @Security('jwt')
@@ -84,7 +84,7 @@ export class CampaignsController {
     @Path() campaignId = 0,
     @Body() request: PutCampaignRequest,
   ): Promise<Campaign> {
-    return await this.campaignsService.updateCampaign(
+    return await this.campaignService.updateCampaign(
       userId,
       trackingInfo,
       campaignId,
@@ -100,7 +100,7 @@ export class CampaignsController {
     @Inject() trackingInfo: TrackingInfo,
     @Path() campaignId: number,
   ): Promise<void> {
-    return await this.campaignsService.deleteCampaign(
+    return await this.campaignService.deleteCampaign(
       userId,
       trackingInfo,
       campaignId,
@@ -116,7 +116,7 @@ export class CampaignsController {
     @Path() campaignId = 0,
     @Body() request: InviteMemberRequest,
   ): Promise<any> {
-    return await this.campaignsService.inviteCampaignMember(
+    return await this.campaignService.inviteCampaignMember(
       userId,
       trackingInfo,
       campaignId,
@@ -131,7 +131,7 @@ export class CampaignsController {
     @Inject() trackingInfo: TrackingInfo,
     @Path() inviteCode: string,
   ): Promise<any> {
-    return await this.campaignsService.getInvite(inviteCode);
+    return await this.campaignService.getInvite(inviteCode);
   }
 
   @Security('jwt')
@@ -142,7 +142,7 @@ export class CampaignsController {
     @Inject() trackingInfo: TrackingInfo,
     @Path() inviteCode: string,
   ) {
-    return await this.campaignsService.acceptInvite(
+    return await this.campaignService.acceptInvite(
       userId,
       trackingInfo,
       inviteCode,
@@ -157,7 +157,7 @@ export class CampaignsController {
     @Inject() trackingInfo: TrackingInfo,
     @Path() campaignId: number,
   ) {
-    return await this.campaignsService.getMyCampaignCharacters(
+    return await this.campaignService.getMyCampaignCharacters(
       userId,
       trackingInfo,
       campaignId,

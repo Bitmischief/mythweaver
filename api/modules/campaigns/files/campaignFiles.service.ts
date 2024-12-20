@@ -10,17 +10,18 @@ import {
   WebSocketProvider,
   WebSocketEvent,
 } from '@/providers/websocketProvider';
-import { CampaignContextWorker } from '@/modules/context/workers/campaignContext.worker';
 import { CampaignFilesDataProvider } from './campaignFiles.dataprovider';
-import { CampaignRole } from '@/modules/campaigns/campaigns.interface';
+import { CampaignRole } from '@/modules/campaigns/campaign.interface';
 import { PostCampaignFileRequest } from './campaignFiles.interface';
 import { LLMProvider } from '@/providers/llmProvider';
+import { Queue } from 'bull';
+import { ReindexCampaignContextEvent } from '@/modules/context/context.interface';
 
 export class CampaignFilesService {
   constructor(
     private campaignFilesDataProvider: CampaignFilesDataProvider,
     private membersDataProvider: MembersDataProvider,
-    private indexCampaignContextWorker: CampaignContextWorker,
+    private indexCampaignContextQueue: Queue<ReindexCampaignContextEvent>,
     private llmProvider: LLMProvider,
     private webSocketProvider: WebSocketProvider,
   ) {}
@@ -84,7 +85,7 @@ export class CampaignFilesService {
       });
     }
 
-    await this.indexCampaignContextWorker.addJob({
+    await this.indexCampaignContextQueue.add({
       campaignId,
       eventTargetId: campaignId,
       type: ContextType.MANUAL_FILE_UPLOAD,

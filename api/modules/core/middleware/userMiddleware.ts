@@ -6,9 +6,14 @@ import { UsersService } from '@/modules/users/users.service';
 
 export const useInjectUserId = () => {
   return async (req: Request, res: Response, next: NextFunction) => {
-    const usersService = req.container.resolve<UsersService>('usersService');
-
     const logger = useLogger();
+
+    if (!req.container) {
+      logger.error('Container not found');
+      return next();
+    }
+
+    const usersService = req.container.resolve<UsersService>('usersService');
 
     if (res.locals.auth?.email) {
       logger.info('Auth context already injected');

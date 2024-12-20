@@ -1,4 +1,3 @@
-import { injectDependencies } from '@/modules/conjurations/relationships/relationships.dependencies';
 import express, { Request, Response } from 'express';
 import { z } from 'zod';
 import { checkAuth0Jwt } from '@/modules/core/middleware/auth0';
@@ -35,11 +34,10 @@ router.get('/:type/:nodeId', [
   useValidateRequest(getRelationshipsSchema, {
     validationType: ValidationTypes.Query,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller =
       req.container.resolve<ConjurationsRelationshipsController>(
-        'conjurationsRelationshipsController',
+        'relationshipsController',
       );
 
     const response = await controller.getRelationships(
@@ -71,11 +69,10 @@ router.post('/:type/:nodeId', [
     validationType: ValidationTypes.Route,
   }),
   useValidateRequest(postRelationshipsSchema),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller =
       req.container.resolve<ConjurationsRelationshipsController>(
-        'conjurationsRelationshipsController',
+        'relationshipsController',
       );
 
     const response = await controller.postRelationship(
@@ -101,11 +98,10 @@ router.delete('/:relationshipId', [
   useValidateRequest(relationshipIdRouteSchema, {
     validationType: ValidationTypes.Route,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller =
       req.container.resolve<ConjurationsRelationshipsController>(
-        'conjurationsRelationshipsController',
+        'relationshipsController',
       );
 
     const response = await controller.deleteRelationship(
@@ -130,11 +126,10 @@ router.post('/remove', [
   useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(deleteRelationshipsSchema),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller =
       req.container.resolve<ConjurationsRelationshipsController>(
-        'conjurationsRelationshipsController',
+        'relationshipsController',
       );
 
     const response = await controller.deleteRelationshipByNodeIds(
@@ -160,11 +155,10 @@ router.patch('/:relationshipId', [
     validationType: ValidationTypes.Route,
   }),
   useValidateRequest(patchRelationshipSchema),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller =
       req.container.resolve<ConjurationsRelationshipsController>(
-        'conjurationsRelationshipsController',
+        'relationshipsController',
       );
 
     const response = await controller.patchRelationship(
@@ -189,11 +183,10 @@ router.get('/graph', [
   useValidateRequest(getRelationshipGraphSchema, {
     validationType: ValidationTypes.Query,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller =
       req.container.resolve<ConjurationsRelationshipsController>(
-        'conjurationsRelationshipsController',
+        'relationshipsController',
       );
 
     const { campaignId = undefined } = req.query;

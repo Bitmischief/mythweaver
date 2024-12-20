@@ -10,7 +10,6 @@ import { checkAuth0Jwt } from '@/modules/core/middleware/auth0';
 import { useInjectLoggingInfo } from '@/modules/core/logging/loggingMiddleware';
 import { ConjurationRelationshipType } from '@prisma/client';
 import { ImageStylePreset } from '@/modules/images/images.interface';
-import { injectDependencies } from '@/modules/conjurations/conjurations.dependencies';
 import conjurers from '@/data/conjurers';
 
 const router = express.Router({ mergeParams: true });
@@ -56,7 +55,6 @@ router.get('/', [
   useValidateRequest(getConjurationsSchema, {
     validationType: ValidationTypes.Query,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<ConjurationsController>(
       'conjurationsController',
@@ -105,7 +103,6 @@ router.get('/tags', [
   useValidateRequest(getConjurationTagsSchema, {
     validationType: ValidationTypes.Query,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<ConjurationsController>(
       'conjurationsController',
@@ -136,7 +133,6 @@ router.get('/:conjurationId', [
   useValidateRequest(getConjurationSchema, {
     validationType: ValidationTypes.Route,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<ConjurationsController>(
       'conjurationsController',
@@ -164,7 +160,6 @@ router.post('/:conjurationId/save', [
   useValidateRequest(postSaveConjurationsSchema, {
     validationType: ValidationTypes.Route,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<ConjurationsController>(
       'conjurationsController',
@@ -195,7 +190,6 @@ router.patch('/:conjurationId', [
   useValidateRequest(getConjurationSchema, {
     validationType: ValidationTypes.Route,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<ConjurationsController>(
       'conjurationsController',
@@ -220,7 +214,6 @@ router.delete('/:conjurationId', [
   useValidateRequest(getConjurationSchema, {
     validationType: ValidationTypes.Route,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<ConjurationsController>(
       'conjurationsController',
@@ -248,7 +241,6 @@ router.post('/:conjurationId/remove', [
   useValidateRequest(postRemoveConjurationsSchema, {
     validationType: ValidationTypes.Route,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<ConjurationsController>(
       'conjurationsController',
@@ -274,7 +266,6 @@ router.post('/:conjurationId/copy', [
   useValidateRequest(postCopyConjurationsSchema, {
     validationType: ValidationTypes.Route,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<ConjurationsController>(
       'conjurationsController',
@@ -296,7 +287,6 @@ router.get('/request/:requestId', [
   useValidateRequest(getConjurationRequestSchema, {
     validationType: ValidationTypes.Route,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<ConjurationsController>(
       'conjurationsController',
@@ -318,7 +308,6 @@ router.post('/convert', [
   useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(postConvertConjurationRequestSchema),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<ConjurationsController>(
       'conjurationsController',

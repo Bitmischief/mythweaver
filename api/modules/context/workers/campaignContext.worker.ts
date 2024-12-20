@@ -2,7 +2,7 @@ import Queue, { Job } from 'bull';
 import { Campaign, ContextType, Prisma } from '@prisma/client';
 import { prisma } from '@/providers/prisma';
 import { AppError, HttpCode } from '@/modules/core/errors/AppError';
-import { MythWeaverLogger } from '@/modules/core/logging/logger';
+import { Logger } from '@/modules/core/logging/logger';
 import { downloadFile } from '@/modules/core/utils/downloads';
 import { sleep } from '@/modules/core/utils/time';
 import { config } from '@/modules/core/workers/worker.config';
@@ -25,7 +25,7 @@ export const indexCampaignContextQueue = new Queue<ReindexCampaignContextEvent>(
 
 export class CampaignContextWorker implements Worker {
   constructor(
-    private readonly logger: MythWeaverLogger,
+    private readonly logger: Logger,
     private readonly webSocketProvider: WebSocketProvider,
     private readonly llmProvider: LLMProvider,
   ) {}
@@ -273,15 +273,5 @@ export class CampaignContextWorker implements Worker {
         conjurationId,
       },
     });
-  }
-
-  async addJob(
-    data: ReindexCampaignContextEvent,
-  ): Promise<Job<ReindexCampaignContextEvent>> {
-    return indexCampaignContextQueue.add(data);
-  }
-
-  async shutdown(): Promise<void> {
-    await indexCampaignContextQueue.close();
   }
 }

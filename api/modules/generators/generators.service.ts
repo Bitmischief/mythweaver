@@ -6,7 +6,7 @@ import {
   TrackingInfo,
 } from '@/modules/core/analytics/tracking';
 import { sanitizeJson } from '@/modules/core/utils/json';
-import { MythWeaverLogger } from '@/modules/core/logging/logger';
+import { Logger } from '@/modules/core/logging/logger';
 import { GeneratorsDataProvider } from './generators.dataprovider';
 import conjurers, { Generator, getGenerator } from '@/data/conjurers';
 import {
@@ -17,19 +17,20 @@ import {
   PostGenerateArbitraryReplacementRequest,
 } from '@/modules/generators/generators.interface';
 import { ConjurationsDataProvider } from '@/modules/conjurations/conjurations.dataprovider';
-import { CampaignsDataProvider } from '@/modules/campaigns/campaigns.dataprovider';
+import { CampaignDataProvider } from '@/modules/campaigns/campaign.dataprovider';
 import { UsersDataProvider } from '@/modules/users/users.dataprovider';
-import { ConjurationWorker } from '@/modules/conjurations/generateConjuration.worker';
 import { LLMProvider } from '@/providers/llmProvider';
 
+import { Queue } from 'bull';
+import { ConjureEvent } from '@/modules/conjurations/workers/generateConjuration.worker';
 export class GeneratorsService {
   constructor(
     private generatorsDataProvider: GeneratorsDataProvider,
     private conjurationsDataProvider: ConjurationsDataProvider,
-    private campaignsDataProvider: CampaignsDataProvider,
+    private campaignDataProvider: CampaignDataProvider,
     private usersDataProvider: UsersDataProvider,
-    private logger: MythWeaverLogger,
-    private generateConjurationWorker: ConjurationWorker,
+    private logger: Logger,
+    private conjureQueue: Queue<ConjureEvent>,
     private llmProvider: LLMProvider,
   ) {}
 
@@ -88,7 +89,7 @@ export class GeneratorsService {
     code: string,
     request: PostGeneratorGenerate,
   ): Promise<any> {
-    const campaign = await this.campaignsDataProvider.getUserCampaign(
+    const campaign = await this.campaignDataProvider.getUserCampaign(
       userId,
       request.campaignId,
     );
@@ -135,7 +136,7 @@ export class GeneratorsService {
         prompt: request.prompt,
       });
 
-    await this.generateConjurationWorker.addJob({
+    await this.conjureQueue.add({
       campaignId: request.campaignId,
       generatorCode: code,
       arg: request.customArg || request.prompt || '',

@@ -11,7 +11,7 @@ import billingRoutes from '@/modules/billing/billing.routes';
 
 router.use(`/billing`, billingRoutes);
 
-import campaignRoutes from '@/modules/campaigns/campaigns.routes';
+import campaignRoutes from '@/modules/campaigns/campaign.routes';
 
 router.use(`/campaigns`, campaignRoutes);
 

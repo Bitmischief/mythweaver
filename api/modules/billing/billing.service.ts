@@ -5,7 +5,7 @@ import {
   User,
 } from '@prisma/client';
 import { differenceInDays } from 'date-fns';
-import { MythWeaverLogger } from '@/modules/core/logging/logger';
+import { Logger } from '@/modules/core/logging/logger';
 import { GetBillingPortalUrlRequest } from '@/modules/billing/billing.interface';
 import { AppEvent, track } from '@/modules/core/analytics/tracking';
 import { AdConversionEvent, reportAdConversionEvent } from '@/modules/core/ads';
@@ -19,7 +19,7 @@ import { CreditsProvider } from '@/providers/creditsProvider';
 
 export class BillingService {
   constructor(
-    private logger: MythWeaverLogger,
+    private logger: Logger,
     private stripeProvider: StripeProvider,
     private billingDataProvider: BillingDataProvider,
     private emailProvider: EmailProvider,

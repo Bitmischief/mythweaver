@@ -1,7 +1,7 @@
 import Queue, { Job } from 'bull';
 import { prisma } from '@/providers/prisma';
 import { User } from '@prisma/client';
-import { MythWeaverLogger } from '@/modules/core/logging/logger';
+import { Logger } from '@/modules/core/logging/logger';
 import { config } from '@/modules/core/workers/worker.config';
 import { processInChunks } from '@/modules/core/utils/chunks';
 
@@ -21,7 +21,7 @@ export const subscriptionPlanUpdateQueue =
 
 export class SubscriptionPlanUpdateWorker {
   constructor(
-    private readonly logger: MythWeaverLogger,
+    private readonly logger: Logger,
     private readonly prismaClient = prisma,
   ) {}
 

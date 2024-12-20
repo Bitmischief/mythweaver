@@ -13,7 +13,6 @@ import {
   useAudioUploadAuthorizer,
 } from '@/modules/sessions/sessions.middleware';
 import { SessionsController } from '@/modules/sessions/sessions.controller';
-import { injectDependencies } from '@/modules/sessions/sessions.dependencies';
 
 const router = express.Router({ mergeParams: true });
 
@@ -32,7 +31,6 @@ router.get('/', [
   useValidateRequest(getSessionsSchema, {
     validationType: ValidationTypes.Query,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller =
       req.container.resolve<SessionsController>('sessionsController');
@@ -64,7 +62,6 @@ router.get('/:sessionId', [
   useValidateRequest(getSessionSchema, {
     validationType: ValidationTypes.Route,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller =
       req.container.resolve<SessionsController>('sessionsController');
@@ -91,7 +88,6 @@ router.post('/', [
   useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(postSessionsSchema),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller =
       req.container.resolve<SessionsController>('sessionsController');
@@ -133,7 +129,6 @@ router.patch('/:sessionId', [
   useValidateRequest(getSessionSchema, {
     validationType: ValidationTypes.Route,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller =
       req.container.resolve<SessionsController>('sessionsController');
@@ -158,7 +153,6 @@ router.delete('/:sessionId', [
   useValidateRequest(getSessionSchema, {
     validationType: ValidationTypes.Route,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller =
       req.container.resolve<SessionsController>('sessionsController');
@@ -182,7 +176,6 @@ router.post('/:sessionId/email-summary', [
   useValidateRequest(getSessionSchema, {
     validationType: ValidationTypes.Route,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller =
       req.container.resolve<SessionsController>('sessionsController');
@@ -208,7 +201,6 @@ router.post('/:sessionId/audio', [
   }),
   useAudioUploadAuthorizer(),
   useAudioFileUploader(),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller =
       req.container.resolve<SessionsController>('sessionsController');
@@ -236,7 +228,6 @@ router.delete('/:sessionId/audio', [
   useValidateRequest(getSessionSchema, {
     validationType: ValidationTypes.Route,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller =
       req.container.resolve<SessionsController>('sessionsController');
@@ -260,7 +251,6 @@ router.get('/:sessionId/transcript', [
   useValidateRequest(getSessionSchema, {
     validationType: ValidationTypes.Route,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller =
       req.container.resolve<SessionsController>('sessionsController');

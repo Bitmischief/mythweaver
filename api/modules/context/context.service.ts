@@ -1,10 +1,10 @@
 import { AppError, HttpCode } from '@/modules/core/errors/AppError';
 import { prisma } from '@/providers/prisma';
 import { ContextType } from '@prisma/client';
-import { CampaignContextWorker } from './workers/campaignContext.worker';
-import { MythWeaverLogger } from '@/modules/core/logging/logger';
-import { OpenAIProvider } from '@/providers/llms/openAIProvider';
-import { CampaignContextConfig } from '@/modules/context/context.interface';
+import { Logger } from '@/modules/core/logging/logger';
+import { LLMProvider } from '@/providers/llmProvider';
+import { Queue } from 'bull';
+import { ReindexCampaignContextEvent } from './context.interface';
 export interface IndexContextTarget {
   sessionId?: number;
   conjurationId?: number;
@@ -13,9 +13,9 @@ export interface IndexContextTarget {
 
 export class ContextService {
   constructor(
-    private indexCampaignContextWorker: CampaignContextWorker,
-    private logger: MythWeaverLogger,
-    private openAIProvider: OpenAIProvider,
+    private indexCampaignContextQueue: Queue<ReindexCampaignContextEvent>,
+    private logger: Logger,
+    private llmProvider: LLMProvider,
   ) {}
 
   async initCampaignContext(campaignId: number) {
@@ -42,15 +42,14 @@ export class ContextService {
     }
 
     if (!vectorStoreId) {
-      const vectorStore = await this.openAIProvider.createVectorStore(
+      const vectorStore = await this.llmProvider.createVectorStore(
         `campaign-${campaign.id}`,
       );
       vectorStoreId = vectorStore.id;
     }
 
     if (!assistantId) {
-      const assistant =
-        await this.openAIProvider.createAssistant(vectorStoreId);
+      const assistant = await this.llmProvider.createAssistant(vectorStoreId);
       assistantId = assistant.id;
     }
 
@@ -66,7 +65,7 @@ export class ContextService {
   }
 
   indexContext = async (campaignId: number, target: IndexContextTarget) => {
-    await this.indexCampaignContextWorker.addJob({
+    await this.indexCampaignContextQueue.add({
       campaignId,
       ...this.getTypeAndTargetId(target),
     });
@@ -92,7 +91,7 @@ export class ContextService {
       });
     }
 
-    await this.openAIProvider.deleteFile(contextFile.externalSystemFileId);
+    await this.llmProvider.deleteFile(contextFile.externalSystemFileId);
 
     await prisma.contextFiles.delete({
       where: {

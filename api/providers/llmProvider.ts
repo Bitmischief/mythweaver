@@ -8,4 +8,10 @@ export interface LLMProvider {
     vectorStoreId: string,
     fileId: string,
   ): Promise<OpenAI.Beta.VectorStores.Files.VectorStoreFile>;
+  createAssistant(
+    vectorStoreId: string,
+  ): Promise<OpenAI.Beta.Assistants.Assistant>;
+  createVectorStore(
+    name: string,
+  ): Promise<OpenAI.Beta.VectorStores.VectorStore>;
 }

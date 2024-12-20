@@ -1,13 +1,13 @@
 import { TrackingInfo } from '@/modules/core/analytics/tracking';
 import { AppError, HttpCode } from '@/modules/core/errors/AppError';
 import { CampaignConjurationsDataProvider } from '@/modules/campaigns/conjurations/campaignConjurations.dataprovider';
-import { CampaignsDataProvider } from '@/modules/campaigns/campaigns.dataprovider';
+import { CampaignDataProvider } from '@/modules/campaigns/campaign.dataprovider';
 import { ConjurationsDataProvider } from '@/modules/conjurations/conjurations.dataprovider';
 
 export class CampaignConjurationsService {
   constructor(
     private campaignConjurationsDataProvider: CampaignConjurationsDataProvider,
-    private campaignsDataProvider: CampaignsDataProvider,
+    private campaignDataProvider: CampaignDataProvider,
     private conjurationsDataProvider: ConjurationsDataProvider,
   ) {}
 
@@ -17,7 +17,7 @@ export class CampaignConjurationsService {
     campaignId: number,
     conjurationId: number,
   ) {
-    const campaign = await this.campaignsDataProvider.getUserCampaign(
+    const campaign = await this.campaignDataProvider.getUserCampaign(
       userId,
       campaignId,
     );

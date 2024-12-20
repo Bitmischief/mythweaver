@@ -7,10 +7,9 @@ import {
   useValidateRequest,
   ValidationTypes,
 } from '@/modules/core/middleware/validationMiddleware';
-import { CampaignsController } from '@/modules/campaigns/campaigns.controller';
+import { CampaignController } from '@/modules/campaigns/campaign.controller';
 import rateLimit from 'express-rate-limit';
 import { useInjectLoggingInfo } from '@/modules/core/logging/loggingMiddleware';
-import { injectDependencies } from '@/modules/campaigns/campaigns.dependencies';
 
 const router = express.Router({ mergeParams: true });
 
@@ -27,11 +26,9 @@ router.get('/', [
   useValidateRequest(getCampaignsSchema, {
     validationType: ValidationTypes.Query,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
-    const controller = req.container.resolve<CampaignsController>(
-      'campaignsController',
-    );
+    const controller =
+      req.container.resolve<CampaignController>('campaignController');
 
     const { offset = 0, limit = 10, term = undefined } = req.query;
 
@@ -58,11 +55,9 @@ router.get('/:campaignId', [
   useValidateRequest(getCampaignSchema, {
     validationType: ValidationTypes.Route,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
-    const controller = req.container.resolve<CampaignsController>(
-      'campaignsController',
-    );
+    const controller =
+      req.container.resolve<CampaignController>('campaignController');
 
     const { campaignId = 0 } = req.params;
 
@@ -86,11 +81,9 @@ router.post('/', [
   useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(postCampaignSchema),
-  injectDependencies,
   async (req: Request, res: Response) => {
-    const controller = req.container.resolve<CampaignsController>(
-      'campaignsController',
-    );
+    const controller =
+      req.container.resolve<CampaignController>('campaignController');
 
     const response = await controller.createCampaign(
       res.locals.auth.userId,
@@ -120,11 +113,9 @@ router.put('/:campaignId', [
     validationType: ValidationTypes.Route,
   }),
   useValidateRequest(putCampaignSchema),
-  injectDependencies,
   async (req: Request, res: Response) => {
-    const controller = req.container.resolve<CampaignsController>(
-      'campaignsController',
-    );
+    const controller =
+      req.container.resolve<CampaignController>('campaignController');
 
     const { campaignId = 0 } = req.params;
 
@@ -150,11 +141,9 @@ router.delete('/:campaignId', [
   useValidateRequest(deleteCampaignSchema, {
     validationType: ValidationTypes.Route,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
-    const controller = req.container.resolve<CampaignsController>(
-      'campaignsController',
-    );
+    const controller =
+      req.container.resolve<CampaignController>('campaignController');
 
     const { campaignId = 0 } = req.params;
 
@@ -186,11 +175,9 @@ router.post('/:campaignId/invite', [
   useValidateRequest(postInviteCampaignMemberSchema, {
     validationType: ValidationTypes.Body,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
-    const controller = req.container.resolve<CampaignsController>(
-      'campaignsController',
-    );
+    const controller =
+      req.container.resolve<CampaignController>('campaignController');
 
     const response = await controller.inviteCampaignMember(
       res.locals.auth.userId,
@@ -220,11 +207,9 @@ router.get('/invites/:inviteCode', [
       });
     },
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
-    const controller = req.container.resolve<CampaignsController>(
-      'campaignsController',
-    );
+    const controller =
+      req.container.resolve<CampaignController>('campaignController');
 
     const response = await controller.getInvite(
       res.locals.trackingInfo,
@@ -246,11 +231,9 @@ router.post('/invites/:inviteCode', [
   useValidateRequest(postAcceptInviteRouteSchema, {
     validationType: ValidationTypes.Route,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
-    const controller = req.container.resolve<CampaignsController>(
-      'campaignsController',
-    );
+    const controller =
+      req.container.resolve<CampaignController>('campaignController');
 
     const response = await controller.acceptInvite(
       res.locals.auth.userId,
@@ -273,11 +256,9 @@ router.get('/:campaignId/characters', [
   useValidateRequest(getCampaignCharactersRouteSchema, {
     validationType: ValidationTypes.Route,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
-    const controller = req.container.resolve<CampaignsController>(
-      'campaignsController',
-    );
+    const controller =
+      req.container.resolve<CampaignController>('campaignController');
 
     const response = await controller.getMyCampaignCharacters(
       res.locals.auth.userId,

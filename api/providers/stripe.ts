@@ -3,11 +3,11 @@ import { AppError, HttpCode } from '@/modules/core/errors/AppError';
 import Stripe from 'stripe';
 import { BillingPlan, BillingInterval } from '@prisma/client';
 import { GetBillingPortalUrlRequest } from '@/modules/billing/billing.interface';
-import { MythWeaverLogger } from '@/modules/core/logging/logger';
+import { Logger } from '@/modules/core/logging/logger';
 export class StripeProvider {
   private stripe: Stripe;
 
-  constructor(private readonly logger: MythWeaverLogger) {
+  constructor(private readonly logger: Logger) {
     this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
       apiVersion: '2023-10-16',
     });

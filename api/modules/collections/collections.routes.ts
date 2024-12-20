@@ -8,7 +8,6 @@ import {
 } from '@/modules/core/middleware/validationMiddleware';
 import express, { Request, Response } from 'express';
 import { CollectionsController } from '@/modules/collections/collections.controller';
-import { injectDependencies } from '@/modules/collections/collections.dependencies';
 
 const router = express.Router({ mergeParams: true });
 
@@ -25,7 +24,6 @@ router.get('/', [
   useValidateRequest(getCollectionsSchema, {
     validationType: ValidationTypes.Query,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<CollectionsController>(
       'collectionsController',
@@ -53,7 +51,6 @@ router.post('/', [
   useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(postCollectionsSchema),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<CollectionsController>(
       'collectionsController',
@@ -85,7 +82,6 @@ router.post('/:collectionId/conjurations', [
     validationType: ValidationTypes.Route,
   }),
   useValidateRequest(postCollectionConjurationSchema),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<CollectionsController>(
       'collectionsController',
@@ -115,7 +111,6 @@ router.delete('/:collectionId', [
   useValidateRequest(deleteCollectionsRouteSchema, {
     validationType: ValidationTypes.Route,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<CollectionsController>(
       'collectionsController',
@@ -149,7 +144,6 @@ router.patch('/:collectionId', [
     validationType: ValidationTypes.Route,
   }),
   useValidateRequest(patchCollectionsSchema),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<CollectionsController>(
       'collectionsController',
@@ -185,7 +179,6 @@ router.post('/:collectionId/conjurations/:conjurationId/move', [
     validationType: ValidationTypes.Route,
   }),
   useValidateRequest(postMoveCollectionConjurationSchema),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<CollectionsController>(
       'collectionsController',
@@ -221,7 +214,6 @@ router.post('/:collectionId/move', [
     validationType: ValidationTypes.Route,
   }),
   useValidateRequest(postMoveCollectionSchema),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<CollectionsController>(
       'collectionsController',
@@ -252,7 +244,6 @@ router.delete('/:collectionId/conjurations/:conjurationId', [
   useValidateRequest(deleteCollectionsConjurationsRouteSchema, {
     validationType: ValidationTypes.Route,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<CollectionsController>(
       'collectionsController',

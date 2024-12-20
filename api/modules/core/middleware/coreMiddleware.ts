@@ -3,6 +3,7 @@ import cors from 'cors';
 import express from 'express';
 import * as http from 'http';
 import rateLimit from 'express-rate-limit';
+import { useInjectDependencies } from '@/modules/core/middleware/dependencyMiddleware';
 
 export const initCoreMiddleware = (app: Application) => {
   console.log('Initializing cors');
@@ -37,4 +38,6 @@ export const initCoreMiddleware = (app: Application) => {
   app.use(apiRequestLimiter);
 
   app.set('trust proxy', 1);
+
+  app.use(useInjectDependencies());
 };

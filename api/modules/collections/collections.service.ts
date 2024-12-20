@@ -7,7 +7,7 @@ import {
   PostMoveCollectionConjurationRequest,
   PostMoveCollectionRequest,
 } from '@/modules/collections/collections.interface';
-import { MythWeaverLogger } from '@/modules/core/logging/logger';
+import { Logger } from '@/modules/core/logging/logger';
 import { Conjuration } from '@prisma/client';
 import { TrackingInfo } from '@/modules/core/analytics/tracking';
 import { AppError, HttpCode } from '@/modules/core/errors/AppError';
@@ -22,7 +22,7 @@ export class CollectionsService {
     private collectionsDataProvider: CollectionsDataProvider,
     private conjurationsDataProvider: ConjurationsDataProvider,
     private contextService: ContextService,
-    private logger: MythWeaverLogger,
+    private logger: Logger,
     private webSocketProvider: WebSocketProvider,
   ) {}
 

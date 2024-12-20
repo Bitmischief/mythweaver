@@ -5,10 +5,10 @@ import { AppError, ErrorType, HttpCode } from '@/modules/core/errors/AppError';
 import { sanitizeJson } from '@/modules/core/utils/json';
 import { trimPlural } from '@/modules/core/utils/strings';
 import { prisma } from '@/providers/prisma';
-import { MythWeaverLogger } from '@/modules/core/logging/logger';
+import { Logger } from '@/modules/core/logging/logger';
 import { nanoid } from 'nanoid';
 import { config } from '@/modules/core/workers/worker.config';
-import { CampaignsDataProvider } from '@/modules/campaigns/campaigns.dataprovider';
+import { CampaignDataProvider } from '@/modules/campaigns/campaign.dataprovider';
 import {
   WebSocketEvent,
   WebSocketProvider,
@@ -37,11 +37,11 @@ export const conjureQueue = new Queue<ConjureEvent>('conjuring', config, {
   },
 });
 
-export class ConjurationWorker {
+export class GenerateConjurationWorker {
   constructor(
-    private readonly logger: MythWeaverLogger,
+    private readonly logger: Logger,
     private readonly webSocketProvider: WebSocketProvider,
-    private readonly campaignsDataProvider: CampaignsDataProvider,
+    private readonly campaignDataProvider: CampaignDataProvider,
     private readonly llmProvider: LLMProvider,
   ) {}
 
@@ -84,10 +84,6 @@ export class ConjurationWorker {
     });
 
     this.logger.info('Conjuration worker initialized successfully');
-  }
-
-  async addJob(data: ConjureEvent): Promise<Job<ConjureEvent>> {
-    return conjureQueue.add(data);
   }
 
   private async conjure(request: ConjureEvent) {
@@ -237,7 +233,7 @@ export class ConjurationWorker {
     campaignId: number,
     customArg?: string,
   ) {
-    const campaign = await this.campaignsDataProvider.getCampaign(campaignId);
+    const campaign = await this.campaignDataProvider.getCampaign(campaignId);
 
     let prompt = `Please help me flesh out an idea for a ${trimPlural(
       generator.name.toLowerCase(),
