@@ -12,7 +12,6 @@ describe('API Endpoints', () => {
 
   beforeEach(async () => {
     testUser = await loginTestUser();
-    console.log('testUser', testUser);
     client = createTestClient(testUser.token);
   });
 

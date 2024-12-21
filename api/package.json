@@ -10,13 +10,15 @@
     "build": "tsc",
     "build:withsourcemaps": "tsc && yarn sentry:sourcemaps",
     "test": "jest",
-    "test:integration": "jest",
+    "test:integration": "jest --config jest.config.js",
+    "test:integration:docker": "yarn test:integration:docker:clean && docker-compose -f ../docker-compose.test.yml up --build --exit-code-from api-test",
+    "test:integration:docker:clean": "docker-compose -f ../docker-compose.test.yml down -v",
     "validate": "eslint . --ext ts && prettier . --check \"**/*.ts\"",
     "repair": "eslint . --ext ts --fix && prettier . --write \"**/*.ts\"",
     "sentry:sourcemaps": "sentry-cli sourcemaps inject --org mythweaver --project mythweaver-api build && sentry-cli sourcemaps upload --org mythweaver --project mythweaver-api build"
   },
   "prisma": {
-    "seed": "ts-node prisma/seed.ts"
+    "seed": "ts-node -r tsconfig-paths/register prisma/seed.ts"
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0",

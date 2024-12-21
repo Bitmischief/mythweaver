@@ -6,3 +6,4 @@ public/data/*.png
 # Sentry Config File
 .sentryclirc
 campaign-*.json
+test-results/

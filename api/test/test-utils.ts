@@ -15,7 +15,6 @@ const management = new ManagementClient({
 });
 
 export const createTestClient = (token?: string): AxiosInstance => {
-  console.log('token', token);
   return axios.create({
     baseURL: process.env.API_URL || 'http://localhost:8000',
     headers: token ? { Authorization: `Bearer ${token}` } : {},
