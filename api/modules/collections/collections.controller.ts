@@ -13,7 +13,7 @@ import {
   Tags,
   Route,
 } from 'tsoa';
-import { TrackingInfo } from '@/lib/tracking';
+import { TrackingInfo } from '@/modules/core/analytics/tracking';
 import {
   PostCollectionRequest,
   PatchCollectionRequest,
@@ -54,11 +54,7 @@ export class CollectionsController {
     @Inject() trackingInfo: TrackingInfo,
     @Body() collection: PostCollectionRequest,
   ) {
-    return await this.collectionsService.createCollection(
-      userId,
-      trackingInfo,
-      collection,
-    );
+    return await this.collectionsService.createCollection(userId, collection);
   }
 
   @Security('jwt')

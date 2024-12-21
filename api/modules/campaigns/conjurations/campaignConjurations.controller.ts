@@ -8,11 +8,15 @@ import {
   Inject,
   Route,
 } from 'tsoa';
-import { TrackingInfo, AppEvent, track } from '@/lib/tracking';
-import { AppError, HttpCode } from '@/lib/errors/AppError';
+import {
+  TrackingInfo,
+  AppEvent,
+  track,
+} from '@/modules/core/analytics/tracking';
+import { AppError, HttpCode } from '@/modules/core/errors/AppError';
 import { CampaignConjurationsService } from '@/modules/campaigns/conjurations/campaignConjurations.service';
 import { CampaignConjurationsDataProvider } from '@/modules/campaigns/conjurations/campaignConjurations.dataprovider';
-import { CampaignsDataProvider } from '@/modules/campaigns/campaigns.dataprovider';
+import { CampaignDataProvider } from '@/modules/campaigns/campaign.dataprovider';
 import { ConjurationsDataProvider } from '@/modules/conjurations/conjurations.dataprovider';
 
 @Route('campaigns/:campaignId/conjurations')
@@ -21,7 +25,7 @@ export class CampaignConjurationsController {
   constructor(
     private campaignConjurationsDataProvider: CampaignConjurationsDataProvider,
     private campaignConjurationsService: CampaignConjurationsService,
-    private campaignsDataProvider: CampaignsDataProvider,
+    private campaignDataProvider: CampaignDataProvider,
     private conjurationsDataProvider: ConjurationsDataProvider,
   ) {}
 
@@ -55,7 +59,7 @@ export class CampaignConjurationsController {
   ) {
     track(AppEvent.DeleteCampaignCampaign, userId, trackingInfo);
 
-    const campaign = await this.campaignsDataProvider.getUserCampaign(
+    const campaign = await this.campaignDataProvider.getUserCampaign(
       userId,
       campaignId,
     );

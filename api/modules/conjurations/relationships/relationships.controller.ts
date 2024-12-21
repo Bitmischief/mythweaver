@@ -13,7 +13,7 @@ import {
   Tags,
   Route,
 } from 'tsoa';
-import { TrackingInfo } from '@/lib/tracking';
+import { TrackingInfo } from '@/modules/core/analytics/tracking';
 import { Conjuration, ConjurationRelationshipType } from '@prisma/client';
 import {
   RelationshipResponse,
@@ -26,9 +26,7 @@ import {
 @Route('relationships')
 @Tags('Relationships')
 export class ConjurationsRelationshipsController {
-  constructor(
-    private conjurationsRelationshipsService: ConjurationsRelationshipsService,
-  ) {}
+  constructor(private relationshipsService: ConjurationsRelationshipsService) {}
 
   @Security('jwt')
   @OperationId('getRelationships')
@@ -41,7 +39,7 @@ export class ConjurationsRelationshipsController {
     @Query() filterTypes?: ConjurationRelationshipType[],
     @Query() depthLimit?: number,
   ): Promise<RelationshipResponse[]> {
-    return this.conjurationsRelationshipsService.getRelationships(
+    return this.relationshipsService.getRelationships(
       userId,
       trackingInfo,
       type,
@@ -61,7 +59,7 @@ export class ConjurationsRelationshipsController {
     @Path() nodeId: number,
     @Body() body: PostRelationshipRequest,
   ) {
-    return this.conjurationsRelationshipsService.createRelationship(
+    return this.relationshipsService.createRelationship(
       userId,
       trackingInfo,
       type,
@@ -78,7 +76,7 @@ export class ConjurationsRelationshipsController {
     @Inject() trackingInfo: TrackingInfo,
     @Path() relationshipId: number,
   ) {
-    await this.conjurationsRelationshipsService.deleteRelationship(
+    await this.relationshipsService.deleteRelationship(
       userId,
       trackingInfo,
       relationshipId,
@@ -93,7 +91,7 @@ export class ConjurationsRelationshipsController {
     @Inject() trackingInfo: TrackingInfo,
     @Body() relationshipData: DeleteRelationshipRequest,
   ) {
-    await this.conjurationsRelationshipsService.deleteRelationshipsByNodeIds(
+    await this.relationshipsService.deleteRelationshipsByNodeIds(
       userId,
       trackingInfo,
       relationshipData.previousNodeId,
@@ -112,7 +110,7 @@ export class ConjurationsRelationshipsController {
     @Path() relationshipId: number,
     @Body() request: PatchRelationshipRequest,
   ) {
-    await this.conjurationsRelationshipsService.updateRelationship(
+    await this.relationshipsService.updateRelationship(
       userId,
       trackingInfo,
       relationshipId,
@@ -131,7 +129,7 @@ export class ConjurationsRelationshipsController {
     nodes: Conjuration[];
     links: GraphLinkResponse[];
   }> {
-    return await this.conjurationsRelationshipsService.getRelationshipGraph(
+    return await this.relationshipsService.getRelationshipGraph(
       userId,
       trackingInfo,
       campaignId,

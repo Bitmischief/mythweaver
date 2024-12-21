@@ -1,8 +1,8 @@
 import Queue, { Job } from 'bull';
-import { prisma } from '@/lib/providers/prisma';
+import { prisma } from '@/providers/prisma';
 import { BillingPlan, User } from '@prisma/client';
-import { MythWeaverLogger } from '@/lib/logger';
-import { config } from '@/worker/config';
+import { Logger } from '@/modules/core/logging/logger';
+import { config } from '@/modules/core/workers/worker.config';
 
 interface EndTrialEvent {
   batchSize?: number;
@@ -19,7 +19,7 @@ export const endTrialQueue = new Queue<EndTrialEvent>('end-trial', config, {
 
 export class EndTrialWorker {
   constructor(
-    private readonly logger: MythWeaverLogger,
+    private readonly logger: Logger,
     private readonly prismaClient = prisma,
   ) {}
 

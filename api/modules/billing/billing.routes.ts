@@ -1,14 +1,14 @@
 import express, { Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import { z } from 'zod';
-import { checkAuth0Jwt, useInjectUserId } from '@/lib/authMiddleware';
-import { useInjectLoggingInfo } from '@/lib/loggingMiddleware';
+import { checkAuth0Jwt } from '@/modules/core/middleware/auth0';
+import { useInjectUserId } from '@/modules/core/middleware/userMiddleware';
+import { useInjectLoggingInfo } from '@/modules/core/logging/loggingMiddleware';
 import {
   useValidateRequest,
   ValidationTypes,
-} from '@/lib/validationMiddleware';
-import BillingController from '@/modules/billing/billing.controller';
-import { injectDependencies } from '@/modules/billing/billing.dependencies';
+} from '@/modules/core/middleware/validationMiddleware';
+import { BillingController } from '@/modules/billing/billing.controller';
 import { StripeProvider } from '@/providers/stripe';
 
 const router = express.Router({ mergeParams: true });
@@ -23,7 +23,6 @@ router.post('/checkout-url', [
   useInjectUserId(),
   useInjectLoggingInfo(),
   useValidateRequest(postCheckoutUrlSchema),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller =
       req.container.resolve<BillingController>('billingController');
@@ -40,7 +39,6 @@ router.get('/redeem-preorder-url', [
   checkAuth0Jwt,
   useInjectUserId(),
   useInjectLoggingInfo(),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller =
       req.container.resolve<BillingController>('billingController');
@@ -65,7 +63,6 @@ router.get('/portal-url', [
   useValidateRequest(getPortalUrlSchema, {
     validationType: ValidationTypes.Query,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller =
       req.container.resolve<BillingController>('billingController');
@@ -82,7 +79,6 @@ router.get('/portal-url', [
 router.post('/webhook', [
   useInjectLoggingInfo(),
   bodyParser.raw({ type: 'application/json' }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller =
       req.container.resolve<BillingController>('billingController');

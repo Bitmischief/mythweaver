@@ -1,24 +1,28 @@
-import logger from '@/lib/logger';
-import { container as conjurationsContainer } from '@/modules/conjurations/conjurations.dependencies';
-import { ConjurationWorker } from '@/modules/conjurations/generateConjuration.worker';
-import { container as contextContainer } from '@/modules/context/context.dependencies';
+import logger from '@/modules/core/logging/logger';
+import { GenerateConjurationWorker } from '@/modules/conjurations/workers/generateConjuration.worker';
 import { CampaignContextWorker } from '@/modules/context/workers/campaignContext.worker';
 import { DailyCampaignContextWorker } from '@/modules/context/workers/dailyCampaignContext.worker';
 import { Worker } from '@/modules/core/workers/worker.interface';
 import { MythWeaverImageWorker } from '@/modules/images/mythweaverImage.worker';
-import { container as imagesContainer } from '@/modules/images/images.dependencies';
-
-const workers: Worker[] = [
-  conjurationsContainer.resolve<ConjurationWorker>('generateConjurationWorker'),
-  contextContainer.resolve<DailyCampaignContextWorker>(
-    'dailyCampaignContextWorker',
-  ),
-  contextContainer.resolve<CampaignContextWorker>('indexCampaignContextWorker'),
-  imagesContainer.resolve<MythWeaverImageWorker>('mythweaverImageWorker'),
-];
+import { EndTrialWorker } from '@/modules/users/workers/endTrial.worker';
+import { ExpiredSubscriptionWorker } from '@/modules/users/workers/expiredSubscription.worker';
+import { SubscriptionPlanUpdateWorker } from '@/modules/users/workers/subscriptionPlanUpdate.worker';
+import container from '@/modules/core/workers/workers.dependencies';
 
 export const initWorkers = async () => {
   logger.info('Initializing workers');
+
+  const workers: Worker[] = [
+    container.resolve<GenerateConjurationWorker>('generateConjurationWorker'),
+    container.resolve<DailyCampaignContextWorker>('dailyCampaignContextWorker'),
+    container.resolve<CampaignContextWorker>('indexCampaignContextWorker'),
+    container.resolve<MythWeaverImageWorker>('mythweaverImageWorker'),
+    container.resolve<EndTrialWorker>('endTrialWorker'),
+    container.resolve<ExpiredSubscriptionWorker>('expiredSubscriptionWorker'),
+    container.resolve<SubscriptionPlanUpdateWorker>(
+      'subscriptionPlanUpdateWorker',
+    ),
+  ];
 
   for (const worker of workers) {
     await worker.initializeWorker();

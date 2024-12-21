@@ -13,6 +13,7 @@ export interface PostGeneratorGenerate {
 }
 
 export interface PostGenerateArbitraryRequest {
+  campaignId: number;
   background: any;
   context: string;
   propertyName: string;
@@ -20,12 +21,14 @@ export interface PostGenerateArbitraryRequest {
 }
 
 export interface PostGenerateArbitraryFromPromptRequest {
+  campaignId: number;
   background: any;
   context: string;
   prompt: string;
 }
 
 export interface PostGenerateArbitraryReplacementRequest {
+  campaignId: number;
   replace: string;
   full: string;
   turbo: boolean;

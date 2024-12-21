@@ -1,0 +1,52 @@
+version: "3.8"
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile.api.test
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres-test:5432/postgres?schema=public
+      - NODE_ENV=test
+      - JWT_SECRET_KEY=test-secret
+      - JWT_REFRESH_SECRET_KEY=test-refresh-secret
+      - API_URL=http://localhost:8000
+      - CORS_ALLOWED_ORIGINS=["http://localhost:3000"]
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+    command:
+      [
+        sh,
+        -c,
+        "yarn prisma migrate deploy && yarn prisma db seed && yarn dev",
+      ]
+    ports:
+      - "8000:8000"
+
+  api-test:
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile.api.test
+    environment:
+      - API_URL=http://api:8000
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+      api:
+        condition: service_started
+    command: [sh, -c, "sleep 15 && yarn test:integration"]
+
+  postgres-test:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5433:5432"

@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/providers/prisma';
+import { prisma } from '@/providers/prisma';
 import { Conjuration, ConjurationRelationshipType } from '@prisma/client';
 import { ConjurationRelationships } from '@prisma/client';
 import {

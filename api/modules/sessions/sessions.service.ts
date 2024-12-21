@@ -1,18 +1,22 @@
 import { SessionsDataProvider } from '@/modules/sessions/sessions.dataprovider';
-import { CampaignsDataProvider } from '@/modules/campaigns/campaigns.dataprovider';
+import { CampaignDataProvider } from '@/modules/campaigns/campaign.dataprovider';
 import { MembersDataProvider } from '@/modules/campaigns/members/members.dataprovider';
 import { UsersDataProvider } from '@/modules/users/users.dataprovider';
-import { AppError, HttpCode } from '@/lib/errors/AppError';
+import { AppError, HttpCode } from '@/modules/core/errors/AppError';
 import { BillingPlan, Session } from '@prisma/client';
-import { AppEvent, track, TrackingInfo } from '@/lib/tracking';
-import { CampaignRole } from '@/modules/campaigns/campaigns.interface';
+import {
+  AppEvent,
+  track,
+  TrackingInfo,
+} from '@/modules/core/analytics/tracking';
+import { CampaignRole } from '@/modules/campaigns/campaign.interface';
 import { EmailProvider, EmailTemplates } from '@/providers/emailProvider';
-import { urlPrefix } from '@/lib/utils';
+import { urlPrefix } from '@/modules/core/utils/environments';
 import {
   WebSocketProvider,
   WebSocketEvent,
 } from '@/providers/websocketProvider';
-import { MythWeaverLogger } from '@/lib/logger';
+import { Logger } from '@/modules/core/logging/logger';
 import {
   GetSessionsResponse,
   PatchSessionRequest,
@@ -21,18 +25,19 @@ import {
   PostSessionRequest,
 } from './sessions.interface';
 import { AssemblyAIProvider } from '@/providers/assemblyAI';
-import { SessionTranscriptWorker } from '@/modules/sessions/sessionTranscript.worker';
 import { ContextService } from '@/modules/context/context.service';
+import { Queue } from 'bull';
+import { TranscriptEvent } from './sessionTranscript.worker';
 
 export class SessionsService {
   constructor(
     private sessionsDataProvider: SessionsDataProvider,
-    private campaignsDataProvider: CampaignsDataProvider,
+    private campaignDataProvider: CampaignDataProvider,
     private membersDataProvider: MembersDataProvider,
     private usersDataProvider: UsersDataProvider,
     private assemblyAIProvider: AssemblyAIProvider,
-    private sessionTranscriptWorker: SessionTranscriptWorker,
-    private logger: MythWeaverLogger,
+    private sessionTranscriptQueue: Queue<TranscriptEvent>,
+    private logger: Logger,
     private emailProvider: EmailProvider,
     private webSocketProvider: WebSocketProvider,
     private contextService: ContextService,
@@ -180,7 +185,7 @@ export class SessionsService {
       });
     }
 
-    const campaign = await this.campaignsDataProvider.getCampaign(
+    const campaign = await this.campaignDataProvider.getCampaign(
       session.campaignId,
     );
 
@@ -268,7 +273,7 @@ export class SessionsService {
       assemblyTranscriptId: transcriptJob.id,
     });
 
-    this.sessionTranscriptWorker.addJob({
+    this.sessionTranscriptQueue.add({
       transcriptId: transcriptJob.id,
       sessionId,
       userId,

@@ -1,12 +1,12 @@
 import { Inject } from 'tsoa';
-import { MythWeaverLogger } from '@/lib/logger';
+import { Logger } from '@/modules/core/logging/logger';
 import axios from 'axios';
 import { IntegrationsService } from '@/modules/integrations/integrations.service';
 
 export class IntegrationsController {
   constructor(
     private integrationsService: IntegrationsService,
-    private logger: MythWeaverLogger,
+    private logger: Logger,
   ) {}
 
   public async getDiscordConnectUrl(@Inject() userId: number) {

@@ -11,7 +11,7 @@ import billingRoutes from '@/modules/billing/billing.routes';
 
 router.use(`/billing`, billingRoutes);
 
-import campaignRoutes from '@/modules/campaigns/campaigns.routes';
+import campaignRoutes from '@/modules/campaigns/campaign.routes';
 
 router.use(`/campaigns`, campaignRoutes);
 
@@ -46,10 +46,6 @@ router.use(`/conjurations`, conjurationsRoutes);
 import usersRoutes from '@/modules/users/users.routes';
 
 router.use(`/users`, usersRoutes);
-
-import charactersRoutes from '@/modules/characters/characters.routes';
-
-router.use('/characters', charactersRoutes);
 
 import imagesRoutes from '@/modules/images/images.routes';
 

@@ -1,3 +1,4 @@
+import { useCampaignStore } from '@/store/campaign.store';
 import axios from 'axios';
 
 export interface Conjurer {
@@ -66,17 +67,32 @@ export interface PostGenerateArbitraryReplacementRequest {
 }
 
 export const postGenerateArbitrary = (request: PostGenerateArbitraryRequest) => {
-  return axios.post(`/generators/arbitrary`, request);
+  const selectedCampaign = useCampaignStore().selectedCampaign;
+
+  return axios.post(`/generators/arbitrary`, {
+    campaignId: selectedCampaign?.id,
+    ...request,
+  });
 };
 
 export const postGenerateArbitraryFromPrompt = (
   request: PostGenerateArbitraryFromPromptRequest,
 ) => {
-  return axios.post(`/generators/arbitrary/prompt`, request);
+  const selectedCampaign = useCampaignStore().selectedCampaign;
+
+  return axios.post(`/generators/arbitrary/prompt`, {
+    campaignId: selectedCampaign?.id,
+    ...request,
+  });
 };
 
 export const postGenerateArbitraryReplacement = (
   request: PostGenerateArbitraryReplacementRequest,
 ) => {
-  return axios.post(`/generators/arbitrary/replace`, request);
+  const selectedCampaign = useCampaignStore().selectedCampaign;
+
+  return axios.post(`/generators/arbitrary/replace`, {
+    campaignId: selectedCampaign?.id,
+    ...request,
+  });
 };

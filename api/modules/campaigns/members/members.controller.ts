@@ -9,7 +9,7 @@ import {
   Tags,
   Route,
 } from 'tsoa';
-import { TrackingInfo } from '@/lib/tracking';
+import { TrackingInfo } from '@/modules/core/analytics/tracking';
 import { GetCampaignMembersResponse } from './members.interface';
 import { MembersService } from '@/modules/campaigns/members/members.service';
 

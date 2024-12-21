@@ -1,0 +1,24 @@
+FROM node:20-alpine3.19
+
+WORKDIR /app
+
+# Copy package files
+COPY api/package*.json ./
+COPY api/yarn.lock ./
+
+# Install dependencies
+RUN yarn install
+
+# Copy prisma schema
+COPY api/prisma ./prisma
+
+# Generate Prisma client
+RUN yarn prisma generate
+
+# Copy source code and test files
+COPY api .
+
+# Create directory for test results
+RUN mkdir -p test-results
+
+CMD ["yarn", "prisma", "migrate", "deploy"]

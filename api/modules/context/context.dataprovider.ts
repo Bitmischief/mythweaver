@@ -1,11 +1,11 @@
-import { AppError, HttpCode } from '@/lib/errors/AppError';
-import { prisma } from '@/lib/providers/prisma';
+import { AppError, HttpCode } from '@/modules/core/errors/AppError';
+import { LLMProvider } from '@/providers/llmProvider';
+import { prisma } from '@/providers/prisma';
 import { ContextType } from '@prisma/client';
-import { getClient } from '@/lib/providers/openai';
-
-const openai = getClient();
 
 export class ContextDataProvider {
+  constructor(private readonly llmProvider: LLMProvider) {}
+
   deleteSessionContext = async (campaignId: number, sessionId: number) => {
     const contextFile = await prisma.contextFiles.findFirst({
       where: {
@@ -22,7 +22,7 @@ export class ContextDataProvider {
       });
     }
 
-    await openai.files.del(contextFile.externalSystemFileId);
+    await this.llmProvider.deleteFile(contextFile.externalSystemFileId);
 
     await prisma.contextFiles.delete({
       where: {

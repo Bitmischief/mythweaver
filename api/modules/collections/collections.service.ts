@@ -7,10 +7,10 @@ import {
   PostMoveCollectionConjurationRequest,
   PostMoveCollectionRequest,
 } from '@/modules/collections/collections.interface';
-import { MythWeaverLogger } from '@/lib/logger';
+import { Logger } from '@/modules/core/logging/logger';
 import { Conjuration } from '@prisma/client';
-import { TrackingInfo } from '@/lib/tracking';
-import { AppError, HttpCode } from '@/lib/errors/AppError';
+import { TrackingInfo } from '@/modules/core/analytics/tracking';
+import { AppError, HttpCode } from '@/modules/core/errors/AppError';
 import {
   WebSocketEvent,
   WebSocketProvider,
@@ -22,7 +22,7 @@ export class CollectionsService {
     private collectionsDataProvider: CollectionsDataProvider,
     private conjurationsDataProvider: ConjurationsDataProvider,
     private contextService: ContextService,
-    private logger: MythWeaverLogger,
+    private logger: Logger,
     private webSocketProvider: WebSocketProvider,
   ) {}
 
@@ -90,23 +90,34 @@ export class CollectionsService {
     };
   }
 
-  async createCollection(
-    userId: number,
-    trackingInfo: TrackingInfo,
-    collection: PostCollectionRequest,
-  ) {
-    const parentCollection =
-      await this.collectionsDataProvider.getParentCollection(
-        userId,
-        collection.parentId,
-      );
+  async createCollection(userId: number, collection: PostCollectionRequest) {
+    let campaignId: number;
 
-    if (!parentCollection) {
-      throw new AppError({
-        description:
-          'Parent collection not found or you do not have access to it.',
-        httpCode: HttpCode.NOT_FOUND,
-      });
+    if (collection.parentId) {
+      const parentCollection =
+        await this.collectionsDataProvider.getParentCollection(
+          userId,
+          collection.parentId,
+        );
+
+      if (!parentCollection) {
+        throw new AppError({
+          description:
+            'Parent collection not found or you do not have access to it.',
+          httpCode: HttpCode.NOT_FOUND,
+        });
+      }
+
+      campaignId = parentCollection.campaignId;
+    } else {
+      if (!collection.campaignId) {
+        throw new AppError({
+          description: 'Campaign ID is required for root collections.',
+          httpCode: HttpCode.BAD_REQUEST,
+        });
+      }
+
+      campaignId = collection.campaignId;
     }
 
     this.logger.info('Creating collection', { userId, collection });
@@ -115,7 +126,7 @@ export class CollectionsService {
       name: collection.name,
       parentCollectionId: collection.parentId,
       userId: userId,
-      campaignId: parentCollection.campaignId,
+      campaignId,
     });
   }
 

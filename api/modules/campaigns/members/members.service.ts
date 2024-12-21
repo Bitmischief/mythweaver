@@ -1,15 +1,19 @@
 import { MembersDataProvider } from '@/modules/campaigns/members/members.dataprovider';
-import { CampaignsDataProvider } from '@/modules/campaigns/campaigns.dataprovider';
+import { CampaignDataProvider } from '@/modules/campaigns/campaign.dataprovider';
 import { UsersDataProvider } from '@/modules/users/users.dataprovider';
-import { TrackingInfo, AppEvent, track } from '@/lib/tracking';
-import { AppError, HttpCode } from '@/lib/errors/AppError';
+import {
+  TrackingInfo,
+  AppEvent,
+  track,
+} from '@/modules/core/analytics/tracking';
+import { AppError, HttpCode } from '@/modules/core/errors/AppError';
 import { GetCampaignMembersResponse } from '@/modules/campaigns/members/members.interface';
-import { CampaignRole } from '@/modules/campaigns/campaigns.interface';
+import { CampaignRole } from '@/modules/campaigns/campaign.interface';
 
 export class MembersService {
   constructor(
     private membersDataProvider: MembersDataProvider,
-    private campaignsDataProvider: CampaignsDataProvider,
+    private campaignDataProvider: CampaignDataProvider,
     private usersDataProvider: UsersDataProvider,
   ) {}
 

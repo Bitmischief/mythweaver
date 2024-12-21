@@ -12,8 +12,8 @@ import {
   Delete,
   Route,
 } from 'tsoa';
-import { TrackingInfo } from '@/lib/tracking';
-import { MythWeaverLogger } from '@/lib/logger';
+import { TrackingInfo } from '@/modules/core/analytics/tracking';
+import { Logger } from '@/modules/core/logging/logger';
 import { Conjuration, ConjurationRelationshipType } from '@prisma/client';
 import {
   PatchConjurationRequest,
@@ -29,7 +29,7 @@ import { ConjurationsService } from '@/modules/conjurations/conjurations.service
 export class ConjurationsController {
   constructor(
     private conjurationsService: ConjurationsService,
-    private logger: MythWeaverLogger,
+    private logger: Logger,
   ) {}
 
   @Security('jwt')

@@ -117,6 +117,7 @@ const gm = computed(() => {
     return gm[0].user.username;
   }
 
+  console.log('gm', gm);
   return splitEmail(gm[0].user.email);
 });
 

@@ -1,21 +1,6 @@
-import { prisma } from '@/lib/providers/prisma';
+import { prisma } from '@/providers/prisma';
 
 (async () => {
-  if (process.env.VERSION !== 'local') {
-    return;
-  }
-
-  const email = process.env.LOCAL_DEV_USER_EMAIL || 'austin@mythweaver.co';
-
-  const users = [
-    {
-      id: 1,
-      email,
-      username: 'bitmischief',
-      billingCustomerId: 'abc123',
-    },
-  ];
-
   const imageModels = [
     {
       id: 1,
@@ -56,19 +41,28 @@ import { prisma } from '@/lib/providers/prisma';
     },
   ];
 
-  for (const user of users) {
-    await prisma.user.upsert({
-      where: { email: user.email },
-      update: user,
-      create: user,
-    });
+  const artists = [
+    {
+      id: 1,
+      name: 'MythWeaver',
+      description: 'MythWeaver',
+    },
+  ];
 
-    for (const imageModel of imageModels) {
-      await prisma.imageModel.upsert({
-        where: { id: imageModel.id },
-        update: imageModel,
-        create: imageModel,
-      });
-    }
+  for (const imageModel of imageModels) {
+    await prisma.imageModel.upsert({
+      where: { id: imageModel.id },
+      update: imageModel,
+      create: imageModel,
+    });
+  }
+
+  for (const artist of artists) {
+    await prisma.artist.upsert({
+      where: { id: artist.id },
+      update: artist,
+      create: artist,
+    });
+    console.log(`Artist ${artist.id} created`);
   }
 })();
