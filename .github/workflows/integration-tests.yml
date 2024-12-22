@@ -13,6 +13,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: cd to api
+        run: cd api
+
       - name: Create .env file
         run: |
           cat << EOF > api/.env
@@ -89,6 +92,9 @@ jobs:
           # RunPod
           RUNPOD_API_KEY=${{ secrets.RUNPOD_API_KEY }}
           EOF
+
+      - name: install dependencies
+        run: yarn install
 
       - name: Run integration tests
         run: yarn test:integration:docker
