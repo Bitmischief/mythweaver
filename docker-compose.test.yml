@@ -16,11 +16,7 @@ services:
       postgres-test:
         condition: service_healthy
     command:
-      [
-        sh,
-        -c,
-        "yarn prisma migrate deploy && yarn prisma db seed && yarn dev",
-      ]
+      [sh, -c, "yarn prisma migrate deploy && yarn prisma db seed && yarn dev"]
     ports:
       - "8000:8000"
 

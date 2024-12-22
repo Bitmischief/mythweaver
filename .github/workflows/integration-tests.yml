@@ -1,0 +1,94 @@
+name: Integration Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create .env file
+        run: |
+          cat << EOF > api/.env
+          # Core
+          API_URL=http://localhost:8000
+          APP_URL=http://localhost:3000
+          CORS_ALLOWED_ORIGINS=["http://localhost:3000"]
+
+          # Auth0
+          AUTH0_AUDIENCE=http://localhost:8000
+          ISSUER_BASE_URL=${{ secrets.AUTH0_ISSUER_BASE_URL }}
+
+          # Auth0 Testing Creds
+          AUTH0_TEST_CLIENT_DOMAIN=${{ secrets.AUTH0_TEST_CLIENT_DOMAIN }}
+          AUTH0_TEST_CLIENT_ID=${{ secrets.AUTH0_TEST_CLIENT_ID }}
+          AUTH0_TEST_CLIENT_SECRET=${{ secrets.AUTH0_TEST_CLIENT_SECRET }}
+
+          # Database
+          DATABASE_URL=postgresql://postgres:postgres@localhost:5432/postgres?schema=public
+
+          # OpenAI
+          OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+
+          # Stability.ai
+          STABILITY_API_KEY=${{ secrets.STABILITY_API_KEY }}
+
+          # Mixpanel
+          MIXPANEL_TOKEN=${{ secrets.MIXPANEL_TOKEN }}
+
+          # Digital Ocean Spaces
+          SPACES_KEY=${{ secrets.SPACES_KEY }}
+          SPACES_SECRET=${{ secrets.SPACES_SECRET }}
+
+          # Pusher
+          PUSHER_APP_ID=${{ secrets.PUSHER_APP_ID }}
+          PUSHER_KEY=${{ secrets.PUSHER_KEY }}
+          PUSHER_SECRET=${{ secrets.PUSHER_SECRET }}
+          PUSHER_CLUSTER=${{ secrets.PUSHER_CLUSTER }}
+
+          # Stripe
+          STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_ENDPOINT_SECRET=${{ secrets.STRIPE_ENDPOINT_SECRET }}
+          STRIPE_BASIC_PLAN_ID=${{ secrets.STRIPE_BASIC_PLAN_ID }}
+          STRIPE_PRO_PLAN_ID=${{ secrets.STRIPE_PRO_PLAN_ID }}
+          STRIPE_IMAGE_PACK_100_PRODUCT_ID=${{ secrets.STRIPE_IMAGE_PACK_100_PRODUCT_ID }}
+          STRIPE_PROMOTION_COUPON_ID=${{ secrets.STRIPE_PROMOTION_COUPON_ID }}
+
+          # Intercom
+          INTERCOM_ACCESS_TOKEN=${{ secrets.INTERCOM_ACCESS_TOKEN }}
+
+          # Discord
+          DISCORD_BILLING_WEBHOOK=${{ secrets.DISCORD_BILLING_WEBHOOK }}
+          DISCORD_CLIENT_ID=${{ vars.DISCORD_CLIENT_ID }}
+          DISCORD_CLIENT_SECRET=${{ secrets.DISCORD_CLIENT_SECRET }}
+          DISCORD_REDIRECT_URI=${{ vars.DISCORD_REDIRECT_URI }}
+
+          # Sentry
+          SENTRY_DSN=${{ secrets.SENTRY_DSN }}
+
+          # LaunchDarkly
+          LAUNCH_DARKLY_SDK_KEY=${{ secrets.LAUNCH_DARKLY_SDK_KEY }}
+
+          # Meta
+          FACEBOOK_CONVERSIONS_ACCESS_TOKEN=${{ secrets.FACEBOOK_CONVERSIONS_ACCESS_TOKEN }}
+          FACEBOOK_CONVERSIONS_PIXEL_ID=${{ secrets.FACEBOOK_CONVERSIONS_PIXEL_ID }}
+
+          # AssemblyAI
+          ASSEMBLYAI_API_KEY=${{ secrets.ASSEMBLYAI_API_KEY }}
+
+          # Internal Services
+          INTERNAL_EMAIL_SERVICE_TOKEN=${{ secrets.INTERNAL_EMAIL_SERVICE_TOKEN }}
+          X_SERVICE_TOKEN=${{ secrets.X_SERVICE_TOKEN }}
+
+          # RunPod
+          RUNPOD_API_KEY=${{ secrets.RUNPOD_API_KEY }}
+          EOF
+
+      - name: Run integration tests
+        run: yarn test:integration:docker
