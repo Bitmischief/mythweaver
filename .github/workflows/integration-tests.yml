@@ -9,16 +9,16 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: cd to api
-        run: cd api
-
       - name: Create .env file
         run: |
-          cat << EOF > api/.env
+          cat << EOF > .env
           # Core
           API_URL=http://localhost:8000
           APP_URL=http://localhost:3000
@@ -93,7 +93,7 @@ jobs:
           RUNPOD_API_KEY=${{ secrets.RUNPOD_API_KEY }}
           EOF
 
-      - name: install dependencies
+      - name: Install dependencies
         run: yarn install
 
       - name: Run integration tests
