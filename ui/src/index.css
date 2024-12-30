@@ -1,3 +1,8 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import '@/assets/primevue/tailwind.css';
+@import 'tailwindcss/utilities';
+
 @layer tailwind-base, primevue, tailwind-utilities;
 
 @layer tailwind-base {
@@ -8,10 +13,6 @@
   @tailwind components;
   @tailwind utilities;
 }
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
 @font-face {
   font-family: 'Rebond Grotesque';
@@ -144,7 +145,7 @@ input[type='number'] {
   }
 
   .button-ghost-white {
-    @apply disabled:border-neutral-500 disabled:text-neutral-500 disabled:cursor-not-allowed bg-transparent text-white text-sm border border-white rounded-[12px] px-4 py-2 hover:cursor-pointer;
+    @apply disabled:border-neutral-700 disabled:text-neutral-700 disabled:cursor-not-allowed bg-transparent text-neutral-100 text-sm border border-neutral-500 rounded-[12px] px-4 py-2 hover:cursor-pointer;
   }
 
   .button-ghost-primary {
@@ -306,6 +307,62 @@ input[type='number'] {
   label {
     @apply text-sm text-neutral-500;
   }
+}
+
+/* TipTap Styling */
+.tiptap {
+  @apply p-4 rounded-lg border border-neutral-500;
+
+  p.is-editor-empty:first-child::before {
+    @apply text-neutral-500 float-left h-0 pointer-events-none;
+    content: attr(data-placeholder);
+  }
+
+  .mention {
+    @apply bg-fuchsia-500/25 text-fuchsia-500 hover:bg-fuchsia-500/75 hover:text-white rounded-lg px-1 no-underline cursor-pointer;
+  }
+
+  blockquote {
+    @apply border-l-2 border-neutral-500 mx-2 pl-2;
+  }
+
+  ul,
+  ol {
+    @apply mx-2 mb-0.5;
+
+    li {
+      @apply mx-2;
+
+      &::marker {
+        @apply text-neutral-500;
+      }
+      p {
+        @apply my-0.5;
+      }
+    }
+  }
+
+  h1 {
+    @apply text-2xl font-bold;
+  }
+  h2 {
+    @apply text-xl font-bold;
+  }
+  h3 {
+    @apply text-lg font-bold;
+  }
+
+  code {
+    @apply bg-neutral-500/25 text-neutral-300 rounded-lg p-1;
+  }
+
+  a {
+    @apply text-blue-400 underline cursor-pointer;
+  }
+}
+
+.bubble-menu {
+  @apply bg-surface-2 rounded-[12px] shadow-sm inline-flex;
 }
 
 .progress {

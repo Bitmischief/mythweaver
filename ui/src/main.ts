@@ -14,6 +14,7 @@ import PrimeVue from 'primevue/config';
 import PrimeVueStyles from '@/primevue.styles.ts';
 import ConfirmationService from 'primevue/confirmationservice';
 import ConfirmDialog from 'primevue/confirmdialog';
+import Tooltip from 'primevue/tooltip';
 
 const app = createApp(App);
 
@@ -21,9 +22,9 @@ app.use(VueIntercom);
 
 app.use(PrimeVue, {
   theme: 'none',
-  unstyled: true,
   pt: PrimeVueStyles,
 });
+app.directive('tooltip', Tooltip);
 
 app.use(createPinia());
 app.use(router);

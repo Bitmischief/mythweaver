@@ -8,7 +8,7 @@ import ViewCampaign from '@/components/Campaigns/ViewCampaign.vue';
 import SessionsView from '@/views/SessionsView.vue';
 import ViewSession from '@/components/Sessions/ViewSession.vue';
 import ListSessions from '@/components/Sessions/ListSessions.vue';
-import ViewConjuration from '@/components/Conjuration/ViewConjuration.vue';
+import ConjurationView from '@/modules/conjurations/components/view/conjurationView.vue';
 import InviteView from '@/views/InviteView.vue';
 import CharactersList from '@/views/CharactersList.vue';
 import AuthenticatedView from '@/views/AuthenticatedView.vue';
@@ -123,7 +123,7 @@ const router = createRouter({
             },
             {
               path: 'view/:conjurationId',
-              component: ViewConjuration,
+              component: ConjurationView,
               beforeEnter: authGuard,
               meta: {
                 paidRequired: true,
