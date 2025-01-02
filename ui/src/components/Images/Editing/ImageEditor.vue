@@ -141,12 +141,17 @@ const draw = (e: MouseEvent | TouchEvent) => {
 
   const { x, y } = getPointerPos(e);
 
+  if (x < 0 || x > canvasWidth.value || y < 0 || y > canvasHeight.value) {
+    return;
+  }
+
   canvasCtx.value.beginPath();
   canvasCtx.value.moveTo(mouseX.value, mouseY.value);
   canvasCtx.value.lineTo(x, y);
   canvasCtx.value.strokeStyle = 'rgba(139, 92, 246, 1)';
   canvasCtx.value.lineWidth = brushSize.value;
   canvasCtx.value.lineCap = 'round';
+  canvasCtx.value.lineJoin = 'round';
   canvasCtx.value.globalCompositeOperation = isEraseMode.value
     ? 'destination-out'
     : 'source-over';
@@ -226,12 +231,14 @@ const getPointerPos = (e: MouseEvent | TouchEvent) => {
   let clientX: number;
   let clientY: number;
 
-  if (e instanceof TouchEvent) {
+  if ('touches' in e && e.touches.length > 0) {
     clientX = e.touches[0].clientX;
     clientY = e.touches[0].clientY;
-  } else {
+  } else if ('clientX' in e) {
     clientX = e.clientX;
     clientY = e.clientY;
+  } else {
+    return { x: 0, y: 0 };
   }
 
   const x = (clientX - rect.left) * scaleX;
@@ -564,34 +571,27 @@ async function redoEdit() {
               ref="canvasRef"
               :width="imageWidth"
               :height="imageHeight"
-              class="absolute top-0 left-0"
+              class="absolute top-0 left-0 touch-none"
               :style="{
                 width: `${imageWidth}px`,
                 height: `${imageHeight}px`,
               }"
-              @mousedown="startDrawing"
-              @mousemove="draw"
-              @mouseup="stopDrawing"
-              @mouseleave="clearPreview"
-              @mouseenter="updateBrushPreview"
-              @touchstart="startDrawing"
-              @touchmove="draw"
-              @touchend="stopDrawing"
-              @touchcancel="stopDrawing"
+              @pointerdown="startDrawing"
+              @pointermove="draw"
+              @pointerup="stopDrawing"
+              @pointerout="stopDrawing"
+              @pointerleave="clearPreview"
+              @pointerenter="updateBrushPreview"
             />
             <canvas
               ref="previewCanvasRef"
               :width="imageWidth"
               :height="imageHeight"
-              class="absolute top-0 left-0 pointer-events-none"
+              class="absolute top-0 left-0 pointer-events-none touch-none"
               :style="{
                 width: `${imageWidth}px`,
                 height: `${imageHeight}px`,
               }"
-              @mousemove="updateBrushPreview"
-              @mouseleave="clearPreview"
-              @touchmove="updateBrushPreview"
-              @touchend="clearPreview"
             />
           </div>
         </div>
