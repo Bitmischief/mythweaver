@@ -5,6 +5,7 @@ export enum EmailTemplates {
   CAMPAIGN_INVITE = 'campaign-invite',
   CAMPAIGN_POST_SESSION = 'campaign-post-session',
   SUBSCRIBER_WELCOME = 'subscriber-welcome',
+  SUPPORT_REQUEST = 'support-request',
 }
 
 export const addEmailToMailingList = async (email: string) => {

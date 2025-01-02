@@ -7,7 +7,6 @@ import {
 import { differenceInDays } from 'date-fns';
 import { MythWeaverLogger } from '../../lib/logger';
 import { GetBillingPortalUrlRequest } from './billing.interface';
-import { setIntercomCustomAttributes } from '../../lib/intercom';
 import { modifyImageCreditCount } from '../../services/credits';
 import { AppEvent, track } from '../../lib/tracking';
 import { AdConversionEvent, reportAdConversionEvent } from '../../lib/ads';
@@ -165,10 +164,6 @@ export class BillingService {
       pendingPlanChange: BillingPlan.FREE,
       pendingPlanChangeEffectiveDate: periodEnd,
     });
-
-    await setIntercomCustomAttributes(user.id, {
-      'Plan Renewal Date': periodEnd,
-    });
   }
 
   private async processSubscriptionUpdatedEvent(
@@ -215,11 +210,6 @@ export class BillingService {
         daysSinceRegistration,
       );
     }
-
-    await setIntercomCustomAttributes(user.id, {
-      'Plan Renewal Date': subscriptionEnd,
-      Plan: plan,
-    });
   }
 
   private async processInvoicePaidEvent(
@@ -339,11 +329,6 @@ export class BillingService {
       ImageCreditChangeType.SUBSCRIPTION,
       `${plan} plan`,
     );
-
-    await setIntercomCustomAttributes(user.id, {
-      'Plan Interval': interval,
-      Plan: plan,
-    });
 
     track(AppEvent.PaidSubscription, user.id, undefined, {
       amount: amountPaid,

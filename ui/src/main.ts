@@ -5,7 +5,6 @@ import App from './App.vue';
 import router from '@/router/router.ts';
 import { createPinia } from 'pinia';
 import '@/api/api.ts';
-import VueIntercom from '@homebaseai/vue3-intercom';
 import * as Sentry from '@sentry/vue';
 import { isDevelopment, isLocalDevelopment, isProduction } from '@/lib/util.ts';
 import auth0Client from '@/plugins/auth.ts';
@@ -16,8 +15,6 @@ import ConfirmationService from 'primevue/confirmationservice';
 import ConfirmDialog from 'primevue/confirmdialog';
 
 const app = createApp(App);
-
-app.use(VueIntercom);
 
 app.use(PrimeVue, {
   theme: 'none',
