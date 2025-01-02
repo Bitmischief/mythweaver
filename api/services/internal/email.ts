@@ -8,10 +8,12 @@ export enum EmailTemplates {
   SUPPORT_REQUEST = 'support-request',
 }
 
+const emailServiceUrl = 'https://api.mythweaver.co/email-signups';
+
 export const addEmailToMailingList = async (email: string) => {
   try {
     await axios.post(
-      `${process.env.API_URL}/email-signups/email-list`,
+      `${emailServiceUrl}/email-list`,
       {
         email,
         list: 'app',
@@ -36,7 +38,7 @@ export const sendTransactionalEmail = async (
   }[],
 ) => {
   await axios.post(
-    `${process.env.API_URL}/email-signups/transactional`,
+    `${emailServiceUrl}/transactional`,
     {
       email,
       template,
