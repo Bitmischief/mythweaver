@@ -2,7 +2,7 @@
 import Navbar from '@/components/Navigation/NavBar.vue';
 import { useAuthStore } from '@/store';
 import { useEventBus } from '@/lib/events.ts';
-import { onMounted, onBeforeMount, onUpdated, ref, watch } from 'vue';
+import { onMounted, onBeforeMount, ref, watch } from 'vue';
 import Loader from './components/Core/Loader.vue';
 import { ServerEvent } from '@/lib/serverEvents.ts';
 import { showSuccess } from '@/lib/notifications.ts';

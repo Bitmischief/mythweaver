@@ -203,8 +203,8 @@ async function saveSummary() {
               <div class="flex justify-end">
                 <button
                   class="button-ghost text-sm py-1 flex"
-                  @click="regenerateSummary"
                   :disabled="loadingSummary"
+                  @click="regenerateSummary"
                 >
                   <span v-if="!session.summary">Generate Summary</span>
                   <span v-else>Re-generate Summary</span>
