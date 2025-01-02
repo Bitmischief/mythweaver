@@ -9,6 +9,7 @@ import {
   ImageOutpaintRequest,
   ImageEdit,
   ImageEditType,
+  ImageStylePreset,
 } from './images.interface';
 import { AppError, ErrorType, HttpCode } from '../../lib/errors/AppError';
 import { Image, ImageCreditChangeType, ImageModel } from '@prisma/client';
@@ -351,13 +352,18 @@ export class ImagesService {
         e,
       );
 
-      await sendWebsocketMessage(request.userId, WebSocketEvent.Error, {
-        description:
-          'The image generation service was unable to generate an image.',
-        context: {
-          ...request.linking,
+      await sendWebsocketMessage(
+        request.userId,
+        WebSocketEvent.ImageGenerationError,
+        {
+          imageIds: images.map((image) => image.id),
+          description:
+            'The image generation service was unable to generate an image.',
+          context: {
+            ...request.linking,
+          },
         },
-      });
+      );
 
       return;
     }
@@ -890,6 +896,56 @@ export class ImagesService {
     });
 
     return updatedImage;
+  }
+
+  async retryGeneration(userId: number, imageId: number) {
+    const image = await this.imagesDataProvider.findImage(imageId);
+
+    if (!image) {
+      throw new AppError({
+        description: 'Image not found.',
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    if (image.userId !== userId) {
+      throw new AppError({
+        description: 'You do not have permission to modify this image.',
+        httpCode: HttpCode.FORBIDDEN,
+      });
+    }
+
+    if (!image.modelId) {
+      throw new AppError({
+        description: 'Image model not found.',
+        httpCode: HttpCode.BAD_REQUEST,
+      });
+    }
+
+    const imageModel = await this.imagesDataProvider.findImageModel(
+      image.modelId,
+    );
+
+    if (!imageModel) {
+      throw new AppError({
+        description: 'Image model not found.',
+        httpCode: HttpCode.BAD_REQUEST,
+      });
+    }
+
+    await this.generateRequestedImages(
+      imageModel,
+      {
+        prompt: image.prompt,
+        negativePrompt: image.negativePrompt || undefined,
+        stylePreset: (image.stylePreset as ImageStylePreset) || undefined,
+        width: 1024,
+        height: 1024,
+        userId,
+        count: 1,
+      },
+      [image],
+    );
   }
 
   async deleteImageEdits(userId: number, imageId: number): Promise<Image> {

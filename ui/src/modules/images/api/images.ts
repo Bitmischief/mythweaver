@@ -47,3 +47,8 @@ async function uploadReferenceImage(file: File): Promise<Image> {
 
   return response.data;
 }
+
+export const apiRetryGeneration = async (imageId: number): Promise<Image[]> => {
+  const response = await axios.post<Image[]>(`/images/${imageId}/retry`);
+  return response.data;
+};

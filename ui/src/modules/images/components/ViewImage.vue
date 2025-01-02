@@ -6,6 +6,7 @@ import { useEditImage } from '../composables/useEditImage';
 import Loader from '@/components/Core/Loader.vue';
 import Spinner from '@/components/Core/Spinner.vue';
 import { useGenerationProgress } from '../composables/useGenerationProgress.ts';
+import { useGenerateImages } from '../composables/useGenerateImages.ts';
 
 const props = defineProps<{
   image: Image;
@@ -19,6 +20,7 @@ const emit = defineEmits<{
 }>();
 
 const { isLongRunning } = useGenerationProgress(props.image);
+const { retryGeneration } = useGenerateImages();
 const { loading, setPrimaryImage, setSelectedImageById } = useEditImage();
 const selected = ref(false);
 
@@ -27,8 +29,8 @@ const handlePrimaryImageSet = (imageId: number) => {
   setPrimaryImage(imageId);
 };
 
-const handleRetry = () => {
-  emit('retryGeneration', props.image.id);
+const handleRetry = async (imageId: number) => {
+  await retryGeneration(imageId);
 };
 
 const displayModelName = computed(() => {
@@ -75,7 +77,7 @@ const displayModelName = computed(() => {
           </div>
           <button
             class="flex items-center gap-2 px-3 py-1 mx-auto text-purple-500 hover:text-purple-400 transition-colors rounded-lg border border-purple-500 hover:border-purple-400"
-            @click="handleRetry"
+            @click="handleRetry(image.id)"
           >
             <RotateCw class="w-4 h-4" />
             Retry Generation

@@ -1,5 +1,5 @@
 import { ref, computed, onUnmounted, watch } from 'vue';
-import { apiGenerateImages } from '../api/images';
+import { apiGenerateImages, apiRetryGeneration } from '../api/images';
 import { GenerateImageForm } from '../types/generateImageForm';
 import { useAvailableAspectRatios } from './useAvailableAspectRatios';
 import { useWebsocketChannel } from '@/lib/hooks';
@@ -9,6 +9,7 @@ import { Image } from '../types/image';
 import { ChangeImageContextLink } from '../types/changeImageContext';
 import { PresetImageSettings } from '../types/presetImageSettings';
 import { useSavedNegativePrompt } from './useSavedNegativePrompt';
+import { showError } from '@/lib/notifications';
 
 const showModal = ref(false);
 
@@ -87,12 +88,14 @@ function createWebsocketHandlers(updateState: (updates: Partial<GenerateImagesSt
     });
   }
 
-  function handleImageGenerationError(event: { imageId: number }) {
-    updateImageInState(event.imageId, {
-      generating: false,
-      error: true,
-      errorMessage: 'There was an error generating this image, please try again.',
-    });
+  function handleImageGenerationError(event: { imageIds: number[] }) {
+    for (const imageId of event.imageIds) {
+      updateImageInState(imageId, {
+        generating: false,
+        error: true,
+        errorMessage: 'There was an error generating this image, please try again.',
+      });
+    }
   }
 
   function handleImageGenerationUpdate(event: any) {
@@ -103,18 +106,6 @@ function createWebsocketHandlers(updateState: (updates: Partial<GenerateImagesSt
     }
   }
 
-  function updateImageInState(imageId: number, update: Partial<Image>) {
-    const { images } = state.value;
-    const existingImageIndex = images.findIndex((i) => i.id === imageId);
-    if (existingImageIndex !== -1) {
-      state.value.images = [
-        ...images.slice(0, existingImageIndex),
-        { ...images[existingImageIndex], ...update },
-        ...images.slice(existingImageIndex + 1),
-      ];
-    }
-  }
-
   return {
     handleImageCreated,
     handleImageFiltered,
@@ -122,6 +113,18 @@ function createWebsocketHandlers(updateState: (updates: Partial<GenerateImagesSt
     handleImageGenerationError,
     handleImageGenerationUpdate,
   };
+}
+
+function updateImageInState(imageId: number, update: Partial<Image>) {
+  const { images } = state.value;
+  const existingImageIndex = images.findIndex((i) => i.id === imageId);
+  if (existingImageIndex !== -1) {
+    state.value.images = [
+      ...images.slice(0, existingImageIndex),
+      { ...images[existingImageIndex], ...update },
+      ...images.slice(existingImageIndex + 1),
+    ];
+  }
 }
 
 export function useGenerateImages() {
@@ -208,25 +211,21 @@ export function useGenerateImages() {
     }
   }
 
-  async function retryGeneration(form: GenerateImageForm, imageId: number) {
+  async function retryGeneration(imageId: number) {
     updateState({ loading: true });
     setupWebsocketListeners();
 
     try {
-      const newImage = (await generateRequest(form, imageId))[0];
+      await apiRetryGeneration(imageId);
 
-      const updatedImages = [...state.value.images];
-      const index = updatedImages.findIndex((img) => img.id === imageId);
-      if (index !== -1 && newImage) {
-        const updatedImage: Image = {
-          ...newImage,
-        };
-        updatedImages[index] = updatedImage;
-      }
-
-      updateState({ images: updatedImages });
-      return newImage;
+      updateImageInState(imageId, {
+        generating: true,
+      });
     } catch (error) {
+      showError({
+        message:
+          'Failed to retry generation. There is likely a provider outage causing issues generating images. We will review and fix this as soon as possible.',
+      });
       updateState({ loading: false });
       cleanupWebsocketListeners();
       throw error;
