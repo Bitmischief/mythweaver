@@ -51,6 +51,9 @@ conjureQueue.process(async (job, done) => {
         websocket: {
           userId: job.data.userId,
           errorCode: ErrorType.ConjurationError,
+          context: {
+            conjurationRequestId: job.data.conjurationRequestId,
+          },
         },
       }),
     );
@@ -70,17 +73,9 @@ export const conjure = async (request: ConjureEvent) => {
   const prompt = await buildPrompt(generator, request.campaignId, request.arg);
 
   let conjuration: any = undefined;
-  let generatedJson = '';
 
   do {
-    try {
-      generatedJson = await generateText(request.campaignId, prompt);
-    } catch (err: any) {
-      logger.error(
-        'Error generating character with openai',
-        err.response?.data,
-      );
-    }
+    const generatedJson = await generateText(request.campaignId, prompt);
 
     try {
       logger.info('Received json from openai', { generatedJson });

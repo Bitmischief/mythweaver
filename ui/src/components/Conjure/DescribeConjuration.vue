@@ -95,7 +95,7 @@ function conjurationCreatedHandler(data: any) {
 }
 
 function conjurationErrorHandler(data: any) {
-  if (conjurationRequestId.value === data.conjurationRequestId) {
+  if (conjurationRequestId.value === data.context.conjurationRequestId) {
     generating.value = false;
     showError({
       message: `There was a server error creating your ${props.generator.name}. Please try again, or reach out to support if the problem persists.`,

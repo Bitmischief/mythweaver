@@ -52,4 +52,5 @@ export interface WebSocketContext {
   sessionId?: number;
   imageId?: number;
   conjurationId?: number;
+  conjurationRequestId?: number;
 }
