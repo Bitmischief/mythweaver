@@ -2,6 +2,7 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import {
   getSession,
+  patchSession,
   postSessionSummaryEmail,
   SessionBase,
 } from '@/api/sessions.ts';
@@ -18,13 +19,18 @@ import { EnvelopeIcon, EnvelopeOpenIcon } from '@heroicons/vue/24/outline';
 import CustomizableImage from '@/components/Images/CustomizableImage.vue';
 import { SparklesIcon } from '@heroicons/vue/24/solid';
 import { useGenerateImages } from '@/modules/images/composables/useGenerateImages.ts';
+import { postGenerateArbitraryFromPrompt } from '@/api/generators';
+import { generateArbitrary } from '@/lib/generation';
 
 const route = useRoute();
 const channel = useWebsocketChannel();
 const eventBus = useEventBus();
 const currentUserRole = useCurrentUserRole();
-const { showModal: showGenerateImageModal, setLinkingContext } =
-  useGenerateImages();
+const {
+  showModal: showGenerateImageModal,
+  setLinkingContext,
+  setPresetImageSettings,
+} = useGenerateImages();
 
 const session = ref<SessionBase>({} as SessionBase);
 
@@ -90,7 +96,7 @@ const emailSummary = async () => {
       emailSent.value = false;
     }, 2000);
   } catch {
-    showError({ message: 'Failed to generate summary. Please try again.' });
+    showError({ message: 'Failed to email summary. Please try again.' });
   } finally {
     emailLoading.value = false;
   }
@@ -98,9 +104,22 @@ const emailSummary = async () => {
 
 const loadingImageModal = ref(false);
 
-function showNewImageModal() {
+async function showNewImageModal() {
+  loadingImageModal.value = true;
+  const promptResponse = await generateArbitrary({
+    prompt: `Generate me a stable diffusion image prompt for a pivotal scene from this session. If representing characters, please include the 
+    gender, race, and any other relevant details from the provided information, in the new prompt. Keep the prompt short and concise.`,
+    context: `Return just a prompt used to generate AI images in a system like Stable Diffusion. I am generating an image for 
+            a tabletop roleplaying session.`,
+    background: session.value,
+  });
+  sessionSuggestedImagePrompt.value = promptResponse.text;
   setLinkingContext({ sessionId: sessionId.value });
+  setPresetImageSettings({
+    prompt: sessionSuggestedImagePrompt.value,
+  });
   showGenerateImageModal.value = true;
+  loadingImageModal.value = false;
 }
 
 const primaryImage = computed(() => {
@@ -109,6 +128,34 @@ const primaryImage = computed(() => {
   }
   return undefined;
 });
+
+const loadingSummary = ref(false);
+async function regenerateSummary() {
+  try {
+    loadingSummary.value = true;
+    const summaryResponse = await postGenerateArbitraryFromPrompt({
+      background: session.value.recap,
+      context:
+        'You are a helpful assistant that generates summaries for tabletop roleplaying game sessions.',
+      prompt:
+        'Generate a summary of the session, based on the recap, keeping the tone and style of the recap, and limiting the summary to a paragraph in length.',
+    });
+    session.value.summary = summaryResponse.data.text;
+
+    await saveSummary();
+  } catch {
+    showError({ message: 'Failed to regenerate summary. Please try again.' });
+  } finally {
+    loadingSummary.value = false;
+  }
+}
+
+async function saveSummary() {
+  await patchSession({
+    id: session.value.id,
+    summary: session.value.summary,
+  });
+}
 </script>
 
 <template>
@@ -151,49 +198,70 @@ const primaryImage = computed(() => {
         <div class="bg-surface-2 h-full rounded-[8px] p-4">
           <div class="flex align-center justify-between text-xl mb-2">
             <div class="self-center">Summary</div>
-            <div v-if="session.summary" class="flex gap-2">
-              <button
-                class="button-ghost text-sm py-1 flex"
-                :disabled="emailLoading"
-                @click="emailSummary"
-              >
-                <span v-if="emailLoading" class="flex">Emailing Summary</span>
-                <span v-else-if="emailSent">Email Sent!</span>
-                <span v-else>Email Summary To Players</span>
-                <span class="relative">
-                  <EnvelopeIcon
-                    class="h-5 w-5 ml-2 transition-all"
-                    :class="{
-                      'rotate-0 opacity-1': !emailLoading && !emailSent,
-                      'rotate-180 opacity-0': emailLoading || emailSent,
-                    }"
-                  />
-                  <Spinner
-                    class="absolute top-0 ml-2 transition-all"
-                    :class="{
-                      'opacity-0': !emailLoading,
-                      'opacity-1': emailLoading,
-                    }"
-                  />
-                  <EnvelopeOpenIcon
-                    class="absolute top-0 h-5 w-5 ml-2 transition-all"
-                    :class="{
-                      'rotate-0 opacity-1': !emailLoading && emailSent,
-                      'rotate-180 opacity-0': emailLoading || !emailSent,
-                    }"
-                  />
-                </span>
-              </button>
+
+            <div class="flex gap-2">
+              <div class="flex justify-end">
+                <button
+                  class="button-ghost text-sm py-1 flex"
+                  @click="regenerateSummary"
+                  :disabled="loadingSummary"
+                >
+                  <span v-if="!session.summary">Generate Summary</span>
+                  <span v-else>Re-generate Summary</span>
+                </button>
+              </div>
+
+              <div v-if="session.summary" class="flex gap-2">
+                <button
+                  class="button-ghost text-sm py-1 flex"
+                  :disabled="emailLoading || loadingSummary || !session.summary"
+                  @click="emailSummary"
+                >
+                  <span v-if="emailLoading" class="flex">Emailing Summary</span>
+                  <span v-else-if="emailSent">Email Sent!</span>
+                  <span v-else>Email Summary To Players</span>
+                  <span class="relative">
+                    <EnvelopeIcon
+                      class="h-5 w-5 ml-2 transition-all"
+                      :class="{
+                        'rotate-0 opacity-1': !emailLoading && !emailSent,
+                        'rotate-180 opacity-0': emailLoading || emailSent,
+                      }"
+                    />
+                    <Spinner
+                      class="absolute top-0 ml-2 transition-all"
+                      :class="{
+                        'opacity-0': !emailLoading,
+                        'opacity-1': emailLoading,
+                      }"
+                    />
+                    <EnvelopeOpenIcon
+                      class="absolute top-0 h-5 w-5 ml-2 transition-all"
+                      :class="{
+                        'rotate-0 opacity-1': !emailLoading && emailSent,
+                        'rotate-180 opacity-0': emailLoading || !emailSent,
+                      }"
+                    />
+                  </span>
+                </button>
+              </div>
             </div>
           </div>
           <div
-            v-if="session.summary"
+            v-if="currentUserRole === CampaignRole.DM"
             class="text-neutral-300 max-h-[16em] overflow-y-auto bg-surface-2 pr-2"
           >
-            {{ session.summary }}
+            <Textarea
+              v-if="!loadingSummary"
+              v-model="session.summary"
+              placeholder="Write a summary of the session here..."
+              auto-resize
+              @change="saveSummary"
+            />
+            <Loader v-else />
           </div>
           <div
-            v-else-if="currentUserRole !== CampaignRole.DM"
+            v-else-if="currentUserRole === CampaignRole.Player"
             class="text-sm text-neutral-500 text-center max-w-[20em] h-[12em] pt-[5em] mx-auto"
           >
             No summary has been created
