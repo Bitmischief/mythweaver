@@ -11,8 +11,9 @@ import {
   Security,
   Tags,
   Route,
+  Patch,
 } from 'tsoa';
-import { Campaign } from '@prisma/client';
+import { Campaign, Prisma } from '@prisma/client';
 import {
   AppEvent,
   track,
@@ -22,12 +23,11 @@ import { CampaignService } from '@/modules/campaigns/campaign.service';
 import {
   GetCampaignsResponse,
   PostCampaignRequest,
-  PutCampaignRequest,
   InviteMemberRequest,
 } from '@/modules/campaigns/campaign.interface';
 
 @Route('campaigns')
-@Tags('Campaigns')    
+@Tags('Campaigns')
 export class CampaignController {
   constructor(private campaignService: CampaignService) {}
 
@@ -77,12 +77,12 @@ export class CampaignController {
 
   @Security('jwt')
   @OperationId('putCampaign')
-  @Put('/:campaignId')
-  public async putCampaign(
+  @Patch('/:campaignId')
+  public async patchCampaign(
     @Inject() userId: number,
     @Inject() trackingInfo: TrackingInfo,
     @Path() campaignId = 0,
-    @Body() request: PutCampaignRequest,
+    @Body() request: Prisma.CampaignUpdateInput,
   ): Promise<Campaign> {
     return await this.campaignService.updateCampaign(
       userId,

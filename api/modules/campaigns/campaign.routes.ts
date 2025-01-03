@@ -94,32 +94,32 @@ router.post('/', [
   },
 ]);
 
-const putCampaignIdSchema = z.object({
+const patchCampaignIdSchema = z.object({
   campaignId: z.coerce.number().default(0),
 });
 
-const putCampaignSchema = z.object({
-  name: z.string(),
+const patchCampaignSchema = z.object({
+  name: z.string().nullable().optional(),
   description: z.string().nullable().optional(),
-  rpgSystemCode: z.string(),
+  rpgSystemCode: z.string().nullable().optional(),
   publicAdventureCode: z.string().nullable().optional(),
 });
 
-router.put('/:campaignId', [
+router.patch('/:campaignId', [
   checkAuth0Jwt,
   useInjectUserId(),
   useInjectLoggingInfo(),
-  useValidateRequest(putCampaignIdSchema, {
+  useValidateRequest(patchCampaignIdSchema, {
     validationType: ValidationTypes.Route,
   }),
-  useValidateRequest(putCampaignSchema),
+  useValidateRequest(patchCampaignSchema),
   async (req: Request, res: Response) => {
     const controller =
       req.container.resolve<CampaignController>('campaignController');
 
     const { campaignId = 0 } = req.params;
 
-    const response = await controller.putCampaign(
+    const response = await controller.patchCampaign(
       res.locals.auth.userId,
       res.locals.trackingInfo,
       campaignId as number,

@@ -208,6 +208,17 @@ export class ImagesController {
   }
 
   @Security('jwt')
+  @OperationId('retryGeneration')
+  @Post('/:imageId/retry')
+  public async retryGeneration(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Route() imageId: number,
+  ) {
+    return this.imagesService.retryGeneration(userId, imageId);
+  }
+
+  @Security('jwt')
   @OperationId('deleteImageEdits')
   @Delete('/:imageId/edits')
   public async deleteImageEdits(

@@ -96,9 +96,10 @@ export class StabilityAIProvider {
 
     formData.append('init_image', request.referenceImage, 'init_image.png');
     formData.append('init_image_mode', 'IMAGE_STRENGTH');
-
-    const imageStrength = (request.imageStrength || 35) / 100;
-    formData.append('image_strength', imageStrength.toString());
+    formData.append(
+      'image_strength',
+      (request.imageStrength || 0.35).toString(),
+    );
 
     const response = await axios.post(
       `${this.apiHost}/v1/generation/stable-diffusion-xl-1024-v1-0/image-to-image`,

@@ -1,4 +1,10 @@
-import { Application, ErrorRequestHandler, NextFunction, Request, Response } from 'express';
+import {
+  Application,
+  ErrorRequestHandler,
+  NextFunction,
+  Request,
+  Response,
+} from 'express';
 import { useLogger } from '@/modules/core/logging/loggingMiddleware';
 import { errorHandler } from '@/modules/core/errors/ErrorHandler';
 import { isProduction } from '../utils/environments';
@@ -33,4 +39,4 @@ export const initErrorHandlerMiddleware = (app: Application) => {
 
     errorHandler.handleError(error);
   });
-}
+};

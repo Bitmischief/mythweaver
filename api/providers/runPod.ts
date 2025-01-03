@@ -31,9 +31,7 @@ export class RunPodProvider {
 
     if (request.referenceImage) {
       input.input_image = request.referenceImage.toString('base64');
-      input.strength = request.imageStrength
-        ? request.imageStrength / 100
-        : 0.7;
+      input.strength = request.imageStrength;
     }
 
     const response = await axios.post<RunPodResponse>(

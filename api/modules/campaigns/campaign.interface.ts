@@ -8,6 +8,8 @@ export interface GetCampaignsResponse {
 
 export interface PostCampaignRequest {
   name: string;
+  description?: string;
+  rpgSystemCode?: string;
 }
 
 export interface PutCampaignRequest {

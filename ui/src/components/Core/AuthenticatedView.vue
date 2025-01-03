@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useAuthStore } from '@/store';
 import { useEventBus } from '@/lib/events';
-import { useIntercom } from '@homebaseai/vue3-intercom';
 import { useCurrentUserPlan, useWebsocketChannel } from '@/lib/hooks';
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
@@ -25,13 +24,13 @@ import GenerateImageModal from '@/modules/images/components/generate/GenerateIma
 import { getRedeemPreOrderUrl } from '@/api/billing.ts';
 import NavBarHeader from '@/components/Navigation/NavBarHeader.vue';
 import ImageHistoryModal from '@/modules/images/components/history/ImageHistoryModal.vue';
+import SupportModal from '@/modules/core/components/SupportModal.vue';
 import NotificationHandler from '@/components/Notifications/NotificationHandler.vue';
 // @ts-ignore
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
 const authStore = useAuthStore();
 const eventBus = useEventBus();
-const intercom = useIntercom();
 const route = useRoute();
 
 const showPreorderRedemptionModal = ref(false);
@@ -41,7 +40,6 @@ const showUserSourceModal = ref(false);
 const currentUserPlan = useCurrentUserPlan();
 
 onMounted(async () => {
-  await initIntercom();
   await initNotifications();
 
   const user = authStore.user;
@@ -73,16 +71,6 @@ async function initNotifications() {
       route: `/sessions/${sessionId}`,
     });
   });
-}
-
-async function initIntercom() {
-  await intercom.boot({
-    app_id: import.meta.env.VITE_INTERCOM_APP_TOKEN as string,
-    user_id: authStore.user?.id,
-    name: authStore.user?.email,
-    email: authStore.user?.email,
-    created_at: authStore.user?.createdAt,
-  } as any);
 }
 
 const showEditImageModal = ref(false);
@@ -320,5 +308,6 @@ eventBus.$on('show-subscription-modal', () => {
   <EditImageModal />
   <GenerateImageModal />
   <ImageHistoryModal />
+  <SupportModal />
   <LightboxRoot />
 </template>

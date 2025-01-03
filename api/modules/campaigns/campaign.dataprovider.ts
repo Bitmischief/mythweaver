@@ -1,6 +1,7 @@
 import { prisma } from '@/providers/prisma';
 import { Campaign } from '@prisma/client';
 import { Prisma } from '@prisma/client';
+import { PostCampaignRequest } from './campaign.interface';
 
 export class CampaignDataProvider {
   async getCampaigns(
@@ -84,18 +85,29 @@ export class CampaignDataProvider {
     });
   }
 
-  async createCampaign(data: any): Promise<Campaign> {
+  async createCampaign(
+    userId: number,
+    data: PostCampaignRequest,
+  ): Promise<Campaign> {
     return prisma.campaign.create({
-      data: data,
+      data: {
+        name: data.name,
+        description: data.description || '',
+        rpgSystemCode: data.rpgSystemCode || 'dnd5e',
+        userId: userId,
+      },
     });
   }
 
-  async updateCampaign(campaignId: number, data: any): Promise<Campaign> {
+  async updateCampaign(
+    campaignId: number,
+    data: Prisma.CampaignUpdateInput,
+  ): Promise<Campaign> {
     return await prisma.campaign.update({
       where: {
         id: campaignId,
       },
-      data: data,
+      data,
     });
   }
 

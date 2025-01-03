@@ -6,7 +6,6 @@ import { Logger } from '@/modules/core/logging/logger';
 import {
   GetCampaignsResponse,
   PostCampaignRequest,
-  PutCampaignRequest,
   InviteMemberRequest,
 } from '@/modules/campaigns/campaign.interface';
 import {
@@ -15,7 +14,7 @@ import {
   track,
 } from '@/modules/core/analytics/tracking';
 import { AppError, HttpCode } from '@/modules/core/errors/AppError';
-import { Campaign, ContextType, Conjuration } from '@prisma/client';
+import { Campaign, ContextType, Conjuration, Prisma } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
 import { urlPrefix } from '@/modules/core/utils/environments';
 import { CampaignRole } from '@/modules/campaigns/campaign.interface';
@@ -101,10 +100,16 @@ export class CampaignService {
     userId: number,
     request: PostCampaignRequest,
   ): Promise<Campaign> {
-    const campaign = await this.campaignDataProvider.createCampaign({
-      name: request.name,
+    const campaign = await this.campaignDataProvider.createCampaign(
       userId,
-      rpgSystemCode: 'dnd5e',
+      request,
+    );
+
+    await this.membersDataProvider.createCampaignMember({
+      campaignId: campaign.id,
+      userId,
+      role: CampaignRole.DM,
+      joinedAt: new Date(),
     });
 
     await this.collectionsService.createCollection(userId, {
@@ -120,7 +125,7 @@ export class CampaignService {
     userId: number,
     trackingInfo: TrackingInfo,
     campaignId: number,
-    request: PutCampaignRequest,
+    request: Prisma.CampaignUpdateInput,
   ): Promise<Campaign> {
     const campaign = await this.campaignDataProvider.getCampaign(campaignId);
 

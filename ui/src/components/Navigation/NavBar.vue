@@ -5,7 +5,6 @@ import { Dialog, DialogPanel } from '@headlessui/vue';
 import { useAuthStore } from '@/store';
 import NavbarContent from '@/components/Navigation/NavbarContent.vue';
 import TrialInfo from '@/components/Navigation/TrialInfo.vue';
-import { useIntercom } from '@homebaseai/vue3-intercom';
 import ImageCreditCount from '../Core/ImageCreditCount.vue';
 import PlanBadge from '@/components/Core/PlanBadge.vue';
 import { Cog6ToothIcon } from '@heroicons/vue/24/outline';
@@ -13,10 +12,12 @@ import ConjurationLimit from '@/components/Core/ConjurationLimit.vue';
 import { useAuth0 } from '@auth0/auth0-vue';
 import UpdateChecker from '@/components/Core/UpdateChecker.vue';
 import Tooltip from '../Core/Tooltip.vue';
+import { useSupportModal } from '@/modules/core/composables/useSupportModal';
 
 const authStore = useAuthStore();
 const showPanel = ref(false);
 const auth0 = useAuth0();
+const { showModal: showSupportModal } = useSupportModal();
 
 const statusRefreshId = ref(0);
 
@@ -49,7 +50,6 @@ async function logout() {
 }
 
 const collapsed = ref(false);
-const intercom = useIntercom();
 
 const appVersion = computed(() => import.meta.env.VITE_VERSION);
 </script>
@@ -118,14 +118,13 @@ const appVersion = computed(() => import.meta.env.VITE_VERSION);
               href="https://feedback.mythweaver.co"
               target="_blank"
               class="flex px-4 py-2 text-sm text-gray-300 cursor-pointer hover:bg-rounded-purple"
-              @click="intercom.show()"
             >
               <MegaphoneIcon class="h-5 mr-2" />
               Feedback
             </a>
             <div
               class="flex px-4 py-2 text-sm text-gray-300 cursor-pointer hover:bg-rounded-purple"
-              @click="intercom.show()"
+              @click="showSupportModal = true"
             >
               <img
                 src="@/assets/icons/support.svg"
@@ -181,14 +180,13 @@ const appVersion = computed(() => import.meta.env.VITE_VERSION);
                   href="https://feedback.mythweaver.co"
                   target="_blank"
                   class="flex px-2 py-2 text-sm text-gray-300 cursor-pointer hover:bg-rounded-purple"
-                  @click="intercom.show()"
                 >
                   <MegaphoneIcon class="h-5 mr-2" />
                   Feedback
                 </a>
                 <div
                   class="flex px-2 py-2 text-sm text-gray-300 cursor-pointer hover:bg-rounded-purple"
-                  @click="intercom.show()"
+                  @click="showSupportModal = true"
                 >
                   <img
                     src="@/assets/icons/support.svg"

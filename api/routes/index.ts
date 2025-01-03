@@ -71,4 +71,8 @@ import versionRoutes from '@/routes/version';
 
 router.use(`/version`, versionRoutes);
 
+import supportRoutes from './support';
+
+router.use(`/support`, supportRoutes);
+
 export default router;

@@ -32,13 +32,18 @@ export class MythWeaverImageProvider {
       });
     }
 
+    const transformedRequest = {
+      ...request,
+      imageStrength: 1 - (request.imageStrength || 0.35),
+    };
+
     this.logger.info(`Submitting job`, {
       imageIds: images.map((image) => image.id),
       modelId: model.id,
       userId: request.userId,
     });
 
-    const job = await this.runPodProvider.submitJob(model, request);
+    const job = await this.runPodProvider.submitJob(model, transformedRequest);
     this.logger.info(`Job submitted successfully`, {
       jobId: job.id,
       imageIds: images.map((image) => image.id),

@@ -4,7 +4,6 @@ import { StripeProvider } from '@/providers/stripe';
 import { BillingDataProvider } from '@/modules/billing/billing.dataprovider';
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import Stripe from 'stripe';
-import '@/lib/intercom';
 import { EmailProvider } from '@/providers/emailProvider';
 import { DiscordProvider } from '@/providers/discordProvider';
 import { CreditsProvider } from '@/providers/creditsProvider';

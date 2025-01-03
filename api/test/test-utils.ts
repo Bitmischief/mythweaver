@@ -3,6 +3,7 @@ import { ManagementClient } from 'auth0';
 
 export interface TestUser {
   id: string;
+  auth0id: string;
   email: string;
   token: string;
   _cleanup: () => Promise<void>;
@@ -55,8 +56,13 @@ export const loginTestUser = async (): Promise<TestUser> => {
       },
     );
 
+    const ephemeralClient = createTestClient(response.data.access_token);
+    const userResponse = await ephemeralClient.get('/users/me');
+    const mythweaverUser = userResponse.data;
+
     return {
-      id: userId,
+      id: mythweaverUser.id,
+      auth0id: userId,
       email,
       token: response.data.access_token,
       _cleanup: async () => {

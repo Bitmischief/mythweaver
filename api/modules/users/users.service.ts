@@ -57,6 +57,7 @@ export class UsersService {
 
     await this.campaignService.createCampaign(user.id, {
       name: 'My Campaign',
+      rpgSystemCode: 'dnd5e',
     });
 
     await this.emailProvider.addEmailToMailingList(email);
