@@ -39,11 +39,43 @@ const uploadImageUri = ref();
 
 const isPanelExpanded = ref(true);
 
-const handleReferenceImageAddition = (e: any) => {
+const allowedDimensions = computed(() => [
+  '1024x1024',
+  '1152x896',
+  '1216x832',
+  '1344x768',
+  '1536x640',
+  '640x1536',
+  '768x1344',
+  '832x1216',
+  '896x1152',
+]);
+
+const validateImageDimensions = (file: File): Promise<boolean> => {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const dimensions = `${img.width}x${img.height}`;
+      resolve(allowedDimensions.value.includes(dimensions));
+    };
+    img.src = URL.createObjectURL(file);
+  });
+};
+
+const referenceImageError = ref<string | null>(null);
+
+const handleReferenceImageAddition = async (e: any) => {
   if (e.files && e.files.length) {
     const file = e.files[0];
-    const reader = new FileReader();
+    
+    const isValidDimensions = await validateImageDimensions(file);
+    if (!isValidDimensions) {
+      referenceImageError.value = `Invalid image dimensions. Please use one of these dimensions: ${allowedDimensions.value.join(', ')}`;
+      return;
+    }
 
+    referenceImageError.value = null;
+    const reader = new FileReader();
     reader.onload = async (e) => {
       if (e.target?.result) {
         uploadImageUri.value = e.target.result;
@@ -57,6 +89,7 @@ const handleReferenceImageAddition = (e: any) => {
   } else {
     formState.value.referenceImageFile = undefined;
     isAspectRatioLocked.value = false;
+    referenceImageError.value = null;
   }
 };
 
@@ -81,6 +114,10 @@ const handleSubmit = async () => {
   }
 
   if (savedNegativePrompt.value && savedNegativePrompt.value.length > 2500) {
+    return;
+  }
+
+  if (referenceImageError.value) {
     return;
   }
 
@@ -210,6 +247,9 @@ watch(
           alt="Image"
           class="shadow-md rounded-xl w-full"
         />
+        <div v-if="referenceImageError" class="text-red-500 text-xs mt-1">
+          {{ referenceImageError }}
+        </div>
       </div>
       <div v-if="formState.referenceImageFile" class="mt-2 flex items-center">
         <p class="text-sm text-zinc-400 mr-2">

@@ -201,7 +201,7 @@ export class MythWeaverImageWorker {
       });
 
       await sendWebsocketMessage(userId, WebSocketEvent.ImageGenerationError, {
-        imageId: image.id,
+        imageIds: [image.id],
         description: errorMessage,
       });
     }

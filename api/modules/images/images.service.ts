@@ -375,6 +375,8 @@ export class ImagesService {
     images: Image[],
   ): Promise<void> {
     if (model.stableDiffusionApiModel) {
+      request.imageStrength = this.setImageStrength(request.imageStrength, 4);
+
       const apiImages = await retry(async () => {
         return await this.stabilityAIProvider.generateImage(request);
       });
@@ -386,12 +388,21 @@ export class ImagesService {
         model,
       );
     } else {
+      request.imageStrength = this.setImageStrength(request.imageStrength, 2);
+
       await this.mythweaverImageProvider.generateMythWeaverModelImage(
         request,
         model,
         images,
       );
     }
+  }
+
+  setImageStrength(
+    imageStrength: number | undefined = 35,
+    modifier: number,
+  ): number {
+    return imageStrength / modifier / 100;
   }
 
   async inpaintImage(
