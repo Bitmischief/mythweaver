@@ -19,7 +19,7 @@ router.post('/', [
       'support@mythweaver.co',
       EmailTemplates.SUPPORT_REQUEST,
       [
-        { key: 'SUPPORT_TYPE ', value: type },
+        { key: 'SUPPORT_TYPE', value: type },
         { key: 'DESCRIPTION', value: description },
         { key: 'USER_EMAIL', value: res.locals.auth.email },
       ],

@@ -2,7 +2,7 @@
 import ModalAlternate from '@/components/ModalAlternate.vue';
 import { useSupportModal } from '@/modules/core/composables/useSupportModal';
 import SelectButton from 'primevue/selectbutton';
-import { ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { postSupportRequest } from '@/api/support';
 import Loader from '@/components/Core/Loader.vue';
 
@@ -21,6 +21,23 @@ const submitSupportRequest = async () => {
   loading.value = false;
   submitted.value = true;
 };
+
+watch(showModal, () => {
+  if (!showModal.value) {
+    selectedSupportType.value = 'Image Generation';
+    description.value = '';
+    loading.value = false;
+    submitted.value = false;
+  }
+});
+
+const submitDisabled = computed(() => {
+  return (
+    loading.value ||
+    description.value.length === 0 ||
+    selectedSupportType.value.length === 0
+  );
+});
 </script>
 
 <template>
@@ -65,6 +82,10 @@ const submitSupportRequest = async () => {
 
         <button
           class="bg-fuchsia-600 text-white rounded-md p-2"
+          :class="{
+            'opacity-50 cursor-not-allowed': submitDisabled,
+          }"
+          :disabled="submitDisabled"
           @click="submitSupportRequest"
         >
           Submit Support Request
