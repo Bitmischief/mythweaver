@@ -25,7 +25,6 @@
     "@editorjs/quote": "^2.6.0",
     "@editorjs/table": "^2.3.0",
     "@editorjs/underline": "^1.1.0",
-    "@homebaseai/vue3-intercom": "^2.0.2",
     "@primevue/themes": "^4.2.2",
     "@sentry/vue": "^7.107.0",
     "@sotaproject/strikethrough": "^1.0.1",

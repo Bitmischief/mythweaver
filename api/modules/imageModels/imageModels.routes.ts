@@ -1,12 +1,12 @@
 import express, { Request, Response } from 'express';
-import { checkAuth0Jwt, useInjectUserId } from '@/lib/authMiddleware';
-import { useInjectLoggingInfo } from '@/lib/loggingMiddleware';
+import { checkAuth0Jwt } from '@/modules/core/middleware/auth0';
+import { useInjectUserId } from '@/modules/core/middleware/userMiddleware';
+import { useInjectLoggingInfo } from '@/modules/core/logging/loggingMiddleware';
 import { ImageModelsController } from '@/modules/imageModels/imageModels.controller';
-import { injectDependencies } from '@/modules/imageModels/imageModels.dependencies';
 import {
   useValidateRequest,
   ValidationTypes,
-} from '@/lib/validationMiddleware';
+} from '@/modules/core/middleware/validationMiddleware';
 import { z } from 'zod';
 
 const router = express.Router({ mergeParams: true });
@@ -23,7 +23,6 @@ router.get('/', [
   useValidateRequest(getImageModelsSchema, {
     validationType: ValidationTypes.Query,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<ImageModelsController>(
       'imageModelsController',

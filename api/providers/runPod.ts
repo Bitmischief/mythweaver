@@ -4,7 +4,7 @@ import {
   ApiImageGenerationResponse,
   ImageGenerationRequest,
 } from '@/modules/images/images.interface';
-import logger from '@/lib/logger';
+import { Logger } from '@/modules/core/logging/logger';
 
 export interface RunPodResponse {
   id: string;
@@ -13,6 +13,8 @@ export interface RunPodResponse {
 }
 
 export class RunPodProvider {
+  constructor(private readonly logger: Logger) {}
+
   async submitJob(
     model: ImageModel,
     request: ImageGenerationRequest,
@@ -29,9 +31,7 @@ export class RunPodProvider {
 
     if (request.referenceImage) {
       input.input_image = request.referenceImage.toString('base64');
-      input.strength = request.imageStrength
-        ? request.imageStrength / 100
-        : 0.7;
+      input.strength = request.imageStrength;
     }
 
     const response = await axios.post<RunPodResponse>(
@@ -58,7 +58,7 @@ export class RunPodProvider {
         },
       );
     } catch (error) {
-      logger.error('Failed to cancel RunPod job', { jobId, error });
+      this.logger.error('Failed to cancel RunPod job', { jobId, error });
     }
   }
 
@@ -77,5 +77,3 @@ export class RunPodProvider {
     return response.data;
   }
 }
-
-export default new RunPodProvider();

@@ -1,6 +1,5 @@
-import { prisma } from '@/lib/providers/prisma';
+import { prisma } from '@/providers/prisma';
 import { ImageCreditChangeType } from '@prisma/client';
-import { setIntercomCustomAttributes } from '@/lib/intercom';
 import {
   WebSocketEvent,
   WebSocketProvider,
@@ -40,10 +39,6 @@ export class CreditsProvider {
       WebSocketEvent.UserImageCreditCountUpdated,
       updatedUser.imageCredits,
     );
-
-    await setIntercomCustomAttributes(userId, {
-      'Credit Count': updatedUser.imageCredits,
-    });
 
     return updatedUser.imageCredits;
   }

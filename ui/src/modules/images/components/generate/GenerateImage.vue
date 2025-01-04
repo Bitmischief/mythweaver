@@ -3,12 +3,10 @@ import ViewImage from '../ViewImage.vue';
 import { useGenerateImages } from '../../composables/useGenerateImages';
 import GenerateImageForm from '../generate/GenerateImageForm.vue';
 import { onMounted, onUnmounted, ref } from 'vue';
-import { useConfirm } from 'primevue/useconfirm';
 import type { GenerateImageForm as GenerateImageFormType } from '../../types/generateImageForm';
 
 const { generatedImages, presetSettings, clearGeneratedImages } =
   useGenerateImages();
-const confirm = useConfirm();
 
 const props = withDefaults(
   defineProps<{
@@ -41,38 +39,6 @@ const handlePrimaryImageSet = (imageId: number) => {
 const handleFormStateUpdate = (formState: GenerateImageFormType) => {
   currentFormState.value = formState;
 };
-
-const handleRetryGeneration = async (imageId: number) => {
-  if (!currentFormState.value) return;
-
-  const { retryGeneration } = useGenerateImages();
-  const hasGeneratingImages = generatedImages.value.some(
-    (img) => img.generating,
-  );
-
-  if (hasGeneratingImages) {
-    confirm.require({
-      message:
-        'You have images currently generating. Starting a new generation will cancel the current one. Do you want to continue?',
-      header: 'Confirm Retry Generation',
-      accept: async () => {
-        try {
-          if (currentFormState.value) {
-            await retryGeneration(currentFormState.value, imageId);
-          }
-        } catch (error) {
-          console.error('Failed to retry image generation:', error);
-        }
-      },
-    });
-  } else {
-    try {
-      await retryGeneration(currentFormState.value, imageId);
-    } catch (error) {
-      console.error('Failed to retry image generation:', error);
-    }
-  }
-};
 </script>
 
 <template>
@@ -91,7 +57,6 @@ const handleRetryGeneration = async (imageId: number) => {
           :image="image"
           :allow-edits="allowEdits"
           @primary-image-set="handlePrimaryImageSet"
-          @retry-generation="handleRetryGeneration"
         />
       </div>
     </div>

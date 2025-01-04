@@ -1,15 +1,16 @@
 import { ImageModel, Image } from '@prisma/client';
-import { AppError, HttpCode } from '@/lib/errors/AppError';
-import { MythWeaverLogger } from '@/lib/logger';
+import { AppError, HttpCode } from '@/modules/core/errors/AppError';
+import { Logger } from '@/modules/core/logging/logger';
 import { ImageGenerationRequest } from '@/modules/images/images.interface';
 import { RunPodProvider } from '@/providers/runPod';
-import { MythWeaverImageWorker } from '@/modules/images/mythweaverImage.worker';
+import { Queue } from 'bull';
+import { CheckJobStatusData } from '@/modules/images/mythweaverImage.worker';
 
 export class MythWeaverImageProvider {
   constructor(
-    private readonly logger: MythWeaverLogger,
+    private readonly logger: Logger,
     private readonly runPodProvider: RunPodProvider,
-    private readonly mythweaverImageWorker: MythWeaverImageWorker,
+    private readonly mythweaverImageQueue: Queue<CheckJobStatusData>,
   ) {}
 
   async generateMythWeaverModelImage(
@@ -31,19 +32,24 @@ export class MythWeaverImageProvider {
       });
     }
 
+    const transformedRequest = {
+      ...request,
+      imageStrength: 1 - (request.imageStrength || 0.35),
+    };
+
     this.logger.info(`Submitting job`, {
       imageIds: images.map((image) => image.id),
       modelId: model.id,
       userId: request.userId,
     });
 
-    const job = await this.runPodProvider.submitJob(model, request);
+    const job = await this.runPodProvider.submitJob(model, transformedRequest);
     this.logger.info(`Job submitted successfully`, {
       jobId: job.id,
       imageIds: images.map((image) => image.id),
     });
 
-    await this.mythweaverImageWorker.addJob({
+    await this.mythweaverImageQueue.add({
       model,
       runpodJobId: job.id,
       images,

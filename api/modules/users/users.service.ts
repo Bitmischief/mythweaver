@@ -1,8 +1,13 @@
 import { UsersDataProvider } from '@/modules/users/users.dataprovider';
 import { ConjurationsDataProvider } from '@/modules/conjurations/conjurations.dataprovider';
-import { MythWeaverLogger } from '@/lib/logger';
-import { TrackingInfo, track, AppEvent, identify } from '@/lib/tracking';
-import { AppError, HttpCode } from '@/lib/errors/AppError';
+import { Logger } from '@/modules/core/logging/logger';
+import {
+  TrackingInfo,
+  track,
+  AppEvent,
+  identify,
+} from '@/modules/core/analytics/tracking';
+import { AppError, HttpCode } from '@/modules/core/errors/AppError';
 import {
   GetUserResponse,
   PatchUserRequest,
@@ -12,14 +17,72 @@ import {
 import { ImageCreditChangeType, User } from '@prisma/client';
 import { StripeProvider } from '@/providers/stripe';
 import { CreditsProvider } from '@/providers/creditsProvider';
+import { CampaignService } from '@/modules/campaigns/campaign.service';
+import { EmailProvider } from '@/providers/emailProvider';
+import { prisma } from '@/providers/prisma';
+import { reportAdConversionEvent, AdConversionEvent } from '@/modules/core/ads';
 
 export class UsersService {
   constructor(
     private usersDataProvider: UsersDataProvider,
     private conjurationsDataProvider: ConjurationsDataProvider,
-    private logger: MythWeaverLogger,
+    private logger: Logger,
     private creditsProvider: CreditsProvider,
+    private campaignService: CampaignService,
+    private stripeProvider: StripeProvider,
+    private emailProvider: EmailProvider,
   ) {}
+
+  public async createNewUser(email: string) {
+    const trialEnd = new Date();
+    trialEnd.setHours(new Date().getHours() + 24 * 7);
+
+    const stripeCustomerId = await this.stripeProvider.createCustomer(email);
+    const username = await this.buildUniqueUsername(email.toLowerCase());
+
+    const user = await this.usersDataProvider.createUser({
+      email: email,
+      trialEndsAt: trialEnd,
+      billingCustomerId: stripeCustomerId,
+      imageCredits: 0,
+      username,
+    });
+
+    await this.creditsProvider.modifyImageCreditCount(
+      user.id,
+      25,
+      ImageCreditChangeType.TRIAL,
+      'Initial credits for signup',
+    );
+
+    await this.campaignService.createCampaign(user.id, {
+      name: 'My Campaign',
+      rpgSystemCode: 'dnd5e',
+    });
+
+    await this.emailProvider.addEmailToMailingList(email);
+
+    track(AppEvent.Registered, user.id, undefined, {
+      email,
+    });
+
+    await reportAdConversionEvent(AdConversionEvent.Lead, user);
+
+    return user;
+  }
+
+  buildUniqueUsername = async (email: string) => {
+    const username = email.split('@')[0];
+    const usernameExists = await prisma.user.findFirst({
+      where: {
+        username,
+      },
+    });
+
+    return usernameExists
+      ? username + Math.floor(Math.random() * 1000)
+      : username;
+  };
 
   public async getUser(
     userId: number,
@@ -113,8 +176,7 @@ export class UsersService {
       });
     }
 
-    const stripeProvider = new StripeProvider();
-    const subscription = await stripeProvider.getSubscriptionForCustomer(
+    const subscription = await this.stripeProvider.getSubscriptionForCustomer(
       user.billingCustomerId,
     );
 

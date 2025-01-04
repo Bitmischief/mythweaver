@@ -12,8 +12,12 @@ import {
   Delete,
   Route,
 } from 'tsoa';
-import { AppEvent, track, TrackingInfo } from '@/lib/tracking';
-import { MythWeaverLogger } from '@/lib/logger';
+import {
+  AppEvent,
+  track,
+  TrackingInfo,
+} from '@/modules/core/analytics/tracking';
+import { Logger } from '@/modules/core/logging/logger';
 import { ImagesService } from '@/modules/images/images.service';
 import {
   PostImageRequest,
@@ -29,7 +33,7 @@ import { Express } from 'express';
 export class ImagesController {
   constructor(
     private imagesService: ImagesService,
-    private logger: MythWeaverLogger,
+    private logger: Logger,
   ) {}
 
   @Security('jwt')
@@ -201,6 +205,17 @@ export class ImagesController {
     @Body() request: { editId: string },
   ): Promise<Image> {
     return this.imagesService.setImageToEdit(userId, imageId, request.editId);
+  }
+
+  @Security('jwt')
+  @OperationId('retryGeneration')
+  @Post('/:imageId/retry')
+  public async retryGeneration(
+    @Inject() userId: number,
+    @Inject() trackingInfo: TrackingInfo,
+    @Route() imageId: number,
+  ) {
+    return this.imagesService.retryGeneration(userId, imageId);
   }
 
   @Security('jwt')

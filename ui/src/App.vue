@@ -2,8 +2,7 @@
 import Navbar from '@/components/Navigation/NavBar.vue';
 import { useAuthStore } from '@/store';
 import { useEventBus } from '@/lib/events.ts';
-import { onMounted, onBeforeMount, onUpdated, ref, watch } from 'vue';
-import { useIntercom } from '@homebaseai/vue3-intercom';
+import { onMounted, onBeforeMount, ref, watch } from 'vue';
 import Loader from './components/Core/Loader.vue';
 import { ServerEvent } from '@/lib/serverEvents.ts';
 import { showSuccess } from '@/lib/notifications.ts';
@@ -18,7 +17,6 @@ import { useConjurationWebhooks } from '@/modules/conjurations/composables/useCo
 
 const authStore = useAuthStore();
 const eventBus = useEventBus();
-const intercom = useIntercom();
 const route = useRoute();
 
 const showPreorderRedemptionModal = ref(false);
@@ -34,14 +32,12 @@ onBeforeMount(async () => {
 watch(isAuthenticated, async (isAuthenticated) => {
   if (isAuthenticated) {
     await authStore.loadCurrentUser();
-    await initIntercom();
   }
 });
 
 onMounted(async () => {
   eventBus.$on('user-loaded', async () => {
     if (authStore.user) {
-      await initIntercom();
       await initNotifications();
       await initWebhooks();
 
@@ -64,10 +60,6 @@ onMounted(async () => {
   });
 });
 
-onUpdated(async () => {
-  await initIntercom();
-});
-
 async function initNotifications() {
   const channel = useWebsocketChannel();
 
@@ -78,16 +70,6 @@ async function initNotifications() {
       route: `/sessions/${sessionId}`,
     });
   });
-}
-
-async function initIntercom() {
-  await intercom.boot({
-    app_id: import.meta.env.VITE_INTERCOM_APP_TOKEN as string,
-    user_id: authStore.user?.id,
-    name: authStore.user?.email,
-    email: authStore.user?.email,
-    created_at: authStore.user?.createdAt,
-  } as any);
 }
 
 async function initWebhooks() {

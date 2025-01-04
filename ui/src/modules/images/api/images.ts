@@ -104,3 +104,8 @@ export const setImageToEdit = async (imageId: number, editId: string) => {
 export const deleteEdits = async (imageId: number) => {
   return axios.delete(`/images/${imageId}/edits`);
 };
+
+export const apiRetryGeneration = async (imageId: number): Promise<Image[]> => {
+  const response = await axios.post<Image[]>(`/images/${imageId}/retry`);
+  return response.data;
+};

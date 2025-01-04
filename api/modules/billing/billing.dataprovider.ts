@@ -4,8 +4,8 @@ import {
   ProcessedStripeEvents,
   User,
 } from '@prisma/client';
-import { prisma } from '@/lib/providers/prisma';
-import { AppError, HttpCode } from '@/lib/errors/AppError';
+import { prisma } from '@/providers/prisma';
+import { AppError, HttpCode } from '@/modules/core/errors/AppError';
 
 export class BillingDataProvider {
   async findProcessedStripeEvent(

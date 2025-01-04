@@ -1,15 +1,15 @@
 import Queue, { Job } from 'bull';
-import { config } from '@/worker/config';
+import { config } from '@/modules/core/workers/worker.config';
 import {
   WebSocketEvent,
   WebSocketProvider,
 } from '@/providers/websocketProvider';
-import { MythWeaverLogger } from '@/lib/logger';
+import { Logger } from '@/modules/core/logging/logger';
 import { AssemblyAIProvider } from '@/providers/assemblyAI';
 import { SessionsDataProvider } from '@/modules/sessions/sessions.dataprovider';
 import { TranscriptionService } from '@/modules/sessions/transcription.service';
 
-interface TranscriptEvent {
+export interface TranscriptEvent {
   sessionId: number;
   userId: number;
   transcriptId: string;
@@ -37,7 +37,7 @@ export const sessionTranscriptQueue = new Queue<TranscriptEvent>(
 
 export class SessionTranscriptWorker {
   constructor(
-    private readonly logger: MythWeaverLogger,
+    private readonly logger: Logger,
     private readonly assemblyAIProvider: AssemblyAIProvider,
     private readonly transcriptionService: TranscriptionService,
     private readonly sessionsDataProvider: SessionsDataProvider,
@@ -148,13 +148,5 @@ export class SessionTranscriptWorker {
     await this.webSocketProvider.sendMessage(userId, WebSocketEvent.Error, {
       description: 'Transcript failed to generate properly. Please try again.',
     });
-  }
-
-  async addJob(data: TranscriptEvent): Promise<Job<TranscriptEvent>> {
-    return sessionTranscriptQueue.add(data);
-  }
-
-  async shutdown(): Promise<void> {
-    await sessionTranscriptQueue.close();
   }
 }

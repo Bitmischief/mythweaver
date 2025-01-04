@@ -8,7 +8,7 @@ import {
   Security,
   Tags,
 } from 'tsoa';
-import { TrackingInfo } from '@/lib/tracking';
+import { TrackingInfo } from '@/modules/core/analytics/tracking';
 import { UsersService } from '@/modules/users/users.service';
 import {
   GetUserResponse,

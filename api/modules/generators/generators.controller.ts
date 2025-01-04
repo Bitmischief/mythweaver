@@ -11,7 +11,7 @@ import {
   Route,
 } from 'tsoa';
 import { Conjuration } from '@prisma/client';
-import { TrackingInfo } from '@/lib/tracking';
+import { TrackingInfo } from '@/modules/core/analytics/tracking';
 import { GeneratorsService } from '@/modules/generators/generators.service';
 import {
   GetGeneratorsResponse,

@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import FormData from 'form-data';
 import { v4 as uuidv4 } from 'uuid';
-import { AppError, HttpCode } from '@/lib/errors/AppError';
+import { AppError, HttpCode } from '@/modules/core/errors/AppError';
 import { StorageProvider } from '@/providers/storageProvider';
 import {
   ApiImageGenerationResponse,
@@ -96,9 +96,10 @@ export class StabilityAIProvider {
 
     formData.append('init_image', request.referenceImage, 'init_image.png');
     formData.append('init_image_mode', 'IMAGE_STRENGTH');
-
-    const imageStrength = (request.imageStrength || 35) / 100;
-    formData.append('image_strength', imageStrength.toString());
+    formData.append(
+      'image_strength',
+      (request.imageStrength || 0.35).toString(),
+    );
 
     const response = await axios.post(
       `${this.apiHost}/v1/generation/stable-diffusion-xl-1024-v1-0/image-to-image`,

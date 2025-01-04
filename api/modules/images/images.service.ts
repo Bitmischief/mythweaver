@@ -1,5 +1,5 @@
 import { StabilityAIProvider } from '@/providers/stabilityAI';
-import { MythWeaverLogger } from '@/lib/logger';
+import { Logger } from '@/modules/core/logging/logger';
 import {
   PostImageRequest,
   ImageGenerationRequest,
@@ -8,8 +8,9 @@ import {
   ImageOutpaintRequest,
   ImageEdit,
   ImageEditType,
+  ImageStylePreset,
 } from '@/modules/images/images.interface';
-import { AppError, ErrorType, HttpCode } from '@/lib/errors/AppError';
+import { AppError, ErrorType, HttpCode } from '@/modules/core/errors/AppError';
 import { Image, ImageCreditChangeType, ImageModel } from '@prisma/client';
 import {
   WebSocketProvider,
@@ -33,7 +34,7 @@ export class ImagesService {
     private completedImageService: CompletedImageService,
     private storageProvider: StorageProvider,
     private creditsProvider: CreditsProvider,
-    private logger: MythWeaverLogger,
+    private logger: Logger,
     private webSocketProvider: WebSocketProvider,
   ) {}
 
@@ -364,8 +365,9 @@ export class ImagesService {
 
       await this.webSocketProvider.sendMessage(
         request.userId,
-        WebSocketEvent.Error,
+        WebSocketEvent.ImageGenerationError,
         {
+          imageIds: images.map((image) => image.id),
           description:
             'The image generation service was unable to generate an image.',
           context: {
@@ -384,6 +386,8 @@ export class ImagesService {
     images: Image[],
   ): Promise<void> {
     if (model.stableDiffusionApiModel) {
+      request.imageStrength = this.setImageStrength(request.imageStrength, 4);
+
       const apiImages = await retry(async () => {
         return await this.stabilityAIProvider.generateImage(request);
       });
@@ -395,12 +399,21 @@ export class ImagesService {
         model,
       );
     } else {
+      request.imageStrength = this.setImageStrength(request.imageStrength, 2);
+
       await this.mythweaverImageProvider.generateMythWeaverModelImage(
         request,
         model,
         images,
       );
     }
+  }
+
+  setImageStrength(
+    imageStrength: number | undefined = 35,
+    modifier: number,
+  ): number {
+    return imageStrength / modifier / 100;
   }
 
   async inpaintImage(
@@ -934,6 +947,56 @@ export class ImagesService {
     );
 
     return updatedImage;
+  }
+
+  async retryGeneration(userId: number, imageId: number) {
+    const image = await this.imagesDataProvider.findImage(imageId);
+
+    if (!image) {
+      throw new AppError({
+        description: 'Image not found.',
+        httpCode: HttpCode.NOT_FOUND,
+      });
+    }
+
+    if (image.userId !== userId) {
+      throw new AppError({
+        description: 'You do not have permission to modify this image.',
+        httpCode: HttpCode.FORBIDDEN,
+      });
+    }
+
+    if (!image.modelId) {
+      throw new AppError({
+        description: 'Image model not found.',
+        httpCode: HttpCode.BAD_REQUEST,
+      });
+    }
+
+    const imageModel = await this.imagesDataProvider.findImageModel(
+      image.modelId,
+    );
+
+    if (!imageModel) {
+      throw new AppError({
+        description: 'Image model not found.',
+        httpCode: HttpCode.BAD_REQUEST,
+      });
+    }
+
+    await this.generateRequestedImages(
+      imageModel,
+      {
+        prompt: image.prompt,
+        negativePrompt: image.negativePrompt || undefined,
+        stylePreset: (image.stylePreset as ImageStylePreset) || undefined,
+        width: 1024,
+        height: 1024,
+        userId,
+        count: 1,
+      },
+      [image],
+    );
   }
 
   async deleteImageEdits(userId: number, imageId: number): Promise<Image> {

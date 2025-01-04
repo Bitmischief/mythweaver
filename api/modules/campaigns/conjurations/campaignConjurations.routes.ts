@@ -1,13 +1,13 @@
 import express, { Request, Response } from 'express';
-import { checkAuth0Jwt, useInjectUserId } from '@/lib/authMiddleware';
+import { useInjectUserId } from '@/modules/core/middleware/userMiddleware';
+import { checkAuth0Jwt } from '@/modules/core/middleware/auth0';
 import { z } from 'zod';
 import {
   useValidateRequest,
   ValidationTypes,
-} from '@/lib/validationMiddleware';
-import { injectDependencies } from '@/modules/campaigns/conjurations/campaignConjurations.dependencies';
+} from '@/modules/core/middleware/validationMiddleware';
 import { CampaignConjurationsController } from '@/modules/campaigns/conjurations/campaignConjurations.controller';
-import { useInjectLoggingInfo } from '@/lib/loggingMiddleware';
+import { useInjectLoggingInfo } from '@/modules/core/logging/loggingMiddleware';
 
 const router = express.Router({ mergeParams: true });
 
@@ -23,7 +23,6 @@ router.post('/:conjurationId', [
   useValidateRequest(postCampaignConjurationRouteSchema, {
     validationType: ValidationTypes.Route,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<CampaignConjurationsController>(
       'campaignConjurationsController',
@@ -54,7 +53,6 @@ router.delete('/:conjurationId', [
   useValidateRequest(deleteCampaignConjurationRouteSchema, {
     validationType: ValidationTypes.Route,
   }),
-  injectDependencies,
   async (req: Request, res: Response) => {
     const controller = req.container.resolve<CampaignConjurationsController>(
       'campaignConjurationsController',

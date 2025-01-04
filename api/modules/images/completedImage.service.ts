@@ -1,6 +1,6 @@
 import { Image, ImageModel } from '@prisma/client';
 import { ImagesDataProvider } from '@/modules/images/images.dataprovider';
-import { MythWeaverLogger } from '@/lib/logger';
+import { Logger } from '@/modules/core/logging/logger';
 import {
   ApiImageGenerationResponse,
   ImageGenerationRequest,
@@ -15,7 +15,7 @@ import { CreditsProvider } from '@/providers/creditsProvider';
 
 export class CompletedImageService {
   constructor(
-    private readonly logger: MythWeaverLogger,
+    private readonly logger: Logger,
     private readonly imagesDataProvider: ImagesDataProvider,
     private readonly storageProvider: StorageProvider,
     private readonly creditsProvider: CreditsProvider,
